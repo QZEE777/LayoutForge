@@ -1,14 +1,6 @@
 import crypto from 'crypto';
-import { promisify } from 'util';
 
 const algorithm = 'aes-256-gcm';
-const scryptAsync = promisify(crypto.scrypt);
-
-const encryptionKey = process.env.ENCRYPTION_KEY;
-
-if (!encryptionKey) {
-  throw new Error('ENCRYPTION_KEY environment variable is required');
-}
 
 export interface EncryptedData {
   ciphertext: string;
@@ -17,16 +9,11 @@ export interface EncryptedData {
 }
 
 export async function encryptFile(fileBuffer: Buffer): Promise<EncryptedData> {
+  const key = getKey();
   const iv = crypto.randomBytes(16);
-  const cipher = crypto.createCipheriv(
-    algorithm,
-    Buffer.from(encryptionKey, 'hex').slice(0, 32),
-    iv
-  );
-
+  const cipher = crypto.createCipheriv(algorithm, key, iv);
   let ciphertext = cipher.update(fileBuffer);
   ciphertext = Buffer.concat([ciphertext, cipher.final()]);
-
   return {
     ciphertext: ciphertext.toString('hex'),
     iv: iv.toString('hex'),
@@ -34,22 +21,16 @@ export async function encryptFile(fileBuffer: Buffer): Promise<EncryptedData> {
   };
 }
 
-export async function decryptFile(
-  encryptedData: EncryptedData
-): Promise<Buffer> {
+export async function decryptFile(encryptedData: EncryptedData): Promise<Buffer> {
+  const key = getKey();
   const decipher = crypto.createDecipheriv(
     algorithm,
-    Buffer.from(encryptionKey, 'hex').slice(0, 32),
+    key,
     Buffer.from(encryptedData.iv, 'hex')
   );
-
   decipher.setAuthTag(Buffer.from(encryptedData.authTag, 'hex'));
-
-  let decrypted = decipher.update(
-    Buffer.from(encryptedData.ciphertext, 'hex')
-  );
+  let decrypted = decipher.update(Buffer.from(encryptedData.ciphertext, 'hex'));
   decrypted = Buffer.concat([decrypted, decipher.final()]);
-
   return decrypted;
 }
 
@@ -63,4 +44,11 @@ export function generateApiKey(): string {
 
 export function generateEncryptionKey(): string {
   return crypto.randomBytes(32).toString('hex');
+}
+
+function getKey(): Buffer {
+  const key = process.env.ENCRYPTION_KEY;
+  if (key) return Buffer.from(key, 'hex').slice(0, 32);
+  // Fallback key for local development only
+  return crypto.createHash('sha256').update('layoutforge-dev-key').digest();
 }

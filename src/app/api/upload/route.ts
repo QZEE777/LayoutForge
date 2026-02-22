@@ -21,13 +21,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Parse form data
+    // Parse form data (may fail if body is too large — keep files under 50MB)
     let formData: FormData;
     try {
       formData = await request.formData();
     } catch (e) {
+      const msg = e instanceof Error ? e.message : "Could not parse form data.";
       return NextResponse.json(
-        { error: "Invalid request", message: "Could not parse form data." },
+        {
+          error: "Invalid request",
+          message: msg.includes("size") || msg.includes("limit")
+            ? "File is too large. Use a file under 50MB."
+            : "Could not read upload. Try a smaller file or try again.",
+        },
         { status: 400 }
       );
     }
@@ -66,8 +72,9 @@ export async function POST(request: NextRequest) {
       stored = await saveUpload(buffer, fileEntry.name, fileEntry.type);
     } catch (e) {
       console.error("Save upload error:", e);
+      const msg = e instanceof Error ? e.message : "Could not save file.";
       return NextResponse.json(
-        { error: "Save failed", message: "Could not save file." },
+        { error: "Save failed", message: msg },
         { status: 500 }
       );
     }

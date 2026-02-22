@@ -1,36 +1,33 @@
-import { RateLimiterMemory, RateLimiterRes } from 'rate-limiter-flexible';
+/**
+ * In-memory rate limiter for middleware (no external package).
+ */
 
-const rateLimiter = new RateLimiterMemory({
-  points: 100, // 100 requests
-  duration: 60, // per 60 seconds
-});
-
-const apiRateLimiter = new RateLimiterMemory({
-  points: 1000, // 1000 API calls
-  duration: 3600, // per hour
-});
+const store = new Map<string, { count: number; resetAt: number }>();
+const WINDOW_MS = 60 * 1000; // 1 minute
+const MAX_POINTS = 100; // 100 requests per window
 
 export async function checkRateLimit(identifier: string): Promise<boolean> {
-  try {
-    await rateLimiter.consume(identifier);
-    return true;
-  } catch (e) {
-    return false;
+  const now = Date.now();
+  let entry = store.get(identifier);
+
+  if (!entry || now >= entry.resetAt) {
+    entry = { count: 0, resetAt: now + WINDOW_MS };
+    store.set(identifier, entry);
   }
+
+  entry.count++;
+  return entry.count <= MAX_POINTS;
 }
 
 export async function checkApiRateLimit(
   identifier: string
-): Promise<RateLimiterRes | null> {
-  try {
-    const res = await apiRateLimiter.consume(identifier);
-    return res;
-  } catch (e) {
-    return null;
-  }
+): Promise<{ remainingPoints: number } | null> {
+  const allowed = await checkRateLimit(identifier);
+  return allowed ? { remainingPoints: MAX_POINTS - 1 } : null;
 }
 
 export function getRemainingPoints(identifier: string): number {
-  const state = rateLimiter.limiterRes?.remainingPoints || 100;
-  return state;
+  const entry = store.get(identifier);
+  if (!entry) return MAX_POINTS;
+  return Math.max(0, MAX_POINTS - entry.count);
 }
