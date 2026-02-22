@@ -102,7 +102,7 @@ export function validateUpload(
 
   // Check MIME type
   const mimeType = file.type || "";
-  if (mimeType && !UPLOAD_CONFIG.ALLOWED_MIMES.includes(mimeType)) {
+  if (mimeType && !(UPLOAD_CONFIG.ALLOWED_MIMES as readonly string[]).includes(mimeType)) {
     return {
       valid: false,
       error: {
