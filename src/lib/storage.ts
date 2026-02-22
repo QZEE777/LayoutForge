@@ -1,7 +1,9 @@
 import fs from "fs/promises";
 import path from "path";
 
-const UPLOAD_DIR = path.join(process.cwd(), "data", "uploads");
+const UPLOAD_DIR = process.env.VERCEL
+  ? path.join("/tmp", "uploads")
+  : path.join(process.cwd(), "data", "uploads");
 const MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 export interface StoredManuscript {
