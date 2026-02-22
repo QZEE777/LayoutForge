@@ -39,3 +39,6 @@ Thumbs.db
 # Secrets
 .env.*.local
 secrets/
+
+# Uploaded files (runtime data)
+data/uploads/
