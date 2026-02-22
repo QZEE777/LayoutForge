@@ -92,7 +92,7 @@ export default function PreviewPage() {
         throw new Error(data.message || "Generation failed");
       }
 
-      const data = await res.json();
+      await res.json();
       router.push(`/download/${id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Generation failed");

@@ -19,9 +19,7 @@ export default function DownloadPage() {
   }
 
   const pdfFileName = `${id}-kdp-print.pdf`;
-  const epubFileName = `${id}-kindle.epub`;
   const pdfDownloadUrl = `/api/download/${id}/${encodeURIComponent(pdfFileName)}`;
-  const epubDownloadUrl = `/api/download/${id}/${encodeURIComponent(epubFileName)}`;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">

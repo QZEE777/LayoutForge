@@ -1,0 +1,118 @@
+============================================
+  LAYOUTFORGE - COMPLETE STARTUP GUIDE
+============================================
+
+This is the ONLY guide you need. Follow these steps in order.
+
+============================================
+  STEP 1: Open File Explorer
+============================================
+
+  1. On your Desktop or taskbar, click File Explorer (looks like a folder).
+  
+  2. Type this in the address bar at the top:
+     c:\Users\qqfs7\Desktop\layoutforge
+     
+  3. Press Enter.
+  
+  You should now see the layoutforge folder and all its files.
+
+============================================
+  STEP 2: Run the startup script
+============================================
+
+  1. In the layoutforge folder, find the file: START-HERE.bat
+     (It will have a small gear icon on it.)
+  
+  2. Double-click it.
+  
+  3. A black window will appear. READ WHAT IT SAYS.
+  
+     It will either:
+     
+     a) Say "Checking Node.js installation... [OK]"
+        → The script will continue. Wait and keep reading the window.
+        → It will say "Starting the app server..."
+        → It may say "Installing project dependencies..." (takes 1-2 minutes first time)
+        → Then it will say "Opening your browser..."
+        
+     b) Say "[ERROR] Node.js is installed but not accessible"
+        → SOLUTION: Restart your PC again
+        → After restart, try this guide again from STEP 1
+        
+     c) Say something else that looks like an error
+        → Write down what it says and tell me exactly
+
+============================================
+  STEP 3: After the script runs
+============================================
+
+  Two things should happen:
+  
+  a) A SECOND black window appears (titled "LayoutForge Server")
+     → DO NOT CLOSE THIS WINDOW
+     → Leave it open the whole time you use the app
+     → It will show running messages like "Ready in 2.3s"
+     
+  b) Your browser opens to show LayoutForge
+     → The home page should appear with:
+        - "LayoutForge" at the top
+        - "Professional Manuscript Formatting for KDP"
+        - A blue "Upload Manuscript" button
+     
+     If the browser shows "localhost refused to connect":
+     → Close that browser tab
+     → Wait 10 more seconds
+     → Type this in the address bar: http://127.0.0.1:3000
+     → Press Enter
+
+============================================
+  STEP 4: You're done! Now you can:
+============================================
+
+  1. Click "Upload Manuscript"
+  2. Drag or choose a PDF or DOCX file (under 50MB)
+  3. Click "Upload & Continue"
+  4. See the preview and options
+  5. Click "Generate PDF"
+  6. Download your file
+
+  While you do this, keep that black "LayoutForge Server" window open.
+  When you're finished using the app, you can close it.
+
+============================================
+  TROUBLESHOOTING: Common Problems
+============================================
+
+PROBLEM: "localhost refused to connect"
+  ACTION: 
+    1. Wait 20 seconds
+    2. Press F5 in the browser to refresh
+    3. Or try: http://127.0.0.1:3000
+
+PROBLEM: Black window closes immediately
+  ACTION:
+    1. The app is not running
+    2. Try: Restart your PC
+    3. Then try STEP 2 again
+
+PROBLEM: Black window shows red error text
+  ACTION:
+    1. Write down the error
+    2. Tell me exactly what it says
+
+PROBLEM: Browser shows blank white page
+  ACTION:
+    1. Press F12 to open Developer Tools
+    2. Click the "Console" tab
+    3. Take a screenshot of any red text
+    4. Tell me what you see
+
+============================================
+  THAT'S IT!
+============================================
+
+Follow these 4 steps. If anything goes wrong, tell me exactly 
+what you see in the black window or the browser, and I'll fix it.
+
+You've got this!
