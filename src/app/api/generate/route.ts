@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       const html = result.value || "";
 
       // Convert HTML to plain text with paragraph breaks
-      const text = html
+      const rawText = html
         .replace(/<br\s*\/?>/gi, "\n")
         .replace(/<\/p>/gi, "\n\n")
         .replace(/<\/h[1-6]>/gi, "\n\n")
@@ -72,6 +72,15 @@ export async function POST(request: NextRequest) {
         .replace(/&quot;/g, '"')
         .replace(/&#39;/g, "'")
         .replace(/&nbsp;/g, " ")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
+
+      // Strip characters that WinAnsi (pdf-lib standard fonts) cannot encode
+      // This removes emoji, symbols, and non-Latin unicode
+      const text = rawText
+        .replace(/[\u2000-\uFFFF]/g, "")   // remove all high unicode (emoji, symbols, etc.)
+        .replace(/[\u0080-\u009F]/g, "")   // remove C1 control characters
+        .replace(/[^\x09\x0A\x0D\x20-\xFF]/g, "") // keep only tab, newline, CR, and printable Latin
         .replace(/\n{3,}/g, "\n\n")
         .trim();
 
