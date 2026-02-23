@@ -1,115 +1,94 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStored, writeOutput, updateMeta } from "@/lib/storage";
+import { writeOutput } from "@/lib/storage";
 
 /**
- * GET /api/generate/status?id={fileId}
+ * GET /api/generate/status?id={fileId}&jobId={cloudConvertJobId}
  *
- * Polls CloudConvert for the conversion job status.
- * When the job is done, downloads the converted PDF and stores it.
- * Returns { status: "processing"|"done"|"error", outputFilename? }
+ * Polls CloudConvert for job status.
+ * jobId is passed by the client (returned from POST /api/generate)
+ * so this route does NOT depend on reading /tmp across containers.
  */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
+    const id    = searchParams.get("id");
+    const jobId = searchParams.get("jobId");
 
-    if (!id) {
+    if (!id || !jobId) {
       return NextResponse.json(
-        { error: "Missing ID", message: "Provide ?id=<fileId>" },
+        { status: "error", message: "Missing id or jobId parameters." },
         { status: 400 }
       );
     }
 
-    const meta = await getStored(id);
-    if (!meta) {
+    const apiKey = process.env.CLOUDCONVERT_API_KEY;
+    if (!apiKey) {
       return NextResponse.json(
-        { error: "Not found", message: "File not found or expired." },
-        { status: 404 }
+        { status: "error", message: "API key not configured on server." },
+        { status: 503 }
       );
     }
 
-    const convertStatus = (meta as Record<string, unknown>).convertStatus as string | undefined;
-    const jobId = (meta as Record<string, unknown>).convertJobId as string | undefined;
-
-    // Already completed on a previous poll
-    if (convertStatus === "done") {
-      const outputFilename = (meta as Record<string, unknown>).outputFilename as string;
-      return NextResponse.json({ status: "done", id, outputFilename });
-    }
-
-    if (convertStatus === "error") {
-      return NextResponse.json({ status: "error", message: "Conversion failed." });
-    }
-
-    // Fallback (no API key / sync generation already completed)
-    if (!jobId) {
-      return NextResponse.json({
-        status: convertStatus || "processing",
-        id,
-      });
-    }
-
-    // ----------------------------------------------------------------
-    // Check CloudConvert job status
-    // ----------------------------------------------------------------
-    const apiKey = process.env.CLOUDCONVERT_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json({ status: "error", message: "API key not configured." });
-    }
-
-    const jobRes = await fetch(`https://api.cloudconvert.com/v2/jobs/${jobId}`, {
+    // Poll CloudConvert for job status
+    const jobRes = await fetch(`https://api.cloudconvert.com/v2/jobs/${jobId}?include=tasks`, {
       headers: { Authorization: `Bearer ${apiKey}` },
     });
 
     if (!jobRes.ok) {
-      console.error("CloudConvert status check failed:", jobRes.status);
+      console.error("[status] CloudConvert poll failed:", jobRes.status);
       return NextResponse.json({ status: "processing" });
     }
 
     const job = await jobRes.json();
-    const jobStatus: string = job.data.status; // "waiting" | "processing" | "finished" | "error"
+    const jobStatus: string = job.data?.status ?? "waiting";
+
+    console.log("[status] jobId:", jobId, "| status:", jobStatus);
 
     if (jobStatus === "error") {
-      await updateMeta(id, { convertStatus: "error" });
-      return NextResponse.json({ status: "error", message: "Conversion failed on CloudConvert." });
+      const failedTask = job.data?.tasks?.find(
+        (t: { status: string; message?: string }) => t.status === "error"
+      );
+      const msg = failedTask?.message || "Conversion failed on CloudConvert.";
+      return NextResponse.json({ status: "error", message: msg });
     }
 
     if (jobStatus !== "finished") {
       return NextResponse.json({ status: "processing" });
     }
 
-    // ----------------------------------------------------------------
-    // Job finished — find export task and download the PDF
-    // ----------------------------------------------------------------
-    const exportTask = job.data.tasks.find(
+    // Job finished — find the export URL
+    const exportTask = job.data?.tasks?.find(
       (t: { operation: string; status: string }) =>
         t.operation === "export/url" && t.status === "finished"
     );
 
-    if (!exportTask?.result?.files?.[0]?.url) {
-      console.error("CloudConvert: no export URL found", JSON.stringify(job.data.tasks));
-      return NextResponse.json({ status: "error", message: "Could not retrieve converted file." });
+    const fileUrl: string | undefined = exportTask?.result?.files?.[0]?.url;
+    if (!fileUrl) {
+      console.error("[status] No export URL. Tasks:", JSON.stringify(job.data?.tasks).substring(0, 500));
+      return NextResponse.json(
+        { status: "error", message: "Conversion finished but file URL is missing." }
+      );
     }
 
-    const downloadUrl: string = exportTask.result.files[0].url;
-    const downloadRes = await fetch(downloadUrl);
-    if (!downloadRes.ok) {
-      return NextResponse.json({ status: "error", message: "Failed to download converted PDF." });
+    // Download the converted PDF
+    console.log("[status] Downloading converted PDF from CloudConvert...");
+    const dlRes = await fetch(fileUrl);
+    if (!dlRes.ok) {
+      console.error("[status] PDF download failed:", dlRes.status);
+      return NextResponse.json(
+        { status: "error", message: `Failed to download converted PDF (${dlRes.status}).` }
+      );
     }
 
-    const pdfBuffer = Buffer.from(await downloadRes.arrayBuffer());
+    const pdfBuffer = Buffer.from(await dlRes.arrayBuffer());
     const outputFilename = `${id}-kdp-print.pdf`;
     await writeOutput(id, outputFilename, pdfBuffer);
-
-    await updateMeta(id, {
-      convertStatus: "done",
-      outputFilename,
-    });
+    console.log("[status] PDF saved. Size:", pdfBuffer.length, "bytes");
 
     return NextResponse.json({ status: "done", id, outputFilename });
 
   } catch (e) {
-    console.error("Status route error:", e);
+    console.error("[status] Error:", e);
     return NextResponse.json(
       { status: "error", message: `Status check failed: ${e instanceof Error ? e.message : String(e)}` },
       { status: 500 }
