@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "LayoutForge — KDP Manuscript Formatting",
+  title: "ScribeStack — KDP Manuscript Formatting",
   description: "Professional manuscript formatting for Amazon KDP. Upload PDF, DOCX, or EPUB. Get print-ready PDF with KDP specifications.",
 };
 

@@ -6,7 +6,7 @@ export default function Home() {
       {/* Header */}
       <header className="border-b border-slate-700/50 bg-slate-900/50 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-4 py-6 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-white">LayoutForge</h1>
+          <h1 className="text-2xl font-bold text-white">ScribeStack</h1>
           <nav className="flex gap-4">
             <a
               href="#features"
@@ -64,7 +64,7 @@ export default function Home() {
       <section id="features" className="px-4 py-16 bg-slate-800/50">
         <div className="mx-auto max-w-6xl">
           <h3 className="text-3xl font-bold text-white text-center mb-12">
-            What LayoutForge Does
+            What ScribeStack Does
           </h3>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -224,7 +224,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-slate-700 bg-slate-900/50 px-4 py-8">
         <div className="mx-auto max-w-6xl text-center text-sm text-slate-400">
-          <p>LayoutForge © {new Date().getFullYear()} • KDP Manuscript Formatting Tool</p>
+          <p>ScribeStack © {new Date().getFullYear()} • KDP Manuscript Formatting Tool</p>
           <p className="mt-2">
             Upload files securely • Auto-deleted after 24 hours • No personal data stored
           </p>

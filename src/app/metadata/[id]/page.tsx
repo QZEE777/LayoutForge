@@ -100,7 +100,7 @@ export default function MetadataPage() {
       <header className="border-b border-slate-200 bg-white shadow-sm">
         <div className="mx-auto max-w-4xl px-4 py-4 flex items-center justify-between">
           <Link href="/" className="text-2xl font-bold text-slate-900">
-            LayoutForge
+            ScribeStack
           </Link>
           <Link href="/upload" className="text-sm text-slate-600 hover:text-slate-900">
             Back to Upload
