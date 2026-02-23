@@ -1,0 +1,92 @@
+============================================
+  RUN SCRIBESTACK ON YOUR MACHINE (LOCAL DEV)
+  One step at a time. Do each step, then the next.
+============================================
+
+STEP 1 — Open a terminal on your computer
+-----------------------------------------
+• Press the Windows key, type:  powershell
+• Click "Windows PowerShell" (or "Terminal")
+• A blue or black window opens. That is your terminal.
+
+
+STEP 2 — Go to the project folder
+---------------------------------
+• In that window, type exactly (then press Enter):
+
+  cd Desktop\layoutforge
+
+• If your project is somewhere else (e.g. Documents), use that path instead, for example:
+
+  cd Documents\layoutforge
+
+
+STEP 3 — Create your local API key file (one-time)
+-------------------------------------------------
+• In the same PowerShell window, type:
+
+  notepad .env.local
+
+• If Notepad says "Do you want to create a new file?" click Yes.
+• In the file, type this on the first line (replace with your real key if you have it):
+
+  ANTHROPIC_API_KEY=paste_your_key_here
+
+• For KDP Formatter on local dev you can also add (optional):
+
+  CLOUDCONVERT_API_KEY=paste_your_cloudconvert_key_here
+
+• Save the file (Ctrl+S) and close Notepad.
+• Do NOT commit .env.local to Git. It is already in .gitignore.
+
+
+STEP 4 — Install dependencies (first time only)
+----------------------------------------------
+• In the same PowerShell window, type:
+
+  npm install
+
+• Wait until it finishes (no red errors). You only need to do this once, or when we add new packages.
+
+
+STEP 5 — Start the app
+----------------------
+• In the same PowerShell window, type:
+
+  npm run dev
+
+• Wait until you see something like: "Ready on http://localhost:3000"
+
+
+STEP 6 — Open the app in your browser
+-------------------------------------
+• Open Chrome, Edge, or any browser.
+• In the address bar type:
+
+  http://localhost:3000
+
+• Press Enter. You should see the ScribeStack homepage.
+
+
+STEP 7 — When you are done
+--------------------------
+• In the PowerShell window where the app is running, press Ctrl+C to stop the server.
+• You can close the window after that.
+
+============================================
+  TROUBLESHOOTING
+============================================
+
+• "npm is not recognized"
+  → Install Node.js from https://nodejs.org (LTS version), then close and reopen PowerShell, and try again from Step 2.
+
+• "Cannot find module" or "Module not found"
+  → Run Step 4 again: npm install
+
+• Page says "ANTHROPIC_API_KEY is not set" when using Description Generator
+  → Make sure .env.local exists in the project folder (Step 3) and contains ANTHROPIC_API_KEY=your_key
+
+• You want to use the live site instead of local
+  → Use your Vercel URL (e.g. layout-forge.vercel.app). No need to run anything on your machine.
+
+============================================

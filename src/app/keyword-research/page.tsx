@@ -1,27 +1,19 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import Link from "next/link";
 
-interface Result {
-  amazonDescription: string;
-  authorBioTemplate: string;
-  seoKeywords: string[];
-  bisacCategories: Array<{ code: string; explanation: string }>;
-}
-
-export default function DescriptionGeneratorPage() {
+export default function KeywordResearchPage() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<Result | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [keywords, setKeywords] = useState<string[] | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     setFile(f || null);
     setError(null);
-    setResult(null);
+    setKeywords(null);
   };
 
   const handleSubmit = async () => {
@@ -30,18 +22,18 @@ export default function DescriptionGeneratorPage() {
       return;
     }
     setError(null);
-    setResult(null);
+    setKeywords(null);
     setLoading(true);
     try {
       const form = new FormData();
       form.append("file", file);
-      const res = await fetch("/api/description-generator", { method: "POST", body: form });
+      const res = await fetch("/api/keyword-research", { method: "POST", body: form });
       const data = await res.json();
       if (!res.ok) {
         setError(data.message || data.error || "Something went wrong.");
         return;
       }
-      setResult(data);
+      setKeywords(data.keywords || []);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Request failed.");
     } finally {
@@ -56,8 +48,7 @@ export default function DescriptionGeneratorPage() {
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-md bg-blue-600 flex items-center justify-center">
               <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
               </svg>
             </div>
             <span className="text-lg font-bold text-white">ScribeStack</span>
@@ -72,15 +63,14 @@ export default function DescriptionGeneratorPage() {
       </header>
 
       <main className="flex-1 mx-auto max-w-3xl w-full px-6 py-10">
-        <h1 className="text-3xl font-bold text-white mb-2">Amazon Description Generator</h1>
+        <h1 className="text-3xl font-bold text-white mb-2">7 Keyword Research</h1>
         <p className="text-slate-400 mb-8">
-          Upload your manuscript (.docx or .pdf). We use the first 3,000 words to generate a KDP-ready description, author bio template, SEO keywords, and BISAC suggestions.
+          Upload your manuscript (.docx or .pdf). Claude suggests 7 Amazon KDP keyword phrases from the first 3,000 words.
         </p>
 
         <div className="rounded-2xl bg-slate-800/50 border border-slate-700/60 p-6 mb-8">
           <label className="block text-sm font-medium text-slate-300 mb-2">Manuscript file</label>
           <input
-            ref={inputRef}
             type="file"
             accept=".docx,.pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf"
             onChange={handleFileChange}
@@ -91,9 +81,9 @@ export default function DescriptionGeneratorPage() {
             type="button"
             onClick={handleSubmit}
             disabled={loading || !file}
-            className="mt-4 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="mt-4 rounded-xl bg-emerald-600 px-6 py-3 font-semibold text-white hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {loading ? "Analyzing…" : "Analyze Manuscript"}
+            {loading ? "Getting keywords…" : "Get 7 Keywords"}
           </button>
         </div>
 
@@ -101,35 +91,16 @@ export default function DescriptionGeneratorPage() {
           <div className="rounded-xl bg-red-500/10 border border-red-500/30 p-4 text-red-400 text-sm mb-8">{error}</div>
         )}
 
-        {result && (
-          <div className="space-y-8">
-            <div className="rounded-2xl bg-slate-800/50 border border-slate-700/60 p-6">
-              <h2 className="text-lg font-bold text-white mb-3">Amazon book description (KDP-ready HTML)</h2>
-              <div className="rounded-lg bg-slate-900/60 border border-slate-700 p-4 text-slate-300 text-sm leading-relaxed prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: result.amazonDescription }} />
-            </div>
-            <div className="rounded-2xl bg-slate-800/50 border border-slate-700/60 p-6">
-              <h2 className="text-lg font-bold text-white mb-3">Author bio template</h2>
-              <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">{result.authorBioTemplate}</p>
-            </div>
-            <div className="rounded-2xl bg-slate-800/50 border border-slate-700/60 p-6">
-              <h2 className="text-lg font-bold text-white mb-3">7 SEO keywords</h2>
-              <ul className="flex flex-wrap gap-2">
-                {result.seoKeywords.map((kw, i) => (
-                  <li key={i} className="rounded-lg bg-slate-700/80 px-3 py-1.5 text-sm text-slate-200">{kw}</li>
-                ))}
-              </ul>
-            </div>
-            <div className="rounded-2xl bg-slate-800/50 border border-slate-700/60 p-6">
-              <h2 className="text-lg font-bold text-white mb-3">2 recommended BISAC categories</h2>
-              <ul className="space-y-4">
-                {result.bisacCategories.map((b, i) => (
-                  <li key={i} className="border-l-2 border-blue-500 pl-4">
-                    <span className="font-mono text-blue-400">{b.code}</span>
-                    <p className="text-slate-300 text-sm mt-1">{b.explanation}</p>
-                  </li>
-                ))}
-              </ul>
-            </div>
+        {keywords && keywords.length > 0 && (
+          <div className="rounded-2xl bg-slate-800/50 border border-slate-700/60 p-6">
+            <h2 className="text-lg font-bold text-white mb-3">7 Amazon KDP keyword phrases</h2>
+            <ul className="flex flex-wrap gap-2">
+              {keywords.map((kw, i) => (
+                <li key={i} className="rounded-lg bg-emerald-500/20 border border-emerald-500/40 px-4 py-2 text-sm text-emerald-200 font-medium">
+                  {kw}
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </main>

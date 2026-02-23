@@ -30,11 +30,20 @@ const tools: Tool[] = [
     iconPath: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253",
   },
   {
+    id: "keyword-research",
+    title: "7 Keyword Research",
+    description: "Get 7 Amazon KDP keyword phrases from your manuscript. Claude-powered, no guesswork.",
+    href: "/keyword-research",
+    available: true,
+    color: "emerald",
+    iconPath: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7",
+  },
+  {
     id: "description-generator",
     title: "Amazon Description Generator",
     description: "AI-powered book descriptions with SEO keywords baked in. Write once, rank everywhere on Amazon search.",
     href: "/description-generator",
-    available: false,
+    available: true,
     color: "amber",
     iconPath: "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z",
   },
@@ -54,6 +63,7 @@ const colors: Record<string, Record<string, string>> = {
   purple: { icon: "text-purple-400", hover: "hover:border-purple-500/50", btn: "bg-purple-600 hover:bg-purple-700" },
   amber:  { icon: "text-amber-400",  hover: "hover:border-amber-500/50",  btn: "bg-amber-600 hover:bg-amber-700" },
   green:  { icon: "text-green-400",  hover: "hover:border-green-500/50",  btn: "bg-green-600 hover:bg-green-700" },
+  emerald: { icon: "text-emerald-400", hover: "hover:border-emerald-500/50", btn: "bg-emerald-600 hover:bg-emerald-700" },
 };
 
 export default function Home() {
