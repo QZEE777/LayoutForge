@@ -1,235 +1,222 @@
 import Link from "next/link";
 
+interface Tool {
+  id: string;
+  title: string;
+  description: string;
+  href: string;
+  available: boolean;
+  color: string;
+  iconPath: string;
+}
+
+const tools: Tool[] = [
+  {
+    id: "kdp-formatter",
+    title: "KDP Formatter",
+    description: "Format your manuscript for Amazon KDP print. Upload DOCX or PDF, choose your trim size, and get a print-ready PDF in seconds.",
+    href: "/kdp-formatter",
+    available: true,
+    color: "blue",
+    iconPath: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
+  },
+  {
+    id: "epub-maker",
+    title: "Kindle EPUB Maker",
+    description: "Convert your manuscript to a Kindle-ready EPUB file. Proper chapter structure, metadata, and formatting for eBook distribution.",
+    href: "/epub-maker",
+    available: false,
+    color: "purple",
+    iconPath: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253",
+  },
+  {
+    id: "description-generator",
+    title: "Amazon Description Generator",
+    description: "AI-powered book descriptions with SEO keywords baked in. Write once, rank everywhere on Amazon search.",
+    href: "/description-generator",
+    available: false,
+    color: "amber",
+    iconPath: "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z",
+  },
+  {
+    id: "royalty-calculator",
+    title: "KDP Royalty Calculator",
+    description: "Calculate your exact earnings before you publish. Factor in page count, trim size, marketplace, and royalty rate.",
+    href: "/royalty-calculator",
+    available: false,
+    color: "green",
+    iconPath: "M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z",
+  },
+];
+
+const colors: Record<string, Record<string, string>> = {
+  blue:   { icon: "text-blue-400",   hover: "hover:border-blue-500/50",   btn: "bg-blue-600 hover:bg-blue-700" },
+  purple: { icon: "text-purple-400", hover: "hover:border-purple-500/50", btn: "bg-purple-600 hover:bg-purple-700" },
+  amber:  { icon: "text-amber-400",  hover: "hover:border-amber-500/50",  btn: "bg-amber-600 hover:bg-amber-700" },
+  green:  { icon: "text-green-400",  hover: "hover:border-green-500/50",  btn: "bg-green-600 hover:bg-green-700" },
+};
+
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      {/* Header */}
-      <header className="border-b border-slate-700/50 bg-slate-900/50 backdrop-blur-sm">
-        <div className="mx-auto max-w-6xl px-4 py-6 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-white">ScribeStack</h1>
-          <nav className="flex gap-4">
-            <a
-              href="#features"
-              className="text-sm text-slate-300 hover:text-white transition-colors"
-            >
-              Features
-            </a>
-            <a
-              href="#about"
-              className="text-sm text-slate-300 hover:text-white transition-colors"
-            >
-              About
-            </a>
-          </nav>
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+
+      {/* Sticky header */}
+      <header className="sticky top-0 z-10 border-b border-slate-800 bg-slate-950/80 backdrop-blur-sm">
+        <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-md bg-blue-600 flex items-center justify-center flex-shrink-0">
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            </div>
+            <span className="text-lg font-bold text-white tracking-tight">ScribeStack</span>
+          </div>
+          <Link
+            href="/kdp-formatter"
+            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+          >
+            Get Started
+          </Link>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative px-4 py-24 sm:py-32">
-        <div className="mx-auto max-w-4xl text-center">
-          <h2 className="text-5xl sm:text-6xl font-bold tracking-tight text-white mb-6">
-            Professional Manuscript Formatting for KDP
-          </h2>
-          <p className="text-xl text-slate-300 mb-8 leading-relaxed">
-            Upload your manuscript once. Get a print-ready PDF and formatted file in minutes. 
-            Amazon KDP compliant. Professional typography. No design skills required.
+      {/* Hero section */}
+      <section className="px-6 pt-20 pb-16 text-center">
+        <div className="mx-auto max-w-3xl">
+          <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-1.5 text-sm text-blue-300 mb-8">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+            Built for indie authors and self-publishers
+          </div>
+          <h1 className="text-5xl sm:text-6xl font-bold text-white tracking-tight mb-6 leading-tight">
+            One platform.{" "}
+            <span className="text-blue-400">Every publishing tool</span>{" "}
+            you need.
+          </h1>
+          <p className="text-xl text-slate-400 leading-relaxed mb-10 max-w-2xl mx-auto">
+            Stop bouncing between apps. ScribeStack gives indie authors
+            professional-grade tools — each one focused on doing a single job
+            exceptionally well.
           </p>
-
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link
-              href="/upload"
-              className="rounded-lg bg-blue-600 px-8 py-4 text-lg font-semibold text-white hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
-            >
-              Upload Manuscript
-            </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="#features"
-              className="rounded-lg border border-slate-500 px-8 py-4 text-lg font-semibold text-white hover:bg-slate-800 transition-colors"
+              href="#tools"
+              className="rounded-lg bg-blue-600 px-8 py-4 text-lg font-semibold text-white hover:bg-blue-700 transition-colors shadow-lg shadow-blue-900/30"
             >
-              Learn More
+              Browse Tools
             </a>
-          </div>
-
-          {/* Trust badges */}
-          <div className="mt-12 flex justify-center gap-8 text-sm text-slate-400">
-            <div>✓ KDP Compliant</div>
-            <div>✓ Secure & Private</div>
-            <div>✓ No Setup Required</div>
+            <Link
+              href="/kdp-formatter"
+              className="rounded-lg border border-slate-600 px-8 py-4 text-lg font-semibold text-slate-300 hover:bg-slate-800 transition-colors"
+            >
+              Try KDP Formatter Free
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="px-4 py-16 bg-slate-800/50">
+      {/* Stats */}
+      <div className="border-y border-slate-800 bg-slate-900/50 py-6 mb-16">
+        <div className="mx-auto max-w-4xl px-6 grid grid-cols-3 gap-8 text-center">
+          <div>
+            <p className="text-2xl font-bold text-white">4</p>
+            <p className="text-sm text-slate-400 mt-1">Tools planned</p>
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-white">1</p>
+            <p className="text-sm text-slate-400 mt-1">Live now</p>
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-white">Free</p>
+            <p className="text-sm text-slate-400 mt-1">During beta</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Tools grid */}
+      <section id="tools" className="px-6 pb-24">
         <div className="mx-auto max-w-6xl">
-          <h3 className="text-3xl font-bold text-white text-center mb-12">
-            What ScribeStack Does
-          </h3>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Feature 1 */}
-            <div className="rounded-lg bg-slate-700/50 p-8 border border-slate-600/50 hover:border-blue-500/50 transition-colors">
-              <div className="w-12 h-12 rounded-lg bg-blue-600/20 flex items-center justify-center mb-4">
-                <svg
-                  className="w-6 h-6 text-blue-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
-              <h4 className="text-lg font-semibold text-white mb-2">
-                Print-Ready PDF
-              </h4>
-              <p className="text-slate-300">
-                Professional PDF with KDP-compliant trim sizes, margins, and bleed settings for perfect paperbacks.
-              </p>
-            </div>
-
-            {/* Feature 2 */}
-            <div className="rounded-lg bg-slate-700/50 p-8 border border-slate-600/50 hover:border-blue-500/50 transition-colors">
-              <div className="w-12 h-12 rounded-lg bg-blue-600/20 flex items-center justify-center mb-4">
-                <svg
-                  className="w-6 h-6 text-blue-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
-                  />
-                </svg>
-              </div>
-              <h4 className="text-lg font-semibold text-white mb-2">
-                Easy Customization
-              </h4>
-              <p className="text-slate-300">
-                Choose trim size, font size, and bleed settings. Preview your options before generating the final PDF.
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="rounded-lg bg-slate-700/50 p-8 border border-slate-600/50 hover:border-blue-500/50 transition-colors">
-              <div className="w-12 h-12 rounded-lg bg-blue-600/20 flex items-center justify-center mb-4">
-                <svg
-                  className="w-6 h-6 text-blue-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
-                </svg>
-              </div>
-              <h4 className="text-lg font-semibold text-white mb-2">
-                Instant Results
-              </h4>
-              <p className="text-slate-300">
-                Generate your PDF in seconds. Download and upload directly to Amazon KDP. No waiting, no BS.
-              </p>
-            </div>
+          <div className="mb-10">
+            <h2 className="text-3xl font-bold text-white mb-2">The Tools</h2>
+            <p className="text-slate-400">Each one does a single job — and does it right.</p>
           </div>
-        </div>
-      </section>
 
-      {/* Supported Formats */}
-      <section className="px-4 py-16">
-        <div className="mx-auto max-w-4xl">
-          <h3 className="text-3xl font-bold text-white text-center mb-8">
-            Supported File Formats
-          </h3>
-          <div className="grid md:grid-cols-3 gap-6 text-center">
-            <div className="rounded-lg bg-slate-700/30 p-6 border border-slate-600/50">
-              <p className="text-2xl mb-2">📄</p>
-              <p className="font-semibold text-white">PDF</p>
-              <p className="text-sm text-slate-400">Text extraction</p>
-            </div>
-            <div className="rounded-lg bg-slate-700/30 p-6 border border-slate-600/50">
-              <p className="text-2xl mb-2">📝</p>
-              <p className="font-semibold text-white">DOCX</p>
-              <p className="text-sm text-slate-400">Full support</p>
-            </div>
-            <div className="rounded-lg bg-slate-700/30 p-6 border border-slate-600/50">
-              <p className="text-2xl mb-2">📚</p>
-              <p className="font-semibold text-white">EPUB</p>
-              <p className="text-sm text-slate-400">Compatible</p>
-            </div>
+          <div className="grid sm:grid-cols-2 gap-6">
+            {tools.map((tool) => {
+              const c = colors[tool.color];
+              return (
+                <div
+                  key={tool.id}
+                  className={`relative rounded-2xl border border-slate-700/60 bg-slate-800/50 p-8 flex flex-col transition-all duration-200 ${c.hover}`}
+                >
+                  {/* Status badge */}
+                  <div className="absolute top-5 right-5">
+                    {tool.available ? (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-green-500/20 border border-green-500/30 px-2.5 py-1 text-xs font-medium text-green-300">
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                        Live
+                      </span>
+                    ) : (
+                      <span className="rounded-full bg-slate-700 border border-slate-600 px-2.5 py-1 text-xs font-medium text-slate-400">
+                        Coming Soon
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Icon */}
+                  <div className={`w-12 h-12 rounded-xl bg-slate-700/80 flex items-center justify-center mb-5 ${c.icon}`}>
+                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={tool.iconPath} />
+                    </svg>
+                  </div>
+
+                  <h3 className="text-xl font-bold text-white mb-3 pr-20">{tool.title}</h3>
+                  <p className="text-slate-400 text-sm leading-relaxed flex-1 mb-6">
+                    {tool.description}
+                  </p>
+
+                  {tool.available ? (
+                    <Link
+                      href={tool.href}
+                      className={`inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white transition-colors ${c.btn}`}
+                    >
+                      Launch Tool
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </Link>
+                  ) : (
+                    <button
+                      disabled
+                      className="inline-flex items-center justify-center rounded-xl px-5 py-3 text-sm font-medium text-slate-500 bg-slate-700/40 cursor-not-allowed border border-slate-700/60"
+                    >
+                      Notify Me When Ready
+                    </button>
+                  )}
+                </div>
+              );
+            })}
           </div>
-        </div>
-      </section>
-
-      {/* KDP Specs */}
-      <section id="about" className="px-4 py-16 bg-slate-800/50">
-        <div className="mx-auto max-w-4xl">
-          <h3 className="text-3xl font-bold text-white text-center mb-8">
-            KDP Compliance
-          </h3>
-          <div className="rounded-lg bg-slate-700/50 p-8 border border-slate-600/50">
-            <div className="grid md:grid-cols-2 gap-8">
-              <div>
-                <h4 className="font-semibold text-white mb-4">Trim Sizes</h4>
-                <ul className="space-y-2 text-slate-300 text-sm">
-                  <li>• 5" × 8"</li>
-                  <li>• 5.5" × 8.5"</li>
-                  <li>• 6" × 9" (most popular)</li>
-                  <li>• 8.5" × 11"</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold text-white mb-4">Features</h4>
-                <ul className="space-y-2 text-slate-300 text-sm">
-                  <li>✓ Professional margins</li>
-                  <li>✓ Bleed support (0.125")</li>
-                  <li>✓ Page-count based gutter</li>
-                  <li>✓ Print-ready quality</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="px-4 py-20">
-        <div className="mx-auto max-w-2xl text-center">
-          <h3 className="text-4xl font-bold text-white mb-6">
-            Ready to format your manuscript?
-          </h3>
-          <p className="text-lg text-slate-300 mb-8">
-            Get your KDP-ready PDF in minutes, not hours.
-          </p>
-          <Link
-            href="/upload"
-            className="inline-block rounded-lg bg-blue-600 px-10 py-4 text-lg font-semibold text-white hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
-          >
-            Start Formatting Now
-          </Link>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-700 bg-slate-900/50 px-4 py-8">
-        <div className="mx-auto max-w-6xl text-center text-sm text-slate-400">
-          <p>ScribeStack © {new Date().getFullYear()} • KDP Manuscript Formatting Tool</p>
-          <p className="mt-2">
-            Upload files securely • Auto-deleted after 24 hours • No personal data stored
-          </p>
+      <footer className="border-t border-slate-800 bg-slate-950/60 px-6 py-8">
+        <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 rounded bg-blue-600 flex items-center justify-center">
+              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            </div>
+            <span className="font-medium text-slate-400">ScribeStack</span>
+            <span>{new Date().getFullYear()}</span>
+          </div>
+          <p>Files auto-deleted after 24 hours. No personal data stored.</p>
         </div>
       </footer>
+
     </div>
   );
 }

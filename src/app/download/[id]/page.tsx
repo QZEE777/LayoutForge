@@ -11,7 +11,7 @@ export default function DownloadPage() {
     return (
       <div className="min-h-screen bg-slate-50 p-8">
         <p className="text-red-600">Invalid file ID.</p>
-        <Link href="/upload" className="mt-4 block text-blue-600 hover:underline">
+        <Link href="/kdp-formatter" className="mt-4 block text-blue-600 hover:underline">
           Upload a file
         </Link>
       </div>
@@ -29,7 +29,7 @@ export default function DownloadPage() {
           <Link href="/" className="text-2xl font-bold text-slate-900">
             ScribeStack
           </Link>
-          <Link href="/upload" className="text-sm text-slate-600 hover:text-slate-900">
+          <Link href="/kdp-formatter" className="text-sm text-slate-600 hover:text-slate-900">
             New upload
           </Link>
         </div>
@@ -165,7 +165,7 @@ export default function DownloadPage() {
             Download PDF
           </a>
           <Link
-            href="/upload"
+            href="/kdp-formatter"
             className="flex-1 rounded-lg border border-slate-300 px-6 py-3 text-center font-medium text-slate-700 hover:bg-slate-50 transition-colors"
           >
             Format Another

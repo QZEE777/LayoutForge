@@ -14,7 +14,7 @@ export default function DashboardPage() {
           <Link href="/" className="text-2xl font-bold text-slate-900">
             ScribeStack
           </Link>
-          <Link href="/upload" className="text-sm text-blue-600 hover:underline">
+          <Link href="/kdp-formatter" className="text-sm text-blue-600 hover:underline">
             New Upload
           </Link>
         </div>
@@ -97,7 +97,7 @@ export default function DashboardPage() {
         {/* Quick Links */}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
           <Link
-            href="/upload"
+            href="/kdp-formatter"
             className="rounded-lg bg-blue-600 px-6 py-3 text-center font-medium text-white hover:bg-blue-700 transition-colors"
           >
             Start New Project

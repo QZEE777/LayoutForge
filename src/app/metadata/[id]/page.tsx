@@ -102,7 +102,7 @@ export default function MetadataPage() {
           <Link href="/" className="text-2xl font-bold text-slate-900">
             ScribeStack
           </Link>
-          <Link href="/upload" className="text-sm text-slate-600 hover:text-slate-900">
+          <Link href="/kdp-formatter" className="text-sm text-slate-600 hover:text-slate-900">
             Back to Upload
           </Link>
         </div>
