@@ -9,12 +9,6 @@ async function docxText(buffer: Buffer): Promise<string> {
   return ((r.value as string) || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 }
 
-/** Extract raw text from a PDF buffer by keeping readable ASCII (no pdf-parse). */
-function pdfText(buffer: Buffer): string {
-  const raw = buffer.toString("latin1");
-  const readable = raw.replace(/[^\x20-\x7E\n\r\t]/g, " ").replace(/\s+/g, " ").trim();
-  return readable;
-}
 function firstNWords(text: string, n: number): string {
   const words = text.split(/\s+/).filter((w) => w.length > 0);
   return words.slice(0, n).join(" ");
@@ -31,8 +25,9 @@ export async function POST(request: NextRequest) {
     const isDocx = name.endsWith(".docx") || f.type.includes("wordprocessingml");
     const isPdf = name.endsWith(".pdf") || f.type === "application/pdf";
     if (!isDocx && !isPdf) return NextResponse.json({ error: "Unsupported format", message: "Only .docx and .pdf allowed." }, { status: 400 });
+    if (isPdf) return NextResponse.json({ error: "PDF not supported", message: "PDF upload is not supported yet. Please convert your PDF to .docx and try again." }, { status: 400 });
     const buffer = Buffer.from(await f.arrayBuffer());
-    const text = isDocx ? await docxText(buffer) : pdfText(buffer);
+    const text = await docxText(buffer);
     if (!text || text.length < 100) return NextResponse.json({ error: "Too little text", message: "Could not extract enough text." }, { status: 400 });
     const apiKey = process.env.ANTHROPIC_API_KEY;
     console.log("keyword-research: ANTHROPIC_API_KEY length:", apiKey?.length ?? 0);

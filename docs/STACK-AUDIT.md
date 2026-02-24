@@ -45,7 +45,7 @@
 
 ## Description generator model
 
-- `src/app/api/description-generator/route.ts` uses `claude-3-5-haiku-20241022`. Keyword research uses `claude-haiku-4-5-20251001`. Consider aligning to the same model constant for consistency and easier updates.
+- Both `description-generator` and `keyword-research` use `claude-haiku-4-5-20251001`.
 
 ---
 

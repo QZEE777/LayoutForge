@@ -26,12 +26,6 @@ async function extractTextFromDocx(buffer: Buffer): Promise<string> {
     .trim();
 }
 
-function extractTextFromPdf(buffer: Buffer): string {
-  const raw = buffer.toString("latin1");
-  const readable = raw.replace(/[^\x20-\x7E\n\r\t]/g, " ").replace(/\s+/g, " ").trim();
-  return readable;
-}
-
 function firstNWords(text: string, n: number): string {
   const words = text.split(/\s+/).filter((w) => w.length > 0);
   return words.slice(0, n).join(" ");
@@ -76,16 +70,16 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+    if (isPdf) {
+      return NextResponse.json(
+        { error: "PDF not supported", message: "PDF upload is not supported yet. Please convert your PDF to .docx and try again." },
+        { status: 400 }
+      );
+    }
 
     const arrayBuffer = await f.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-
-    let text: string;
-    if (isDocx) {
-      text = await extractTextFromDocx(buffer);
-    } else {
-      text = extractTextFromPdf(buffer);
-    }
+    const text = await extractTextFromDocx(buffer);
 
     if (!text || text.length < 100) {
       return NextResponse.json(
