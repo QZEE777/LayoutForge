@@ -3,6 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 
+const MAX_SIZE_BYTES = 4 * 1024 * 1024; // 4MB
+const SIZE_ERROR = "Your PDF is too large. For best results, upload the first 10 pages only (under 4MB). Full PDF support coming soon.";
+
 export default function KeywordResearchPdfPage() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -11,14 +14,28 @@ export default function KeywordResearchPdfPage() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
-    setFile(f || null);
-    setError(null);
     setKeywords(null);
+    if (!f) {
+      setFile(null);
+      setError(null);
+      return;
+    }
+    if (f.size > MAX_SIZE_BYTES) {
+      setFile(null);
+      setError(SIZE_ERROR);
+      return;
+    }
+    setFile(f);
+    setError(null);
   };
 
   const handleSubmit = async () => {
     if (!file) {
       setError("Please choose a PDF file first.");
+      return;
+    }
+    if (file.size > MAX_SIZE_BYTES) {
+      setError(SIZE_ERROR);
       return;
     }
     setError(null);
