@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "ScribeStack — KDP Manuscript Formatting",
-  description: "Professional manuscript formatting for Amazon KDP. Upload PDF, DOCX, or EPUB. Get print-ready PDF with KDP specifications.",
+  description: "Professional manuscript formatting for Amazon KDP. Upload .docx. Get print-ready PDF with KDP specifications.",
 };
 
 export default function RootLayout({
