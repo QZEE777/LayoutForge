@@ -8,6 +8,7 @@ interface Tool {
   available: boolean;
   color: string;
   iconPath: string;
+  badge?: string;
 }
 
 const tools: Tool[] = [
@@ -50,20 +51,32 @@ const tools: Tool[] = [
   {
     id: "keyword-research-pdf",
     title: "7 Keyword Research (PDF)",
-    description: "Same as above but for PDF manuscripts. Upload .pdf, get 7 KDP keyword phrases. Text-based PDFs only.",
+    description: "Upload PDF, get 7 KDP keyword phrases. Text-based PDFs only. Claude-powered.",
     href: "/keyword-research-pdf",
     available: true,
     color: "emerald",
     iconPath: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7",
+    badge: "PDF",
   },
   {
     id: "description-generator-pdf",
     title: "Amazon Description Generator (PDF)",
-    description: "Same as above but for PDF manuscripts. Upload .pdf, get description, bio template, keywords, and BISAC. Text-based PDFs only.",
+    description: "Upload PDF, get description, bio template, keywords, and BISAC. Text-based PDFs only.",
     href: "/description-generator-pdf",
     available: true,
     color: "amber",
     iconPath: "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z",
+    badge: "PDF",
+  },
+  {
+    id: "kdp-formatter-pdf",
+    title: "KDP Formatter (PDF)",
+    description: "Upload PDF, convert to KDP-ready print PDF via CloudConvert. One format, one job.",
+    href: "/kdp-formatter-pdf",
+    available: true,
+    color: "blue",
+    iconPath: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
+    badge: "PDF",
   },
   {
     id: "royalty-calculator",
@@ -122,9 +135,7 @@ export default function Home() {
             you need.
           </h1>
           <p className="text-xl text-slate-400 leading-relaxed mb-10 max-w-2xl mx-auto">
-            Stop bouncing between apps. ScribeStack gives indie authors
-            professional-grade tools — each one focused on doing a single job
-            exceptionally well.
+            Every tool does one job. One format. One purpose. Built for maximum performance and reliability.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
@@ -177,8 +188,13 @@ export default function Home() {
                   key={tool.id}
                   className={`relative rounded-2xl border border-slate-700/60 bg-slate-800/50 p-8 flex flex-col transition-all duration-200 ${c.hover}`}
                 >
-                  {/* Status badge */}
-                  <div className="absolute top-5 right-5">
+                  {/* Status badge + PDF badge */}
+                  <div className="absolute top-5 right-5 flex items-center gap-2">
+                    {tool.badge && (
+                      <span className="inline-flex rounded-full bg-red-500/20 border border-red-500/30 px-2.5 py-1 text-xs font-medium text-red-300">
+                        {tool.badge}
+                      </span>
+                    )}
                     {tool.available ? (
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-green-500/20 border border-green-500/30 px-2.5 py-1 text-xs font-medium text-green-300">
                         <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />

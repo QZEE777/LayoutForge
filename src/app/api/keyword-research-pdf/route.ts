@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { extractTextFromPdfBuffer } from "@/lib/pdfText";
+import { getDocumentProxy, extractText } from "unpdf";
 
 const MAX_WORDS = 1000;
 const ANTHROPIC_MODEL = "claude-haiku-4-5-20251001";
@@ -17,14 +17,17 @@ export async function POST(request: NextRequest) {
     if (!file || !(file instanceof Blob)) return NextResponse.json({ error: "No file", message: "Send a file with field name file." }, { status: 400 });
     const f = file as File;
     const name = (f.name || "").toLowerCase();
-    const isPdf = name.endsWith(".pdf") || f.type === "application/pdf";
-    if (!isPdf) return NextResponse.json({ error: "Unsupported format", message: "This tool accepts .pdf files only." }, { status: 400 });
+    if (!name.endsWith(".pdf") && f.type !== "application/pdf") {
+      return NextResponse.json({ error: "Unsupported format", message: "This tool accepts PDF files only." }, { status: 400 });
+    }
     const buffer = Buffer.from(await f.arrayBuffer());
-    const text = await extractTextFromPdfBuffer(buffer);
-    if (!text || text.length < 100) return NextResponse.json({ error: "Too little text", message: "Could not extract enough text from the PDF. Use a text-based PDF (not a scan)." }, { status: 400 });
+    const pdf = await getDocumentProxy(new Uint8Array(buffer));
+    const { text } = await extractText(pdf, { mergePages: true });
+    const raw = (text || "").replace(/\s+/g, " ").trim();
+    if (!raw || raw.length < 100) return NextResponse.json({ error: "Too little text", message: "Could not extract enough text from the PDF. Use a text-based PDF (not a scan)." }, { status: 400 });
+    const excerpt = firstNWords(raw, MAX_WORDS);
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) return NextResponse.json({ error: "Not configured", message: "ANTHROPIC_API_KEY is not set." }, { status: 503 });
-    const excerpt = firstNWords(text, MAX_WORDS);
     const userPrompt = "From this manuscript excerpt, suggest exactly 7 keyword phrases for Amazon KDP book search. Return only a JSON object with one key: \"keywords\" (array of exactly 7 strings). No other text.\n\nExcerpt:\n\n" + excerpt;
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -34,15 +37,9 @@ export async function POST(request: NextRequest) {
     if (!res.ok) {
       const errText = await res.text();
       let msg = "Keyword generation failed. Check your API key and credits.";
-      if (res.status === 401) msg = "Invalid API key. Update ANTHROPIC_API_KEY in Vercel (or .env.local) and redeploy.";
-      else if (res.status === 403) msg = "Access denied. Check your API key has access to the Messages API.";
-      else if (res.status === 429) msg = "Rate limited or out of credits. Try again later.";
-      else {
-        try {
-          const errJson = JSON.parse(errText) as { error?: { message?: string } };
-          if (errJson?.error?.message) msg = errJson.error.message;
-        } catch { /* ignore */ }
-      }
+      if (res.status === 401) msg = "Invalid API key.";
+      else if (res.status === 429) msg = "Rate limited. Try again later.";
+      else try { const j = JSON.parse(errText) as { error?: { message?: string } }; if (j?.error?.message) msg = j.error.message; } catch { /* ignore */ }
       return NextResponse.json({ error: "AI service error", message: msg }, { status: 502 });
     }
     const data = (await res.json()) as { content?: Array<{ type: string; text?: string }> };

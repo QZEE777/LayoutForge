@@ -18,7 +18,7 @@ export default function KeywordResearchPdfPage() {
 
   const handleSubmit = async () => {
     if (!file) {
-      setError("Please choose a .pdf file first.");
+      setError("Please choose a PDF file first.");
       return;
     }
     setError(null);
@@ -65,11 +65,11 @@ export default function KeywordResearchPdfPage() {
       <main className="flex-1 mx-auto max-w-3xl w-full px-6 py-10">
         <h1 className="text-3xl font-bold text-white mb-2">7 Keyword Research (PDF)</h1>
         <p className="text-slate-400 mb-8">
-          Upload your manuscript (.pdf). Claude suggests 7 Amazon KDP keyword phrases from the first 1,000 words. Text-based PDFs only (not scans).
+          Upload your PDF manuscript. Claude suggests 7 Amazon KDP keyword phrases from the first 1,000 words. Text-based PDFs only (not scans).
         </p>
 
         <div className="rounded-2xl bg-slate-800/50 border border-slate-700/60 p-6 mb-8">
-          <label className="block text-sm font-medium text-slate-300 mb-2">Manuscript file (PDF)</label>
+          <label className="block text-sm font-medium text-slate-300 mb-2">Manuscript file (PDF only)</label>
           <input
             type="file"
             accept=".pdf,application/pdf"

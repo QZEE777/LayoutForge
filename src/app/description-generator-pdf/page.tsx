@@ -26,7 +26,7 @@ export default function DescriptionGeneratorPdfPage() {
 
   const handleSubmit = async () => {
     if (!file) {
-      setError("Please choose a .pdf file first.");
+      setError("Please choose a PDF file first.");
       return;
     }
     setError(null);
@@ -74,11 +74,11 @@ export default function DescriptionGeneratorPdfPage() {
       <main className="flex-1 mx-auto max-w-3xl w-full px-6 py-10">
         <h1 className="text-3xl font-bold text-white mb-2">Amazon Description Generator (PDF)</h1>
         <p className="text-slate-400 mb-8">
-          Upload your manuscript (.pdf). We use the first 3,000 words to generate a KDP-ready description, author bio template, SEO keywords, and BISAC suggestions. Text-based PDFs only (not scans).
+          Upload your PDF manuscript. We use the first 1,000 words to generate a KDP-ready description, author bio template, SEO keywords, and BISAC suggestions. Text-based PDFs only (not scans).
         </p>
 
         <div className="rounded-2xl bg-slate-800/50 border border-slate-700/60 p-6 mb-8">
-          <label className="block text-sm font-medium text-slate-300 mb-2">Manuscript file (PDF)</label>
+          <label className="block text-sm font-medium text-slate-300 mb-2">Manuscript file (PDF only)</label>
           <input
             ref={inputRef}
             type="file"
