@@ -76,6 +76,21 @@ export async function saveMeta(meta: StoredManuscript): Promise<void> {
   await fs.writeFile(metaPath, JSON.stringify(meta), "utf-8");
 }
 
+/** Save compression job meta (no file stored; client uploads directly to CloudConvert). */
+export async function saveCompressionMeta(
+  id: string,
+  jobId: string,
+  leadEmail: string
+): Promise<void> {
+  await ensureUploadDir();
+  const metaPath = path.join(UPLOAD_DIR, `${id}.compression.json`);
+  await fs.writeFile(
+    metaPath,
+    JSON.stringify({ id, jobId, leadEmail, createdAt: Date.now() }),
+    "utf-8"
+  );
+}
+
 /** Merge partial fields into an existing meta file. */
 export async function updateMeta(
   id: string,

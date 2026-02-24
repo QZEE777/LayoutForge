@@ -63,25 +63,37 @@ export default function PdfCompressPage() {
     setProgress(0);
 
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("email", trimmedEmail);
-      const progressInterval = setInterval(() => setProgress((p) => Math.min(p + 10, 85)), 200);
-      const response = await fetch("/api/pdf-compress", { method: "POST", body: formData });
-      clearInterval(progressInterval);
-      setProgress(90);
-
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data.message || "Compression start failed.");
+      // Step 1: Get upload URL from our API (no file sent – avoids body size limit)
+      setProgress(5);
+      const initRes = await fetch("/api/pdf-compress", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: trimmedEmail }),
+      });
+      if (!initRes.ok) {
+        const data = await initRes.json().catch(() => ({}));
+        throw new Error(data.message || "Could not start compression.");
       }
+      const initData = await initRes.json();
+      const { id, jobId, uploadUrl, formParameters } = initData;
+      if (!id || !jobId || !uploadUrl || !formParameters) throw new Error("Server did not return upload details.");
 
-      const data = await response.json();
-      const id = data.id;
-      const jobId = data.jobId;
-      if (!id || !jobId) throw new Error("Server did not return id or jobId.");
+      // Step 2: Upload file directly to CloudConvert
+      setProgress(15);
+      const uploadForm = new FormData();
+      for (const [key, val] of Object.entries(formParameters)) uploadForm.append(key, val);
+      const inputFilename = file.name.toLowerCase().endsWith(".pdf") ? file.name : "document.pdf";
+      uploadForm.append("file", file, inputFilename);
 
+      const uploadRes = await fetch(uploadUrl, { method: "POST", body: uploadForm });
+      if (!uploadRes.ok && uploadRes.status !== 204) {
+        throw new Error(`Upload failed (${uploadRes.status}). Try a smaller file or try again.`);
+      }
+      setProgress(40);
+
+      // Step 3: Poll until compression is done
       while (true) {
+        setProgress((p) => Math.min(p + 5, 90));
         const result = await pollStatus(id, jobId);
         if (result.done && result.outputFilename) {
           setProgress(100);
@@ -193,7 +205,7 @@ export default function PdfCompressPage() {
             {compressing && progress > 0 && (
               <div>
                 <div className="mb-2 flex justify-between text-sm text-slate-400">
-                  <span>{progress < 90 ? "Uploading…" : "Compressing…"}</span>
+                  <span>{progress < 20 ? "Preparing…" : progress < 50 ? "Uploading…" : "Compressing…"}</span>
                   <span>{progress}%</span>
                 </div>
                 <div className="h-2 rounded-full bg-slate-700 overflow-hidden">

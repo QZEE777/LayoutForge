@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { saveUpload, updateMeta } from "@/lib/storage";
+import { saveCompressionMeta } from "@/lib/storage";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -14,40 +14,27 @@ function parseCloudConvertError(body: string): string {
   return "";
 }
 
+/**
+ * POST with JSON { email } only. Creates CloudConvert job and returns upload URL + form
+ * params so the client can upload the file directly (avoids Vercel body size limit).
+ */
 export async function POST(request: NextRequest) {
   try {
     const apiKey = process.env.CLOUDCONVERT_API_KEY;
     if (!apiKey) return NextResponse.json({ error: "Service not configured", message: "CLOUDCONVERT_API_KEY is not set." }, { status: 503 });
 
-    const formData = await request.formData().catch(() => null);
-    if (!formData) return NextResponse.json({ error: "Invalid request", message: "Could not read upload." }, { status: 400 });
-
-    const email = (formData.get("email") as string)?.trim();
+    let email: string;
+    try {
+      const body = await request.json();
+      email = (body?.email as string)?.trim();
+    } catch {
+      return NextResponse.json({ error: "Invalid request", message: "Send JSON with email." }, { status: 400 });
+    }
     if (!email || !EMAIL_REGEX.test(email)) {
       return NextResponse.json({ error: "Invalid email", message: "Please enter a valid email address." }, { status: 400 });
     }
 
-    const file = formData.get("file");
-    if (!file || !(file instanceof Blob)) return NextResponse.json({ error: "No file", message: "Please select a PDF file." }, { status: 400 });
-    const f = file as File;
-    const name = (f.name || "").toLowerCase();
-    if (!name.endsWith(".pdf") && f.type !== "application/pdf") {
-      return NextResponse.json({ error: "Unsupported format", message: "Only PDF files are supported." }, { status: 400 });
-    }
-
-    const buffer = Buffer.from(await f.arrayBuffer());
-    const inputFilename = name.endsWith(".pdf") ? name : "document.pdf";
-
-    let id: string;
-    try {
-      const stored = await saveUpload(buffer, inputFilename, "application/pdf");
-      id = stored.id;
-      await updateMeta(id, { leadEmail: email });
-    } catch (storageErr) {
-      console.error("[pdf-compress] saveUpload failed:", storageErr);
-      const msg = storageErr instanceof Error ? storageErr.message : "Storage failed.";
-      return NextResponse.json({ error: "Storage error", message: msg }, { status: 500 });
-    }
+    const id = crypto.randomUUID();
 
     const jobRes = await fetch("https://api.cloudconvert.com/v2/jobs", {
       method: "POST",
@@ -84,18 +71,16 @@ export async function POST(request: NextRequest) {
     if (!jobId) return NextResponse.json({ error: "Compression error", message: "No job id from service." }, { status: 502 });
     if (!form?.url) return NextResponse.json({ error: "Compression error", message: "Could not get upload URL." }, { status: 502 });
 
-    const uploadForm = new FormData();
-    for (const [key, val] of Object.entries(form.parameters)) uploadForm.append(key, val);
-    uploadForm.append("file", new Blob([buffer], { type: "application/pdf" }), inputFilename);
+    await saveCompressionMeta(id, jobId, email);
 
-    const uploadRes = await fetch(form.url, { method: "POST", body: uploadForm });
-    if (!uploadRes.ok && uploadRes.status !== 204) {
-      const uploadErr = await uploadRes.text();
-      console.error("[pdf-compress] Upload failed:", uploadRes.status, uploadErr?.substring(0, 200));
-      return NextResponse.json({ error: "Upload failed", message: `File upload failed (${uploadRes.status}).` }, { status: 502 });
-    }
-
-    return NextResponse.json({ success: true, id, jobId, status: "processing", message: "Compression started." });
+    return NextResponse.json({
+      success: true,
+      id,
+      jobId,
+      uploadUrl: form.url,
+      formParameters: form.parameters,
+      message: "Upload your file to the returned URL, then poll status.",
+    });
   } catch (e) {
     console.error("PDF compress error:", e);
     const message = e instanceof Error ? e.message : "Request failed.";
