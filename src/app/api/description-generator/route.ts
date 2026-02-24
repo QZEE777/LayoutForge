@@ -5,7 +5,7 @@ const ALLOWED_MIMES = [
   "application/pdf",
 ] as const;
 const MAX_WORDS = 3000;
-const ANTHROPIC_MODEL = "claude-3-5-haiku-20241022";
+const ANTHROPIC_MODEL = "claude-haiku-4-5-20251001";
 
 export interface DescriptionGeneratorResult {
   amazonDescription: string;

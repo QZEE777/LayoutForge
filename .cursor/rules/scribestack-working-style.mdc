@@ -1,0 +1,12 @@
+---
+description: ScribeStack/LayoutForge working relationship and autonomy
+alwaysApply: true
+---
+
+# ScribeStack Project – Working Style
+
+- **User**: Ideas person; input is minimal by design.
+- **AI (coder)**: Implements and maintains the product; do everything you can without asking.
+- Only ask when a real decision is needed (e.g. API keys, business/UX choices, spend).
+- **Keyword generator (7 Keyword Research)** and **Amazon Description Generator** are confirmed working.
+- Prefer acting over proposing when the path is clear.
