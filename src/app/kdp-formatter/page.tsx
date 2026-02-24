@@ -4,7 +4,7 @@ import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-const ALLOWED_TYPES = [".docx", ".pdf", ".epub"];
+const ALLOWED_TYPES = [".docx"];
 const MAX_MB = 50;
 
 export default function KdpFormatterPage() {
@@ -18,7 +18,7 @@ export default function KdpFormatterPage() {
   const validateFile = useCallback((f: File): string | null => {
     const ext = f.name.toLowerCase().slice(f.name.lastIndexOf("."));
     if (!ALLOWED_TYPES.includes(ext)) {
-      return `Only ${ALLOWED_TYPES.join(", ")} files are accepted.`;
+      return "Only .docx files are accepted.";
     }
     if (f.size > MAX_MB * 1024 * 1024) {
       return `File must be smaller than ${MAX_MB}MB.`;
@@ -113,7 +113,7 @@ export default function KdpFormatterPage() {
       <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-sm">
         <div className="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-md bg-blue-600 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-md bg-green-600 flex items-center justify-center">
               <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                   d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -131,9 +131,9 @@ export default function KdpFormatterPage() {
       </header>
 
       {/* Tool banner */}
-      <div className="border-b border-slate-800 bg-blue-900/20">
+      <div className="border-b border-slate-800 bg-green-900/20">
         <div className="mx-auto max-w-4xl px-6 py-3 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-blue-600/30 border border-blue-500/30 flex items-center justify-center text-blue-400">
+          <div className="w-8 h-8 rounded-lg bg-green-600/30 border border-green-500/30 flex items-center justify-center text-green-400">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -152,14 +152,14 @@ export default function KdpFormatterPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white">Upload your manuscript</h1>
           <p className="mt-2 text-slate-400">
-            Supports DOCX, PDF, and EPUB. Maximum {MAX_MB}MB.
+            Supports DOCX only. Maximum {MAX_MB}MB.
           </p>
         </div>
 
         {/* Steps indicator */}
         <div className="mb-8 flex items-center gap-2 text-sm">
-          <span className="flex items-center gap-1.5 text-blue-400 font-medium">
-            <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">1</span>
+          <span className="flex items-center gap-1.5 text-green-400 font-medium">
+            <span className="w-6 h-6 rounded-full bg-green-600 text-white flex items-center justify-center text-xs font-bold">1</span>
             Upload
           </span>
           <span className="text-slate-700 mx-1">——</span>
@@ -181,14 +181,14 @@ export default function KdpFormatterPage() {
           onDrop={handleDrop}
           className={`rounded-2xl border-2 border-dashed p-14 text-center transition-all ${
             isDragging
-              ? "border-blue-400 bg-blue-500/10"
+              ? "border-green-400 bg-green-500/10"
               : "border-slate-700 bg-slate-800/40 hover:border-slate-500 hover:bg-slate-800/60"
           }`}
         >
           <input
             type="file"
             id="file-input"
-            accept={ALLOWED_TYPES.join(",")}
+            accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             onChange={handleFileSelect}
             disabled={uploading}
             className="hidden"
@@ -199,8 +199,8 @@ export default function KdpFormatterPage() {
           >
             {file ? (
               <div>
-                <div className="w-12 h-12 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center mx-auto mb-3">
-                  <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-12 h-12 rounded-xl bg-green-600/20 border border-green-500/30 flex items-center justify-center mx-auto mb-3">
+                  <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
@@ -219,10 +219,10 @@ export default function KdpFormatterPage() {
                 </div>
                 <p className="text-slate-300 font-medium">
                   Drag and drop here, or{" "}
-                  <span className="text-blue-400 hover:text-blue-300">browse files</span>
+                  <span className="text-green-400 hover:text-green-300">browse files</span>
                 </p>
                 <p className="mt-2 text-xs text-slate-500">
-                  {ALLOWED_TYPES.join(", ")} • up to {MAX_MB}MB
+                  .docx only • up to {MAX_MB}MB
                 </p>
               </div>
             )}
@@ -245,7 +245,7 @@ export default function KdpFormatterPage() {
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-slate-700">
               <div
-                className="h-full bg-blue-500 transition-all duration-300 rounded-full"
+                className="h-full bg-green-500 transition-all duration-300 rounded-full"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -257,7 +257,7 @@ export default function KdpFormatterPage() {
           <button
             onClick={handleUpload}
             disabled={!file || uploading}
-            className="flex-1 rounded-xl bg-blue-600 px-6 py-3.5 font-semibold text-white hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 rounded-xl bg-green-600 px-6 py-3.5 font-semibold text-white hover:bg-green-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             {uploading ? "Uploading..." : "Upload & Continue"}
           </button>
