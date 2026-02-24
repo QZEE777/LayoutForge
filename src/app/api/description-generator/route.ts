@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { extractTextFromPdfBuffer } from "@/lib/pdfText";
 
 const ALLOWED_MIMES = [
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/pdf",
 ] as const;
 const MAX_WORDS = 3000;
 const ANTHROPIC_MODEL = "claude-haiku-4-5-20251001";
@@ -65,24 +67,18 @@ export async function POST(request: NextRequest) {
     const isPdf = mime === "application/pdf" || name.endsWith(".pdf");
     if (!isDocx && !isPdf) {
       return NextResponse.json(
-        { error: "Unsupported format", message: "Only .docx files are allowed." },
-        { status: 400 }
-      );
-    }
-    if (isPdf) {
-      return NextResponse.json(
-        { error: "PDF not supported", message: "Please upload a .docx file. PDF support coming soon." },
+        { error: "Unsupported format", message: "Only .docx or .pdf files are allowed." },
         { status: 400 }
       );
     }
 
     const arrayBuffer = await f.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    const text = await extractTextFromDocx(buffer);
+    const text = isDocx ? await extractTextFromDocx(buffer) : await extractTextFromPdfBuffer(buffer);
 
     if (!text || text.length < 100) {
       return NextResponse.json(
-        { error: "Too little text", message: "Could not extract enough text from the file. Try a different .docx file." },
+        { error: "Too little text", message: "Could not extract enough text from the file. Try a .docx or text-based PDF." },
         { status: 400 }
       );
     }

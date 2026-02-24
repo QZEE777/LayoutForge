@@ -14,7 +14,7 @@ const tools: Tool[] = [
   {
     id: "kdp-formatter",
     title: "KDP Formatter",
-    description: "Format your manuscript for Amazon KDP print. Upload .docx, choose your trim size, and get a print-ready PDF in seconds.",
+    description: "Format your manuscript for Amazon KDP print. Upload DOCX or PDF, choose your trim size, and get a print-ready PDF in seconds.",
     href: "/kdp-formatter",
     available: true,
     color: "blue",

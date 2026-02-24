@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { extractTextFromPdfBuffer } from "@/lib/pdfText";
 
 const MAX_WORDS = 1000;
 const ANTHROPIC_MODEL = "claude-haiku-4-5-20251001";
 
+/** DOCX-only: use mammoth. Do not use for PDF. */
 async function docxText(buffer: Buffer): Promise<string> {
   const mammoth = (await import("mammoth")).default;
   const r = await mammoth.convertToHtml({ buffer });
@@ -24,10 +26,9 @@ export async function POST(request: NextRequest) {
     const name = (f.name || "").toLowerCase();
     const isDocx = name.endsWith(".docx") || f.type.includes("wordprocessingml");
     const isPdf = name.endsWith(".pdf") || f.type === "application/pdf";
-    if (!isDocx && !isPdf) return NextResponse.json({ error: "Unsupported format", message: "Only .docx files are allowed." }, { status: 400 });
-    if (isPdf) return NextResponse.json({ error: "PDF not supported", message: "Please upload a .docx file. PDF support coming soon." }, { status: 400 });
+    if (!isDocx && !isPdf) return NextResponse.json({ error: "Unsupported format", message: "Only .docx or .pdf files are allowed." }, { status: 400 });
     const buffer = Buffer.from(await f.arrayBuffer());
-    const text = await docxText(buffer);
+    const text = isDocx ? await docxText(buffer) : await extractTextFromPdfBuffer(buffer);
     if (!text || text.length < 100) return NextResponse.json({ error: "Too little text", message: "Could not extract enough text." }, { status: 400 });
     const apiKey = process.env.ANTHROPIC_API_KEY;
     console.log("keyword-research: ANTHROPIC_API_KEY length:", apiKey?.length ?? 0);

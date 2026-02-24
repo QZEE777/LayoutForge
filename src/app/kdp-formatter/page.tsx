@@ -4,7 +4,7 @@ import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-const ALLOWED_TYPES = [".docx"];
+const ALLOWED_TYPES = [".docx", ".pdf", ".epub"];
 const MAX_MB = 50;
 
 export default function KdpFormatterPage() {
@@ -152,7 +152,7 @@ export default function KdpFormatterPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white">Upload your manuscript</h1>
           <p className="mt-2 text-slate-400">
-            .docx only. Maximum {MAX_MB}MB.
+            Supports DOCX, PDF, and EPUB. Maximum {MAX_MB}MB.
           </p>
         </div>
 
