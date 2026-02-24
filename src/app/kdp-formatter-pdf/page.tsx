@@ -114,7 +114,7 @@ export default function KdpFormatterPdfPage() {
         const result = await pollStatus(id, jId);
         if (result.done) {
           setProgress(100);
-          router.push(`/download/${id}`);
+          router.push(`/download/${id}?source=pdf`);
           return;
         }
         await new Promise((r) => setTimeout(r, 2000));

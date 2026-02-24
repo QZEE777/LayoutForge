@@ -1,17 +1,20 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 export default function DownloadPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const id = typeof params.id === "string" ? params.id : "";
+  const isPdfFlow = searchParams.get("source") === "pdf";
+  const s = isPdfFlow ? { box: "bg-blue-50 border-blue-200", title: "text-blue-900", text: "text-blue-800", card: "border-blue-600 bg-blue-50 hover:bg-blue-100", icon: "text-blue-600", btn: "bg-blue-600 hover:bg-blue-700", link: "text-blue-600" } : { box: "bg-green-50 border-green-200", title: "text-green-900", text: "text-green-800", card: "border-green-600 bg-green-50 hover:bg-green-100", icon: "text-green-600", btn: "bg-green-600 hover:bg-green-700", link: "text-green-600" };
 
   if (!id) {
     return (
       <div className="min-h-screen bg-slate-50 p-8">
         <p className="text-red-600">Invalid file ID.</p>
-        <Link href="/kdp-formatter" className="mt-4 block text-green-600 hover:underline">
+        <Link href={isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"} className={`mt-4 block ${s.link} hover:underline`}>
           Upload a file
         </Link>
       </div>
@@ -29,7 +32,7 @@ export default function DownloadPage() {
           <Link href="/" className="text-2xl font-bold text-slate-900">
             ScribeStack
           </Link>
-          <Link href="/kdp-formatter" className="text-sm text-slate-600 hover:text-slate-900">
+          <Link href={isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"} className="text-sm text-slate-600 hover:text-slate-900">
             New upload
           </Link>
         </div>
@@ -38,9 +41,9 @@ export default function DownloadPage() {
       {/* Main content */}
       <main className="mx-auto max-w-2xl px-4 py-12">
         {/* Success message */}
-        <div className="mb-8 rounded-lg bg-green-50 border border-green-200 p-6">
-          <h1 className="text-2xl font-bold text-green-900">PDF Generated!</h1>
-          <p className="mt-2 text-green-800">
+        <div className={`mb-8 rounded-lg border p-6 ${s.box}`}>
+          <h1 className={`text-2xl font-bold ${s.title}`}>PDF Generated!</h1>
+          <p className={`mt-2 ${s.text}`}>
             Your KDP-compliant PDF is ready for download.
           </p>
         </div>
@@ -54,11 +57,11 @@ export default function DownloadPage() {
             <a
               href={pdfDownloadUrl}
               download={pdfFileName}
-              className="flex items-center gap-4 rounded-lg border-2 border-green-600 bg-green-50 p-6 hover:bg-green-100 transition-colors"
+              className={`flex items-center gap-4 rounded-lg border-2 p-6 transition-colors ${s.card}`}
             >
               <div className="flex-shrink-0">
                 <svg
-                  className="h-12 w-12 text-green-600"
+                  className={`h-12 w-12 ${s.icon}`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -79,7 +82,7 @@ export default function DownloadPage() {
               </div>
               <div className="flex-shrink-0">
                 <svg
-                  className="h-6 w-6 text-green-600"
+                  className={`h-6 w-6 ${s.icon}`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -119,7 +122,7 @@ export default function DownloadPage() {
                   Your KDP PDF is ready to download. To also get an EPUB file for eBook distribution, use the free tool <strong>Calibre</strong>:
                 </p>
                 <ol className="mt-3 text-sm text-slate-700 space-y-1 ml-4 list-decimal">
-                  <li>Download Calibre from <a href="https://calibre-ebook.com" target="_blank" rel="noopener noreferrer" className="text-green-600 hover:underline">calibre-ebook.com</a></li>
+                  <li>Download Calibre from <a href="https://calibre-ebook.com" target="_blank" rel="noopener noreferrer" className={`${s.link} hover:underline`}>calibre-ebook.com</a></li>
                   <li>Open your downloaded PDF in Calibre</li>
                   <li>Click "Convert books" and choose EPUB as output</li>
                 </ol>
@@ -160,12 +163,12 @@ export default function DownloadPage() {
           <a
             href={pdfDownloadUrl}
             download={pdfFileName}
-            className="flex-1 rounded-lg bg-green-600 px-6 py-3 text-center font-medium text-white hover:bg-green-700 transition-colors"
+            className={`flex-1 rounded-lg px-6 py-3 text-center font-medium text-white transition-colors ${s.btn}`}
           >
             Download PDF
           </a>
           <Link
-            href="/kdp-formatter"
+            href={isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"}
             className="flex-1 rounded-lg border border-slate-300 px-6 py-3 text-center font-medium text-slate-700 hover:bg-slate-50 transition-colors"
           >
             Format Another
