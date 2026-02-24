@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getDocumentProxy, extractText } from "unpdf";
 
 const MAX_WORDS = 1000;
 const ANTHROPIC_MODEL = "claude-haiku-4-5-20251001";
@@ -21,6 +20,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unsupported format", message: "This tool accepts PDF files only." }, { status: 400 });
     }
     const buffer = Buffer.from(await f.arrayBuffer());
+    const { getDocumentProxy, extractText } = await import("unpdf");
     const pdf = await getDocumentProxy(new Uint8Array(buffer));
     const { text } = await extractText(pdf, { mergePages: true });
     const raw = (text || "").replace(/\s+/g, " ").trim();
