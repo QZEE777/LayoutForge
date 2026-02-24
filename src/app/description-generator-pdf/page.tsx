@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 
 const MAX_SIZE_BYTES = 4 * 1024 * 1024; // 4MB
-const SIZE_ERROR = "Your PDF is too large. For best results, upload the first 10 pages only (under 4MB). Full PDF support coming soon.";
+const SIZE_ERROR_MESSAGE = "Your PDF is too large. For best results, upload the first 10 pages only (under 4MB), or compress it first with our free PDF Compressor.";
 
 interface Result {
   amazonDescription: string;
@@ -30,7 +30,7 @@ export default function DescriptionGeneratorPdfPage() {
     }
     if (f.size > MAX_SIZE_BYTES) {
       setFile(null);
-      setError(SIZE_ERROR);
+      setError(SIZE_ERROR_MESSAGE);
       return;
     }
     setFile(f);
@@ -43,7 +43,7 @@ export default function DescriptionGeneratorPdfPage() {
       return;
     }
     if (file.size > MAX_SIZE_BYTES) {
-      setError(SIZE_ERROR);
+      setError(SIZE_ERROR_MESSAGE);
       return;
     }
     setError(null);
@@ -124,7 +124,14 @@ export default function DescriptionGeneratorPdfPage() {
         </div>
 
         {error && (
-          <div className="rounded-xl bg-red-500/10 border border-red-500/30 p-4 text-red-400 text-sm mb-8">{error}</div>
+          <div className="rounded-xl bg-red-500/10 border border-red-500/30 p-4 text-red-400 text-sm mb-8">
+            {error}
+            {error === SIZE_ERROR_MESSAGE && (
+              <Link href="/pdf-compress" className="mt-2 block text-red-300 hover:text-red-200 font-medium">
+                Free PDF Compressor →
+              </Link>
+            )}
+          </div>
         )}
 
         {result && (

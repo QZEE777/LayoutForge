@@ -25,6 +25,8 @@ export interface StoredManuscript {
   pageCount?: number;
   wordCount?: number;
   title?: string;
+  // Lead magnet (e.g. PDF compressor)
+  leadEmail?: string;
 }
 
 export async function ensureUploadDir(): Promise<string> {
