@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { extractTextFromPdfBuffer } from "@/lib/pdfText";
 
-const ALLOWED_MIMES = [
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-] as const;
 const MAX_WORDS = 3000;
 const ANTHROPIC_MODEL = "claude-haiku-4-5-20251001";
 
@@ -11,19 +9,6 @@ export interface DescriptionGeneratorResult {
   authorBioTemplate: string;
   seoKeywords: string[];
   bisacCategories: Array<{ code: string; explanation: string }>;
-}
-
-/** DOCX only. Use mammoth. */
-async function extractTextFromDocx(buffer: Buffer): Promise<string> {
-  const mammoth = (await import("mammoth")).default;
-  const result = await mammoth.convertToHtml({ buffer });
-  const html = result.value || "";
-  return html
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<\/p>/gi, "\n\n")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
 }
 
 function firstNWords(text: string, n: number): string {
@@ -60,30 +45,21 @@ export async function POST(request: NextRequest) {
     }
 
     const f = file as File;
-    const mime = f.type;
     const name = (f.name || "").toLowerCase();
-    const isPdf = mime === "application/pdf" || name.endsWith(".pdf");
-    if (isPdf) {
+    const isPdf = name.endsWith(".pdf") || f.type === "application/pdf";
+    if (!isPdf) {
       return NextResponse.json(
-        { error: "PDF not supported", message: "This tool accepts .docx files only." },
-        { status: 400 }
-      );
-    }
-    const isDocx = mime === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || name.endsWith(".docx");
-    if (!isDocx) {
-      return NextResponse.json(
-        { error: "Unsupported format", message: "This tool accepts .docx files only." },
+        { error: "Unsupported format", message: "This tool accepts .pdf files only." },
         { status: 400 }
       );
     }
 
-    const arrayBuffer = await f.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    const text = await extractTextFromDocx(buffer);
+    const buffer = Buffer.from(await f.arrayBuffer());
+    const text = await extractTextFromPdfBuffer(buffer);
 
     if (!text || text.length < 100) {
       return NextResponse.json(
-        { error: "Too little text", message: "Could not extract enough text from the file. Try a different .docx file." },
+        { error: "Too little text", message: "Could not extract enough text from the PDF. Use a text-based PDF (not a scan)." },
         { status: 400 }
       );
     }
@@ -124,11 +100,9 @@ Respond with only the JSON object, no other text.`;
       console.error("Anthropic API error:", res.status, errText.slice(0, 500));
       let userMessage = `Description generation failed (${res.status}).`;
       try {
-        const errJson = JSON.parse(errText) as { error?: { message?: string; type?: string } };
+        const errJson = JSON.parse(errText) as { error?: { message?: string } };
         if (errJson?.error?.message) userMessage = errJson.error.message;
-      } catch {
-        /* use default */
-      }
+      } catch { /* use default */ }
       return NextResponse.json(
         { error: "AI service error", message: userMessage },
         { status: 502 }
@@ -144,7 +118,6 @@ Respond with only the JSON object, no other text.`;
       const jsonStr = rawText.replace(/^```json\s*|\s*```$/g, "").trim();
       parsed = JSON.parse(jsonStr) as DescriptionGeneratorResult;
     } catch {
-      console.error("Failed to parse Claude response as JSON:", rawText.slice(0, 200));
       return NextResponse.json(
         { error: "Invalid response", message: "AI did not return valid JSON." },
         { status: 502 }
@@ -160,7 +133,7 @@ Respond with only the JSON object, no other text.`;
 
     return NextResponse.json(parsed);
   } catch (e) {
-    console.error("Description generator error:", e);
+    console.error("Description generator PDF error:", e);
     return NextResponse.json(
       { error: "Internal error", message: e instanceof Error ? e.message : "Request failed." },
       { status: 500 }

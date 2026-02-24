@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 
-export default function KeywordResearchPage() {
+export default function KeywordResearchPdfPage() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -18,7 +18,7 @@ export default function KeywordResearchPage() {
 
   const handleSubmit = async () => {
     if (!file) {
-      setError("Please choose a .docx file first.");
+      setError("Please choose a .pdf file first.");
       return;
     }
     setError(null);
@@ -27,7 +27,7 @@ export default function KeywordResearchPage() {
     try {
       const form = new FormData();
       form.append("file", file);
-      const res = await fetch("/api/keyword-research", { method: "POST", body: form });
+      const res = await fetch("/api/keyword-research-pdf", { method: "POST", body: form });
       const data = await res.json();
       if (!res.ok) {
         setError(data.message || data.error || "Something went wrong.");
@@ -63,16 +63,16 @@ export default function KeywordResearchPage() {
       </header>
 
       <main className="flex-1 mx-auto max-w-3xl w-full px-6 py-10">
-        <h1 className="text-3xl font-bold text-white mb-2">7 Keyword Research</h1>
+        <h1 className="text-3xl font-bold text-white mb-2">7 Keyword Research (PDF)</h1>
         <p className="text-slate-400 mb-8">
-          Upload your manuscript (.docx or .pdf). Claude suggests 7 Amazon KDP keyword phrases from the first 3,000 words.
+          Upload your manuscript (.pdf). Claude suggests 7 Amazon KDP keyword phrases from the first 1,000 words. Text-based PDFs only (not scans).
         </p>
 
         <div className="rounded-2xl bg-slate-800/50 border border-slate-700/60 p-6 mb-8">
-          <label className="block text-sm font-medium text-slate-300 mb-2">Manuscript file</label>
+          <label className="block text-sm font-medium text-slate-300 mb-2">Manuscript file (PDF)</label>
           <input
             type="file"
-            accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            accept=".pdf,application/pdf"
             onChange={handleFileChange}
             className="block w-full text-sm text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-slate-700 file:text-white file:font-medium"
           />

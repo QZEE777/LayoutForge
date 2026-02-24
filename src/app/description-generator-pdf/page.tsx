@@ -10,7 +10,7 @@ interface Result {
   bisacCategories: Array<{ code: string; explanation: string }>;
 }
 
-export default function DescriptionGeneratorPage() {
+export default function DescriptionGeneratorPdfPage() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,7 +26,7 @@ export default function DescriptionGeneratorPage() {
 
   const handleSubmit = async () => {
     if (!file) {
-      setError("Please choose a .docx file first.");
+      setError("Please choose a .pdf file first.");
       return;
     }
     setError(null);
@@ -35,7 +35,7 @@ export default function DescriptionGeneratorPage() {
     try {
       const form = new FormData();
       form.append("file", file);
-      const res = await fetch("/api/description-generator", { method: "POST", body: form });
+      const res = await fetch("/api/description-generator-pdf", { method: "POST", body: form });
       const data = await res.json();
       if (!res.ok) {
         setError(data.message || data.error || "Something went wrong.");
@@ -72,17 +72,17 @@ export default function DescriptionGeneratorPage() {
       </header>
 
       <main className="flex-1 mx-auto max-w-3xl w-full px-6 py-10">
-        <h1 className="text-3xl font-bold text-white mb-2">Amazon Description Generator</h1>
+        <h1 className="text-3xl font-bold text-white mb-2">Amazon Description Generator (PDF)</h1>
         <p className="text-slate-400 mb-8">
-          Upload your manuscript (.docx). We use the first 3,000 words to generate a KDP-ready description, author bio template, SEO keywords, and BISAC suggestions.
+          Upload your manuscript (.pdf). We use the first 3,000 words to generate a KDP-ready description, author bio template, SEO keywords, and BISAC suggestions. Text-based PDFs only (not scans).
         </p>
 
         <div className="rounded-2xl bg-slate-800/50 border border-slate-700/60 p-6 mb-8">
-          <label className="block text-sm font-medium text-slate-300 mb-2">Manuscript file</label>
+          <label className="block text-sm font-medium text-slate-300 mb-2">Manuscript file (PDF)</label>
           <input
             ref={inputRef}
             type="file"
-            accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            accept=".pdf,application/pdf"
             onChange={handleFileChange}
             className="block w-full text-sm text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-slate-700 file:text-white file:font-medium"
           />
