@@ -126,14 +126,14 @@ export default function PreviewPage() {
   if (!id) return (
     <div className="min-h-screen bg-slate-950 p-10">
       <p className="text-red-400 mb-4">Invalid file ID.</p>
-      <Link href="/kdp-formatter" className="text-blue-400 hover:underline">Upload a file</Link>
+      <Link href="/kdp-formatter" className="text-green-400 hover:underline">Upload a file</Link>
     </div>
   );
 
   if (loading) return (
     <div className="min-h-screen bg-slate-950 flex items-center justify-center">
       <div className="text-center">
-        <div className="w-12 h-12 border-4 border-slate-700 border-t-blue-500 rounded-full animate-spin mx-auto mb-4" />
+        <div className="w-12 h-12 border-4 border-slate-700 border-t-green-500 rounded-full animate-spin mx-auto mb-4" />
         <p className="text-slate-400">Analysing your manuscript...</p>
       </div>
     </div>
@@ -145,7 +145,7 @@ export default function PreviewPage() {
       <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-sm">
         <div className="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-md bg-blue-600 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-md bg-green-600 flex items-center justify-center">
               <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                   d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -162,15 +162,15 @@ export default function PreviewPage() {
         </div>
       </header>
 
-      <div className="border-b border-slate-800 bg-slate-900/50">
+      <div className="border-b border-slate-800 bg-green-900/20">
         <div className="mx-auto max-w-4xl px-6 py-3 flex items-center gap-2 text-sm">
           <span className="flex items-center gap-1.5 text-slate-500">
             <span className="w-5 h-5 rounded-full bg-green-600 text-white flex items-center justify-center text-xs">1</span>
             Upload
           </span>
           <span className="text-slate-700 mx-1">——</span>
-          <span className="flex items-center gap-1.5 text-blue-400 font-medium">
-            <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">2</span>
+          <span className="flex items-center gap-1.5 text-green-400 font-medium">
+            <span className="w-5 h-5 rounded-full bg-green-600 text-white flex items-center justify-center text-xs">2</span>
             Configure
           </span>
           <span className="text-slate-700 mx-1">——</span>
@@ -219,7 +219,7 @@ export default function PreviewPage() {
               value={trimSize}
               onChange={(e) => setTrimSize(e.target.value as TrimSizeId)}
               disabled={isWorking}
-              className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+              className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
             >
               {KDP_TRIM_SIZES.map((s) => (
                 <option key={s.id} value={s.id}>{s.name}</option>
@@ -230,11 +230,11 @@ export default function PreviewPage() {
 
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">
-              Font size — <span className="text-blue-400">{fontSize}pt</span>
+              Font size — <span className="text-green-400">{fontSize}pt</span>
             </label>
             <input type="range" min="9" max="14" step="0.5" value={fontSize}
               onChange={(e) => setFontSize(parseFloat(e.target.value))}
-              disabled={isWorking} className="w-full accent-blue-500"
+              disabled={isWorking} className="w-full accent-green-500"
             />
             <div className="flex justify-between text-xs text-slate-500 mt-1">
               <span>9pt</span><span>11pt (standard)</span><span>14pt</span>
@@ -244,7 +244,7 @@ export default function PreviewPage() {
           <div className="flex items-center gap-3 py-1">
             <input type="checkbox" id="bleed" checked={withBleed}
               onChange={(e) => setWithBleed(e.target.checked)}
-              disabled={isWorking} className="w-4 h-4 rounded accent-blue-500 cursor-pointer"
+              disabled={isWorking} className="w-4 h-4 rounded accent-green-500 cursor-pointer"
             />
             <label htmlFor="bleed" className="text-sm text-slate-300 cursor-pointer">
               Include bleed (0.125") — only for full-page background images
@@ -264,13 +264,13 @@ export default function PreviewPage() {
 
           {/* Progress */}
           {isWorking && (
-            <div className="rounded-xl bg-blue-500/10 border border-blue-500/30 p-5">
+            <div className="rounded-xl bg-green-500/10 border border-green-500/30 p-5">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin flex-shrink-0" />
-                <p className="text-sm font-medium text-blue-300">{genMessage}</p>
+                <div className="w-5 h-5 border-2 border-green-500 border-t-transparent rounded-full animate-spin flex-shrink-0" />
+                <p className="text-sm font-medium text-green-300">{genMessage}</p>
               </div>
               <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
-                <div className="h-full bg-blue-500 rounded-full animate-pulse w-3/5" />
+                <div className="h-full bg-green-500 rounded-full animate-pulse w-3/5" />
               </div>
               <p className="text-xs text-slate-500 mt-2">
                 LibreOffice is processing your document. Typically 15–60 seconds.
@@ -283,7 +283,7 @@ export default function PreviewPage() {
             <button
               onClick={handleGenerate}
               disabled={isWorking}
-              className="flex-1 rounded-xl bg-blue-600 px-6 py-3.5 font-semibold text-white hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="flex-1 rounded-xl bg-green-600 px-6 py-3.5 font-semibold text-white hover:bg-green-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               {isWorking ? "Converting..." : "Generate KDP PDF"}
             </button>

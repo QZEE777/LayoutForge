@@ -11,7 +11,7 @@ export default function DownloadPage() {
     return (
       <div className="min-h-screen bg-slate-50 p-8">
         <p className="text-red-600">Invalid file ID.</p>
-        <Link href="/kdp-formatter" className="mt-4 block text-blue-600 hover:underline">
+        <Link href="/kdp-formatter" className="mt-4 block text-green-600 hover:underline">
           Upload a file
         </Link>
       </div>
@@ -54,11 +54,11 @@ export default function DownloadPage() {
             <a
               href={pdfDownloadUrl}
               download={pdfFileName}
-              className="flex items-center gap-4 rounded-lg border-2 border-blue-600 bg-blue-50 p-6 hover:bg-blue-100 transition-colors"
+              className="flex items-center gap-4 rounded-lg border-2 border-green-600 bg-green-50 p-6 hover:bg-green-100 transition-colors"
             >
               <div className="flex-shrink-0">
                 <svg
-                  className="h-12 w-12 text-blue-600"
+                  className="h-12 w-12 text-green-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -79,7 +79,7 @@ export default function DownloadPage() {
               </div>
               <div className="flex-shrink-0">
                 <svg
-                  className="h-6 w-6 text-blue-600"
+                  className="h-6 w-6 text-green-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -119,7 +119,7 @@ export default function DownloadPage() {
                   Your KDP PDF is ready to download. To also get an EPUB file for eBook distribution, use the free tool <strong>Calibre</strong>:
                 </p>
                 <ol className="mt-3 text-sm text-slate-700 space-y-1 ml-4 list-decimal">
-                  <li>Download Calibre from <a href="https://calibre-ebook.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">calibre-ebook.com</a></li>
+                  <li>Download Calibre from <a href="https://calibre-ebook.com" target="_blank" rel="noopener noreferrer" className="text-green-600 hover:underline">calibre-ebook.com</a></li>
                   <li>Open your downloaded PDF in Calibre</li>
                   <li>Click "Convert books" and choose EPUB as output</li>
                 </ol>
@@ -160,7 +160,7 @@ export default function DownloadPage() {
           <a
             href={pdfDownloadUrl}
             download={pdfFileName}
-            className="flex-1 rounded-lg bg-blue-600 px-6 py-3 text-center font-medium text-white hover:bg-blue-700 transition-colors"
+            className="flex-1 rounded-lg bg-green-600 px-6 py-3 text-center font-medium text-white hover:bg-green-700 transition-colors"
           >
             Download PDF
           </a>
