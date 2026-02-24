@@ -22,13 +22,14 @@ const tools: Tool[] = [
     iconPath: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
   },
   {
-    id: "epub-maker",
-    title: "Kindle EPUB Maker",
-    description: "Convert your manuscript to a Kindle-ready EPUB file. Proper chapter structure, metadata, and formatting for eBook distribution.",
-    href: "/epub-maker",
-    available: false,
-    color: "purple",
-    iconPath: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253",
+    id: "kdp-formatter-pdf",
+    title: "KDP Formatter (PDF)",
+    description: "Format your PDF manuscript for Amazon KDP print. PDF-only.",
+    href: "/kdp-formatter-pdf",
+    available: true,
+    color: "blue",
+    iconPath: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
+    badge: "PDF",
   },
   {
     id: "keyword-research",
@@ -40,6 +41,16 @@ const tools: Tool[] = [
     iconPath: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7",
   },
   {
+    id: "keyword-research-pdf",
+    title: "7 Keyword Research (PDF)",
+    description: "Get 7 Amazon KDP keywords from your PDF manuscript. PDF-only.",
+    href: "/keyword-research-pdf",
+    available: true,
+    color: "emerald",
+    iconPath: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7",
+    badge: "PDF",
+  },
+  {
     id: "description-generator",
     title: "Amazon Description Generator",
     description: "AI-powered book descriptions with SEO keywords baked in. Upload .docx. Write once, rank everywhere on Amazon search.",
@@ -49,19 +60,9 @@ const tools: Tool[] = [
     iconPath: "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z",
   },
   {
-    id: "keyword-research-pdf",
-    title: "7 Keyword Research (PDF)",
-    description: "Upload PDF, get 7 KDP keyword phrases. Text-based PDFs only. Claude-powered.",
-    href: "/keyword-research-pdf",
-    available: true,
-    color: "emerald",
-    iconPath: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7",
-    badge: "PDF",
-  },
-  {
     id: "description-generator-pdf",
     title: "Amazon Description Generator (PDF)",
-    description: "Upload PDF, get description, bio template, keywords, and BISAC. Text-based PDFs only.",
+    description: "AI-powered book descriptions from your PDF manuscript. PDF-only.",
     href: "/description-generator-pdf",
     available: true,
     color: "amber",
@@ -69,14 +70,13 @@ const tools: Tool[] = [
     badge: "PDF",
   },
   {
-    id: "kdp-formatter-pdf",
-    title: "KDP Formatter (PDF)",
-    description: "Upload PDF, convert to KDP-ready print PDF via CloudConvert. One format, one job.",
-    href: "/kdp-formatter-pdf",
-    available: true,
-    color: "blue",
-    iconPath: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
-    badge: "PDF",
+    id: "epub-maker",
+    title: "Kindle EPUB Maker",
+    description: "Convert your manuscript to a Kindle-ready EPUB file. Proper chapter structure, metadata, and formatting for eBook distribution.",
+    href: "/epub-maker",
+    available: false,
+    color: "purple",
+    iconPath: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253",
   },
   {
     id: "royalty-calculator",
@@ -180,7 +180,7 @@ export default function Home() {
             <p className="text-slate-400">Each one does a single job — and does it right.</p>
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {tools.map((tool) => {
               const c = colors[tool.color];
               return (
