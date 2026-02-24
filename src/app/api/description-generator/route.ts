@@ -26,10 +26,10 @@ async function extractTextFromDocx(buffer: Buffer): Promise<string> {
     .trim();
 }
 
-async function extractTextFromPdf(buffer: Buffer): Promise<string> {
-  const pdfParse = (await import("pdf-parse")).default;
-  const data = await pdfParse(buffer);
-  return (data?.text || "").replace(/\s+/g, " ").trim();
+function extractTextFromPdf(buffer: Buffer): string {
+  const raw = buffer.toString("latin1");
+  const readable = raw.replace(/[^\x20-\x7E\n\r\t]/g, " ").replace(/\s+/g, " ").trim();
+  return readable;
 }
 
 function firstNWords(text: string, n: number): string {
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
     if (isDocx) {
       text = await extractTextFromDocx(buffer);
     } else {
-      text = await extractTextFromPdf(buffer);
+      text = extractTextFromPdf(buffer);
     }
 
     if (!text || text.length < 100) {
