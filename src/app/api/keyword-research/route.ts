@@ -24,8 +24,8 @@ export async function POST(request: NextRequest) {
     const name = (f.name || "").toLowerCase();
     const isDocx = name.endsWith(".docx") || f.type.includes("wordprocessingml");
     const isPdf = name.endsWith(".pdf") || f.type === "application/pdf";
-    if (!isDocx && !isPdf) return NextResponse.json({ error: "Unsupported format", message: "Only .docx and .pdf allowed." }, { status: 400 });
-    if (isPdf) return NextResponse.json({ error: "PDF not supported", message: "PDF upload is not supported yet. Please convert your PDF to .docx and try again." }, { status: 400 });
+    if (!isDocx && !isPdf) return NextResponse.json({ error: "Unsupported format", message: "Only .docx files are allowed." }, { status: 400 });
+    if (isPdf) return NextResponse.json({ error: "PDF not supported", message: "Please upload a .docx file. PDF support coming soon." }, { status: 400 });
     const buffer = Buffer.from(await f.arrayBuffer());
     const text = await docxText(buffer);
     if (!text || text.length < 100) return NextResponse.json({ error: "Too little text", message: "Could not extract enough text." }, { status: 400 });
