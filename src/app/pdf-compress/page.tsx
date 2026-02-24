@@ -8,6 +8,7 @@ const MAX_MB = 50;
 export default function PdfCompressPage() {
   const [file, setFile] = useState<File | null>(null);
   const [email, setEmail] = useState("");
+  const [formParameters, setFormParameters] = useState<Record<string, string>>({});
   const [compressing, setCompressing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -75,13 +76,15 @@ export default function PdfCompressPage() {
         throw new Error(data.message || "Could not start compression.");
       }
       const initData = await initRes.json();
-      const { id, jobId, uploadUrl, formParameters } = initData;
-      if (!id || !jobId || !uploadUrl || !formParameters) throw new Error("Server did not return upload details.");
+      const { id, jobId, uploadUrl, formParameters: formParams } = initData;
+      if (!id || !jobId || !uploadUrl || !formParams) throw new Error("Server did not return upload details.");
+      const typedFormParameters: Record<string, string> = (formParams ?? {}) as Record<string, string>;
+      setFormParameters(typedFormParameters);
 
       // Step 2: Upload file directly to CloudConvert
       setProgress(15);
       const uploadForm = new FormData();
-      for (const [key, val] of Object.entries(formParameters)) uploadForm.append(key, val);
+      for (const [key, val] of Object.entries(typedFormParameters)) uploadForm.append(key, val);
       const inputFilename = file.name.toLowerCase().endsWith(".pdf") ? file.name : "document.pdf";
       uploadForm.append("file", file, inputFilename);
 
