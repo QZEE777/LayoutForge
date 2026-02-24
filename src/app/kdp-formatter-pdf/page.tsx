@@ -133,7 +133,7 @@ export default function KdpFormatterPdfPage() {
       <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-sm">
         <div className="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-md bg-blue-600 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-md bg-red-600 flex items-center justify-center">
               <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
               </svg>
@@ -149,7 +149,7 @@ export default function KdpFormatterPdfPage() {
         </div>
       </header>
 
-      <div className="border-b border-slate-800 bg-blue-900/20">
+      <div className="border-b border-slate-800 bg-red-900/20">
         <div className="mx-auto max-w-4xl px-6 py-3 flex items-center gap-3">
           <span className="inline-flex items-center rounded-full bg-red-500/20 border border-red-500/30 px-2.5 py-0.5 text-xs font-medium text-red-300">PDF</span>
           <span className="text-sm font-semibold text-white">KDP Formatter (PDF)</span>
@@ -169,7 +169,7 @@ export default function KdpFormatterPdfPage() {
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           className={`rounded-2xl border-2 border-dashed p-14 text-center transition-all ${
-            isDragging ? "border-blue-400 bg-blue-500/10" : "border-slate-700 bg-slate-800/40 hover:border-slate-500 hover:bg-slate-800/60"
+            isDragging ? "border-red-400 bg-red-500/10" : "border-slate-700 bg-slate-800/40 hover:border-slate-500 hover:bg-slate-800/60"
           }`}
         >
           <input
@@ -183,8 +183,8 @@ export default function KdpFormatterPdfPage() {
           <label htmlFor="file-input" className={`block cursor-pointer ${uploading ? "opacity-50" : ""}`}>
             {file ? (
               <div>
-                <div className="w-12 h-12 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center mx-auto mb-3">
-                  <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-12 h-12 rounded-xl bg-red-600/20 border border-red-500/30 flex items-center justify-center mx-auto mb-3">
+                  <svg className="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
@@ -216,7 +216,7 @@ export default function KdpFormatterPdfPage() {
               <span className="text-sm text-slate-500">{progress}%</span>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-slate-700">
-              <div className="h-full bg-blue-500 transition-all duration-300 rounded-full" style={{ width: `${progress}%` }} />
+              <div className="h-full bg-red-500 transition-all duration-300 rounded-full" style={{ width: `${progress}%` }} />
             </div>
           </div>
         )}
@@ -225,7 +225,7 @@ export default function KdpFormatterPdfPage() {
           <button
             onClick={handleUpload}
             disabled={!file || uploading}
-            className="flex-1 rounded-xl bg-blue-600 px-6 py-3.5 font-semibold text-white hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 rounded-xl bg-red-600 px-6 py-3.5 font-semibold text-white hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             {uploading ? (converting ? "Converting…" : "Uploading…") : "Upload & Convert"}
           </button>

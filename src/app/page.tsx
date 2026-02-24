@@ -158,7 +158,7 @@ export default function Home() {
           </div>
 
           <ToolRow title="DOCX TOOLS" titleClass="bg-green-500/20 text-green-300 border border-green-500/30" tools={docxTools} btnClass="bg-green-600 hover:bg-green-700" iconClass="text-green-400" hoverClass="hover:border-green-500/50" />
-          <ToolRow title="PDF TOOLS" titleClass="bg-blue-500/20 text-blue-300 border border-blue-500/30" tools={pdfTools} btnClass="bg-blue-600 hover:bg-blue-700" iconClass="text-blue-400" hoverClass="hover:border-blue-500/50" />
+          <ToolRow title="PDF TOOLS" titleClass="bg-red-500/20 text-red-300 border border-red-500/30" tools={pdfTools} btnClass="bg-red-600 hover:bg-red-700" iconClass="text-red-400" hoverClass="hover:border-red-500/50" />
           <ToolRow title="KINDLE & EPUB" titleClass="bg-orange-500/20 text-orange-300 border border-orange-500/30" tools={kindleTools} btnClass="bg-slate-600" iconClass="text-orange-400" hoverClass="hover:border-orange-500/50" />
           <ToolRow title="PUBLISHING TOOLS" titleClass="bg-purple-500/20 text-purple-300 border border-purple-500/30" tools={publishingTools} btnClass="bg-slate-600" iconClass="text-purple-400" hoverClass="hover:border-purple-500/50" />
         </div>

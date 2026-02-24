@@ -8,7 +8,7 @@ export default function DownloadPage() {
   const searchParams = useSearchParams();
   const id = typeof params.id === "string" ? params.id : "";
   const isPdfFlow = searchParams.get("source") === "pdf";
-  const s = isPdfFlow ? { box: "bg-blue-50 border-blue-200", title: "text-blue-900", text: "text-blue-800", card: "border-blue-600 bg-blue-50 hover:bg-blue-100", icon: "text-blue-600", btn: "bg-blue-600 hover:bg-blue-700", link: "text-blue-600" } : { box: "bg-green-50 border-green-200", title: "text-green-900", text: "text-green-800", card: "border-green-600 bg-green-50 hover:bg-green-100", icon: "text-green-600", btn: "bg-green-600 hover:bg-green-700", link: "text-green-600" };
+  const s = isPdfFlow ? { box: "bg-red-50 border-red-200", title: "text-red-900", text: "text-red-800", card: "border-red-600 bg-red-50 hover:bg-red-100", icon: "text-red-600", btn: "bg-red-600 hover:bg-red-700", link: "text-red-600" } : { box: "bg-green-50 border-green-200", title: "text-green-900", text: "text-green-800", card: "border-green-600 bg-green-50 hover:bg-green-100", icon: "text-green-600", btn: "bg-green-600 hover:bg-green-700", link: "text-green-600" };
 
   if (!id) {
     return (
