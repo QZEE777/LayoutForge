@@ -143,9 +143,11 @@ export default function Home() {
           </div>
           {/* Center: headline, subheading, buttons */}
           <div className="flex-1 flex flex-col justify-center items-center text-center lg:w-[50%]">
-            <h1 className="font-bebas text-4xl lg:text-6xl tracking-wide text-white mb-5 leading-tight max-w-xl mx-auto">
-              YOUR MANUSCRIPT DESERVES A PROFESSIONAL FINISH.
-            </h1>
+            <div className="font-bebas uppercase tracking-wide leading-none text-center max-w-xl mx-auto mb-5">
+              <div className="text-5xl text-white">YOUR MANUSCRIPT</div>
+              <div className="text-7xl lg:text-8xl" style={{ color: GOLD }}>DESERVES</div>
+              <div className="text-5xl text-white">A PROFESSIONAL FINISH</div>
+            </div>
             <p
               className="text-lg sm:text-xl leading-relaxed mb-9 max-w-lg mx-auto text-balance"
               style={{ color: "#a8a29e" }}
