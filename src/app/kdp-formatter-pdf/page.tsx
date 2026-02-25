@@ -68,9 +68,13 @@ export default function KdpFormatterPdfPage() {
     [validateFile]
   );
 
+  const [progressLabel, setProgressLabel] = useState<string>("");
+
   const pollStatus = useCallback(
     async (id: string, jId: string) => {
-      const res = await fetch(`/api/generate/status?id=${encodeURIComponent(id)}&jobId=${encodeURIComponent(jId)}`);
+      const res = await fetch(
+        `/api/cloudconvert-job-status?jobId=${encodeURIComponent(jId)}&toolType=kdp-formatter-pdf&id=${encodeURIComponent(id)}`
+      );
       const data = await res.json();
       if (data.status === "done") return { done: true, id };
       if (data.status === "error") throw new Error(data.message || "Conversion failed.");
@@ -87,33 +91,50 @@ export default function KdpFormatterPdfPage() {
     setConverting(false);
     setJobId(null);
     setFileId(null);
+    setProgressLabel("Preparing upload…");
 
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const progressInterval = setInterval(() => setProgress((p) => Math.min(p + 10, 80)), 200);
-      const response = await fetch("/api/kdp-formatter-pdf", { method: "POST", body: formData });
-      clearInterval(progressInterval);
-      setProgress(90);
-
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data.message || "Upload or conversion start failed.");
+      setProgress(5);
+      const initRes = await fetch("/api/cloudconvert-upload-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          filename: file.name,
+          filesize: file.size,
+          toolType: "kdp-formatter-pdf",
+        }),
+      });
+      if (!initRes.ok) {
+        const data = await initRes.json().catch(() => ({}));
+        throw new Error(data.message || "Could not get upload URL.");
       }
-
-      const data = await response.json();
-      const id = data.id;
-      const jId = data.jobId;
-      if (!id || !jId) throw new Error("Server did not return id or jobId.");
+      const initData = await initRes.json();
+      const { id, jobId: jId, uploadUrl, formData: formParams } = initData;
+      if (!id || !jId || !uploadUrl || !formParams) throw new Error("Server did not return upload details.");
       setFileId(id);
       setJobId(jId);
+      setProgress(10);
+      setProgressLabel("Uploading…");
+
+      const uploadForm = new FormData();
+      for (const [key, val] of Object.entries(formParams)) uploadForm.append(key, val as string);
+      const inputFilename = file.name.toLowerCase().endsWith(".pdf") ? file.name : "document.pdf";
+      uploadForm.append("file", file, inputFilename);
+
+      const uploadRes = await fetch(uploadUrl, { method: "POST", body: uploadForm });
+      if (!uploadRes.ok && uploadRes.status !== 204) {
+        throw new Error(`Upload failed (${uploadRes.status}). Try again.`);
+      }
+      setProgress(40);
+      setProgressLabel("Processing…");
       setConverting(true);
-      setProgress(95);
 
       while (true) {
+        setProgress((p) => Math.min(p + 5, 90));
         const result = await pollStatus(id, jId);
         if (result.done) {
           setProgress(100);
+          setProgressLabel("Ready to download");
           router.push(`/download/${id}?source=pdf`);
           return;
         }
@@ -125,6 +146,7 @@ export default function KdpFormatterPdfPage() {
       setUploading(false);
       setProgress(0);
       setConverting(false);
+      setProgressLabel("");
     }
   }, [file, router, pollStatus]);
 
@@ -212,7 +234,7 @@ export default function KdpFormatterPdfPage() {
         {uploading && progress > 0 && (
           <div className="mt-6">
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-sm font-medium text-slate-300">{converting ? "Converting to KDP PDF…" : "Uploading…"}</span>
+              <span className="text-sm font-medium text-slate-300">{progressLabel || (converting ? "Processing…" : "Uploading…")}</span>
               <span className="text-sm text-slate-500">{progress}%</span>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-slate-700">

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
 
-const MAX_SIZE_BYTES = 4 * 1024 * 1024; // 4MB
-const SIZE_ERROR_MESSAGE = "Your PDF is too large. For best results, upload the first 10 pages only (under 4MB), or compress it first with our free PDF Compressor.";
+const MAX_MB = 50;
+const MAX_SIZE_BYTES = MAX_MB * 1024 * 1024;
+const SIZE_ERROR_MESSAGE = `File must be under ${MAX_MB}MB.`;
 
 interface Result {
   amazonDescription: string;
@@ -18,7 +19,8 @@ export default function DescriptionGeneratorPdfPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<Result | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [progress, setProgress] = useState(0);
+  const [progressLabel, setProgressLabel] = useState("");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
@@ -37,6 +39,23 @@ export default function DescriptionGeneratorPdfPage() {
     setError(null);
   };
 
+  const pollStatus = useCallback(async (jobId: string) => {
+    const res = await fetch(
+      `/api/cloudconvert-job-status?jobId=${encodeURIComponent(jobId)}&toolType=description-generator-pdf`
+    );
+    const data = await res.json();
+    if (data.status === "done")
+      return {
+        done: true,
+        amazonDescription: data.amazonDescription,
+        authorBioTemplate: data.authorBioTemplate,
+        seoKeywords: data.seoKeywords,
+        bisacCategories: data.bisacCategories,
+      };
+    if (data.status === "error") throw new Error(data.message || "Processing failed.");
+    return { done: false };
+  }, []);
+
   const handleSubmit = async () => {
     if (!file) {
       setError("Please choose a PDF file first.");
@@ -49,20 +68,64 @@ export default function DescriptionGeneratorPdfPage() {
     setError(null);
     setResult(null);
     setLoading(true);
+    setProgress(0);
+    setProgressLabel("Preparing upload…");
+
     try {
-      const form = new FormData();
-      form.append("file", file);
-      const res = await fetch("/api/description-generator-pdf", { method: "POST", body: form });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.message || data.error || "Something went wrong.");
-        return;
+      setProgress(5);
+      const initRes = await fetch("/api/cloudconvert-upload-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          filename: file.name,
+          filesize: file.size,
+          toolType: "description-generator-pdf",
+        }),
+      });
+      if (!initRes.ok) {
+        const data = await initRes.json().catch(() => ({}));
+        throw new Error(data.message || "Could not get upload URL.");
       }
-      setResult(data);
+      const initData = await initRes.json();
+      const { jobId, uploadUrl, formData: formParams } = initData;
+      if (!jobId || !uploadUrl || !formParams) throw new Error("Server did not return upload details.");
+      setProgress(10);
+      setProgressLabel("Uploading…");
+
+      const uploadForm = new FormData();
+      for (const [key, val] of Object.entries(formParams)) uploadForm.append(key, val as string);
+      const inputFilename = file.name.toLowerCase().endsWith(".pdf") ? file.name : "document.pdf";
+      uploadForm.append("file", file, inputFilename);
+
+      const uploadRes = await fetch(uploadUrl, { method: "POST", body: uploadForm });
+      if (!uploadRes.ok && uploadRes.status !== 204) {
+        throw new Error(`Upload failed (${uploadRes.status}). Try again.`);
+      }
+      setProgress(40);
+      setProgressLabel("Processing…");
+
+      while (true) {
+        setProgress((p) => Math.min(p + 5, 90));
+        const pollResult = await pollStatus(jobId);
+        if (pollResult.done && "amazonDescription" in pollResult && pollResult.amazonDescription) {
+          setProgress(100);
+          setProgressLabel("Ready");
+          setResult({
+            amazonDescription: pollResult.amazonDescription,
+            authorBioTemplate: pollResult.authorBioTemplate ?? "",
+            seoKeywords: pollResult.seoKeywords ?? [],
+            bisacCategories: pollResult.bisacCategories ?? [],
+          });
+          return;
+        }
+        await new Promise((r) => setTimeout(r, 2000));
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Request failed.");
     } finally {
       setLoading(false);
+      setProgress(0);
+      setProgressLabel("");
     }
   };
 
@@ -100,26 +163,36 @@ export default function DescriptionGeneratorPdfPage() {
       <main className="flex-1 mx-auto max-w-3xl w-full px-6 py-10">
         <h1 className="text-3xl font-bold text-white mb-2">Amazon Description Generator (PDF)</h1>
         <p className="text-slate-400 mb-8">
-          Upload your PDF manuscript. We use the first 1,000 words to generate a KDP-ready description, author bio template, SEO keywords, and BISAC suggestions. Text-based PDFs only (not scans).
+          Upload your PDF manuscript (up to {MAX_MB}MB). We use the first 1,000 words to generate a KDP-ready description, author bio template, SEO keywords, and BISAC suggestions. Text-based PDFs only (not scans).
         </p>
 
         <div className="rounded-2xl bg-slate-800/50 border border-red-700/40 p-6 mb-8">
-          <label className="block text-sm font-medium text-slate-300 mb-2">Manuscript file (PDF only)</label>
+          <label className="block text-sm font-medium text-slate-300 mb-2">Manuscript file (PDF only, max {MAX_MB}MB)</label>
           <input
-            ref={inputRef}
             type="file"
             accept=".pdf,application/pdf"
             onChange={handleFileChange}
             className="block w-full text-sm text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-red-600 file:text-white file:font-medium file:hover:bg-red-700"
           />
-          {file && <p className="mt-2 text-slate-500 text-sm">Selected: {file.name}</p>}
+          {file && <p className="mt-2 text-slate-500 text-sm">Selected: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)</p>}
+          {loading && progress > 0 && (
+            <div className="mt-4">
+              <div className="mb-2 flex justify-between text-sm text-slate-400">
+                <span>{progressLabel}</span>
+                <span>{progress}%</span>
+              </div>
+              <div className="h-2 rounded-full bg-slate-700 overflow-hidden">
+                <div className="h-full bg-red-500 transition-all duration-300 rounded-full" style={{ width: `${progress}%` }} />
+              </div>
+            </div>
+          )}
           <button
             type="button"
             onClick={handleSubmit}
             disabled={loading || !file}
             className="mt-4 rounded-xl bg-red-600 px-6 py-3 font-semibold text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {loading ? "Analyzing…" : "Analyze Manuscript"}
+            {loading ? (progressLabel || "Analyzing…") : "Analyze Manuscript"}
           </button>
         </div>
 

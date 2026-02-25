@@ -148,7 +148,7 @@ export default function PdfCompressPage() {
       <main className="flex-1 mx-auto max-w-xl w-full px-6 py-10">
         <h1 className="text-3xl font-bold text-white mb-2">Free PDF Compressor</h1>
         <p className="text-slate-400 mb-8">
-          Compress your PDF so it’s under 4MB and ready for our 7 Keyword Research and Amazon Description Generator tools. We’ll send you the download link—no signup beyond your email.
+          Compress your PDF so it’s up to 50MB. Use the result in our Keyword Research and Amazon Description Generator tools. We’ll send you the download link—no signup beyond your email.
         </p>
 
         {done ? (
@@ -161,7 +161,7 @@ export default function PdfCompressPage() {
               </div>
               <h2 className="text-xl font-bold text-white">Your PDF is ready</h2>
             </div>
-            <p className="text-slate-400 text-sm mb-6">Download your compressed PDF below. Use it in our Keyword Research or Description Generator (under 4MB).</p>
+            <p className="text-slate-400 text-sm mb-6">Download your compressed PDF below. Use it in our Keyword Research or Description Generator.</p>
             <div className="flex flex-col sm:flex-row gap-3">
               <a
                 href={downloadUrl ?? "#"}
@@ -208,7 +208,7 @@ export default function PdfCompressPage() {
             {compressing && progress > 0 && (
               <div>
                 <div className="mb-2 flex justify-between text-sm text-slate-400">
-                  <span>{progress < 20 ? "Preparing…" : progress < 50 ? "Uploading…" : "Compressing…"}</span>
+                  <span>{progress < 20 ? "Preparing upload…" : progress < 50 ? "Uploading…" : "Processing…"}</span>
                   <span>{progress}%</span>
                 </div>
                 <div className="h-2 rounded-full bg-slate-700 overflow-hidden">
@@ -229,7 +229,7 @@ export default function PdfCompressPage() {
 
         <p className="text-slate-500 text-sm mt-6">
           After compressing, use your PDF in <Link href="/keyword-research-pdf" className="text-red-400 hover:text-red-300">7 Keyword Research</Link> or{" "}
-          <Link href="/description-generator-pdf" className="text-red-400 hover:text-red-300">Amazon Description Generator</Link> (both accept PDFs under 4MB).
+          <Link href="/description-generator-pdf" className="text-red-400 hover:text-red-300">Amazon Description Generator</Link> (both accept PDFs up to 50MB).
         </p>
       </main>
     </div>
