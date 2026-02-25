@@ -26,3 +26,7 @@ body {
 .animate-marquee {
   animation: marquee 25s linear infinite;
 }
+
+.text-balance {
+  text-wrap: balance;
+}
