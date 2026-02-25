@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { writeOutput } from "@/lib/storage";
+import { extractTextFromPDFBuffer, extractTextFromDocxBuffer } from "@/lib/pdfTextExtract";
 
 const MAX_WORDS = 1000;
 const ANTHROPIC_MODEL = "claude-haiku-4-5-20251001";
+const MIN_EXTRACT_CHARS = 200;
+const EXTRACTION_ERROR_MESSAGE =
+  "Could not extract text from this PDF. If your manuscript is text-based (not a scan), try downloading it from Word/Google Docs as a fresh PDF and uploading again.";
 
 const TOOL_TYPES = ["kdp-formatter-pdf", "keyword-research-pdf", "description-generator-pdf"] as const;
 type ToolType = (typeof TOOL_TYPES)[number];
@@ -16,6 +20,81 @@ async function fetchTextFromUrl(url: string): Promise<string> {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Failed to fetch text (${res.status}).`);
   return res.text();
+}
+
+function normalizeText(text: string): string {
+  return (text || "").replace(/\s+/g, " ").trim();
+}
+
+function hasEnoughText(normalized: string): boolean {
+  return normalized.length >= MIN_EXTRACT_CHARS;
+}
+
+async function fetchBufferFromUrl(url: string): Promise<Buffer> {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to fetch (${res.status}).`);
+  return Buffer.from(await res.arrayBuffer());
+}
+
+/**
+ * Create a CloudConvert job to convert PDF (from url) to DOCX, poll until done, then fetch DOCX and extract text from word/document.xml.
+ */
+async function extractTextViaPdfToDocx(
+  apiKey: string,
+  pdfUrl: string
+): Promise<string> {
+  const jobRes = await fetch("https://api.cloudconvert.com/v2/jobs", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      tasks: {
+        "import-pdf": { operation: "import/url", url: pdfUrl },
+        "convert-docx": {
+          operation: "convert",
+          input: "import-pdf",
+          input_format: "pdf",
+          output_format: "docx",
+          filename: "document.docx",
+        },
+        "export-docx": { operation: "export/url", input: "convert-docx" },
+      },
+    }),
+  });
+  if (!jobRes.ok) {
+    const err = await jobRes.text();
+    console.error("[cloudconvert-job-status] PDF→DOCX job create failed:", jobRes.status, err.slice(0, 300));
+    throw new Error("PDF to DOCX conversion could not be started.");
+  }
+  const jobData = (await jobRes.json()) as { data?: { id?: string } };
+  const docxJobId = jobData.data?.id;
+  if (!docxJobId) throw new Error("No job id from CloudConvert.");
+
+  const maxAttempts = 45;
+  const pollIntervalMs = 2000;
+  for (let i = 0; i < maxAttempts; i++) {
+    await new Promise((r) => setTimeout(r, pollIntervalMs));
+    const statusRes = await fetch(
+      `https://api.cloudconvert.com/v2/jobs/${docxJobId}?include=tasks`,
+      { headers: { Authorization: `Bearer ${apiKey}` } }
+    );
+    if (!statusRes.ok) continue;
+    const statusData = await statusRes.json();
+    const status = statusData.data?.status;
+    if (status === "error") {
+      const failed = statusData.data?.tasks?.find((t: { status: string }) => t.status === "error");
+      throw new Error(failed?.message || "PDF to DOCX failed.");
+    }
+    if (status !== "finished") continue;
+
+    const exportTask = statusData.data?.tasks?.find(
+      (t: { operation: string; status: string }) => t.operation === "export/url" && t.status === "finished"
+    );
+    const docxUrl: string | undefined = exportTask?.result?.files?.[0]?.url;
+    if (!docxUrl) throw new Error("DOCX export URL missing.");
+    const docxBuffer = await fetchBufferFromUrl(docxUrl);
+    return extractTextFromDocxBuffer(docxBuffer);
+  }
+  throw new Error("PDF to DOCX conversion timed out.");
 }
 
 async function runKeywordAi(excerpt: string): Promise<string[]> {
@@ -225,21 +304,46 @@ export async function GET(request: NextRequest) {
         (t: { operation: string; status: string }) =>
           t.operation === "export/url" && t.status === "finished"
       );
-      const fileUrl: string | undefined = exportTask?.result?.files?.[0]?.url;
-      if (!fileUrl) {
+      const txtFileUrl: string | undefined = exportTask?.result?.files?.[0]?.url;
+      if (!txtFileUrl) {
         return NextResponse.json({
           status: "error",
           message: "Conversion finished but text file URL is missing.",
         });
       }
-      const rawText = await fetchTextFromUrl(fileUrl);
-      const normalized = (rawText || "").replace(/\s+/g, " ").trim();
-      if (!normalized || normalized.length < 100) {
+
+      let normalized = normalizeText(await fetchTextFromUrl(txtFileUrl));
+      const uploadTask = tasks.find(
+        (t: { operation: string; status: string }) => t.operation === "import/upload" && t.status === "finished"
+      );
+      const pdfUrl: string | undefined = uploadTask?.result?.files?.[0]?.url;
+
+      if (!hasEnoughText(normalized) && pdfUrl) {
+        try {
+          const pdfBuffer = await fetchBufferFromUrl(pdfUrl);
+          const pdfText = await extractTextFromPDFBuffer(pdfBuffer);
+          normalized = normalizeText(pdfText);
+        } catch (e) {
+          console.warn("[cloudconvert-job-status] pdf-parse fallback failed:", e);
+        }
+      }
+
+      if (!hasEnoughText(normalized) && apiKey && pdfUrl) {
+        try {
+          const docxText = await extractTextViaPdfToDocx(apiKey, pdfUrl);
+          normalized = normalizeText(docxText);
+        } catch (e) {
+          console.warn("[cloudconvert-job-status] PDF→DOCX fallback failed:", e);
+        }
+      }
+
+      if (!hasEnoughText(normalized)) {
         return NextResponse.json({
           status: "error",
-          message: "Could not extract enough text from the PDF. Use a text-based PDF (not a scan).",
+          message: EXTRACTION_ERROR_MESSAGE,
         });
       }
+
       const excerpt = firstNWords(normalized, MAX_WORDS);
 
       if (toolType === "keyword-research-pdf") {
