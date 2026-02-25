@@ -46,8 +46,8 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         tasks: {
           "upload-file": { operation: "import/upload" },
-          "convert-to-pdf": { operation: "convert", input: "upload-file", input_format: "pdf", output_format: "pdf" },
-          "export-pdf": { operation: "export/url", input: "convert-to-pdf" },
+          "optimize-pdf": { operation: "optimize", input: "upload-file", input_format: "pdf", profile: "print", filename: "kdp-formatted.pdf" },
+          "export-pdf": { operation: "export/url", input: "optimize-pdf" },
         },
       }),
     });

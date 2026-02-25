@@ -190,3 +190,63 @@ export async function readOutput(id: string, filename: string): Promise<Buffer |
     return null;
   }
 }
+
+/** Lead entry for back office (email capture from tools). */
+export interface LeadEntry {
+  id: string;
+  email: string;
+  source: "pdf-compress" | "manuscript";
+  createdAt: number;
+  jobId?: string;
+}
+
+/** List all captured leads (compression.json + meta.json with leadEmail). Newest first. */
+export async function listLeads(): Promise<LeadEntry[]> {
+  await ensureUploadDir();
+  const leads: LeadEntry[] = [];
+  try {
+    const entries = await fs.readdir(UPLOAD_DIR, { withFileTypes: true });
+
+    for (const e of entries) {
+      if (!e.isFile()) continue;
+      if (e.name.endsWith(".compression.json")) {
+        try {
+          const raw = await fs.readFile(path.join(UPLOAD_DIR, e.name), "utf-8");
+          const data = JSON.parse(raw) as { id: string; jobId?: string; leadEmail: string; createdAt: number };
+          if (data.leadEmail) {
+            leads.push({
+              id: data.id,
+              email: data.leadEmail,
+              source: "pdf-compress",
+              createdAt: data.createdAt,
+              jobId: data.jobId,
+            });
+          }
+        } catch {
+          /* skip invalid */
+        }
+        continue;
+      }
+      if (e.name.endsWith(".meta.json")) {
+        try {
+          const raw = await fs.readFile(path.join(UPLOAD_DIR, e.name), "utf-8");
+          const meta = JSON.parse(raw) as StoredManuscript;
+          if (meta.leadEmail) {
+            leads.push({
+              id: meta.id,
+              email: meta.leadEmail,
+              source: "manuscript",
+              createdAt: meta.createdAt,
+            });
+          }
+        } catch {
+          /* skip */
+        }
+      }
+    }
+  } catch {
+    /* ignore */
+  }
+  leads.sort((a, b) => b.createdAt - a.createdAt);
+  return leads;
+}
