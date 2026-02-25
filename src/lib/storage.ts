@@ -76,21 +76,6 @@ export async function saveMeta(meta: StoredManuscript): Promise<void> {
   await fs.writeFile(metaPath, JSON.stringify(meta), "utf-8");
 }
 
-/** Save compression job meta (no file stored; client uploads directly to CloudConvert). */
-export async function saveCompressionMeta(
-  id: string,
-  jobId: string,
-  leadEmail: string
-): Promise<void> {
-  await ensureUploadDir();
-  const metaPath = path.join(UPLOAD_DIR, `${id}.compression.json`);
-  await fs.writeFile(
-    metaPath,
-    JSON.stringify({ id, jobId, leadEmail, createdAt: Date.now() }),
-    "utf-8"
-  );
-}
-
 /** Merge partial fields into an existing meta file. */
 export async function updateMeta(
   id: string,
@@ -200,48 +185,27 @@ export interface LeadEntry {
   jobId?: string;
 }
 
-/** List all captured leads (compression.json + meta.json with leadEmail). Newest first. */
+/** List all captured leads from meta.json (manuscript with leadEmail). Newest first. Email captures from PDF Compressor are in Supabase. */
 export async function listLeads(): Promise<LeadEntry[]> {
   await ensureUploadDir();
   const leads: LeadEntry[] = [];
   try {
     const entries = await fs.readdir(UPLOAD_DIR, { withFileTypes: true });
-
     for (const e of entries) {
-      if (!e.isFile()) continue;
-      if (e.name.endsWith(".compression.json")) {
-        try {
-          const raw = await fs.readFile(path.join(UPLOAD_DIR, e.name), "utf-8");
-          const data = JSON.parse(raw) as { id: string; jobId?: string; leadEmail: string; createdAt: number };
-          if (data.leadEmail) {
-            leads.push({
-              id: data.id,
-              email: data.leadEmail,
-              source: "pdf-compress",
-              createdAt: data.createdAt,
-              jobId: data.jobId,
-            });
-          }
-        } catch {
-          /* skip invalid */
+      if (!e.isFile() || !e.name.endsWith(".meta.json")) continue;
+      try {
+        const raw = await fs.readFile(path.join(UPLOAD_DIR, e.name), "utf-8");
+        const meta = JSON.parse(raw) as StoredManuscript;
+        if (meta.leadEmail) {
+          leads.push({
+            id: meta.id,
+            email: meta.leadEmail,
+            source: "manuscript",
+            createdAt: meta.createdAt,
+          });
         }
-        continue;
-      }
-      if (e.name.endsWith(".meta.json")) {
-        try {
-          const raw = await fs.readFile(path.join(UPLOAD_DIR, e.name), "utf-8");
-          const meta = JSON.parse(raw) as StoredManuscript;
-          if (meta.leadEmail) {
-            leads.push({
-              id: meta.id,
-              email: meta.leadEmail,
-              source: "manuscript",
-              createdAt: meta.createdAt,
-            });
-          }
-        } catch {
-          /* skip */
-        }
+      } catch {
+        /* skip */
       }
     }
   } catch {

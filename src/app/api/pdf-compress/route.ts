@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { saveCompressionMeta } from "@/lib/storage";
+import { supabase } from "@/lib/supabase";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -32,6 +32,9 @@ export async function POST(request: NextRequest) {
     }
     if (!email || !EMAIL_REGEX.test(email)) {
       return NextResponse.json({ error: "Invalid email", message: "Please enter a valid email address." }, { status: 400 });
+    }
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      return NextResponse.json({ error: "Service not configured", message: "Supabase is not configured." }, { status: 503 });
     }
 
     const id = crypto.randomUUID();
@@ -71,7 +74,14 @@ export async function POST(request: NextRequest) {
     if (!jobId) return NextResponse.json({ error: "Compression error", message: "No job id from service." }, { status: 502 });
     if (!form?.url) return NextResponse.json({ error: "Compression error", message: "Could not get upload URL." }, { status: 502 });
 
-    await saveCompressionMeta(id, jobId, email);
+    const { error: insertError } = await supabase
+      .from("email_captures")
+      .insert({ email, tool: "pdf-compress" });
+
+    if (insertError) {
+      console.error("Supabase insert error:", insertError);
+      return NextResponse.json({ error: "Failed to save email", message: "Please try again." }, { status: 500 });
+    }
 
     return NextResponse.json({
       success: true,

@@ -25,16 +25,30 @@ export default function AdminPage() {
     setError(null);
     setLeads(null);
     setLoading(true);
+    const s = secret.trim();
     try {
-      const res = await fetch("/api/admin/leads", {
-        headers: { Authorization: `Bearer ${secret.trim()}` },
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setError(data.message || "Failed to load leads.");
+      const [leadsRes, emailsRes] = await Promise.all([
+        fetch("/api/admin/leads", { headers: { Authorization: `Bearer ${s}` } }),
+        fetch("/api/admin/emails", { headers: { "x-admin-key": s } }),
+      ]);
+      const leadsData = await leadsRes.json().catch(() => ({}));
+      const emailsData = await emailsRes.json().catch(() => ({}));
+      if (!leadsRes.ok && !emailsRes.ok) {
+        setError(leadsData.message || emailsData.message || "Failed to load.");
         return;
       }
-      setLeads(data.leads ?? []);
+      const fromLeads = Array.isArray(leadsData.leads) ? leadsData.leads : [];
+      const fromEmails = Array.isArray(emailsData.emails)
+        ? emailsData.emails.map((e: { id: string; email: string; tool: string; created_at: string }) => ({
+            id: e.id,
+            email: e.email,
+            source: e.tool as LeadEntry["source"],
+            createdAt: new Date(e.created_at).getTime(),
+            jobId: undefined,
+          }))
+        : [];
+      const merged = [...fromLeads, ...fromEmails].sort((a, b) => b.createdAt - a.createdAt);
+      setLeads(merged);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Request failed.");
     } finally {
@@ -64,7 +78,7 @@ export default function AdminPage() {
       <main className="mx-auto max-w-4xl px-6 py-10">
         <h1 className="text-2xl font-bold text-white mb-2">Lead capture</h1>
         <p className="text-slate-400 text-sm mb-6">
-          Emails are stored in upload meta (<code className="text-slate-500">*.compression.json</code>, <code className="text-slate-500">*.meta.json</code>). This view lists them for review. <strong className="text-amber-400/90">Auth TBD</strong> – protect this route in production (e.g. NextAuth, middleware).
+          PDF Compressor emails are stored in Supabase (<code className="text-slate-500">email_captures</code>). Manuscript leads from file meta are also listed. Use the admin secret to load.
         </p>
 
         <div className="rounded-xl bg-slate-800/60 border border-slate-700 p-6 mb-8">
