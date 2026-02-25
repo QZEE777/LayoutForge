@@ -126,8 +126,8 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero section */}
-      <section className="relative px-6 pt-16 pb-14 overflow-hidden text-center">
+      {/* Hero section — three zones on desktop: 25% | 50% | 25% */}
+      <section className="relative px-6 pt-16 pb-14 overflow-hidden">
         {/* Noise texture overlay */}
         <div
           className="absolute inset-0 pointer-events-none opacity-[0.04]"
@@ -136,31 +136,42 @@ export default function Home() {
             backgroundRepeat: "repeat",
           }}
         />
-        <div className="relative mx-auto">
-          <h1 className="font-bebas text-4xl lg:text-6xl tracking-wide text-white mb-5 leading-tight max-w-4xl mx-auto">
-            YOUR MANUSCRIPT DESERVES A PROFESSIONAL FINISH.
-          </h1>
-          <p
-            className="text-lg sm:text-xl leading-relaxed mb-9 max-w-2xl mx-auto text-balance"
-            style={{ color: "#a8a29e" }}
-          >
-            ScribeStack gives indie authors the same formatting, keyword, and listing tools that traditional publishers use — without the agency price tag.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="#tools"
-              className="rounded-lg px-8 py-4 text-lg font-semibold transition-opacity hover:opacity-90"
-              style={{ backgroundColor: GOLD, color: "#0F0D0B" }}
+        <div className="relative mx-auto max-w-6xl flex flex-col lg:flex-row lg:items-stretch gap-6">
+          {/* Left placeholder — hidden on mobile */}
+          <div className="hidden lg:flex w-full lg:w-[25%] rounded-xl border items-center justify-center min-h-[280px]" style={{ backgroundColor: CARD_BG, borderColor: "#2A2420" }}>
+            <p className="text-sm" style={{ color: "rgba(245,166,35,0.7)" }}>[Illustration Coming]</p>
+          </div>
+          {/* Center: headline, subheading, buttons */}
+          <div className="flex-1 flex flex-col justify-center items-center text-center lg:w-[50%]">
+            <h1 className="font-bebas text-4xl lg:text-6xl tracking-wide text-white mb-5 leading-tight max-w-xl mx-auto">
+              YOUR MANUSCRIPT DESERVES A PROFESSIONAL FINISH.
+            </h1>
+            <p
+              className="text-lg sm:text-xl leading-relaxed mb-9 max-w-lg mx-auto text-balance"
+              style={{ color: "#a8a29e" }}
             >
-              Browse Tools
-            </a>
-            <Link
-              href="/tools/pdf-compress"
-              className="rounded-lg border px-8 py-4 text-lg font-semibold transition-colors hover:bg-white/5"
-              style={{ borderColor: "#2A2420", color: WARM_WHITE }}
-            >
-              Try Free PDF Compressor
-            </Link>
+              ScribeStack gives indie authors the same formatting, keyword, and listing tools that traditional publishers use — without the agency price tag.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a
+                href="#tools"
+                className="rounded-lg px-8 py-4 text-lg font-semibold transition-opacity hover:opacity-90"
+                style={{ backgroundColor: GOLD, color: "#0F0D0B" }}
+              >
+                Browse Tools
+              </a>
+              <Link
+                href="/tools/pdf-compress"
+                className="rounded-lg border px-8 py-4 text-lg font-semibold transition-colors hover:bg-white/5"
+                style={{ borderColor: "#2A2420", color: WARM_WHITE }}
+              >
+                Try Free PDF Compressor
+              </Link>
+            </div>
+          </div>
+          {/* Right placeholder — hidden on mobile */}
+          <div className="hidden lg:flex w-full lg:w-[25%] rounded-xl border items-center justify-center min-h-[280px]" style={{ backgroundColor: CARD_BG, borderColor: "#2A2420" }}>
+            <p className="text-sm" style={{ color: "rgba(245,166,35,0.7)" }}>[Illustration Coming]</p>
           </div>
         </div>
       </section>
@@ -191,10 +202,10 @@ export default function Home() {
       <section className="py-4 mb-4 overflow-hidden" style={{ backgroundColor: CARD_BG }}>
         <div className="flex w-[200%] animate-marquee">
           <span className="text-sm whitespace-nowrap flex-shrink-0 w-1/2 pr-16" style={{ color: "rgba(245,166,35,0.85)" }}>
-            ✦ Trusted by indie authors on Amazon KDP ✦ Format once, publish everywhere ✦ No account required to start ✦
+            ✦ Trusted By Indie Authors On Amazon KDP ✦ Format Once, Publish Everywhere ✦ No Account Required To Start ✦
           </span>
           <span className="text-sm whitespace-nowrap flex-shrink-0 w-1/2 pr-16" style={{ color: "rgba(245,166,35,0.85)" }}>
-            ✦ Trusted by indie authors on Amazon KDP ✦ Format once, publish everywhere ✦ No account required to start ✦
+            ✦ Trusted By Indie Authors On Amazon KDP ✦ Format Once, Publish Everywhere ✦ No Account Required To Start ✦
           </span>
         </div>
       </section>
