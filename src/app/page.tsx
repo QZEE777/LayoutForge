@@ -127,7 +127,7 @@ export default function Home() {
       </header>
 
       {/* Hero section */}
-      <section className="relative px-6 pt-16 pb-14 overflow-hidden">
+      <section className="relative px-6 pt-16 pb-14 overflow-hidden text-center">
         {/* Noise texture overlay */}
         <div
           className="absolute inset-0 pointer-events-none opacity-[0.04]"
@@ -136,66 +136,31 @@ export default function Home() {
             backgroundRepeat: "repeat",
           }}
         />
-        {/* Desktop: two-column layout (55% text, 45% illustration); mobile: single column centered, illustration hidden */}
-        <div className="relative mx-auto max-w-6xl flex flex-col lg:flex-row lg:items-center lg:justify-between lg:gap-12">
-          <div className="flex-1 text-center lg:text-left lg:max-w-[55%]">
-            <h1 className="font-bebas text-4xl lg:text-6xl tracking-wide text-white mb-5 leading-tight">
-              YOUR MANUSCRIPT DESERVES A PROFESSIONAL FINISH.
-            </h1>
-            <p
-              className="text-lg sm:text-xl leading-relaxed mb-9 max-w-2xl mx-auto lg:mx-0 text-balance"
-              style={{ color: "#a8a29e" }}
+        <div className="relative mx-auto">
+          <h1 className="font-bebas text-4xl lg:text-6xl tracking-wide text-white mb-5 leading-tight max-w-4xl mx-auto">
+            YOUR MANUSCRIPT DESERVES A PROFESSIONAL FINISH.
+          </h1>
+          <p
+            className="text-lg sm:text-xl leading-relaxed mb-9 max-w-2xl mx-auto text-balance"
+            style={{ color: "#a8a29e" }}
+          >
+            ScribeStack gives indie authors the same formatting, keyword, and listing tools that traditional publishers use — without the agency price tag.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href="#tools"
+              className="rounded-lg px-8 py-4 text-lg font-semibold transition-opacity hover:opacity-90"
+              style={{ backgroundColor: GOLD, color: "#0F0D0B" }}
             >
-              ScribeStack gives indie authors the same formatting, keyword, and listing tools that traditional publishers use — without the agency price tag.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <a
-                href="#tools"
-                className="rounded-lg px-8 py-4 text-lg font-semibold transition-opacity hover:opacity-90"
-                style={{ backgroundColor: GOLD, color: "#0F0D0B" }}
-              >
-                Browse Tools
-              </a>
-              <Link
-                href="/tools/pdf-compress"
-                className="rounded-lg border px-8 py-4 text-lg font-semibold transition-colors hover:bg-white/5"
-                style={{ borderColor: "#2A2420", color: WARM_WHITE }}
-              >
-                Try Free PDF Compressor
-              </Link>
-            </div>
-          </div>
-          {/* Scribe illustration: visible on lg+, hidden on mobile */}
-          <div className="hidden lg:flex flex-shrink-0 w-[45%] max-w-[400px] justify-center items-center">
-            <svg
-              viewBox="0 0 400 350"
-              className="w-full max-w-[400px] h-auto"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
+              Browse Tools
+            </a>
+            <Link
+              href="/tools/pdf-compress"
+              className="rounded-lg border px-8 py-4 text-lg font-semibold transition-colors hover:bg-white/5"
+              style={{ borderColor: "#2A2420", color: WARM_WHITE }}
             >
-              {/* Desk */}
-              <path d="M40 280 L360 280 L355 270 L45 270 Z" stroke={WARM_WHITE} strokeWidth="2" strokeLinejoin="round" />
-              <line x1="45" y1="280" x2="55" y2="320" stroke={WARM_WHITE} strokeWidth="1.5" />
-              <line x1="355" y1="280" x2="345" y2="320" stroke={WARM_WHITE} strokeWidth="1.5" />
-              {/* Scribe: head, shoulders, arm with pen */}
-              <ellipse cx="180" cy="235" rx="22" ry="26" stroke={WARM_WHITE} strokeWidth="2" />
-              <path d="M158 258 L165 275 L195 275 L202 258" stroke={WARM_WHITE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M165 275 L150 280 L140 265" stroke={WARM_WHITE} strokeWidth="2" strokeLinecap="round" />
-              <path d="M195 275 L210 278 L218 268" stroke={WARM_WHITE} strokeWidth="2" strokeLinecap="round" />
-              <path d="M175 252 L120 270 L115 265 L170 248" stroke={WARM_WHITE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              <line x1="115" y1="265" x2="85" y2="260" stroke={WARM_WHITE} strokeWidth="2" strokeLinecap="round" />
-              {/* Papers flying left */}
-              <path d="M75 240 Q50 230 45 255 Q42 268 55 262" stroke={WARM_WHITE} strokeWidth="1.2" strokeLinecap="round" fill="none" opacity="0.9" />
-              <path d="M90 255 Q65 248 58 270 Q55 280 68 276" stroke={WARM_WHITE} strokeWidth="1.2" strokeLinecap="round" fill="none" opacity="0.85" />
-              <path d="M70 268 Q48 265 50 285" stroke={WARM_WHITE} strokeWidth="1" strokeLinecap="round" opacity="0.7" />
-              {/* Stack of books on right - gold spines */}
-              <rect x="305" y="220" width="12" height="58" fill={GOLD} opacity="0.9" stroke={WARM_WHITE} strokeWidth="1" />
-              <rect x="318" y="228" width="14" height="50" fill={GOLD} opacity="0.75" stroke={WARM_WHITE} strokeWidth="1" />
-              <rect x="333" y="235" width="12" height="43" fill={GOLD} opacity="0.6" stroke={WARM_WHITE} strokeWidth="1" />
-              <rect x="346" y="242" width="10" height="36" fill={GOLD} opacity="0.5" stroke={WARM_WHITE} strokeWidth="1" />
-              {/* Paper on desk under pen */}
-              <path d="M100 272 L220 272 L218 278 L102 278 Z" stroke={WARM_WHITE} strokeWidth="1" opacity="0.8" />
-            </svg>
+              Try Free PDF Compressor
+            </Link>
           </div>
         </div>
       </section>
