@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
+import { truncateFilenameMiddle, formatFileSize } from "@/lib/formatFileName";
 
 interface Result {
   amazonDescription: string;
@@ -103,7 +104,12 @@ export default function DescriptionGeneratorPage() {
             onChange={handleFileChange}
             className="block w-full text-sm text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-green-600 file:text-white file:font-medium file:hover:bg-green-700"
           />
-          {file && <p className="mt-2 text-slate-500 text-sm">Selected: {file.name}</p>}
+          {file && (
+          <div className="mt-2">
+            <p className="text-slate-500 text-sm overflow-hidden text-ellipsis max-w-full" title={file.name}>Selected: {truncateFilenameMiddle(file.name)}</p>
+            <p className="text-slate-500 text-xs mt-0.5">{formatFileSize(file.size)}</p>
+          </div>
+        )}
           <button
             type="button"
             onClick={handleSubmit}

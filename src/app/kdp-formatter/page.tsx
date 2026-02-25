@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { truncateFilenameMiddle, formatFileSize } from "@/lib/formatFileName";
 
 const ALLOWED_TYPES = [".docx"];
 const MAX_MB = 50;
@@ -204,9 +205,9 @@ export default function KdpFormatterPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <p className="text-lg font-semibold text-white">{file.name}</p>
+                <p className="text-lg font-semibold text-white overflow-hidden text-ellipsis max-w-full" title={file.name}>{truncateFilenameMiddle(file.name)}</p>
                 <p className="mt-1 text-sm text-slate-400">
-                  {(file.size / 1024 / 1024).toFixed(2)} MB — ready to upload
+                  {formatFileSize(file.size)} — ready to upload
                 </p>
               </div>
             ) : (

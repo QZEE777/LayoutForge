@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import Link from "next/link";
+import { truncateFilenameMiddle, formatFileSize } from "@/lib/formatFileName";
 
 const MAX_MB = 50;
 
@@ -190,7 +191,12 @@ export default function PdfCompressPage() {
                 disabled={compressing}
                 className="block w-full text-sm text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-red-600 file:text-white file:font-medium file:hover:bg-red-700"
               />
-              {file && <p className="mt-2 text-slate-500 text-sm">Selected: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)</p>}
+              {file && (
+              <div className="mt-2">
+                <p className="text-slate-500 text-sm overflow-hidden text-ellipsis max-w-full" title={file.name}>Selected: {truncateFilenameMiddle(file.name)}</p>
+                <p className="text-slate-500 text-xs mt-0.5">{formatFileSize(file.size)}</p>
+              </div>
+            )}
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">Your email</label>
