@@ -21,7 +21,7 @@ export default function DownloadPage() {
     );
   }
 
-  const pdfFileName = `${id}-kdp-print.pdf`;
+  const pdfFileName = "kdp-print.pdf";
   const pdfDownloadUrl = `/api/download/${id}/${encodeURIComponent(pdfFileName)}`;
 
   return (
@@ -77,7 +77,7 @@ export default function DownloadPage() {
               <div className="flex-1">
                 <h3 className="font-semibold text-slate-900">KDP Print PDF</h3>
                 <p className="text-sm text-slate-600">
-                  {pdfFileName}
+                  Ready to download
                 </p>
               </div>
               <div className="flex-shrink-0">

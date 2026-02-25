@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
     }
 
     const pdfBuffer = Buffer.from(await dlRes.arrayBuffer());
-    const outputFilename = `${id}-kdp-print.pdf`;
+    const outputFilename = "kdp-print.pdf";
     await writeOutput(id, outputFilename, pdfBuffer);
     console.log("[status] PDF saved. Size:", pdfBuffer.length, "bytes");
 
