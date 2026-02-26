@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AuthNav from "@/components/AuthNav";
 
 interface Tool {
   id: string;
@@ -116,13 +117,7 @@ export default function Home() {
               <span className="font-sans">Stack</span>
             </span>
           </Link>
-          <a
-            href="#tools"
-            className="rounded-lg px-4 py-2 text-sm font-medium transition-colors hover:opacity-90"
-            style={{ backgroundColor: GOLD, color: "#0F0D0B" }}
-          >
-            Get Started
-          </a>
+          <AuthNav />
         </div>
       </header>
 
@@ -155,10 +150,17 @@ export default function Home() {
               ScribeStack gives indie authors the same formatting, keyword, and listing tools that traditional publishers use — without the agency price tag.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                href="/auth"
+                className="rounded-lg px-8 py-4 text-lg font-semibold transition-opacity hover:opacity-90 text-center"
+                style={{ backgroundColor: GOLD, color: "#0F0D0B" }}
+              >
+                Get Started
+              </Link>
               <a
                 href="#tools"
-                className="rounded-lg px-8 py-4 text-lg font-semibold transition-opacity hover:opacity-90"
-                style={{ backgroundColor: GOLD, color: "#0F0D0B" }}
+                className="rounded-lg px-8 py-4 text-lg font-semibold transition-opacity hover:opacity-90 text-center border"
+                style={{ borderColor: "#2A2420", color: WARM_WHITE }}
               >
                 Browse Tools
               </a>
