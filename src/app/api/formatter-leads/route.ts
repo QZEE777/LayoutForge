@@ -11,7 +11,14 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
+    const name = typeof body?.name === "string" ? body.name.trim() : "";
     const email = typeof body?.email === "string" ? body.email.trim() : "";
+    if (!name) {
+      return NextResponse.json(
+        { error: "Name is required" },
+        { status: 400 }
+      );
+    }
     if (!email) {
       return NextResponse.json(
         { error: "Email is required" },
@@ -20,7 +27,7 @@ export async function POST(request: Request) {
     }
     const { error } = await supabase
       .from("formatter_leads")
-      .insert({ email });
+      .insert({ name, email });
 
     if (error) {
       console.error("[formatter-leads] Supabase error:", error);
@@ -29,7 +36,7 @@ export async function POST(request: Request) {
         { status: 500 }
       );
     }
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, name });
   } catch {
     return NextResponse.json(
       { error: "Invalid request" },

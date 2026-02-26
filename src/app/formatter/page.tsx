@@ -3,11 +3,16 @@
 import { useState } from "react";
 import Link from "next/link";
 
-const LIVE_TOOLS = [
-  { title: "KDP Formatter (DOCX)", description: "Format DOCX for Amazon KDP print. Trim size, bleed, print-ready PDF.", href: "/kdp-formatter", badge: null },
-  { title: "KDP Formatter (PDF)", description: "Convert PDF to KDP-ready print PDF.", href: "/kdp-formatter-pdf", badge: null },
-  { title: "Kindle EPUB Maker", description: "Manuscript to Kindle-ready EPUB. Chapter structure, metadata.", href: "/epub-maker", badge: null },
-  { title: "PDF Compressor", description: "Shrink PDFs up to 50MB. No account needed.", href: "/pdf-compress", badge: "Free" },
+const PDF_COMPRESSOR = {
+  title: "PDF Compressor",
+  description: "Shrink PDFs up to 50MB. No account needed.",
+  href: "/pdf-compress",
+};
+
+const PAID_TOOLS = [
+  { title: "KDP Formatter (DOCX)", description: "Format DOCX for Amazon KDP print. Trim size, bleed, print-ready PDF.", href: "/kdp-formatter", pricing: "$7 per use · $27 for 6 months" },
+  { title: "KDP Formatter (PDF)", description: "Convert PDF to KDP-ready print PDF.", href: "/kdp-formatter-pdf", pricing: "$7 per use · $27 for 6 months" },
+  { title: "Kindle EPUB Maker", description: "Manuscript to Kindle-ready EPUB. Chapter structure, metadata.", href: "/epub-maker", pricing: "$7 per use · $27 for 6 months" },
 ];
 
 const COMING_SOON = [
@@ -28,8 +33,10 @@ export default function FormatterPage() {
   const [notifyEmail, setNotifyEmail] = useState("");
   const [notifyAll, setNotifyAll] = useState(false);
   const [notifyStatus, setNotifyStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [leadsName, setLeadsName] = useState("");
   const [leadsEmail, setLeadsEmail] = useState("");
   const [leadsStatus, setLeadsStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [leadsSuccessName, setLeadsSuccessName] = useState("");
 
   const handleNotifySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,13 +72,16 @@ export default function FormatterPage() {
       const res = await fetch("/api/formatter-leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: leadsEmail.trim() }),
+        body: JSON.stringify({ name: leadsName.trim(), email: leadsEmail.trim() }),
       });
+      const data = await res.json();
       if (!res.ok) {
         setLeadsStatus("error");
         return;
       }
       setLeadsStatus("success");
+      setLeadsSuccessName(data.name ?? leadsName.trim());
+      setLeadsName("");
       setLeadsEmail("");
     } catch {
       setLeadsStatus("error");
@@ -124,30 +134,53 @@ export default function FormatterPage() {
         </div>
       </section>
 
-      {/* Live tools — 2x2 */}
+      {/* PDF Compressor — centered, FREE stamp */}
+      <section className="px-6 pb-8">
+        <div className="mx-auto max-w-md flex justify-center">
+          <Link
+            href={PDF_COMPRESSOR.href}
+            className="group relative rounded-xl border-l-4 border-brand-gold p-6 flex flex-col w-full bg-brand-card border border-brand-cardHover hover:shadow-gold-glow hover:border-brand-cardHover transition-all overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-gold/10 rounded-full blur-3xl pointer-events-none" aria-hidden />
+            {/* FREE stamp — large, bold, gold, prominent (stamp-like) */}
+            <div className="absolute top-4 right-4 font-bebas text-3xl sm:text-4xl font-bold tracking-widest text-brand-gold uppercase">
+              FREE
+            </div>
+            <h3 className="font-bebas text-xl tracking-wide text-brand-cream mb-2 pr-16">
+              {PDF_COMPRESSOR.title}
+            </h3>
+            <p className="font-sans text-sm flex-1 mb-4 text-brand-muted">
+              {PDF_COMPRESSOR.description}
+            </p>
+            <span className="relative inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold w-fit bg-brand-gold text-brand-bg group-hover:opacity-90 transition-opacity">
+              Launch
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </span>
+          </Link>
+        </div>
+      </section>
+
+      {/* Paid tools — 3 columns desktop, stacked mobile */}
       <section className="px-6 pb-14">
         <div className="mx-auto max-w-4xl">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {LIVE_TOOLS.map((tool) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {PAID_TOOLS.map((tool) => (
               <Link
                 key={tool.href}
                 href={tool.href}
                 className="group relative rounded-xl border-l-4 border-brand-gold p-5 flex flex-col bg-brand-card border border-brand-cardHover hover:shadow-gold-glow hover:border-brand-cardHover transition-all overflow-hidden"
               >
-                {/* Decorative blur */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-brand-gold/10 rounded-full blur-3xl pointer-events-none" aria-hidden />
-                <div className="relative flex items-start justify-between gap-2 mb-2">
-                  <h3 className="font-bebas text-xl tracking-wide text-brand-cream">
-                    {tool.title}
-                  </h3>
-                  {tool.badge && (
-                    <span className="rounded-full px-2 py-0.5 text-xs font-medium bg-green-500/20 text-green-300 flex-shrink-0">
-                      {tool.badge}
-                    </span>
-                  )}
-                </div>
-                <p className="font-sans text-sm flex-1 mb-4 text-brand-muted">
+                <h3 className="font-bebas text-xl tracking-wide text-brand-cream mb-2">
+                  {tool.title}
+                </h3>
+                <p className="font-sans text-sm flex-1 mb-2 text-brand-muted">
                   {tool.description}
+                </p>
+                <p className="font-sans text-sm text-brand-muted mb-4">
+                  {tool.pricing}
                 </p>
                 <span className="relative inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold w-fit bg-brand-gold text-brand-bg group-hover:opacity-90 transition-opacity">
                   Launch
@@ -206,25 +239,35 @@ export default function FormatterPage() {
           </h2>
           {leadsStatus === "success" ? (
             <p className="font-sans text-sm text-brand-gold">
-              Thanks! We&apos;ll send tips and updates to your inbox.
+              Thanks{leadsSuccessName ? ` ${leadsSuccessName}` : ""}! You&apos;re on the list.
             </p>
           ) : (
-            <form onSubmit={handleLeadsSubmit} className="flex flex-col sm:flex-row gap-2">
+            <form onSubmit={handleLeadsSubmit} className="space-y-3">
               <input
-                type="email"
-                placeholder="you@example.com"
-                value={leadsEmail}
-                onChange={(e) => setLeadsEmail(e.target.value)}
+                type="text"
+                placeholder="Your name"
+                value={leadsName}
+                onChange={(e) => setLeadsName(e.target.value)}
                 required
-                className="flex-1 rounded-lg border border-brand-cardHover px-4 py-2.5 bg-brand-card font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold focus:border-transparent"
+                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-brand-card font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold focus:border-transparent"
               />
-              <button
-                type="submit"
-                disabled={leadsStatus === "loading"}
-                className="rounded-lg px-5 py-2.5 text-sm font-semibold bg-brand-gold text-brand-bg hover:opacity-90 disabled:opacity-60 transition-opacity"
-              >
-                {leadsStatus === "loading" ? "Submitting…" : "Submit"}
-              </button>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="email"
+                  placeholder="your@email.com"
+                  value={leadsEmail}
+                  onChange={(e) => setLeadsEmail(e.target.value)}
+                  required
+                  className="flex-1 rounded-lg border border-brand-cardHover px-4 py-2.5 bg-brand-card font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold focus:border-transparent"
+                />
+                <button
+                  type="submit"
+                  disabled={leadsStatus === "loading"}
+                  className="rounded-lg px-5 py-2.5 text-sm font-semibold bg-brand-gold text-brand-bg hover:opacity-90 disabled:opacity-60 transition-opacity"
+                >
+                  {leadsStatus === "loading" ? "Submitting…" : "Submit"}
+                </button>
+              </div>
             </form>
           )}
           {leadsStatus === "error" && (
