@@ -9,13 +9,12 @@ export default function DownloadPage() {
   const searchParams = useSearchParams();
   const id = typeof params.id === "string" ? params.id : "";
   const isPdfFlow = searchParams.get("source") === "pdf";
-  const s = isPdfFlow ? { box: "bg-red-50 border-red-200", title: "text-red-900", text: "text-red-800", card: "border-red-600 bg-red-50 hover:bg-red-100", icon: "text-red-600", btn: "bg-red-600 hover:bg-red-700", link: "text-red-600" } : { box: "bg-green-50 border-green-200", title: "text-green-900", text: "text-green-800", card: "border-green-600 bg-green-50 hover:bg-green-100", icon: "text-green-600", btn: "bg-green-600 hover:bg-green-700", link: "text-green-600" };
 
   if (!id) {
     return (
-      <div className="min-h-screen bg-slate-50 p-8">
-        <p className="text-red-600">Invalid file ID.</p>
-        <Link href={isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"} className={`mt-4 block ${s.link} hover:underline`}>
+      <div className="min-h-screen bg-[#1a1a12] text-[#F5F0E8] p-8">
+        <p className="text-red-400">Invalid file ID.</p>
+        <Link href={isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"} className="mt-4 block text-[#D4A843] hover:text-[#F5F0E8]">
           Upload a file
         </Link>
       </div>
@@ -26,65 +25,67 @@ export default function DownloadPage() {
   const pdfDownloadUrl = `/api/download/${id}/${encodeURIComponent(pdfFileName)}`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-[#1a1a12] text-[#F5F0E8]">
       {/* Header */}
-      <header className="border-b border-slate-200 bg-white shadow-sm">
+      <header className="border-b border-white/10">
         <div className="mx-auto max-w-4xl px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-bold text-slate-900">
+          <Link href="/" className="text-2xl font-bold tracking-tight text-[#F5F0E8]">
             ScribeStack
           </Link>
-          <Link href={isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"} className="text-sm text-slate-600 hover:text-slate-900">
+          <Link href={isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"} className="text-sm text-[#8B8B6B] hover:text-[#F5F0E8]">
             New upload
           </Link>
         </div>
       </header>
 
       {/* Main content */}
-      <main className="mx-auto max-w-2xl px-4 py-12">
+      <main className="max-w-2xl mx-auto px-6 py-12">
         <PaymentGate tool={isPdfFlow ? "kdp-formatter-pdf" : "kdp-formatter"}>
         {/* Success message */}
-        <div className={`mb-8 rounded-lg border p-6 ${s.box}`}>
-          <h1 className={`text-2xl font-bold ${s.title}`}>PDF Generated!</h1>
-          <p className={`mt-2 ${s.text}`}>
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-[#D4A843] mb-2">PDF Generated!</h1>
+          <p className="text-[#8B8B6B]">
             Your KDP-compliant PDF is ready for download.
           </p>
         </div>
 
         {/* Download section */}
-        <div className="rounded-lg bg-white p-8 shadow-sm border border-slate-200">
-          <h2 className="mb-6 text-xl font-bold text-slate-900">Download your file</h2>
+        <div className="bg-[#24241a] border border-[#D4A843] rounded-lg p-6 mb-6">
+          <h2 className="text-xl font-semibold text-center mb-6 text-[#F5F0E8]">Download your file</h2>
 
           {/* PDF download */}
           <div className="mb-6">
             <a
               href={pdfDownloadUrl}
               download={pdfFileName}
-              className={`flex items-center gap-4 rounded-lg border-2 p-6 transition-colors ${s.card}`}
+              className="flex items-center justify-between border border-[#D4A843] rounded-lg p-4 bg-[#1a1a12]/50"
             >
-              <div className="flex-shrink-0">
-                <svg
-                  className={`h-12 w-12 ${s.icon}`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-                  />
-                </svg>
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 border border-[#D4A843]/30 rounded flex items-center justify-center text-[#D4A843]">
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-medium text-[#F5F0E8]">KDP Print PDF</h3>
+                  <p className="text-sm text-[#8B8B6B]">
+                    Ready to download
+                  </p>
+                </div>
               </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-slate-900">KDP Print PDF</h3>
-                <p className="text-sm text-slate-600">
-                  Ready to download
-                </p>
-              </div>
-              <div className="flex-shrink-0">
+              <div className="text-[#D4A843] hover:text-[#F5F0E8]">
                 <svg
-                  className={`h-6 w-6 ${s.icon}`}
+                  className="h-6 w-6"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -101,87 +102,77 @@ export default function DownloadPage() {
           </div>
 
           {/* EPUB Info Box */}
-          <div className="mb-6 rounded-lg bg-purple-50 border-2 border-purple-600 p-6">
+          <div className="bg-[#24241a] border-l-4 border-l-[#D4A843] rounded-r-lg p-6 mb-6">
             <div className="flex items-start gap-4">
-              <div className="flex-shrink-0">
-                <svg
-                  className="h-12 w-12 text-purple-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
+              <div className="flex-shrink-0 w-10 h-10 border border-[#D4A843]/30 rounded-full flex items-center justify-center text-[#D4A843]">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-slate-900 text-lg">Need an EPUB file?</h3>
-                <p className="text-sm text-slate-700 mt-2">
-                  Your KDP PDF is ready to download. To also get an EPUB file for eBook distribution, use the free tool <strong>Calibre</strong>:
+                <h3 className="font-semibold text-[#F5F0E8] mb-2">Need an EPUB file?</h3>
+                <p className="text-[#8B8B6B] text-sm">
+                  Your KDP PDF is ready to download. To also get an EPUB file for eBook distribution, use the free tool <span className="text-[#D4A843]">Calibre</span>:
                 </p>
-                <ol className="mt-3 text-sm text-slate-700 space-y-1 ml-4 list-decimal">
-                  <li>Download Calibre from <a href="https://calibre-ebook.com" target="_blank" rel="noopener noreferrer" className={`${s.link} hover:underline`}>calibre-ebook.com</a></li>
+                <ol className="mt-3 text-[#8B8B6B] text-sm space-y-1 ml-4 list-decimal">
+                  <li>Download Calibre from <a href="https://calibre-ebook.com" target="_blank" rel="noopener noreferrer" className="text-[#D4A843] hover:underline">calibre-ebook.com</a></li>
                   <li>Open your downloaded PDF in Calibre</li>
-                  <li>Click "Convert books" and choose EPUB as output</li>
+                  <li>Click &quot;Convert books&quot; and choose EPUB as output</li>
                 </ol>
-                <p className="text-xs text-slate-500 mt-3">
+                <p className="text-[#8B8B6B] text-xs italic mt-3">
                   Calibre is free, open-source, and used by publishing professionals worldwide.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Info section */}
-          <div className="space-y-4 border-t border-slate-200 pt-6">
+          {/* What's included / Next steps */}
+          <div className="bg-[#24241a] rounded-lg p-6 mb-6 space-y-6">
             <div>
-              <h3 className="font-semibold text-slate-900">What's included:</h3>
-              <ul className="mt-2 space-y-1 text-sm text-slate-600">
-                <li>✓ KDP Print PDF (for paperback printing)</li>
-                <li>✓ EPUB conversion guide (using free Calibre tool)</li>
-                <li>✓ KDP-compliant trim size and margins</li>
-                <li>✓ Proper bleed settings (if selected)</li>
-                <li>✓ Professional typography and spacing</li>
+              <h3 className="font-semibold text-[#F5F0E8] mb-4">What&apos;s included:</h3>
+              <ul className="space-y-1 text-[#8B8B6B] text-sm">
+                <li><span className="text-[#D4A843]">✓</span> KDP Print PDF (for paperback printing)</li>
+                <li><span className="text-[#D4A843]">✓</span> EPUB conversion guide (using free Calibre tool)</li>
+                <li><span className="text-[#D4A843]">✓</span> KDP-compliant trim size and margins</li>
+                <li><span className="text-[#D4A843]">✓</span> Proper bleed settings (if selected)</li>
+                <li><span className="text-[#D4A843]">✓</span> Professional typography and spacing</li>
               </ul>
             </div>
-
             <div>
-              <h3 className="font-semibold text-slate-900">Next steps:</h3>
-              <ol className="mt-2 space-y-1 text-sm text-slate-600">
-                <li>1. Download the PDF above</li>
-                <li>2. Review the format in a PDF reader</li>
-                <li>3. Upload to Amazon KDP as your manuscript</li>
-                <li>4. Design/upload your cover separately</li>
+              <h3 className="font-semibold text-[#F5F0E8] mb-4">Next steps:</h3>
+              <ol className="space-y-1 text-[#8B8B6B] text-sm list-decimal ml-4">
+                <li>Download the PDF above</li>
+                <li>Review the format in a PDF reader</li>
+                <li>Upload to Amazon KDP as your manuscript</li>
+                <li>Design/upload your cover separately</li>
               </ol>
             </div>
           </div>
         </div>
 
         {/* Action buttons */}
-        <div className="mt-8 flex gap-4">
+        <div className="flex gap-4">
           <a
             href={pdfDownloadUrl}
             download={pdfFileName}
-            className={`flex-1 rounded-lg px-6 py-3 text-center font-medium text-white transition-colors ${s.btn}`}
+            className="flex-1 bg-[#D4A843] hover:bg-[#c49a3d] text-[#1a1a12] font-semibold py-3 px-6 rounded-lg text-center"
           >
             Download PDF
           </a>
           <Link
             href={isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"}
-            className="flex-1 rounded-lg border border-slate-300 px-6 py-3 text-center font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+            className="flex-1 border border-white/20 hover:border-[#D4A843] text-[#F5F0E8] font-medium py-3 px-6 rounded-lg text-center"
           >
             Format Another
           </Link>
         </div>
         </PaymentGate>
 
-        {/* Footer info */}
-        <div className="mt-8 rounded-lg bg-slate-50 p-4 text-xs text-slate-500 border border-slate-200">
+        {/* Storage notice */}
+        <div className="mt-8 bg-[#24241a]/50 border border-white/10 rounded-lg p-4">
           <p>
-            <strong>Storage:</strong> Your files are stored temporarily for 24 hours. Download your PDF now and keep a backup.
+            <span className="text-[#F5F0E8] font-medium">Storage:</span>{" "}
+            <span className="text-xs text-[#8B8B6B]">Your files are stored temporarily for 24 hours. Download your PDF now and keep a backup.</span>
           </p>
         </div>
       </main>

@@ -150,7 +150,7 @@ export default function KdpFormatterPage() {
 
       {/* Main content */}
       <main className="mx-auto max-w-2xl px-6 py-12">
-        <div className="mb-8">
+        <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-white">Upload your manuscript</h1>
           <p className="mt-2 text-slate-400">
             Supports DOCX only. Maximum {MAX_MB}MB.

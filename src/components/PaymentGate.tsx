@@ -30,7 +30,7 @@ export default function PaymentGate({ tool, children, isProcessing = false }: Pa
     return (
       <div className="relative">
         {children}
-        <p className="mt-3 flex items-center gap-2 text-sm text-green-500">
+        <p className="mb-6 flex items-center gap-2 text-sm text-[#D4A843]">
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
