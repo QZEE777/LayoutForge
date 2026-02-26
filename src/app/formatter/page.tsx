@@ -286,7 +286,9 @@ export default function FormatterPage() {
             This isn&apos;t just a tool. It&apos;s a publishing business.
           </h2>
           <p className="font-sans text-sm leading-relaxed text-brand-muted mb-6">
-            ScribeStack is building the publishing stack every indie author needs — whatever platform they publish on. Founders get in free forever and earn from every author they refer. Limited spots.
+            ScribeStack is building the publishing stack every indie author needs — whatever platform they publish on. Founders get in free forever and earn from every author they refer.
+            <br />
+            <span className="font-bebas text-2xl tracking-widest text-brand-gold uppercase">LIMITED INVITATIONS.</span>
           </p>
           <Link
             href="/founders"
