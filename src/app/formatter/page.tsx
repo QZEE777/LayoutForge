@@ -3,11 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 
-const CARD_BG = "#1A1612";
-const CARD_BORDER = "#2A2420";
-const GOLD = "#F5A623";
-const WARM_WHITE = "#FAF7F2";
-
 const LIVE_TOOLS = [
   { title: "KDP Formatter (DOCX)", description: "Format DOCX for Amazon KDP print. Trim size, bleed, print-ready PDF.", href: "/kdp-formatter", badge: null },
   { title: "KDP Formatter (PDF)", description: "Convert PDF to KDP-ready print PDF.", href: "/kdp-formatter-pdf", badge: null },
@@ -91,20 +86,39 @@ export default function FormatterPage() {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#0F0D0B" }}>
+    <div className="min-h-screen bg-brand-bg">
+      {/* Sticky nav */}
+      <nav className="sticky top-0 z-20 border-b border-white/5 bg-brand-bg/80 backdrop-blur-sm">
+        <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
+          <Link href="/formatter" className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 bg-brand-gold">
+              <svg className="w-4 h-4" fill="none" stroke="#0F0D0B" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            </div>
+            <span className="text-lg font-bold tracking-tight text-brand-cream">
+              <span className="font-serif">Scribe</span>
+              <span className="font-sans">Stack</span>
+            </span>
+          </Link>
+          <div className="flex items-center gap-6">
+            <Link href="/formatter" className="text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors">
+              Tools
+            </Link>
+            <Link href="/founders" className="text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors">
+              Founders
+            </Link>
+          </div>
+        </div>
+      </nav>
+
       {/* Hero */}
       <section className="px-6 pt-16 pb-12">
         <div className="mx-auto max-w-3xl text-center">
-          <h1
-            className="font-serif text-4xl sm:text-5xl font-bold mb-4"
-            style={{ color: WARM_WHITE }}
-          >
-            Professional Book Formatting — Done in Minutes
+          <h1 className="font-bebas text-4xl sm:text-5xl md:text-6xl font-normal tracking-wide text-brand-cream mb-4">
+            Professional Book Formatting — <span className="text-brand-gold">Done in Minutes</span>
           </h1>
-          <p
-            className="text-lg sm:text-xl leading-relaxed"
-            style={{ color: "#a8a29e" }}
-          >
+          <p className="font-sans text-lg sm:text-xl leading-relaxed text-brand-muted">
             Format your manuscript for any publishing platform — KDP, IngramSpark, Draft2Digital and more. Free tools for indie authors.
           </p>
         </div>
@@ -115,38 +129,33 @@ export default function FormatterPage() {
         <div className="mx-auto max-w-4xl">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {LIVE_TOOLS.map((tool) => (
-              <div
+              <Link
                 key={tool.href}
-                className="rounded-xl border p-5 flex flex-col"
-                style={{ backgroundColor: CARD_BG, borderColor: CARD_BORDER }}
+                href={tool.href}
+                className="group relative rounded-xl border-l-4 border-brand-gold p-5 flex flex-col bg-brand-card border border-brand-cardHover hover:shadow-gold-glow hover:border-brand-cardHover transition-all overflow-hidden"
               >
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <h3 className="font-serif text-lg font-bold" style={{ color: WARM_WHITE }}>
+                {/* Decorative blur */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-gold/10 rounded-full blur-3xl pointer-events-none" aria-hidden />
+                <div className="relative flex items-start justify-between gap-2 mb-2">
+                  <h3 className="font-bebas text-xl tracking-wide text-brand-cream">
                     {tool.title}
                   </h3>
                   {tool.badge && (
-                    <span
-                      className="rounded-full px-2 py-0.5 text-xs font-medium flex-shrink-0"
-                      style={{ backgroundColor: "rgba(34,197,94,0.2)", color: "#86efac" }}
-                    >
+                    <span className="rounded-full px-2 py-0.5 text-xs font-medium bg-green-500/20 text-green-300 flex-shrink-0">
                       {tool.badge}
                     </span>
                   )}
                 </div>
-                <p className="text-sm flex-1 mb-4" style={{ color: "#a8a29e" }}>
+                <p className="font-sans text-sm flex-1 mb-4 text-brand-muted">
                   {tool.description}
                 </p>
-                <Link
-                  href={tool.href}
-                  className="inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold w-fit transition-opacity hover:opacity-90"
-                  style={{ backgroundColor: GOLD, color: "#0F0D0B" }}
-                >
+                <span className="relative inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold w-fit bg-brand-gold text-brand-bg group-hover:opacity-90 transition-opacity">
                   Launch
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
-                </Link>
-              </div>
+                </span>
+              </Link>
             ))}
           </div>
         </div>
@@ -154,34 +163,32 @@ export default function FormatterPage() {
 
       {/* Coming soon */}
       <section className="px-6 pb-14">
-        <div className="mx-auto max-w-4xl">
-          <h2 className="font-serif text-2xl font-bold mb-2" style={{ color: WARM_WHITE }}>
+        <div className="mx-auto max-w-5xl">
+          <h2 className="font-bebas text-2xl sm:text-3xl tracking-wide text-brand-cream text-center mb-2">
             More publishing platforms. More tools. Coming soon.
           </h2>
-          <p className="text-sm mb-6" style={{ color: "#a8a29e" }}>
+          <p className="font-sans text-sm text-brand-muted text-center mb-8">
             ScribeStack is expanding to every major publishing platform. Sign up to be notified when your platform launches.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {COMING_SOON.map((item) => (
               <div
                 key={item.platform}
-                className="rounded-xl border p-4 flex flex-col opacity-80"
-                style={{ backgroundColor: CARD_BG, borderColor: "#3d3630" }}
+                className="rounded-xl border p-4 flex flex-col bg-brand-card border-brand-locked opacity-80 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-200"
               >
-                <span className="rounded-full bg-[#2A2420] border border-[#3d3630] px-2 py-0.5 text-xs font-medium text-[#9c958a] w-fit mb-2">
+                <span className="rounded-full bg-brand-locked border border-brand-cardHover px-2 py-0.5 text-xs font-medium text-brand-muted w-fit mb-2">
                   Coming Soon
                 </span>
-                <h3 className="font-serif font-bold mb-1" style={{ color: "#9c958a" }}>
+                <h3 className="font-bebas text-lg tracking-wide text-brand-muted">
                   {item.platform}
                 </h3>
-                <p className="text-sm flex-1 mb-4" style={{ color: "#78716c" }}>
+                <p className="font-sans text-sm flex-1 mb-4 text-brand-muted/80">
                   {item.description}
                 </p>
                 <button
                   type="button"
                   onClick={() => setNotifyModal({ platform: item.platform })}
-                  className="rounded-lg border px-4 py-2 text-sm font-medium w-fit transition-colors hover:bg-white/5"
-                  style={{ borderColor: "#3d3630", color: "#9c958a" }}
+                  className="rounded-lg border border-brand-cardHover px-4 py-2 text-sm font-medium w-fit text-brand-muted hover:bg-white/5 transition-colors"
                 >
                   Notify Me
                 </button>
@@ -194,11 +201,11 @@ export default function FormatterPage() {
       {/* Email capture — formatting tips */}
       <section className="px-6 pb-14">
         <div className="mx-auto max-w-xl">
-          <h2 className="font-serif text-xl font-bold mb-4" style={{ color: WARM_WHITE }}>
+          <h2 className="font-bebas text-xl tracking-wide text-brand-cream mb-4">
             Get formatting tips and tool updates
           </h2>
           {leadsStatus === "success" ? (
-            <p className="text-sm" style={{ color: "rgba(245,166,35,0.95)" }}>
+            <p className="font-sans text-sm text-brand-gold">
               Thanks! We&apos;ll send tips and updates to your inbox.
             </p>
           ) : (
@@ -209,44 +216,40 @@ export default function FormatterPage() {
                 value={leadsEmail}
                 onChange={(e) => setLeadsEmail(e.target.value)}
                 required
-                className="flex-1 rounded-lg border px-4 py-2.5 bg-[#1A1612] text-sm focus:outline-none focus:ring-2 focus:ring-[#F5A623]/50"
-                style={{ borderColor: CARD_BORDER, color: WARM_WHITE }}
+                className="flex-1 rounded-lg border border-brand-cardHover px-4 py-2.5 bg-brand-card font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold focus:border-transparent"
               />
               <button
                 type="submit"
                 disabled={leadsStatus === "loading"}
-                className="rounded-lg px-5 py-2.5 text-sm font-semibold transition-opacity hover:opacity-90 disabled:opacity-60"
-                style={{ backgroundColor: GOLD, color: "#0F0D0B" }}
+                className="rounded-lg px-5 py-2.5 text-sm font-semibold bg-brand-gold text-brand-bg hover:opacity-90 disabled:opacity-60 transition-opacity"
               >
                 {leadsStatus === "loading" ? "Submitting…" : "Submit"}
               </button>
             </form>
           )}
           {leadsStatus === "error" && (
-            <p className="mt-2 text-sm text-red-400">Something went wrong. Please try again.</p>
+            <p className="mt-2 font-sans text-sm text-red-400">Something went wrong. Please try again.</p>
           )}
         </div>
       </section>
 
-      {/* Founder CTA */}
-      <section
-        className="px-6 py-12 border-t"
-        style={{ backgroundColor: "#1A1612", borderColor: CARD_BORDER }}
-      >
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-serif text-2xl font-bold mb-3" style={{ color: WARM_WHITE }}>
+      {/* Founder CTA — full width, gold gradient borders */}
+      <section className="relative border-t-2 border-b-2 border-brand-gold/60 bg-brand-card">
+        <div className="mx-auto max-w-2xl px-6 py-14 text-center">
+          <h2 className="font-bebas text-3xl sm:text-4xl tracking-wide text-brand-cream mb-3">
             This isn&apos;t just a tool. It&apos;s a publishing business.
           </h2>
-          <p className="text-sm leading-relaxed mb-6" style={{ color: "#a8a29e" }}>
+          <p className="font-sans text-sm leading-relaxed text-brand-muted mb-6">
             ScribeStack is building the publishing stack every indie author needs — whatever platform they publish on. Founders get in free forever and earn from every author they refer. Limited spots.
           </p>
           <Link
             href="/founders"
-            className="inline-flex items-center gap-1.5 rounded-lg px-6 py-3 text-sm font-semibold transition-opacity hover:opacity-90"
-            style={{ backgroundColor: GOLD, color: "#0F0D0B" }}
+            className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold bg-brand-gold text-brand-bg hover:opacity-90 transition-opacity"
           >
             Apply for Founder Access
-            <span>→</span>
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
           </Link>
         </div>
       </section>
@@ -254,20 +257,18 @@ export default function FormatterPage() {
       {/* Notify Me modal */}
       {notifyModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ backgroundColor: "rgba(0,0,0,0.7)" }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70"
           onClick={closeNotifyModal}
         >
           <div
-            className="w-full max-w-md rounded-xl border p-6 shadow-xl"
-            style={{ backgroundColor: CARD_BG, borderColor: CARD_BORDER }}
+            className="w-full max-w-md rounded-xl border border-brand-cardHover p-6 shadow-gold-glow-lg bg-brand-card"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="font-serif text-lg font-bold mb-4" style={{ color: WARM_WHITE }}>
+            <h3 className="font-bebas text-xl tracking-wide text-brand-cream mb-4">
               Get notified when {notifyModal.platform} launches
             </h3>
             {notifyStatus === "success" ? (
-              <p className="text-sm mb-4" style={{ color: "rgba(245,166,35,0.95)" }}>
+              <p className="font-sans text-sm mb-4 text-brand-gold">
                 You&apos;re on the list. We&apos;ll notify you the moment it launches.
               </p>
             ) : (
@@ -278,16 +279,14 @@ export default function FormatterPage() {
                   value={notifyEmail}
                   onChange={(e) => setNotifyEmail(e.target.value)}
                   required
-                  className="w-full rounded-lg border px-4 py-2.5 bg-[#0F0D0B] text-sm focus:outline-none focus:ring-2 focus:ring-[#F5A623]/50"
-                  style={{ borderColor: CARD_BORDER, color: WARM_WHITE }}
+                  className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-brand-bg font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold"
                 />
-                <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: "#a8a29e" }}>
+                <label className="flex items-center gap-2 font-sans text-sm cursor-pointer text-brand-muted">
                   <input
                     type="checkbox"
                     checked={notifyAll}
                     onChange={(e) => setNotifyAll(e.target.checked)}
-                    className="rounded border"
-                    style={{ borderColor: CARD_BORDER }}
+                    className="rounded border-brand-cardHover"
                   />
                   Also notify me about all new ScribeStack tools
                 </label>
@@ -295,16 +294,14 @@ export default function FormatterPage() {
                   <button
                     type="button"
                     onClick={closeNotifyModal}
-                    className="rounded-lg border px-4 py-2 text-sm font-medium transition-colors hover:bg-white/5"
-                    style={{ borderColor: CARD_BORDER, color: "#a8a29e" }}
+                    className="rounded-lg border border-brand-cardHover px-4 py-2 text-sm font-medium text-brand-muted hover:bg-white/5"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={notifyStatus === "loading"}
-                    className="rounded-lg px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-90 disabled:opacity-60"
-                    style={{ backgroundColor: GOLD, color: "#0F0D0B" }}
+                    className="rounded-lg px-4 py-2 text-sm font-semibold bg-brand-gold text-brand-bg hover:opacity-90 disabled:opacity-60"
                   >
                     {notifyStatus === "loading" ? "Submitting…" : "Notify Me"}
                   </button>
@@ -312,14 +309,13 @@ export default function FormatterPage() {
               </form>
             )}
             {notifyStatus === "error" && (
-              <p className="mt-2 text-sm text-red-400">Something went wrong. Please try again.</p>
+              <p className="mt-2 font-sans text-sm text-red-400">Something went wrong. Please try again.</p>
             )}
             {notifyStatus === "success" && (
               <button
                 type="button"
                 onClick={closeNotifyModal}
-                className="rounded-lg border px-4 py-2 text-sm font-medium mt-2"
-                style={{ borderColor: CARD_BORDER, color: "#a8a29e" }}
+                className="rounded-lg border border-brand-cardHover px-4 py-2 text-sm font-medium text-brand-muted mt-2"
               >
                 Close
               </button>

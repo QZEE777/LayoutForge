@@ -30,3 +30,11 @@ body {
 .text-balance {
   text-wrap: balance;
 }
+
+/* Autofill: keep dark theme inputs readable */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #FAF7F2;
+  -webkit-box-shadow: 0 0 0px 1000px #1A1612 inset;
+}

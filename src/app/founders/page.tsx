@@ -3,11 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 
-const CARD_BG = "#1A1612";
-const CARD_BORDER = "#2A2420";
-const GOLD = "#F5A623";
-const WARM_WHITE = "#FAF7F2";
-
 const PRIMARY_PLATFORMS = [
   "YouTube",
   "TikTok",
@@ -88,153 +83,186 @@ export default function FoundersPage() {
   };
 
   const inputClass =
-    "w-full rounded-lg border px-4 py-2.5 bg-[#0F0D0B] text-sm focus:outline-none focus:ring-2 focus:ring-[#F5A623]/50";
-  const inputStyle = { borderColor: CARD_BORDER, color: WARM_WHITE };
-  const labelClass = "block text-sm font-medium mb-1.5";
-  const labelStyle = { color: "#a8a29e" };
+    "w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-brand-bg font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold focus:border-transparent appearance-none";
+  const labelClass = "block font-sans text-sm font-medium mb-1.5 text-brand-muted";
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#0F0D0B" }}>
+    <div className="min-h-screen bg-brand-bg relative overflow-hidden">
+      {/* Ambient gold blur (decorative) */}
+      <div className="absolute top-20 -left-20 w-64 h-64 bg-brand-gold/10 rounded-full blur-3xl pointer-events-none" aria-hidden />
+      <div className="absolute top-1/2 right-0 w-80 h-80 bg-brand-gold/5 rounded-full blur-3xl pointer-events-none" aria-hidden />
+
+      {/* Sticky nav */}
+      <nav className="sticky top-0 z-20 border-b border-white/5 bg-brand-bg/80 backdrop-blur-sm">
+        <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
+          <Link href="/formatter" className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 bg-brand-gold">
+              <svg className="w-4 h-4" fill="none" stroke="#0F0D0B" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            </div>
+            <span className="text-lg font-bold tracking-tight text-brand-cream">
+              <span className="font-serif">Scribe</span>
+              <span className="font-sans">Stack</span>
+            </span>
+          </Link>
+          <div className="flex items-center gap-6">
+            <Link href="/formatter" className="text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors">
+              Tools
+            </Link>
+            <Link href="/founders" className="text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors">
+              Founders
+            </Link>
+          </div>
+        </div>
+      </nav>
+
       {/* Hero */}
-      <section className="px-6 pt-16 pb-10">
+      <section className="relative px-6 pt-12 pb-10">
         <div className="mx-auto max-w-2xl text-center">
-          <h1
-            className="font-serif text-4xl sm:text-5xl font-bold mb-4"
-            style={{ color: WARM_WHITE }}
-          >
-            Become a ScribeStack Founder
+          {/* Gold S logo circle */}
+          <div className="flex justify-center mb-6">
+            <div className="w-16 h-16 rounded-full bg-brand-gold flex items-center justify-center">
+              <span className="font-bebas text-3xl text-brand-bg">S</span>
+            </div>
+          </div>
+          <h1 className="font-bebas text-4xl sm:text-5xl md:text-6xl font-normal tracking-wide text-brand-cream mb-4">
+            Become a ScribeStack <span className="text-brand-gold">Founder</span>
           </h1>
-          <p
-            className="text-lg mb-4"
-            style={{ color: "#a8a29e" }}
-          >
+          {/* Gold gradient divider */}
+          <div className="h-px w-24 mx-auto mb-6 bg-gradient-to-r from-transparent via-brand-gold to-transparent" />
+          <p className="font-sans text-lg mb-4 text-brand-muted">
             Free access for life. Earn from every author you refer. Built for publishing influencers with a real audience.
           </p>
-          <p className="text-sm leading-relaxed" style={{ color: "#9c958a" }}>
+          <p className="font-sans text-sm leading-relaxed text-brand-muted">
             We&apos;re opening a limited number of Founder spots to content creators and influencers in the self-publishing space. Founders get full lifetime access to ScribeStack — free, forever — plus affiliate commissions on every author they bring in. To qualify, you need an active presence on at least one platform with a minimum of 1,000 subscribers or followers.
           </p>
         </div>
       </section>
 
       {/* Form */}
-      <section className="px-6 pb-16">
+      <section className="relative px-6 pb-16">
         <div className="mx-auto max-w-xl">
           {status === "success" ? (
-            <div
-              className="rounded-xl border p-8 text-center"
-              style={{ backgroundColor: CARD_BG, borderColor: CARD_BORDER }}
-            >
-              <p className="font-medium mb-2" style={{ color: WARM_WHITE }}>
+            <div className="rounded-xl border border-brand-cardHover p-8 text-center bg-brand-card">
+              <p className="font-sans font-medium mb-2 text-brand-cream">
                 Application received.
               </p>
-              <p className="text-sm" style={{ color: "#a8a29e" }}>
+              <p className="font-sans text-sm text-brand-muted">
                 We review every application personally and will be in touch within 48 hours.
               </p>
             </div>
           ) : (
+            /* Form container with gold gradient top border */
             <form
               onSubmit={handleSubmit}
-              className="rounded-xl border p-6 space-y-5"
-              style={{ backgroundColor: CARD_BG, borderColor: CARD_BORDER }}
+              className="rounded-xl border border-brand-cardHover border-t-2 border-t-brand-gold p-6 space-y-5 bg-brand-card"
             >
-              <div>
-                <label className={labelClass} style={labelStyle}>
-                  Full Name <span className="text-amber-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required
-                  className={inputClass}
-                  style={inputStyle}
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className={labelClass}>
+                    Full Name <span className="text-brand-gold">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>
+                    Email <span className="text-brand-gold">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className={labelClass}>
+                    Primary Platform <span className="text-brand-gold">*</span>
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={primaryPlatform}
+                      onChange={(e) => setPrimaryPlatform(e.target.value)}
+                      required
+                      className={`${inputClass} pr-10`}
+                    >
+                      <option value="">Select…</option>
+                      {PRIMARY_PLATFORMS.map((p) => (
+                        <option key={p} value={p}>
+                          {p}
+                        </option>
+                      ))}
+                    </select>
+                    <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+                <div>
+                  <label className={labelClass}>
+                    Link to your channel, profile, or website <span className="text-brand-gold">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={platformUrl}
+                    onChange={(e) => setPlatformUrl(e.target.value)}
+                    required
+                    placeholder="https://… or @handle"
+                    className={inputClass}
+                  />
+                </div>
               </div>
               <div>
-                <label className={labelClass} style={labelStyle}>
-                  Email <span className="text-amber-400">*</span>
+                <label className={labelClass}>
+                  Subscriber / Follower Count <span className="text-brand-gold">*</span>
                 </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className={inputClass}
-                  style={inputStyle}
-                />
+                <div className="relative">
+                  <select
+                    value={followerCount}
+                    onChange={(e) => setFollowerCount(e.target.value)}
+                    required
+                    className={`${inputClass} pr-10`}
+                  >
+                    <option value="">Select…</option>
+                    {FOLLOWER_COUNTS.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                  <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
               </div>
               <div>
-                <label className={labelClass} style={labelStyle}>
-                  Primary Platform <span className="text-amber-400">*</span>
+                <label className={labelClass}>
+                  Publishing Platforms You Cover <span className="text-brand-gold">*</span>
                 </label>
-                <select
-                  value={primaryPlatform}
-                  onChange={(e) => setPrimaryPlatform(e.target.value)}
-                  required
-                  className={inputClass}
-                  style={inputStyle}
-                >
-                  <option value="">Select…</option>
-                  {PRIMARY_PLATFORMS.map((p) => (
-                    <option key={p} value={p}>
-                      {p}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className={labelClass} style={labelStyle}>
-                  Link to your channel, profile, or website <span className="text-amber-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={platformUrl}
-                  onChange={(e) => setPlatformUrl(e.target.value)}
-                  required
-                  placeholder="https://… or @handle"
-                  className={inputClass}
-                  style={inputStyle}
-                />
-              </div>
-              <div>
-                <label className={labelClass} style={labelStyle}>
-                  Subscriber / Follower Count <span className="text-amber-400">*</span>
-                </label>
-                <select
-                  value={followerCount}
-                  onChange={(e) => setFollowerCount(e.target.value)}
-                  required
-                  className={inputClass}
-                  style={inputStyle}
-                >
-                  <option value="">Select…</option>
-                  {FOLLOWER_COUNTS.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className={labelClass} style={labelStyle}>
-                  Publishing Platforms You Cover <span className="text-amber-400">*</span>
-                </label>
-                <p className="text-xs mb-2" style={{ color: "#78716c" }}>
+                <p className="font-sans text-xs mb-2 text-brand-muted/80">
                   Select all that apply.
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {PUBLISHING_PLATFORMS.map((platform) => (
                     <label
                       key={platform}
-                      className="flex items-center gap-2 text-sm cursor-pointer"
-                      style={{ color: "#a8a29e" }}
+                      className="flex items-center gap-2 font-sans text-sm cursor-pointer text-brand-muted"
                     >
                       <input
                         type="checkbox"
                         checked={publishingPlatforms.includes(platform)}
                         onChange={() => togglePublishing(platform)}
-                        className="rounded border"
-                        style={{ borderColor: CARD_BORDER }}
+                        className="rounded border-brand-cardHover text-brand-gold focus:ring-brand-gold"
                       />
                       {platform}
                     </label>
@@ -242,8 +270,8 @@ export default function FoundersPage() {
                 </div>
               </div>
               <div>
-                <label className={labelClass} style={labelStyle}>
-                  Who do you create content for and what topics do you cover? <span className="text-amber-400">*</span>
+                <label className={labelClass}>
+                  Who do you create content for and what topics do you cover? <span className="text-brand-gold">*</span>
                 </label>
                 <textarea
                   value={audienceDescription}
@@ -252,28 +280,30 @@ export default function FoundersPage() {
                   maxLength={300}
                   rows={4}
                   className={inputClass}
-                  style={inputStyle}
                 />
-                <p className="text-xs mt-1" style={{ color: "#78716c" }}>
+                <p className="font-sans text-xs mt-1 text-brand-muted/80">
                   {audienceDescription.length} / 300
                 </p>
               </div>
               {errorMessage && (
-                <p className="text-sm text-red-400">{errorMessage}</p>
+                <p className="font-sans text-sm text-red-400">{errorMessage}</p>
               )}
               <button
                 type="submit"
                 disabled={status === "loading"}
-                className="w-full rounded-lg px-4 py-3 text-sm font-semibold transition-opacity hover:opacity-90 disabled:opacity-60"
-                style={{ backgroundColor: GOLD, color: "#0F0D0B" }}
+                className="w-full rounded-lg px-4 py-3 font-bebas text-lg uppercase tracking-wide bg-brand-gold text-brand-bg hover:opacity-90 disabled:opacity-60 transition-opacity"
               >
                 {status === "loading" ? "Submitting…" : "Apply for Founder Access"}
               </button>
             </form>
           )}
           <p className="mt-6 text-center">
-            <Link href="/formatter" className="text-sm hover:underline" style={{ color: "#a8a29e" }}>
-              ← Back to Formatter
+            <Link
+              href="/formatter"
+              className="inline-flex items-center gap-1 font-sans text-sm text-brand-muted hover:text-brand-gold transition-colors group"
+            >
+              <span className="group-hover:-translate-x-0.5 transition-transform inline-block">←</span>
+              Back to Formatter
             </Link>
           </p>
         </div>
