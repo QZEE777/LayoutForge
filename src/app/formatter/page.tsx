@@ -134,7 +134,7 @@ export default function FormatterPage() {
         </div>
       </section>
 
-      {/* PDF Compressor — centered, FREE stamp */}
+      {/* PDF Compressor — centered, FREE below title */}
       <section className="px-6 pb-8">
         <div className="mx-auto max-w-md flex justify-center">
           <Link
@@ -142,22 +142,23 @@ export default function FormatterPage() {
             className="group relative rounded-xl border-l-4 border-brand-gold p-6 flex flex-col w-full bg-brand-card border border-brand-cardHover hover:shadow-gold-glow hover:border-brand-cardHover transition-all overflow-hidden"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-brand-gold/10 rounded-full blur-3xl pointer-events-none" aria-hidden />
-            {/* FREE stamp — large, bold, gold, prominent (stamp-like) */}
-            <div className="absolute top-4 right-4 font-bebas text-3xl sm:text-4xl font-bold tracking-widest text-brand-gold uppercase">
-              FREE
+            <div className="relative flex flex-col items-center text-center">
+              <h3 className="font-bebas text-xl tracking-wide text-brand-cream mb-1">
+                {PDF_COMPRESSOR.title}
+              </h3>
+              <p className="font-bebas text-3xl font-bold tracking-widest text-red-500 uppercase mb-2">
+                FREE
+              </p>
+              <p className="font-sans text-sm flex-1 mb-4 text-brand-muted">
+                {PDF_COMPRESSOR.description}
+              </p>
+              <span className="inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold w-fit bg-brand-gold text-brand-bg group-hover:opacity-90 transition-opacity">
+                Launch
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </span>
             </div>
-            <h3 className="font-bebas text-xl tracking-wide text-brand-cream mb-2 pr-16">
-              {PDF_COMPRESSOR.title}
-            </h3>
-            <p className="font-sans text-sm flex-1 mb-4 text-brand-muted">
-              {PDF_COMPRESSOR.description}
-            </p>
-            <span className="relative inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold w-fit bg-brand-gold text-brand-bg group-hover:opacity-90 transition-opacity">
-              Launch
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </span>
           </Link>
         </div>
       </section>
@@ -173,21 +174,23 @@ export default function FormatterPage() {
                 className="group relative rounded-xl border-l-4 border-brand-gold p-5 flex flex-col bg-brand-card border border-brand-cardHover hover:shadow-gold-glow hover:border-brand-cardHover transition-all overflow-hidden"
               >
                 <div className="absolute top-0 right-0 w-32 h-32 bg-brand-gold/10 rounded-full blur-3xl pointer-events-none" aria-hidden />
-                <h3 className="font-bebas text-xl tracking-wide text-brand-cream mb-2">
-                  {tool.title}
-                </h3>
-                <p className="font-sans text-sm flex-1 mb-2 text-brand-muted">
-                  {tool.description}
-                </p>
-                <p className="font-sans text-sm text-brand-muted mb-4">
-                  {tool.pricing}
-                </p>
-                <span className="relative inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold w-fit bg-brand-gold text-brand-bg group-hover:opacity-90 transition-opacity">
-                  Launch
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </span>
+                <div className="relative flex flex-col items-center text-center">
+                  <h3 className="font-bebas text-xl tracking-wide text-brand-cream mb-2">
+                    {tool.title}
+                  </h3>
+                  <p className="font-sans text-sm flex-1 mb-2 text-brand-muted">
+                    {tool.description}
+                  </p>
+                  <p className="font-sans text-xs text-white mb-4">
+                    {tool.pricing}
+                  </p>
+                  <span className="inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold w-fit bg-brand-gold text-brand-bg group-hover:opacity-90 transition-opacity">
+                    Launch
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </span>
+                </div>
               </Link>
             ))}
           </div>
