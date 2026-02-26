@@ -2,6 +2,7 @@
 
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import PaymentGate from "@/components/PaymentGate";
 
 export default function DownloadPage() {
   const params = useParams();
@@ -40,6 +41,7 @@ export default function DownloadPage() {
 
       {/* Main content */}
       <main className="mx-auto max-w-2xl px-4 py-12">
+        <PaymentGate tool={isPdfFlow ? "kdp-formatter-pdf" : "kdp-formatter"}>
         {/* Success message */}
         <div className={`mb-8 rounded-lg border p-6 ${s.box}`}>
           <h1 className={`text-2xl font-bold ${s.title}`}>PDF Generated!</h1>
@@ -174,6 +176,7 @@ export default function DownloadPage() {
             Format Another
           </Link>
         </div>
+        </PaymentGate>
 
         {/* Footer info */}
         <div className="mt-8 rounded-lg bg-slate-50 p-4 text-xs text-slate-500 border border-slate-200">
