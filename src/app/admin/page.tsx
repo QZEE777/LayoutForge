@@ -108,6 +108,7 @@ export default function AdminPage() {
     if (authed && pwd) loadData(pwd);
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!authed || stats !== null || loading) return;
     const pwd = typeof window !== "undefined" ? sessionStorage.getItem(ADMIN_PWD_KEY) : null;

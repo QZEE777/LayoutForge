@@ -2,14 +2,16 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { supabase } from "@/lib/supabase";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-
 export async function POST(request: Request) {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || request.headers.get("origin") || "http://localhost:3000";
-
   if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_PRICE_SINGLE_USE || !process.env.STRIPE_PRICE_SIX_MONTHS) {
-    return NextResponse.json({ error: "Stripe not configured" }, { status: 503 });
+    return NextResponse.json(
+      { error: "Payment gateway not configured yet." },
+      { status: 503 }
+    );
   }
+
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || request.headers.get("origin") || "http://localhost:3000";
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
   try {
     const body = await request.json();
