@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { truncateFilenameMiddle, formatFileSize } from "@/lib/formatFileName";
 import {
@@ -31,6 +31,7 @@ const PROGRESS_STEPS = [
 
 export default function KdpFormatterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -44,6 +45,14 @@ export default function KdpFormatterPage() {
   });
   const [processingStep, setProcessingStep] = useState(0);
   const [processingError, setProcessingError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const presetId = searchParams.get("id");
+    if (presetId && !uploadId) {
+      setUploadId(presetId);
+      setStep("configure");
+    }
+  }, [searchParams, uploadId]);
 
   const validateFile = useCallback((f: File): string | null => {
     const ext = f.name.toLowerCase().slice(f.name.lastIndexOf("."));
@@ -123,40 +132,57 @@ export default function KdpFormatterPage() {
     }
   }, [file]);
 
-  const handleGenerate = useCallback(async () => {
-    if (!uploadId) return;
-    if (!config.bookTitle.trim() || !config.authorName.trim()) {
-      setProcessingError("Book title and author name are required.");
-      return;
-    }
-    setStep("processing");
-    setProcessingError(null);
-    setProcessingStep(0);
-
-    const stepInterval = setInterval(() => {
-      setProcessingStep((s) => Math.min(s + 1, PROGRESS_STEPS.length - 1));
-    }, 1500);
-
-    try {
-      const res = await fetch("/api/kdp-format-docx", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: uploadId, config }),
-      });
-      clearInterval(stepInterval);
-      setProcessingStep(PROGRESS_STEPS.length - 1);
-
-      const data = await res.json();
-      if (!res.ok) {
-        setProcessingError(data.message || data.error || "Generation failed");
+  const runGeneration = useCallback(
+    async (apiPath: string) => {
+      if (!uploadId) return;
+      if (!config.bookTitle.trim() || !config.authorName.trim()) {
+        setProcessingError("Book title and author name are required.");
         return;
       }
-      router.push(`/download/${uploadId}`);
-    } catch (err) {
-      clearInterval(stepInterval);
-      setProcessingError(err instanceof Error ? err.message : "Request failed");
-    }
-  }, [uploadId, config, router]);
+      setStep("processing");
+      setProcessingError(null);
+      setProcessingStep(0);
+
+      console.log("[kdp-formatter] Full config before API call:", { ...config, bookTitle: config.bookTitle, authorName: config.authorName });
+      if (typeof config.bookTitle !== "string" || typeof config.authorName !== "string") {
+        setProcessingError("Book title and author name must be strings.");
+        return;
+      }
+
+      const stepInterval = setInterval(() => {
+        setProcessingStep((s) => Math.min(s + 1, PROGRESS_STEPS.length - 1));
+      }, 1500);
+
+      try {
+        const res = await fetch(apiPath, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: uploadId, config }),
+        });
+        clearInterval(stepInterval);
+        setProcessingStep(PROGRESS_STEPS.length - 1);
+
+        const data = await res.json();
+        if (!res.ok) {
+          setProcessingError(data.message || data.error || "Generation failed");
+          return;
+        }
+        router.push(`/download/${uploadId}`);
+      } catch (err) {
+        clearInterval(stepInterval);
+        setProcessingError(err instanceof Error ? err.message : "Request failed");
+      }
+    },
+    [uploadId, config, router]
+  );
+
+  const handleGenerateReviewDocx = useCallback(() => {
+    runGeneration("/api/kdp-format-docx-preview");
+  }, [runGeneration]);
+
+  const handleGeneratePdf = useCallback(() => {
+    runGeneration("/api/kdp-format-docx");
+  }, [runGeneration]);
 
   const isConfigure = step === "configure";
   const isProcessing = step === "processing";
@@ -475,13 +501,20 @@ export default function KdpFormatterPage() {
             </div>
 
             <button
-              onClick={handleGenerate}
+              onClick={handleGenerateReviewDocx}
               disabled={isProcessing}
               className="w-full rounded-xl bg-[#D4A843] hover:bg-[#c49a3d] text-[#1a1a12] font-bold py-4 px-6 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {isProcessing ? "Generating..." : "Generate KDP Manuscript"}
+              {isProcessing ? "Generating..." : "Generate Review DOCX"}
             </button>
-            <Link href="/kdp-formatter" className="block text-center text-sm text-slate-400 hover:text-white">Cancel and upload a different file</Link>
+            <button
+              onClick={handleGeneratePdf}
+              disabled={isProcessing}
+              className="w-full rounded-xl border-2 border-slate-600 text-slate-300 hover:border-slate-500 hover:bg-slate-800/50 font-semibold py-4 px-6 disabled:opacity-50 disabled:cursor-not-allowed transition-colors mt-3"
+            >
+              Skip Review — Generate KDP PDF Directly
+            </button>
+            <Link href="/kdp-formatter" className="block text-center text-sm text-slate-400 hover:text-white mt-4">Cancel and upload a different file</Link>
           </div>
         )}
 

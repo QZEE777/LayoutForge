@@ -19,9 +19,12 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const report = meta.processingReport
+      ? { ...meta.processingReport, outputFilename: meta.outputFilename }
+      : meta.processingReport;
     return NextResponse.json({
       success: true,
-      report: meta.processingReport,
+      report,
     });
   } catch (e) {
     console.error("[format-report]", e);

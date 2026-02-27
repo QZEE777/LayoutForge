@@ -29,12 +29,17 @@ export interface StoredManuscript {
   leadEmail?: string;
   // KDP format processing report (pages, chapters, issues, etc.)
   processingReport?: {
-    pagesGenerated: number;
+    pagesGenerated?: number;
     chaptersDetected: number;
+    sectionsDetected?: number;
+    lessonsDetected?: number;
+    estimatedPages?: number;
     issues: string[];
     fontUsed: string;
     trimSize: string;
     gutterInches?: number;
+    outputType?: "pdf" | "docx";
+    status?: string;
   };
 }
 

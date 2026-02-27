@@ -43,12 +43,37 @@ export interface ParsedContent {
   detectedIssues: string[];
 }
 
-const CHAPTER_PATTERNS = [
-  /^chapter\s+\d+/i,
-  /^chapter\s+(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|\w+)/i,
-  /^[IVX]+\.?\s/i,
-  /^PART\s+/i,
-];
+/** Detect if a paragraph is a heading by pattern. Returns level 1 (chapter) or 2 (section) or null. */
+function detectHeadingLevel(text: string, isBold: boolean): 1 | 2 | null {
+  const t = text.trim();
+  if (!t) return null;
+
+  // PATTERN 2 — Numbered lesson: "1. About This Course", "19. Practising Off Photos"
+  if (/^\d+\.\s+[A-Z].{3,120}$/.test(t)) return 2;
+
+  // PATTERN 3 — "Section N - Title" or "Section ONE - Title"
+  if (/^Section\s+\d+\s*[-–]\s*.+$/i.test(t)) return 1;
+  if (/^Section\s+[A-Za-z]+\s*[-–]\s*.+$/i.test(t)) return 1;
+
+  // PATTERN 4 — Chapter N or Chapter One
+  if (/^Chapter\s+\d+/i.test(t)) return 1;
+  if (/^Chapter\s+[A-Za-z]+/i.test(t)) return 1;
+
+  // PATTERN 5 — Part N or PART IV
+  if (/^Part\s+\d+/i.test(t)) return 1;
+  if (/^PART\s+[IVX]+/i.test(t)) return 1;
+
+  // PATTERN 6 — Short all-caps line
+  if (t.length < 60 && t === t.toUpperCase() && t.length > 3) return 2;
+
+  // PATTERN 7 — Short bold title-like (no period at end, not a long sentence)
+  if (isBold && t.length < 80 && !/[.!?]\s*$/.test(t)) {
+    const wordCount = t.split(/\s+/).filter(Boolean).length;
+    if (wordCount <= 12) return 2;
+  }
+
+  return null;
+}
 
 function cleanText(text: string): string {
   let s = text
@@ -65,15 +90,6 @@ function cleanText(text: string): string {
     .trim();
   while (s.includes("  ")) s = s.replace(/  /g, " ");
   return s;
-}
-
-function isLikelyChapterHeading(line: string, isBold: boolean): boolean {
-  const t = line.trim();
-  if (t.length > 60) return false;
-  if (CHAPTER_PATTERNS.some((p) => p.test(t))) return true;
-  if (t.length < 30 && /^[A-Z\s]+$/.test(t)) return true;
-  if (isBold && t.length < 50) return true;
-  return false;
 }
 
 /** Extract base64 and content type from data URI */
@@ -162,10 +178,24 @@ function htmlToStructure(html: string, issues: string[]): { chapters: ParsedChap
       };
     } else if (seg.type === "p") {
       const text = cleanText(stripTags(seg.raw));
-      if (text) {
-        const bold = /<strong|<\/strong>|<b>|<\/b>/i.test(seg.raw);
-        const italic = /<em|<\/em>|<i>|<\/i>/i.test(seg.raw);
-        const underline = /<u>|<\/u>/i.test(seg.raw);
+      if (!text) continue;
+      const bold = /<strong|<\/strong>|<b>|<\/b>/i.test(seg.raw);
+      const italic = /<em|<\/em>|<i>|<\/i>/i.test(seg.raw);
+      const underline = /<u>|<\/u>/i.test(seg.raw);
+
+      const headingLevel = detectHeadingLevel(text, bold);
+      if (headingLevel !== null) {
+        console.log("[kdpDocxParser] Detected heading:", { level: headingLevel, title: text.slice(0, 60) });
+        flushChapter();
+        chapterNumber++;
+        currentChapter = {
+          number: chapterNumber,
+          title: text,
+          level: headingLevel,
+          paragraphs: [],
+          images: [],
+        };
+      } else {
         currentChapter.paragraphs.push({ text, bold, italic, underline });
       }
     } else if (seg.type === "img") {

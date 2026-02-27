@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStored, readStoredFile, writeOutput, updateMeta } from "@/lib/storage";
 import { parseDocxForKdp } from "@/lib/kdpDocxParser";
-import { generateKdpPdf } from "@/lib/kdpPdfGenerator";
+import { generateKdpDocx } from "@/lib/kdpDocxGenerator";
 import { type KdpFormatConfig, getGutterInches } from "@/lib/kdpConfig";
 
-const OUTPUT_FILENAME = "kdp-print.pdf";
+const OUTPUT_FILENAME = "kdp-review.docx";
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,10 +25,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // BUG 1: Pass through exactly as received — no trim or modification
     const bookTitle = typeof config.bookTitle === "string" ? config.bookTitle : "";
     const authorName = typeof config.authorName === "string" ? config.authorName : "";
-    console.log("[kdp-format-docx] Received config.bookTitle:", JSON.stringify(config.bookTitle), "authorName:", JSON.stringify(config.authorName));
     if (!bookTitle.trim() || !authorName.trim()) {
       return NextResponse.json(
         { error: "Missing fields", message: "Book title and author name are required." },
@@ -64,7 +62,7 @@ export async function POST(request: NextRequest) {
       bookTitle,
       authorName,
       copyrightYear: typeof config.copyrightYear === "number" ? config.copyrightYear : new Date().getFullYear(),
-      isbn: typeof config.isbn === "string" ? config.isbn.trim() : "",
+      isbn: typeof config.isbn === "string" ? config.isbn : "",
       trimSize: config.trimSize || "6x9",
       bookType: config.bookType || "nonfiction",
       bodyFont: config.bodyFont || "ebgaramond",
@@ -88,46 +86,48 @@ export async function POST(request: NextRequest) {
     try {
       content = await parseDocxForKdp(buffer);
     } catch (e) {
-      console.error("[kdp-format-docx] Parse error:", e);
+      console.error("[kdp-format-docx-preview] Parse error:", e);
       return NextResponse.json(
         { error: "Parse failed", message: "Could not parse DOCX. The file may be corrupted or password-protected." },
         { status: 400 }
       );
     }
 
-    content.frontMatter.title = fullConfig.bookTitle;
-    content.frontMatter.author = fullConfig.authorName;
-
-    let result;
+    let docxBuffer: Buffer;
     try {
-      result = await generateKdpPdf(content, fullConfig);
+      docxBuffer = await generateKdpDocx(content, fullConfig);
     } catch (e) {
-      console.error("[kdp-format-docx] PDF generation error:", e);
+      console.error("[kdp-format-docx-preview] DOCX generation error:", e);
       return NextResponse.json(
-        { error: "Generation failed", message: e instanceof Error ? e.message : "PDF generation failed." },
+        { error: "Generation failed", message: e instanceof Error ? e.message : "DOCX generation failed." },
         { status: 500 }
       );
     }
 
     const trim = fullConfig.trimSize;
-    const gutterInches = getGutterInches(result.pageCount);
+    const gutterInches = getGutterInches(content.estimatedPageCount);
+    const sectionsDetected = content.chapters.filter((c) => c.level === 1).length;
+    const lessonsDetected = content.chapters.filter((c) => c.level === 2).length;
 
-    await writeOutput(id, OUTPUT_FILENAME, Buffer.from(result.pdfBytes));
+    await writeOutput(id, OUTPUT_FILENAME, docxBuffer);
 
     const report = {
-      pagesGenerated: result.pageCount,
+      pagesGenerated: 0,
       chaptersDetected: content.chapters.length,
+      sectionsDetected,
+      lessonsDetected,
+      estimatedPages: content.estimatedPageCount,
       issues: content.detectedIssues,
-      fontUsed: "Times Roman",
+      fontUsed: "Times New Roman",
       trimSize: trim,
       gutterInches,
+      outputType: "docx" as const,
+      status: "Review Draft ✓",
     };
 
     await updateMeta(id, {
       outputFilename: OUTPUT_FILENAME,
       convertStatus: "done",
-      pageCount: result.pageCount,
-      trimSize: trim,
       processingReport: report,
     });
 
@@ -135,16 +135,12 @@ export async function POST(request: NextRequest) {
       success: true,
       id,
       report: {
-        pagesGenerated: report.pagesGenerated,
-        chaptersDetected: report.chaptersDetected,
-        issues: report.issues,
-        fontUsed: report.fontUsed,
-        trimSize: report.trimSize,
-        gutterInches: report.gutterInches,
+        ...report,
+        pagesGenerated: undefined,
       },
     });
   } catch (e) {
-    console.error("[kdp-format-docx]", e);
+    console.error("[kdp-format-docx-preview]", e);
     return NextResponse.json(
       { error: "Internal error", message: "An unexpected error occurred." },
       { status: 500 }

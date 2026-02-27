@@ -6,12 +6,17 @@ import Link from "next/link";
 import PaymentGate from "@/components/PaymentGate";
 
 interface ProcessingReport {
-  pagesGenerated: number;
+  pagesGenerated?: number;
   chaptersDetected: number;
+  sectionsDetected?: number;
+  lessonsDetected?: number;
+  estimatedPages?: number;
   issues: string[];
   fontUsed: string;
   trimSize: string;
   gutterInches?: number;
+  outputType?: "pdf" | "docx";
+  status?: string;
 }
 
 export default function DownloadPage() {
@@ -43,7 +48,10 @@ export default function DownloadPage() {
   }
 
   const pdfFileName = "kdp-print.pdf";
-  const pdfDownloadUrl = `/api/download/${id}/${encodeURIComponent(pdfFileName)}`;
+  const docxFileName = "kdp-review.docx";
+  const isDocx = report?.outputType === "docx";
+  const downloadFilename = isDocx ? docxFileName : pdfFileName;
+  const downloadUrl = `/api/download/${id}/${encodeURIComponent(downloadFilename)}`;
 
   return (
     <div className="min-h-screen bg-[#1a1a12] text-[#F5F0E8]">
@@ -67,12 +75,27 @@ export default function DownloadPage() {
           <div className="mb-8 bg-[#24241a] border border-white/10 rounded-lg p-6">
             <h2 className="font-semibold text-[#F5F0E8] mb-4">Processing report</h2>
             <ul className="text-sm text-[#8B8B6B] space-y-1">
-              <li>Pages generated: <span className="text-[#F5F0E8]">{report.pagesGenerated}</span></li>
-              <li>Chapters detected: <span className="text-[#F5F0E8]">{report.chaptersDetected}</span></li>
-              <li>Trim size: <span className="text-[#F5F0E8]">{report.trimSize}</span></li>
-              <li>Font: <span className="text-[#F5F0E8]">{report.fontUsed}</span></li>
-              {report.gutterInches != null && (
-                <li>Gutter: <span className="text-[#F5F0E8]">{report.gutterInches}&quot;</span></li>
+              {report.outputType === "docx" ? (
+                <>
+                  <li>Sections detected: <span className="text-[#F5F0E8]">{report.sectionsDetected ?? 0}</span></li>
+                  <li>Lessons detected: <span className="text-[#F5F0E8]">{report.lessonsDetected ?? 0}</span></li>
+                  <li>Estimated pages (PDF): <span className="text-[#F5F0E8]">~{report.estimatedPages ?? report.chaptersDetected}</span></li>
+                  <li>Font applied: <span className="text-[#F5F0E8]">{report.fontUsed}</span></li>
+                  <li>Trim size: <span className="text-[#F5F0E8]">{report.trimSize}</span></li>
+                  {report.status && (
+                    <li>Status: <span className="text-[#F5F0E8]">{report.status}</span></li>
+                  )}
+                </>
+              ) : (
+                <>
+                  <li>Pages generated: <span className="text-[#F5F0E8]">{report.pagesGenerated}</span></li>
+                  <li>Chapters detected: <span className="text-[#F5F0E8]">{report.chaptersDetected}</span></li>
+                  <li>Trim size: <span className="text-[#F5F0E8]">{report.trimSize}</span></li>
+                  <li>Font: <span className="text-[#F5F0E8]">{report.fontUsed}</span></li>
+                  {report.gutterInches != null && (
+                    <li>Gutter: <span className="text-[#F5F0E8]">{report.gutterInches}&quot;</span></li>
+                  )}
+                </>
               )}
             </ul>
             {report.issues && report.issues.length > 0 && (
@@ -89,9 +112,13 @@ export default function DownloadPage() {
         )}
         {/* Success message */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-[#D4A843] mb-2">PDF Generated!</h1>
+          <h1 className="text-3xl font-bold text-[#D4A843] mb-2">
+            {isDocx ? "Review DOCX Ready!" : "PDF Generated!"}
+          </h1>
           <p className="text-[#8B8B6B]">
-            Your KDP-compliant PDF is ready for download.
+            {isDocx
+              ? "Your formatted review draft is ready. Download it, proofread and edit as needed, then return to generate your final KDP PDF."
+              : "Your KDP-compliant PDF is ready for download."}
           </p>
         </div>
 
@@ -99,11 +126,10 @@ export default function DownloadPage() {
         <div className="bg-[#24241a] border border-[#D4A843] rounded-lg p-6 mb-6">
           <h2 className="text-xl font-semibold text-center mb-6 text-[#F5F0E8]">Download your file</h2>
 
-          {/* PDF download */}
           <div className="mb-6">
             <a
-              href={pdfDownloadUrl}
-              download={pdfFileName}
+              href={downloadUrl}
+              download={downloadFilename}
               className="flex items-center justify-between border border-[#D4A843] rounded-lg p-4 bg-[#1a1a12]/50"
             >
               <div className="flex items-center gap-4">
@@ -123,9 +149,11 @@ export default function DownloadPage() {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-medium text-[#F5F0E8]">KDP Print PDF</h3>
+                  <h3 className="font-medium text-[#F5F0E8]">
+                    {isDocx ? "Review DOCX" : "KDP Print PDF"}
+                  </h3>
                   <p className="text-sm text-[#8B8B6B]">
-                    Ready to download
+                    {isDocx ? "Proofread and edit, then return to generate PDF" : "Ready to download"}
                   </p>
                 </div>
               </div>
@@ -146,6 +174,21 @@ export default function DownloadPage() {
               </div>
             </a>
           </div>
+
+          {isDocx && (
+            <div className="mb-6 p-4 rounded-lg bg-[#1a1a12]/50 border border-white/10">
+              <p className="text-sm text-[#8B8B6B] mb-4">
+                This is your review draft. Open it in Word or Google Docs to proofread and make any edits.
+                When ready, return to ScribeStack to generate your final KDP-ready PDF.
+              </p>
+              <Link
+                href={`/kdp-formatter?id=${id}`}
+                className="inline-block bg-[#D4A843] hover:bg-[#c49a3d] text-[#1a1a12] font-semibold py-2.5 px-5 rounded-lg"
+              >
+                Generate KDP PDF from this file
+              </Link>
+            </div>
+          )}
 
           {/* EPUB Info Box */}
           <div className="bg-[#24241a] border-l-4 border-l-[#D4A843] rounded-r-lg p-6 mb-6">
@@ -199,11 +242,11 @@ export default function DownloadPage() {
         {/* Action buttons */}
         <div className="flex gap-4">
           <a
-            href={pdfDownloadUrl}
-            download={pdfFileName}
+            href={downloadUrl}
+            download={downloadFilename}
             className="flex-1 bg-[#D4A843] hover:bg-[#c49a3d] text-[#1a1a12] font-semibold py-3 px-6 rounded-lg text-center"
           >
-            Download PDF
+            {isDocx ? "Download Review DOCX" : "Download PDF"}
           </a>
           <Link
             href={isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"}
