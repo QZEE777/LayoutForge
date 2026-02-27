@@ -19,7 +19,13 @@ import {
 } from "docx";
 import type { ParsedContent, ParsedChapter } from "./kdpDocxParser";
 import type { KdpFormatConfig } from "./kdpConfig";
-import { getTrimSize, getGutterInches } from "./kdpConfig";
+import { getTrimSize, getGutterInches, BODY_FONTS } from "./kdpConfig";
+
+/** Resolve body font display name from config id. */
+function getBodyFontName(fontId: string): string {
+  const found = BODY_FONTS.find((f) => f.id === fontId);
+  return found ? found.name.split("—")[0].trim() : "Times New Roman";
+}
 
 const REVIEW_COMMENT =
   "[SCRIBESTACK REVIEW DRAFT — Not for print. Edit this document, then return to ScribeStack to generate your final KDP-ready PDF.]";
@@ -48,11 +54,12 @@ export async function generateKdpDocx(
   const lineTwip = Math.round(240 * lineSpacing); // ~12pt * 20 * lineSpacing
 
   const bodySize = fontSize * 2; // half-points
+  const bodyFontName = getBodyFontName(config.bodyFont);
   const normalRun = (text: string, opts?: { bold?: boolean; italics?: boolean }) =>
     new TextRun({
       text,
       size: bodySize,
-      font: "Times New Roman",
+      font: bodyFontName,
       ...opts,
     });
 
@@ -150,9 +157,19 @@ export async function generateKdpDocx(
     frontChildren.push(new Paragraph({ children: [new PageBreak()] }));
   }
 
-  // Body: chapters with Heading1/2/3 and Normal paragraphs
+  // Body: chapters with Heading1/2/3 and Normal paragraphs. Skip title-page content that leaked into parsed chapters.
+  const isTitlePageContent = (ch: ParsedChapter): boolean => {
+    const t = ch.title.trim();
+    if (t === title.trim()) return true;
+    if (t === `By ${author}`.trim() || t === `By ${author.trim()}`) return true;
+    if (t === author.trim()) return true;
+    if (/^By\s+/i.test(t) && t.toLowerCase().endsWith(author.trim().toLowerCase())) return true;
+    return false;
+  };
+  const bodyChapters = content.chapters.filter((ch) => !isTitlePageContent(ch));
+
   const bodyChildren: FileChild[] = [];
-  for (const ch of content.chapters) {
+  for (const ch of bodyChapters) {
     if (ch.level === 1) {
       bodyChildren.push(
         new Paragraph({
@@ -183,6 +200,7 @@ export async function generateKdpDocx(
     for (const p of ch.paragraphs) {
       bodyChildren.push(
         new Paragraph({
+          style: "Normal",
           children: [normalRun(p.text, { bold: p.bold, italics: p.italic })],
           spacing: {
             before: config.paragraphStyle === "nonfiction" ? 200 : 0,
@@ -200,6 +218,26 @@ export async function generateKdpDocx(
   const pageHeight = convertInchesToTwip(trim.heightInches);
 
   const doc = new Document({
+    styles: {
+      default: {
+        document: {
+          run: {
+            font: bodyFontName,
+            size: bodySize,
+          },
+        },
+      },
+      paragraphStyles: [
+        {
+          id: "Normal",
+          name: "Normal",
+          run: {
+            font: bodyFontName,
+            size: bodySize,
+          },
+        },
+      ],
+    },
     sections: [
       {
         properties: {
@@ -214,6 +252,8 @@ export async function generateKdpDocx(
               gutter: convertInchesToTwip(gutterInches),
             },
             size: { width: pageWidth, height: pageHeight },
+            // @ts-expect-error - mirrorMargins not in docx types but supported in OOXML (w:mirrorMargins)
+            mirrorMargins: true,
           },
         },
         headers: {
