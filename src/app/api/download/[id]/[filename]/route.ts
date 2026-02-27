@@ -23,15 +23,17 @@ export async function GET(
       );
     }
 
-    // Security: Only allow PDF and EPUB files
+    // Security: Only allow known output types (PDF, DOCX, EPUB)
     let contentType: string;
     if (filename.endsWith(".pdf")) {
       contentType = "application/pdf";
+    } else if (filename.endsWith(".docx")) {
+      contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
     } else if (filename.endsWith(".epub")) {
       contentType = "application/epub+zip";
     } else {
       return NextResponse.json(
-        { error: "Invalid file", message: "Only PDF and EPUB files can be downloaded." },
+        { error: "Invalid file", message: "Only PDF, DOCX, and EPUB files can be downloaded." },
         { status: 400 }
       );
     }

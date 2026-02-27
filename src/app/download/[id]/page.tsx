@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import PaymentGate from "@/components/PaymentGate";
@@ -25,6 +25,33 @@ export default function DownloadPage() {
   const id = typeof params.id === "string" ? params.id : "";
   const isPdfFlow = searchParams.get("source") === "pdf";
   const [report, setReport] = useState<ProcessingReport | null>(null);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
+
+  const isDocx = report?.outputType === "docx";
+  const downloadFilename = isDocx ? "kdp-review.docx" : "kdp-print.pdf";
+
+  const handleDownload = useCallback(async () => {
+    setDownloadError(null);
+    const url = `/api/download/${id}/${encodeURIComponent(downloadFilename)}`;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.message || data.error || `Download failed (${response.status})`);
+      }
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = downloadFilename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(blobUrl);
+      document.body.removeChild(a);
+    } catch (err) {
+      setDownloadError(err instanceof Error ? err.message : "Download failed");
+    }
+  }, [id, downloadFilename]);
 
   useEffect(() => {
     if (!id) return;
@@ -46,12 +73,6 @@ export default function DownloadPage() {
       </div>
     );
   }
-
-  const pdfFileName = "kdp-print.pdf";
-  const docxFileName = "kdp-review.docx";
-  const isDocx = report?.outputType === "docx";
-  const downloadFilename = isDocx ? docxFileName : pdfFileName;
-  const downloadUrl = `/api/download/${id}/${encodeURIComponent(downloadFilename)}`;
 
   return (
     <div className="min-h-screen bg-[#1a1a12] text-[#F5F0E8]">
@@ -127,10 +148,15 @@ export default function DownloadPage() {
           <h2 className="text-xl font-semibold text-center mb-6 text-[#F5F0E8]">Download your file</h2>
 
           <div className="mb-6">
-            <a
-              href={downloadUrl}
-              download={downloadFilename}
-              className="flex items-center justify-between border border-[#D4A843] rounded-lg p-4 bg-[#1a1a12]/50"
+            {downloadError && (
+              <div className="mb-3 rounded-lg bg-red-500/10 border border-red-500/30 p-3 text-sm text-red-400">
+                {downloadError}
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={handleDownload}
+              className="w-full flex items-center justify-between border border-[#D4A843] rounded-lg p-4 bg-[#1a1a12]/50 text-left hover:bg-[#1a1a12]/70 transition-colors cursor-pointer"
             >
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 border border-[#D4A843]/30 rounded flex items-center justify-center text-[#D4A843]">
@@ -172,7 +198,7 @@ export default function DownloadPage() {
                   />
                 </svg>
               </div>
-            </a>
+            </button>
           </div>
 
           {isDocx && (
@@ -241,13 +267,13 @@ export default function DownloadPage() {
 
         {/* Action buttons */}
         <div className="flex gap-4">
-          <a
-            href={downloadUrl}
-            download={downloadFilename}
-            className="flex-1 bg-[#D4A843] hover:bg-[#c49a3d] text-[#1a1a12] font-semibold py-3 px-6 rounded-lg text-center"
+          <button
+            type="button"
+            onClick={handleDownload}
+            className="flex-1 bg-[#D4A843] hover:bg-[#c49a3d] text-[#1a1a12] font-semibold py-3 px-6 rounded-lg text-center cursor-pointer"
           >
             {isDocx ? "Download Review DOCX" : "Download PDF"}
-          </a>
+          </button>
           <Link
             href={isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"}
             className="flex-1 border border-white/20 hover:border-[#D4A843] text-[#F5F0E8] font-medium py-3 px-6 rounded-lg text-center"
