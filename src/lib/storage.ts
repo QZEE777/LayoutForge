@@ -27,6 +27,15 @@ export interface StoredManuscript {
   title?: string;
   // Lead magnet (e.g. PDF compressor)
   leadEmail?: string;
+  // KDP format processing report (pages, chapters, issues, etc.)
+  processingReport?: {
+    pagesGenerated: number;
+    chaptersDetected: number;
+    issues: string[];
+    fontUsed: string;
+    trimSize: string;
+    gutterInches?: number;
+  };
 }
 
 export async function ensureUploadDir(): Promise<string> {

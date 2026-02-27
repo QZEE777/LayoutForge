@@ -3,6 +3,8 @@ import { Bebas_Neue, Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 import ToolPagesBanner from "@/components/ToolPagesBanner";
 
+export const dynamic = "force-dynamic";
+
 const bebasNeue = Bebas_Neue({
   weight: "400",
   subsets: ["latin"],

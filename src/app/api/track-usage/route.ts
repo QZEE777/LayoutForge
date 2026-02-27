@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
+import { createClient as createSupabaseClient, type SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabaseServer";
-import { supabase as supabaseAdmin } from "@/lib/supabase";
 
 const PAYWALL_ACTIVE = process.env.PAYWALL_ACTIVE === "true";
 const FREE_LIMIT = 10;
@@ -12,7 +12,10 @@ type Profile = {
   is_founder: boolean;
 };
 
-async function getProfile(userId: string): Promise<Profile | null> {
+async function getProfile(
+  supabaseAdmin: SupabaseClient,
+  userId: string
+): Promise<Profile | null> {
   const { data, error } = await supabaseAdmin
     .from("profiles")
     .select("id, email, usage_count, is_founder")
@@ -23,6 +26,13 @@ async function getProfile(userId: string): Promise<Profile | null> {
 }
 
 export async function GET() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !supabaseKey) {
+    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  }
+  const supabaseAdmin = createSupabaseClient(supabaseUrl, supabaseKey);
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -31,7 +41,7 @@ export async function GET() {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  const profile = await getProfile(user.id);
+  const profile = await getProfile(supabaseAdmin, user.id);
   if (!profile) {
     return NextResponse.json({ error: "profile_not_found" }, { status: 404 });
   }
@@ -48,6 +58,13 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !supabaseKey) {
+    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  }
+  const supabaseAdmin = createSupabaseClient(supabaseUrl, supabaseKey);
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -67,7 +84,7 @@ export async function POST(request: Request) {
   }
   const tool = typeof body?.tool === "string" ? body.tool : "unknown";
 
-  const profile = await getProfile(user.id);
+  const profile = await getProfile(supabaseAdmin, user.id);
   if (!profile) {
     return NextResponse.json({ error: "profile_not_found" }, { status: 404 });
   }

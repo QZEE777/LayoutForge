@@ -1,14 +1,35 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import PaymentGate from "@/components/PaymentGate";
+
+interface ProcessingReport {
+  pagesGenerated: number;
+  chaptersDetected: number;
+  issues: string[];
+  fontUsed: string;
+  trimSize: string;
+  gutterInches?: number;
+}
 
 export default function DownloadPage() {
   const params = useParams();
   const searchParams = useSearchParams();
   const id = typeof params.id === "string" ? params.id : "";
   const isPdfFlow = searchParams.get("source") === "pdf";
+  const [report, setReport] = useState<ProcessingReport | null>(null);
+
+  useEffect(() => {
+    if (!id) return;
+    fetch(`/api/format-report?id=${encodeURIComponent(id)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success && data.report) setReport(data.report);
+      })
+      .catch(() => {});
+  }, [id]);
 
   if (!id) {
     return (
@@ -41,6 +62,31 @@ export default function DownloadPage() {
       {/* Main content */}
       <main className="max-w-2xl mx-auto px-6 py-12">
         <PaymentGate tool={isPdfFlow ? "kdp-formatter-pdf" : "kdp-formatter"}>
+        {/* Processing report card */}
+        {report && (
+          <div className="mb-8 bg-[#24241a] border border-white/10 rounded-lg p-6">
+            <h2 className="font-semibold text-[#F5F0E8] mb-4">Processing report</h2>
+            <ul className="text-sm text-[#8B8B6B] space-y-1">
+              <li>Pages generated: <span className="text-[#F5F0E8]">{report.pagesGenerated}</span></li>
+              <li>Chapters detected: <span className="text-[#F5F0E8]">{report.chaptersDetected}</span></li>
+              <li>Trim size: <span className="text-[#F5F0E8]">{report.trimSize}</span></li>
+              <li>Font: <span className="text-[#F5F0E8]">{report.fontUsed}</span></li>
+              {report.gutterInches != null && (
+                <li>Gutter: <span className="text-[#F5F0E8]">{report.gutterInches}&quot;</span></li>
+              )}
+            </ul>
+            {report.issues && report.issues.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-white/10">
+                <p className="text-xs font-medium text-[#D4A843] mb-2">Warnings</p>
+                <ul className="text-xs text-[#8B8B6B] list-disc list-inside space-y-1">
+                  {report.issues.map((issue, i) => (
+                    <li key={i}>{issue}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
         {/* Success message */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-[#D4A843] mb-2">PDF Generated!</h1>

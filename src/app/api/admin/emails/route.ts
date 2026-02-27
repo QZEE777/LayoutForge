@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@supabase/supabase-js";
 
 /**
  * GET /api/admin/emails
@@ -21,12 +21,17 @@ export async function GET(request: NextRequest) {
       { status: 401 }
     );
   }
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !supabaseKey) {
     return NextResponse.json(
-      { error: "Not configured", message: "Supabase is not set." },
+      { error: "Database not configured", message: "Supabase is not set." },
       { status: 503 }
     );
   }
+
+  const supabase = createClient(supabaseUrl, supabaseKey);
 
   try {
     const { data, error } = await supabase

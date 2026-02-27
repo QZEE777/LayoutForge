@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@supabase/supabase-js";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -33,9 +33,14 @@ export async function POST(request: NextRequest) {
     if (!email || !EMAIL_REGEX.test(email)) {
       return NextResponse.json({ error: "Invalid email", message: "Please enter a valid email address." }, { status: 400 });
     }
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      return NextResponse.json({ error: "Service not configured", message: "Supabase is not configured." }, { status: 503 });
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!supabaseUrl || !supabaseKey) {
+      return NextResponse.json({ error: "Database not configured", message: "Supabase is not configured." }, { status: 503 });
     }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
     const id = crypto.randomUUID();
 
