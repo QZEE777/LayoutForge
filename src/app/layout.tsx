@@ -37,6 +37,19 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${bebasNeue.variable} ${playfair.variable} ${inter.variable}`}>
       <body className="antialiased bg-slate-50 text-slate-900 font-sans">
+        <header className="w-full border-b border-white/10" style={{ backgroundColor: "#111111" }}>
+          <div className="mx-auto max-w-7xl px-4 py-3 flex items-center">
+            <a href="/" className="inline-block">
+              <img
+                src="/logo.png"
+                alt="manu2print"
+                width={150}
+                className="h-auto max-w-[150px] object-contain"
+                style={{ width: 150 }}
+              />
+            </a>
+          </div>
+        </header>
         <ToolPagesBanner />
         {children}
       </body>
