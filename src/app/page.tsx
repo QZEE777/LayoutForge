@@ -123,7 +123,17 @@ export default function Home() {
               <span className="font-sans">2print</span>
             </span>
           </Link>
-          <AuthNav />
+          <nav className="flex items-center gap-6">
+            <Link
+              href="/formatter"
+              className="text-xs font-medium transition-colors hover:opacity-100 opacity-50"
+              style={{ color: WARM_WHITE }}
+              title="Formatting tools (PDF Compressor, KDP Formatters)"
+            >
+              Formatting
+            </Link>
+            <AuthNav />
+          </nav>
         </div>
       </header>
 
@@ -246,7 +256,10 @@ export default function Home() {
             </div>
             <span className="font-medium" style={{ color: "#a8a29e" }}>manu2print</span>
           </div>
-          <p>Your files are processed securely and never stored permanently.</p>
+          <p className="flex items-center gap-4 flex-wrap">
+            Your files are processed securely and never stored permanently.
+            <Link href="/formatter" className="hover:underline" style={{ color: "#78716c" }}>Formatting tools</Link>
+          </p>
         </div>
         <p className="mx-auto max-w-6xl text-center text-sm mt-3" style={{ color: "#78716c" }}>
           © 2026 manu2print. Built for indie authors.
