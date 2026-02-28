@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import Image from "next/image";
 import { Bebas_Neue, Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 import ToolPagesBanner from "@/components/ToolPagesBanner";
@@ -39,15 +41,15 @@ export default function RootLayout({
       <body className="antialiased bg-slate-50 text-slate-900 font-sans">
         <header className="w-full border-b border-white/10" style={{ backgroundColor: "#111111" }}>
           <div className="mx-auto max-w-7xl px-4 py-3 flex items-center">
-            <a href="/" className="inline-block">
-              <img
+            <Link href="/" className="inline-block">
+              <Image
                 src="/logo.png"
                 alt="manu2print"
                 width={150}
+                height={60}
                 className="h-auto max-w-[150px] object-contain"
-                style={{ width: 150 }}
               />
-            </a>
+            </Link>
           </div>
         </header>
         <ToolPagesBanner />
