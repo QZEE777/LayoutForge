@@ -8,19 +8,37 @@ interface PaymentGateProps {
   tool: string;
   children: React.ReactNode;
   isProcessing?: boolean;
+  /** When provided, used for checkout and verify-access; enables real checkout buttons. */
+  downloadId?: string;
 }
 
-export default function PaymentGate({ tool, children, isProcessing = false }: PaymentGateProps) {
+export default function PaymentGate({ tool, children, isProcessing = false, downloadId }: PaymentGateProps) {
   const [state, setState] = useState<GateState>(isProcessing ? "processing" : "preview");
   const [showBetaInput, setShowBetaInput] = useState(false);
   const [betaCode, setBetaCode] = useState("");
   const [betaError, setBetaError] = useState("");
   const [betaLoading, setBetaLoading] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   useEffect(() => {
     if (isProcessing) setState((s) => (s === "unlocked" ? "unlocked" : "processing"));
     else setState((s) => (s === "unlocked" ? "unlocked" : "preview"));
   }, [isProcessing]);
+
+  useEffect(() => {
+    if (!downloadId) return;
+    fetch("/api/verify-access", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ downloadId, email: userEmail || undefined, tool }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.access) setState("unlocked");
+      })
+      .catch(() => {});
+  }, [downloadId, tool]);
 
   if (state === "processing") {
     return <>{children}</>;
@@ -58,6 +76,46 @@ export default function PaymentGate({ tool, children, isProcessing = false }: Pa
     }
   };
 
+  const handleSingleUse = async () => {
+    setCheckoutLoading(true);
+    try {
+      const res = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          priceType: "single_use",
+          tool,
+          downloadId: downloadId ?? "",
+          email: userEmail || "",
+        }),
+      });
+      const data = await res.json();
+      if (data?.checkoutUrl) window.location.href = data.checkoutUrl;
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
+
+  const handleSubscription = async () => {
+    setCheckoutLoading(true);
+    try {
+      const res = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          priceType: "subscription",
+          tool,
+          downloadId: downloadId ?? "",
+          email: userEmail || "",
+        }),
+      });
+      const data = await res.json();
+      if (data?.checkoutUrl) window.location.href = data.checkoutUrl;
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
+
   return (
     <div className="relative">
       <div className="select-none pointer-events-none blur-sm">
@@ -67,20 +125,29 @@ export default function PaymentGate({ tool, children, isProcessing = false }: Pa
         <div className="max-w-md w-full text-center space-y-5">
           <h2 className="text-xl font-bold text-white">Your file is ready.</h2>
           <p className="text-sm text-slate-300">Choose how you&apos;d like to access it.</p>
+          <input
+            type="email"
+            placeholder="Your email (for receipt)"
+            value={userEmail}
+            onChange={(e) => setUserEmail(e.target.value)}
+            className="w-full rounded-lg border border-slate-600 bg-slate-900/90 px-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#F5A623]"
+          />
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button
               type="button"
-              disabled
-              className="rounded-lg px-5 py-3 text-sm font-semibold bg-[#2A2420] text-[#8B7355] border border-[#3d3630] cursor-not-allowed"
+              onClick={handleSingleUse}
+              disabled={checkoutLoading}
+              className="rounded-lg px-5 py-3 text-sm font-semibold bg-[#D4A843] text-[#1a1a12] border border-[#c49a3d] hover:opacity-90 disabled:opacity-60"
             >
-              $7 One-Time Use — Coming Soon
+              {checkoutLoading ? "Redirecting…" : "$7 — One-Time Use"}
             </button>
             <button
               type="button"
-              disabled
-              className="rounded-lg px-5 py-3 text-sm font-semibold bg-[#2A2420] text-[#8B7355] border border-[#3d3630] cursor-not-allowed"
+              onClick={handleSubscription}
+              disabled={checkoutLoading}
+              className="rounded-lg px-5 py-3 text-sm font-semibold bg-[#2A2420] text-[#D4A843] border border-[#D4A843] hover:bg-[#3d3630] disabled:opacity-60"
             >
-              $27 · Six Month Access — Coming Soon
+              {checkoutLoading ? "Redirecting…" : "$27 · Six Month Access"}
             </button>
           </div>
           <p className="text-slate-500 text-sm">or</p>

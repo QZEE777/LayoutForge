@@ -27,6 +27,8 @@ export interface StoredManuscript {
   title?: string;
   // Lead magnet (e.g. PDF compressor)
   leadEmail?: string;
+  /** Set when payment is confirmed via webhook (Lemon Squeezy order_created). */
+  payment_confirmed?: boolean;
   // KDP format processing report (pages, chapters, issues, etc.)
   processingReport?: {
     pagesGenerated?: number;
@@ -104,6 +106,11 @@ export async function updateMeta(
     // If meta doesn't exist yet, create it
     await saveMeta({ id, originalName: "", mimeType: "", storedPath: "", createdAt: Date.now(), ...updates });
   }
+}
+
+/** Mark a download as paid/unlocked after successful payment (used by Lemon Squeezy webhook). */
+export async function markDownloadPaid(downloadId: string): Promise<void> {
+  await updateMeta(downloadId, { payment_confirmed: true });
 }
 
 export async function readStoredFile(id: string): Promise<Buffer | null> {

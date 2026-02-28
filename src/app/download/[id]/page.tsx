@@ -90,7 +90,7 @@ export default function DownloadPage() {
 
       {/* Main content */}
       <main className="max-w-2xl mx-auto px-6 py-12">
-        <PaymentGate tool={isPdfFlow ? "kdp-formatter-pdf" : "kdp-formatter"}>
+        <PaymentGate tool={isPdfFlow ? "kdp-formatter-pdf" : "kdp-formatter"} downloadId={id}>
         {/* Processing report card */}
         {report && (
           <div className="mb-8 bg-[#24241a] border border-white/10 rounded-lg p-6">
