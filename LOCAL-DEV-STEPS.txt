@@ -1,5 +1,5 @@
 ============================================
-  RUN SCRIBESTACK ON YOUR MACHINE (LOCAL DEV)
+  RUN MANU2PRINT ON YOUR MACHINE (LOCAL DEV)
   One step at a time. Do each step, then the next.
 ============================================
 
@@ -65,7 +65,7 @@ STEP 6 — Open the app in your browser
 
   http://localhost:3000
 
-• Press Enter. You should see the ScribeStack homepage.
+• Press Enter. You should see the manu2print homepage.
 
 
 STEP 7 — When you are done

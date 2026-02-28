@@ -1,4 +1,4 @@
-Run ScribeStack on your machine - do each step in order.
+Run manu2print on your machine - do each step in order.
 
 Step 1: Open PowerShell (Windows key, type powershell, press Enter).
 
