@@ -12,10 +12,10 @@ const PDF_COMPRESSOR = {
 const PAID_TOOLS = [
   { title: "KDP Formatter (DOCX)", description: "Format DOCX for Amazon KDP print. Trim size, bleed, print-ready PDF.", href: "/kdp-formatter", pricing: "$7 per use · $27 for 6 months" },
   { title: "KDP Formatter (PDF)", description: <>Convert PDF to KDP.<br />Print Ready — Amazon Approved.</>, href: "/kdp-formatter-pdf", pricing: "$7 per use · $27 for 6 months" },
+  { title: "Kindle EPUB Maker", description: "Manuscript to Kindle-ready EPUB. Chapter structure, metadata.", href: "/epub-maker", pricing: "$7 per use · $27 for 6 months" },
 ];
 
 const COMING_SOON = [
-  { platform: "Kindle EPUB Maker", description: "Manuscript to Kindle-ready EPUB. Chapter structure, metadata." },
   { platform: "IngramSpark Formatter", description: "Print-ready files for IngramSpark distribution." },
   { platform: "Gumroad Digital Product Formatter", description: "Format ebooks and low-content for Gumroad." },
   { platform: "Etsy Low Content Book Formatter", description: "Templates and interiors for Etsy KDP sellers." },

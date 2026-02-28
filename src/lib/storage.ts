@@ -40,7 +40,7 @@ export interface StoredManuscript {
     fontUsed: string;
     trimSize: string;
     gutterInches?: number;
-    outputType?: "pdf" | "docx";
+    outputType?: "pdf" | "docx" | "epub";
     status?: string;
   };
 }

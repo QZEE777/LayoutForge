@@ -15,7 +15,8 @@ interface ProcessingReport {
   fontUsed: string;
   trimSize: string;
   gutterInches?: number;
-  outputType?: "pdf" | "docx";
+  outputType?: "pdf" | "docx" | "epub";
+  outputFilename?: string;
   status?: string;
 }
 
@@ -24,11 +25,17 @@ export default function DownloadPage() {
   const searchParams = useSearchParams();
   const id = typeof params.id === "string" ? params.id : "";
   const isPdfFlow = searchParams.get("source") === "pdf";
+  const isEpubFlow = searchParams.get("source") === "epub";
   const [report, setReport] = useState<ProcessingReport | null>(null);
   const [downloadError, setDownloadError] = useState<string | null>(null);
 
   const isDocx = report?.outputType === "docx";
-  const downloadFilename = isDocx ? "kdp-review.docx" : "kdp-print.pdf";
+  const isEpub = isEpubFlow || report?.outputType === "epub";
+  const downloadFilename = isDocx
+    ? "kdp-review.docx"
+    : isEpub
+      ? (report?.outputFilename || "book.epub")
+      : "kdp-print.pdf";
 
   const handleDownload = useCallback(async () => {
     setDownloadError(null);
@@ -67,7 +74,7 @@ export default function DownloadPage() {
     return (
       <div className="min-h-screen bg-[#1a1a12] text-[#F5F0E8] p-8">
         <p className="text-red-400">Invalid file ID.</p>
-        <Link href={isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"} className="mt-4 block text-[#D4A843] hover:text-[#F5F0E8]">
+        <Link href={isEpubFlow ? "/epub-maker" : isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"} className="mt-4 block text-[#D4A843] hover:text-[#F5F0E8]">
           Upload a file
         </Link>
       </div>
@@ -82,7 +89,7 @@ export default function DownloadPage() {
           <Link href="/" className="text-2xl font-bold tracking-tight text-[#F5F0E8]">
             manu2print
           </Link>
-          <Link href={isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"} className="text-sm text-[#8B8B6B] hover:text-[#F5F0E8]">
+          <Link href={isEpub ? "/epub-maker" : isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"} className="text-sm text-[#8B8B6B] hover:text-[#F5F0E8]">
             New upload
           </Link>
         </div>
@@ -90,13 +97,18 @@ export default function DownloadPage() {
 
       {/* Main content */}
       <main className="max-w-2xl mx-auto px-6 py-12">
-        <PaymentGate tool={isPdfFlow ? "kdp-formatter-pdf" : "kdp-formatter"} downloadId={id}>
+        <PaymentGate tool={isEpub ? "epub-maker" : isPdfFlow ? "kdp-formatter-pdf" : "kdp-formatter"} downloadId={id}>
         {/* Processing report card */}
         {report && (
           <div className="mb-8 bg-[#24241a] border border-white/10 rounded-lg p-6">
             <h2 className="font-semibold text-[#F5F0E8] mb-4">Processing report</h2>
             <ul className="text-sm text-[#8B8B6B] space-y-1">
-              {report.outputType === "docx" ? (
+              {report.outputType === "epub" ? (
+                <>
+                  <li>Format: <span className="text-[#F5F0E8]">Kindle-ready EPUB</span></li>
+                  <li>Chapters: <span className="text-[#F5F0E8]">{report.chaptersDetected ?? 0}</span></li>
+                </>
+              ) : report.outputType === "docx" ? (
                 <>
                   <li>Sections detected: <span className="text-[#F5F0E8]">{report.sectionsDetected ?? 0}</span></li>
                   <li>Lessons detected: <span className="text-[#F5F0E8]">{report.lessonsDetected ?? 0}</span></li>
@@ -134,12 +146,14 @@ export default function DownloadPage() {
         {/* Success message */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-[#D4A843] mb-2">
-            {isDocx ? "Review DOCX Ready!" : "PDF Generated!"}
+            {isEpub ? "EPUB Ready!" : isDocx ? "Review DOCX Ready!" : "PDF Generated!"}
           </h1>
           <p className="text-[#8B8B6B]">
-            {isDocx
-              ? "Your formatted review draft is ready. Download it, proofread and edit as needed, then return to generate your final KDP PDF."
-              : "Your KDP-compliant PDF is ready for download."}
+            {isEpub
+              ? "Your Kindle-ready EPUB is ready to download."
+              : isDocx
+                ? "Your formatted review draft is ready. Download it, proofread and edit as needed, then return to generate your final KDP PDF."
+                : "Your KDP-compliant PDF is ready for download."}
           </p>
         </div>
 
@@ -176,10 +190,10 @@ export default function DownloadPage() {
                 </div>
                 <div>
                   <h3 className="font-medium text-[#F5F0E8]">
-                    {isDocx ? "Review DOCX" : "KDP Print PDF"}
+                    {isEpub ? "Kindle EPUB" : isDocx ? "Review DOCX" : "KDP Print PDF"}
                   </h3>
                   <p className="text-sm text-[#8B8B6B]">
-                    {isDocx ? "Proofread and edit, then return to generate PDF" : "Ready to download"}
+                    {isEpub ? "Ready to download" : isDocx ? "Proofread and edit, then return to generate PDF" : "Ready to download"}
                   </p>
                 </div>
               </div>
@@ -201,7 +215,7 @@ export default function DownloadPage() {
             </button>
           </div>
 
-          {isDocx && (
+          {isDocx && !isEpub && (
             <div className="mb-6 p-4 rounded-lg bg-[#1a1a12]/50 border border-white/10">
               <p className="text-sm text-[#8B8B6B] mb-4">
                 This is your review draft. Open it in Word or Google Docs to proofread and make any edits.
@@ -216,7 +230,8 @@ export default function DownloadPage() {
             </div>
           )}
 
-          {/* EPUB Info Box */}
+          {/* EPUB Info Box — only for PDF/DOCX flows */}
+          {!isEpub && (
           <div className="bg-[#24241a] border-l-4 border-l-[#D4A843] rounded-r-lg p-6 mb-6">
             <div className="flex items-start gap-4">
               <div className="flex-shrink-0 w-10 h-10 border border-[#D4A843]/30 rounded-full flex items-center justify-center text-[#D4A843]">
@@ -240,28 +255,42 @@ export default function DownloadPage() {
               </div>
             </div>
           </div>
+          )}
 
           {/* What's included / Next steps */}
           <div className="bg-[#24241a] rounded-lg p-6 mb-6 space-y-6">
-            <div>
-              <h3 className="font-semibold text-[#F5F0E8] mb-4">What&apos;s included:</h3>
-              <ul className="space-y-1 text-[#8B8B6B] text-sm">
-                <li><span className="text-[#D4A843]">✓</span> KDP Print PDF (for paperback printing)</li>
-                <li><span className="text-[#D4A843]">✓</span> EPUB conversion guide (using free Calibre tool)</li>
-                <li><span className="text-[#D4A843]">✓</span> KDP-compliant trim size and margins</li>
-                <li><span className="text-[#D4A843]">✓</span> Proper bleed settings (if selected)</li>
-                <li><span className="text-[#D4A843]">✓</span> Professional typography and spacing</li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold text-[#F5F0E8] mb-4">Next steps:</h3>
-              <ol className="space-y-1 text-[#8B8B6B] text-sm list-decimal ml-4">
-                <li>Download the PDF above</li>
-                <li>Review the format in a PDF reader</li>
-                <li>Upload to Amazon KDP as your manuscript</li>
-                <li>Design/upload your cover separately</li>
-              </ol>
-            </div>
+            {isEpub ? (
+              <>
+                <p className="text-[#8B8B6B] text-sm">
+                  <span className="text-[#D4A843]">✓</span> Kindle-ready EPUB for eBook distribution on Amazon KDP and other retailers.
+                </p>
+                <p className="text-[#8B8B6B] text-sm">
+                  Upload to KDP as your eBook manuscript, or use with other platforms (Apple Books, Kobo, etc.).
+                </p>
+              </>
+            ) : (
+              <>
+                <div>
+                  <h3 className="font-semibold text-[#F5F0E8] mb-4">What&apos;s included:</h3>
+                  <ul className="space-y-1 text-[#8B8B6B] text-sm">
+                    <li><span className="text-[#D4A843]">✓</span> KDP Print PDF (for paperback printing)</li>
+                    <li><span className="text-[#D4A843]">✓</span> EPUB conversion guide (using free Calibre tool)</li>
+                    <li><span className="text-[#D4A843]">✓</span> KDP-compliant trim size and margins</li>
+                    <li><span className="text-[#D4A843]">✓</span> Proper bleed settings (if selected)</li>
+                    <li><span className="text-[#D4A843]">✓</span> Professional typography and spacing</li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-[#F5F0E8] mb-4">Next steps:</h3>
+                  <ol className="space-y-1 text-[#8B8B6B] text-sm list-decimal ml-4">
+                    <li>Download the PDF above</li>
+                    <li>Review the format in a PDF reader</li>
+                    <li>Upload to Amazon KDP as your manuscript</li>
+                    <li>Design/upload your cover separately</li>
+                  </ol>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -272,13 +301,13 @@ export default function DownloadPage() {
             onClick={handleDownload}
             className="flex-1 bg-[#D4A843] hover:bg-[#c49a3d] text-[#1a1a12] font-semibold py-3 px-6 rounded-lg text-center cursor-pointer"
           >
-            {isDocx ? "Download Review DOCX" : "Download PDF"}
+            {isEpub ? "Download EPUB" : isDocx ? "Download Review DOCX" : "Download PDF"}
           </button>
           <Link
-            href={isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"}
+            href={isEpub ? "/epub-maker" : isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"}
             className="flex-1 border border-white/20 hover:border-[#D4A843] text-[#F5F0E8] font-medium py-3 px-6 rounded-lg text-center"
           >
-            Format Another
+            {isEpub ? "Create Another EPUB" : "Format Another"}
           </Link>
         </div>
         </PaymentGate>
@@ -287,7 +316,7 @@ export default function DownloadPage() {
         <div className="mt-8 bg-[#24241a]/50 border border-white/10 rounded-lg p-4">
           <p>
             <span className="text-[#F5F0E8] font-medium">Storage:</span>{" "}
-            <span className="text-xs text-[#8B8B6B]">Your files are stored temporarily for 24 hours. Download your PDF now and keep a backup.</span>
+            <span className="text-xs text-[#8B8B6B]">Your files are stored temporarily for 24 hours. Download now and keep a backup.</span>
           </p>
         </div>
       </main>

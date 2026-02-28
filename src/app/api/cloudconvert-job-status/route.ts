@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeOutput } from "@/lib/storage";
+import { writeOutput, updateMeta } from "@/lib/storage";
 import { extractTextFromPDFBuffer, extractTextFromDocxBuffer } from "@/lib/pdfTextExtract";
 
 const MAX_WORDS = 1000;
@@ -8,7 +8,7 @@ const MIN_EXTRACT_CHARS = 200;
 const EXTRACTION_ERROR_MESSAGE =
   "Could not extract text from this PDF. If your manuscript is text-based (not a scan), try downloading it from Word/Google Docs as a fresh PDF and uploading again.";
 
-const TOOL_TYPES = ["kdp-formatter-pdf", "keyword-research-pdf", "description-generator-pdf"] as const;
+const TOOL_TYPES = ["kdp-formatter-pdf", "keyword-research-pdf", "description-generator-pdf", "epub-maker"] as const;
 type ToolType = (typeof TOOL_TYPES)[number];
 
 function firstNWords(text: string, n: number): string {
@@ -229,9 +229,9 @@ export async function GET(request: NextRequest) {
         { status: 400 }
       );
     }
-    if (toolType === "kdp-formatter-pdf" && !id) {
+    if ((toolType === "kdp-formatter-pdf" || toolType === "epub-maker") && !id) {
       return NextResponse.json(
-        { status: "error", message: "id is required for kdp-formatter-pdf." },
+        { status: "error", message: "id is required for this tool." },
         { status: 400 }
       );
     }
@@ -292,6 +292,45 @@ export async function GET(request: NextRequest) {
       const pdfBuffer = Buffer.from(await dlRes.arrayBuffer());
       const outputFilename = "kdp-print.pdf";
       await writeOutput(id!, outputFilename, pdfBuffer);
+      return NextResponse.json({
+        status: "done",
+        id,
+        downloadUrl: `/api/download/${id}/${outputFilename}`,
+      });
+    }
+
+    if (toolType === "epub-maker") {
+      const exportTask = tasks.find(
+        (t: { operation: string; status: string }) =>
+          t.operation === "export/url" && t.status === "finished"
+      );
+      const fileUrl: string | undefined = exportTask?.result?.files?.[0]?.url;
+      if (!fileUrl) {
+        return NextResponse.json({
+          status: "error",
+          message: "Conversion finished but EPUB URL is missing.",
+        });
+      }
+      const dlRes = await fetch(fileUrl);
+      if (!dlRes.ok) {
+        return NextResponse.json({
+          status: "error",
+          message: `Failed to download converted EPUB (${dlRes.status}).`,
+        });
+      }
+      const epubBuffer = Buffer.from(await dlRes.arrayBuffer());
+      const outputFilename = "book.epub";
+      await writeOutput(id!, outputFilename, epubBuffer);
+      await updateMeta(id!, {
+        outputFilename,
+        processingReport: {
+          outputType: "epub",
+          chaptersDetected: 0,
+          issues: [],
+          fontUsed: "",
+          trimSize: "",
+        },
+      });
       return NextResponse.json({
         status: "done",
         id,

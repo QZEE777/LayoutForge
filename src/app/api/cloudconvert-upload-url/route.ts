@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const MAX_FILESIZE_BYTES = 50 * 1024 * 1024; // 50MB
 
-const TOOL_TYPES = ["kdp-formatter-pdf", "keyword-research-pdf", "description-generator-pdf"] as const;
+const TOOL_TYPES = ["kdp-formatter-pdf", "keyword-research-pdf", "description-generator-pdf", "epub-maker"] as const;
 type ToolType = (typeof TOOL_TYPES)[number];
 
 function parseCloudConvertError(body: string): string {
@@ -46,9 +46,19 @@ export async function POST(request: NextRequest) {
 
     if (!filename || !toolType || !TOOL_TYPES.includes(toolType as ToolType)) {
       return NextResponse.json(
-        { error: "Invalid request", message: "filename and toolType (kdp-formatter-pdf | keyword-research-pdf | description-generator-pdf) required." },
+        { error: "Invalid request", message: "filename and toolType (kdp-formatter-pdf | keyword-research-pdf | description-generator-pdf | epub-maker) required." },
         { status: 400 }
       );
+    }
+
+    if (toolType === "epub-maker") {
+      const isDocx = filename.toLowerCase().endsWith(".docx");
+      if (!isDocx) {
+        return NextResponse.json(
+          { error: "Invalid format", message: "EPUB Maker accepts .docx files only." },
+          { status: 400 }
+        );
+      }
     }
 
     if (filesize <= 0 || filesize > MAX_FILESIZE_BYTES) {
@@ -58,11 +68,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const inputFilename = filename.toLowerCase().endsWith(".pdf") ? filename : "document.pdf";
+    const inputFilename =
+      toolType === "epub-maker"
+        ? (filename.toLowerCase().endsWith(".docx") ? filename : "document.docx")
+        : filename.toLowerCase().endsWith(".pdf")
+          ? filename
+          : "document.pdf";
 
     let tasks: Record<string, Record<string, unknown>>;
 
-    if (toolType === "kdp-formatter-pdf") {
+    if (toolType === "epub-maker") {
+      tasks = {
+        "upload-file": { operation: "import/upload" },
+        "convert-epub": {
+          operation: "convert",
+          input: "upload-file",
+          input_format: "docx",
+          output_format: "epub",
+          filename: "book.epub",
+        },
+        "export-epub": { operation: "export/url", input: "convert-epub" },
+      };
+    } else if (toolType === "kdp-formatter-pdf") {
       tasks = {
         "upload-file": { operation: "import/upload" },
         "optimize-pdf": {
@@ -150,8 +177,8 @@ export async function POST(request: NextRequest) {
       formData: form.parameters ?? {},
     };
 
-    // KDP Formatter needs an id for the download page (we save result to out/{id}/kdp-print.pdf)
-    if (toolType === "kdp-formatter-pdf") {
+    // KDP Formatter and EPUB Maker need an id for the download page (we save result to out/{id}/...)
+    if (toolType === "kdp-formatter-pdf" || toolType === "epub-maker") {
       response.id = crypto.randomUUID();
     }
 
