@@ -25,7 +25,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "ScribeStack — KDP Manuscript Formatting",
+  title: "manu2print — KDP Manuscript Formatting",
   description: "Professional manuscript formatting for Amazon KDP. Upload DOCX or PDF. Get print-ready PDF with KDP specifications.",
 };
 

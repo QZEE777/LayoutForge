@@ -127,7 +127,7 @@ export default function FoundersPage() {
             </div>
           </div>
           <h1 className="font-bebas text-4xl sm:text-5xl md:text-6xl font-normal tracking-wide text-brand-cream mb-4">
-            Become a ScribeStack <span className="text-brand-gold">Founder</span>
+            Become a manu2print <span className="text-brand-gold">Founder</span>
           </h1>
           {/* Gold gradient divider */}
           <div className="h-px w-24 mx-auto mb-6 bg-gradient-to-r from-transparent via-brand-gold to-transparent" />
@@ -135,7 +135,7 @@ export default function FoundersPage() {
             Free access for life. Earn from every author you refer. Built for publishing influencers with a real audience.
           </p>
           <p className="font-sans text-sm leading-relaxed text-brand-muted">
-            We&apos;re opening a limited number of Founder spots to content creators and influencers in the self-publishing space. Founders get full lifetime access to ScribeStack — free, forever — plus affiliate commissions on every author they bring in. To qualify, you need an active presence on at least one platform with a minimum of 1,000 subscribers or followers.
+            We&apos;re opening a limited number of Founder spots to content creators and influencers in the self-publishing space. Founders get full lifetime access to manu2print — free, forever — plus affiliate commissions on every author they bring in. To qualify, you need an active presence on at least one platform with a minimum of 1,000 subscribers or followers.
           </p>
         </div>
       </section>

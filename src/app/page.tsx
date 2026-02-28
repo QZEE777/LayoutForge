@@ -147,7 +147,7 @@ export default function Home() {
               className="text-lg sm:text-xl leading-relaxed mb-9 max-w-lg mx-auto text-balance"
               style={{ color: "#a8a29e" }}
             >
-              ScribeStack gives indie authors the same formatting, keyword, and listing tools that traditional publishers use — without the agency price tag.
+              manu2print gives indie authors the same formatting, keyword, and listing tools that traditional publishers use — without the agency price tag.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
@@ -238,12 +238,12 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
               </svg>
             </div>
-            <span className="font-medium" style={{ color: "#a8a29e" }}>ScribeStack</span>
+            <span className="font-medium" style={{ color: "#a8a29e" }}>manu2print</span>
           </div>
           <p>Your files are processed securely and never stored permanently.</p>
         </div>
         <p className="mx-auto max-w-6xl text-center text-sm mt-3" style={{ color: "#78716c" }}>
-          © 2026 ScribeStack. Built for indie authors.
+          © 2026 manu2print. Built for indie authors.
         </p>
       </footer>
     </div>

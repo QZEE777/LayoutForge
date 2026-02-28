@@ -204,7 +204,7 @@ export default function FormatterPage() {
             More publishing platforms. More tools. Coming soon.
           </h2>
           <p className="font-sans text-sm text-brand-muted text-center mb-8">
-            ScribeStack is expanding to every major publishing platform. Sign up to be notified when your platform launches.
+            manu2print is expanding to every major publishing platform. Sign up to be notified when your platform launches.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {COMING_SOON.map((item) => (
@@ -286,7 +286,7 @@ export default function FormatterPage() {
             This isn&apos;t just a tool. It&apos;s a publishing business.
           </h2>
           <p className="font-sans text-sm leading-relaxed text-brand-muted mb-6">
-            ScribeStack is building the publishing stack every indie author needs — whatever platform they publish on. Founders get in free forever and earn from every author they refer.
+            manu2print is building the publishing stack every indie author needs — whatever platform they publish on. Founders get in free forever and earn from every author they refer.
             <br />
             <span className="font-bebas text-2xl tracking-widest text-brand-gold uppercase">LIMITED INVITATIONS.</span>
           </p>
@@ -336,7 +336,7 @@ export default function FormatterPage() {
                     onChange={(e) => setNotifyAll(e.target.checked)}
                     className="rounded border-brand-cardHover"
                   />
-                  Also notify me about all new ScribeStack tools
+                  Also notify me about all new manu2print tools
                 </label>
                 <div className="flex gap-2">
                   <button

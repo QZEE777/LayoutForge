@@ -1,6 +1,6 @@
 # Session issues – fix and move on
 
-**Project:** LayoutForge (ScribeStack) – KDP manuscript → PDF (CloudConvert), metadata, keyword/description tools.
+**Project:** LayoutForge (manu2print) – KDP manuscript → PDF (CloudConvert), metadata, keyword/description tools.
 
 ---
 

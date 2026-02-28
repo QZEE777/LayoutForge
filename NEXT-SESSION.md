@@ -1,4 +1,4 @@
-# Next Session – ScribeStack (LayoutForge)
+# Next Session – manu2print (LayoutForge)
 
 Handoff for when you return. Machine left on; keyword generator confirmed working.
 

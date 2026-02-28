@@ -1,4 +1,4 @@
-# 🎯 LayoutForge - The Complete Author Publishing Platform
+# 🎯 Manu2Print - The Complete Author Publishing Platform
 
 **Transform how authors publish on Amazon KDP** — Professional formatting, metadata optimization, AI analysis, and publishing tools all in one platform.
 

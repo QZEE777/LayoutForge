@@ -108,7 +108,7 @@ export default function AuthPage() {
           className="text-2xl font-serif font-bold text-center mb-2"
           style={{ color: WARM_WHITE }}
         >
-          Sign in to ScribeStack
+          Sign in to manu2print
         </h1>
         <p
           className="text-center text-sm mb-6"

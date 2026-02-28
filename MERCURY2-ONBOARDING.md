@@ -1,4 +1,4 @@
-# LayoutForge (ScribeStack) — Onboarding for Mercury 2
+# LayoutForge (manu2print) — Onboarding for Mercury 2
 
 Use this document to get Mercury 2 up to speed on the codebase. Paste it (and optionally attach or paste key files) when starting a session.
 
@@ -6,7 +6,7 @@ Use this document to get Mercury 2 up to speed on the codebase. Paste it (and op
 
 ## Project overview
 
-**LayoutForge** is a Next.js app for KDP (Kindle Direct Publishing) authors. Users upload manuscripts (DOCX or PDF), configure options, and get KDP-ready outputs: print PDFs, keyword research, Amazon listing text (description, bio, BISAC), and related tools. The product is also referred to as **ScribeStack**.
+**LayoutForge** is a Next.js app for KDP (Kindle Direct Publishing) authors. Users upload manuscripts (DOCX or PDF), configure options, and get KDP-ready outputs: print PDFs, keyword research, Amazon listing text (description, bio, BISAC), and related tools. The product is also referred to as **manu2print**.
 
 - **DOCX flow:** Green theme. Upload → KDP Formatter / Keyword Research / Description Generator (DOCX) → preview → download.
 - **PDF flow:** Red theme. PDF tools: KDP Formatter PDF, Keyword Research PDF, Description Generator PDF. Plus a free **PDF Compressor** (lead magnet; email required).

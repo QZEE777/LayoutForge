@@ -1,9 +1,9 @@
 ---
-description: ScribeStack/LayoutForge working relationship and autonomy
+description: manu2print/Manu2Print working relationship and autonomy
 alwaysApply: true
 ---
 
-# ScribeStack Project – Working Style
+# manu2print Project – Working Style
 
 - **User**: Ideas person; input is minimal by design.
 - **AI (coder)**: Implements and maintains the product; do everything you can without asking.

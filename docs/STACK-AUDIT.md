@@ -1,4 +1,4 @@
-# ScribeStack – Stack Audit
+# manu2print – Stack Audit
 
 **Live:** https://layout-forge.vercel.app  
 **Last audit:** handoff session.

@@ -1,5 +1,5 @@
 ============================================
-  LAYOUTFORGE - COMPLETE STARTUP GUIDE
+  MANU2PRINT - COMPLETE STARTUP GUIDE
 ============================================
 
 This is the ONLY guide you need. Follow these steps in order.

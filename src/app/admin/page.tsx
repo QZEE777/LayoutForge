@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
-const ADMIN_KEY = "scribestack_admin_auth";
-const ADMIN_PWD_KEY = "scribestack_admin_pwd";
+const ADMIN_KEY = "Manu2Print_admin_auth";
+const ADMIN_PWD_KEY = "Manu2Print_admin_pwd";
 
 export default function AdminPage() {
   const [password, setPassword] = useState("");
