@@ -112,9 +112,15 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
               </svg>
             </div>
-            <span className="text-lg font-bold tracking-tight" style={{ color: WARM_WHITE }}>
-              <span className="font-serif">Scribe</span>
-              <span className="font-sans">Stack</span>
+            <span
+              className="text-lg font-bold tracking-tight"
+              style={{
+                color: WARM_WHITE,
+                textShadow: "0 0 24px rgba(250,247,242,0.25), 0 0 48px rgba(245,166,35,0.12)",
+              }}
+            >
+              <span className="font-serif">manu</span>
+              <span className="font-sans">2print</span>
             </span>
           </Link>
           <AuthNav />
