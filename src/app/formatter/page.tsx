@@ -12,10 +12,10 @@ const PDF_COMPRESSOR = {
 const PAID_TOOLS = [
   { title: "KDP Formatter (DOCX)", description: "Format DOCX for Amazon KDP print. Trim size, bleed, print-ready PDF.", href: "/kdp-formatter", pricing: "$7 per use · $27 for 6 months" },
   { title: "KDP Formatter (PDF)", description: <>Convert PDF to KDP.<br />Print Ready — Amazon Approved.</>, href: "/kdp-formatter-pdf", pricing: "$7 per use · $27 for 6 months" },
-  { title: "Kindle EPUB Maker", description: "Manuscript to Kindle-ready EPUB. Chapter structure, metadata.", href: "/epub-maker", pricing: "$7 per use · $27 for 6 months" },
 ];
 
 const COMING_SOON = [
+  { platform: "Kindle EPUB Maker", description: "Manuscript to Kindle-ready EPUB. Chapter structure, metadata." },
   { platform: "IngramSpark Formatter", description: "Print-ready files for IngramSpark distribution." },
   { platform: "Gumroad Digital Product Formatter", description: "Format ebooks and low-content for Gumroad." },
   { platform: "Etsy Low Content Book Formatter", description: "Templates and interiors for Etsy KDP sellers." },
@@ -37,11 +37,14 @@ export default function FormatterPage() {
   const [leadsEmail, setLeadsEmail] = useState("");
   const [leadsStatus, setLeadsStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [leadsSuccessName, setLeadsSuccessName] = useState("");
+  const [leadsErrorMsg, setLeadsErrorMsg] = useState("");
+  const [notifyErrorMsg, setNotifyErrorMsg] = useState("");
 
   const handleNotifySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!notifyModal) return;
     setNotifyStatus("loading");
+    setNotifyErrorMsg("");
     try {
       const res = await fetch("/api/platform-notify", {
         method: "POST",
@@ -55,19 +58,23 @@ export default function FormatterPage() {
       const data = await res.json();
       if (!res.ok) {
         setNotifyStatus("error");
+        setNotifyErrorMsg((data?.error as string) || "Something went wrong. Please try again.");
         return;
       }
       setNotifyStatus("success");
       setNotifyEmail("");
       setNotifyAll(false);
+      setNotifyErrorMsg("");
     } catch {
       setNotifyStatus("error");
+      setNotifyErrorMsg("Something went wrong. Please try again.");
     }
   };
 
   const handleLeadsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLeadsStatus("loading");
+    setLeadsErrorMsg("");
     try {
       const res = await fetch("/api/formatter-leads", {
         method: "POST",
@@ -77,14 +84,17 @@ export default function FormatterPage() {
       const data = await res.json();
       if (!res.ok) {
         setLeadsStatus("error");
+        setLeadsErrorMsg((data?.error as string) || "Something went wrong. Please try again.");
         return;
       }
       setLeadsStatus("success");
       setLeadsSuccessName(data.name ?? leadsName.trim());
       setLeadsName("");
       setLeadsEmail("");
+      setLeadsErrorMsg("");
     } catch {
       setLeadsStatus("error");
+      setLeadsErrorMsg("Something went wrong. Please try again.");
     }
   };
 
@@ -93,6 +103,7 @@ export default function FormatterPage() {
     setNotifyStatus("idle");
     setNotifyEmail("");
     setNotifyAll(false);
+    setNotifyErrorMsg("");
   };
 
   return (
@@ -278,8 +289,8 @@ export default function FormatterPage() {
               </div>
             </form>
           )}
-          {leadsStatus === "error" && (
-            <p className="mt-2 font-sans text-sm text-red-400">Something went wrong. Please try again.</p>
+          {leadsStatus === "error" && leadsErrorMsg && (
+            <p className="mt-2 font-sans text-sm text-red-400">{leadsErrorMsg}</p>
           )}
         </div>
       </section>
@@ -361,8 +372,8 @@ export default function FormatterPage() {
                 </div>
               </form>
             )}
-            {notifyStatus === "error" && (
-              <p className="mt-2 font-sans text-sm text-red-400">Something went wrong. Please try again.</p>
+            {notifyStatus === "error" && notifyErrorMsg && (
+              <p className="mt-2 font-sans text-sm text-red-400">{notifyErrorMsg}</p>
             )}
             {notifyStatus === "success" && (
               <button
