@@ -80,7 +80,7 @@ export default function DownloadPage() {
       <header className="border-b border-white/10">
         <div className="mx-auto max-w-4xl px-4 py-4 flex items-center justify-between">
           <Link href="/" className="text-2xl font-bold tracking-tight text-[#F5F0E8]">
-            ScribeStack
+            manu2print
           </Link>
           <Link href={isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"} className="text-sm text-[#8B8B6B] hover:text-[#F5F0E8]">
             New upload
@@ -205,7 +205,7 @@ export default function DownloadPage() {
             <div className="mb-6 p-4 rounded-lg bg-[#1a1a12]/50 border border-white/10">
               <p className="text-sm text-[#8B8B6B] mb-4">
                 This is your review draft. Open it in Word or Google Docs to proofread and make any edits.
-                When ready, return to ScribeStack to generate your final KDP-ready PDF.
+                When ready, return to manu2print to generate your final KDP-ready PDF.
               </p>
               <Link
                 href={`/kdp-formatter?id=${id}`}

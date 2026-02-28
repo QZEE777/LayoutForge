@@ -1,6 +1,6 @@
 @echo off
 setlocal enabledelayedexpansion
-title LayoutForge - Diagnostic Check
+title Manu2Print - Diagnostic Check
 cd /d "%~dp0"
 
 echo.

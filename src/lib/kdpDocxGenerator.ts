@@ -28,7 +28,7 @@ function getBodyFontName(fontId: string): string {
 }
 
 const REVIEW_COMMENT =
-  "[SCRIBESTACK REVIEW DRAFT — Not for print. Edit this document, then return to ScribeStack to generate your final KDP-ready PDF.]";
+  "[MANU2PRINT REVIEW DRAFT — Not for print. Edit this document, then return to manu2print to generate your final KDP-ready PDF.]";
 
 export async function generateKdpDocx(
   content: ParsedContent,

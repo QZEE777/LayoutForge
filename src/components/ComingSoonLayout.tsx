@@ -20,7 +20,7 @@ export default function ComingSoonLayout({
       <header className="border-b border-slate-200 bg-white shadow-sm">
         <div className="mx-auto max-w-3xl px-4 py-4 flex items-center justify-between">
           <Link href="/" className="text-xl font-bold text-slate-900">
-            ScribeStack
+            manu2print
           </Link>
           <Link href="/" className="text-sm text-slate-600 hover:text-slate-900">
             Home

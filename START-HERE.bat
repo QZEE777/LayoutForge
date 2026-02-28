@@ -1,5 +1,5 @@
 @echo off
-title LayoutForge - Quick Start
+title Manu2Print - Quick Start
 setlocal enabledelayedexpansion
 cd /d "%~dp0"
 
