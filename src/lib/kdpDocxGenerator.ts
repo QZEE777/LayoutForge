@@ -21,7 +21,7 @@ import {
 } from "docx";
 import type { ParsedContent, ParsedChapter } from "./kdpDocxParser";
 import type { KdpFormatConfig } from "./kdpConfig";
-import { getTrimSize, getGutterInches, BODY_FONTS } from "./kdpConfig";
+import { getTrimSize, BODY_FONTS } from "./kdpConfig";
 
 /** Resolve body font display name from config id. */
 function getBodyFontName(fontId: string): string {
@@ -38,23 +38,14 @@ export async function generateKdpDocx(
 ): Promise<Buffer> {
   const trim = getTrimSize(config.trimSize);
   if (!trim) throw new Error(`Unknown trim size: ${config.trimSize}`);
-  const gutterInches = getGutterInches(content.estimatedPageCount);
-  const marginInches = 0.75;
-  const top = marginInches;
-  const bottom = marginInches;
-  const left = marginInches + gutterInches;
-  const right = marginInches;
-  const headerInches = 0.4;
-  const footerInches = 0.4;
 
   const title = typeof config.bookTitle === "string" ? config.bookTitle : content.frontMatter.title || "Untitled";
   const author = typeof config.authorName === "string" ? config.authorName : content.frontMatter.author || "Unknown Author";
   const copyrightYear = config.copyrightYear;
   const isbn = config.isbn || content.frontMatter.isbn || "";
-  const fontSize = config.fontSize;
   const lineTwip = 276; // 1.15x line spacing for print book (240 * 1.15)
 
-  const bodySize = fontSize * 2; // half-points
+  const bodySize = 24; // 12pt standard for nonfiction print
   const bodyFontName = getBodyFontName(config.bodyFont);
   const normalRun = (text: string, opts?: { bold?: boolean; italics?: boolean }) =>
     new TextRun({
@@ -63,6 +54,14 @@ export async function generateKdpDocx(
       font: bodyFontName,
       bold: opts?.bold === true,
       italics: opts?.italics === true,
+      color: "000000",
+    });
+  const colonLabelRun = (text: string) =>
+    new TextRun({
+      text,
+      size: 26,
+      font: bodyFontName,
+      bold: true,
       color: "000000",
     });
 
@@ -236,7 +235,7 @@ export async function generateKdpDocx(
       if (subtitleLine2) {
         bodyChildren.push(
           new Paragraph({
-            children: [new TextRun({ text: subtitleLine2, size: 24, font: "Times New Roman", color: black })],
+            children: [new TextRun({ text: subtitleLine2, size: 26, font: "Times New Roman", color: black })],
             alignment: AlignmentType.CENTER,
             spacing: { before: 0, after: 360, line: lineTwip },
           })
@@ -255,7 +254,7 @@ export async function generateKdpDocx(
     } else if (ch.level === 2) {
       bodyChildren.push(
         new Paragraph({
-          children: [new TextRun({ text: ch.title, size: 24, font: "Times New Roman", bold: true, color: black })],
+          children: [new TextRun({ text: ch.title, size: 26, font: "Times New Roman", bold: true, color: black })],
           heading: HeadingLevel.HEADING_2,
           spacing: { before: 0, after: 360, line: lineTwip },
         })
@@ -279,14 +278,16 @@ export async function generateKdpDocx(
       const isColonLabel = /:\s*$/.test(trimmed);
       const isShortCallout = !isListItem && !isColonLabel && trimmed.length < 80;
       const afterSpacing = isListItem ? 40 : isColonLabel ? 20 : isShortCallout ? 80 : 120;
+      // Paragraph after colon label gets before: 0 so content is visually connected.
       const beforeSpacing = prevWasColonLabel ? 0 : prevWasListItem ? 80 : isColonLabel ? 200 : 0;
       const lineSpacing = isListItem ? 240 : lineTwip;
       prevWasColonLabel = isColonLabel;
       prevWasListItem = isListItem;
+      const run = isColonLabel ? colonLabelRun(p.text) : normalRun(p.text, { bold: p.bold, italics: p.italic });
       bodyChildren.push(
         new Paragraph({
           style: "Normal",
-          children: [normalRun(p.text, { bold: p.bold, italics: p.italic })],
+          children: [run],
           spacing: {
             before: beforeSpacing,
             after: afterSpacing,
@@ -302,25 +303,28 @@ export async function generateKdpDocx(
   const pageWidth = convertInchesToTwip(trim.widthInches);
   const pageHeight = convertInchesToTwip(trim.heightInches);
 
+  // KDP-compliant 6x9 margins (twips): 0.75" top/bottom, 0.6" outside, 0.5" gutter; same layout for all sections.
   const pageMargin = {
-    top: convertInchesToTwip(top),
-    right: convertInchesToTwip(right),
-    bottom: convertInchesToTwip(bottom),
-    left: convertInchesToTwip(left),
-    header: convertInchesToTwip(headerInches),
-    footer: convertInchesToTwip(footerInches),
-    gutter: convertInchesToTwip(gutterInches),
+    top: 1080,
+    bottom: 1080,
+    left: 864,
+    right: 864,
+    gutter: 720,
+    header: 576,
+    footer: 576,
+  };
+
+  const sharedPageProps = {
+    margin: pageMargin,
+    size: { width: pageWidth, height: pageHeight },
+    // @ts-ignore
+    mirrorMargins: true,
   };
 
   // Section 1: front matter — no page numbers, no footers
   const frontSection = {
     properties: {
-      page: {
-        margin: pageMargin,
-        size: { width: pageWidth, height: pageHeight },
-        // @ts-ignore
-        mirrorMargins: true,
-      },
+      page: sharedPageProps,
     },
     children: frontChildren,
   };
@@ -329,10 +333,7 @@ export async function generateKdpDocx(
   const bodySection = {
     properties: {
       page: {
-        margin: pageMargin,
-        size: { width: pageWidth, height: pageHeight },
-        // @ts-ignore
-        mirrorMargins: true,
+        ...sharedPageProps,
         pageNumbers: { start: 1, formatType: NumberFormat.DECIMAL },
       },
     },
