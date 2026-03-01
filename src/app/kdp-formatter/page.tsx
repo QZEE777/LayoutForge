@@ -54,6 +54,31 @@ export default function KdpFormatterPage() {
     }
   }, [searchParams, uploadId]);
 
+  // Pre-fill title/author from DOCX when on configure step (upload or preset ?id=)
+  useEffect(() => {
+    if (step !== "configure" || !uploadId) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/docx-meta?id=${encodeURIComponent(uploadId)}`);
+        if (!res.ok || cancelled) return;
+        const meta = await res.json();
+        if (cancelled) return;
+        setConfig((c) => ({
+          ...c,
+          ...(meta.bookTitle != null && meta.bookTitle !== "" && { bookTitle: meta.bookTitle }),
+          ...(meta.authorName != null && meta.authorName !== "" && { authorName: meta.authorName }),
+          ...(meta.hasTitlePage === true && {
+            frontMatter: { ...c.frontMatter, titlePage: false },
+          }),
+        }));
+      } catch {
+        // Non-fatal: user can enter manually
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [step, uploadId]);
+
   const validateFile = useCallback((f: File): string | null => {
     const ext = f.name.toLowerCase().slice(f.name.lastIndexOf("."));
     if (!ALLOWED_TYPES.includes(ext)) return "Only .docx files are accepted.";
@@ -475,8 +500,13 @@ export default function KdpFormatterPage() {
             <div className="space-y-2">
               <p className="text-sm font-medium text-slate-300">Front matter</p>
               <label className="flex items-center gap-2 text-slate-300">
-                <input type="checkbox" checked={config.frontMatter.titlePage} onChange={(e) => setConfig((c) => ({ ...c, frontMatter: { ...c.frontMatter, titlePage: e.target.checked } }))} className="accent-green-500" />
-                Title page
+                <input
+                  type="checkbox"
+                  checked={!config.frontMatter.titlePage}
+                  onChange={(e) => setConfig((c) => ({ ...c, frontMatter: { ...c.frontMatter, titlePage: !e.target.checked } }))}
+                  className="accent-green-500"
+                />
+                My manuscript already has a title page — skip adding one
               </label>
               <label className="flex items-center gap-2 text-slate-300">
                 <input type="checkbox" checked={config.frontMatter.copyrightPage} onChange={(e) => setConfig((c) => ({ ...c, frontMatter: { ...c.frontMatter, copyrightPage: e.target.checked } }))} className="accent-green-500" />
