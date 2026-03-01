@@ -229,12 +229,13 @@ function htmlToStructure(html: string, issues: string[]): { chapters: ParsedChap
 }
 
 /**
- * Merge paragraphs that are likely line-break fragments: short (< 60 chars), no end punctuation.
- * Joins them with the next paragraph so single sentences don't appear as separate paragraphs.
+ * Merge paragraphs that are likely line-break fragments: short (< 100 chars) with no end punctuation,
+ * or any paragraph ending with em dash (—) or ellipsis (...).
  */
 function mergeSplitParagraphs(chapters: ParsedChapter[]): void {
-  const maxShort = 60;
+  const maxShort = 100;
   const endPunct = /[.!?;]\s*$/;
+  const endsWithContinuation = (t: string) => /[\u2014\u2026]\s*$/.test(t.trim()) || /\.\.\.\s*$/.test(t.trim());
   for (const ch of chapters) {
     const paras = ch.paragraphs;
     if (paras.length === 0) continue;
@@ -242,11 +243,12 @@ function mergeSplitParagraphs(chapters: ParsedChapter[]): void {
     let i = 0;
     while (i < paras.length) {
       let p = paras[i];
-      while (
-        i + 1 < paras.length &&
-        p.text.length < maxShort &&
-        !endPunct.test(p.text.trim())
-      ) {
+      while (i + 1 < paras.length) {
+        const trimmed = p.text.trim();
+        const shouldMerge =
+          endsWithContinuation(trimmed) ||
+          (p.text.length < maxShort && !endPunct.test(trimmed));
+        if (!shouldMerge) break;
         const next = paras[i + 1];
         p = {
           text: p.text.trimEnd() + " " + next.text.trimStart(),

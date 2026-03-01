@@ -63,6 +63,7 @@ export async function generateKdpDocx(
       size: bodySize,
       font: bodyFontName,
       ...opts,
+      color: "000000",
     });
 
   const frontChildren: FileChild[] = [];
@@ -183,7 +184,7 @@ export async function generateKdpDocx(
       })
     );
     for (const ch of tocEntries) {
-      const titleShort = ch.title.length > 60 ? ch.title.slice(0, 57) + "..." : ch.title;
+      const titleShort = ch.title.length > 100 ? ch.title.slice(0, 97) + "..." : ch.title;
       frontChildren.push(
         new Paragraph({
           children: [new TextRun({ ...tocRunOpts, text: titleShort })],
