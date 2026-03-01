@@ -269,18 +269,24 @@ export async function generateKdpDocx(
         })
       );
     }
+    let prevWasColonLabel = false;
     for (const p of ch.paragraphs) {
       if (!p.text.trim()) continue;
       const trimmed = p.text.trim();
+      if (/^\d+$/.test(trimmed)) continue;
       const isListItem = /^[•\-*]\s*/.test(trimmed) || /^\d+\.\s+/.test(trimmed);
-      const isShortCallout = !isListItem && trimmed.length < 60;
+      const isColonLabel = /:\s*$/.test(trimmed);
+      const isShortCallout = !isListItem && !isColonLabel && trimmed.length < 80;
+      const afterSpacing = isListItem ? 40 : isColonLabel ? 20 : isShortCallout ? 80 : 120;
+      const beforeSpacing = prevWasColonLabel ? 0 : isColonLabel ? 160 : 0;
+      prevWasColonLabel = isColonLabel;
       bodyChildren.push(
         new Paragraph({
           style: "Normal",
           children: [normalRun(p.text, { bold: p.bold, italics: p.italic })],
           spacing: {
-            before: 0,
-            after: isListItem ? 40 : isShortCallout ? 60 : 120,
+            before: beforeSpacing,
+            after: afterSpacing,
             line: lineTwip,
           },
           indent: config.paragraphStyle === "fiction" ? { firstLine: convertInchesToTwip(0.25) } : undefined,
