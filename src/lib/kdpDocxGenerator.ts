@@ -314,7 +314,7 @@ export async function generateKdpDocx(
           },
           indent: { left: 0, right: 0, firstLine: 0 },
           alignment: AlignmentType.LEFT,
-          keepNext: isColonLabel || (nextIsListItem && !isListItem) || nextIsColonLabel,
+          keepNext: isColonLabel || (nextIsListItem && !isListItem) || nextIsColonLabel || (isListItem && nextIsListItem),
           keepLines: isListItem,
         })
       );
