@@ -52,8 +52,7 @@ export async function generateKdpDocx(
   const copyrightYear = config.copyrightYear;
   const isbn = config.isbn || content.frontMatter.isbn || "";
   const fontSize = config.fontSize;
-  const lineSpacing = config.lineSpacing ?? 1.15;
-  const lineTwip = Math.round(240 * lineSpacing); // 276 = 1.15x for print book
+  const lineTwip = 276; // 1.15x line spacing for print book (240 * 1.15)
 
   const bodySize = fontSize * 2; // half-points
   const bodyFontName = getBodyFontName(config.bodyFont);

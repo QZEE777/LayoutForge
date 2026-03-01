@@ -72,8 +72,9 @@ export const PARAGRAPH_STYLES = [
 export type ParagraphStyleId = (typeof PARAGRAPH_STYLES)[number]["id"];
 
 export const LINE_SPACING_OPTIONS = [
+  { id: 1.15, name: "1.15x — Print book (RECOMMENDED)" },
   { id: 1.2, name: "1.2x — Compact" },
-  { id: 1.3, name: "1.3x — Standard (RECOMMENDED)" },
+  { id: 1.3, name: "1.3x — Standard" },
   { id: 1.5, name: "1.5x — Airy/relaxed" },
 ] as const;
 
@@ -133,7 +134,7 @@ export const DEFAULT_CONFIG: KdpFormatConfig = {
   headingFont: "playfair",
   fontSize: 11,
   paragraphStyle: "nonfiction",
-  lineSpacing: 1.3,
+  lineSpacing: 1.15,
   interiorColor: "bw",
   paperColor: "white",
   bleedImages: false,
