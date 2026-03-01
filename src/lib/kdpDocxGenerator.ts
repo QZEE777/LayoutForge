@@ -8,7 +8,6 @@ import {
   Packer,
   Paragraph,
   TextRun,
-  Tab,
   PageBreak,
   AlignmentType,
   HeadingLevel,
@@ -16,7 +15,7 @@ import {
   Footer,
   PageNumber,
   NumberFormat,
-  TabStopType,
+  UnderlineType,
   convertInchesToTwip,
   type FileChild,
 } from "docx";
@@ -152,32 +151,45 @@ export async function generateKdpDocx(
     if (firstLevel1 > 0) bodyChapters = bodyChapters.slice(firstLevel1);
   }
 
-  // Manual TOC: Heading 1 chapters with placeholder page numbers (renders without Word field update).
+  // Manual TOC: Heading 1 chapters only; black text, no underline/hyperlink; note about page numbers.
+  const tocRunOpts = {
+    size: bodySize,
+    font: bodyFontName,
+    color: "000000",
+    underline: { type: UnderlineType.NONE as const },
+  };
   if (config.frontMatter.toc) {
     const tocEntries = bodyChapters.filter((ch) => ch.level === 1);
     frontChildren.push(
       new Paragraph({
-        children: [new TextRun({ text: "Contents", size: 36, font: "Times New Roman", bold: true })],
+        children: [new TextRun({ text: "Contents", size: 36, font: "Times New Roman", bold: true, color: "000000" })],
         heading: HeadingLevel.TITLE,
+        spacing: { after: 200 },
+      })
+    );
+    frontChildren.push(
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: "(Page numbers update when opened in Microsoft Word — press Ctrl+A then F9 to refresh)",
+            size: 18,
+            font: "Times New Roman",
+            italics: true,
+            color: "000000",
+            underline: { type: UnderlineType.NONE as const },
+          }),
+        ],
         spacing: { after: 400 },
       })
     );
-    const tocRightTwip = convertInchesToTwip(6.5); // right-aligned page number position
-    let pageNum = 1;
     for (const ch of tocEntries) {
       const titleShort = ch.title.length > 60 ? ch.title.slice(0, 57) + "..." : ch.title;
       frontChildren.push(
         new Paragraph({
-          children: [
-            new TextRun({ text: titleShort, size: bodySize, font: bodyFontName }),
-            new Tab(),
-            new TextRun({ text: String(pageNum), size: bodySize, font: bodyFontName }),
-          ],
-          tabStops: [{ position: tocRightTwip, type: TabStopType.RIGHT }],
+          children: [new TextRun({ ...tocRunOpts, text: titleShort })],
           spacing: { after: 120 },
         })
       );
-      pageNum += 1;
     }
     frontChildren.push(new Paragraph({ children: [new PageBreak()] }));
   }

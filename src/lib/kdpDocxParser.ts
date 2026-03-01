@@ -228,6 +228,41 @@ function htmlToStructure(html: string, issues: string[]): { chapters: ParsedChap
   return { chapters, frontMatter };
 }
 
+/**
+ * Merge paragraphs that are likely line-break fragments: short (< 60 chars), no end punctuation.
+ * Joins them with the next paragraph so single sentences don't appear as separate paragraphs.
+ */
+function mergeSplitParagraphs(chapters: ParsedChapter[]): void {
+  const maxShort = 60;
+  const endPunct = /[.!?;]\s*$/;
+  for (const ch of chapters) {
+    const paras = ch.paragraphs;
+    if (paras.length === 0) continue;
+    const merged: ParsedParagraph[] = [];
+    let i = 0;
+    while (i < paras.length) {
+      let p = paras[i];
+      while (
+        i + 1 < paras.length &&
+        p.text.length < maxShort &&
+        !endPunct.test(p.text.trim())
+      ) {
+        const next = paras[i + 1];
+        p = {
+          text: p.text.trimEnd() + " " + next.text.trimStart(),
+          bold: p.bold,
+          italic: p.italic,
+          underline: p.underline,
+        };
+        i += 1;
+      }
+      merged.push(p);
+      i += 1;
+    }
+    ch.paragraphs = merged;
+  }
+}
+
 /** Estimate page count from word count (approx 300 words per page for 6x9) */
 function estimatePageCount(chapters: ParsedChapter[]): number {
   let words = 0;
@@ -267,6 +302,7 @@ export async function parseDocxForKdp(buffer: Buffer, _options?: { title?: strin
   }
 
   const { chapters, frontMatter } = htmlToStructure(html, issues);
+  mergeSplitParagraphs(chapters);
   const estimatedPageCount = estimatePageCount(chapters);
 
   if (estimatedPageCount < 24) issues.push("Document is under 24 pages; KDP requires a minimum page count.");
