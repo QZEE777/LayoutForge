@@ -279,10 +279,12 @@ export async function generateKdpDocx(
       const isListItem = /^[•\-*]\s*/.test(trimmed) || /^\d+\.\s+/.test(trimmed);
       const isColonLabel = /:\s*$/.test(trimmed);
       let nextIsListItem = false;
+      let nextIsColonLabel = false;
       for (let k = j + 1; k < paras.length; k++) {
         const t = paras[k].text.trim();
         if (!t || /^\d{1,4}$/.test(t)) continue;
         nextIsListItem = /^[•\-*]\s*/.test(t) || /^\d+\.\s+/.test(t);
+        nextIsColonLabel = /:\s*$/.test(t);
         break;
       }
       const isShortCallout = !isListItem && !isColonLabel && trimmed.length < 80;
@@ -312,7 +314,7 @@ export async function generateKdpDocx(
           },
           indent: { left: 0, right: 0, firstLine: 0 },
           alignment: AlignmentType.LEFT,
-          keepNext: isColonLabel || (nextIsListItem && !isListItem),
+          keepNext: isColonLabel || (nextIsListItem && !isListItem) || nextIsColonLabel,
           keepLines: isListItem,
         })
       );
@@ -322,13 +324,13 @@ export async function generateKdpDocx(
   const pageWidth = convertInchesToTwip(trim.widthInches);
   const pageHeight = convertInchesToTwip(trim.heightInches);
 
-  // KDP-compliant 6x9 margins (twips): 0.75" top/bottom, 0.6" outside, 0.5" gutter; same layout for all sections.
+  // Review DOCX: symmetric margins (no mirror/gutter). Final PDF will use book margins separately.
   const pageMargin = {
     top: 1080,
     bottom: 1080,
-    left: 864,
-    right: 864,
-    gutter: 720,
+    left: 1008,
+    right: 1008,
+    gutter: 0,
     header: 576,
     footer: 576,
   };
@@ -337,7 +339,7 @@ export async function generateKdpDocx(
     margin: pageMargin,
     size: { width: pageWidth, height: pageHeight },
     // @ts-ignore
-    mirrorMargins: true,
+    mirrorMargins: false,
   };
 
   // Section 1: front matter — no page numbers, no footers
