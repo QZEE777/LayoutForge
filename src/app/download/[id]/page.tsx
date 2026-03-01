@@ -215,9 +215,15 @@ export default function DownloadPage() {
 
           {isDocx && !isEpub && (
             <div className="mb-6 p-4 rounded-lg bg-[#1a1a12]/50 border border-white/10">
-              <p className="text-sm text-[#8B8B6B] mb-4">
+              <p className="text-sm text-[#8B8B6B] mb-2">
                 This is your review draft. Open it in Word or Google Docs to proofread and make any edits.
                 When ready, return to manu2print to generate your final KDP-ready PDF.
+              </p>
+              <p className="text-sm text-[#8B8B6B] mb-2">
+                Margins in this draft are equal on all sides (0.7&quot;) for easier editing. Your final PDF will use Amazon KDP–compliant inside/outside margins and gutter.
+              </p>
+              <p className="text-sm text-[#8B8B6B] mb-4">
+                <span className="text-[#D4A843]">Tip:</span> To get layout feedback from the AI, open the document, take a screenshot of a page, and paste it in chat.
               </p>
               <Link
                 href={`/kdp-formatter?id=${id}`}
