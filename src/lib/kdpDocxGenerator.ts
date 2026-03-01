@@ -279,6 +279,7 @@ export async function generateKdpDocx(
       const isShortCallout = !isListItem && !isColonLabel && trimmed.length < 80;
       const afterSpacing = isListItem ? 40 : isColonLabel ? 20 : isShortCallout ? 80 : 120;
       const beforeSpacing = prevWasColonLabel ? 0 : isColonLabel ? 160 : 0;
+      const lineSpacing = isListItem ? 240 : lineTwip;
       prevWasColonLabel = isColonLabel;
       bodyChildren.push(
         new Paragraph({
@@ -287,7 +288,7 @@ export async function generateKdpDocx(
           spacing: {
             before: beforeSpacing,
             after: afterSpacing,
-            line: lineTwip,
+            line: lineSpacing,
           },
           indent: config.paragraphStyle === "fiction" ? { firstLine: convertInchesToTwip(0.25) } : undefined,
           alignment: AlignmentType.JUSTIFIED,
