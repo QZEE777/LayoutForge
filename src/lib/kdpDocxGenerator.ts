@@ -2,6 +2,7 @@
  * KDP formatted DOCX (review draft) using the docx package.
  * For proofreading only — not print-ready.
  * Spacing: OOXML uses max(para.after, next.before) between paragraphs (twips).
+ * We set beforeAutoSpacing/afterAutoSpacing: false so Word uses our exact values (no extra auto space).
  */
 
 import {
@@ -230,7 +231,7 @@ export async function generateKdpDocx(
           heading: HeadingLevel.HEADING_1,
           alignment: AlignmentType.CENTER,
           pageBreakBefore: true,
-          spacing: { before: 240, after: 0, line: lineTwip },
+          spacing: { before: 240, after: 0, line: lineTwip, beforeAutoSpacing: false, afterAutoSpacing: false },
         })
       );
       if (subtitleLine2) {
@@ -238,7 +239,7 @@ export async function generateKdpDocx(
           new Paragraph({
             children: [new TextRun({ text: subtitleLine2, size: 26, font: "Times New Roman", color: black })],
             alignment: AlignmentType.CENTER,
-            spacing: { before: 0, after: 100, line: lineTwip },
+            spacing: { before: 0, after: 0, line: lineTwip, beforeAutoSpacing: false, afterAutoSpacing: false },
           })
         );
       }
@@ -248,7 +249,7 @@ export async function generateKdpDocx(
             children: [new TextRun({ text: subSubtitle, size: 22, font: "Times New Roman", italics: true, color: black })],
             heading: HeadingLevel.HEADING_3,
             alignment: AlignmentType.CENTER,
-            spacing: { before: 0, after: 100, line: lineTwip },
+            spacing: { before: 0, after: 0, line: lineTwip, beforeAutoSpacing: false, afterAutoSpacing: false },
           })
         );
       }
@@ -257,7 +258,7 @@ export async function generateKdpDocx(
         new Paragraph({
           children: [new TextRun({ text: ch.title, size: 26, font: "Times New Roman", bold: true, color: black })],
           heading: HeadingLevel.HEADING_2,
-          spacing: { before: 0, after: 100, line: lineTwip },
+          spacing: { before: 0, after: 0, line: lineTwip, beforeAutoSpacing: false, afterAutoSpacing: false },
         })
       );
     } else {
@@ -265,7 +266,7 @@ export async function generateKdpDocx(
         new Paragraph({
           children: [new TextRun({ text: ch.title, size: 22, font: "Times New Roman", italics: true, color: black })],
           heading: HeadingLevel.HEADING_3,
-          spacing: { before: 0, after: 100, line: lineTwip },
+          spacing: { before: 0, after: 0, line: lineTwip, beforeAutoSpacing: false, afterAutoSpacing: false },
         })
       );
     }
@@ -312,6 +313,8 @@ export async function generateKdpDocx(
             before: beforeSpacing,
             after: finalAfter,
             line: lineSpacing,
+            beforeAutoSpacing: false,
+            afterAutoSpacing: false,
           },
           indent: { left: 0, right: 0, firstLine: 0 },
           alignment: AlignmentType.LEFT,
