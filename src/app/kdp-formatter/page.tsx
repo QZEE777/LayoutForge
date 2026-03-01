@@ -64,14 +64,19 @@ export default function KdpFormatterPage() {
         if (!res.ok || cancelled) return;
         const meta = await res.json();
         if (cancelled) return;
-        setConfig((c) => ({
-          ...c,
-          ...(meta.bookTitle != null && meta.bookTitle !== "" && { bookTitle: meta.bookTitle }),
-          ...(meta.authorName != null && meta.authorName !== "" && { authorName: meta.authorName }),
-          ...(meta.hasTitlePage === true && {
-            frontMatter: { ...c.frontMatter, titlePage: false },
-          }),
-        }));
+        setConfig((c) => {
+          let frontMatter = c.frontMatter;
+          if (meta.hasTitlePage === true) frontMatter = { ...frontMatter, titlePage: false };
+          if (meta.dedicationText != null && meta.dedicationText !== "") {
+            frontMatter = { ...frontMatter, dedication: true, dedicationText: meta.dedicationText };
+          }
+          return {
+            ...c,
+            ...(meta.bookTitle != null && meta.bookTitle !== "" && { bookTitle: meta.bookTitle }),
+            ...(meta.authorName != null && meta.authorName !== "" && { authorName: meta.authorName }),
+            ...(meta.hasTitlePage === true || (meta.dedicationText != null && meta.dedicationText !== "") ? { frontMatter } : {}),
+          };
+        });
       } catch {
         // Non-fatal: user can enter manually
       }

@@ -33,10 +33,9 @@ function getParagraphText(pXml: string): string {
   return parts.join("").replace(/\s+/g, " ").trim();
 }
 
-/** First 3 paragraphs from word/document.xml body. */
+/** First N paragraphs from word/document.xml body. */
 function getFirstParagraphs(docXml: string, maxParagraphs: number = 3): string[] {
   const paragraphs: string[] = [];
-  // Match <w:p>...</w:p> - be greedy for content but not across other </w:p>
   const pRegex = /<w:p[^>]*>([\s\S]*?)<\/w:p>/gi;
   let match: RegExpExecArray | null;
   while ((match = pRegex.exec(docXml)) !== null && paragraphs.length < maxParagraphs) {
@@ -44,6 +43,46 @@ function getFirstParagraphs(docXml: string, maxParagraphs: number = 3): string[]
     paragraphs.push(text);
   }
   return paragraphs;
+}
+
+/** Looks like a chapter/section heading (stop dedication capture). */
+function looksLikeChapterHeading(p: string): boolean {
+  const t = p.trim();
+  return (
+    /^Chapter\s+\d+/i.test(t) ||
+    /^Chapter\s+[A-Za-z]+/i.test(t) ||
+    /^Part\s+\d+/i.test(t) ||
+    /^\d+\.\s+[A-Z]/.test(t) ||
+    /^Section\s+\d+/i.test(t)
+  );
+}
+
+/** Scan first 20 paragraphs for a dedication block; return dedication text or "". */
+function inferDedication(paragraphs: string[]): string {
+  const max = Math.min(paragraphs.length, 20);
+  for (let i = 0; i < max; i++) {
+    const p = paragraphs[i].trim();
+    if (!p) continue;
+
+    // Heading: "Dedication" or "DEDICATION" — capture following paragraph(s)
+    if (p === "Dedication" || p === "DEDICATION" || p.toLowerCase() === "dedication") {
+      const parts: string[] = [];
+      for (let j = i + 1; j < max && parts.length < 5; j++) {
+        const next = paragraphs[j].trim();
+        if (!next) break;
+        if (looksLikeChapterHeading(next)) break;
+        parts.push(next);
+      }
+      if (parts.length > 0) return parts.join("\n\n");
+      return "";
+    }
+
+    // Short paragraph starting with To / For / Dedicated to
+    if (p.length < 150 && /^(To |For |Dedicated to )/i.test(p)) {
+      return p;
+    }
+  }
+  return "";
 }
 
 /** Convert ALL CAPS string to Title Case. */
@@ -105,6 +144,7 @@ export async function GET(request: NextRequest) {
   let bookTitle = "";
   let authorName = "";
   let hasTitlePage = false;
+  let dedicationText = "";
 
   const coreEntry = zip.file("docProps/core.xml");
   if (coreEntry) {
@@ -117,16 +157,18 @@ export async function GET(request: NextRequest) {
   const docEntry = zip.file("word/document.xml");
   if (docEntry) {
     const docXml = await docEntry.async("string");
-    const firstParagraphs = getFirstParagraphs(docXml, 3);
-    const inferred = inferFromParagraphs(firstParagraphs);
+    const first20 = getFirstParagraphs(docXml, 20);
+    const inferred = inferFromParagraphs(first20.slice(0, 3));
     if (!bookTitle && inferred.title) bookTitle = inferred.title;
     if (!authorName && inferred.author) authorName = inferred.author;
     if (inferred.hasTitlePage) hasTitlePage = true;
+    dedicationText = inferDedication(first20);
   }
 
   return NextResponse.json({
     bookTitle: bookTitle || undefined,
     authorName: authorName || undefined,
     hasTitlePage: hasTitlePage || undefined,
+    dedicationText: dedicationText || undefined,
   });
 }
