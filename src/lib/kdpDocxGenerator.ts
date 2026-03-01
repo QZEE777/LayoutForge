@@ -86,29 +86,30 @@ export async function generateKdpDocx(
     })
   );
 
-  // Half title
+  // Generated title page: only when titlePage is true (user did NOT check "skip adding one").
+  // When titlePage is false, no half/full title page is added — body starts after review/copyright/TOC.
   if (config.frontMatter.titlePage) {
     const titleCaps = title.toUpperCase();
+    const black = "000000";
     frontChildren.push(
       new Paragraph({
-        children: [new TextRun({ text: titleCaps, size: 48, font: "Times New Roman", bold: true })],
+        children: [new TextRun({ text: titleCaps, size: 48, font: "Times New Roman", bold: true, color: black })],
         alignment: AlignmentType.CENTER,
         spacing: { before: 2880, after: 0 },
       })
     );
     frontChildren.push(new Paragraph({ children: [new PageBreak()] }));
 
-    // Full title page (title ALL CAPS + "By [authorName]")
     frontChildren.push(
       new Paragraph({
-        children: [new TextRun({ text: titleCaps, size: 56, font: "Times New Roman", bold: true })],
+        children: [new TextRun({ text: titleCaps, size: 56, font: "Times New Roman", bold: true, color: black })],
         alignment: AlignmentType.CENTER,
         spacing: { before: 2520, after: 480 },
       })
     );
     frontChildren.push(
       new Paragraph({
-        children: [new TextRun({ text: `By ${author}`, size: 28, font: "Times New Roman" })],
+        children: [new TextRun({ text: `By ${author}`, size: 28, font: "Times New Roman", color: black })],
         alignment: AlignmentType.CENTER,
         spacing: { after: 0 },
       })
@@ -185,8 +186,17 @@ export async function generateKdpDocx(
         spacing: { after: 400 },
       })
     );
+    const formatTocTitle = (raw: string) => {
+      const dashSplit = raw.split(/\s+[—–-]\s+/);
+      const chapterLabel = (dashSplit[0] || raw).trim().toUpperCase();
+      const subtitleFull = dashSplit.length > 1 ? dashSplit.slice(1).join(" — ").trim() : "";
+      const colonMatch = subtitleFull.match(/^(.+?)\s*:\s*(.+)$/);
+      const beforeColon = colonMatch ? colonMatch[1].replace(/:+\s*$/, "").trim() : subtitleFull;
+      const tocText = beforeColon ? `${chapterLabel} — ${beforeColon}` : chapterLabel;
+      return tocText.length > 100 ? tocText.slice(0, 97) + "..." : tocText;
+    };
     for (const ch of tocEntries) {
-      const titleShort = ch.title.length > 100 ? ch.title.slice(0, 97) + "..." : ch.title;
+      const titleShort = formatTocTitle(ch.title);
       frontChildren.push(
         new Paragraph({
           children: [new TextRun({ ...tocRunOpts, text: titleShort })],
