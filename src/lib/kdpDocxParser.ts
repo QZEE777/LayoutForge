@@ -198,7 +198,7 @@ function htmlToStructure(html: string, issues: string[]): { chapters: ParsedChap
           images: [],
         };
       } else {
-        if (/^\d{1,3}$/.test(text)) continue;
+        if (/^\s*\d+\s*\.?\s*$/.test(text)) continue;
         currentChapter.paragraphs.push({ text, bold, italic, underline });
       }
     } else if (seg.type === "img") {
@@ -268,6 +268,56 @@ function mergeSplitParagraphs(chapters: ParsedChapter[]): void {
   }
 }
 
+/**
+ * Merge consecutive short sentence fragments (both end with .!?, both under 120 chars, neither list/colon-label)
+ * into single paragraphs so punchy one-liners become proper blocks.
+ */
+function mergeShortSentenceFragments(chapters: ParsedChapter[]): void {
+  const maxLen = 120;
+  const endPunct = /[.!?]\s*$/;
+  const isList = (p: ParsedParagraph) => {
+    const t = p.text.trim();
+    return /^[•\-*]\s*/.test(t) || /^\d+\.\s+/.test(t);
+  };
+  const isColonLabel = (p: ParsedParagraph) => /:\s*$/.test(p.text.trim());
+  const canMerge = (a: ParsedParagraph, b: ParsedParagraph) => {
+    const ta = a.text.trim();
+    const tb = b.text.trim();
+    return (
+      ta.length > 0 &&
+      tb.length > 0 &&
+      ta.length < maxLen &&
+      tb.length < maxLen &&
+      endPunct.test(ta) &&
+      endPunct.test(tb) &&
+      !isList(a) &&
+      !isList(b) &&
+      !isColonLabel(a) &&
+      !isColonLabel(b)
+    );
+  };
+  for (const ch of chapters) {
+    const paras = ch.paragraphs;
+    if (paras.length === 0) continue;
+    const merged: ParsedParagraph[] = [];
+    for (let i = 0; i < paras.length; i++) {
+      let p = paras[i];
+      while (i + 1 < paras.length && canMerge(p, paras[i + 1])) {
+        const next = paras[i + 1];
+        p = {
+          text: p.text.trimEnd() + " " + next.text.trimStart(),
+          bold: p.bold,
+          italic: p.italic,
+          underline: p.underline,
+        };
+        i += 1;
+      }
+      merged.push(p);
+    }
+    ch.paragraphs = merged;
+  }
+}
+
 /** Estimate page count from word count (approx 300 words per page for 6x9) */
 function estimatePageCount(chapters: ParsedChapter[]): number {
   let words = 0;
@@ -308,6 +358,7 @@ export async function parseDocxForKdp(buffer: Buffer, _options?: { title?: strin
 
   const { chapters, frontMatter } = htmlToStructure(html, issues);
   mergeSplitParagraphs(chapters);
+  mergeShortSentenceFragments(chapters);
   const estimatedPageCount = estimatePageCount(chapters);
 
   if (estimatedPageCount < 24) issues.push("Document is under 24 pages; KDP requires a minimum page count.");

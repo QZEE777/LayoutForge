@@ -271,9 +271,9 @@ export async function generateKdpDocx(
     }
     let prevWasColonLabel = false;
     for (const p of ch.paragraphs) {
-      if (!p.text.trim()) continue;
       const trimmed = p.text.trim();
-      if (/^\d+$/.test(trimmed)) continue;
+      if (!trimmed) continue;
+      if (/^\s*\d+\s*\.?\s*$/.test(trimmed)) continue;
       const isListItem = /^[•\-*]\s*/.test(trimmed) || /^\d+\.\s+/.test(trimmed);
       const isColonLabel = /:\s*$/.test(trimmed);
       const isShortCallout = !isListItem && !isColonLabel && trimmed.length < 80;
