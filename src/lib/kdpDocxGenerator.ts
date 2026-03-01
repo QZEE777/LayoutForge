@@ -1,6 +1,7 @@
 /**
  * KDP formatted DOCX (review draft) using the docx package.
  * For proofreading only — not print-ready.
+ * Spacing: OOXML uses max(para.after, next.before) between paragraphs (twips).
  */
 
 import {
@@ -237,7 +238,7 @@ export async function generateKdpDocx(
           new Paragraph({
             children: [new TextRun({ text: subtitleLine2, size: 26, font: "Times New Roman", color: black })],
             alignment: AlignmentType.CENTER,
-            spacing: { before: 0, after: 280, line: lineTwip },
+            spacing: { before: 0, after: 100, line: lineTwip },
           })
         );
       }
@@ -247,7 +248,7 @@ export async function generateKdpDocx(
             children: [new TextRun({ text: subSubtitle, size: 22, font: "Times New Roman", italics: true, color: black })],
             heading: HeadingLevel.HEADING_3,
             alignment: AlignmentType.CENTER,
-            spacing: { before: 0, after: 280, line: lineTwip },
+            spacing: { before: 0, after: 100, line: lineTwip },
           })
         );
       }
@@ -256,7 +257,7 @@ export async function generateKdpDocx(
         new Paragraph({
           children: [new TextRun({ text: ch.title, size: 26, font: "Times New Roman", bold: true, color: black })],
           heading: HeadingLevel.HEADING_2,
-          spacing: { before: 0, after: 280, line: lineTwip },
+          spacing: { before: 0, after: 100, line: lineTwip },
         })
       );
     } else {
@@ -264,7 +265,7 @@ export async function generateKdpDocx(
         new Paragraph({
           children: [new TextRun({ text: ch.title, size: 22, font: "Times New Roman", italics: true, color: black })],
           heading: HeadingLevel.HEADING_3,
-          spacing: { before: 0, after: 280, line: lineTwip },
+          spacing: { before: 0, after: 100, line: lineTwip },
         })
       );
     }
@@ -290,7 +291,7 @@ export async function generateKdpDocx(
       const isShortCallout = !isListItem && !isColonLabel && trimmed.length < 80;
       const isItalicCallout = !isListItem && !isColonLabel && p.italic && trimmed.length < 120;
       const isPunchyShort = !isListItem && !isColonLabel && trimmed.length < 60 && /\.\s*$/.test(trimmed) && !p.bold && !p.italic;
-      const afterSpacing = isListItem ? 40 : isColonLabel ? 20 : isItalicCallout ? 200 : isPunchyShort ? 60 : isShortCallout ? 80 : 120;
+      const afterSpacing = isListItem ? 40 : isColonLabel ? 0 : isItalicCallout ? 200 : isPunchyShort ? 60 : isShortCallout ? 80 : 120;
       // Paragraph after colon label: force before: 0, after: 120, line: 276 so gap stays minimal.
       let beforeSpacing = prevWasColonLabel ? 0 : prevWasListItem ? 80 : isColonLabel ? 200 : 0;
       let lineSpacing = isListItem ? 240 : lineTwip;
