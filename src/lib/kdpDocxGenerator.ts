@@ -201,15 +201,27 @@ export async function generateKdpDocx(
     const ch = bodyChapters[i];
     const prevLevel = i > 0 ? bodyChapters[i - 1].level : null;
     if (ch.level === 1) {
+      const dashSplit = ch.title.split(/\s+[—–-]\s+/);
+      const chapterLabel = (dashSplit[0] || ch.title).trim().toUpperCase();
+      const subtitle = dashSplit.length > 1 ? dashSplit.slice(1).join(" — ").trim() : "";
       bodyChildren.push(
         new Paragraph({
-          children: [new TextRun({ text: ch.title, size: 44, font: "Times New Roman", bold: true, color: black })],
+          children: [new TextRun({ text: chapterLabel, size: 28, font: "Times New Roman", bold: true, color: black })],
           heading: HeadingLevel.HEADING_1,
           alignment: AlignmentType.CENTER,
           pageBreakBefore: true,
-          spacing: { before: 240, after: 360, line: lineTwip },
+          spacing: { before: 240, after: subtitle ? 0 : 360, line: lineTwip },
         })
       );
+      if (subtitle) {
+        bodyChildren.push(
+          new Paragraph({
+            children: [new TextRun({ text: subtitle, size: 24, font: "Times New Roman", color: black })],
+            alignment: AlignmentType.CENTER,
+            spacing: { before: 0, after: 360, line: lineTwip },
+          })
+        );
+      }
     } else if (ch.level === 2) {
       bodyChildren.push(
         new Paragraph({
