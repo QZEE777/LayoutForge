@@ -217,8 +217,13 @@ export async function generateKdpDocx(
       const chapterLabel = (dashSplit[0] || ch.title).trim().toUpperCase();
       const subtitleFull = dashSplit.length > 1 ? dashSplit.slice(1).join(" — ").trim() : "";
       const colonMatch = subtitleFull.match(/^(.+?)\s*:\s*(.+)$/);
-      const subtitleLine2 = colonMatch ? colonMatch[1].replace(/:+\s*$/, "").trim() : subtitleFull;
-      const subSubtitle = colonMatch ? colonMatch[2].trim() : "";
+      let subtitleLine2 = colonMatch ? colonMatch[1].replace(/:+\s*$/, "").trim() : subtitleFull;
+      let subSubtitle = colonMatch ? colonMatch[2].trim() : "";
+      const toTitleCase = (s: string) =>
+        s.trim().split(/\s+/).map((w) => (w.length ? w[0].toUpperCase() + w.slice(1).toLowerCase() : w)).join(" ");
+      if (subtitleLine2 && /^[A-Z\s]+$/.test(subtitleLine2) && subtitleLine2.length > 0)
+        subtitleLine2 = toTitleCase(subtitleLine2);
+      if (subSubtitle && /^[A-Z\s]+$/.test(subSubtitle) && subSubtitle.length > 0) subSubtitle = toTitleCase(subSubtitle);
       const hasSubtitle = !!subtitleLine2;
       bodyChildren.push(
         new Paragraph({
@@ -267,13 +272,15 @@ export async function generateKdpDocx(
     }
     for (const p of ch.paragraphs) {
       if (!p.text.trim()) continue;
+      const trimmed = p.text.trim();
+      const isBullet = /^[•\-*]\s*/.test(trimmed);
       bodyChildren.push(
         new Paragraph({
           style: "Normal",
           children: [normalRun(p.text, { bold: p.bold, italics: p.italic })],
           spacing: {
             before: 0,
-            after: 120,
+            after: isBullet ? 40 : 120,
             line: lineTwip,
           },
           indent: config.paragraphStyle === "fiction" ? { firstLine: convertInchesToTwip(0.25) } : undefined,

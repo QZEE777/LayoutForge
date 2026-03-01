@@ -111,6 +111,8 @@ function extractAttr(html: string, attr: string): string | null {
 
 /** Convert HTML from mammoth into structured chapters and paragraphs (Node-safe, no DOM). */
 function htmlToStructure(html: string, issues: string[]): { chapters: ParsedChapter[]; frontMatter: ParsedFrontMatter } {
+  // Strip all style attributes so source DOCX spacing (margin/padding) is not inherited — spacing comes only from kdpDocxGenerator.
+  html = html.replace(/\s+style=["'][^"']*["']/gi, "");
   const chapters: ParsedChapter[] = [];
   let currentChapter: ParsedChapter = {
     number: 0,
