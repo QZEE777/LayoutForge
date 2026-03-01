@@ -3,8 +3,7 @@ import { getStored, readStoredFile, writeOutput, updateMeta } from "@/lib/storag
 import { parseDocxForKdp } from "@/lib/kdpDocxParser";
 import { generateKdpDocx } from "@/lib/kdpDocxGenerator";
 import { type KdpFormatConfig, getGutterInches } from "@/lib/kdpConfig";
-
-const OUTPUT_FILENAME = "kdp-review.docx";
+import { outputFilenameFromTitle } from "@/lib/formatFileName";
 
 export async function POST(request: NextRequest) {
   try {
@@ -109,7 +108,8 @@ export async function POST(request: NextRequest) {
     const sectionsDetected = content.chapters.filter((c) => c.level === 1).length;
     const lessonsDetected = content.chapters.filter((c) => c.level === 2).length;
 
-    await writeOutput(id, OUTPUT_FILENAME, docxBuffer);
+    const outputFilename = outputFilenameFromTitle(bookTitle, ".docx");
+    await writeOutput(id, outputFilename, docxBuffer);
 
     const report = {
       pagesGenerated: 0,
@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
     };
 
     await updateMeta(id, {
-      outputFilename: OUTPUT_FILENAME,
+      outputFilename,
       convertStatus: "done",
       processingReport: report,
     });

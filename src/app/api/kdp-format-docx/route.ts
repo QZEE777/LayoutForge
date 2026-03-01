@@ -3,8 +3,7 @@ import { getStored, readStoredFile, writeOutput, updateMeta } from "@/lib/storag
 import { parseDocxForKdp } from "@/lib/kdpDocxParser";
 import { generateKdpPdf } from "@/lib/kdpPdfGenerator";
 import { type KdpFormatConfig, getGutterInches } from "@/lib/kdpConfig";
-
-const OUTPUT_FILENAME = "kdp-print.pdf";
+import { outputFilenameFromTitle } from "@/lib/formatFileName";
 
 export async function POST(request: NextRequest) {
   try {
@@ -112,7 +111,8 @@ export async function POST(request: NextRequest) {
     const trim = fullConfig.trimSize;
     const gutterInches = getGutterInches(result.pageCount);
 
-    await writeOutput(id, OUTPUT_FILENAME, Buffer.from(result.pdfBytes));
+    const outputFilename = outputFilenameFromTitle(bookTitle, ".pdf");
+    await writeOutput(id, outputFilename, Buffer.from(result.pdfBytes));
 
     const report = {
       pagesGenerated: result.pageCount,
@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
     };
 
     await updateMeta(id, {
-      outputFilename: OUTPUT_FILENAME,
+      outputFilename,
       convertStatus: "done",
       pageCount: result.pageCount,
       trimSize: trim,

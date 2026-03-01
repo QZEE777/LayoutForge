@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeOutput, updateMeta } from "@/lib/storage";
+import { getStored, writeOutput, updateMeta } from "@/lib/storage";
+import { outputFilenameFromOriginal } from "@/lib/formatFileName";
 import { extractTextFromPDFBuffer, extractTextFromDocxBuffer } from "@/lib/pdfTextExtract";
 
 const MAX_WORDS = 1000;
@@ -290,12 +291,15 @@ export async function GET(request: NextRequest) {
         });
       }
       const pdfBuffer = Buffer.from(await dlRes.arrayBuffer());
-      const outputFilename = "kdp-print.pdf";
+      const meta = await getStored(id!);
+      const outputFilename =
+        meta?.originalName ? outputFilenameFromOriginal(meta.originalName, ".pdf") : "kdp-print.pdf";
       await writeOutput(id!, outputFilename, pdfBuffer);
+      await updateMeta(id!, { outputFilename });
       return NextResponse.json({
         status: "done",
         id,
-        downloadUrl: `/api/download/${id}/${outputFilename}`,
+        downloadUrl: `/api/download/${id}/${encodeURIComponent(outputFilename)}`,
       });
     }
 
@@ -319,7 +323,9 @@ export async function GET(request: NextRequest) {
         });
       }
       const epubBuffer = Buffer.from(await dlRes.arrayBuffer());
-      const outputFilename = "book.epub";
+      const meta = await getStored(id!);
+      const outputFilename =
+        meta?.originalName ? outputFilenameFromOriginal(meta.originalName, ".epub") : "book.epub";
       await writeOutput(id!, outputFilename, epubBuffer);
       await updateMeta(id!, {
         outputFilename,
@@ -334,7 +340,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         status: "done",
         id,
-        downloadUrl: `/api/download/${id}/${outputFilename}`,
+        downloadUrl: `/api/download/${id}/${encodeURIComponent(outputFilename)}`,
       });
     }
 

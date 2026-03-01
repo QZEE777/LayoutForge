@@ -31,11 +31,9 @@ export default function DownloadPage() {
 
   const isDocx = report?.outputType === "docx";
   const isEpub = isEpubFlow || report?.outputType === "epub";
-  const downloadFilename = isDocx
-    ? "kdp-review.docx"
-    : isEpub
-      ? (report?.outputFilename || "book.epub")
-      : "kdp-print.pdf";
+  const downloadFilename =
+    report?.outputFilename ||
+    (isDocx ? "kdp-review.docx" : isEpub ? "book.epub" : "kdp-print.pdf");
 
   const handleDownload = useCallback(async () => {
     setDownloadError(null);

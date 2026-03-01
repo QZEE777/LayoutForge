@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ensureUploadDir, getUploadPath, saveMeta } from "@/lib/storage";
 
 const MAX_FILESIZE_BYTES = 50 * 1024 * 1024; // 50MB
 
@@ -179,7 +180,21 @@ export async function POST(request: NextRequest) {
 
     // KDP Formatter and EPUB Maker need an id for the download page (we save result to out/{id}/...)
     if (toolType === "kdp-formatter-pdf" || toolType === "epub-maker") {
-      response.id = crypto.randomUUID();
+      const id = crypto.randomUUID();
+      response.id = id;
+      await ensureUploadDir();
+      const ext = toolType === "epub-maker" ? ".docx" : ".pdf";
+      const mimeType =
+        toolType === "epub-maker"
+          ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+          : "application/pdf";
+      await saveMeta({
+        id,
+        originalName: filename,
+        mimeType,
+        storedPath: getUploadPath(id, ext),
+        createdAt: Date.now(),
+      });
     }
 
     return NextResponse.json(response);
