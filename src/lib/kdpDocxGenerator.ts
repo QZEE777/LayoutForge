@@ -237,7 +237,7 @@ export async function generateKdpDocx(
           new Paragraph({
             children: [new TextRun({ text: subtitleLine2, size: 26, font: "Times New Roman", color: black })],
             alignment: AlignmentType.CENTER,
-            spacing: { before: 0, after: 360, line: lineTwip },
+            spacing: { before: 0, after: 280, line: lineTwip },
           })
         );
       }
@@ -256,7 +256,7 @@ export async function generateKdpDocx(
         new Paragraph({
           children: [new TextRun({ text: ch.title, size: 26, font: "Times New Roman", bold: true, color: black })],
           heading: HeadingLevel.HEADING_2,
-          spacing: { before: 0, after: 360, line: lineTwip },
+          spacing: { before: 0, after: 280, line: lineTwip },
         })
       );
     } else {
@@ -286,10 +286,18 @@ export async function generateKdpDocx(
         break;
       }
       const isShortCallout = !isListItem && !isColonLabel && trimmed.length < 80;
-      const afterSpacing = isListItem ? 40 : isColonLabel ? 20 : isShortCallout ? 80 : 120;
-      // Paragraph after colon label gets before: 0 so content is visually connected.
-      const beforeSpacing = prevWasColonLabel ? 0 : prevWasListItem ? 80 : isColonLabel ? 200 : 0;
-      const lineSpacing = isListItem ? 240 : lineTwip;
+      const isItalicCallout = !isListItem && !isColonLabel && p.italic && trimmed.length < 120;
+      const isPunchyShort = !isListItem && !isColonLabel && trimmed.length < 60 && /\.\s*$/.test(trimmed) && !p.bold && !p.italic;
+      const afterSpacing = isListItem ? 40 : isColonLabel ? 20 : isItalicCallout ? 200 : isPunchyShort ? 60 : isShortCallout ? 80 : 120;
+      // Paragraph after colon label: force before: 0, after: 120, line: 276 so gap stays minimal.
+      let beforeSpacing = prevWasColonLabel ? 0 : prevWasListItem ? 80 : isColonLabel ? 200 : 0;
+      let lineSpacing = isListItem ? 240 : lineTwip;
+      let finalAfter = afterSpacing;
+      if (prevWasColonLabel) {
+        beforeSpacing = 0;
+        finalAfter = 120;
+        lineSpacing = lineTwip;
+      }
       prevWasColonLabel = isColonLabel;
       prevWasListItem = isListItem;
       const run = isColonLabel ? colonLabelRun(p.text) : normalRun(p.text, { bold: p.bold, italics: p.italic });
@@ -299,7 +307,7 @@ export async function generateKdpDocx(
           children: [run],
           spacing: {
             before: beforeSpacing,
-            after: afterSpacing,
+            after: finalAfter,
             line: lineSpacing,
           },
           indent: { left: 0, right: 0, firstLine: 0 },
