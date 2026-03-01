@@ -158,7 +158,7 @@ export async function GET(request: NextRequest) {
   if (docEntry) {
     const docXml = await docEntry.async("string");
     const first20 = getFirstParagraphs(docXml, 20);
-    const inferred = inferFromParagraphs(first20.slice(0, 3));
+    const inferred = inferFromParagraphs(first20.slice(0, 15));
     if (!bookTitle && inferred.title) bookTitle = inferred.title;
     if (!authorName && inferred.author) authorName = inferred.author;
     if (inferred.hasTitlePage) hasTitlePage = true;

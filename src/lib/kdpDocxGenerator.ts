@@ -14,6 +14,8 @@ import {
   Header,
   Footer,
   PageNumber,
+  TableOfContents,
+  NumberFormat,
   convertInchesToTwip,
   type FileChild,
 } from "docx";
@@ -139,19 +141,12 @@ export async function generateKdpDocx(
     frontChildren.push(new Paragraph({ children: [new PageBreak()] }));
   }
 
-  // TOC placeholder
+  // Table of contents (Word will update with headings and page numbers when document is opened)
   if (config.frontMatter.toc) {
     frontChildren.push(
-      new Paragraph({
-        children: [new TextRun({ text: "Contents", size: 36, font: "Times New Roman", bold: true })],
-        heading: HeadingLevel.TITLE,
-        spacing: { after: 400 },
-      })
-    );
-    frontChildren.push(
-      new Paragraph({
-        children: [normalRun("(Table of contents will be generated in the final PDF.)", { italics: true })],
-        spacing: { after: 400 },
+      new TableOfContents("Contents", {
+        hyperlink: true,
+        headingStyleRange: "1-3",
       })
     );
     frontChildren.push(new Paragraph({ children: [new PageBreak()] }));
@@ -217,7 +212,108 @@ export async function generateKdpDocx(
   const pageWidth = convertInchesToTwip(trim.widthInches);
   const pageHeight = convertInchesToTwip(trim.heightInches);
 
+  const pageMargin = {
+    top: convertInchesToTwip(top),
+    right: convertInchesToTwip(right),
+    bottom: convertInchesToTwip(bottom),
+    left: convertInchesToTwip(left),
+    header: convertInchesToTwip(headerInches),
+    footer: convertInchesToTwip(footerInches),
+    gutter: convertInchesToTwip(gutterInches),
+  };
+
+  // Section 1: front matter — no page numbers, no footers
+  const frontSection = {
+    properties: {
+      page: {
+        margin: pageMargin,
+        size: { width: pageWidth, height: pageHeight },
+        // @ts-expect-error - mirrorMargins not in docx types but supported in OOXML
+        mirrorMargins: true,
+      },
+    },
+    children: frontChildren,
+  };
+
+  // Section 2: body — page numbers start at 1; odd = bottom right, even = bottom left
+  const bodySection = {
+    properties: {
+      page: {
+        margin: pageMargin,
+        size: { width: pageWidth, height: pageHeight },
+        // @ts-expect-error - mirrorMargins not in docx types but supported in OOXML
+        mirrorMargins: true,
+        pageNumbers: { start: 1, formatType: NumberFormat.DECIMAL },
+      },
+    },
+    headers: {
+      default: new Header({
+        children: [
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: title,
+                size: 18,
+                italics: true,
+                font: "Times New Roman",
+              }),
+            ],
+            alignment: AlignmentType.CENTER,
+          }),
+        ],
+      }),
+      even: new Header({
+        children: [
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: author,
+                size: 18,
+                italics: true,
+                font: "Times New Roman",
+              }),
+            ],
+            alignment: AlignmentType.CENTER,
+          }),
+        ],
+      }),
+    },
+    footers: {
+      default: new Footer({
+        children: [
+          new Paragraph({
+            children: [
+              new TextRun({
+                children: [PageNumber.CURRENT],
+                size: 20,
+                font: "Times New Roman",
+              }),
+            ],
+            alignment: AlignmentType.RIGHT,
+          }),
+        ],
+      }),
+      even: new Footer({
+        children: [
+          new Paragraph({
+            children: [
+              new TextRun({
+                children: [PageNumber.CURRENT],
+                size: 20,
+                font: "Times New Roman",
+              }),
+            ],
+            alignment: AlignmentType.LEFT,
+          }),
+        ],
+      }),
+    },
+    children: bodyChildren,
+  };
+
   const doc = new Document({
+    evenAndOddHeaderAndFooters: true,
+    features: { updateFields: true },
     styles: {
       default: {
         document: {
@@ -238,75 +334,7 @@ export async function generateKdpDocx(
         },
       ],
     },
-    sections: [
-      {
-        properties: {
-          page: {
-            margin: {
-              top: convertInchesToTwip(top),
-              right: convertInchesToTwip(right),
-              bottom: convertInchesToTwip(bottom),
-              left: convertInchesToTwip(left),
-              header: convertInchesToTwip(headerInches),
-              footer: convertInchesToTwip(footerInches),
-              gutter: convertInchesToTwip(gutterInches),
-            },
-            size: { width: pageWidth, height: pageHeight },
-            // @ts-expect-error - mirrorMargins not in docx types but supported in OOXML (w:mirrorMargins)
-            mirrorMargins: true,
-          },
-        },
-        headers: {
-          default: new Header({
-            children: [
-              new Paragraph({
-                children: [
-                  new TextRun({
-                    text: title,
-                    size: 18,
-                    italics: true,
-                    font: "Times New Roman",
-                  }),
-                ],
-                alignment: AlignmentType.CENTER,
-              }),
-            ],
-          }),
-          even: new Header({
-            children: [
-              new Paragraph({
-                children: [
-                  new TextRun({
-                    text: author,
-                    size: 18,
-                    italics: true,
-                    font: "Times New Roman",
-                  }),
-                ],
-                alignment: AlignmentType.CENTER,
-              }),
-            ],
-          }),
-        },
-        footers: {
-          default: new Footer({
-            children: [
-              new Paragraph({
-                children: [
-                  new TextRun({
-                    children: [PageNumber.CURRENT],
-                    size: 20,
-                    font: "Times New Roman",
-                  }),
-                ],
-                alignment: AlignmentType.CENTER,
-              }),
-            ],
-          }),
-        },
-        children: [...frontChildren, ...bodyChildren],
-      },
-    ],
+    sections: [frontSection, bodySection],
   });
 
   return Packer.toBuffer(doc);
