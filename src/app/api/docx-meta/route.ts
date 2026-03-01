@@ -108,15 +108,14 @@ function inferAuthor(paragraphs: string[]): string {
   return "";
 }
 
-/** Heuristic: infer title from first non-empty (Title Case if ALL CAPS); author per inferAuthor. */
+/** Heuristic: infer title from first non-empty (raw, no case conversion); author per inferAuthor. */
 function inferFromParagraphs(paragraphs: string[]): { title: string; author: string; hasTitlePage: boolean } {
   const nonEmpty = paragraphs.filter((p) => p.length > 0);
   let title = "";
   const author = inferAuthor(nonEmpty);
 
   if (nonEmpty.length >= 1) {
-    const raw = nonEmpty[0];
-    title = /^[A-Z\s]+$/.test(raw.trim()) && raw.trim().length > 0 ? toTitleCase(raw) : raw;
+    title = nonEmpty[0].trim();
   }
 
   const hasTitlePage = title.length > 0 || author.length > 0;

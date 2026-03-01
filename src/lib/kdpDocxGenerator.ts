@@ -62,7 +62,8 @@ export async function generateKdpDocx(
       text,
       size: bodySize,
       font: bodyFontName,
-      ...opts,
+      bold: opts?.bold === true,
+      italics: opts?.italics === true,
       color: "000000",
     });
 
@@ -87,19 +88,20 @@ export async function generateKdpDocx(
 
   // Half title
   if (config.frontMatter.titlePage) {
+    const titleCaps = title.toUpperCase();
     frontChildren.push(
       new Paragraph({
-        children: [new TextRun({ text: title, size: 48, font: "Times New Roman", bold: true })],
+        children: [new TextRun({ text: titleCaps, size: 48, font: "Times New Roman", bold: true })],
         alignment: AlignmentType.CENTER,
         spacing: { before: 2880, after: 0 },
       })
     );
     frontChildren.push(new Paragraph({ children: [new PageBreak()] }));
 
-    // Full title page (title + "By [authorName]")
+    // Full title page (title ALL CAPS + "By [authorName]")
     frontChildren.push(
       new Paragraph({
-        children: [new TextRun({ text: title, size: 56, font: "Times New Roman", bold: true })],
+        children: [new TextRun({ text: titleCaps, size: 56, font: "Times New Roman", bold: true })],
         alignment: AlignmentType.CENTER,
         spacing: { before: 2520, after: 480 },
       })
@@ -203,20 +205,34 @@ export async function generateKdpDocx(
     if (ch.level === 1) {
       const dashSplit = ch.title.split(/\s+[—–-]\s+/);
       const chapterLabel = (dashSplit[0] || ch.title).trim().toUpperCase();
-      const subtitle = dashSplit.length > 1 ? dashSplit.slice(1).join(" — ").trim() : "";
+      const subtitleFull = dashSplit.length > 1 ? dashSplit.slice(1).join(" — ").trim() : "";
+      const colonMatch = subtitleFull.match(/^(.+?)\s*:\s*(.+)$/);
+      const subtitleLine2 = colonMatch ? colonMatch[1].replace(/:+\s*$/, "").trim() : subtitleFull;
+      const subSubtitle = colonMatch ? colonMatch[2].trim() : "";
+      const hasSubtitle = !!subtitleLine2;
       bodyChildren.push(
         new Paragraph({
           children: [new TextRun({ text: chapterLabel, size: 28, font: "Times New Roman", bold: true, color: black })],
           heading: HeadingLevel.HEADING_1,
           alignment: AlignmentType.CENTER,
           pageBreakBefore: true,
-          spacing: { before: 240, after: subtitle ? 0 : 360, line: lineTwip },
+          spacing: { before: 240, after: hasSubtitle ? 0 : 360, line: lineTwip },
         })
       );
-      if (subtitle) {
+      if (subtitleLine2) {
         bodyChildren.push(
           new Paragraph({
-            children: [new TextRun({ text: subtitle, size: 24, font: "Times New Roman", color: black })],
+            children: [new TextRun({ text: subtitleLine2, size: 24, font: "Times New Roman", color: black })],
+            alignment: AlignmentType.CENTER,
+            spacing: { before: 0, after: subSubtitle ? 0 : 360, line: lineTwip },
+          })
+        );
+      }
+      if (subSubtitle) {
+        bodyChildren.push(
+          new Paragraph({
+            children: [new TextRun({ text: subSubtitle, size: 22, font: "Times New Roman", italics: true, color: black })],
+            heading: HeadingLevel.HEADING_3,
             alignment: AlignmentType.CENTER,
             spacing: { before: 0, after: 360, line: lineTwip },
           })
