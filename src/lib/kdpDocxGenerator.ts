@@ -8,14 +8,15 @@ import {
   Packer,
   Paragraph,
   TextRun,
+  Tab,
   PageBreak,
   AlignmentType,
   HeadingLevel,
   Header,
   Footer,
   PageNumber,
-  TableOfContents,
   NumberFormat,
+  TabStopType,
   convertInchesToTwip,
   type FileChild,
 } from "docx";
@@ -95,7 +96,7 @@ export async function generateKdpDocx(
     );
     frontChildren.push(new Paragraph({ children: [new PageBreak()] }));
 
-    // Full title page
+    // Full title page (title + "By [authorName]")
     frontChildren.push(
       new Paragraph({
         children: [new TextRun({ text: title, size: 56, font: "Times New Roman", bold: true })],
@@ -105,14 +106,7 @@ export async function generateKdpDocx(
     );
     frontChildren.push(
       new Paragraph({
-        children: [new TextRun({ text: "By", size: 22, font: "Times New Roman" })],
-        alignment: AlignmentType.CENTER,
-        spacing: { after: 240 },
-      })
-    );
-    frontChildren.push(
-      new Paragraph({
-        children: [new TextRun({ text: author, size: 28, font: "Times New Roman" })],
+        children: [new TextRun({ text: `By ${author}`, size: 28, font: "Times New Roman" })],
         alignment: AlignmentType.CENTER,
         spacing: { after: 0 },
       })
@@ -141,17 +135,6 @@ export async function generateKdpDocx(
     frontChildren.push(new Paragraph({ children: [new PageBreak()] }));
   }
 
-  // Table of contents (Word will update with headings and page numbers when document is opened)
-  if (config.frontMatter.toc) {
-    frontChildren.push(
-      new TableOfContents("Contents", {
-        hyperlink: true,
-        headingStyleRange: "1-3",
-      })
-    );
-    frontChildren.push(new Paragraph({ children: [new PageBreak()] }));
-  }
-
   // Body: chapters with Heading1/2/3 and Normal paragraphs. Skip title-page content that leaked into parsed chapters.
   const isTitlePageContent = (ch: ParsedChapter): boolean => {
     const t = ch.title.trim();
@@ -161,7 +144,43 @@ export async function generateKdpDocx(
     if (/^By\s+/i.test(t) && t.toLowerCase().endsWith(author.trim().toLowerCase())) return true;
     return false;
   };
-  const bodyChapters = content.chapters.filter((ch) => !isTitlePageContent(ch));
+  let bodyChapters = content.chapters.filter((ch) => !isTitlePageContent(ch));
+
+  // When user skipped our title page (titlePage false), strip manuscript's title block so we don't duplicate.
+  if (!config.frontMatter.titlePage) {
+    const firstLevel1 = bodyChapters.findIndex((ch) => ch.level === 1);
+    if (firstLevel1 > 0) bodyChapters = bodyChapters.slice(firstLevel1);
+  }
+
+  // Manual TOC: Heading 1 chapters with placeholder page numbers (renders without Word field update).
+  if (config.frontMatter.toc) {
+    const tocEntries = bodyChapters.filter((ch) => ch.level === 1);
+    frontChildren.push(
+      new Paragraph({
+        children: [new TextRun({ text: "Contents", size: 36, font: "Times New Roman", bold: true })],
+        heading: HeadingLevel.TITLE,
+        spacing: { after: 400 },
+      })
+    );
+    const tocRightTwip = convertInchesToTwip(6.5); // right-aligned page number position
+    let pageNum = 1;
+    for (const ch of tocEntries) {
+      const titleShort = ch.title.length > 60 ? ch.title.slice(0, 57) + "..." : ch.title;
+      frontChildren.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: titleShort, size: bodySize, font: bodyFontName }),
+            new Tab(),
+            new TextRun({ text: String(pageNum), size: bodySize, font: bodyFontName }),
+          ],
+          tabStops: [{ position: tocRightTwip, type: TabStopType.RIGHT }],
+          spacing: { after: 120 },
+        })
+      );
+      pageNum += 1;
+    }
+    frontChildren.push(new Paragraph({ children: [new PageBreak()] }));
+  }
 
   const bodyChildren: FileChild[] = [];
   for (const ch of bodyChapters) {
