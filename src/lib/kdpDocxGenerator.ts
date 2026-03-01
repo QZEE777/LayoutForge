@@ -195,35 +195,39 @@ export async function generateKdpDocx(
   }
 
   const bodyChildren: FileChild[] = [];
-  for (const ch of bodyChapters) {
+  const black = "000000";
+  for (let i = 0; i < bodyChapters.length; i++) {
+    const ch = bodyChapters[i];
+    const prevLevel = i > 0 ? bodyChapters[i - 1].level : null;
     if (ch.level === 1) {
       bodyChildren.push(
         new Paragraph({
-          children: [new TextRun({ text: ch.title, size: 44, font: "Times New Roman", bold: true })],
+          children: [new TextRun({ text: ch.title, size: 44, font: "Times New Roman", bold: true, color: black })],
           heading: HeadingLevel.HEADING_1,
           alignment: AlignmentType.CENTER,
           pageBreakBefore: true,
-          spacing: { before: 0, after: 360, line: lineTwip },
+          spacing: { before: 240, after: 360, line: lineTwip },
         })
       );
     } else if (ch.level === 2) {
       bodyChildren.push(
         new Paragraph({
-          children: [new TextRun({ text: ch.title, size: 26, font: "Times New Roman" })],
+          children: [new TextRun({ text: ch.title, size: 24, font: "Times New Roman", bold: true, color: black })],
           heading: HeadingLevel.HEADING_2,
-          spacing: { before: 480, after: 240, line: lineTwip },
+          spacing: { before: prevLevel === 1 ? 0 : 240, after: 240, line: lineTwip },
         })
       );
     } else {
       bodyChildren.push(
         new Paragraph({
-          children: [new TextRun({ text: ch.title, size: 24, font: "Times New Roman", bold: true, italics: true })],
+          children: [new TextRun({ text: ch.title, size: 22, font: "Times New Roman", italics: true, color: black })],
           heading: HeadingLevel.HEADING_3,
-          spacing: { before: 360, after: 160, line: lineTwip },
+          spacing: { before: 240, after: 160, line: lineTwip },
         })
       );
     }
     for (const p of ch.paragraphs) {
+      if (!p.text.trim()) continue;
       bodyChildren.push(
         new Paragraph({
           style: "Normal",
