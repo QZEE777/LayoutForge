@@ -273,13 +273,14 @@ export async function generateKdpDocx(
       if (!p.text.trim()) continue;
       const trimmed = p.text.trim();
       const isListItem = /^[•\-*]\s*/.test(trimmed) || /^\d+\.\s+/.test(trimmed);
+      const isShortCallout = !isListItem && trimmed.length < 60;
       bodyChildren.push(
         new Paragraph({
           style: "Normal",
           children: [normalRun(p.text, { bold: p.bold, italics: p.italic })],
           spacing: {
             before: 0,
-            after: isListItem ? 40 : 120,
+            after: isListItem ? 40 : isShortCallout ? 60 : 120,
             line: lineTwip,
           },
           indent: config.paragraphStyle === "fiction" ? { firstLine: convertInchesToTwip(0.25) } : undefined,

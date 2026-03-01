@@ -198,6 +198,7 @@ function htmlToStructure(html: string, issues: string[]): { chapters: ParsedChap
           images: [],
         };
       } else {
+        if (/^\d{1,3}$/.test(text)) continue;
         currentChapter.paragraphs.push({ text, bold, italic, underline });
       }
     } else if (seg.type === "img") {
