@@ -55,19 +55,7 @@ function toTitleCase(s: string): string {
     .join(" ");
 }
 
-/** True if paragraph looks like a person name: 2–4 words, each capitalized, no punctuation. */
-function looksLikePersonName(s: string): boolean {
-  const t = s.trim();
-  if (!t) return false;
-  const words = t.split(/\s+/).filter(Boolean);
-  if (words.length < 2 || words.length > 4) return false;
-  if (/[.,;:!?'"()—–]/.test(t)) return false;
-  return words.every(
-    (w) => w.length > 0 && w[0] === w[0].toUpperCase() && /^[A-Za-z-]+$/.test(w)
-  );
-}
-
-/** Infer author from paragraphs: "By ..." first, then person-name pattern; otherwise leave empty. */
+/** Infer author only from a paragraph that starts with "By " or "by "; otherwise leave empty. */
 function inferAuthor(paragraphs: string[]): string {
   for (const p of paragraphs) {
     const t = p.trim();
@@ -77,10 +65,6 @@ function inferAuthor(paragraphs: string[]): string {
       const name = byMatch[1].trim();
       if (name.length > 0) return name;
     }
-  }
-  for (const p of paragraphs) {
-    const t = p.trim();
-    if (t && looksLikePersonName(t)) return t;
   }
   return "";
 }
