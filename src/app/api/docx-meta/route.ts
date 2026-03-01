@@ -46,22 +46,57 @@ function getFirstParagraphs(docXml: string, maxParagraphs: number = 3): string[]
   return paragraphs;
 }
 
-/** Heuristic: infer title from first non-empty; author from "By ..." or second line. */
+/** Convert ALL CAPS string to Title Case. */
+function toTitleCase(s: string): string {
+  return s
+    .trim()
+    .split(/\s+/)
+    .map((w) => (w.length === 0 ? w : w[0].toUpperCase() + w.slice(1).toLowerCase()))
+    .join(" ");
+}
+
+/** True if paragraph looks like a person name: 2–4 words, each capitalized, no punctuation. */
+function looksLikePersonName(s: string): boolean {
+  const t = s.trim();
+  if (!t) return false;
+  const words = t.split(/\s+/).filter(Boolean);
+  if (words.length < 2 || words.length > 4) return false;
+  if (/[.,;:!?'"()—–]/.test(t)) return false;
+  return words.every(
+    (w) => w.length > 0 && w[0] === w[0].toUpperCase() && /^[A-Za-z-]+$/.test(w)
+  );
+}
+
+/** Infer author from paragraphs: "By ..." first, then person-name pattern; otherwise leave empty. */
+function inferAuthor(paragraphs: string[]): string {
+  for (const p of paragraphs) {
+    const t = p.trim();
+    if (!t) continue;
+    const byMatch = t.match(/^[Bb]y\s+(.+)$/);
+    if (byMatch) {
+      const name = byMatch[1].trim();
+      if (name.length > 0) return name;
+    }
+  }
+  for (const p of paragraphs) {
+    const t = p.trim();
+    if (t && looksLikePersonName(t)) return t;
+  }
+  return "";
+}
+
+/** Heuristic: infer title from first non-empty (Title Case if ALL CAPS); author per inferAuthor. */
 function inferFromParagraphs(paragraphs: string[]): { title: string; author: string; hasTitlePage: boolean } {
   const nonEmpty = paragraphs.filter((p) => p.length > 0);
   let title = "";
-  let author = "";
-  let hasTitlePage = false;
+  const author = inferAuthor(nonEmpty);
 
-  if (nonEmpty.length >= 1) title = nonEmpty[0];
-  if (nonEmpty.length >= 2) {
-    const second = nonEmpty[1];
-    const byMatch = second.match(/^By\s+(.+)$/i);
-    if (byMatch) author = byMatch[1].trim();
-    else author = second;
+  if (nonEmpty.length >= 1) {
+    const raw = nonEmpty[0];
+    title = /^[A-Z\s]+$/.test(raw.trim()) && raw.trim().length > 0 ? toTitleCase(raw) : raw;
   }
 
-  if (title || author) hasTitlePage = true;
+  const hasTitlePage = title.length > 0 || author.length > 0;
   return { title, author, hasTitlePage };
 }
 
