@@ -228,7 +228,7 @@ export async function generateKdpDocx(
       page: {
         margin: pageMargin,
         size: { width: pageWidth, height: pageHeight },
-        // @ts-expect-error - mirrorMargins not in docx types but supported in OOXML
+        // @ts-ignore
         mirrorMargins: true,
       },
     },
@@ -241,7 +241,7 @@ export async function generateKdpDocx(
       page: {
         margin: pageMargin,
         size: { width: pageWidth, height: pageHeight },
-        // @ts-expect-error - mirrorMargins not in docx types but supported in OOXML
+        // @ts-ignore
         mirrorMargins: true,
         pageNumbers: { start: 1, formatType: NumberFormat.DECIMAL },
       },
