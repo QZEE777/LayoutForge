@@ -156,7 +156,7 @@ export async function generateKdpDocx(
     size: bodySize,
     font: bodyFontName,
     color: "000000",
-    underline: { type: UnderlineType.NONE as const },
+    underline: { type: UnderlineType.NONE },
   };
   if (config.frontMatter.toc) {
     const tocEntries = bodyChapters.filter((ch) => ch.level === 1);
@@ -176,7 +176,7 @@ export async function generateKdpDocx(
             font: "Times New Roman",
             italics: true,
             color: "000000",
-            underline: { type: UnderlineType.NONE as const },
+            underline: { type: UnderlineType.NONE },
           }),
         ],
         spacing: { after: 400 },
