@@ -52,8 +52,8 @@ export async function generateKdpDocx(
   const copyrightYear = config.copyrightYear;
   const isbn = config.isbn || content.frontMatter.isbn || "";
   const fontSize = config.fontSize;
-  const lineSpacing = config.lineSpacing ?? 1.3;
-  const lineTwip = Math.round(240 * lineSpacing); // ~12pt * 20 * lineSpacing
+  const lineSpacing = config.lineSpacing ?? 1.15;
+  const lineTwip = Math.round(240 * lineSpacing); // 276 = 1.15x for print book
 
   const bodySize = fontSize * 2; // half-points
   const bodyFontName = getBodyFontName(config.bodyFont);
@@ -272,8 +272,8 @@ export async function generateKdpDocx(
           style: "Normal",
           children: [normalRun(p.text, { bold: p.bold, italics: p.italic })],
           spacing: {
-            before: config.paragraphStyle === "nonfiction" ? 200 : 0,
-            after: config.paragraphStyle === "nonfiction" ? 200 : 0,
+            before: 0,
+            after: 120,
             line: lineTwip,
           },
           indent: config.paragraphStyle === "fiction" ? { firstLine: convertInchesToTwip(0.25) } : undefined,
