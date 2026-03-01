@@ -270,12 +270,21 @@ export async function generateKdpDocx(
     }
     let prevWasColonLabel = false;
     let prevWasListItem = false;
-    for (const p of ch.paragraphs) {
+    const paras = ch.paragraphs;
+    for (let j = 0; j < paras.length; j++) {
+      const p = paras[j];
       const trimmed = p.text.trim();
       if (!trimmed) continue;
       if (/^\d{1,4}$/.test(trimmed)) continue;
       const isListItem = /^[•\-*]\s*/.test(trimmed) || /^\d+\.\s+/.test(trimmed);
       const isColonLabel = /:\s*$/.test(trimmed);
+      let nextIsListItem = false;
+      for (let k = j + 1; k < paras.length; k++) {
+        const t = paras[k].text.trim();
+        if (!t || /^\d{1,4}$/.test(t)) continue;
+        nextIsListItem = /^[•\-*]\s*/.test(t) || /^\d+\.\s+/.test(t);
+        break;
+      }
       const isShortCallout = !isListItem && !isColonLabel && trimmed.length < 80;
       const afterSpacing = isListItem ? 40 : isColonLabel ? 20 : isShortCallout ? 80 : 120;
       // Paragraph after colon label gets before: 0 so content is visually connected.
@@ -294,7 +303,9 @@ export async function generateKdpDocx(
             line: lineSpacing,
           },
           indent: { left: 0, right: 0, firstLine: 0 },
-          alignment: AlignmentType.JUSTIFIED,
+          alignment: AlignmentType.LEFT,
+          keepNext: isColonLabel || (nextIsListItem && !isListItem),
+          keepLines: isListItem,
         })
       );
     }
