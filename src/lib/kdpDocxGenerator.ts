@@ -230,7 +230,7 @@ export async function generateKdpDocx(
           heading: HeadingLevel.HEADING_1,
           alignment: AlignmentType.CENTER,
           pageBreakBefore: true,
-          spacing: { before: 240, after: hasSubtitle ? 0 : 360, line: lineTwip },
+          spacing: { before: 240, after: 0, line: lineTwip },
         })
       );
       if (subtitleLine2) {
@@ -238,7 +238,7 @@ export async function generateKdpDocx(
           new Paragraph({
             children: [new TextRun({ text: subtitleLine2, size: 24, font: "Times New Roman", color: black })],
             alignment: AlignmentType.CENTER,
-            spacing: { before: 0, after: subSubtitle ? 0 : 360, line: lineTwip },
+            spacing: { before: 0, after: 360, line: lineTwip },
           })
         );
       }
@@ -248,7 +248,7 @@ export async function generateKdpDocx(
             children: [new TextRun({ text: subSubtitle, size: 22, font: "Times New Roman", italics: true, color: black })],
             heading: HeadingLevel.HEADING_3,
             alignment: AlignmentType.CENTER,
-            spacing: { before: 0, after: 360, line: lineTwip },
+            spacing: { before: 0, after: 280, line: lineTwip },
           })
         );
       }
@@ -257,7 +257,7 @@ export async function generateKdpDocx(
         new Paragraph({
           children: [new TextRun({ text: ch.title, size: 24, font: "Times New Roman", bold: true, color: black })],
           heading: HeadingLevel.HEADING_2,
-          spacing: { before: prevLevel === 1 ? 0 : 240, after: 240, line: lineTwip },
+          spacing: { before: 0, after: 360, line: lineTwip },
         })
       );
     } else {
@@ -265,22 +265,24 @@ export async function generateKdpDocx(
         new Paragraph({
           children: [new TextRun({ text: ch.title, size: 22, font: "Times New Roman", italics: true, color: black })],
           heading: HeadingLevel.HEADING_3,
-          spacing: { before: 240, after: 160, line: lineTwip },
+          spacing: { before: 0, after: 280, line: lineTwip },
         })
       );
     }
     let prevWasColonLabel = false;
+    let prevWasListItem = false;
     for (const p of ch.paragraphs) {
       const trimmed = p.text.trim();
       if (!trimmed) continue;
-      if (/^\s*\d+\s*\.?\s*$/.test(trimmed)) continue;
+      if (/^\d{1,4}$/.test(trimmed)) continue;
       const isListItem = /^[•\-*]\s*/.test(trimmed) || /^\d+\.\s+/.test(trimmed);
       const isColonLabel = /:\s*$/.test(trimmed);
       const isShortCallout = !isListItem && !isColonLabel && trimmed.length < 80;
       const afterSpacing = isListItem ? 40 : isColonLabel ? 20 : isShortCallout ? 80 : 120;
-      const beforeSpacing = prevWasColonLabel ? 0 : isColonLabel ? 160 : 0;
+      const beforeSpacing = prevWasColonLabel ? 0 : prevWasListItem ? 80 : isColonLabel ? 200 : 0;
       const lineSpacing = isListItem ? 240 : lineTwip;
       prevWasColonLabel = isColonLabel;
+      prevWasListItem = isListItem;
       bodyChildren.push(
         new Paragraph({
           style: "Normal",
@@ -290,7 +292,7 @@ export async function generateKdpDocx(
             after: afterSpacing,
             line: lineSpacing,
           },
-          indent: config.paragraphStyle === "fiction" ? { firstLine: convertInchesToTwip(0.25) } : undefined,
+          indent: { left: 0, right: 0, firstLine: 0 },
           alignment: AlignmentType.JUSTIFIED,
         })
       );

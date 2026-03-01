@@ -111,8 +111,6 @@ function extractAttr(html: string, attr: string): string | null {
 
 /** Convert HTML from mammoth into structured chapters and paragraphs (Node-safe, no DOM). */
 function htmlToStructure(html: string, issues: string[]): { chapters: ParsedChapter[]; frontMatter: ParsedFrontMatter } {
-  // Strip all style attributes so source DOCX spacing (margin/padding) is not inherited — spacing comes only from kdpDocxGenerator.
-  html = html.replace(/\s+style=["'][^"']*["']/gi, "");
   const chapters: ParsedChapter[] = [];
   let currentChapter: ParsedChapter = {
     number: 0,
@@ -180,7 +178,9 @@ function htmlToStructure(html: string, issues: string[]): { chapters: ParsedChap
       };
     } else if (seg.type === "p") {
       const text = cleanText(stripTags(seg.raw));
-      if (!text) continue;
+      const trimmed = text.trim();
+      if (!trimmed) continue;
+      if (/^\d{1,4}$/.test(trimmed)) continue;
       const bold = /<strong|<\/strong>|<b>|<\/b>/i.test(seg.raw);
       const italic = /<em|<\/em>|<i>|<\/i>/i.test(seg.raw);
       const underline = /<u>|<\/u>/i.test(seg.raw);
@@ -198,7 +198,6 @@ function htmlToStructure(html: string, issues: string[]): { chapters: ParsedChap
           images: [],
         };
       } else {
-        if (/^\s*\d+\s*\.?\s*$/.test(text)) continue;
         currentChapter.paragraphs.push({ text, bold, italic, underline });
       }
     } else if (seg.type === "img") {
@@ -349,7 +348,8 @@ export async function parseDocxForKdp(buffer: Buffer, _options?: { title?: strin
     }
   );
 
-  const html = result.value || "";
+  let html = result.value || "";
+  html = html.replace(/\s+style=["'][^"']*["']/gi, "");
   if (result.messages?.length) {
     for (const m of result.messages) {
       if (m.type === "warning") issues.push(m.message);
