@@ -278,14 +278,14 @@ export async function generateKdpDocx(
       const trimmed = p.text.trim();
       if (!trimmed) continue;
       if (/^\d{1,4}$/.test(trimmed)) continue;
-      const isListItem = /^[•\-*]\s*/.test(trimmed) || /^\d+\.\s+/.test(trimmed);
+      const isListItem = /^[•\-*▲\u25B2\u2022]\s*/.test(trimmed) || /^\d+\.\s+/.test(trimmed);
       const isColonLabel = /:\s*$/.test(trimmed);
       let nextIsListItem = false;
       let nextIsColonLabel = false;
       for (let k = j + 1; k < paras.length; k++) {
         const t = paras[k].text.trim();
         if (!t || /^\d{1,4}$/.test(t)) continue;
-        nextIsListItem = /^[•\-*]\s*/.test(t) || /^\d+\.\s+/.test(t);
+        nextIsListItem = /^[•\-*▲\u25B2\u2022]\s*/.test(t) || /^\d+\.\s+/.test(t);
         nextIsColonLabel = /:\s*$/.test(t);
         break;
       }
@@ -320,6 +320,7 @@ export async function generateKdpDocx(
           alignment: AlignmentType.LEFT,
           keepNext: isColonLabel || (nextIsListItem && !isListItem) || nextIsColonLabel || (isListItem && nextIsListItem),
           keepLines: isListItem,
+          widowControl: true,
         })
       );
     }

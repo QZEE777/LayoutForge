@@ -48,6 +48,9 @@ function detectHeadingLevel(text: string, isBold: boolean): 1 | 2 | null {
   const t = text.trim();
   if (!t) return null;
 
+  // Never treat colon-labels as headings (e.g. "Primal Insight:") — they stay as body/label so flow stays intact.
+  if (/:\s*$/.test(t)) return null;
+
   // PATTERN 2 — Numbered lesson: "1. About This Course", "19. Practising Off Photos"
   if (/^\d+\.\s+[A-Z].{3,120}$/.test(t)) return 2;
 
@@ -276,7 +279,7 @@ function mergeShortSentenceFragments(chapters: ParsedChapter[]): void {
   const endPunct = /[.!?]\s*$/;
   const isList = (p: ParsedParagraph) => {
     const t = p.text.trim();
-    return /^[•\-*]\s*/.test(t) || /^\d+\.\s+/.test(t);
+    return /^[•\-*▲\u25B2\u2022]\s*/.test(t) || /^\d+\.\s+/.test(t);
   };
   const isColonLabel = (p: ParsedParagraph) => /:\s*$/.test(p.text.trim());
   const canMerge = (a: ParsedParagraph, b: ParsedParagraph) => {

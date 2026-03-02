@@ -4,6 +4,15 @@
 
 ---
 
+## Phase 1 rules (do not regress)
+
+- **Colon-labels never headings:** Any line ending with `:` (e.g. "Primal Insight:") is never classified as a chapter/section heading; it stays as a body label so the label + following content stay in flow and can be kept together (keepNext).
+- **Keep-together:** Colon label has keepNext; paragraph before a list has keepNext; list items have keepNext when next is list item; list items have keepLines. So "Primal Insight:" + following paragraph and list blocks don’t split across pages.
+- **Widow/orphan:** Body paragraphs use `widowControl: true` so Word keeps lines together across page breaks where possible.
+- **List markers:** Bullet lists include • - * ▲ and U+2022 so triangular and other common bullets are treated as lists.
+
+---
+
 ## 1. Formatting plan (JSON schema)
 
 The AI returns a single JSON object. The app uses this to drive the existing generator (no guessing; execute the plan).
