@@ -227,7 +227,7 @@ export default function KdpFormatterPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
               </svg>
             </div>
-            <span className="text-lg font-bold text-white">manu2print</span>
+            <span className="text-lg font-bold text-white">Manu2Print KDP</span>
           </Link>
           <Link href="/formatter" className="text-sm text-slate-400 hover:text-white transition-colors flex items-center gap-1">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
@@ -244,9 +244,9 @@ export default function KdpFormatterPage() {
             </svg>
           </div>
           <div>
-            <span className="text-sm font-semibold text-white">KDP Formatter</span>
+            <span className="text-sm font-semibold text-white">KDP</span>
             <span className="mx-2 text-slate-600">|</span>
-            <span className="text-sm text-slate-400">Format your manuscript for Amazon KDP print</span>
+            <span className="text-sm text-slate-400">One template. Upload DOCX → KDP-ready DOCX + PDF.</span>
           </div>
         </div>
       </div>

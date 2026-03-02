@@ -1,8 +1,7 @@
 /**
- * KDP formatted DOCX (review draft) using the docx package.
- * For proofreading only — not print-ready.
- * Spacing: OOXML uses max(para.after, next.before) between paragraphs (twips).
- * We set beforeAutoSpacing/afterAutoSpacing: false so Word uses our exact values (no extra auto space).
+ * Manu2Print KDP — one template, one pipeline.
+ * DOCX review draft: Times New Roman, one spacing rule, one heading style.
+ * Output: KDP-ready layout (trim, margins, page numbers). No pass-through, no raw XML.
  */
 
 import {
@@ -37,7 +36,7 @@ const TEMPLATE_PARA_AFTER = 96;
 const TEMPLATE_HEADING_SIZE = 28;
 
 const REVIEW_COMMENT =
-  "[MANU2PRINT REVIEW DRAFT — Not for print. Edit this document, then return to manu2print to generate your final KDP-ready PDF.]";
+  "Manu2Print KDP — Review draft. Edit in Word, then return to generate your final KDP-ready PDF.";
 
 export async function generateKdpDocx(
   content: ParsedContent,
