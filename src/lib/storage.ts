@@ -42,6 +42,8 @@ export interface StoredManuscript {
     gutterInches?: number;
     outputType?: "pdf" | "docx" | "epub";
     status?: string;
+    /** Full-document text for AI/KDP format review (paste in chat). */
+    formatReviewText?: string;
   };
 }
 

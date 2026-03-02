@@ -18,6 +18,8 @@ interface ProcessingReport {
   outputType?: "pdf" | "docx" | "epub";
   outputFilename?: string;
   status?: string;
+  /** Full-document text for AI format review (paste in chat). */
+  formatReviewText?: string;
 }
 
 export default function DownloadPage() {
@@ -28,6 +30,7 @@ export default function DownloadPage() {
   const isEpubFlow = searchParams.get("source") === "epub";
   const [report, setReport] = useState<ProcessingReport | null>(null);
   const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [copyReviewStatus, setCopyReviewStatus] = useState<"idle" | "ok" | "fail">("idle");
 
   const isDocx = report?.outputType === "docx";
   const isEpub = isEpubFlow || report?.outputType === "epub";
@@ -57,6 +60,19 @@ export default function DownloadPage() {
       setDownloadError(err instanceof Error ? err.message : "Download failed");
     }
   }, [id, downloadFilename]);
+
+  const handleCopyForAIReview = useCallback(async () => {
+    if (!report?.formatReviewText) return;
+    setCopyReviewStatus("idle");
+    try {
+      await navigator.clipboard.writeText(report.formatReviewText);
+      setCopyReviewStatus("ok");
+      setTimeout(() => setCopyReviewStatus("idle"), 3000);
+    } catch {
+      setCopyReviewStatus("fail");
+      setTimeout(() => setCopyReviewStatus("idle"), 3000);
+    }
+  }, [report?.formatReviewText]);
 
   useEffect(() => {
     if (!id) return;
@@ -212,6 +228,22 @@ export default function DownloadPage() {
               </div>
             </button>
           </div>
+
+          {report && report.formatReviewText && !isEpub && (
+            <div className="mb-6 p-4 rounded-lg bg-[#1a1a12]/50 border border-[#D4A843]/30">
+              <h3 className="font-medium text-[#F5F0E8] mb-2">Get a full-document AI format review</h3>
+              <p className="text-sm text-[#8B8B6B] mb-3">
+                Copy the whole manuscript (structure + text). Paste it in Cursor chat and ask the AI to scan it as a professional KDP formatter — margins, spacing, headings, lists, and Amazon KDP rules.
+              </p>
+              <button
+                type="button"
+                onClick={handleCopyForAIReview}
+                className="border border-[#D4A843]/60 hover:border-[#D4A843] hover:bg-[#D4A843]/10 text-[#D4A843] font-medium py-2 px-4 rounded-lg text-sm transition-colors"
+              >
+                {copyReviewStatus === "ok" ? "✓ Copied to clipboard" : copyReviewStatus === "fail" ? "Copy failed" : "Copy for AI review"}
+              </button>
+            </div>
+          )}
 
           {isDocx && !isEpub && (
             <div className="mb-6 p-4 rounded-lg bg-[#1a1a12]/50 border border-white/10">

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getStored, readStoredFile, writeOutput, updateMeta } from "@/lib/storage";
 import { parseDocxForKdp } from "@/lib/kdpDocxParser";
 import { generateKdpDocx } from "@/lib/kdpDocxGenerator";
+import { buildFormatReviewText } from "@/lib/formatReviewExport";
 import { type KdpFormatConfig, getGutterInches, validateTrimSize } from "@/lib/kdpConfig";
 import { outputFilenameFromTitle } from "@/lib/formatFileName";
 
@@ -111,6 +112,7 @@ export async function POST(request: NextRequest) {
     const outputFilename = outputFilenameFromTitle(bookTitle, ".docx");
     await writeOutput(id, outputFilename, docxBuffer);
 
+    const formatReviewText = buildFormatReviewText(content, fullConfig);
     const report = {
       pagesGenerated: 0,
       chaptersDetected: content.chapters.length,
@@ -123,6 +125,7 @@ export async function POST(request: NextRequest) {
       gutterInches,
       outputType: "docx" as const,
       status: "Review Draft ✓",
+      formatReviewText,
     };
 
     await updateMeta(id, {

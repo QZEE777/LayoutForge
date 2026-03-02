@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getStored, readStoredFile, writeOutput, updateMeta } from "@/lib/storage";
 import { parseDocxForKdp } from "@/lib/kdpDocxParser";
 import { generateKdpPdf } from "@/lib/kdpPdfGenerator";
+import { buildFormatReviewText } from "@/lib/formatReviewExport";
 import { type KdpFormatConfig, getGutterInches, validateTrimSize } from "@/lib/kdpConfig";
 import { outputFilenameFromTitle } from "@/lib/formatFileName";
 
@@ -112,6 +113,7 @@ export async function POST(request: NextRequest) {
     const outputFilename = outputFilenameFromTitle(bookTitle, ".pdf");
     await writeOutput(id, outputFilename, Buffer.from(result.pdfBytes));
 
+    const formatReviewText = buildFormatReviewText(content, fullConfig);
     const report = {
       pagesGenerated: result.pageCount,
       chaptersDetected: content.chapters.length,
@@ -119,6 +121,7 @@ export async function POST(request: NextRequest) {
       fontUsed: "Times Roman",
       trimSize: trim,
       gutterInches,
+      formatReviewText,
     };
 
     await updateMeta(id, {
