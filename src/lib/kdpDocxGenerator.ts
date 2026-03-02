@@ -282,7 +282,7 @@ export async function generateKdpDocx(
       if (/^\d{1,4}$/.test(trimmed)) continue;
       const isListItem = /^[•\-*▲\u25B2\u2022]\s*/.test(trimmed) || /^\d+\.\s+/.test(trimmed);
       const isColonLabel = /:\s*$/.test(trimmed);
-      const isSubheadingLike = !isListItem && !isColonLabel && p.bold && trimmed.length < 120;
+      const isSubheadingLike = !isListItem && !isColonLabel && !!p.bold && trimmed.length < 120;
       let nextIsListItem = false;
       let nextIsColonLabel = false;
       let nextIsSubheadingLike = false;
@@ -291,7 +291,7 @@ export async function generateKdpDocx(
         if (!t || /^\d{1,4}$/.test(t)) continue;
         nextIsListItem = /^[•\-*▲\u25B2\u2022]\s*/.test(t) || /^\d+\.\s+/.test(t);
         nextIsColonLabel = /:\s*$/.test(t);
-        nextIsSubheadingLike = !nextIsListItem && !nextIsColonLabel && paras[k].bold && t.length < 120;
+        nextIsSubheadingLike = !nextIsListItem && !nextIsColonLabel && !!paras[k].bold && t.length < 120;
         break;
       }
       const isShortCallout = !isListItem && !isColonLabel && trimmed.length < 80;
