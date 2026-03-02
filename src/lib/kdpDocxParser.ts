@@ -46,6 +46,12 @@ export interface ParsedContent {
 /** Options for parsing. When alreadyFormatted is true, only Word Heading 1/2/3 styles define structure. */
 export type ParseOptions = { alreadyFormatted?: boolean };
 
+/** Remove control characters and leading/trailing pipe/zwsp so they don't show as artifacts in output. */
+function sanitizeParagraphText(s: string): string {
+  const noControl = s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
+  return noControl.replace(/^[\s\u200B-\u200D\uFEFF|]+|[\s\u200B-\u200D\uFEFF|]+$/g, "").trim();
+}
+
 function isHeadingStyle(style: string, n: 1 | 2 | 3): boolean {
   const s = style || "";
   return s === `Heading${n}` || s === `Heading ${n}` || new RegExp(`Heading\\s*${n}`, "i").test(s);
@@ -92,7 +98,7 @@ export async function parseDocxForKdp(
       if (runItalic) italic = true;
     }
 
-    return { text: text.trim(), style, bold, italic };
+    return { text: sanitizeParagraphText(text), style, bold, italic };
   });
 
   const filtered = allParagraphs.filter((p) => {
@@ -102,9 +108,10 @@ export async function parseDocxForKdp(
   });
 
   const chapters: ParsedChapter[] = [];
+  // Content before first CHAPTER/Heading1: use empty title so we never show "Front Matter" (app-invented label).
   let currentChapter: ParsedChapter = {
     number: 1,
-    title: "Front Matter",
+    title: "",
     level: 1,
     paragraphs: [],
     images: [],

@@ -136,7 +136,11 @@ export async function generateKdpDocx(
     if (/^By\s+/i.test(t) && t.toLowerCase().endsWith(author.trim().toLowerCase())) return true;
     return false;
   };
-  let bodyChapters = content.chapters.filter((ch) => !isTitlePageContent(ch));
+  // Do not render the "pre-chapter" bucket as a body chapter (app uses empty title; we have our own title/copyright/TOC).
+  const isPreChapterBucket = (ch: ParsedChapter): boolean => !ch.title.trim();
+  let bodyChapters = content.chapters.filter(
+    (ch) => !isTitlePageContent(ch) && !isPreChapterBucket(ch)
+  );
 
   // When user skipped our title page (titlePage false), strip manuscript's title block so we don't duplicate.
   if (!config.frontMatter.titlePage) {
@@ -207,6 +211,7 @@ export async function generateKdpDocx(
         children: [headingRun],
         heading: headingLevel,
         pageBreakBefore: ch.level === 1 && i > 0,
+        keepNext: true,
         spacing: {
           before: ch.level === 1 && i > 0 ? 240 : 0,
           after: TEMPLATE_PARA_AFTER,
@@ -216,10 +221,13 @@ export async function generateKdpDocx(
         },
       })
     );
-    for (const p of ch.paragraphs) {
+    for (let j = 0; j < ch.paragraphs.length; j++) {
+      const p = ch.paragraphs[j];
       const trimmed = p.text.trim();
       if (!trimmed) continue;
       if (/^\d{1,4}$/.test(trimmed)) continue;
+      const isLastInChapter = j === ch.paragraphs.length - 1;
+      const nextIsHeading = isLastInChapter && i + 1 < bodyChapters.length;
       bodyChildren.push(
         new Paragraph({
           style: "Normal",
@@ -233,6 +241,8 @@ export async function generateKdpDocx(
           },
           indent: { left: 0, right: 0, firstLine: 0 },
           alignment: AlignmentType.LEFT,
+          keepNext: nextIsHeading,
+          widowControl: true,
         })
       );
     }
