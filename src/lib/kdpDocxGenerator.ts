@@ -21,14 +21,86 @@ import {
   convertInchesToTwip,
   type FileChild,
 } from "docx";
-import type { ParsedContent, ParsedChapter } from "./kdpDocxParser";
+import JSZip from "jszip";
+import type { ParsedContent, ParsedChapter, ParsedParagraph } from "./kdpDocxParser";
 import type { KdpFormatConfig } from "./kdpConfig";
 import { getTrimSize, BODY_FONTS } from "./kdpConfig";
+
+/** KDP-approved fonts (replace any other font with Times New Roman in pass-through). */
+const KDP_FONTS = new Set([
+  "Times New Roman",
+  "Arial",
+  "Georgia",
+  "Palatino Linotype",
+  "Cambria",
+  "Verdana",
+  "Book Antiqua",
+  "Courier New",
+  "Lucida Sans",
+  "Trebuchet MS",
+  "EB Garamond",
+  "Libre Baskerville",
+]);
 
 /** Resolve body font display name from config id. */
 function getBodyFontName(fontId: string): string {
   const found = BODY_FONTS.find((f) => f.id === fontId);
   return found ? found.name.split("—")[0].trim() : "Times New Roman";
+}
+
+function isKdpFont(fontName: string): boolean {
+  if (!fontName || !fontName.trim()) return false;
+  const normalized = fontName.trim();
+  return KDP_FONTS.has(normalized) || Array.from(KDP_FONTS).some((f) => f.toLowerCase() === normalized.toLowerCase());
+}
+
+/**
+ * Pass-through post-process: inject original <w:pPr> into body content paragraphs and replace non-KDP fonts.
+ */
+async function injectPassThrough(buffer: Buffer, bodyContentPprXmls: string[]): Promise<Buffer> {
+  const zip = await JSZip.loadAsync(buffer);
+  let xml = (await zip.file("word/document.xml")?.async("string")) || "";
+
+  const paraRegex = /<w:p[ >][\s\S]*?<\/w:p>/g;
+  const paras: string[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = paraRegex.exec(xml)) !== null) paras.push(m[0]);
+
+  let bodyStartIndex = -1;
+  for (let i = 0; i < paras.length; i++) {
+    if (paras[i].includes("<w:sectPr")) {
+      bodyStartIndex = i;
+      break;
+    }
+  }
+  if (bodyStartIndex < 0) return buffer;
+
+  let contentIdx = 0;
+  for (let i = bodyStartIndex + 1; i < paras.length; i++) {
+    const p = paras[i];
+    const isHeading = /<w:pStyle\s+w:val="Heading\s*\d"/i.test(p) || /<w:pStyle\s+w:val="Heading\d"/i.test(p);
+    if (isHeading) continue;
+    const pprXml = bodyContentPprXmls[contentIdx++] ?? "";
+    if (pprXml) {
+      paras[i] = p.replace(/<w:pPr[\s\S]*?<\/w:pPr>/, pprXml);
+    }
+  }
+
+  let paraIndex = 0;
+  xml = xml.replace(/<w:p[ >][\s\S]*?<\/w:p>/g, () => paras[paraIndex++] ?? "");
+
+  const replacementFont = "Times New Roman";
+  xml = xml.replace(/<w:rFonts\s+([^>]*)\/?>/g, (_, attrs) => {
+    const fix = (attr: string, val: string) => (isKdpFont(val) ? val : replacementFont);
+    let out = attrs
+      .replace(/w:ascii="([^"]*)"/g, (_m: string, val: string) => `w:ascii="${fix("ascii", val)}"`)
+      .replace(/w:hAnsi="([^"]*)"/g, (_m: string, val: string) => `w:hAnsi="${fix("hAnsi", val)}"`)
+      .replace(/w:cs="([^"]*)"/g, (_m: string, val: string) => `w:cs="${fix("cs", val)}"`);
+    return `<w:rFonts ${out}/>`;
+  });
+
+  zip.file("word/document.xml", xml);
+  return Buffer.from(await zip.generateAsync({ type: "nodebuffer" }));
 }
 
 const REVIEW_COMMENT =
@@ -208,7 +280,10 @@ export async function generateKdpDocx(
   }
 
   const bodyChildren: FileChild[] = [];
+  const bodyContentPprXmls: string[] = [];
   const black = "000000";
+  const alreadyFormatted = !!config.alreadyFormatted;
+
   for (let i = 0; i < bodyChapters.length; i++) {
     const ch = bodyChapters[i];
     const prevLevel = i > 0 ? bodyChapters[i - 1].level : null;
@@ -270,87 +345,116 @@ export async function generateKdpDocx(
         })
       );
     }
-    let prevWasColonLabel = false;
-    let prevWasListItem = false;
-    let prevWasSubheadingLike = false;
     const paras = ch.paragraphs;
-    // Apply spacing and styling globally to every body paragraph (same rules for whole manuscript).
-    for (let j = 0; j < paras.length; j++) {
-      const p = paras[j];
-      const trimmed = p.text.trim();
-      if (!trimmed) continue;
-      if (/^\d{1,4}$/.test(trimmed)) continue;
-      const isListItem = /^[•\-*▲\u25B2\u2022]\s*/.test(trimmed) || /^\d+\.\s+/.test(trimmed);
-      const isColonLabel = /:\s*$/.test(trimmed);
-      const isSubheadingLike = !isListItem && !isColonLabel && !!p.bold && trimmed.length < 120;
-      let nextIsListItem = false;
-      let nextIsColonLabel = false;
-      let nextIsSubheadingLike = false;
-      for (let k = j + 1; k < paras.length; k++) {
-        const t = paras[k].text.trim();
-        if (!t || /^\d{1,4}$/.test(t)) continue;
-        nextIsListItem = /^[•\-*▲\u25B2\u2022]\s*/.test(t) || /^\d+\.\s+/.test(t);
-        nextIsColonLabel = /:\s*$/.test(t);
-        nextIsSubheadingLike = !nextIsListItem && !nextIsColonLabel && !!paras[k].bold && t.length < 120;
-        break;
+    if (alreadyFormatted) {
+      for (let j = 0; j < paras.length; j++) {
+        const p = paras[j];
+        const trimmed = p.text.trim();
+        if (!trimmed) continue;
+        if (/^\d{1,4}$/.test(trimmed)) continue;
+        bodyContentPprXmls.push((p as ParsedParagraph & { rawPprXml?: string }).rawPprXml ?? "");
+        bodyChildren.push(
+          new Paragraph({
+            style: "Normal",
+            children: [normalRun(p.text, { bold: p.bold, italics: p.italic })],
+          })
+        );
       }
-      const isShortCallout = !isListItem && !isColonLabel && trimmed.length < 80;
-      const isItalicCallout = !isListItem && !isColonLabel && p.italic && trimmed.length < 120;
-      const isPunchyShort = !isListItem && !isColonLabel && trimmed.length < 60 && /\.\s*$/.test(trimmed) && !p.bold && !p.italic;
-      const afterSpacing = isListItem ? 32 : isColonLabel ? 12 : isSubheadingLike ? 96 : isItalicCallout ? 160 : isPunchyShort ? 48 : isShortCallout ? 64 : 96;
-      // After subheading-like or H2: next block gets new-para spacing (96). Colon label keeps minimal gap.
-      let beforeSpacing = prevWasColonLabel ? 0 : prevWasSubheadingLike && isSubheadingLike ? 48 : prevWasSubheadingLike ? 96 : prevWasListItem ? 64 : isColonLabel ? 160 : isSubheadingLike ? 0 : 0;
-      let lineSpacing = isListItem ? 228 : lineTwip;
-      let finalAfter = afterSpacing;
-      if (prevWasColonLabel) {
-        beforeSpacing = 0;
-        finalAfter = 96;
-        lineSpacing = lineTwip;
+    } else {
+      let prevWasColonLabel = false;
+      let prevWasListItem = false;
+      let prevWasSubheadingLike = false;
+      for (let j = 0; j < paras.length; j++) {
+        const p = paras[j];
+        const trimmed = p.text.trim();
+        if (!trimmed) continue;
+        if (/^\d{1,4}$/.test(trimmed)) continue;
+        const isListItem = /^[•\-*▲\u25B2\u2022]\s*/.test(trimmed) || /^\d+\.\s+/.test(trimmed);
+        const isColonLabel = /:\s*$/.test(trimmed);
+        const isSubheadingLike = !isListItem && !isColonLabel && !!p.bold && trimmed.length < 120;
+        let nextIsListItem = false;
+        let nextIsColonLabel = false;
+        let nextIsSubheadingLike = false;
+        for (let k = j + 1; k < paras.length; k++) {
+          const t = paras[k].text.trim();
+          if (!t || /^\d{1,4}$/.test(t)) continue;
+          nextIsListItem = /^[•\-*▲\u25B2\u2022]\s*/.test(t) || /^\d+\.\s+/.test(t);
+          nextIsColonLabel = /:\s*$/.test(t);
+          nextIsSubheadingLike = !nextIsListItem && !nextIsColonLabel && !!paras[k].bold && t.length < 120;
+          break;
+        }
+        const isShortCallout = !isListItem && !isColonLabel && trimmed.length < 80;
+        const isItalicCallout = !isListItem && !isColonLabel && p.italic && trimmed.length < 120;
+        const isPunchyShort = !isListItem && !isColonLabel && trimmed.length < 60 && /\.\s*$/.test(trimmed) && !p.bold && !p.italic;
+        const afterSpacing = isListItem ? 32 : isColonLabel ? 12 : isSubheadingLike ? 96 : isItalicCallout ? 160 : isPunchyShort ? 48 : isShortCallout ? 64 : 96;
+        let beforeSpacing = prevWasColonLabel ? 0 : prevWasSubheadingLike && isSubheadingLike ? 48 : prevWasSubheadingLike ? 96 : prevWasListItem ? 64 : isColonLabel ? 160 : isSubheadingLike ? 0 : 0;
+        let lineSpacing = isListItem ? 228 : lineTwip;
+        let finalAfter = afterSpacing;
+        if (prevWasColonLabel) {
+          beforeSpacing = 0;
+          finalAfter = 96;
+          lineSpacing = lineTwip;
+        }
+        prevWasColonLabel = isColonLabel;
+        prevWasListItem = isListItem;
+        prevWasSubheadingLike = isSubheadingLike;
+        const run = isColonLabel ? colonLabelRun(p.text) : normalRun(p.text, { bold: p.bold, italics: p.italic });
+        bodyChildren.push(
+          new Paragraph({
+            style: "Normal",
+            children: [run],
+            spacing: {
+              before: beforeSpacing,
+              after: finalAfter,
+              line: lineSpacing,
+              beforeAutoSpacing: false,
+              afterAutoSpacing: false,
+            },
+            indent: { left: 0, right: 0, firstLine: 0 },
+            alignment: AlignmentType.LEFT,
+            keepNext: isColonLabel || (nextIsListItem && !isListItem) || nextIsColonLabel || isListItem || isSubheadingLike || nextIsSubheadingLike,
+            keepLines: isListItem,
+            widowControl: true,
+          })
+        );
       }
-      prevWasColonLabel = isColonLabel;
-      prevWasListItem = isListItem;
-      prevWasSubheadingLike = isSubheadingLike;
-      const run = isColonLabel ? colonLabelRun(p.text) : normalRun(p.text, { bold: p.bold, italics: p.italic });
-      bodyChildren.push(
-        new Paragraph({
-          style: "Normal",
-          children: [run],
-          spacing: {
-            before: beforeSpacing,
-            after: finalAfter,
-            line: lineSpacing,
-            beforeAutoSpacing: false,
-            afterAutoSpacing: false,
-          },
-          indent: { left: 0, right: 0, firstLine: 0 },
-          alignment: AlignmentType.LEFT,
-          keepNext: isColonLabel || (nextIsListItem && !isListItem) || nextIsColonLabel || isListItem || isSubheadingLike || nextIsSubheadingLike,
-          keepLines: isListItem,
-          widowControl: true,
-        })
-      );
     }
   }
 
-  const pageWidth = convertInchesToTwip(trim.widthInches);
-  const pageHeight = convertInchesToTwip(trim.heightInches);
+  const kdpTrim = getTrimSize("6x9");
+  const effectiveTrim = alreadyFormatted && kdpTrim ? kdpTrim : trim;
+  const pageWidth = convertInchesToTwip(effectiveTrim.widthInches);
+  const pageHeight = convertInchesToTwip(effectiveTrim.heightInches);
 
-  // Review DOCX: symmetric margins (no mirror/gutter). Final PDF will use book margins separately.
-  const pageMargin = {
-    top: 1080,
-    bottom: 1080,
-    left: 1008,
-    right: 1008,
-    gutter: 0,
-    header: 576,
-    footer: 576,
-  };
+  // KDP standard when pass-through: 0.75" top/bottom, 0.875" inside, 0.625" outside; mirror for verso/recto.
+  const KDP_MARGIN_TOP_BOTTOM = 1080;
+  const KDP_MARGIN_INSIDE = 1260;
+  const KDP_MARGIN_OUTSIDE = 900;
+  const pageMargin = alreadyFormatted
+    ? {
+        top: KDP_MARGIN_TOP_BOTTOM,
+        bottom: KDP_MARGIN_TOP_BOTTOM,
+        left: KDP_MARGIN_OUTSIDE,
+        right: KDP_MARGIN_INSIDE,
+        gutter: 0,
+        header: 576,
+        footer: 576,
+      }
+    : {
+        top: 1080,
+        bottom: 1080,
+        left: 1008,
+        right: 1008,
+        gutter: 0,
+        header: 576,
+        footer: 576,
+      };
 
   const sharedPageProps = {
     margin: pageMargin,
     size: { width: pageWidth, height: pageHeight },
-    // @ts-ignore
-    mirrorMargins: false,
+    ...(alreadyFormatted && { mirrorMargins: true }),
+    ...(!alreadyFormatted && { mirrorMargins: false }),
   };
 
   // Section 1: front matter — no page numbers, no footers
@@ -460,5 +564,9 @@ export async function generateKdpDocx(
     sections: [frontSection, bodySection],
   });
 
-  return Packer.toBuffer(doc);
+  const buf = await Packer.toBuffer(doc);
+  if (alreadyFormatted && bodyContentPprXmls.length > 0) {
+    return injectPassThrough(buf, bodyContentPprXmls);
+  }
+  return buf;
 }

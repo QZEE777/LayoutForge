@@ -10,6 +10,8 @@ export interface ParsedParagraph {
   bold?: boolean;
   italic?: boolean;
   underline?: boolean;
+  /** When alreadyFormatted: raw <w:pPr>...</w:pPr> XML from source DOCX for pass-through. */
+  rawPprXml?: string;
 }
 
 export interface ParsedImage {
@@ -74,6 +76,11 @@ export async function parseDocxForKdp(
     const alignMatch = pXml.match(/<w:jc w:val="([^"]+)"/);
     const _align = alignMatch?.[1] || "";
 
+    const rawPprXml =
+      alreadyFormatted && pXml.includes("<w:pPr")
+        ? (pXml.match(/<w:pPr[\s\S]*?<\/w:pPr>/)?.[0] ?? "")
+        : undefined;
+
     const runs = pXml.match(/<w:r[ >][\s\S]*?<\/w:r>/g) || [];
     let text = "";
     let bold = false;
@@ -92,7 +99,7 @@ export async function parseDocxForKdp(
       if (runItalic) italic = true;
     }
 
-    return { text: text.trim(), style, bold, italic };
+    return { text: text.trim(), style, bold, italic, rawPprXml };
   });
 
   const filtered = allParagraphs.filter((p) => {
@@ -148,7 +155,12 @@ export async function parseDocxForKdp(
         images: [],
       };
     } else {
-      currentChapter.paragraphs.push({ text: p.text, bold: p.bold, italic: p.italic });
+      currentChapter.paragraphs.push({
+        text: p.text,
+        bold: p.bold,
+        italic: p.italic,
+        ...(p.rawPprXml !== undefined && { rawPprXml: p.rawPprXml }),
+      });
     }
   }
   chapters.push(currentChapter);
