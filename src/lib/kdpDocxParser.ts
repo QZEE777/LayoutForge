@@ -43,43 +43,18 @@ export interface ParsedContent {
   detectedIssues: string[];
 }
 
-/** Detect if a paragraph is a heading by pattern. Returns level 1 (chapter) or 2 (section) or null.
- * Applied globally to every paragraph in the manuscript — no per-sentence exceptions. */
-function detectHeadingLevel(text: string, isBold: boolean): 1 | 2 | null {
+/** Only detect chapter/section headings by exact patterns. Returns level 1 or null.
+ * CHAPTER: exactly "CHAPTER X" or "CHAPTER X — subtitle" at start.
+ * SECTION: "SECTION N" or "SECTION I" (roman/number) at start. */
+function detectHeadingLevel(text: string, _isBold: boolean): 1 | null {
   const t = text.trim();
   if (!t) return null;
 
-  // Global: never treat colon-labels as headings — they stay as body/label so flow stays intact.
-  if (/:\s*$/.test(t)) return null;
+  // CHAPTER: only "CHAPTER X" or "CHAPTER X — subtitle"
+  if (/^CHAPTER\s+\d+\s*([—\-–]\s*.+)?$/i.test(t)) return 1;
 
-  // Global: never treat sentences or narrative as headings (any para matching these patterns, manuscript-wide).
-  if (/[.!?][\s"'\u201c\u201d]*$/.test(t)) return null;
-  if (/^(I|My|We)\s+/i.test(t) && t.length < 140) return null;
-  if (/[\u2014\u2013]\s*[^"].*[.!?]\s*$/.test(t)) return null;
-
-  // PATTERN 2 — Numbered lesson: "1. About This Course", "19. Practising Off Photos"
-  if (/^\d+\.\s+[A-Z].{3,120}$/.test(t)) return 2;
-
-  // PATTERN 3 — "Section N - Title" or "Section ONE - Title"
-  if (/^Section\s+\d+\s*[-–]\s*.+$/i.test(t)) return 1;
-  if (/^Section\s+[A-Za-z]+\s*[-–]\s*.+$/i.test(t)) return 1;
-
-  // PATTERN 4 — Chapter N or Chapter One
-  if (/^Chapter\s+\d+/i.test(t)) return 1;
-  if (/^Chapter\s+[A-Za-z]+/i.test(t)) return 1;
-
-  // PATTERN 5 — Part N or PART IV
-  if (/^Part\s+\d+/i.test(t)) return 1;
-  if (/^PART\s+[IVX]+/i.test(t)) return 1;
-
-  // PATTERN 6 — Short all-caps line
-  if (t.length < 60 && t === t.toUpperCase() && t.length > 3) return 2;
-
-  // PATTERN 7 — Short bold title-like (no period at end, not a long sentence)
-  if (isBold && t.length < 80 && !/[.!?]\s*$/.test(t)) {
-    const wordCount = t.split(/\s+/).filter(Boolean).length;
-    if (wordCount <= 12) return 2;
-  }
+  // SECTION: SECTION followed by roman numerals or digits
+  if (/^SECTION\s+(I+|IV|V|[0-9]+)/i.test(t)) return 1;
 
   return null;
 }
@@ -193,7 +168,7 @@ function htmlToStructure(html: string, issues: string[], options?: ParseOptions)
       const text = cleanText(stripTags(seg.raw));
       const trimmed = text.trim();
       if (!trimmed) continue;
-      if (/^\d{1,4}$/.test(trimmed)) continue;
+      if (/^\d{1,3}$/.test(trimmed)) continue;
       const bold = /<strong|<\/strong>|<b>|<\/b>/i.test(seg.raw);
       const italic = /<em|<\/em>|<i>|<\/i>/i.test(seg.raw);
       const underline = /<u>|<\/u>/i.test(seg.raw);
@@ -245,13 +220,12 @@ function htmlToStructure(html: string, issues: string[], options?: ParseOptions)
 }
 
 /**
- * Merge paragraphs that are likely line-break fragments: short (< 100 chars) with no end punctuation,
- * or any paragraph ending with em dash (—) or ellipsis (...).
+ * Very conservative merge: only merge if current paragraph is under 30 characters AND has no end punctuation.
+ * Everything else is kept separate to avoid losing content.
  */
 function mergeSplitParagraphs(chapters: ParsedChapter[]): void {
-  const maxShort = 100;
+  const maxShort = 30;
   const endPunct = /[.!?;]\s*$/;
-  const endsWithContinuation = (t: string) => /[\u2014\u2026]\s*$/.test(t.trim()) || /\.\.\.\s*$/.test(t.trim());
   for (const ch of chapters) {
     const paras = ch.paragraphs;
     if (paras.length === 0) continue;
@@ -261,10 +235,9 @@ function mergeSplitParagraphs(chapters: ParsedChapter[]): void {
       let p = paras[i];
       while (i + 1 < paras.length) {
         const trimmed = p.text.trim();
-        const shouldMerge =
-          endsWithContinuation(trimmed) ||
-          (p.text.length < maxShort && !endPunct.test(trimmed));
-        if (!shouldMerge) break;
+        const under30 = trimmed.length < maxShort;
+        const noEndPunct = !endPunct.test(trimmed);
+        if (!under30 || !noEndPunct) break;
         const next = paras[i + 1];
         p = {
           text: p.text.trimEnd() + " " + next.text.trimStart(),
@@ -276,56 +249,6 @@ function mergeSplitParagraphs(chapters: ParsedChapter[]): void {
       }
       merged.push(p);
       i += 1;
-    }
-    ch.paragraphs = merged;
-  }
-}
-
-/**
- * Merge consecutive short sentence fragments (both end with .!?, both under 120 chars, neither list/colon-label)
- * into single paragraphs so punchy one-liners become proper blocks.
- */
-function mergeShortSentenceFragments(chapters: ParsedChapter[]): void {
-  const maxLen = 120;
-  const endPunct = /[.!?]\s*$/;
-  const isList = (p: ParsedParagraph) => {
-    const t = p.text.trim();
-    return /^[•\-*▲\u25B2\u2022]\s*/.test(t) || /^\d+\.\s+/.test(t);
-  };
-  const isColonLabel = (p: ParsedParagraph) => /:\s*$/.test(p.text.trim());
-  const canMerge = (a: ParsedParagraph, b: ParsedParagraph) => {
-    const ta = a.text.trim();
-    const tb = b.text.trim();
-    return (
-      ta.length > 0 &&
-      tb.length > 0 &&
-      ta.length < maxLen &&
-      tb.length < maxLen &&
-      endPunct.test(ta) &&
-      endPunct.test(tb) &&
-      !isList(a) &&
-      !isList(b) &&
-      !isColonLabel(a) &&
-      !isColonLabel(b)
-    );
-  };
-  for (const ch of chapters) {
-    const paras = ch.paragraphs;
-    if (paras.length === 0) continue;
-    const merged: ParsedParagraph[] = [];
-    for (let i = 0; i < paras.length; i++) {
-      let p = paras[i];
-      while (i + 1 < paras.length && canMerge(p, paras[i + 1])) {
-        const next = paras[i + 1];
-        p = {
-          text: p.text.trimEnd() + " " + next.text.trimStart(),
-          bold: p.bold,
-          italic: p.italic,
-          underline: p.underline,
-        };
-        i += 1;
-      }
-      merged.push(p);
     }
     ch.paragraphs = merged;
   }
@@ -371,8 +294,10 @@ export async function parseDocxForKdp(buffer: Buffer, options?: { title?: string
   }
 
   const { chapters, frontMatter } = htmlToStructure(html, issues, { alreadyFormatted: options?.alreadyFormatted });
+  const inputParagraphCount = chapters.reduce((sum, ch) => sum + ch.paragraphs.length, 0);
   mergeSplitParagraphs(chapters);
-  mergeShortSentenceFragments(chapters);
+  const outputParagraphCount = chapters.reduce((sum, ch) => sum + ch.paragraphs.length, 0);
+  console.log("[kdpDocxParser] Paragraphs: input (after structure) =", inputParagraphCount, ", output (after merge) =", outputParagraphCount);
   const estimatedPageCount = estimatePageCount(chapters);
 
   if (estimatedPageCount < 24) issues.push("Document is under 24 pages; KDP requires a minimum page count.");
