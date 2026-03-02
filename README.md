@@ -23,6 +23,8 @@ PHASE 2: ⏳ READY - AI Features (Revenue Core)
 PHASE 3-5: 📋 PLANNED - Premium Features
 ```
 
+**Memory deposit / Smart Format (AI formatter):** Full spec, JSON schema, API flow, and AI provider strategy (Claude + Gemini/OpenAI fallback) → [`docs/SMART-FORMAT-SPEC.md`](docs/SMART-FORMAT-SPEC.md)
+
 ---
 
 ## 🚀 Quick Start
