@@ -45,7 +45,7 @@ export async function generateKdpDocx(
   const author = typeof config.authorName === "string" ? config.authorName : content.frontMatter.author || "Unknown Author";
   const copyrightYear = config.copyrightYear;
   const isbn = config.isbn || content.frontMatter.isbn || "";
-  const lineTwip = 276; // 1.15x line spacing for print book (240 * 1.15)
+  const lineTwip = 240; // single line spacing (tighter); was 276
 
   const bodySize = 24; // 12pt standard for nonfiction print
   const bodyFontName = getBodyFontName(config.bodyFont);
@@ -292,14 +292,14 @@ export async function generateKdpDocx(
       const isShortCallout = !isListItem && !isColonLabel && trimmed.length < 80;
       const isItalicCallout = !isListItem && !isColonLabel && p.italic && trimmed.length < 120;
       const isPunchyShort = !isListItem && !isColonLabel && trimmed.length < 60 && /\.\s*$/.test(trimmed) && !p.bold && !p.italic;
-      const afterSpacing = isListItem ? 40 : isColonLabel ? 0 : isItalicCallout ? 200 : isPunchyShort ? 60 : isShortCallout ? 80 : 120;
-      // Paragraph after colon label: force before: 0, after: 120, line: 276 so gap stays minimal.
-      let beforeSpacing = prevWasColonLabel ? 0 : prevWasListItem ? 80 : isColonLabel ? 200 : 0;
-      let lineSpacing = isListItem ? 240 : lineTwip;
+      const afterSpacing = isListItem ? 32 : isColonLabel ? 0 : isItalicCallout ? 160 : isPunchyShort ? 48 : isShortCallout ? 64 : 96;
+      // Paragraph after colon label: force before: 0, after: 96, line: 240 so gap stays minimal.
+      let beforeSpacing = prevWasColonLabel ? 0 : prevWasListItem ? 64 : isColonLabel ? 160 : 0;
+      let lineSpacing = isListItem ? 228 : lineTwip;
       let finalAfter = afterSpacing;
       if (prevWasColonLabel) {
         beforeSpacing = 0;
-        finalAfter = 120;
+        finalAfter = 96;
         lineSpacing = lineTwip;
       }
       prevWasColonLabel = isColonLabel;

@@ -7,8 +7,10 @@
 ## Phase 1 rules (do not regress)
 
 - **Colon-labels never headings:** Any line ending with `:` (e.g. "Primal Insight:") is never classified as a chapter/section heading; it stays as a body label so the label + following content stay in flow and can be kept together (keepNext).
+- **Sentences never headings:** Lines that end with . ! ? (or ." .') or start with "I/My/We " (narrative) or contain em dash and end with period are never promoted to headings — e.g. "I grabbed an energy drink — my 'quick fix.'" stays body text.
 - **Keep-together:** Colon label has keepNext; paragraph before a list has keepNext; list items have keepNext when next is list item; list items have keepLines. So "Primal Insight:" + following paragraph and list blocks don’t split across pages.
 - **Widow/orphan:** Body paragraphs use `widowControl: true` so Word keeps lines together across page breaks where possible.
+- **Tighter spacing:** Body line spacing 240 twips (single); paragraph after 96 (normal), 64 (short/list before), 32 (list items); no extra vertical gap so paragraphs and bullets read tight.
 - **List markers:** Bullet lists include • - * ▲ and U+2022 so triangular and other common bullets are treated as lists.
 
 ---

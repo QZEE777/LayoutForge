@@ -51,6 +51,11 @@ function detectHeadingLevel(text: string, isBold: boolean): 1 | 2 | null {
   // Never treat colon-labels as headings (e.g. "Primal Insight:") — they stay as body/label so flow stays intact.
   if (/:\s*$/.test(t)) return null;
 
+  // Never treat sentences as headings: ends with . ! ? (or ." .' etc.) or reads as narrative.
+  if (/[.!?][\s"'\u201c\u201d]*$/.test(t)) return null;
+  if (/^(I|My|We)\s+/i.test(t) && t.length < 140) return null;
+  if (/[\u2014\u2013]\s*[^"].*[.!?]\s*$/.test(t)) return null;
+
   // PATTERN 2 — Numbered lesson: "1. About This Course", "19. Practising Off Photos"
   if (/^\d+\.\s+[A-Z].{3,120}$/.test(t)) return 2;
 
