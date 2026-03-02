@@ -21,6 +21,30 @@ export interface KdpProcessingReport {
 }
 
 /**
+ * Build a short compliance report text to prepend as the first page in the surgical DOCX output.
+ */
+export function buildComplianceReportText(options: {
+  bookTitle: string;
+  trimSize: string;
+  estimatedPages: number;
+  chaptersDetected: number;
+  issues: string[];
+}): string {
+  const lines: string[] = [
+    "KDP Compliance Report",
+    "",
+    `Title: ${options.bookTitle}`,
+    `Trim: ${options.trimSize}`,
+    `Estimated pages: ${options.estimatedPages}`,
+    `Chapters: ${options.chaptersDetected}`,
+    "",
+    options.issues.length > 0 ? "Issues:" : "Issues: None",
+    ...options.issues.map((i) => `  • ${i}`),
+  ];
+  return lines.join("\n");
+}
+
+/**
  * Build a report for DOCX preview (no page count from render).
  */
 export function buildDocxPreviewReport(options: {
@@ -40,7 +64,7 @@ export function buildDocxPreviewReport(options: {
     lessonsDetected: options.lessonsDetected,
     estimatedPages: options.estimatedPages,
     issues: options.issues,
-    fontUsed: "Times New Roman",
+    fontUsed: "Original fonts preserved",
     trimSize: options.trimSize,
     gutterInches: options.gutterInches,
     outputType: "docx",

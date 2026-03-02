@@ -1,416 +1,177 @@
 /**
- * KDP DOCX generator: one template (Times New Roman, single spacing, one heading style).
- * Builds title page, copyright, TOC, and body from ParsedContent + KdpFormatConfig.
- * Skips pre-chapter bucket (empty title) and title-page-like chapters from body.
+ * KDP DOCX generator — surgical XML-only edits.
+ * Loads the ORIGINAL DOCX, applies only: pgSz, pgMar, pageBreakBefore on chapter headings,
+ * widowControl on body paragraphs, fix double spaces in w:t. Prepends compliance report page.
+ * Does NOT rebuild content; preserves all original fonts and styles.
  */
 
-import {
-  Document,
-  Packer,
-  Paragraph,
-  TextRun,
-  PageBreak,
-  AlignmentType,
-  HeadingLevel,
-  Header,
-  Footer,
-  PageNumber,
-  NumberFormat,
-  UnderlineType,
-  convertInchesToTwip,
-  type FileChild,
-} from "docx";
-import type { ParsedContent, ParsedChapter } from "./kdpDocxParser";
+import JSZip from "jszip";
 import type { KdpFormatConfig } from "./kdpConfig";
-import { getTrimSize } from "./kdpConfig";
+import { getTrimSize, getGutterInches } from "./kdpConfig";
 
-const FONT = "Times New Roman";
-const BODY_SIZE = 24;
-const LINE_TWIP = 240;
-const PARA_AFTER = 96;
-const HEADING_SIZE = 28;
+const TWIPS_PER_INCH = 1440;
 
-const REVIEW_BANNER =
-  "Manu2Print KDP — Review draft. Edit in Word, then return to generate your final KDP-ready PDF.";
+/** Escape text for use inside an XML text node (e.g. w:t). */
+function escapeXmlText(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
 
+/**
+ * Build a single paragraph XML for a line of text (plain run, no style).
+ */
+function paragraphWithText(text: string): string {
+  const safe = escapeXmlText(text);
+  return `<w:p><w:r><w:t>${safe}</w:t></w:r></w:p>`;
+}
+
+/**
+ * Prepend compliance report as the first page: report paragraphs + page break, then original body content.
+ */
+function prependReportPage(bodyXml: string, reportText: string): string {
+  const lines = reportText.split(/\r?\n/);
+  const reportParas = lines.map((line) => paragraphWithText(line.trim() === "" ? " " : line));
+  const pageBreakPara = `<w:p><w:pPr><w:pageBreakBefore/></w:pPr></w:p>`;
+  const reportBlock = reportParas.join("") + pageBreakPara;
+
+  const bodyOpen = "<w:body>";
+  const idx = bodyXml.indexOf(bodyOpen);
+  if (idx === -1) return bodyXml;
+  return bodyXml.slice(0, idx + bodyOpen.length) + reportBlock + bodyXml.slice(idx + bodyOpen.length);
+}
+
+/**
+ * Replace all w:pgSz with new trim size (twips).
+ */
+function applyPageSize(xml: string, widthTwips: number, heightTwips: number): string {
+  return xml.replace(
+    /<w:pgSz[^>]*\/>/g,
+    `<w:pgSz w:w="${widthTwips}" w:h="${heightTwips}"/>`
+  );
+}
+
+/**
+ * Replace all w:pgMar with KDP margins (twips). left = 0.5" + gutter.
+ */
+function applyMargins(
+  xml: string,
+  gutterTwips: number,
+  top = 720,
+  right = 720,
+  bottom = 720,
+  header = 720,
+  footer = 720
+): string {
+  const leftTwips = 720 + gutterTwips;
+  return xml.replace(
+    /<w:pgMar[^>]*\/>/g,
+    `<w:pgMar w:top="${top}" w:right="${right}" w:bottom="${bottom}" w:left="${leftTwips}" w:header="${header}" w:footer="${footer}" w:gutter="${gutterTwips}"/>`
+  );
+}
+
+/**
+ * Add w:pageBreakBefore to paragraph properties of chapter headings (Heading1) that don't have it.
+ */
+function addPageBreakBeforeToChapterHeadings(xml: string): string {
+  const pRegex = /<w:p(\s[^>]*)?>([\s\S]*?)<\/w:p>/g;
+  return xml.replace(pRegex, (full, _attr, inner) => {
+    const hasHeading1 =
+      /<w:pStyle\s+w:val="Heading\s*1"/i.test(inner) ||
+      /<w:pStyle\s+w:val="Heading1"/i.test(inner);
+    if (!hasHeading1) return full;
+    if (/<w:pageBreakBefore\s*\/?>/.test(inner)) return full;
+
+    if (/<w:pPr\s*[^>]*>/.test(inner)) {
+      return full.replace(
+        /(<w:pPr\s*[^>]*)>/,
+        "$1><w:pageBreakBefore/>"
+      );
+    }
+    return full.replace(
+      /<w:p(\s[^>]*)?>/,
+      "<w:p$1><w:pPr><w:pageBreakBefore/></w:pPr>"
+    );
+  });
+}
+
+/**
+ * Add w:widowControl to body paragraphs (no Heading style) that don't have it.
+ */
+function addWidowControlToBodyParagraphs(xml: string): string {
+  const pRegex = /<w:p(\s[^>]*)?>([\s\S]*?)<\/w:p>/g;
+  return xml.replace(pRegex, (full, _attr, inner) => {
+    const hasHeading =
+      /<w:pStyle\s+w:val="Heading\s*[123]"/i.test(inner) ||
+      /<w:pStyle\s+w:val="Heading[123]"/i.test(inner);
+    if (hasHeading) return full;
+    if (/<w:widowControl\s*\/?>/.test(inner)) return full;
+
+    if (/<w:pPr\s*[^>]*>/.test(inner)) {
+      return full.replace(
+        /(<w:pPr\s*[^>]*)>/,
+        "$1><w:widowControl/>"
+      );
+    }
+    return full.replace(
+      /<w:p(\s[^>]*)?>/,
+      "<w:p$1><w:pPr><w:widowControl/></w:pPr>"
+    );
+  });
+}
+
+/**
+ * Fix double (or more) spaces inside w:t text nodes.
+ */
+function fixDoubleSpacesInTextNodes(xml: string): string {
+  return xml.replace(
+    /<w:t(\s[^>]*)?>([\s\S]*?)<\/w:t>/g,
+    (_, attrs, content) => {
+      const fixed = content.replace(/  +/g, " ");
+      const a = typeof attrs === "string" ? attrs : "";
+      return `<w:t${a}>${fixed}</w:t>`;
+    }
+  );
+}
+
+/**
+ * Surgical generator: original DOCX buffer + config + compliance report text.
+ * Returns new DOCX buffer with only the specified XML edits; fonts and styles unchanged.
+ */
 export async function generateKdpDocx(
-  content: ParsedContent,
-  config: KdpFormatConfig
+  originalDocxBuffer: Buffer,
+  config: KdpFormatConfig,
+  options: {
+    complianceReportText: string;
+    estimatedPageCount: number;
+  }
 ): Promise<Buffer> {
   const trim = getTrimSize(config.trimSize) ?? getTrimSize("6x9");
   if (!trim) throw new Error("Trim size not available.");
 
-  const title =
-    typeof config.bookTitle === "string" && config.bookTitle.trim()
-      ? config.bookTitle
-      : content.frontMatter.title || "Untitled";
-  const author =
-    typeof config.authorName === "string" && config.authorName.trim()
-      ? config.authorName
-      : content.frontMatter.author || "Unknown Author";
-  const year = config.copyrightYear;
-  const isbn = config.isbn || content.frontMatter.isbn || "";
+  const widthTwips = Math.round(trim.widthInches * TWIPS_PER_INCH);
+  const heightTwips = Math.round(trim.heightInches * TWIPS_PER_INCH);
+  const gutterInches = getGutterInches(options.estimatedPageCount);
+  const gutterTwips = Math.round(gutterInches * TWIPS_PER_INCH);
 
-  const run = (text: string, opts?: { bold?: boolean; italics?: boolean }) =>
-    new TextRun({
-      text,
-      size: BODY_SIZE,
-      font: FONT,
-      bold: opts?.bold === true,
-      italics: opts?.italics === true,
-      color: "000000",
-    });
+  const zip = await JSZip.loadAsync(originalDocxBuffer);
+  let xml = (await zip.file("word/document.xml")?.async("string")) || "";
 
-  const front: FileChild[] = [];
+  xml = applyPageSize(xml, widthTwips, heightTwips);
+  xml = applyMargins(xml, gutterTwips);
+  xml = addPageBreakBeforeToChapterHeadings(xml);
+  xml = addWidowControlToBodyParagraphs(xml);
+  xml = fixDoubleSpacesInTextNodes(xml);
+  xml = prependReportPage(xml, options.complianceReportText);
 
-  front.push(
-    new Paragraph({
-      children: [
-        new TextRun({
-          text: REVIEW_BANNER,
-          size: BODY_SIZE - 4,
-          italics: true,
-          color: "FF0000",
-          font: FONT,
-        }),
-      ],
-      alignment: AlignmentType.CENTER,
-      spacing: { after: PARA_AFTER * 2.5 },
-    })
-  );
+  zip.file("word/document.xml", xml, { binary: false });
 
-  if (config.frontMatter.titlePage) {
-    const titleCaps = title.toUpperCase();
-    front.push(
-      new Paragraph({
-        children: [
-          new TextRun({
-            text: titleCaps,
-            size: HEADING_SIZE * 2,
-            font: FONT,
-            bold: true,
-            color: "000000",
-          }),
-        ],
-        alignment: AlignmentType.CENTER,
-        spacing: { before: 2880, after: 0 },
-      })
-    );
-    front.push(new Paragraph({ children: [new PageBreak()] }));
-    front.push(
-      new Paragraph({
-        children: [
-          new TextRun({
-            text: titleCaps,
-            size: HEADING_SIZE * 2,
-            font: FONT,
-            bold: true,
-            color: "000000",
-          }),
-        ],
-        alignment: AlignmentType.CENTER,
-        spacing: { before: 2520, after: PARA_AFTER * 5 },
-      })
-    );
-    front.push(
-      new Paragraph({
-        children: [
-          new TextRun({
-            text: `By ${author}`,
-            size: HEADING_SIZE,
-            font: FONT,
-            color: "000000",
-          }),
-        ],
-        alignment: AlignmentType.CENTER,
-        spacing: { after: 0 },
-      })
-    );
-    front.push(new Paragraph({ children: [new PageBreak()] }));
-  }
-
-  if (config.frontMatter.copyrightPage) {
-    const lines = [
-      `Copyright © ${year} ${author}. All rights reserved.`,
-      "",
-      "Printed in the United States of America.",
-      "First Edition.",
-      ...(isbn ? ["", `ISBN: ${isbn}`] : []),
-    ];
-    for (const line of lines) {
-      front.push(
-        new Paragraph({
-          children: line ? [run(line)] : [],
-          alignment: AlignmentType.CENTER,
-          spacing: { before: line ? 0 : 200, after: 0 },
-        })
-      );
-    }
-    front.push(new Paragraph({ children: [new PageBreak()] }));
-  }
-
-  if (config.frontMatter.dedication && config.frontMatter.dedicationText?.trim()) {
-    front.push(
-      new Paragraph({
-        children: [
-          new TextRun({
-            text: config.frontMatter.dedicationText.trim(),
-            size: BODY_SIZE,
-            font: FONT,
-            italics: true,
-            color: "000000",
-          }),
-        ],
-        alignment: AlignmentType.CENTER,
-        spacing: { before: PARA_AFTER * 4, after: PARA_AFTER * 4 },
-      })
-    );
-    front.push(new Paragraph({ children: [new PageBreak()] }));
-  }
-
-  const isTitleLike = (ch: ParsedChapter): boolean => {
-    const t = ch.title.trim();
-    if (!t) return false;
-    if (t === title.trim()) return true;
-    if (t === author.trim()) return true;
-    if (t === `By ${author}`.trim()) return true;
-    if (/^By\s+/i.test(t) && t.toLowerCase().endsWith(author.trim().toLowerCase())) return true;
-    return false;
-  };
-  const isPreChapter = (ch: ParsedChapter): boolean => !ch.title.trim();
-
-  let bodyChapters = content.chapters.filter((ch) => !isPreChapter(ch) && !isTitleLike(ch));
-
-  if (!config.frontMatter.titlePage) {
-    const firstH1 = bodyChapters.findIndex((ch) => ch.level === 1);
-    if (firstH1 > 0) bodyChapters = bodyChapters.slice(firstH1);
-  }
-
-  if (config.frontMatter.toc) {
-    const tocChapters = bodyChapters.filter((ch) => ch.level === 1);
-    front.push(
-      new Paragraph({
-        children: [
-          new TextRun({
-            text: "Contents",
-            size: HEADING_SIZE,
-            font: FONT,
-            bold: true,
-            color: "000000",
-          }),
-        ],
-        heading: HeadingLevel.TITLE,
-        spacing: { after: PARA_AFTER * 2 },
-      })
-    );
-    front.push(
-      new Paragraph({
-        children: [
-          new TextRun({
-            text: "(Page numbers update when opened in Microsoft Word — press Ctrl+A then F9 to refresh)",
-            size: BODY_SIZE - 4,
-            font: FONT,
-            italics: true,
-            color: "000000",
-            underline: { type: UnderlineType.NONE },
-          }),
-        ],
-        spacing: { after: PARA_AFTER * 4 },
-      })
-    );
-    for (const ch of tocChapters) {
-      const raw = ch.title;
-      const dashSplit = raw.split(/\s+[—–-]\s+/);
-      const label = (dashSplit[0] || raw).trim().toUpperCase();
-      const rest = dashSplit.length > 1 ? dashSplit.slice(1).join(" — ").trim() : "";
-      const tocText = rest ? `${label} — ${rest}` : label;
-      const display = tocText.length > 100 ? tocText.slice(0, 97) + "..." : tocText;
-      front.push(
-        new Paragraph({
-          children: [
-            new TextRun({
-              text: display,
-              size: BODY_SIZE,
-              font: FONT,
-              color: "000000",
-              underline: { type: UnderlineType.NONE },
-            }),
-          ],
-          spacing: { after: PARA_AFTER },
-        })
-      );
-    }
-    front.push(new Paragraph({ children: [new PageBreak()] }));
-  }
-
-  const bodyChildren: FileChild[] = [];
-  for (let i = 0; i < bodyChapters.length; i++) {
-    const ch = bodyChapters[i];
-    const lvl =
-      ch.level === 1
-        ? HeadingLevel.HEADING_1
-        : ch.level === 2
-          ? HeadingLevel.HEADING_2
-          : HeadingLevel.HEADING_3;
-    bodyChildren.push(
-      new Paragraph({
-        children: [
-          new TextRun({
-            text: ch.title,
-            size: HEADING_SIZE,
-            font: FONT,
-            bold: true,
-            color: "000000",
-          }),
-        ],
-        heading: lvl,
-        pageBreakBefore: ch.level === 1 && i > 0,
-        keepNext: true,
-        spacing: {
-          before: ch.level === 1 && i > 0 ? 240 : 0,
-          after: PARA_AFTER,
-          line: LINE_TWIP,
-          beforeAutoSpacing: false,
-          afterAutoSpacing: false,
-        },
-      })
-    );
-    for (let j = 0; j < ch.paragraphs.length; j++) {
-      const p = ch.paragraphs[j];
-      const t = p.text.trim();
-      if (!t) continue;
-      if (/^\d{1,4}$/.test(t)) continue;
-      const isLast = j === ch.paragraphs.length - 1;
-      const nextIsChapter = isLast && i + 1 < bodyChapters.length;
-      bodyChildren.push(
-        new Paragraph({
-          style: "Normal",
-          children: [run(p.text, { bold: p.bold, italics: p.italic })],
-          spacing: {
-            before: 0,
-            after: PARA_AFTER,
-            line: LINE_TWIP,
-            beforeAutoSpacing: false,
-            afterAutoSpacing: false,
-          },
-          indent: { left: 0, right: 0, firstLine: 0 },
-          alignment: AlignmentType.LEFT,
-          keepNext: nextIsChapter,
-          widowControl: true,
-        })
-      );
-    }
-  }
-
-  const pageSize = {
-    width: convertInchesToTwip(trim.widthInches),
-    height: convertInchesToTwip(trim.heightInches),
-  };
-  const margin = {
-    top: 1080,
-    bottom: 1080,
-    left: 1008,
-    right: 1008,
-    gutter: 0,
-    header: 576,
-    footer: 576,
-  };
-
-  const frontSection = {
-    properties: { page: { margin, size: pageSize } },
-    children: front,
-  };
-
-  const bodySection = {
-    properties: {
-      page: {
-        margin,
-        size: pageSize,
-        pageNumbers: { start: 1, formatType: NumberFormat.DECIMAL },
-      },
-    },
-    headers: {
-      default: new Header({
-        children: [
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: title,
-                size: BODY_SIZE - 4,
-                italics: true,
-                font: FONT,
-              }),
-            ],
-            alignment: AlignmentType.CENTER,
-          }),
-        ],
-      }),
-      even: new Header({
-        children: [
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: author,
-                size: BODY_SIZE - 4,
-                italics: true,
-                font: FONT,
-              }),
-            ],
-            alignment: AlignmentType.CENTER,
-          }),
-        ],
-      }),
-    },
-    footers: {
-      default: new Footer({
-        children: [
-          new Paragraph({
-            children: [
-              new TextRun({
-                children: [PageNumber.CURRENT],
-                size: BODY_SIZE - 2,
-                font: FONT,
-              }),
-            ],
-            alignment: AlignmentType.RIGHT,
-          }),
-        ],
-      }),
-      even: new Footer({
-        children: [
-          new Paragraph({
-            children: [
-              new TextRun({
-                children: [PageNumber.CURRENT],
-                size: BODY_SIZE - 2,
-                font: FONT,
-              }),
-            ],
-            alignment: AlignmentType.LEFT,
-          }),
-        ],
-      }),
-    },
-    children: bodyChildren,
-  };
-
-  const doc = new Document({
-    evenAndOddHeaderAndFooters: true,
-    features: { updateFields: true },
-    styles: {
-      default: {
-        document: { run: { font: FONT, size: BODY_SIZE } },
-      },
-      paragraphStyles: [
-        {
-          id: "Normal",
-          name: "Normal",
-          run: { font: FONT, size: BODY_SIZE },
-        },
-      ],
-    },
-    sections: [frontSection, bodySection],
+  return zip.generateAsync({
+    type: "nodebuffer",
+    compression: "DEFLATE",
+    compressionOptions: { level: 9 },
   });
-
-  return Packer.toBuffer(doc);
 }

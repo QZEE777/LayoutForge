@@ -9,7 +9,7 @@ import {
   validateTrimSize,
 } from "@/lib/kdpConfig";
 import { outputFilenameFromTitle } from "@/lib/formatFileName";
-import { buildDocxPreviewReport } from "@/lib/kdpReport";
+import { buildDocxPreviewReport, buildComplianceReportText } from "@/lib/kdpReport";
 
 const DOCX_MIME =
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
@@ -113,9 +113,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const complianceReportText = buildComplianceReportText({
+      bookTitle,
+      trimSize: fullConfig.trimSize,
+      estimatedPages: content.estimatedPageCount,
+      chaptersDetected: content.chapters.length,
+      issues: content.detectedIssues,
+    });
+
     let docxBuffer: Buffer;
     try {
-      docxBuffer = await generateKdpDocx(content, fullConfig);
+      docxBuffer = await generateKdpDocx(buffer, fullConfig, {
+        complianceReportText,
+        estimatedPageCount: content.estimatedPageCount,
+      });
     } catch (e) {
       console.error("[kdp-format-docx-preview] DOCX generation error:", e);
       return NextResponse.json(
