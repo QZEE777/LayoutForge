@@ -3,8 +3,16 @@ import { getStored, readStoredFile, writeOutput, updateMeta } from "@/lib/storag
 import { parseDocxForKdp } from "@/lib/kdpDocxParser";
 import { generateKdpDocx } from "@/lib/kdpDocxGenerator";
 import { buildFormatReviewText } from "@/lib/formatReviewExport";
-import { type KdpFormatConfig, getGutterInches, validateTrimSize } from "@/lib/kdpConfig";
+import {
+  type KdpFormatConfig,
+  getGutterInches,
+  validateTrimSize,
+} from "@/lib/kdpConfig";
 import { outputFilenameFromTitle } from "@/lib/formatFileName";
+import { buildDocxPreviewReport } from "@/lib/kdpReport";
+
+const DOCX_MIME =
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
 export async function POST(request: NextRequest) {
   try {
@@ -42,8 +50,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const mimeType = meta.mimeType || "";
-    if (mimeType !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+    if ((meta.mimeType || "") !== DOCX_MIME) {
       return NextResponse.json(
         { error: "Invalid type", message: "Only DOCX files can be formatted." },
         { status: 400 }
@@ -61,7 +68,10 @@ export async function POST(request: NextRequest) {
     const fullConfig: KdpFormatConfig = {
       bookTitle,
       authorName,
-      copyrightYear: typeof config.copyrightYear === "number" ? config.copyrightYear : new Date().getFullYear(),
+      copyrightYear:
+        typeof config.copyrightYear === "number"
+          ? config.copyrightYear
+          : new Date().getFullYear(),
       isbn: typeof config.isbn === "string" ? config.isbn : "",
       trimSize: validateTrimSize(config.trimSize),
       bookType: config.bookType || "nonfiction",
@@ -79,17 +89,26 @@ export async function POST(request: NextRequest) {
         copyrightPage: config.frontMatter?.copyrightPage !== false,
         toc: config.frontMatter?.toc !== false,
         dedication: !!config.frontMatter?.dedication,
-        dedicationText: typeof config.frontMatter?.dedicationText === "string" ? config.frontMatter.dedicationText : "",
+        dedicationText:
+          typeof config.frontMatter?.dedicationText === "string"
+            ? config.frontMatter.dedicationText
+            : "",
       },
     };
 
     let content;
     try {
-      content = await parseDocxForKdp(buffer, { alreadyFormatted: !!fullConfig.alreadyFormatted });
+      content = await parseDocxForKdp(buffer, {
+        alreadyFormatted: !!fullConfig.alreadyFormatted,
+      });
     } catch (e) {
       console.error("[kdp-format-docx-preview] Parse error:", e);
       return NextResponse.json(
-        { error: "Parse failed", message: "Could not parse DOCX. The file may be corrupted or password-protected." },
+        {
+          error: "Parse failed",
+          message:
+            "Could not parse DOCX. The file may be corrupted or password-protected.",
+        },
         { status: 400 }
       );
     }
@@ -100,7 +119,10 @@ export async function POST(request: NextRequest) {
     } catch (e) {
       console.error("[kdp-format-docx-preview] DOCX generation error:", e);
       return NextResponse.json(
-        { error: "Generation failed", message: e instanceof Error ? e.message : "DOCX generation failed." },
+        {
+          error: "Generation failed",
+          message: e instanceof Error ? e.message : "DOCX generation failed.",
+        },
         { status: 500 }
       );
     }
@@ -114,20 +136,16 @@ export async function POST(request: NextRequest) {
     await writeOutput(id, outputFilename, docxBuffer);
 
     const formatReviewText = buildFormatReviewText(content, fullConfig);
-    const report = {
-      pagesGenerated: 0,
+    const report = buildDocxPreviewReport({
       chaptersDetected: content.chapters.length,
       sectionsDetected,
       lessonsDetected,
       estimatedPages: content.estimatedPageCount,
       issues: content.detectedIssues,
-      fontUsed: "Times New Roman",
       trimSize: trim,
       gutterInches,
-      outputType: "docx" as const,
-      status: "Review Draft ✓",
       formatReviewText,
-    };
+    });
 
     await updateMeta(id, {
       outputFilename,
@@ -139,8 +157,16 @@ export async function POST(request: NextRequest) {
       success: true,
       id,
       report: {
-        ...report,
-        pagesGenerated: undefined,
+        chaptersDetected: report.chaptersDetected,
+        sectionsDetected: report.sectionsDetected,
+        lessonsDetected: report.lessonsDetected,
+        estimatedPages: report.estimatedPages,
+        issues: report.issues,
+        fontUsed: report.fontUsed,
+        trimSize: report.trimSize,
+        gutterInches: report.gutterInches,
+        outputType: report.outputType,
+        status: report.status,
       },
     });
   } catch (e) {

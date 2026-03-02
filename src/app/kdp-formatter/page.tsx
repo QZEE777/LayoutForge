@@ -16,17 +16,14 @@ import {
   type KdpFormatConfig,
 } from "@/lib/kdpConfig";
 
-const ALLOWED_TYPES = [".docx"];
+const ALLOWED_EXT = ".docx";
 const MAX_MB = 50;
 
 const PROGRESS_STEPS = [
   "Parsing document...",
-  "Cleaning formatting...",
-  "Detecting chapters...",
-  "Generating front matter...",
-  "Laying out pages...",
-  "Embedding fonts...",
-  "Finalizing PDF...",
+  "Detecting structure...",
+  "Building review DOCX...",
+  "Finalizing...",
 ];
 
 export default function KdpFormatterPage() {
@@ -54,7 +51,6 @@ export default function KdpFormatterPage() {
     }
   }, [searchParams, uploadId]);
 
-  // Pre-fill title/author from DOCX when on configure step (upload or preset ?id=)
   useEffect(() => {
     if (step !== "configure" || !uploadId) return;
     let cancelled = false;
@@ -74,19 +70,23 @@ export default function KdpFormatterPage() {
             ...c,
             ...(meta.bookTitle != null && meta.bookTitle !== "" && { bookTitle: meta.bookTitle }),
             ...(meta.authorName != null && meta.authorName !== "" && { authorName: meta.authorName }),
-            ...(meta.hasTitlePage === true || (meta.dedicationText != null && meta.dedicationText !== "") ? { frontMatter } : {}),
+            ...(meta.hasTitlePage === true || (meta.dedicationText != null && meta.dedicationText !== "")
+              ? { frontMatter }
+              : {}),
           };
         });
       } catch {
-        // Non-fatal: user can enter manually
+        // Non-fatal
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [step, uploadId]);
 
   const validateFile = useCallback((f: File): string | null => {
     const ext = f.name.toLowerCase().slice(f.name.lastIndexOf("."));
-    if (!ALLOWED_TYPES.includes(ext)) return "Only .docx files are accepted.";
+    if (ext !== ALLOWED_EXT) return "Only .docx files are accepted.";
     if (f.size > MAX_MB * 1024 * 1024) return `File must be smaller than ${MAX_MB}MB.`;
     return null;
   }, []);
@@ -105,32 +105,32 @@ export default function KdpFormatterPage() {
     (e: React.DragEvent) => {
       e.preventDefault();
       setIsDragging(false);
-      const droppedFile = e.dataTransfer.files[0];
-      if (!droppedFile) return;
-      const err = validateFile(droppedFile);
+      const f = e.dataTransfer.files[0];
+      if (!f) return;
+      const err = validateFile(f);
       if (err) {
         setError(err);
         setFile(null);
         return;
       }
       setError(null);
-      setFile(droppedFile);
+      setFile(f);
     },
     [validateFile]
   );
 
   const handleFileSelect = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const selectedFile = e.target.files?.[0];
-      if (!selectedFile) return;
-      const err = validateFile(selectedFile);
+      const f = e.target.files?.[0];
+      if (!f) return;
+      const err = validateFile(f);
       if (err) {
         setError(err);
         setFile(null);
         return;
       }
       setError(null);
-      setFile(selectedFile);
+      setFile(f);
     },
     [validateFile]
   );
@@ -143,9 +143,9 @@ export default function KdpFormatterPage() {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const progressInterval = setInterval(() => setProgress((p) => Math.min(p + 15, 90)), 100);
+      const interval = setInterval(() => setProgress((p) => Math.min(p + 15, 90)), 100);
       const response = await fetch("/api/upload", { method: "POST", body: formData });
-      clearInterval(progressInterval);
+      clearInterval(interval);
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
         throw new Error(data.message || "Upload failed");
@@ -153,10 +153,10 @@ export default function KdpFormatterPage() {
       const data = await response.json();
       setProgress(100);
       setUploadId(data.id);
-      setUploading(false);
       setStep("configure");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
       setUploading(false);
       setProgress(0);
     }
@@ -173,15 +173,9 @@ export default function KdpFormatterPage() {
       setProcessingError(null);
       setProcessingStep(0);
 
-      console.log("[kdp-formatter] Full config before API call:", { ...config, bookTitle: config.bookTitle, authorName: config.authorName });
-      if (typeof config.bookTitle !== "string" || typeof config.authorName !== "string") {
-        setProcessingError("Book title and author name must be strings.");
-        return;
-      }
-
       const stepInterval = setInterval(() => {
         setProcessingStep((s) => Math.min(s + 1, PROGRESS_STEPS.length - 1));
-      }, 1500);
+      }, 1200);
 
       try {
         const res = await fetch(apiPath, {
@@ -206,13 +200,15 @@ export default function KdpFormatterPage() {
     [uploadId, config, router]
   );
 
-  const handleGenerateReviewDocx = useCallback(() => {
-    runGeneration("/api/kdp-format-docx-preview");
-  }, [runGeneration]);
+  const handleGenerateReviewDocx = useCallback(
+    () => runGeneration("/api/kdp-format-docx-preview"),
+    [runGeneration]
+  );
 
-  const handleGeneratePdf = useCallback(() => {
-    runGeneration("/api/kdp-format-docx");
-  }, [runGeneration]);
+  const handleGeneratePdf = useCallback(
+    () => runGeneration("/api/kdp-format-docx"),
+    [runGeneration]
+  );
 
   const isConfigure = step === "configure";
   const isProcessing = step === "processing";
@@ -263,8 +259,8 @@ export default function KdpFormatterPage() {
             Upload
           </span>
           <span className="text-slate-700 mx-1">——</span>
-          <span className={`flex items-center gap-1.5 ${step === "configure" || step === "processing" ? "text-green-400 font-medium" : "text-slate-500"}`}>
-            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${step === "configure" || step === "processing" ? "bg-green-600 text-white font-bold" : "bg-slate-700 text-slate-400"}`}>2</span>
+          <span className={`flex items-center gap-1.5 ${isConfigure || isProcessing ? "text-green-400 font-medium" : "text-slate-500"}`}>
+            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${isConfigure || isProcessing ? "bg-green-600 text-white font-bold" : "bg-slate-700 text-slate-400"}`}>2</span>
             Configure
           </span>
           <span className="text-slate-700 mx-1">——</span>
@@ -274,7 +270,6 @@ export default function KdpFormatterPage() {
           </span>
         </div>
 
-        {/* Step 1: Upload */}
         {step === "upload" && (
           <>
             <div
@@ -341,7 +336,6 @@ export default function KdpFormatterPage() {
           </>
         )}
 
-        {/* Step 2: Configure */}
         {isConfigure && (
           <div className="rounded-2xl bg-slate-800/50 border border-slate-700/60 p-6 space-y-6">
             <h2 className="text-lg font-bold text-white">KDP format settings</h2>
@@ -356,7 +350,7 @@ export default function KdpFormatterPage() {
               />
               <label htmlFor="already-formatted" className="text-sm text-slate-200 cursor-pointer">
                 <span className="font-medium">My manuscript is already KDP-ready</span>
-                <span className="block mt-1 text-slate-400">Only Word Heading 1/2/3 styles define chapters. No “smart” detection — use this if the formatter previously broke a finished book.</span>
+                <span className="block mt-1 text-slate-400">Only Word Heading 1/2/3 define chapters. No “smart” detection.</span>
               </label>
             </div>
 
@@ -567,7 +561,6 @@ export default function KdpFormatterPage() {
           </div>
         )}
 
-        {/* Step 3: Processing */}
         {isProcessing && (
           <div className="rounded-2xl bg-green-500/10 border border-green-500/30 p-6">
             <div className="flex items-center gap-3 mb-4">
@@ -590,9 +583,9 @@ export default function KdpFormatterPage() {
         {step === "upload" && (
           <div className="mt-8 rounded-xl bg-slate-800/40 border border-slate-700/60 p-4 text-sm text-slate-400 space-y-1">
             <p className="font-medium text-slate-300">What happens next:</p>
-            <p>1. We analyse your manuscript — word count, chapters, structure</p>
-            <p>2. You choose KDP trim size, font, and options</p>
-            <p>3. Download your print-ready PDF for Amazon KDP</p>
+            <p>1. We analyse your manuscript — structure and chapters</p>
+            <p>2. You choose trim size, font, and front matter options</p>
+            <p>3. Download your KDP-ready DOCX or PDF</p>
           </div>
         )}
       </main>
