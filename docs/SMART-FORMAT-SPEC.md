@@ -8,10 +8,16 @@
 
 - **Colon-labels never headings:** Any line ending with `:` (e.g. "Primal Insight:") is never classified as a chapter/section heading; it stays as a body label so the label + following content stay in flow and can be kept together (keepNext).
 - **Sentences never headings:** Lines that end with . ! ? (or ." .') or start with "I/My/We " (narrative) or contain em dash and end with period are never promoted to headings — e.g. "I grabbed an energy drink — my 'quick fix.'" stays body text.
-- **Keep-together:** Colon label has keepNext; paragraph before a list has keepNext; list items have keepNext when next is list item; list items have keepLines. So "Primal Insight:" + following paragraph and list blocks don’t split across pages.
+- **Keep-together:** Colon label has keepNext; paragraph before a list has keepNext; **every list item has keepNext** (last bullet never alone at page bottom); list items have keepLines. Subheading-like (bold, <120 chars) has keepNext so no orphaned subhead at page bottom.
 - **Widow/orphan:** Body paragraphs use `widowControl: true` so Word keeps lines together across page breaks where possible.
-- **Tighter spacing:** Body line spacing 240 twips (single); paragraph after 96 (normal), 64 (short/list before), 32 (list items); no extra vertical gap so paragraphs and bullets read tight.
+- **Spacing:** Body line 240 twips. Paragraph after: 96 (normal), 64 (short/list before), 32 (list), 72 (subheading-like), 12 (colon label). H2 sections: before 96, after 72. Two subheading-likes in a row: second gets before 48. Colon label: before 160, after 12.
 - **List markers:** Bullet lists include • - * ▲ and U+2022 so triangular and other common bullets are treated as lists.
+
+### Layout / pagination (memory — do not regress)
+
+- **No orphaned subheads:** Subheading-like paragraphs (bold, short) get keepNext so they stay with the following block.
+- **No last bullet alone:** Every list item gets keepNext so the final bullet in a group is never left at the bottom of a page with the rest on the next page, and bullets don't truncate at page edge.
+- **Colon labels:** Keep with next; minimal gap after (12 twips) before following line.
 
 ---
 

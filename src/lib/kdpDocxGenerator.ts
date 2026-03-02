@@ -258,7 +258,7 @@ export async function generateKdpDocx(
         new Paragraph({
           children: [new TextRun({ text: ch.title, size: 26, font: "Times New Roman", bold: true, color: black })],
           heading: HeadingLevel.HEADING_2,
-          spacing: { before: 0, after: 0, line: lineTwip, beforeAutoSpacing: false, afterAutoSpacing: false },
+          spacing: { before: 96, after: 72, line: lineTwip, beforeAutoSpacing: false, afterAutoSpacing: false },
         })
       );
     } else {
@@ -272,7 +272,9 @@ export async function generateKdpDocx(
     }
     let prevWasColonLabel = false;
     let prevWasListItem = false;
+    let prevWasSubheadingLike = false;
     const paras = ch.paragraphs;
+    // Apply spacing and styling globally to every body paragraph (same rules for whole manuscript).
     for (let j = 0; j < paras.length; j++) {
       const p = paras[j];
       const trimmed = p.text.trim();
@@ -280,21 +282,24 @@ export async function generateKdpDocx(
       if (/^\d{1,4}$/.test(trimmed)) continue;
       const isListItem = /^[•\-*▲\u25B2\u2022]\s*/.test(trimmed) || /^\d+\.\s+/.test(trimmed);
       const isColonLabel = /:\s*$/.test(trimmed);
+      const isSubheadingLike = !isListItem && !isColonLabel && p.bold && trimmed.length < 120;
       let nextIsListItem = false;
       let nextIsColonLabel = false;
+      let nextIsSubheadingLike = false;
       for (let k = j + 1; k < paras.length; k++) {
         const t = paras[k].text.trim();
         if (!t || /^\d{1,4}$/.test(t)) continue;
         nextIsListItem = /^[•\-*▲\u25B2\u2022]\s*/.test(t) || /^\d+\.\s+/.test(t);
         nextIsColonLabel = /:\s*$/.test(t);
+        nextIsSubheadingLike = !nextIsListItem && !nextIsColonLabel && paras[k].bold && t.length < 120;
         break;
       }
       const isShortCallout = !isListItem && !isColonLabel && trimmed.length < 80;
       const isItalicCallout = !isListItem && !isColonLabel && p.italic && trimmed.length < 120;
       const isPunchyShort = !isListItem && !isColonLabel && trimmed.length < 60 && /\.\s*$/.test(trimmed) && !p.bold && !p.italic;
-      const afterSpacing = isListItem ? 32 : isColonLabel ? 0 : isItalicCallout ? 160 : isPunchyShort ? 48 : isShortCallout ? 64 : 96;
+      const afterSpacing = isListItem ? 32 : isColonLabel ? 12 : isSubheadingLike ? 72 : isItalicCallout ? 160 : isPunchyShort ? 48 : isShortCallout ? 64 : 96;
       // Paragraph after colon label: force before: 0, after: 96, line: 240 so gap stays minimal.
-      let beforeSpacing = prevWasColonLabel ? 0 : prevWasListItem ? 64 : isColonLabel ? 160 : 0;
+      let beforeSpacing = prevWasColonLabel ? 0 : prevWasSubheadingLike && isSubheadingLike ? 48 : prevWasListItem ? 64 : isColonLabel ? 160 : isSubheadingLike ? 0 : 0;
       let lineSpacing = isListItem ? 228 : lineTwip;
       let finalAfter = afterSpacing;
       if (prevWasColonLabel) {
@@ -304,6 +309,7 @@ export async function generateKdpDocx(
       }
       prevWasColonLabel = isColonLabel;
       prevWasListItem = isListItem;
+      prevWasSubheadingLike = isSubheadingLike;
       const run = isColonLabel ? colonLabelRun(p.text) : normalRun(p.text, { bold: p.bold, italics: p.italic });
       bodyChildren.push(
         new Paragraph({
@@ -318,7 +324,7 @@ export async function generateKdpDocx(
           },
           indent: { left: 0, right: 0, firstLine: 0 },
           alignment: AlignmentType.LEFT,
-          keepNext: isColonLabel || (nextIsListItem && !isListItem) || nextIsColonLabel || (isListItem && nextIsListItem),
+          keepNext: isColonLabel || (nextIsListItem && !isListItem) || nextIsColonLabel || isListItem || isSubheadingLike,
           keepLines: isListItem,
           widowControl: true,
         })

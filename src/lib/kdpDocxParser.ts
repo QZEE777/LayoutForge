@@ -43,15 +43,16 @@ export interface ParsedContent {
   detectedIssues: string[];
 }
 
-/** Detect if a paragraph is a heading by pattern. Returns level 1 (chapter) or 2 (section) or null. */
+/** Detect if a paragraph is a heading by pattern. Returns level 1 (chapter) or 2 (section) or null.
+ * Applied globally to every paragraph in the manuscript — no per-sentence exceptions. */
 function detectHeadingLevel(text: string, isBold: boolean): 1 | 2 | null {
   const t = text.trim();
   if (!t) return null;
 
-  // Never treat colon-labels as headings (e.g. "Primal Insight:") — they stay as body/label so flow stays intact.
+  // Global: never treat colon-labels as headings — they stay as body/label so flow stays intact.
   if (/:\s*$/.test(t)) return null;
 
-  // Never treat sentences as headings: ends with . ! ? (or ." .' etc.) or reads as narrative.
+  // Global: never treat sentences or narrative as headings (any para matching these patterns, manuscript-wide).
   if (/[.!?][\s"'\u201c\u201d]*$/.test(t)) return null;
   if (/^(I|My|We)\s+/i.test(t) && t.length < 140) return null;
   if (/[\u2014\u2013]\s*[^"].*[.!?]\s*$/.test(t)) return null;
