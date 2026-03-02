@@ -166,8 +166,8 @@ export async function generateKdpPdf(
   content: ParsedContent,
   config: KdpFormatConfig
 ): Promise<KdpPdfResult> {
-  const trim = getTrimSize(config.trimSize);
-  if (!trim) throw new Error(`Unknown trim size: ${config.trimSize}`);
+  const trim = getTrimSize(config.trimSize) ?? getTrimSize("6x9");
+  if (!trim) throw new Error("Trim size not available.");
 
   const withBleed = config.bleedImages;
   const pageWidth = inchesToPoints(trim.widthInches) + (withBleed ? BLEED_POINTS * 2 : 0);

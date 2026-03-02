@@ -94,6 +94,13 @@ export function inchesToPoints(inches: number): number {
   return inches * 72;
 }
 
+const TRIM_SIZE_IDS = TRIM_SIZES.map((t) => t.id);
+
+/** Return a valid TrimSizeId; use "6x9" if invalid (so generation never throws). */
+export function validateTrimSize(id: unknown): TrimSizeId {
+  return typeof id === "string" && (TRIM_SIZE_IDS as readonly string[]).includes(id) ? (id as TrimSizeId) : "6x9";
+}
+
 export function getTrimSize(id: TrimSizeId) {
   return TRIM_SIZES.find((t) => t.id === id);
 }

@@ -38,8 +38,8 @@ export async function generateKdpDocx(
   content: ParsedContent,
   config: KdpFormatConfig
 ): Promise<Buffer> {
-  const trim = getTrimSize(config.trimSize);
-  if (!trim) throw new Error(`Unknown trim size: ${config.trimSize}`);
+  const trim = getTrimSize(config.trimSize) ?? getTrimSize("6x9");
+  if (!trim) throw new Error("Trim size not available.");
 
   const title = typeof config.bookTitle === "string" ? config.bookTitle : content.frontMatter.title || "Untitled";
   const author = typeof config.authorName === "string" ? config.authorName : content.frontMatter.author || "Unknown Author";

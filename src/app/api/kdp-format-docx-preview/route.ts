@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getStored, readStoredFile, writeOutput, updateMeta } from "@/lib/storage";
 import { parseDocxForKdp } from "@/lib/kdpDocxParser";
 import { generateKdpDocx } from "@/lib/kdpDocxGenerator";
-import { type KdpFormatConfig, getGutterInches } from "@/lib/kdpConfig";
+import { type KdpFormatConfig, getGutterInches, validateTrimSize } from "@/lib/kdpConfig";
 import { outputFilenameFromTitle } from "@/lib/formatFileName";
 
 export async function POST(request: NextRequest) {
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       authorName,
       copyrightYear: typeof config.copyrightYear === "number" ? config.copyrightYear : new Date().getFullYear(),
       isbn: typeof config.isbn === "string" ? config.isbn : "",
-      trimSize: config.trimSize || "6x9",
+      trimSize: validateTrimSize(config.trimSize),
       bookType: config.bookType || "nonfiction",
       bodyFont: config.bodyFont || "ebgaramond",
       headingFont: config.headingFont || "playfair",

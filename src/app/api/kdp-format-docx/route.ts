@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getStored, readStoredFile, writeOutput, updateMeta } from "@/lib/storage";
 import { parseDocxForKdp } from "@/lib/kdpDocxParser";
 import { generateKdpPdf } from "@/lib/kdpPdfGenerator";
-import { type KdpFormatConfig, getGutterInches } from "@/lib/kdpConfig";
+import { type KdpFormatConfig, getGutterInches, validateTrimSize } from "@/lib/kdpConfig";
 import { outputFilenameFromTitle } from "@/lib/formatFileName";
 
 export async function POST(request: NextRequest) {
@@ -24,10 +24,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // BUG 1: Pass through exactly as received — no trim or modification
     const bookTitle = typeof config.bookTitle === "string" ? config.bookTitle : "";
     const authorName = typeof config.authorName === "string" ? config.authorName : "";
-    console.log("[kdp-format-docx] Received config.bookTitle:", JSON.stringify(config.bookTitle), "authorName:", JSON.stringify(config.authorName));
     if (!bookTitle.trim() || !authorName.trim()) {
       return NextResponse.json(
         { error: "Missing fields", message: "Book title and author name are required." },
@@ -64,7 +62,7 @@ export async function POST(request: NextRequest) {
       authorName,
       copyrightYear: typeof config.copyrightYear === "number" ? config.copyrightYear : new Date().getFullYear(),
       isbn: typeof config.isbn === "string" ? config.isbn.trim() : "",
-      trimSize: config.trimSize || "6x9",
+      trimSize: validateTrimSize(config.trimSize),
       bookType: config.bookType || "nonfiction",
       bodyFont: config.bodyFont || "ebgaramond",
       headingFont: config.headingFont || "playfair",
