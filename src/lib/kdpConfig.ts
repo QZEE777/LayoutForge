@@ -121,6 +121,8 @@ export interface KdpFormatConfig {
   interiorColor: "bw" | "color";
   paperColor: "white" | "cream";
   bleedImages: boolean;
+  /** When true, only Word Heading 1/2/3 create chapters; no paragraph promotion. Use for already-formatted KDP-ready DOCX. */
+  alreadyFormatted?: boolean;
   frontMatter: {
     titlePage: boolean;
     copyrightPage: boolean;
@@ -145,6 +147,7 @@ export const DEFAULT_CONFIG: KdpFormatConfig = {
   interiorColor: "bw",
   paperColor: "white",
   bleedImages: false,
+  alreadyFormatted: false,
   frontMatter: {
     titlePage: true,
     copyrightPage: true,

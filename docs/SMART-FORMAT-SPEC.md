@@ -13,6 +13,10 @@
 - **Spacing:** Body line 240 twips. Paragraph after: 96 (normal), 64 (short/list before), 32 (list), 72 (subheading-like), 12 (colon label). H2 sections: before 96, after 72. Two subheading-likes in a row: second gets before 48. Colon label: before 160, after 12.
 - **List markers:** Bullet lists include • - * ▲ and U+2022 so triangular and other common bullets are treated as lists.
 
+### Already KDP-ready (preserve structure)
+
+- Config option **alreadyFormatted** (checkbox: "My manuscript is already KDP-ready"). When true, parser **never** promotes a paragraph to a heading — only Word Heading 1/2/3 (mammoth h1/h2/h3) define chapters. Use for finished DOCX so the formatter doesn’t restructure or break them.
+
 ### Layout / pagination (memory — do not regress)
 
 - **No orphaned subheads:** Subheading-like paragraphs (bold, short) get keepNext so they stay with the following block.

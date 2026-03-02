@@ -118,8 +118,12 @@ function extractAttr(html: string, attr: string): string | null {
   return m ? m[1] : null;
 }
 
+/** Options for parsing. When alreadyFormatted is true, only h1/h2/h3 from the document create chapters; paragraphs are never promoted to headings. */
+export type ParseOptions = { alreadyFormatted?: boolean };
+
 /** Convert HTML from mammoth into structured chapters and paragraphs (Node-safe, no DOM). */
-function htmlToStructure(html: string, issues: string[]): { chapters: ParsedChapter[]; frontMatter: ParsedFrontMatter } {
+function htmlToStructure(html: string, issues: string[], options?: ParseOptions): { chapters: ParsedChapter[]; frontMatter: ParsedFrontMatter } {
+  const alreadyFormatted = !!options?.alreadyFormatted;
   const chapters: ParsedChapter[] = [];
   let currentChapter: ParsedChapter = {
     number: 0,
@@ -194,7 +198,8 @@ function htmlToStructure(html: string, issues: string[]): { chapters: ParsedChap
       const italic = /<em|<\/em>|<i>|<\/i>/i.test(seg.raw);
       const underline = /<u>|<\/u>/i.test(seg.raw);
 
-      const headingLevel = detectHeadingLevel(text, bold);
+      // When alreadyFormatted, never promote a paragraph to a heading — only Word Heading 1/2/3 (h1/h2/h3) define structure.
+      const headingLevel = alreadyFormatted ? null : detectHeadingLevel(text, bold);
       if (headingLevel !== null) {
         console.log("[kdpDocxParser] Detected heading:", { level: headingLevel, title: text.slice(0, 60) });
         flushChapter();
@@ -340,7 +345,7 @@ function estimatePageCount(chapters: ParsedChapter[]): number {
 /**
  * Parse DOCX buffer into structured content for PDF generation.
  */
-export async function parseDocxForKdp(buffer: Buffer, _options?: { title?: string; author?: string }): Promise<ParsedContent> {
+export async function parseDocxForKdp(buffer: Buffer, options?: { title?: string; author?: string; alreadyFormatted?: boolean }): Promise<ParsedContent> {
   const issues: string[] = [];
 
   const result = await mammoth.convertToHtml(
@@ -365,7 +370,7 @@ export async function parseDocxForKdp(buffer: Buffer, _options?: { title?: strin
     }
   }
 
-  const { chapters, frontMatter } = htmlToStructure(html, issues);
+  const { chapters, frontMatter } = htmlToStructure(html, issues, { alreadyFormatted: options?.alreadyFormatted });
   mergeSplitParagraphs(chapters);
   mergeShortSentenceFragments(chapters);
   const estimatedPageCount = estimatePageCount(chapters);

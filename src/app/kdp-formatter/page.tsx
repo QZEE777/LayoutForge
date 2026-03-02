@@ -346,6 +346,20 @@ export default function KdpFormatterPage() {
           <div className="rounded-2xl bg-slate-800/50 border border-slate-700/60 p-6 space-y-6">
             <h2 className="text-lg font-bold text-white">KDP format settings</h2>
 
+            <div className="rounded-xl bg-amber-500/10 border border-amber-500/30 p-4 flex items-start gap-3">
+              <input
+                type="checkbox"
+                id="already-formatted"
+                checked={!!config.alreadyFormatted}
+                onChange={(e) => setConfig((c) => ({ ...c, alreadyFormatted: e.target.checked }))}
+                className="mt-1 accent-amber-500"
+              />
+              <label htmlFor="already-formatted" className="text-sm text-slate-200 cursor-pointer">
+                <span className="font-medium">My manuscript is already KDP-ready</span>
+                <span className="block mt-1 text-slate-400">Only Word Heading 1/2/3 styles define chapters. No “smart” detection — use this if the formatter previously broke a finished book.</span>
+              </label>
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">Book title *</label>
               <input

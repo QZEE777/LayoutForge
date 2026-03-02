@@ -258,7 +258,7 @@ export async function generateKdpDocx(
         new Paragraph({
           children: [new TextRun({ text: ch.title, size: 26, font: "Times New Roman", bold: true, color: black })],
           heading: HeadingLevel.HEADING_2,
-          spacing: { before: 96, after: 72, line: lineTwip, beforeAutoSpacing: false, afterAutoSpacing: false },
+          spacing: { before: 96, after: 96, line: lineTwip, beforeAutoSpacing: false, afterAutoSpacing: false },
         })
       );
     } else {
@@ -297,9 +297,9 @@ export async function generateKdpDocx(
       const isShortCallout = !isListItem && !isColonLabel && trimmed.length < 80;
       const isItalicCallout = !isListItem && !isColonLabel && p.italic && trimmed.length < 120;
       const isPunchyShort = !isListItem && !isColonLabel && trimmed.length < 60 && /\.\s*$/.test(trimmed) && !p.bold && !p.italic;
-      const afterSpacing = isListItem ? 32 : isColonLabel ? 12 : isSubheadingLike ? 72 : isItalicCallout ? 160 : isPunchyShort ? 48 : isShortCallout ? 64 : 96;
-      // Paragraph after colon label: force before: 0, after: 96, line: 240 so gap stays minimal.
-      let beforeSpacing = prevWasColonLabel ? 0 : prevWasSubheadingLike && isSubheadingLike ? 48 : prevWasListItem ? 64 : isColonLabel ? 160 : isSubheadingLike ? 0 : 0;
+      const afterSpacing = isListItem ? 32 : isColonLabel ? 12 : isSubheadingLike ? 96 : isItalicCallout ? 160 : isPunchyShort ? 48 : isShortCallout ? 64 : 96;
+      // After subheading-like or H2: next block gets new-para spacing (96). Colon label keeps minimal gap.
+      let beforeSpacing = prevWasColonLabel ? 0 : prevWasSubheadingLike && isSubheadingLike ? 48 : prevWasSubheadingLike ? 96 : prevWasListItem ? 64 : isColonLabel ? 160 : isSubheadingLike ? 0 : 0;
       let lineSpacing = isListItem ? 228 : lineTwip;
       let finalAfter = afterSpacing;
       if (prevWasColonLabel) {
@@ -324,7 +324,7 @@ export async function generateKdpDocx(
           },
           indent: { left: 0, right: 0, firstLine: 0 },
           alignment: AlignmentType.LEFT,
-          keepNext: isColonLabel || (nextIsListItem && !isListItem) || nextIsColonLabel || isListItem || isSubheadingLike,
+          keepNext: isColonLabel || (nextIsListItem && !isListItem) || nextIsColonLabel || isListItem || isSubheadingLike || nextIsSubheadingLike,
           keepLines: isListItem,
           widowControl: true,
         })

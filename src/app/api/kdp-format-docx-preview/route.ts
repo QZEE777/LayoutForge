@@ -73,6 +73,7 @@ export async function POST(request: NextRequest) {
       interiorColor: config.interiorColor || "bw",
       paperColor: config.paperColor || "white",
       bleedImages: !!config.bleedImages,
+      alreadyFormatted: !!config.alreadyFormatted,
       frontMatter: {
         titlePage: config.frontMatter?.titlePage !== false,
         copyrightPage: config.frontMatter?.copyrightPage !== false,
@@ -84,7 +85,7 @@ export async function POST(request: NextRequest) {
 
     let content;
     try {
-      content = await parseDocxForKdp(buffer);
+      content = await parseDocxForKdp(buffer, { alreadyFormatted: !!fullConfig.alreadyFormatted });
     } catch (e) {
       console.error("[kdp-format-docx-preview] Parse error:", e);
       return NextResponse.json(
