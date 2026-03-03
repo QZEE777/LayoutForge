@@ -92,40 +92,27 @@ export default function KdpFormatterPdfPage() {
     setConverting(false);
     setJobId(null);
     setFileId(null);
-    setProgressLabel("Preparing upload…");
+    setProgressLabel("Uploading…");
 
     try {
-      setProgress(5);
-      const initRes = await fetch("/api/cloudconvert-upload-url", {
+      setProgress(10);
+      const formData = new FormData();
+      const inputFilename = file.name.toLowerCase().endsWith(".pdf") ? file.name : "document.pdf";
+      formData.append("file", file, inputFilename);
+
+      const uploadRes = await fetch("/api/kdp-formatter-pdf", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          filename: file.name,
-          filesize: file.size,
-          toolType: "kdp-formatter-pdf",
-        }),
+        body: formData,
       });
-      if (!initRes.ok) {
-        const data = await initRes.json().catch(() => ({}));
-        throw new Error(data.message || "Could not get upload URL.");
+      if (!uploadRes.ok) {
+        const data = await uploadRes.json().catch(() => ({}));
+        throw new Error(data.message || "Upload or conversion start failed.");
       }
-      const initData = await initRes.json();
-      const { id, jobId: jId, uploadUrl, formData: formParams } = initData;
-      if (!id || !jId || !uploadUrl || !formParams) throw new Error("Server did not return upload details.");
+      const uploadData = await uploadRes.json();
+      const { id, jobId: jId } = uploadData;
+      if (!id || !jId) throw new Error("Server did not return job details.");
       setFileId(id);
       setJobId(jId);
-      setProgress(10);
-      setProgressLabel("Uploading…");
-
-      const uploadForm = new FormData();
-      for (const [key, val] of Object.entries(formParams)) uploadForm.append(key, val as string);
-      const inputFilename = file.name.toLowerCase().endsWith(".pdf") ? file.name : "document.pdf";
-      uploadForm.append("file", file, inputFilename);
-
-      const uploadRes = await fetch(uploadUrl, { method: "POST", body: uploadForm });
-      if (!uploadRes.ok && uploadRes.status !== 204) {
-        throw new Error(`Upload failed (${uploadRes.status}). Try again.`);
-      }
       setProgress(40);
       setProgressLabel("Processing…");
       setConverting(true);
@@ -174,17 +161,17 @@ export default function KdpFormatterPdfPage() {
 
       <div className="border-b border-slate-800 bg-red-900/20">
         <div className="mx-auto max-w-4xl px-6 py-3 flex items-center gap-3">
-          <span className="inline-flex items-center rounded-full bg-red-500/20 border border-red-500/30 px-2.5 py-0.5 text-xs font-medium text-red-300">PDF</span>
-          <span className="text-sm font-semibold text-white">KDP Formatter (PDF)</span>
+          <span className="inline-flex items-center rounded-full bg-green-500/20 border border-green-500/30 px-2.5 py-0.5 text-xs font-medium text-green-300">FREE</span>
+          <span className="text-sm font-semibold text-white">PDF Print Optimizer</span>
           <span className="mx-2 text-slate-600">|</span>
-          <span className="text-sm text-slate-400">Convert PDF to KDP-ready print PDF</span>
+          <span className="text-sm text-slate-400">Shrink / print-optimize your PDF</span>
         </div>
       </div>
 
       <main className="mx-auto max-w-2xl px-6 py-12">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white">Upload your PDF</h1>
-          <p className="mt-2 text-slate-400">PDF only. Maximum {MAX_MB}MB.</p>
+          <h1 className="text-3xl font-bold text-white">PDF Print Optimizer</h1>
+          <p className="mt-2 text-slate-400">Shrink or print-optimize your PDF. FREE. PDF only. Maximum {MAX_MB}MB.</p>
         </div>
 
         <div
@@ -267,9 +254,9 @@ export default function KdpFormatterPdfPage() {
 
         <div className="mt-8 rounded-xl bg-slate-800/40 border border-slate-700/60 p-4 text-sm text-slate-400 space-y-1">
           <p className="font-medium text-slate-300">What happens next:</p>
-          <p>1. Your PDF is sent to CloudConvert for KDP-ready conversion.</p>
+          <p>1. Your PDF is optimized for smaller size and print quality.</p>
           <p>2. When done, you are redirected to the download page.</p>
-          <p>3. Download your print-ready PDF for Amazon KDP.</p>
+          <p>3. Download your optimized PDF.</p>
         </div>
       </main>
     </div>

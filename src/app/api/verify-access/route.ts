@@ -9,6 +9,8 @@ export async function POST(req: Request) {
     const email = typeof body?.email === "string" ? body.email.trim() : "";
     const tool = typeof body?.tool === "string" ? body.tool.trim() : "";
 
+    if (tool === "kdp-formatter-pdf") return NextResponse.json({ access: true, type: "free" });
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
