@@ -3,8 +3,11 @@
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { formatFileSize } from "@/lib/formatFileName";
 
-const MAX_MB = 50;
+/** Vercel serverless body limit; larger files must use PDF Compressor first. */
+const SERVER_MAX_MB = 4;
+const MAX_SELECT_MB = 50;
 
 export default function KdpPdfCheckerPage() {
   const router = useRouter();
@@ -72,8 +75,20 @@ export default function KdpPdfCheckerPage() {
       const formData = new FormData();
       formData.append("file", file, file.name.toLowerCase().endsWith(".pdf") ? file.name : "document.pdf");
       const res = await fetch("/api/kdp-pdf-check", { method: "POST", body: formData });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Check failed.");
+      const raw = await res.text();
+      let data: { message?: string; id?: string };
+      try {
+        data = raw ? JSON.parse(raw) : {};
+      } catch {
+        data = {};
+      }
+      if (!res.ok) {
+        const msg =
+          res.status === 413 && file
+            ? `Your file is ${formatFileSize(file.size)}. This tool accepts up to ${SERVER_MAX_MB} MB per upload. Use our free PDF Compressor to shrink it first, then check again.`
+            : data?.message || `Check failed (${res.status}). Try a smaller file or try again.`;
+        throw new Error(msg);
+      }
       if (data.id) router.push(`/download/${data.id}?source=checker`);
       else throw new Error("No report ID returned.");
     } catch (err) {
@@ -107,7 +122,7 @@ export default function KdpPdfCheckerPage() {
 
       <main className="mx-auto max-w-2xl px-6 py-12">
         <h1 className="text-3xl font-bold text-white">KDP PDF Checker</h1>
-        <p className="mt-2 text-slate-400">Upload your interior PDF. We’ll report trim size, page count, and any issues so you can fix before uploading to KDP. $7 per use or $27 for 6 months.</p>
+        <p className="mt-2 text-slate-400">Upload your interior PDF. We’ll report trim size, page count, and any issues so you can fix before uploading to KDP. Max {SERVER_MAX_MB} MB per upload (use our free PDF Compressor for larger files). $7 per use or $27 for 6 months.</p>
 
         <div
           onDragOver={handleDragOver}
@@ -128,7 +143,7 @@ export default function KdpPdfCheckerPage() {
             {file ? (
               <div>
                 <p className="text-white font-medium">{file.name}</p>
-                <p className="text-sm text-slate-400 mt-1">{(file.size / (1024 * 1024)).toFixed(2)} MB — ready to check</p>
+                <p className="text-sm text-slate-400 mt-1">{formatFileSize(file.size)} — ready to check</p>
               </div>
             ) : (
               <p className="text-slate-400">Drop your PDF here or click to choose</p>
@@ -136,9 +151,26 @@ export default function KdpPdfCheckerPage() {
           </label>
         </div>
 
+        {file && fileTooBigForServer && (
+          <div className="mt-4 rounded-lg bg-amber-500/10 border border-amber-500/30 p-3 text-sm text-amber-200">
+            Your file is <strong>{formatFileSize(file.size)}</strong>. This tool accepts up to {SERVER_MAX_MB} MB per upload.{" "}
+            <Link href="/pdf-compress" className="underline font-medium text-amber-200 hover:text-white">
+              Use our free PDF Compressor
+            </Link>{" "}
+            to shrink it first, then return here.
+          </div>
+        )}
+
         {error && (
           <div className="mt-4 rounded-lg bg-red-500/10 border border-red-500/30 p-3 text-sm text-red-400">
             {error}
+            {file && (
+              <p className="mt-2">
+                <Link href="/pdf-compress" className="text-amber-300 hover:text-white underline">
+                  Use our free PDF Compressor →
+                </Link>
+              </p>
+            )}
           </div>
         )}
 
@@ -146,7 +178,7 @@ export default function KdpPdfCheckerPage() {
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={!file || uploading}
+            disabled={!file || uploading || fileTooBigForServer}
             className="flex-1 rounded-xl bg-amber-500 hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 transition-colors"
           >
             {uploading ? "Checking…" : "Check PDF"}
