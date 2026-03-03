@@ -9,11 +9,12 @@ const PDF_COMPRESSOR = {
   href: "/pdf-compress",
 };
 
-const PAID_TOOLS = [
+const PAID_TOOLS: { title: string; description: React.ReactNode; href: string; pricing: string; comingSoon?: boolean }[] = [
   { title: "KDP Formatter (DOCX)", description: "Format DOCX for Amazon KDP print. Trim size, bleed, print-ready PDF.", href: "/kdp-formatter", pricing: "$7 per use · $27 for 6 months" },
   { title: "PDF Print Optimizer", description: <>Shrink / print-optimize your PDF.</>, href: "/kdp-formatter-pdf", pricing: "FREE" },
   { title: "KDP PDF Checker", description: <>Check your PDF against KDP specs.<br />Trim, page count, issues.</>, href: "/kdp-pdf-checker", pricing: "$7 per use · $27 for 6 months" },
   { title: "Kindle EPUB Maker", description: "Manuscript to Kindle-ready EPUB. Chapter structure, metadata.", href: "/epub-maker", pricing: "$7 per use · $27 for 6 months" },
+  { title: "KDP Format Review", description: "Paste or upload your manuscript — AI review for margins, spacing, headings, lists, KDP rules. Optional preview with KDP params.", href: "#", pricing: "Coming soon", comingSoon: true },
 ];
 
 const COMING_SOON = [
@@ -184,32 +185,54 @@ export default function FormatterPage() {
       <section className="px-6 pb-14">
         <div className="mx-auto max-w-4xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {PAID_TOOLS.map((tool) => (
-              <Link
-                key={tool.href}
-                href={tool.href}
-                className="group relative rounded-xl border-l-4 border-brand-gold p-5 flex flex-col bg-brand-card border border-brand-cardHover hover:shadow-gold-glow hover:border-brand-cardHover transition-all overflow-hidden"
-              >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-gold/10 rounded-full blur-3xl pointer-events-none" aria-hidden />
-                <div className="relative flex flex-col items-center text-center">
-                  <h3 className="font-bebas text-xl tracking-wide text-brand-cream mb-2">
-                    {tool.title}
-                  </h3>
-                  <p className="font-sans text-sm flex-1 mb-2 text-brand-muted">
-                    {tool.description}
-                  </p>
-                  <p className="font-sans text-xs text-white mb-4">
-                    {tool.pricing}
-                  </p>
-                  <span className="inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold w-fit bg-brand-gold text-brand-bg group-hover:opacity-90 transition-opacity">
-                    Launch
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
+            {PAID_TOOLS.map((tool) =>
+              tool.comingSoon ? (
+                <div
+                  key={tool.title}
+                  className="group relative rounded-xl border-l-4 border-brand-gold/60 p-5 flex flex-col bg-brand-card border border-brand-cardHover opacity-85 overflow-hidden"
+                >
+                  <span className="rounded-full bg-brand-locked border border-brand-cardHover px-2 py-0.5 text-xs font-medium text-brand-muted w-fit mb-2 self-center">
+                    Coming soon
                   </span>
+                  <div className="relative flex flex-col items-center text-center">
+                    <h3 className="font-bebas text-xl tracking-wide text-brand-cream mb-2">
+                      {tool.title}
+                    </h3>
+                    <p className="font-sans text-sm flex-1 mb-2 text-brand-muted">
+                      {tool.description}
+                    </p>
+                    <p className="font-sans text-xs text-brand-muted">
+                      {tool.pricing}
+                    </p>
+                  </div>
                 </div>
-              </Link>
-            ))}
+              ) : (
+                <Link
+                  key={tool.href}
+                  href={tool.href}
+                  className="group relative rounded-xl border-l-4 border-brand-gold p-5 flex flex-col bg-brand-card border border-brand-cardHover hover:shadow-gold-glow hover:border-brand-cardHover transition-all overflow-hidden"
+                >
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-brand-gold/10 rounded-full blur-3xl pointer-events-none" aria-hidden />
+                  <div className="relative flex flex-col items-center text-center">
+                    <h3 className="font-bebas text-xl tracking-wide text-brand-cream mb-2">
+                      {tool.title}
+                    </h3>
+                    <p className="font-sans text-sm flex-1 mb-2 text-brand-muted">
+                      {tool.description}
+                    </p>
+                    <p className="font-sans text-xs text-white mb-4">
+                      {tool.pricing}
+                    </p>
+                    <span className="inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold w-fit bg-brand-gold text-brand-bg group-hover:opacity-90 transition-opacity">
+                      Launch
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </span>
+                  </div>
+                </Link>
+              )
+            )}
           </div>
         </div>
       </section>
