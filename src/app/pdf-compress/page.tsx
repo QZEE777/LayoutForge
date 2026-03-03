@@ -3,22 +3,23 @@
 import { useCallback, useState } from "react";
 import Link from "next/link";
 import { truncateFilenameMiddle, formatFileSize } from "@/lib/formatFileName";
+import { compressPdfInBrowser } from "@/lib/clientPdfCompress";
 
 const MAX_MB = 50;
 
 export default function PdfCompressPage() {
   const [file, setFile] = useState<File | null>(null);
   const [email, setEmail] = useState("");
-  const [formParameters, setFormParameters] = useState<Record<string, string>>({});
   const [compressing, setCompressing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState<{ id: string; outputFilename: string } | null>(null);
+  const [doneBlobUrl, setDoneBlobUrl] = useState<string | null>(null);
+  const [outputName, setOutputName] = useState<string>("");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     setError(null);
-    setDone(null);
+    setDoneBlobUrl(null);
     if (!f) {
       setFile(null);
       return;
@@ -36,14 +37,6 @@ export default function PdfCompressPage() {
     setFile(f);
   };
 
-  const pollStatus = useCallback(async (id: string, jobId: string) => {
-    const res = await fetch(`/api/pdf-compress/status?id=${encodeURIComponent(id)}&jobId=${encodeURIComponent(jobId)}`);
-    const data = await res.json();
-    if (data.status === "done") return { done: true, id: data.id, outputFilename: data.outputFilename };
-    if (data.status === "error") throw new Error(data.message || "Compression failed.");
-    return { done: false };
-  }, []);
-
   const handleSubmit = useCallback(async () => {
     if (!file) {
       setError("Please select a PDF file.");
@@ -51,7 +44,7 @@ export default function PdfCompressPage() {
     }
     const trimmedEmail = email.trim();
     if (!trimmedEmail) {
-      setError("Please enter your email to get your compressed PDF.");
+      setError("Please enter your email to continue.");
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
@@ -60,61 +53,49 @@ export default function PdfCompressPage() {
     }
 
     setError(null);
-    setDone(null);
+    setDoneBlobUrl(null);
     setCompressing(true);
     setProgress(0);
 
     try {
-      // Step 1: Get upload URL from our API (no file sent – avoids body size limit)
       setProgress(5);
-      const initRes = await fetch("/api/pdf-compress", {
+      const leadRes = await fetch("/api/pdf-compress/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: trimmedEmail }),
       });
-      if (!initRes.ok) {
-        const data = await initRes.json().catch(() => ({}));
-        throw new Error(data.message || "Could not start compression.");
+      if (!leadRes.ok) {
+        const data = await leadRes.json().catch(() => ({}));
+        throw new Error(data.message || "Could not continue.");
       }
-      const initData = await initRes.json();
-      const { id, jobId, uploadUrl, formParameters: formParams } = initData;
-      if (!id || !jobId || !uploadUrl || !formParams) throw new Error("Server did not return upload details.");
-      const typedFormParameters: Record<string, string> = (formParams ?? {}) as Record<string, string>;
-      setFormParameters(typedFormParameters);
 
-      // Step 2: Upload file directly to CloudConvert
-      setProgress(15);
-      const uploadForm = new FormData();
-      for (const [key, val] of Object.entries(typedFormParameters)) uploadForm.append(key, val);
-      const inputFilename = file.name.toLowerCase().endsWith(".pdf") ? file.name : "document.pdf";
-      uploadForm.append("file", file, inputFilename);
-
-      const uploadRes = await fetch(uploadUrl, { method: "POST", body: uploadForm });
-      if (!uploadRes.ok && uploadRes.status !== 204) {
-        throw new Error(`Upload failed (${uploadRes.status}). Try a smaller file or try again.`);
-      }
-      setProgress(40);
-
-      // Step 3: Poll until compression is done
-      while (true) {
-        setProgress((p) => Math.min(p + 5, 90));
-        const result = await pollStatus(id, jobId);
-        if (result.done && result.outputFilename) {
-          setProgress(100);
-          setDone({ id, outputFilename: result.outputFilename });
-          return;
-        }
-        await new Promise((r) => setTimeout(r, 2000));
-      }
+      setProgress(10);
+      const blob = await compressPdfInBrowser(file, {
+        profile: "web",
+        onProgress: (page, total) => setProgress(10 + Math.round((80 * page) / total)),
+      });
+      setProgress(95);
+      const url = URL.createObjectURL(blob);
+      setDoneBlobUrl(url);
+      const base = file.name.replace(/\.pdf$/i, "") || "document";
+      setOutputName(`${base}-compressed.pdf`);
+      setProgress(100);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Compression failed.");
     } finally {
       setCompressing(false);
       setProgress(0);
     }
-  }, [file, email, pollStatus]);
+  }, [file, email]);
 
-  const downloadUrl = done ? `/api/download/${done.id}/${encodeURIComponent(done.outputFilename)}` : null;
+  const handleReset = useCallback(() => {
+    if (doneBlobUrl) URL.revokeObjectURL(doneBlobUrl);
+    setDoneBlobUrl(null);
+    setOutputName("");
+    setFile(null);
+    setEmail("");
+    setError(null);
+  }, [doneBlobUrl]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex flex-col">
@@ -142,17 +123,17 @@ export default function PdfCompressPage() {
           <span className="inline-flex items-center rounded-full bg-red-500/20 border border-red-500/30 px-2.5 py-0.5 text-xs font-medium text-red-300">Free</span>
           <span className="text-sm font-semibold text-white">PDF Compressor</span>
           <span className="mx-2 text-slate-600">|</span>
-          <span className="text-sm text-slate-400">Shrink PDFs for our keyword & description tools. Email required.</span>
+          <span className="text-sm text-slate-400">Shrink PDFs in your browser. No upload to our servers. Email required.</span>
         </div>
       </div>
 
       <main className="flex-1 mx-auto max-w-xl w-full px-6 py-10">
         <h1 className="text-3xl font-bold text-white mb-2">Free PDF Compressor</h1>
         <p className="text-slate-400 mb-8">
-          Compress your PDF so it’s up to 50MB. Use the result in our Keyword Research and Amazon Description Generator tools. We’ll send you the download link—no signup beyond your email.
+          Compress your PDF in your browser—your file never leaves your device. Use the result in our Keyword Research and Amazon Description Generator. Enter your email to continue.
         </p>
 
-        {done ? (
+        {doneBlobUrl ? (
           <div className="rounded-2xl bg-slate-800/50 border border-red-700/40 p-8">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 rounded-xl bg-red-600/20 border border-red-500/30 flex items-center justify-center">
@@ -162,18 +143,18 @@ export default function PdfCompressPage() {
               </div>
               <h2 className="text-xl font-bold text-white">Your PDF is ready</h2>
             </div>
-            <p className="text-slate-400 text-sm mb-6">Download your compressed PDF below. Use it in our Keyword Research or Description Generator.</p>
+            <p className="text-slate-400 text-sm mb-6">Download your compressed PDF. Use it in our Keyword Research or Description Generator.</p>
             <div className="flex flex-col sm:flex-row gap-3">
               <a
-                href={downloadUrl ?? "#"}
-                download={done.outputFilename}
+                href={doneBlobUrl}
+                download={outputName}
                 className="rounded-xl bg-red-600 px-6 py-3.5 font-semibold text-white hover:bg-red-700 transition-colors text-center"
               >
                 Download compressed PDF
               </a>
               <button
                 type="button"
-                onClick={() => { setDone(null); setFile(null); setEmail(""); setError(null); }}
+                onClick={handleReset}
                 className="rounded-xl border border-slate-600 px-6 py-3.5 font-medium text-slate-300 hover:bg-slate-800 transition-colors"
               >
                 Compress another
@@ -192,11 +173,11 @@ export default function PdfCompressPage() {
                 className="block w-full text-sm text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-red-600 file:text-white file:font-medium file:hover:bg-red-700"
               />
               {file && (
-              <div className="mt-2">
-                <p className="text-slate-500 text-sm overflow-hidden text-ellipsis max-w-full" title={file.name}>Selected: {truncateFilenameMiddle(file.name)}</p>
-                <p className="text-slate-500 text-xs mt-0.5">{formatFileSize(file.size)}</p>
-              </div>
-            )}
+                <div className="mt-2">
+                  <p className="text-slate-500 text-sm overflow-hidden text-ellipsis max-w-full" title={file.name}>Selected: {truncateFilenameMiddle(file.name)}</p>
+                  <p className="text-slate-500 text-xs mt-0.5">{formatFileSize(file.size)}</p>
+                </div>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">Your email</label>
@@ -208,13 +189,13 @@ export default function PdfCompressPage() {
                 disabled={compressing}
                 className="w-full rounded-lg border border-slate-600 bg-slate-900/60 px-4 py-3 text-white placeholder-slate-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
               />
-              <p className="mt-1.5 text-xs text-slate-500">We use this only to deliver your file. No spam.</p>
+              <p className="mt-1.5 text-xs text-slate-500">We use this only to stay in touch. No spam.</p>
             </div>
             {error && <div className="rounded-lg bg-red-500/10 border border-red-500/30 p-3 text-sm text-red-400">{error}</div>}
             {compressing && progress > 0 && (
               <div>
                 <div className="mb-2 flex justify-between text-sm text-slate-400">
-                  <span>{progress < 20 ? "Preparing upload…" : progress < 50 ? "Uploading…" : "Processing…"}</span>
+                  <span>Processing in your browser…</span>
                   <span>{progress}%</span>
                 </div>
                 <div className="h-2 rounded-full bg-slate-700 overflow-hidden">

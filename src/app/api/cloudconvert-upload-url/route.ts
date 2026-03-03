@@ -3,7 +3,7 @@ import { ensureUploadDir, getUploadPath, saveMeta } from "@/lib/storage";
 
 const MAX_FILESIZE_BYTES = 50 * 1024 * 1024; // 50MB
 
-const TOOL_TYPES = ["kdp-formatter-pdf", "keyword-research-pdf", "description-generator-pdf", "epub-maker"] as const;
+const TOOL_TYPES = ["keyword-research-pdf", "description-generator-pdf", "epub-maker"] as const;
 type ToolType = (typeof TOOL_TYPES)[number];
 
 function parseCloudConvertError(body: string): string {
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
 
     if (!filename || !toolType || !TOOL_TYPES.includes(toolType as ToolType)) {
       return NextResponse.json(
-        { error: "Invalid request", message: "filename and toolType (kdp-formatter-pdf | keyword-research-pdf | description-generator-pdf | epub-maker) required." },
+        { error: "Invalid request", message: "filename and toolType (keyword-research-pdf | description-generator-pdf | epub-maker) required." },
         { status: 400 }
       );
     }
@@ -89,18 +89,6 @@ export async function POST(request: NextRequest) {
           filename: "book.epub",
         },
         "export-epub": { operation: "export/url", input: "convert-epub" },
-      };
-    } else if (toolType === "kdp-formatter-pdf") {
-      tasks = {
-        "upload-file": { operation: "import/upload" },
-        "optimize-pdf": {
-          operation: "optimize",
-          input: "upload-file",
-          input_format: "pdf",
-          profile: "print",
-          filename: "kdp-formatted.pdf",
-        },
-        "export-pdf": { operation: "export/url", input: "optimize-pdf" },
       };
     } else if (toolType === "keyword-research-pdf" || toolType === "description-generator-pdf") {
       tasks = {
@@ -178,21 +166,16 @@ export async function POST(request: NextRequest) {
       formData: form.parameters ?? {},
     };
 
-    // KDP Formatter and EPUB Maker need an id for the download page (we save result to out/{id}/...)
-    if (toolType === "kdp-formatter-pdf" || toolType === "epub-maker") {
+    // EPUB Maker needs an id for the download page (we save result to out/{id}/...)
+    if (toolType === "epub-maker") {
       const id = crypto.randomUUID();
       response.id = id;
       await ensureUploadDir();
-      const ext = toolType === "epub-maker" ? ".docx" : ".pdf";
-      const mimeType =
-        toolType === "epub-maker"
-          ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-          : "application/pdf";
       await saveMeta({
         id,
         originalName: filename,
-        mimeType,
-        storedPath: getUploadPath(id, ext),
+        mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        storedPath: getUploadPath(id, ".docx"),
         createdAt: Date.now(),
       });
     }

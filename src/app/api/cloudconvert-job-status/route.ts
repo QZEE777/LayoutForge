@@ -9,7 +9,7 @@ const MIN_EXTRACT_CHARS = 200;
 const EXTRACTION_ERROR_MESSAGE =
   "Could not extract text from this PDF. If your manuscript is text-based (not a scan), try downloading it from Word/Google Docs as a fresh PDF and uploading again.";
 
-const TOOL_TYPES = ["kdp-formatter-pdf", "keyword-research-pdf", "description-generator-pdf", "epub-maker"] as const;
+const TOOL_TYPES = ["keyword-research-pdf", "description-generator-pdf", "epub-maker"] as const;
 type ToolType = (typeof TOOL_TYPES)[number];
 
 function firstNWords(text: string, n: number): string {
@@ -211,7 +211,7 @@ Respond with only the JSON object, no other text.`;
 }
 
 /**
- * GET ?jobId=xxx&toolType=xxx&id=xxx (id required for kdp-formatter-pdf)
+ * GET ?jobId=xxx&toolType=xxx&id=xxx (id required for epub-maker)
  * Polls CloudConvert; when finished returns download URL (formatter) or AI result (keyword/description).
  */
 export async function GET(request: NextRequest) {
@@ -230,7 +230,7 @@ export async function GET(request: NextRequest) {
         { status: 400 }
       );
     }
-    if ((toolType === "kdp-formatter-pdf" || toolType === "epub-maker") && !id) {
+    if (toolType === "epub-maker" && !id) {
       return NextResponse.json(
         { status: "error", message: "id is required for this tool." },
         { status: 400 }
@@ -270,38 +270,6 @@ export async function GET(request: NextRequest) {
     }
 
     const tasks = job.data?.tasks ?? [];
-
-    if (toolType === "kdp-formatter-pdf") {
-      const exportTask = tasks.find(
-        (t: { operation: string; status: string }) =>
-          t.operation === "export/url" && t.status === "finished"
-      );
-      const fileUrl: string | undefined = exportTask?.result?.files?.[0]?.url;
-      if (!fileUrl) {
-        return NextResponse.json({
-          status: "error",
-          message: "Conversion finished but file URL is missing.",
-        });
-      }
-      const dlRes = await fetch(fileUrl);
-      if (!dlRes.ok) {
-        return NextResponse.json({
-          status: "error",
-          message: `Failed to download converted PDF (${dlRes.status}).`,
-        });
-      }
-      const pdfBuffer = Buffer.from(await dlRes.arrayBuffer());
-      const meta = await getStored(id!);
-      const outputFilename =
-        meta?.originalName ? outputFilenameFromOriginal(meta.originalName, ".pdf") : "kdp-print.pdf";
-      await writeOutput(id!, outputFilename, pdfBuffer);
-      await updateMeta(id!, { outputFilename });
-      return NextResponse.json({
-        status: "done",
-        id,
-        downloadUrl: `/api/download/${id}/${encodeURIComponent(outputFilename)}`,
-      });
-    }
 
     if (toolType === "epub-maker") {
       const exportTask = tasks.find(

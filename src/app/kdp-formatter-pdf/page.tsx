@@ -1,27 +1,25 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { truncateFilenameMiddle, formatFileSize } from "@/lib/formatFileName";
+import { compressPdfInBrowser } from "@/lib/clientPdfCompress";
 
 const MAX_MB = 50;
 
 export default function KdpFormatterPdfPage() {
-  const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [processing, setProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [converting, setConverting] = useState(false);
-  const [jobId, setJobId] = useState<string | null>(null);
-  const [fileId, setFileId] = useState<string | null>(null);
+  const [doneBlobUrl, setDoneBlobUrl] = useState<string | null>(null);
+  const [outputName, setOutputName] = useState<string>("");
 
   const validateFile = useCallback((f: File): string | null => {
     const ext = f.name.toLowerCase().slice(f.name.lastIndexOf("."));
     if (ext !== ".pdf") return "This tool accepts PDF files only.";
-    if (f.size > MAX_MB * 1024 * 1024) return `File must be smaller than ${MAX_MB}MB.`;
+    if (f.size > MAX_MB * 1024 * 1024) return `File must be smaller than ${MAX_MB} MB.`;
     return null;
   }, []);
 
@@ -49,6 +47,7 @@ export default function KdpFormatterPdfPage() {
       }
       setError(null);
       setFile(droppedFile);
+      setDoneBlobUrl(null);
     },
     [validateFile]
   );
@@ -65,78 +64,42 @@ export default function KdpFormatterPdfPage() {
       }
       setError(null);
       setFile(selected);
+      setDoneBlobUrl(null);
     },
     [validateFile]
   );
 
-  const [progressLabel, setProgressLabel] = useState<string>("");
-
-  const pollStatus = useCallback(
-    async (id: string, jId: string) => {
-      const res = await fetch(
-        `/api/cloudconvert-job-status?jobId=${encodeURIComponent(jId)}&toolType=kdp-formatter-pdf&id=${encodeURIComponent(id)}`
-      );
-      const data = await res.json();
-      if (data.status === "done") return { done: true, id };
-      if (data.status === "error") throw new Error(data.message || "Conversion failed.");
-      return { done: false };
-    },
-    []
-  );
-
-  const handleUpload = useCallback(async () => {
+  const handleOptimize = useCallback(async () => {
     if (!file) return;
-    setUploading(true);
+    setProcessing(true);
     setProgress(0);
     setError(null);
-    setConverting(false);
-    setJobId(null);
-    setFileId(null);
-    setProgressLabel("Uploading…");
-
+    setDoneBlobUrl(null);
     try {
-      setProgress(10);
-      const formData = new FormData();
-      const inputFilename = file.name.toLowerCase().endsWith(".pdf") ? file.name : "document.pdf";
-      formData.append("file", file, inputFilename);
-
-      const uploadRes = await fetch("/api/kdp-formatter-pdf", {
-        method: "POST",
-        body: formData,
+      const blob = await compressPdfInBrowser(file, {
+        profile: "print",
+        onProgress: (page, total) => setProgress(Math.round((100 * page) / total)),
       });
-      if (!uploadRes.ok) {
-        const data = await uploadRes.json().catch(() => ({}));
-        throw new Error(data.message || "Upload or conversion start failed.");
-      }
-      const uploadData = await uploadRes.json();
-      const { id, jobId: jId } = uploadData;
-      if (!id || !jId) throw new Error("Server did not return job details.");
-      setFileId(id);
-      setJobId(jId);
-      setProgress(40);
-      setProgressLabel("Processing…");
-      setConverting(true);
-
-      while (true) {
-        setProgress((p) => Math.min(p + 5, 90));
-        const result = await pollStatus(id, jId);
-        if (result.done) {
-          setProgress(100);
-          setProgressLabel("Ready to download");
-          router.push(`/download/${id}?source=pdf`);
-          return;
-        }
-        await new Promise((r) => setTimeout(r, 2000));
-      }
+      const url = URL.createObjectURL(blob);
+      setDoneBlobUrl(url);
+      const base = file.name.replace(/\.pdf$/i, "") || "document";
+      setOutputName(`${base}-optimized.pdf`);
+      setProgress(100);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload failed");
+      setError(err instanceof Error ? err.message : "Optimization failed.");
     } finally {
-      setUploading(false);
+      setProcessing(false);
       setProgress(0);
-      setConverting(false);
-      setProgressLabel("");
     }
-  }, [file, router, pollStatus]);
+  }, [file]);
+
+  const handleReset = useCallback(() => {
+    if (doneBlobUrl) URL.revokeObjectURL(doneBlobUrl);
+    setDoneBlobUrl(null);
+    setOutputName("");
+    setFile(null);
+    setError(null);
+  }, [doneBlobUrl]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
@@ -164,99 +127,134 @@ export default function KdpFormatterPdfPage() {
           <span className="inline-flex items-center rounded-full bg-green-500/20 border border-green-500/30 px-2.5 py-0.5 text-xs font-medium text-green-300">FREE</span>
           <span className="text-sm font-semibold text-white">PDF Print Optimizer</span>
           <span className="mx-2 text-slate-600">|</span>
-          <span className="text-sm text-slate-400">Shrink / print-optimize your PDF</span>
+          <span className="text-sm text-slate-400">Shrink or print-optimize your PDF in your browser. No upload.</span>
         </div>
       </div>
 
       <main className="mx-auto max-w-2xl px-6 py-12">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white">PDF Print Optimizer</h1>
-          <p className="mt-2 text-slate-400">Shrink or print-optimize your PDF. FREE. PDF only. Maximum {MAX_MB}MB.</p>
+          <p className="mt-2 text-slate-400">Shrink or print-optimize your PDF. FREE. Runs in your browser—your file never leaves your device. PDF only, up to {MAX_MB} MB.</p>
         </div>
 
-        <div
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          className={`rounded-2xl border-2 border-dashed p-14 text-center transition-all ${
-            isDragging ? "border-red-400 bg-red-500/10" : "border-slate-700 bg-slate-800/40 hover:border-slate-500 hover:bg-slate-800/60"
-          }`}
-        >
-          <input
-            type="file"
-            id="file-input"
-            accept=".pdf,application/pdf"
-            onChange={handleFileSelect}
-            disabled={uploading}
-            className="hidden"
-          />
-          <label htmlFor="file-input" className={`block cursor-pointer ${uploading ? "opacity-50" : ""}`}>
-            {file ? (
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-red-600/20 border border-red-500/30 flex items-center justify-center mx-auto mb-3">
-                  <svg className="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <p className="text-lg font-semibold text-white overflow-hidden text-ellipsis max-w-full" title={file.name}>{truncateFilenameMiddle(file.name)}</p>
-                <p className="mt-1 text-sm text-slate-400">{formatFileSize(file.size)} — ready to upload</p>
+        {doneBlobUrl ? (
+          <div className="rounded-2xl bg-slate-800/50 border border-red-700/40 p-8">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-xl bg-red-600/20 border border-red-500/30 flex items-center justify-center">
+                <svg className="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
               </div>
-            ) : (
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-slate-700 flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                  </svg>
-                </div>
-                <p className="text-slate-300 font-medium">Drag and drop a PDF here, or browse</p>
-                <p className="mt-2 text-xs text-slate-500">.pdf only • up to {MAX_MB}MB</p>
-              </div>
-            )}
-          </label>
-        </div>
-
-        {error && (
-          <div className="mt-4 rounded-xl bg-red-500/10 border border-red-500/30 p-4 text-sm text-red-400">{error}</div>
-        )}
-
-        {uploading && progress > 0 && (
-          <div className="mt-6">
-            <div className="mb-2 flex items-center justify-between">
-              <span className="text-sm font-medium text-slate-300">{progressLabel || (converting ? "Processing…" : "Uploading…")}</span>
-              <span className="text-sm text-slate-500">{progress}%</span>
+              <h2 className="text-xl font-bold text-white">Your PDF is ready</h2>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-slate-700">
-              <div className="h-full bg-red-500 transition-all duration-300 rounded-full" style={{ width: `${progress}%` }} />
+            <p className="text-slate-400 text-sm mb-6">Download your print-optimized PDF.</p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <a
+                href={doneBlobUrl}
+                download={outputName}
+                className="rounded-xl bg-red-600 px-6 py-3.5 font-semibold text-white hover:bg-red-700 transition-colors text-center"
+              >
+                Download optimized PDF
+              </a>
+              <button
+                type="button"
+                onClick={handleReset}
+                className="rounded-xl border border-slate-600 px-6 py-3.5 font-medium text-slate-300 hover:bg-slate-800 transition-colors"
+              >
+                Optimize another
+              </button>
             </div>
           </div>
+        ) : (
+          <>
+            <div
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={`rounded-2xl border-2 border-dashed p-14 text-center transition-all ${
+                isDragging ? "border-red-400 bg-red-500/10" : "border-slate-700 bg-slate-800/40 hover:border-slate-500 hover:bg-slate-800/60"
+              }`}
+            >
+              <input
+                type="file"
+                id="file-input"
+                accept=".pdf,application/pdf"
+                onChange={handleFileSelect}
+                disabled={processing}
+                className="hidden"
+              />
+              <label htmlFor="file-input" className={`block cursor-pointer ${processing ? "opacity-50" : ""}`}>
+                {file ? (
+                  <div>
+                    <div className="w-12 h-12 rounded-xl bg-red-600/20 border border-red-500/30 flex items-center justify-center mx-auto mb-3">
+                      <svg className="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <p className="text-lg font-semibold text-white overflow-hidden text-ellipsis max-w-full" title={file.name}>{truncateFilenameMiddle(file.name)}</p>
+                    <p className="mt-1 text-sm text-slate-400">{formatFileSize(file.size)} — ready</p>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="w-12 h-12 rounded-xl bg-slate-700 flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      </svg>
+                    </div>
+                    <p className="text-slate-300 font-medium">Drag and drop a PDF here, or browse</p>
+                    <p className="mt-2 text-xs text-slate-500">.pdf only • up to {MAX_MB} MB</p>
+                  </div>
+                )}
+              </label>
+            </div>
+
+            {error && (
+              <div className="mt-4 rounded-xl bg-red-500/10 border border-red-500/30 p-4 text-sm text-red-400">
+                {error}
+                <p className="mt-2">
+                  <Link href="/pdf-compress" className="text-amber-300 hover:text-white underline">
+                    Try our free PDF Compressor for large files →
+                  </Link>
+                </p>
+              </div>
+            )}
+
+            {processing && progress > 0 && (
+              <div className="mt-6">
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-sm font-medium text-slate-300">Processing in your browser…</span>
+                  <span className="text-sm text-slate-500">{progress}%</span>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-slate-700">
+                  <div className="h-full bg-red-500 transition-all duration-300 rounded-full" style={{ width: `${progress}%` }} />
+                </div>
+              </div>
+            )}
+
+            <div className="mt-8 flex gap-3">
+              <button
+                onClick={handleOptimize}
+                disabled={!file || processing}
+                className="flex-1 rounded-xl bg-red-600 px-6 py-3.5 font-semibold text-white hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                {processing ? "Optimizing…" : "Optimize PDF"}
+              </button>
+              {file && !processing && (
+                <button
+                  onClick={() => { setFile(null); setError(null); }}
+                  className="rounded-xl border border-slate-700 px-5 py-3.5 font-medium text-slate-400 hover:bg-slate-800 transition-colors"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+          </>
         )}
 
-        <div className="mt-8 flex gap-3">
-          <button
-            onClick={handleUpload}
-            disabled={!file || uploading}
-            className="flex-1 rounded-xl bg-red-600 px-6 py-3.5 font-semibold text-white hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-          >
-            {uploading ? (converting ? "Converting…" : "Uploading…") : "Upload & Convert"}
-          </button>
-          {file && !uploading && (
-            <button
-              onClick={() => {
-                setFile(null);
-                setError(null);
-              }}
-              className="rounded-xl border border-slate-700 px-5 py-3.5 font-medium text-slate-400 hover:bg-slate-800 transition-colors"
-            >
-              Clear
-            </button>
-          )}
-        </div>
-
         <div className="mt-8 rounded-xl bg-slate-800/40 border border-slate-700/60 p-4 text-sm text-slate-400 space-y-1">
-          <p className="font-medium text-slate-300">What happens next:</p>
-          <p>1. Your PDF is optimized for smaller size and print quality.</p>
-          <p>2. When done, you are redirected to the download page.</p>
-          <p>3. Download your optimized PDF.</p>
+          <p className="font-medium text-slate-300">What happens:</p>
+          <p>1. Your PDF is optimized for smaller size and print quality in your browser.</p>
+          <p>2. When done, download your optimized PDF. No file is sent to our servers.</p>
         </div>
       </main>
     </div>
