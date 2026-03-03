@@ -23,6 +23,8 @@ export default function KdpPdfCheckerPage() {
     return null;
   }, []);
 
+  const fileTooBigForServer = file ? file.size > SERVER_MAX_MB * 1024 * 1024 : false;
+
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
