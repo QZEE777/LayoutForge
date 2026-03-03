@@ -26,6 +26,7 @@ interface ProcessingReport {
   kdpTrimName?: string | null;
   recommendations?: string[];
   fileSizeMB?: number;
+  recommendedGutterInches?: number;
 }
 
 export default function DownloadPage() {
@@ -132,6 +133,15 @@ export default function DownloadPage() {
                   <li>Page count: <span className="text-[#F5F0E8]">{report.pageCount ?? "—"}</span></li>
                   {report.fileSizeMB != null && (
                     <li>File size: <span className="text-[#F5F0E8]">{report.fileSizeMB} MB</span></li>
+                  )}
+                  {report.recommendedGutterInches != null && (
+                    <li>
+                      Recommended gutter (inner margin) for your page count:{" "}
+                      <span className="text-[#F5F0E8]">
+                        {report.recommendedGutterInches}&quot; ({Math.round(report.recommendedGutterInches * 2.54 * 10) / 10} cm / {Math.round(report.recommendedGutterInches * 25.4 * 10) / 10} mm)
+                      </span>
+                      . We can&apos;t measure margins from the PDF; set inner margin ≥ 0.5&quot; + gutter in your layout app.
+                    </li>
                   )}
                 </>
               ) : report.outputType === "epub" ? (

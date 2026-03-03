@@ -50,6 +50,7 @@ export interface StoredManuscript {
     kdpTrimName?: string | null;
     recommendations?: string[];
     fileSizeMB?: number;
+    recommendedGutterInches?: number;
   };
 }
 

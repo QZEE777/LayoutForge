@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PDFDocument } from "pdf-lib";
 import { saveUpload, updateMeta, type StoredManuscript } from "@/lib/storage";
-import { TRIM_SIZES } from "@/lib/kdpConfig";
+import { TRIM_SIZES, getGutterInches } from "@/lib/kdpConfig";
 
 const PT_PER_INCH = 72;
 const TOLERANCE_INCH = 0.05; // allow 0.05" variance
@@ -66,6 +66,7 @@ export async function POST(request: NextRequest) {
       issues.push("File size exceeds KDP limit (650 MB).");
     }
 
+    const recommendedGutterInches = getGutterInches(pageCount);
     const report = {
       outputType: "checker" as const,
       chaptersDetected: 0,
@@ -78,6 +79,7 @@ export async function POST(request: NextRequest) {
       kdpTrimName: kdpTrim?.name ?? null,
       recommendations,
       fileSizeMB: Math.round((buffer.length / (1024 * 1024)) * 100) / 100,
+      recommendedGutterInches,
     };
 
     const stored = await saveUpload(buffer, f.name || "document.pdf", "application/pdf");
