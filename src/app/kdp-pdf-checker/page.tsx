@@ -19,7 +19,7 @@ export default function KdpPdfCheckerPage() {
   const validateFile = useCallback((f: File): string | null => {
     const ext = f.name.toLowerCase().slice(f.name.lastIndexOf("."));
     if (ext !== ".pdf") return "This tool accepts PDF files only.";
-    if (f.size > MAX_MB * 1024 * 1024) return `File must be smaller than ${MAX_MB}MB.`;
+    if (f.size > MAX_SELECT_MB * 1024 * 1024) return `File must be smaller than ${MAX_SELECT_MB} MB.`;
     return null;
   }, []);
 
