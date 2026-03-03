@@ -12,6 +12,7 @@ const PDF_COMPRESSOR = {
 const PAID_TOOLS = [
   { title: "KDP Formatter (DOCX)", description: "Format DOCX for Amazon KDP print. Trim size, bleed, print-ready PDF.", href: "/kdp-formatter", pricing: "$7 per use · $27 for 6 months" },
   { title: "PDF Print Optimizer", description: <>Shrink / print-optimize your PDF.</>, href: "/kdp-formatter-pdf", pricing: "FREE" },
+  { title: "KDP PDF Checker", description: <>Check your PDF against KDP specs.<br />Trim, page count, issues.</>, href: "/kdp-pdf-checker", pricing: "$7 per use · $27 for 6 months" },
   { title: "Kindle EPUB Maker", description: "Manuscript to Kindle-ready EPUB. Chapter structure, metadata.", href: "/epub-maker", pricing: "$7 per use · $27 for 6 months" },
 ];
 

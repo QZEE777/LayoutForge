@@ -1,0 +1,172 @@
+"use client";
+
+import { useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+
+const MAX_MB = 50;
+
+export default function KdpPdfCheckerPage() {
+  const router = useRouter();
+  const [file, setFile] = useState<File | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const validateFile = useCallback((f: File): string | null => {
+    const ext = f.name.toLowerCase().slice(f.name.lastIndexOf("."));
+    if (ext !== ".pdf") return "This tool accepts PDF files only.";
+    if (f.size > MAX_MB * 1024 * 1024) return `File must be smaller than ${MAX_MB}MB.`;
+    return null;
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragging(false);
+      const droppedFile = e.dataTransfer.files[0];
+      if (!droppedFile) return;
+      const err = validateFile(droppedFile);
+      if (err) {
+        setError(err);
+        setFile(null);
+        return;
+      }
+      setError(null);
+      setFile(droppedFile);
+    },
+    [validateFile]
+  );
+
+  const handleFileSelect = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const selected = e.target.files?.[0];
+      if (!selected) return;
+      const err = validateFile(selected);
+      if (err) {
+        setError(err);
+        setFile(null);
+        return;
+      }
+      setError(null);
+      setFile(selected);
+    },
+    [validateFile]
+  );
+
+  const handleSubmit = useCallback(async () => {
+    if (!file) return;
+    setUploading(true);
+    setError(null);
+    try {
+      const formData = new FormData();
+      formData.append("file", file, file.name.toLowerCase().endsWith(".pdf") ? file.name : "document.pdf");
+      const res = await fetch("/api/kdp-pdf-check", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Check failed.");
+      if (data.id) router.push(`/download/${data.id}?source=checker`);
+      else throw new Error("No report ID returned.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Check failed");
+    } finally {
+      setUploading(false);
+    }
+  }, [file, router]);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-sm">
+        <div className="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2.5">
+            <span className="text-lg font-bold text-white">manu2print</span>
+          </Link>
+          <Link href="/formatter" className="text-sm text-slate-400 hover:text-white transition-colors">
+            All Tools
+          </Link>
+        </div>
+      </header>
+
+      <div className="border-b border-slate-800 bg-amber-500/10">
+        <div className="mx-auto max-w-4xl px-6 py-3 flex items-center gap-3">
+          <span className="inline-flex items-center rounded-full bg-amber-500/20 border border-amber-500/30 px-2.5 py-0.5 text-xs font-medium text-amber-300">Paid</span>
+          <span className="text-sm font-semibold text-white">KDP PDF Checker</span>
+          <span className="mx-2 text-slate-600">|</span>
+          <span className="text-sm text-slate-400">Check your PDF against Amazon KDP specs before you upload</span>
+        </div>
+      </div>
+
+      <main className="mx-auto max-w-2xl px-6 py-12">
+        <h1 className="text-3xl font-bold text-white">KDP PDF Checker</h1>
+        <p className="mt-2 text-slate-400">Upload your interior PDF. We’ll report trim size, page count, and any issues so you can fix before uploading to KDP. $7 per use or $27 for 6 months.</p>
+
+        <div
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          className={`mt-8 rounded-2xl border-2 border-dashed p-14 text-center transition-all ${
+            isDragging ? "border-amber-400 bg-amber-500/10" : "border-slate-700 bg-slate-800/40 hover:border-slate-500"
+          }`}
+        >
+          <input
+            type="file"
+            accept=".pdf,application/pdf"
+            onChange={handleFileSelect}
+            className="hidden"
+            id="checker-file"
+          />
+          <label htmlFor="checker-file" className="cursor-pointer block">
+            {file ? (
+              <div>
+                <p className="text-white font-medium">{file.name}</p>
+                <p className="text-sm text-slate-400 mt-1">{(file.size / (1024 * 1024)).toFixed(2)} MB — ready to check</p>
+              </div>
+            ) : (
+              <p className="text-slate-400">Drop your PDF here or click to choose</p>
+            )}
+          </label>
+        </div>
+
+        {error && (
+          <div className="mt-4 rounded-lg bg-red-500/10 border border-red-500/30 p-3 text-sm text-red-400">
+            {error}
+          </div>
+        )}
+
+        <div className="mt-6 flex gap-3">
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={!file || uploading}
+            className="flex-1 rounded-xl bg-amber-500 hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 transition-colors"
+          >
+            {uploading ? "Checking…" : "Check PDF"}
+          </button>
+          {file && (
+            <button
+              type="button"
+              onClick={() => { setFile(null); setError(null); }}
+              className="rounded-xl border border-slate-600 text-slate-400 hover:bg-slate-800 py-3 px-6 transition-colors"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+
+        <div className="mt-8 rounded-xl bg-slate-800/40 border border-slate-700/60 p-4 text-sm text-slate-400 space-y-1">
+          <p className="font-medium text-slate-300">What we check</p>
+          <p>Trim size (matches a KDP size?), page count (24–828), file size. You’ll get a report with issues and what to fix.</p>
+        </div>
+      </main>
+    </div>
+  );
+}

@@ -6,6 +6,7 @@ import UsageBanner from "./UsageBanner";
 const TOOL_PATHS = [
   "/kdp-formatter",
   "/kdp-formatter-pdf",
+  "/kdp-pdf-checker",
   "/keyword-research",
   "/keyword-research-pdf",
   "/description-generator",

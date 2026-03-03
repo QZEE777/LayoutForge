@@ -15,11 +15,17 @@ interface ProcessingReport {
   fontUsed: string;
   trimSize: string;
   gutterInches?: number;
-  outputType?: "pdf" | "docx" | "epub";
+  outputType?: "pdf" | "docx" | "epub" | "checker";
   outputFilename?: string;
   status?: string;
-  /** Full-document text for AI format review (paste in chat). */
   formatReviewText?: string;
+  /** Checker report */
+  pageCount?: number;
+  trimDetected?: string;
+  trimMatchKDP?: boolean;
+  kdpTrimName?: string | null;
+  recommendations?: string[];
+  fileSizeMB?: number;
 }
 
 export default function DownloadPage() {
@@ -28,12 +34,14 @@ export default function DownloadPage() {
   const id = typeof params.id === "string" ? params.id : "";
   const isPdfFlow = searchParams.get("source") === "pdf";
   const isEpubFlow = searchParams.get("source") === "epub";
+  const isCheckerFlow = searchParams.get("source") === "checker";
   const [report, setReport] = useState<ProcessingReport | null>(null);
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [copyReviewStatus, setCopyReviewStatus] = useState<"idle" | "ok" | "fail">("idle");
 
   const isDocx = report?.outputType === "docx";
   const isEpub = isEpubFlow || report?.outputType === "epub";
+  const isChecker = isCheckerFlow || report?.outputType === "checker";
   const downloadFilename =
     report?.outputFilename ||
     (isDocx ? "kdp-review.docx" : isEpub ? "book.epub" : "kdp-print.pdf");
@@ -88,7 +96,7 @@ export default function DownloadPage() {
     return (
       <div className="min-h-screen bg-[#1a1a12] text-[#F5F0E8] p-8">
         <p className="text-red-400">Invalid file ID.</p>
-        <Link href={isEpubFlow ? "/epub-maker" : isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"} className="mt-4 block text-[#D4A843] hover:text-[#F5F0E8]">
+        <Link href={isCheckerFlow ? "/kdp-pdf-checker" : isEpubFlow ? "/epub-maker" : isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"} className="mt-4 block text-[#D4A843] hover:text-[#F5F0E8]">
           Upload a file
         </Link>
       </div>
@@ -103,7 +111,7 @@ export default function DownloadPage() {
           <Link href="/" className="text-2xl font-bold tracking-tight text-[#F5F0E8]">
             manu2print
           </Link>
-          <Link href={isEpub ? "/epub-maker" : isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"} className="text-sm text-[#8B8B6B] hover:text-[#F5F0E8]">
+          <Link href={isChecker ? "/kdp-pdf-checker" : isEpub ? "/epub-maker" : isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"} className="text-sm text-[#8B8B6B] hover:text-[#F5F0E8]">
             New upload
           </Link>
         </div>
@@ -111,13 +119,22 @@ export default function DownloadPage() {
 
       {/* Main content */}
       <main className="max-w-2xl mx-auto px-6 py-12">
-        <PaymentGate tool={isEpub ? "epub-maker" : isPdfFlow ? "kdp-formatter-pdf" : "kdp-formatter"} downloadId={id}>
+        <PaymentGate tool={isChecker ? "kdp-pdf-checker" : isEpub ? "epub-maker" : isPdfFlow ? "kdp-formatter-pdf" : "kdp-formatter"} downloadId={id}>
         {/* Processing report card */}
         {report && (
           <div className="mb-8 bg-[#24241a] border border-white/10 rounded-lg p-6">
             <h2 className="font-semibold text-[#F5F0E8] mb-4">Processing report</h2>
             <ul className="text-sm text-[#8B8B6B] space-y-1">
-              {report.outputType === "epub" ? (
+              {report.outputType === "checker" ? (
+                <>
+                  <li>Trim detected: <span className="text-[#F5F0E8]">{report.trimDetected ?? "—"}</span></li>
+                  <li>Matches KDP trim: <span className="text-[#F5F0E8]">{report.trimMatchKDP ? "Yes" : "No"}{report.kdpTrimName ? ` (${report.kdpTrimName})` : ""}</span></li>
+                  <li>Page count: <span className="text-[#F5F0E8]">{report.pageCount ?? "—"}</span></li>
+                  {report.fileSizeMB != null && (
+                    <li>File size: <span className="text-[#F5F0E8]">{report.fileSizeMB} MB</span></li>
+                  )}
+                </>
+              ) : report.outputType === "epub" ? (
                 <>
                   <li>Format: <span className="text-[#F5F0E8]">Kindle-ready EPUB</span></li>
                   <li>Chapters: <span className="text-[#F5F0E8]">{report.chaptersDetected ?? 0}</span></li>
@@ -147,10 +164,20 @@ export default function DownloadPage() {
             </ul>
             {report.issues && report.issues.length > 0 && (
               <div className="mt-4 pt-4 border-t border-white/10">
-                <p className="text-xs font-medium text-[#D4A843] mb-2">Warnings</p>
+                <p className="text-xs font-medium text-[#D4A843] mb-2">Issues</p>
                 <ul className="text-xs text-[#8B8B6B] list-disc list-inside space-y-1">
                   {report.issues.map((issue, i) => (
                     <li key={i}>{issue}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {report.outputType === "checker" && report.recommendations && report.recommendations.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-white/10">
+                <p className="text-xs font-medium text-green-400 mb-2">Recommendations</p>
+                <ul className="text-xs text-[#8B8B6B] list-disc list-inside space-y-1">
+                  {report.recommendations.map((rec, i) => (
+                    <li key={i}>{rec}</li>
                   ))}
                 </ul>
               </div>
@@ -160,18 +187,21 @@ export default function DownloadPage() {
         {/* Success message */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-[#D4A843] mb-2">
-            {isEpub ? "EPUB Ready!" : isDocx ? "Review DOCX Ready!" : "PDF Generated!"}
+            {isChecker ? "KDP Check Complete" : isEpub ? "EPUB Ready!" : isDocx ? "Review DOCX Ready!" : "PDF Generated!"}
           </h1>
           <p className="text-[#8B8B6B]">
-            {isEpub
-              ? "Your Kindle-ready EPUB is ready to download."
-              : isDocx
-                ? "Your formatted review draft is ready. Download it, proofread and edit as needed, then return to generate your final KDP PDF."
-                : "Your KDP-compliant PDF is ready for download."}
+            {isChecker
+              ? "Review the report above. Fix any issues in your file, then re-upload to KDP."
+              : isEpub
+                ? "Your Kindle-ready EPUB is ready to download."
+                : isDocx
+                  ? "Your formatted review draft is ready. Download it, proofread and edit as needed, then return to generate your final KDP PDF."
+                  : "Your KDP-compliant PDF is ready for download."}
           </p>
         </div>
 
-        {/* Download section */}
+        {/* Download section - hide for checker */}
+        {!isChecker && (
         <div className="bg-[#24241a] border border-[#D4A843] rounded-lg p-6 mb-6">
           <h2 className="text-xl font-semibold text-center mb-6 text-[#F5F0E8]">Download your file</h2>
 
@@ -329,9 +359,11 @@ export default function DownloadPage() {
             )}
           </div>
         </div>
+        )}
 
         {/* Action buttons */}
         <div className="flex gap-4">
+          {!isChecker && (
           <button
             type="button"
             onClick={handleDownload}
@@ -339,11 +371,12 @@ export default function DownloadPage() {
           >
             {isEpub ? "Download EPUB" : isDocx ? "Download Review DOCX" : "Download PDF"}
           </button>
+          )}
           <Link
-            href={isEpub ? "/epub-maker" : isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"}
+            href={isChecker ? "/kdp-pdf-checker" : isEpub ? "/epub-maker" : isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"}
             className="flex-1 border border-white/20 hover:border-[#D4A843] text-[#F5F0E8] font-medium py-3 px-6 rounded-lg text-center"
           >
-            {isEpub ? "Create Another EPUB" : "Format Another"}
+            {isChecker ? "Check Another PDF" : isEpub ? "Create Another EPUB" : "Format Another"}
           </Link>
         </div>
         </PaymentGate>
@@ -352,7 +385,9 @@ export default function DownloadPage() {
         <div className="mt-8 bg-[#24241a]/50 border border-white/10 rounded-lg p-4">
           <p>
             <span className="text-[#F5F0E8] font-medium">Storage:</span>{" "}
-            <span className="text-xs text-[#8B8B6B]">Your files are stored temporarily for 24 hours. Download now and keep a backup.</span>
+            <span className="text-xs text-[#8B8B6B]">
+              {isChecker ? "Your report is stored temporarily for 24 hours." : "Your files are stored temporarily for 24 hours. Download now and keep a backup."}
+            </span>
           </p>
         </div>
       </main>

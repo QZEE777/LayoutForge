@@ -17,6 +17,7 @@ const TOOL_LINKS = [
   { href: "/description-generator", label: "Description Generator (DOCX)" },
   { href: "/pdf-compress", label: "PDF Compressor" },
   { href: "/kdp-formatter-pdf", label: "PDF Print Optimizer" },
+  { href: "/kdp-pdf-checker", label: "KDP PDF Checker" },
   { href: "/keyword-research-pdf", label: "7 Keyword Research (PDF)" },
   { href: "/description-generator-pdf", label: "Description Generator (PDF)" },
 ];

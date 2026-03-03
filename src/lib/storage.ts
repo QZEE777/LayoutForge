@@ -40,10 +40,16 @@ export interface StoredManuscript {
     fontUsed: string;
     trimSize: string;
     gutterInches?: number;
-    outputType?: "pdf" | "docx" | "epub";
+    outputType?: "pdf" | "docx" | "epub" | "checker";
     status?: string;
-    /** Full-document text for AI/KDP format review (paste in chat). */
     formatReviewText?: string;
+    /** Checker report */
+    pageCount?: number;
+    trimDetected?: string;
+    trimMatchKDP?: boolean;
+    kdpTrimName?: string | null;
+    recommendations?: string[];
+    fileSizeMB?: number;
   };
 }
 
