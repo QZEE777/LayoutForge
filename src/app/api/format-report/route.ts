@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     }
 
     const meta = await getStored(id);
-    if (!meta || !meta.processingReport) {
+    if (!meta) {
       return NextResponse.json(
         { error: "Not found", message: "No processing report for this file." },
         { status: 404 }
@@ -21,7 +21,15 @@ export async function GET(request: NextRequest) {
 
     const report = meta.processingReport
       ? { ...meta.processingReport, outputFilename: meta.outputFilename }
-      : meta.processingReport;
+      : meta.outputFilename
+        ? { chaptersDetected: 0, issues: [], fontUsed: "", trimSize: "", outputFilename: meta.outputFilename, outputType: meta.mimeType?.includes("epub") ? "epub" : "pdf" }
+        : null;
+    if (!report) {
+      return NextResponse.json(
+        { error: "Not found", message: "No processing report for this file." },
+        { status: 404 }
+      );
+    }
     return NextResponse.json({
       success: true,
       report,
