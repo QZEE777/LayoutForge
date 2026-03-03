@@ -124,6 +124,13 @@ export default function DownloadPage() {
         {/* Processing report card */}
         {report && (
           <div className="mb-8 bg-[#24241a] border border-white/10 rounded-lg p-6">
+            {report.outputType === "checker" && (
+              <div className="mb-4 flex flex-wrap items-center gap-3">
+                <span className={`inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-semibold ${(report.issues?.length ?? 0) === 0 ? "bg-green-500/20 text-green-300 border border-green-500/40" : "bg-amber-500/20 text-amber-300 border border-amber-500/40"}`}>
+                  KDP Ready: {(report.issues?.length ?? 0) === 0 ? "Yes" : `No — ${report.issues?.length ?? 0} issue${(report.issues?.length ?? 0) === 1 ? "" : "s"}`}
+                </span>
+              </div>
+            )}
             <h2 className="font-semibold text-[#F5F0E8] mb-4">Processing report</h2>
             <ul className="text-sm text-[#8B8B6B] space-y-1">
               {report.outputType === "checker" ? (
@@ -190,6 +197,40 @@ export default function DownloadPage() {
                     <li key={i}>{rec}</li>
                   ))}
                 </ul>
+              </div>
+            )}
+            {report.outputType === "checker" && (
+              <div className="mt-4 pt-4 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const lines: string[] = [
+                      "KDP PDF Check Report",
+                      "manu2print.com",
+                      "",
+                      `KDP Ready: ${(report.issues?.length ?? 0) === 0 ? "Yes" : `No — ${report.issues?.length ?? 0} issue(s)`}`,
+                      "",
+                      `Trim detected: ${report.trimDetected ?? "—"}`,
+                      `Matches KDP trim: ${report.trimMatchKDP ? "Yes" : "No"}${report.kdpTrimName ? ` (${report.kdpTrimName})` : ""}`,
+                      `Page count: ${report.pageCount ?? "—"}`,
+                      ...(report.fileSizeMB != null ? [`File size: ${report.fileSizeMB} MB`] : []),
+                      ...(report.recommendedGutterInches != null ? [`Recommended gutter (inner margin): ${report.recommendedGutterInches}" (${Math.round(report.recommendedGutterInches * 2.54 * 10) / 10} cm / ${Math.round(report.recommendedGutterInches * 25.4 * 10) / 10} mm)`] : []),
+                      "",
+                      ...(report.issues && report.issues.length > 0 ? ["Issues:", ...report.issues.map((i) => `  • ${i}`), ""] : []),
+                      ...(report.recommendations && report.recommendations.length > 0 ? ["Recommendations:", ...report.recommendations.map((r) => `  • ${r}`)] : []),
+                    ];
+                    const blob = new Blob([lines.join("\n")], { type: "text/plain" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "kdp-check-report.txt";
+                    a.click();
+                    URL.revokeObjectURL(url);
+                  }}
+                  className="text-sm font-medium text-[#D4A843] hover:text-[#F5F0E8] transition-colors"
+                >
+                  Download report (.txt)
+                </button>
               </div>
             )}
           </div>
