@@ -22,6 +22,7 @@ const MINI_TOOLS: { title: string; description: string; href: string; live: bool
   { title: "Page Count Estimator", description: "Estimate interior pages from word count and trim size.", href: "/page-count-estimator", live: true },
   { title: "Trim Size Comparison", description: "Compare print costs and royalties across trim sizes.", href: "/trim-size-comparison", live: true },
   { title: "Spine width calculator", description: "Spine width and full-wrap cover dimensions for KDP paperbacks.", href: "/spine-calculator", live: true },
+  { title: "Full-wrap cover calculator", description: "Cover canvas size in inches and pixels (300 DPI) for Canva and design tools.", href: "/cover-calculator", live: true },
 ];
 
 const COMING_SOON = [
