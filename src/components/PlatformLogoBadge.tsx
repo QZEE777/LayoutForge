@@ -24,6 +24,12 @@ export default function PlatformLogoBadge({
     size === "lg" ? "w-20 h-20" :
     size === "xl" ? "w-24 h-24" :
     "w-[72px] h-[72px]"; // md
+  // Amazon wordmark is wide (viewBox 90×32); use width + h-auto so it keeps aspect ratio in the square badge.
+  const amazonLogoClass =
+    size === "sm" ? "w-[52px] h-auto" :
+    size === "lg" ? "w-[76px] h-auto" :
+    size === "xl" ? "w-[90px] h-auto" :
+    "w-[60px] h-auto"; // md
   const logoSize =
     size === "sm" ? "w-[52px] h-[52px]" :
     size === "lg" ? "w-[76px] h-[76px]" :
@@ -43,7 +49,7 @@ export default function PlatformLogoBadge({
       aria-label={platformName}
     >
       {isAmazon ? (
-        <AmazonLogo className={logoSize} />
+        <AmazonLogo className={amazonLogoClass} />
       ) : (
         <span>{initial}</span>
       )}
