@@ -5,6 +5,7 @@ import Link from "next/link";
 import { truncateFilenameMiddle, formatFileSize } from "@/lib/formatFileName";
 import { WhatHappensNext } from "@/components/WhatHappensNext";
 import { ErrorRecovery } from "@/components/ErrorRecovery";
+import { ToolBreadcrumb } from "@/components/ToolBreadcrumb";
 
 const MAX_MB = 50;
 const MAX_SIZE_BYTES = MAX_MB * 1024 * 1024;
@@ -164,6 +165,7 @@ export default function DescriptionGeneratorPdfPage() {
       </div>
 
       <main className="flex-1 mx-auto max-w-3xl w-full px-6 py-10">
+        <ToolBreadcrumb backHref="/" backLabel="All Tools" currentLabel="Amazon Description Generator (PDF)" className="mb-6" />
         <h1 className="text-3xl font-bold text-white mb-2">Amazon Description Generator (PDF)</h1>
         <p className="text-slate-400 mb-8">
           Upload your PDF manuscript (up to {MAX_MB}MB). We use the first 1,000 words to generate a KDP-ready description, author bio template, SEO keywords, and BISAC suggestions. Text-based PDFs only (not scans).

@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { checkAdminRateLimit } from "@/lib/rateLimitAdmin";
 
 export async function GET(request: NextRequest) {
+  const rateLimitRes = checkAdminRateLimit(request);
+  if (rateLimitRes) return rateLimitRes;
+
   const password = (request.headers.get("x-admin-password") ?? "").trim();
   const expected = process.env.ADMIN_PASSWORD_MANU2?.trim();
   if (!expected || password !== expected) {

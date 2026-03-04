@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { listLeads } from "@/lib/storage";
+import { checkAdminRateLimit } from "@/lib/rateLimitAdmin";
 
 /**
  * GET /api/admin/leads
@@ -7,6 +8,9 @@ import { listLeads } from "@/lib/storage";
  * Auth: x-admin-password = ADMIN_PASSWORD_MANU2, or ADMIN_SECRET (Bearer / ?secret=).
  */
 export async function GET(request: NextRequest) {
+  const rateLimitRes = checkAdminRateLimit(request);
+  if (rateLimitRes) return rateLimitRes;
+
   const password = (request.headers.get("x-admin-password") ?? "").trim();
   const expectedPassword = process.env.ADMIN_PASSWORD_MANU2?.trim();
   const secret = process.env.ADMIN_SECRET;

@@ -75,25 +75,38 @@ export async function POST(req: Request) {
   if (supabaseUrl && supabaseKey) {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    await supabase.from("payments").insert({
-      email,
-      payment_type: priceType,
-      amount,
-      status: "complete",
-      tool,
-      gateway: "lemonsqueezy",
-      gateway_order_id: orderId,
-    });
+    // Idempotency: skip insert if we already have this order (webhook retry)
+    let alreadyProcessed = false;
+    if (orderId) {
+      const { data: existing } = await supabase
+        .from("payments")
+        .select("id")
+        .eq("gateway_order_id", orderId)
+        .limit(1)
+        .maybeSingle();
+      alreadyProcessed = !!existing;
+    }
 
-    if (priceType === "subscription") {
-      const sixMonthsFromNow = new Date();
-      sixMonthsFromNow.setMonth(sixMonthsFromNow.getMonth() + 6);
-      await supabase.from("subscriptions").insert({
+    if (!alreadyProcessed) {
+      await supabase.from("payments").insert({
         email,
-        status: "active",
-        plan: "6_months",
-        current_period_end: sixMonthsFromNow.toISOString(),
+        payment_type: priceType,
+        amount,
+        status: "complete",
+        tool,
+        gateway: "lemonsqueezy",
+        gateway_order_id: orderId,
       });
+      if (priceType === "subscription") {
+        const sixMonthsFromNow = new Date();
+        sixMonthsFromNow.setMonth(sixMonthsFromNow.getMonth() + 6);
+        await supabase.from("subscriptions").insert({
+          email,
+          status: "active",
+          plan: "6_months",
+          current_period_end: sixMonthsFromNow.toISOString(),
+        });
+      }
     }
   }
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { checkAdminRateLimit } from "@/lib/rateLimitAdmin";
 
 /**
  * GET /api/admin/emails
@@ -7,6 +8,9 @@ import { createClient } from "@supabase/supabase-js";
  * Auth: x-admin-password = ADMIN_PASSWORD_MANU2, or x-admin-key / ADMIN_SECRET.
  */
 export async function GET(request: NextRequest) {
+  const rateLimitRes = checkAdminRateLimit(request);
+  if (rateLimitRes) return rateLimitRes;
+
   const password = (request.headers.get("x-admin-password") ?? "").trim();
   const expectedPassword = process.env.ADMIN_PASSWORD_MANU2?.trim();
   const adminKey = request.headers.get("x-admin-key");

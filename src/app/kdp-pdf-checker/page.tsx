@@ -6,6 +6,7 @@ import Link from "next/link";
 import { formatFileSize } from "@/lib/formatFileName";
 import { WhatHappensNext } from "@/components/WhatHappensNext";
 import { ErrorRecovery } from "@/components/ErrorRecovery";
+import { ToolBreadcrumb } from "@/components/ToolBreadcrumb";
 
 /** Vercel serverless body limit; larger files must use PDF Compressor first. */
 const SERVER_MAX_MB = 4;
@@ -125,6 +126,7 @@ export default function KdpPdfCheckerPage() {
       </div>
 
       <main className="mx-auto max-w-2xl px-6 py-12">
+        <ToolBreadcrumb backHref="/" backLabel="All Tools" currentLabel="KDP PDF Checker" className="mb-6" />
         <h1 className="text-3xl font-bold text-white">KDP PDF Checker</h1>
         <p className="mt-2 text-slate-400">Upload your interior PDF. We’ll report trim size, page count, and any issues so you can fix before uploading to KDP. Max {SERVER_MAX_MB} MB per upload (use our free PDF Compressor for larger files). $7 per use or $27 for 6 months.</p>
 

@@ -25,6 +25,7 @@ export default function AdminPage() {
     amount: number | null;
     status: string | null;
     created_at: string;
+    gateway_order_id?: string | null;
   }>>([]);
   const [subscriptions, setSubscriptions] = useState<Array<{
     email: string | null;
@@ -63,6 +64,8 @@ export default function AdminPage() {
           setError("Admin password not set. In Vercel, add ADMIN_PASSWORD_MANU2 for Production and redeploy.");
         } else if (res.status === 401) {
           setError("Invalid password.");
+        } else if (res.status === 429) {
+          setError("Too many requests. Wait a minute and try again.");
         } else {
           setError("Failed to load data.");
         }
@@ -173,7 +176,7 @@ export default function AdminPage() {
   };
 
   const exportPaymentsCsv = () => {
-    const headers = ["Date", "Email", "Tool", "Type", "Amount (cents)", "Status"];
+    const headers = ["Date", "Email", "Tool", "Type", "Amount (cents)", "Status", "Order ID"];
     const rows = payments.map((p) => [
       formatDate(p.created_at),
       p.email ?? "",
@@ -181,6 +184,7 @@ export default function AdminPage() {
       p.payment_type ?? "",
       String(p.amount ?? ""),
       p.status ?? "",
+      p.gateway_order_id ?? "",
     ]);
     downloadCsv("payments.csv", [headers, ...rows]);
   };
@@ -306,6 +310,7 @@ export default function AdminPage() {
                 <p className="text-2xl font-bold text-[#F5A623]">
                   ${(stats.totalRevenue / 100).toFixed(2)}
                 </p>
+                <p className="text-[10px] text-[#8B7355] mt-1">Completed one-time + subscription</p>
               </div>
               <div className="rounded-xl border border-[#2A2420] bg-[#1A1612] p-4">
                 <p className="text-xs text-[#8B7355] mb-1">Paying customers</p>
@@ -347,6 +352,7 @@ export default function AdminPage() {
                       <th className="px-4 py-3 font-medium">Type</th>
                       <th className="px-4 py-3 font-medium">Amount</th>
                       <th className="px-4 py-3 font-medium">Status</th>
+                      <th className="px-4 py-3 font-medium">Order ID</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -358,6 +364,20 @@ export default function AdminPage() {
                         <td className="px-4 py-3">{p.payment_type || "—"}</td>
                         <td className="px-4 py-3">{formatAmount(p.amount)}</td>
                         <td className={`px-4 py-3 ${statusColor(p.status)}`}>{p.status || "—"}</td>
+                        <td className="px-4 py-3">
+                          {p.gateway_order_id ? (
+                            <a
+                              href={`https://app.lemonsqueezy.com/orders/${p.gateway_order_id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[#F5A623] hover:underline"
+                            >
+                              {p.gateway_order_id}
+                            </a>
+                          ) : (
+                            "—"
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

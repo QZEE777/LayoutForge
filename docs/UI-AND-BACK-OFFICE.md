@@ -52,9 +52,9 @@ One place for: what to check and create (user UI, admin UI, payment flows, datab
 
 | Area | Check | Create if missing |
 |------|--------|-------------------|
-| **Auth** | Admin uses password only (no 2FA). Stored in sessionStorage for refresh. | Optional: separate ADMIN_SECRET for API-only access; rate-limit admin routes. |
+| **Auth** | Admin uses password only (no 2FA). Stored in sessionStorage for refresh. | Done: admin routes rate-limited (30 req/min per IP). ADMIN_SECRET still optional for API-only. |
 | **Single entry point** | One admin page with tabs or sections: Stats, Payments, Subscriptions, Beta, Leads, Emails. | Unify: either add Leads/Emails to current `/admin` or link to a second “Leads” page that uses ADMIN_SECRET. |
-| **Payments table** | Columns: email, tool, payment_type, amount, status, gateway, created_at. Show gateway (e.g. Lemon Squeezy). | Add `gateway_order_id` or link to Lemon Squeezy dashboard if needed for disputes. |
+| **Payments table** | Columns: email, tool, payment_type, amount, status, gateway, created_at, **gateway_order_id**. Show Order ID with link to Lemon Squeezy. | Done: migration 005 adds column; admin table shows link to `https://app.lemonsqueezy.com/orders/{id}`. |
 | **Revenue** | Only “complete” payments counted. Amount in cents. | Clarify in UI: “Revenue = completed one-time + subscription (if you track that).” |
 | **Leads** | Two sources: (1) storage `listLeads()` (leadEmail on manuscript meta), (2) Supabase `email_captures` / `formatter_leads`. | One “Leads” view that merges or tabs: Compressor emails, Formatter signups, manuscript leads. |
 | **Export** | No CSV/export yet. | Optional: “Export payments (CSV)” and “Export leads (CSV)” for accountant or CRM. |
@@ -79,7 +79,7 @@ One place for: what to check and create (user UI, admin UI, payment flows, datab
 |-------|-----|
 | **Webhook URL** | In Lemon Squeezy: Webhook URL = `https://your-domain.com/api/webhooks/lemonsqueezy`. Must be HTTPS and correct env (e.g. production). |
 | **Signature** | We verify `x-signature` with `LEMONSQUEEZY_WEBHOOK_SECRET`. Never skip; prevents fake “order_created”. |
-| **Idempotency** | If webhook fires twice, we insert payments twice. Optional: dedupe by `gateway_order_id` (unique) or ignore duplicate `order_created` for same order id. |
+| **Idempotency** | Webhook dedupes by `gateway_order_id`: if order already in `payments`, skip insert (still run markDownloadPaid for retries). |
 | **markDownloadPaid** | After insert, we call `markDownloadPaid(downloadId)` so the user can download. If this fails, user paid but download stays locked — log and retry or alert. |
 | **Success page** | Uses `id` from query; calls verify-access. If webhook is slow, access might not be true yet — current “Confirming…” and “Open download page” handle that. |
 
@@ -106,7 +106,7 @@ One place for: what to check and create (user UI, admin UI, payment flows, datab
 | **formatter_leads** | Formatter page signups (name, email). |
 | **profiles / usage_events** | Auth and usage if you use Supabase auth and paywall. |
 
-**Best practice:** Run migrations in order (001 → 004). Back up Supabase (point-in-time or exports) before schema changes. Use env for all secrets (ADMIN_PASSWORD_MANU2, ADMIN_SECRET, LEMONSQUEEZY_WEBHOOK_SECRET); never commit them.
+**Best practice:** Run migrations in order (001 → 005). Back up Supabase (point-in-time or exports) before schema changes. Use env for all secrets (ADMIN_PASSWORD_MANU2, ADMIN_SECRET, LEMONSQUEEZY_WEBHOOK_SECRET); never commit them.
 
 ---
 

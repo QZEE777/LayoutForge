@@ -6,6 +6,7 @@ import { truncateFilenameMiddle, formatFileSize } from "@/lib/formatFileName";
 import { compressPdfInBrowser } from "@/lib/clientPdfCompress";
 import { WhatHappensNext } from "@/components/WhatHappensNext";
 import { ErrorRecovery } from "@/components/ErrorRecovery";
+import { ToolBreadcrumb } from "@/components/ToolBreadcrumb";
 
 const MAX_MB = 50;
 
@@ -134,6 +135,7 @@ export default function KdpFormatterPdfPage() {
       </div>
 
       <main className="mx-auto max-w-2xl px-6 py-12">
+        <ToolBreadcrumb backHref="/" backLabel="All Tools" currentLabel="PDF Print Optimizer" className="mb-6" />
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white">PDF Print Optimizer</h1>
           <p className="mt-2 text-slate-400">Shrink or print-optimize your PDF. FREE. Runs in your browser—your file never leaves your device. PDF only, up to {MAX_MB} MB.</p>
