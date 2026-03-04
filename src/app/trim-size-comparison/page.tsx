@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import FreeToolCta from "@/components/FreeToolCta";
 import {
   ROYALTY_TRIM_SIZES,
   ROYALTY_RATES,
@@ -136,6 +137,12 @@ export default function TrimSizeComparisonPage() {
         <p className="mt-6 font-sans text-xs text-brand-muted">
           US B&W paperback estimates. No data sent to server.
         </p>
+
+        <FreeToolCta
+          description="Format your manuscript for KDP print. Trim size, bleed, print-ready PDF."
+          href="/kdp-formatter"
+          buttonText="Try KDP Formatter"
+        />
       </main>
     </div>
   );

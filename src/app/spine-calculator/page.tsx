@@ -13,6 +13,7 @@ import {
   type PaperType,
   type TrimSizeId,
 } from "@/lib/spineCalc";
+import FreeToolCta from "@/components/FreeToolCta";
 
 function clampPages(n: number): number {
   const v = Math.round(Number(n));
@@ -136,6 +137,12 @@ export default function SpineCalculatorPage() {
         <p className="mt-6 font-sans text-xs text-brand-muted">
           Based on KDP paperback paper thickness. Actual spine may vary slightly by marketplace. No data sent to the server.
         </p>
+
+        <FreeToolCta
+          description="Format your manuscript for KDP print. Trim size, bleed, print-ready PDF."
+          href="/kdp-formatter"
+          buttonText="Try KDP Formatter"
+        />
       </main>
     </div>
   );

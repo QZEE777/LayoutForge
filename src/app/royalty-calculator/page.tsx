@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import FreeToolCta from "@/components/FreeToolCta";
 import {
   ROYALTY_TRIM_SIZES,
   ROYALTY_RATES,
@@ -156,6 +157,12 @@ export default function RoyaltyCalculatorPage() {
         <p className="mt-6 font-sans text-xs text-brand-muted">
           This is an estimate. Amazon KDP sets actual print costs by marketplace and paper type. Check KDP&apos;s pricing page for your territory.
         </p>
+
+        <FreeToolCta
+          description="Format your manuscript for KDP print. Trim size, bleed, print-ready PDF."
+          href="/kdp-formatter"
+          buttonText="Try KDP Formatter"
+        />
       </main>
     </div>
   );

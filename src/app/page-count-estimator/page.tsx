@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import FreeToolCta from "@/components/FreeToolCta";
 import { KDP_TRIM_SIZES, estimatePageCount, KDP_PAGE_LIMITS, type TrimSizeId } from "@/lib/kdpSpecs";
 
 const MAX_WORDS = 5_000_000;
@@ -126,6 +127,12 @@ export default function PageCountEstimatorPage() {
         <p className="mt-6 font-sans text-xs text-brand-muted">
           Estimate only. Actual page count depends on layout, headings, and images. No data sent to the server.
         </p>
+
+        <FreeToolCta
+          description="Format your manuscript for KDP print. Trim size, bleed, print-ready PDF."
+          href="/kdp-formatter"
+          buttonText="Try KDP Formatter"
+        />
       </main>
     </div>
   );

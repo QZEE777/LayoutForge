@@ -13,6 +13,8 @@ import {
   type PaperType,
   type TrimSizeId,
 } from "@/lib/spineCalc";
+import { createCoverTemplatePdf } from "@/lib/coverTemplatePdf";
+import FreeToolCta from "@/components/FreeToolCta";
 
 function clampPages(n: number): number {
   const v = Math.round(Number(n));
@@ -41,6 +43,30 @@ export default function CoverCalculatorPage() {
     () => (fullWrap ? { width: inchesToPx(fullWrap.widthInches), height: inchesToPx(fullWrap.heightInches) } : null),
     [fullWrap]
   );
+
+  const [downloading, setDownloading] = useState(false);
+  const handleDownloadTemplate = async () => {
+    if (!fullWrap || !trim) return;
+    setDownloading(true);
+    try {
+      const bytes = await createCoverTemplatePdf({
+        widthInches: fullWrap.widthInches,
+        heightInches: fullWrap.heightInches,
+        spineWidthInches: spineInches,
+        trimWidthInches: trim.widthInches,
+        trimHeightInches: trim.heightInches,
+      });
+      const blob = new Blob([bytes], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `kdp-cover-template-${trim.id}-${pages}p.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-brand-bg">
@@ -143,6 +169,22 @@ export default function CoverCalculatorPage() {
                     {spineInches.toFixed(3)} in
                   </dd>
                 </div>
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={handleDownloadTemplate}
+                    disabled={downloading}
+                    className="inline-flex items-center gap-2 rounded-lg bg-brand-gold px-4 py-2.5 text-sm font-semibold text-brand-bg hover:opacity-90 disabled:opacity-50"
+                  >
+                    {downloading ? "Generating…" : "Download template PDF"}
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </button>
+                  <dd className="text-brand-muted text-xs mt-1.5">
+                    Exact size with trim and spine guide lines. Use as template in design software or print to measure.
+                  </dd>
+                </div>
               </>
             )}
           </dl>
@@ -155,6 +197,12 @@ export default function CoverCalculatorPage() {
         <p className="mt-4 font-sans text-sm text-brand-muted">
           <Link href="/spine-calculator" className="text-brand-gold hover:underline">Spine width calculator</Link> for spine-only and full-wrap in mm.
         </p>
+
+        <FreeToolCta
+          description="Format your manuscript for KDP print. Trim size, bleed, print-ready PDF."
+          href="/kdp-formatter"
+          buttonText="Try KDP Formatter"
+        />
       </main>
     </div>
   );
