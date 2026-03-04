@@ -79,16 +79,18 @@ export default function DashboardPage() {
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <div
-              className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0"
+              className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
               style={{ backgroundColor: GOLD }}
             >
-              <svg className="w-4 h-4" fill="none" stroke="#0F0D0B" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              <svg className="w-4 h-4" fill="none" stroke="#0F0D0B" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                <path d="M8 7h8" />
+                <path d="M8 11h8" />
               </svg>
             </div>
             <span className="text-lg font-bold tracking-tight" style={{ color: WARM_WHITE }}>
-              <span className="font-serif">Scribe</span>
-              <span className="font-sans">Stack</span>
+              manu2print
             </span>
           </Link>
           <Link
@@ -102,17 +104,19 @@ export default function DashboardPage() {
       </header>
 
       <main className="mx-auto max-w-6xl px-6 py-12">
-        <h1 className="font-serif text-3xl font-bold mb-2" style={{ color: WARM_WHITE }}>
-          Dashboard
-        </h1>
-        <p className="mb-8 text-sm" style={{ color: "#a8a29e" }}>
-          Welcome back. Manage your usage and jump to any tool.
-        </p>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-1" style={{ color: WARM_WHITE }}>
+            Dashboard
+          </h1>
+          <p className="text-sm" style={{ color: "#a8a29e" }}>
+            Welcome back. Your tools and usage in one place.
+          </p>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
           <div
-            className="rounded-xl border p-6"
-            style={{ backgroundColor: CARD_BG, borderColor: CARD_BORDER }}
+            className="rounded-xl border-l-4 border p-6"
+            style={{ backgroundColor: CARD_BG, borderColor: CARD_BORDER, borderLeftColor: GOLD }}
           >
             <h2 className="font-semibold mb-4" style={{ color: WARM_WHITE }}>
               Account
@@ -129,8 +133,8 @@ export default function DashboardPage() {
             )}
           </div>
           <div
-            className="rounded-xl border p-6"
-            style={{ backgroundColor: CARD_BG, borderColor: CARD_BORDER }}
+            className="rounded-xl border-l-4 border p-6"
+            style={{ backgroundColor: CARD_BG, borderColor: CARD_BORDER, borderLeftColor: GOLD }}
           >
             <h2 className="font-semibold mb-4" style={{ color: WARM_WHITE }}>
               Usage
@@ -156,7 +160,7 @@ export default function DashboardPage() {
             <li key={href}>
               <Link
                 href={href}
-                className="block rounded-lg border px-4 py-3 text-sm font-medium transition-colors hover:border-[#F5A623] hover:bg-white/5"
+                className="block rounded-xl border px-4 py-3.5 text-sm font-medium transition-all hover:border-[#F5A623] hover:bg-[#F5A623]/10"
                 style={{ borderColor: CARD_BORDER, color: WARM_WHITE }}
               >
                 {label}

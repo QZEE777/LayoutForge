@@ -41,9 +41,10 @@ export default function AuthPage() {
         );
         return;
       }
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
       const { error: otpError } = await supabase.auth.signInWithOtp({
         email: email.trim(),
-        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+        options: { emailRedirectTo: `${baseUrl}/auth/callback` },
       });
       if (otpError) {
         setError(otpError.message);
@@ -57,9 +58,10 @@ export default function AuthPage() {
 
   const handleGoogle = async () => {
     setError(null);
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo: `${baseUrl}/auth/callback` },
     });
     if (oauthError) setError(oauthError.message);
   };
@@ -70,51 +72,38 @@ export default function AuthPage() {
       style={{ backgroundColor: "#0F0D0B" }}
     >
       <div
-        className="w-full max-w-md rounded-xl border p-8"
-        style={{ backgroundColor: CARD_BG, borderColor: CARD_BORDER }}
+        className="w-full max-w-md rounded-2xl border-t-4 shadow-2xl p-8"
+        style={{
+          backgroundColor: CARD_BG,
+          borderColor: CARD_BORDER,
+          borderTopColor: GOLD,
+        }}
       >
         <Link
           href="/"
           className="flex items-center gap-2.5 mb-8 justify-center"
         >
           <div
-            className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0"
+            className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
             style={{ backgroundColor: GOLD }}
           >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="#0F0D0B"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-              />
+            <svg className="w-5 h-5" fill="none" stroke="#0F0D0B" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+              <path d="M8 7h8" />
+              <path d="M8 11h8" />
             </svg>
           </div>
-          <span
-            className="text-xl font-bold tracking-tight"
-            style={{ color: WARM_WHITE }}
-          >
-            <span className="font-serif">Scribe</span>
-            <span className="font-sans">Stack</span>
+          <span className="text-xl font-bold tracking-tight" style={{ color: WARM_WHITE }}>
+            manu2print
           </span>
         </Link>
 
-        <h1
-          className="text-2xl font-serif font-bold text-center mb-2"
-          style={{ color: WARM_WHITE }}
-        >
-          Sign in to manu2print
+        <h1 className="text-2xl font-bold text-center mb-1" style={{ color: WARM_WHITE }}>
+          Sign in
         </h1>
-        <p
-          className="text-center text-sm mb-6"
-          style={{ color: "#a8a29e" }}
-        >
-          Use your email or Google to continue.
+        <p className="text-center text-sm mb-6" style={{ color: "#a8a29e" }}>
+          Get access to KDP formatting, keywords, and more.
         </p>
 
         {success ? (
