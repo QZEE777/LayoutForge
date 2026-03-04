@@ -15,14 +15,22 @@ export default function PlatformLogoBadge({
 }: {
   platformId: string;
   platformName: string;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   className?: string;
 }) {
   const isAmazon = platformId === "kdp";
   const initial = platformName.charAt(0);
 
-  const sizeClass = size === "sm" ? "w-12 h-12" : size === "lg" ? "w-20 h-20" : "w-14 h-14";
-  const logoSize = size === "sm" ? "w-7 h-7" : size === "lg" ? "w-11 h-11" : "w-9 h-9";
+  const sizeClass =
+    size === "sm" ? "w-12 h-12" :
+    size === "lg" ? "w-20 h-20" :
+    size === "xl" ? "w-24 h-24" :
+    "w-16 h-16"; // md = larger default for homepage
+  const logoSize =
+    size === "sm" ? "w-8 h-8" :
+    size === "lg" ? "w-12 h-12" :
+    size === "xl" ? "w-14 h-14" :
+    "w-10 h-10"; // md: logo fills circle well
 
   const circleClass = isAmazon
     ? "rounded-full bg-white flex items-center justify-center flex-shrink-0 text-black shadow-sm ring-1 ring-black/5"

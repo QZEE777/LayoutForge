@@ -1,6 +1,5 @@
 /**
- * Amazon name logo (wordmark + smile) for KDP platform branding. Nominative use.
- * Fits square viewBox for use inside PlatformLogoBadge circle.
+ * Amazon smile + arrow — scales cleanly in circle, instantly recognizable. Nominative use.
  */
 export default function AmazonLogo({ className = "w-full h-full" }: { className?: string }) {
   return (
@@ -11,28 +10,17 @@ export default function AmazonLogo({ className = "w-full h-full" }: { className?
       xmlns="http://www.w3.org/2000/svg"
       aria-label="Amazon"
     >
-      {/* Wordmark "amazon" — bold, lowercase, fits in top half */}
-      <text
-        x="22"
-        y="18"
-        textAnchor="middle"
-        fontFamily="system-ui, -apple-system, sans-serif"
-        fontSize="10"
-        fontWeight="700"
-        fill="currentColor"
-      >
-        amazon
-      </text>
-      {/* Smile curve + arrow — bottom half */}
+      {/* Smile curve — fills the circle, thick stroke */}
       <path
-        d="M4 34 Q22 22 40 34"
+        d="M 6 32 Q 22 8 38 32"
         stroke="#FF9900"
-        strokeWidth="1.8"
+        strokeWidth="4"
         strokeLinecap="round"
         fill="none"
       />
+      {/* Arrow head */}
       <path
-        d="M34 28 L40 34 L37 36 L31 30 Z"
+        d="M 32 24 L 38 32 L 34 34 L 28 26 Z"
         fill="#FF9900"
       />
     </svg>

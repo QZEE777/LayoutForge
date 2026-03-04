@@ -127,7 +127,7 @@ export default function PlatformPage() {
 
       <main className="mx-auto max-w-6xl px-6 py-8">
         <div className="flex items-center gap-4 mb-6">
-          <PlatformLogoBadge platformId={platform.id} platformName={platform.name} size="md" />
+          <PlatformLogoBadge platformId={platform.id} platformName={platform.name} size="lg" />
           <div>
             <h1 className={h1Class}>{platform.name}</h1>
             <p className={taglineClass}>{platform.tagline}</p>

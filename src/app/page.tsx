@@ -26,7 +26,7 @@ function PlatformBox({ platform, tools }: { platform: Platform; tools: Tool[] })
     <section className={boxClass}>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5">
         <div className="flex items-center gap-3">
-          <PlatformLogoBadge platformId={platform.id} platformName={platform.name} size="sm" />
+          <PlatformLogoBadge platformId={platform.id} platformName={platform.name} size="md" />
           <div>
             <h3 className={titleClass}>{platform.name}</h3>
             <p className={taglineClass}>{platform.tagline}</p>
