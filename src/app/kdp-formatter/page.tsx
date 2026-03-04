@@ -15,6 +15,9 @@ import {
   DEFAULT_CONFIG,
   type KdpFormatConfig,
 } from "@/lib/kdpConfig";
+import { WhatHappensNext } from "@/components/WhatHappensNext";
+import { ErrorRecovery } from "@/components/ErrorRecovery";
+import { ToolBreadcrumb } from "@/components/ToolBreadcrumb";
 
 const ALLOWED_EXT = ".docx";
 const MAX_MB = 50;
@@ -248,6 +251,7 @@ export default function KdpFormatterPage() {
       </div>
 
       <main className="mx-auto max-w-2xl px-6 py-12">
+        <ToolBreadcrumb backHref="/" backLabel="All Tools" currentLabel="KDP Formatter" className="mb-6" />
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-white">Upload your manuscript</h1>
           <p className="mt-2 text-slate-400">Supports DOCX only. Maximum {MAX_MB}MB.</p>
@@ -311,7 +315,10 @@ export default function KdpFormatterPage() {
               </label>
             </div>
             {error && (
-              <div className="mt-4 rounded-xl bg-red-500/10 border border-red-500/30 p-4 text-sm text-red-400">{error}</div>
+              <div className="mt-4 rounded-xl bg-red-500/10 border border-red-500/30 p-4 text-sm text-red-400">
+                {error}
+                <ErrorRecovery />
+              </div>
             )}
             {uploading && progress > 0 && (
               <div className="mt-6">
@@ -575,18 +582,23 @@ export default function KdpFormatterPage() {
               ))}
             </ul>
             {processingError && (
-              <div className="mt-4 rounded-xl bg-red-500/10 border border-red-500/30 p-4 text-sm text-red-400">{processingError}</div>
+              <div className="mt-4 rounded-xl bg-red-500/10 border border-red-500/30 p-4 text-sm text-red-400">
+                {processingError}
+                <ErrorRecovery />
+              </div>
             )}
           </div>
         )}
 
         {step === "upload" && (
-          <div className="mt-8 rounded-xl bg-slate-800/40 border border-slate-700/60 p-4 text-sm text-slate-400 space-y-1">
-            <p className="font-medium text-slate-300">What happens next:</p>
-            <p>1. We analyse your manuscript — structure and chapters</p>
-            <p>2. You choose trim size, font, and front matter options</p>
-            <p>3. Download your KDP-ready DOCX or PDF</p>
-          </div>
+          <WhatHappensNext
+            className="mt-8"
+            steps={[
+              "We analyse your manuscript — structure and chapters.",
+              "You choose trim size, font, and front matter options.",
+              "You're sent to the download page to complete payment and download your KDP-ready DOCX or PDF.",
+            ]}
+          />
         )}
       </main>
     </div>

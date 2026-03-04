@@ -3,6 +3,8 @@
 import { useState, useCallback } from "react";
 import Link from "next/link";
 import { truncateFilenameMiddle, formatFileSize } from "@/lib/formatFileName";
+import { WhatHappensNext } from "@/components/WhatHappensNext";
+import { ErrorRecovery } from "@/components/ErrorRecovery";
 
 const MAX_MB = 50;
 const MAX_SIZE_BYTES = MAX_MB * 1024 * 1024;
@@ -192,11 +194,21 @@ export default function KeywordResearchPdfPage() {
                 Free PDF Compressor →
               </Link>
             )}
+            <ErrorRecovery />
           </div>
         )}
 
+        <WhatHappensNext
+          className="mt-8"
+          steps={[
+            "We extract text and analyze your PDF (first 1,000 words).",
+            "Seven Amazon KDP keyword phrases appear on this page.",
+            "Copy them into your KDP listing — no download required.",
+          ]}
+        />
+
         {keywords && keywords.length > 0 && (
-          <div className="rounded-2xl bg-slate-800/50 border border-red-700/40 p-6">
+          <div className="rounded-2xl bg-slate-800/50 border border-red-700/40 p-6 mt-8">
             <h2 className="text-lg font-bold text-white mb-3">7 Amazon KDP keyword phrases</h2>
             <ul className="flex flex-wrap gap-2">
               {keywords.map((kw, i) => (

@@ -19,15 +19,26 @@ One place for: what to check and create (user UI, admin UI, payment flows, datab
 
 **Create if missing:** Consistent “What happens next” on every paid-tool upload page; error recovery (e.g. “Try again” or “Contact support”); optional “Save this link” note on download page (e.g. email with link).
 
+**Clarity — errors and human support:** The stack (Lemon Squeezy, Vercel, Supabase, CloudConvert) is the same one used by many online products. Most failures are transient: wrong file type/size, timeout, or slow webhook. Retry (or refresh / re-open link) fixes almost all of them. We deliberately avoid "contact support" in error copy so users don't expect a human; that keeps the product low-touch. The only rare case where a human might ever need to step in is: payment succeeded but the webhook never fired or was delayed so long that verify-access still fails. In that case you can confirm the sale in the Lemon Squeezy dashboard and, if you ever need to, manually grant access (e.g. via admin or a one-off script). No need to advertise support; the system is designed so that nightmare scenario is unlikely and recoverable without a public support channel.
+
 ---
 
 ## 2. Admin back office — What exists and what to check
+
+### 2.0 How to get access
+
+1. **Set env:** In `.env` (or Vercel env vars), set **`ADMIN_PASSWORD_MANU2`** to a strong password. This is the only key for admin (manu2print). Optionally set `ADMIN_SECRET` if you want to call leads/emails APIs (e.g. for a separate Leads view).
+2. **Open:** There is **no link to admin on the main website**. Go directly to **`/admin`** (e.g. `https://manu2print.com/admin` or your deployment URL). Bookmark it so you don’t have to type the URL.
+3. **Log in:** Enter the password you set for `ADMIN_PASSWORD_MANU2`. The page stores auth in `localStorage` and the password in `sessionStorage` so you stay logged in until you click Log out.
+4. **Use:** You see revenue, paying customers, subscriptions, beta usage, and tables of recent payments, subscriptions, and beta access. Use **Refresh** to reload data.
+
+**What next (optional):** See §2.2 for checks (e.g. add Leads/Emails to this page, export CSV, “Last webhook” hint). For payment issues, confirm webhook URL in Lemon Squeezy and that `markDownloadPaid` runs after each order.
 
 ### 2.1 What exists today
 
 | Piece | Purpose |
 |-------|---------|
-| **`/admin`** | Password (ADMIN_PASSWORD). Dashboard: total revenue, paying customers, active subscriptions, beta users. Tables: recent payments, subscriptions, beta usage. Refresh / Log out. |
+| **`/admin`** | Password (`ADMIN_PASSWORD_MANU2`). Dashboard: total revenue, paying customers, active subscriptions, beta users. Tables: recent payments, subscriptions, beta usage. Refresh / Log out. |
 | **`GET /api/admin/stats`** | Auth: `x-admin-password` = ADMIN_PASSWORD. Returns aggregates + recentPayments, subscriptions, betaUsage from Supabase. |
 | **`GET /api/admin/leads`** | Auth: ADMIN_SECRET (Bearer or ?secret=). Returns leads from storage (manuscript meta with leadEmail + any file-based leads). |
 | **`GET /api/admin/emails`** | Auth: `x-admin-key` = ADMIN_SECRET. Returns all rows from Supabase `email_captures` (e.g. PDF Compressor). |
@@ -95,7 +106,7 @@ One place for: what to check and create (user UI, admin UI, payment flows, datab
 | **formatter_leads** | Formatter page signups (name, email). |
 | **profiles / usage_events** | Auth and usage if you use Supabase auth and paywall. |
 
-**Best practice:** Run migrations in order (001 → 004). Back up Supabase (point-in-time or exports) before schema changes. Use env for all secrets (ADMIN_PASSWORD, ADMIN_SECRET, LEMONSQUEEZY_WEBHOOK_SECRET); never commit them.
+**Best practice:** Run migrations in order (001 → 004). Back up Supabase (point-in-time or exports) before schema changes. Use env for all secrets (ADMIN_PASSWORD_MANU2, ADMIN_SECRET, LEMONSQUEEZY_WEBHOOK_SECRET); never commit them.
 
 ---
 

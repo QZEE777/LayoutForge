@@ -4,6 +4,8 @@ import { useCallback, useState } from "react";
 import Link from "next/link";
 import { truncateFilenameMiddle, formatFileSize } from "@/lib/formatFileName";
 import { compressPdfInBrowser } from "@/lib/clientPdfCompress";
+import { WhatHappensNext } from "@/components/WhatHappensNext";
+import { ErrorRecovery } from "@/components/ErrorRecovery";
 
 const MAX_MB = 50;
 
@@ -216,6 +218,7 @@ export default function KdpFormatterPdfPage() {
                     Try our free PDF Compressor for large files →
                   </Link>
                 </p>
+                <ErrorRecovery />
               </div>
             )}
 
@@ -251,11 +254,14 @@ export default function KdpFormatterPdfPage() {
           </>
         )}
 
-        <div className="mt-8 rounded-xl bg-slate-800/40 border border-slate-700/60 p-4 text-sm text-slate-400 space-y-1">
-          <p className="font-medium text-slate-300">What happens:</p>
-          <p>1. Your PDF is optimized for smaller size and print quality in your browser.</p>
-          <p>2. When done, download your optimized PDF. No file is sent to our servers.</p>
-        </div>
+        <WhatHappensNext
+          className="mt-8"
+          steps={[
+            "You select your PDF (up to 50MB).",
+            "We optimize it in your browser for smaller size and print quality — no file is sent to our servers.",
+            "You download the optimized PDF when ready.",
+          ]}
+        />
       </main>
     </div>
   );

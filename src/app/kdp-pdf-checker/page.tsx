@@ -4,6 +4,8 @@ import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { formatFileSize } from "@/lib/formatFileName";
+import { WhatHappensNext } from "@/components/WhatHappensNext";
+import { ErrorRecovery } from "@/components/ErrorRecovery";
 
 /** Vercel serverless body limit; larger files must use PDF Compressor first. */
 const SERVER_MAX_MB = 4;
@@ -173,6 +175,7 @@ export default function KdpPdfCheckerPage() {
                 </Link>
               </p>
             )}
+            <ErrorRecovery />
           </div>
         )}
 
@@ -196,10 +199,14 @@ export default function KdpPdfCheckerPage() {
           )}
         </div>
 
-        <div className="mt-8 rounded-xl bg-slate-800/40 border border-slate-700/60 p-4 text-sm text-slate-400 space-y-1">
-          <p className="font-medium text-slate-300">What we check</p>
-          <p>Trim size (matches a KDP size?), page count (24–828), file size. You’ll get a report with issues and what to fix.</p>
-        </div>
+        <WhatHappensNext
+          className="mt-8"
+          steps={[
+            "We check your PDF: trim size, page count (24–828), and file size.",
+            "You're redirected to the download page with your report (issues and what to fix).",
+            "Complete payment and download your KDP format report.",
+          ]}
+        />
       </main>
     </div>
   );

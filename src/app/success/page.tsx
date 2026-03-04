@@ -40,26 +40,22 @@ export default function SuccessPage() {
         {checking && (
           <p className="text-[#8B8B6B] mb-6">Verifying your purchase…</p>
         )}
-        {!checking && id && access && (
-          <Link
-            href={`/download/${id}`}
-            className="inline-block bg-[#D4A843] hover:bg-[#c49a3d] text-[#1a1a12] font-bold px-6 py-3 rounded-lg mb-6"
-          >
-            Download Your Manuscript
-          </Link>
-        )}
-        {!checking && id && !access && (
-          <p className="text-[#8B8B6B] mb-6">
-            Your purchase is being confirmed. If you don’t see the download button in a moment, go to your download page.
-          </p>
-        )}
         {!checking && id && (
-          <Link
-            href={`/download/${id}`}
-            className="text-[#D4A843] hover:underline block"
-          >
-            Open download page
-          </Link>
+          <>
+            {access ? (
+              <p className="text-[#8B8B6B] mb-6">You're all set. Use the button below to get your file.</p>
+            ) : (
+              <p className="text-[#8B8B6B] mb-6">
+                Your purchase may still be confirming. Open your download page below — if the download isn't ready yet, wait a moment and refresh.
+              </p>
+            )}
+            <Link
+              href={`/download/${id}`}
+              className="inline-block bg-[#D4A843] hover:bg-[#c49a3d] text-[#1a1a12] font-bold px-6 py-3 rounded-lg mb-6"
+            >
+              Open download page
+            </Link>
+          </>
         )}
         <Link
           href="/"

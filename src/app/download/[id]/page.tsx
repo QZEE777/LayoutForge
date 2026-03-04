@@ -265,6 +265,7 @@ export default function DownloadPage() {
             <button
               type="button"
               onClick={handleDownload}
+              aria-label={isEpub ? "Download Kindle EPUB" : isDocx ? "Download review DOCX" : "Download KDP Print PDF"}
               className="w-full flex items-center justify-between border border-[#D4A843] rounded-lg p-4 bg-[#1a1a12]/50 text-left hover:bg-[#1a1a12]/70 transition-colors cursor-pointer"
             >
               <div className="flex items-center gap-4">
@@ -418,6 +419,7 @@ export default function DownloadPage() {
           <button
             type="button"
             onClick={handleDownload}
+            aria-label={isEpub ? "Download EPUB file" : isDocx ? "Download review DOCX" : "Download PDF file"}
             className="flex-1 bg-[#D4A843] hover:bg-[#c49a3d] text-[#1a1a12] font-semibold py-3 px-6 rounded-lg text-center cursor-pointer"
           >
             {isEpub ? "Download EPUB" : isDocx ? "Download Review DOCX" : "Download PDF"}
@@ -432,13 +434,16 @@ export default function DownloadPage() {
         </div>
         </PaymentGate>
 
-        {/* Storage notice */}
-        <div className="mt-8 bg-[#24241a]/50 border border-white/10 rounded-lg p-4">
+        {/* Storage notice + Save this link */}
+        <div className="mt-8 bg-[#24241a]/50 border border-white/10 rounded-lg p-4 space-y-2">
           <p>
             <span className="text-[#F5F0E8] font-medium">Storage:</span>{" "}
             <span className="text-xs text-[#8B8B6B]">
               {isChecker ? "Your report is stored temporarily for 24 hours." : "Your files are stored temporarily for 24 hours. Download now and keep a backup."}
             </span>
+          </p>
+          <p className="text-xs text-[#8B8B6B]">
+            <span className="text-[#F5F0E8] font-medium">Save this link:</span> Bookmark this page or copy the URL to return to your download within 24 hours.
           </p>
         </div>
       </main>

@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
 export async function GET(request: NextRequest) {
-  const password = request.headers.get("x-admin-password");
-  const expected = process.env.ADMIN_PASSWORD;
+  const password = (request.headers.get("x-admin-password") ?? "").trim();
+  const expected = process.env.ADMIN_PASSWORD_MANU2?.trim();
   if (!expected || password !== expected) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

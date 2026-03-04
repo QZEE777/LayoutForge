@@ -13,8 +13,8 @@ alwaysApply: true
 - **pdf-lib**, **pdfjs-dist** (client-side), **docx**, **JSZip**, **mammoth** for PDF/DOCX handling.
 
 ## Security
-- **No secrets in code.** All API keys and secrets come from `process.env` (e.g. CLOUDCONVERT_API_KEY, ANTHROPIC_API_KEY, SUPABASE_SERVICE_ROLE_KEY, ADMIN_PASSWORD, ENCRYPTION_KEY). Never commit keys.
-- **Admin routes** (e.g. /api/admin/*) are gated by header `x-admin-password` vs env ADMIN_PASSWORD.
+- **No secrets in code.** All API keys and secrets come from `process.env` (e.g. CLOUDCONVERT_API_KEY, ANTHROPIC_API_KEY, SUPABASE_SERVICE_ROLE_KEY, ADMIN_PASSWORD_MANU2, ENCRYPTION_KEY). Never commit keys.
+- **Admin routes** (e.g. /api/admin/*) are gated by header `x-admin-password` vs env ADMIN_PASSWORD_MANU2.
 - **Free PDF tools** (Compressor, Print Optimizer) run **client-side only** (no file upload to server); only lead-capture (email) hits the API for Compressor.
 - **File size:** Vercel serverless body limit 4.5 MB. Tools that accept uploads cap at 4 MB or use direct-to-CloudConvert upload (paid flows).
 

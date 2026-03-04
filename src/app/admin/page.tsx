@@ -54,8 +54,14 @@ export default function AdminPage() {
         headers: { "x-admin-password": pwd },
       });
       if (!res.ok) {
-        if (res.status === 401) setError("Invalid password.");
-        else setError("Failed to load data.");
+        const data = await res.json().catch(() => ({}));
+        if (res.status === 503 && data?.code === "NOT_CONFIGURED") {
+          setError("Admin password not set. In Vercel, add ADMIN_PASSWORD_MANU2 for Production and redeploy.");
+        } else if (res.status === 401) {
+          setError("Invalid password.");
+        } else {
+          setError("Failed to load data.");
+        }
         return false;
       }
       const data = await res.json();

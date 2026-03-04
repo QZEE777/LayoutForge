@@ -19,6 +19,12 @@ body {
   background: rgb(var(--background-rgb));
 }
 
+/* Accessibility: visible focus for keyboard users */
+:focus-visible {
+  outline: 2px solid #D4A843;
+  outline-offset: 2px;
+}
+
 @keyframes marquee {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }

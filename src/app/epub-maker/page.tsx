@@ -4,6 +4,9 @@ import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { truncateFilenameMiddle, formatFileSize } from "@/lib/formatFileName";
+import { WhatHappensNext } from "@/components/WhatHappensNext";
+import { ErrorRecovery } from "@/components/ErrorRecovery";
+import { ToolBreadcrumb } from "@/components/ToolBreadcrumb";
 
 const MAX_MB = 50;
 
@@ -182,6 +185,7 @@ export default function EpubMakerPage() {
       </div>
 
       <main className="mx-auto max-w-2xl px-6 py-12">
+        <ToolBreadcrumb backHref="/" backLabel="All Tools" currentLabel="Kindle EPUB Maker" className="mb-6" />
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white">Upload your manuscript</h1>
           <p className="mt-2 text-slate-400">DOCX only. Maximum {MAX_MB}MB.</p>
@@ -229,7 +233,10 @@ export default function EpubMakerPage() {
         </div>
 
         {error && (
-          <div className="mt-4 rounded-xl bg-red-500/10 border border-red-500/30 p-4 text-sm text-red-400">{error}</div>
+          <div className="mt-4 rounded-xl bg-red-500/10 border border-red-500/30 p-4 text-sm text-red-400">
+            {error}
+            <ErrorRecovery />
+          </div>
         )}
 
         {uploading && progress > 0 && (
@@ -265,12 +272,14 @@ export default function EpubMakerPage() {
           )}
         </div>
 
-        <div className="mt-8 rounded-xl bg-slate-800/40 border border-slate-700/60 p-4 text-sm text-slate-400 space-y-1">
-          <p className="font-medium text-slate-300">What happens next:</p>
-          <p>1. Your DOCX is converted to a Kindle-ready EPUB file.</p>
-          <p>2. When done, you are redirected to the download page.</p>
-          <p>3. Complete payment (or use beta code) and download your EPUB for KDP or other retailers.</p>
-        </div>
+        <WhatHappensNext
+          className="mt-8"
+          steps={[
+            "Your DOCX is converted to a Kindle-ready EPUB file.",
+            "When done, you're redirected to the download page.",
+            "Complete payment (or use a beta code) and download your EPUB for KDP or other retailers.",
+          ]}
+        />
       </main>
     </div>
   );

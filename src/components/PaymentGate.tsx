@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 
-type GateState = "processing" | "preview" | "unlocked";
+type GateState = "processing" | "verifying" | "preview" | "unlocked";
 
 interface PaymentGateProps {
   tool: string;
@@ -13,7 +13,7 @@ interface PaymentGateProps {
 }
 
 export default function PaymentGate({ tool, children, isProcessing = false, downloadId }: PaymentGateProps) {
-  const [state, setState] = useState<GateState>(isProcessing ? "processing" : "preview");
+  const [state, setState] = useState<GateState>(downloadId && !isProcessing ? "verifying" : isProcessing ? "processing" : "preview");
   const [showBetaInput, setShowBetaInput] = useState(false);
   const [betaCode, setBetaCode] = useState("");
   const [betaError, setBetaError] = useState("");
@@ -23,8 +23,8 @@ export default function PaymentGate({ tool, children, isProcessing = false, down
 
   useEffect(() => {
     if (isProcessing) setState((s) => (s === "unlocked" ? "unlocked" : "processing"));
-    else setState((s) => (s === "unlocked" ? "unlocked" : "preview"));
-  }, [isProcessing]);
+    else if (!downloadId) setState((s) => (s === "unlocked" ? "unlocked" : "preview"));
+  }, [isProcessing, downloadId]);
 
   useEffect(() => {
     if (!downloadId) return;
@@ -36,12 +36,32 @@ export default function PaymentGate({ tool, children, isProcessing = false, down
       .then((r) => r.json())
       .then((data) => {
         if (data?.access) setState("unlocked");
+        else setState("preview");
       })
-      .catch(() => {});
+      .catch(() => setState("preview"));
   }, [downloadId, tool]);
 
   if (state === "processing") {
     return <>{children}</>;
+  }
+
+  if (state === "verifying") {
+    return (
+      <div className="relative">
+        <div className="select-none pointer-events-none blur-sm">{children}</div>
+        <div className="absolute inset-0 flex items-center justify-center p-6 bg-black/70 rounded-lg min-h-[200px]">
+          <div className="max-w-md w-full text-center space-y-4">
+            <h2 className="text-xl font-bold text-white">Confirming your purchase…</h2>
+            <p className="text-sm text-slate-300">
+              We’re checking your payment. This usually takes a few seconds.
+            </p>
+            <p className="text-xs text-slate-500">
+              If this takes longer than a minute, refresh the page or open this link again in a new tab.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (state === "unlocked") {

@@ -3,6 +3,8 @@
 import { useState, useCallback } from "react";
 import Link from "next/link";
 import { truncateFilenameMiddle, formatFileSize } from "@/lib/formatFileName";
+import { WhatHappensNext } from "@/components/WhatHappensNext";
+import { ErrorRecovery } from "@/components/ErrorRecovery";
 
 const MAX_MB = 50;
 const MAX_SIZE_BYTES = MAX_MB * 1024 * 1024;
@@ -212,8 +214,18 @@ export default function DescriptionGeneratorPdfPage() {
                 Free PDF Compressor →
               </Link>
             )}
+            <ErrorRecovery />
           </div>
         )}
+
+        <WhatHappensNext
+          className="mt-8"
+          steps={[
+            "We analyze your PDF manuscript.",
+            "Amazon description (HTML), author bio template, SEO keywords, and BISAC categories appear here.",
+            "Copy what you need into your KDP listing.",
+          ]}
+        />
 
         {result && (
           <div className="space-y-8">
