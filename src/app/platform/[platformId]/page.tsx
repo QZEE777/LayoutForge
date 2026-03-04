@@ -34,6 +34,11 @@ function CompactToolCard({ tool, amazon }: { tool: Tool; amazon: boolean }) {
             )}
           </div>
           <p className={descClass}>{tool.description}</p>
+          {tool.pricing && (
+            <p className={amazon ? "font-sans text-[11px] text-amazon-orange mt-1.5 font-medium" : "font-sans text-[11px] text-brand-gold mt-1.5 font-medium"}>
+              {tool.pricing}
+            </p>
+          )}
         </div>
         <div className="flex-shrink-0">
           {tool.available ? (
@@ -104,6 +109,7 @@ export default function PlatformPage() {
   const h1Class = amazon ? "font-bebas text-2xl sm:text-3xl tracking-wide text-white" : "font-bebas text-2xl sm:text-3xl tracking-wide text-brand-cream";
   const taglineClass = amazon ? "font-sans text-sm text-amazon-muted mt-0.5" : "font-sans text-sm text-brand-muted mt-0.5";
   const backClass = amazon ? "font-sans text-sm text-amazon-orange hover:underline" : "font-sans text-sm text-brand-gold hover:underline";
+  const sectionTitleClass = amazon ? "font-bebas text-lg tracking-wide text-white mb-3" : "font-bebas text-lg tracking-wide text-brand-cream mb-3";
 
   return (
     <div className={pageBg}>
@@ -135,6 +141,42 @@ export default function PlatformPage() {
       </nav>
 
       <main className="mx-auto max-w-6xl px-6 py-8">
+        {amazon && (
+          <section className="mb-10 rounded-xl border border-amazon-orange/30 bg-amazon-card/80 p-6 sm:p-8">
+            <h2 className="font-bebas text-2xl sm:text-3xl tracking-wide text-white">
+              Format, list &amp; publish — all in one place
+            </h2>
+            <p className="font-sans text-sm text-amazon-muted mt-2 max-w-xl">
+              Free calculators and compressors. Paid tools: one-time or 6‑month access. No subscription.
+            </p>
+            <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-1 font-sans text-sm text-white">
+              <li className="flex items-center gap-1.5">
+                <span className="text-amazon-orange">✓</span> Print-ready PDFs &amp; KDP specs
+              </li>
+              <li className="flex items-center gap-1.5">
+                <span className="text-amazon-orange">✓</span> Keywords &amp; Amazon listing copy
+              </li>
+              <li className="flex items-center gap-1.5">
+                <span className="text-amazon-orange">✓</span> Pay per use or 6 months — your choice
+              </li>
+            </ul>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link
+                href="/#tools"
+                className="inline-flex items-center gap-2 rounded-lg bg-amazon-orange px-4 py-2.5 text-sm font-semibold text-black hover:opacity-90"
+              >
+                Try free tools
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+              </Link>
+              <Link
+                href="/kdp-formatter"
+                className="inline-flex items-center gap-2 rounded-lg border border-amazon-orange/50 px-4 py-2.5 text-sm font-medium text-white hover:bg-amazon-orange/10"
+              >
+                Get started with formatter
+              </Link>
+            </div>
+          </section>
+        )}
         <div className="flex items-center gap-4 mb-6">
           <PlatformLogoBadge platformId={platform.id} platformName={platform.name} size="lg" />
           <div>
@@ -145,7 +187,7 @@ export default function PlatformPage() {
 
         {freeTools.length > 0 && (
           <div className="mb-6">
-            <h2 className="font-bebas text-lg tracking-wide text-brand-cream mb-3">Free tools</h2>
+            <h2 className={sectionTitleClass}>Free tools</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
               {freeTools.map((tool) => (
                 <CompactToolCard key={tool.id} tool={tool} amazon={amazon} />
@@ -155,7 +197,7 @@ export default function PlatformPage() {
         )}
 
         <div className="mb-8">
-          {paidTools.length > 0 && <h2 className="font-bebas text-lg tracking-wide text-brand-cream mb-3">Tools</h2>}
+          {paidTools.length > 0 && <h2 className={sectionTitleClass}>Tools</h2>}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
             {paidTools.map((tool) => (
               <CompactToolCard key={tool.id} tool={tool} amazon={amazon} />

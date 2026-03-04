@@ -174,7 +174,9 @@ export default function PdfCompressPage() {
               />
               {file && (
                 <div className="mt-2">
-                  <p className="text-slate-500 text-sm overflow-hidden text-ellipsis max-w-full" title={file.name}>Selected: {truncateFilenameMiddle(file.name)}</p>
+                  <p className="text-slate-500 text-sm overflow-hidden text-ellipsis max-w-full" title={file.name}>
+                    {truncateFilenameMiddle(file.name)}
+                  </p>
                   <p className="text-slate-500 text-xs mt-0.5">{formatFileSize(file.size)}</p>
                 </div>
               )}

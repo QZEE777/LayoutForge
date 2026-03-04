@@ -176,11 +176,13 @@ export default function DescriptionGeneratorPdfPage() {
             className="block w-full text-sm text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-red-600 file:text-white file:font-medium file:hover:bg-red-700"
           />
           {file && (
-          <div className="mt-2">
-            <p className="text-slate-500 text-sm overflow-hidden text-ellipsis max-w-full" title={file.name}>Selected: {truncateFilenameMiddle(file.name)}</p>
-            <p className="text-slate-500 text-xs mt-0.5">{formatFileSize(file.size)}</p>
-          </div>
-        )}
+            <div className="mt-2">
+              <p className="text-slate-500 text-sm overflow-hidden text-ellipsis max-w-full" title={file.name}>
+                {truncateFilenameMiddle(file.name)}
+              </p>
+              <p className="text-slate-500 text-xs mt-0.5">{formatFileSize(file.size)}</p>
+            </div>
+          )}
           {loading && progress > 0 && (
             <div className="mt-4">
               <div className="mb-2 flex justify-between text-sm text-slate-400">

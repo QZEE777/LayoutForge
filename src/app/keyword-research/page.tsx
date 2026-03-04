@@ -78,11 +78,13 @@ export default function KeywordResearchPage() {
             className="block w-full text-sm text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-slate-700 file:text-white file:font-medium"
           />
           {file && (
-          <div className="mt-2">
-            <p className="text-slate-500 text-sm overflow-hidden text-ellipsis max-w-full" title={file.name}>Selected: {truncateFilenameMiddle(file.name)}</p>
-            <p className="text-slate-500 text-xs mt-0.5">{formatFileSize(file.size)}</p>
-          </div>
-        )}
+            <div className="mt-2">
+              <p className="text-slate-500 text-sm overflow-hidden text-ellipsis max-w-full" title={file.name}>
+                {truncateFilenameMiddle(file.name)}
+              </p>
+              <p className="text-slate-500 text-xs mt-0.5">{formatFileSize(file.size)}</p>
+            </div>
+          )}
           <button
             type="button"
             onClick={handleSubmit}
