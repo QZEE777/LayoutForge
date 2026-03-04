@@ -71,7 +71,7 @@ function ComingSoonCard({ title, amazon }: { title: string; amazon: boolean }) {
   );
 }
 
-const COMING_SOON_KDP = ["KDP Format Review", "Spine width calculator"];
+const COMING_SOON_KDP = ["KDP Format Review"];
 const COMING_SOON_INGRAM = ["IngramSpark Formatter", "Print-ready PDF"];
 const COMING_SOON_GUMROAD = ["Gumroad Formatter", "Digital product pack"];
 

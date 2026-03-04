@@ -29,6 +29,7 @@ export const ALL_TOOLS: Tool[] = [
   { id: "royalty-calculator", title: "KDP Royalty Calculator", description: "Earnings by page count, trim, list price.", href: "/royalty-calculator", available: true, iconPath: "M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z", free: true },
   { id: "page-count-estimator", title: "Page Count Estimator", description: "Estimate interior pages from word count and trim size.", href: "/page-count-estimator", available: true, iconPath: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4H5m3-4H5m0 0h3", free: true },
   { id: "trim-size-comparison", title: "Trim Size Comparison", description: "Compare print cost and royalty across trim sizes.", href: "/trim-size-comparison", available: true, iconPath: "M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2H9a2 2 0 00-2 2v10z", free: true },
+  { id: "spine-calculator", title: "Spine width calculator", description: "Spine width and full-wrap cover dimensions for KDP paperbacks.", href: "/spine-calculator", available: true, iconPath: "M4 6h16M4 10h16M4 14h16M4 18h16", free: true },
 ];
 
 export interface Platform {
@@ -39,7 +40,7 @@ export interface Platform {
 }
 
 export const PLATFORMS: Platform[] = [
-  { id: "kdp", name: "Amazon KDP", tagline: "Everything you need for Amazon KDP", toolIds: ["pdf-compress", "pdf-optimizer", "royalty-calculator", "page-count-estimator", "trim-size-comparison", "kdp-formatter", "keyword-research", "description-generator", "kdp-pdf-checker", "keyword-research-pdf", "description-generator-pdf", "epub-maker"] },
+  { id: "kdp", name: "Amazon KDP", tagline: "Everything you need for Amazon KDP", toolIds: ["pdf-compress", "pdf-optimizer", "royalty-calculator", "page-count-estimator", "trim-size-comparison", "spine-calculator", "kdp-formatter", "keyword-research", "description-generator", "kdp-pdf-checker", "keyword-research-pdf", "description-generator-pdf", "epub-maker"] },
   { id: "ingramspark", name: "IngramSpark", tagline: "Everything you need for IngramSpark", toolIds: [] },
   { id: "gumroad", name: "Gumroad", tagline: "Everything you need for Gumroad", toolIds: [] },
 ];
