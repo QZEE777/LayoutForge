@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import AmazonLogo from "@/components/AmazonLogo";
+import PlatformLogoBadge from "@/components/PlatformLogoBadge";
 import { PLATFORMS, getToolsForPlatform, type Tool } from "@/data/platformTools";
 
 const isAmazon = (id: string) => id === "kdp";
@@ -76,7 +76,6 @@ export default function PlatformPage() {
   const platform = PLATFORMS.find((p) => p.id === platformId);
   const tools = platform ? getToolsForPlatform(platform.toolIds) : [];
   const comingSoonTitles = getComingSoonTitles(platformId);
-  const initial = platform?.name.charAt(0) ?? "?";
   const amazon = isAmazon(platformId);
 
   if (!platform) {
@@ -93,9 +92,6 @@ export default function PlatformPage() {
     ? "sticky top-0 z-20 border-b border-amazon-orange/20 bg-amazon-dark/95 backdrop-blur-sm"
     : "sticky top-0 z-20 border-b border-white/5 bg-brand-bg/80 backdrop-blur-sm";
   const navLinkClass = amazon ? "text-sm font-medium text-white hover:text-amazon-orange transition-colors" : "text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors";
-  const headerSlotClass = amazon
-    ? "w-14 h-14 rounded-lg bg-amazon-card flex items-center justify-center flex-shrink-0"
-    : "w-14 h-14 rounded-lg bg-brand-cardHover flex items-center justify-center flex-shrink-0 text-2xl font-bebas tracking-wide text-brand-gold";
   const h1Class = amazon ? "font-bebas text-2xl sm:text-3xl tracking-wide text-white" : "font-bebas text-2xl sm:text-3xl tracking-wide text-brand-cream";
   const taglineClass = amazon ? "font-sans text-sm text-amazon-muted mt-0.5" : "font-sans text-sm text-brand-muted mt-0.5";
   const backClass = amazon ? "font-sans text-sm text-amazon-orange hover:underline" : "font-sans text-sm text-brand-gold hover:underline";
@@ -106,13 +102,13 @@ export default function PlatformPage() {
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             {amazon ? (
-              <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 bg-amazon-orange">
+              <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 bg-amazon-orange">
                 <svg className="w-4 h-4" fill="none" stroke="black" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
               </div>
             ) : (
-              <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 bg-brand-gold">
+              <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 bg-brand-gold">
                 <svg className="w-4 h-4" fill="none" stroke="#0F0D0B" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
@@ -131,9 +127,7 @@ export default function PlatformPage() {
 
       <main className="mx-auto max-w-6xl px-6 py-8">
         <div className="flex items-center gap-4 mb-6">
-          <div className={headerSlotClass}>
-            {amazon ? <AmazonLogo className="w-10 h-10" /> : initial}
-          </div>
+          <PlatformLogoBadge platformId={platform.id} platformName={platform.name} size="md" />
           <div>
             <h1 className={h1Class}>{platform.name}</h1>
             <p className={taglineClass}>{platform.tagline}</p>

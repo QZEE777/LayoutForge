@@ -1,0 +1,44 @@
+"use client";
+
+import AmazonLogo from "@/components/AmazonLogo";
+
+/**
+ * Circular badge for platform logo. Used on homepage platform boxes and platform pages.
+ * Amazon KDP = name logo inside circle; other platforms = initial inside circle.
+ * Same shape for all brands for consistent design.
+ */
+export default function PlatformLogoBadge({
+  platformId,
+  platformName,
+  size = "md",
+  className = "",
+}: {
+  platformId: string;
+  platformName: string;
+  size?: "sm" | "md" | "lg";
+  className?: string;
+}) {
+  const isAmazon = platformId === "kdp";
+  const initial = platformName.charAt(0);
+
+  const sizeClass = size === "sm" ? "w-12 h-12" : size === "lg" ? "w-20 h-20" : "w-14 h-14";
+  const logoSize = size === "sm" ? "w-7 h-7" : size === "lg" ? "w-11 h-11" : "w-9 h-9";
+
+  const circleClass = isAmazon
+    ? "rounded-full bg-white flex items-center justify-center flex-shrink-0 text-black shadow-sm ring-1 ring-black/5"
+    : "rounded-full bg-brand-cardHover flex items-center justify-center flex-shrink-0 text-xl font-bebas tracking-wide text-brand-gold border border-brand-cardHover";
+
+  return (
+    <div
+      className={`${sizeClass} ${circleClass} ${className}`}
+      role="img"
+      aria-label={platformName}
+    >
+      {isAmazon ? (
+        <AmazonLogo className={logoSize} />
+      ) : (
+        <span>{initial}</span>
+      )}
+    </div>
+  );
+}

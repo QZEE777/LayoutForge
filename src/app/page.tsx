@@ -1,22 +1,18 @@
 import Link from "next/link";
 import AuthNav from "@/components/AuthNav";
-import AmazonLogo from "@/components/AmazonLogo";
+import PlatformLogoBadge from "@/components/PlatformLogoBadge";
 import { PLATFORMS, getToolsForPlatform, type Platform, type Tool } from "@/data/platformTools";
 
 const isAmazon = (id: string) => id === "kdp";
 
-/** Compact platform box on homepage: logo + tagline + small tool buttons + big Launch. Amazon KDP uses Amazon logo and colors. */
+/** Compact platform box on homepage: logo badge (circle) + tagline + small tool buttons + big Launch. */
 function PlatformBox({ platform, tools }: { platform: Platform; tools: Tool[] }) {
-  const initial = platform.name.charAt(0);
   const platformHref = `/platform/${platform.id}`;
   const amazon = isAmazon(platform.id);
 
   const boxClass = amazon
     ? "rounded-xl border border-amazon-orange/30 bg-amazon-dark overflow-hidden mb-8"
     : "rounded-xl border border-brand-cardHover bg-brand-card overflow-hidden mb-8";
-  const logoSlotClass = amazon
-    ? "w-12 h-12 rounded-lg bg-amazon-card flex items-center justify-center flex-shrink-0"
-    : "w-12 h-12 rounded-lg bg-brand-cardHover flex items-center justify-center flex-shrink-0 text-xl font-bebas tracking-wide text-brand-gold";
   const titleClass = amazon ? "font-bebas text-xl tracking-wide text-white" : "font-bebas text-xl tracking-wide text-brand-cream";
   const taglineClass = amazon ? "font-sans text-xs text-amazon-muted mt-0.5" : "font-sans text-xs text-brand-muted mt-0.5";
   const pillClass = amazon
@@ -30,9 +26,7 @@ function PlatformBox({ platform, tools }: { platform: Platform; tools: Tool[] })
     <section className={boxClass}>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5">
         <div className="flex items-center gap-3">
-          <div className={logoSlotClass}>
-            {amazon ? <AmazonLogo className="w-8 h-8" /> : initial}
-          </div>
+          <PlatformLogoBadge platformId={platform.id} platformName={platform.name} size="sm" />
           <div>
             <h3 className={titleClass}>{platform.name}</h3>
             <p className={taglineClass}>{platform.tagline}</p>
