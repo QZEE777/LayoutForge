@@ -10,26 +10,25 @@ interface Tool {
   iconPath: string;
 }
 
-const docxTools: Tool[] = [
+/** All tools; platforms reference by id. */
+const ALL_TOOLS: Tool[] = [
   { id: "kdp-formatter", title: "KDP Formatter (DOCX)", description: "Format DOCX for Amazon KDP print. Trim size, bleed, print-ready PDF.", href: "/kdp-formatter", available: true, iconPath: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
   { id: "keyword-research", title: "7 Keyword Research (DOCX)", description: "Get 7 KDP keyword phrases from your DOCX manuscript.", href: "/keyword-research", available: true, iconPath: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" },
   { id: "description-generator", title: "Amazon Description Generator (DOCX)", description: "Full Amazon listing package — book description, author bio, BISAC categories. DOCX only.", href: "/description-generator", available: true, iconPath: "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" },
-];
-
-const pdfTools: Tool[] = [
   { id: "pdf-compress", title: "PDF Compressor (free)", description: "Shrink PDFs up to 50MB. Free — no account needed. Email required for download.", href: "/pdf-compress", available: true, iconPath: "M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4 4m0 0l-4-4m4 4V4" },
   { id: "pdf-optimizer", title: "PDF Print Optimizer", description: "Shrink / print-optimize your PDF. FREE.", href: "/kdp-formatter-pdf", available: true, iconPath: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
   { id: "kdp-pdf-checker", title: "KDP PDF Checker", description: "Check your PDF against Amazon KDP specs before you upload. $7 per use · $27 for 6 months.", href: "/kdp-pdf-checker", available: true, iconPath: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" },
   { id: "keyword-research-pdf", title: "7 Keyword Research (PDF)", description: "Get 7 KDP keyword phrases from your PDF manuscript.", href: "/keyword-research-pdf", available: true, iconPath: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" },
   { id: "description-generator-pdf", title: "Amazon Description Generator (PDF)", description: "Full Amazon listing package — book description, author bio, BISAC categories. PDF only.", href: "/description-generator-pdf", available: true, iconPath: "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" },
-];
-
-const kindleTools: Tool[] = [
   { id: "epub-maker", title: "Kindle EPUB Maker", description: "Manuscript to Kindle-ready EPUB. Chapter structure, metadata.", href: "/epub-maker", available: false, iconPath: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" },
+  { id: "royalty-calculator", title: "KDP Royalty Calculator", description: "Earnings by page count, trim size, list price, 60% or 35% royalty.", href: "/royalty-calculator", available: true, iconPath: "M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" },
 ];
 
-const publishingTools: Tool[] = [
-  { id: "royalty-calculator", title: "KDP Royalty Calculator", description: "Earnings by page count, trim size, list price, 60% or 35% royalty.", href: "/royalty-calculator", available: true, iconPath: "M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" },
+/** Platform hub: each box = logo + tagline + that platform's tools. */
+const PLATFORMS: { id: string; name: string; tagline: string; toolIds: string[] }[] = [
+  { id: "kdp", name: "Amazon KDP", tagline: "Everything you need for Amazon KDP", toolIds: ["kdp-formatter", "keyword-research", "description-generator", "pdf-compress", "pdf-optimizer", "kdp-pdf-checker", "keyword-research-pdf", "description-generator-pdf", "epub-maker", "royalty-calculator"] },
+  { id: "ingramspark", name: "IngramSpark", tagline: "Everything you need for IngramSpark", toolIds: [] },
+  { id: "gumroad", name: "Gumroad", tagline: "Everything you need for Gumroad", toolIds: [] },
 ];
 
 function ToolCard({ tool }: { tool: Tool }) {
@@ -72,16 +71,44 @@ function ToolCard({ tool }: { tool: Tool }) {
   );
 }
 
-function ToolRow({ title, tools }: { title: string; tools: Tool[] }) {
+function getToolsForPlatform(toolIds: string[]): Tool[] {
+  return toolIds.map((id) => ALL_TOOLS.find((t) => t.id === id)).filter(Boolean) as Tool[];
+}
+
+/** Platform box: logo area + tagline + tools (or Coming soon). */
+function PlatformBox({
+  platform,
+  tools,
+}: {
+  platform: { id: string; name: string; tagline: string };
+  tools: Tool[];
+}) {
+  const initial = platform.name.charAt(0);
   return (
-    <div className="mb-10">
-      <h3 className="font-bebas text-lg tracking-wide text-brand-cream mb-4">{title}</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {tools.map((tool) => (
-          <ToolCard key={tool.id} tool={tool} />
-        ))}
+    <section className="rounded-xl border border-brand-cardHover bg-brand-card overflow-hidden mb-10">
+      {/* Header: logo slot + name + tagline */}
+      <div className="flex flex-wrap items-center gap-4 p-6 border-b border-white/5">
+        <div className="w-14 h-14 rounded-lg bg-brand-cardHover flex items-center justify-center flex-shrink-0 text-2xl font-bebas tracking-wide text-brand-gold">
+          {initial}
+        </div>
+        <div>
+          <h3 className="font-bebas text-2xl tracking-wide text-brand-cream">{platform.name}</h3>
+          <p className="font-sans text-sm text-brand-muted mt-0.5">{platform.tagline}</p>
+        </div>
       </div>
-    </div>
+      {/* Tools grid or Coming soon */}
+      <div className="p-6">
+        {tools.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {tools.map((tool) => (
+              <ToolCard key={tool.id} tool={tool} />
+            ))}
+          </div>
+        ) : (
+          <p className="font-sans text-brand-muted text-center py-6">Coming soon. Sign up on the Formatter page to be notified.</p>
+        )}
+      </div>
+    </section>
   );
 }
 
@@ -185,20 +212,23 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Tools */}
+      {/* Tools by platform */}
       <section id="tools" className="px-6 pb-24">
         <div className="mx-auto max-w-6xl">
           <h2 className="font-bebas text-2xl sm:text-3xl tracking-wide text-brand-cream mb-2">
-            The Tools
+            Tools by platform
           </h2>
           <p className="font-sans text-brand-muted mb-8">
-            Each one does a single job — and does it right.
+            Pick your platform. Everything you need in one place.
           </p>
 
-          <ToolRow title="DOCX tools" tools={docxTools} />
-          <ToolRow title="PDF tools" tools={pdfTools} />
-          <ToolRow title="Kindle & EPUB" tools={kindleTools} />
-          <ToolRow title="Publishing tools" tools={publishingTools} />
+          {PLATFORMS.map((platform) => (
+            <PlatformBox
+              key={platform.id}
+              platform={platform}
+              tools={getToolsForPlatform(platform.toolIds)}
+            />
+          ))}
         </div>
       </section>
 
