@@ -19,8 +19,8 @@ const PAID_TOOLS: { title: string; description: React.ReactNode; href: string; p
 /** Mini tools — calculator, estimators, etc. */
 const MINI_TOOLS: { title: string; description: string; href: string; live: boolean }[] = [
   { title: "KDP Royalty Calculator", description: "Earnings by page count, trim size, list price. 60% or 35% royalty.", href: "/royalty-calculator", live: true },
-  { title: "Page Count Estimator", description: "Estimate interior pages from word count and trim size.", href: "#", live: false },
-  { title: "Trim Size Comparison", description: "Compare print costs and royalties across trim sizes.", href: "#", live: false },
+  { title: "Page Count Estimator", description: "Estimate interior pages from word count and trim size.", href: "/page-count-estimator", live: true },
+  { title: "Trim Size Comparison", description: "Compare print costs and royalties across trim sizes.", href: "/trim-size-comparison", live: true },
 ];
 
 const COMING_SOON = [

@@ -15,6 +15,8 @@ const TOOL_PATHS = [
   "/tools/pdf-compress",
   "/epub-maker",
   "/royalty-calculator",
+  "/page-count-estimator",
+  "/trim-size-comparison",
   "/upload",
 ];
 

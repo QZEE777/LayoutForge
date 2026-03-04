@@ -5,10 +5,16 @@ import { PLATFORMS, getToolsForPlatform, type Platform, type Tool } from "@/data
 
 const isAmazon = (id: string) => id === "kdp";
 
-/** Compact platform box on homepage: logo badge (circle) + tagline + small tool buttons + big Launch. */
+const FREE_GREEN = "#22c55e";
+
+/** Compact platform box: free tools in one row at top (FREE in green), then paid, then Launch. */
 function PlatformBox({ platform, tools }: { platform: Platform; tools: Tool[] }) {
   const platformHref = `/platform/${platform.id}`;
   const amazon = isAmazon(platform.id);
+  const freeTools = tools.filter((t) => t.free);
+  const paidTools = tools.filter((t) => !t.free);
+  const displayPaid = paidTools.slice(0, 6);
+  const moreCount = Math.max(0, paidTools.length - 6);
 
   const boxClass = amazon
     ? "rounded-xl border border-amazon-orange/30 bg-amazon-dark overflow-hidden mb-8"
@@ -22,6 +28,8 @@ function PlatformBox({ platform, tools }: { platform: Platform; tools: Tool[] })
     ? "inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold bg-amazon-orange text-black hover:opacity-90 transition-opacity w-full sm:w-auto"
     : "inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold bg-brand-gold text-brand-bg hover:opacity-90 transition-opacity w-full sm:w-auto";
 
+  const toolLabel = (t: Tool) => t.title.replace(/ \(DOCX\)| \(PDF\)| \(free\)| \(FREE\)/gi, "").trim();
+
   return (
     <section className={boxClass}>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5">
@@ -34,16 +42,28 @@ function PlatformBox({ platform, tools }: { platform: Platform; tools: Tool[] })
         </div>
         <div className="flex flex-col gap-3 sm:items-end">
           {tools.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {tools.slice(0, 8).map((tool) => (
-                <Link key={tool.id} href={tool.href} className={pillClass}>
-                  {tool.title.replace(/ \(DOCX\)| \(PDF\)| \(free\)/i, "")}
-                </Link>
-              ))}
-              {tools.length > 8 && (
-                <span className={amazon ? "text-amazon-muted rounded-md px-3 py-1.5 text-xs" : "text-brand-muted rounded-md px-3 py-1.5 text-xs"}>+{tools.length - 8} more</span>
+            <>
+              {freeTools.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {freeTools.map((tool) => (
+                    <Link key={tool.id} href={tool.href} className={`${pillClass} inline-flex items-center gap-1.5`}>
+                      <span style={amazon ? {} : {}}>{toolLabel(tool)}</span>
+                      <span className="font-bold uppercase text-[10px] tracking-wide" style={{ color: FREE_GREEN }}>FREE</span>
+                    </Link>
+                  ))}
+                </div>
               )}
-            </div>
+              <div className="flex flex-wrap gap-2">
+                {displayPaid.map((tool) => (
+                  <Link key={tool.id} href={tool.href} className={pillClass}>
+                    {toolLabel(tool)}
+                  </Link>
+                ))}
+                {moreCount > 0 && (
+                  <span className={amazon ? "text-amazon-muted rounded-md px-3 py-1.5 text-xs" : "text-brand-muted rounded-md px-3 py-1.5 text-xs"}>+{moreCount} more</span>
+                )}
+              </div>
+            </>
           )}
           <Link href={platformHref} className={launchClass}>
             <span className="font-bebas tracking-wide">Launch</span>

@@ -7,7 +7,9 @@ import { PLATFORMS, getToolsForPlatform, type Tool } from "@/data/platformTools"
 
 const isAmazon = (id: string) => id === "kdp";
 
-/** Small tool card for platform page. Amazon theme when isAmazon. */
+const FREE_GREEN = "#22c55e";
+
+/** Small tool card. Shows green FREE badge when tool.free. */
 function CompactToolCard({ tool, amazon }: { tool: Tool; amazon: boolean }) {
   const cardClass = amazon
     ? "rounded-lg border-l-2 border-amazon-orange border border-amazon-orange/20 p-3 bg-amazon-card hover:border-amazon-orange/50 transition-all"
@@ -25,7 +27,12 @@ function CompactToolCard({ tool, amazon }: { tool: Tool; amazon: boolean }) {
     <div className={cardClass}>
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <h4 className={titleClass}>{tool.title}</h4>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h4 className={titleClass}>{tool.title}</h4>
+            {tool.free && (
+              <span className="font-bold text-[10px] uppercase tracking-wide shrink-0" style={{ color: FREE_GREEN }}>FREE</span>
+            )}
+          </div>
           <p className={descClass}>{tool.description}</p>
         </div>
         <div className="flex-shrink-0">
@@ -74,7 +81,9 @@ export default function PlatformPage() {
   const params = useParams();
   const platformId = (params?.platformId as string) ?? "";
   const platform = PLATFORMS.find((p) => p.id === platformId);
-  const tools = platform ? getToolsForPlatform(platform.toolIds) : [];
+  const allTools = platform ? getToolsForPlatform(platform.toolIds) : [];
+  const freeTools = allTools.filter((t) => t.free);
+  const paidTools = allTools.filter((t) => !t.free);
   const comingSoonTitles = getComingSoonTitles(platformId);
   const amazon = isAmazon(platformId);
 
@@ -134,13 +143,27 @@ export default function PlatformPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 mb-8">
-          {tools.map((tool) => (
-            <CompactToolCard key={tool.id} tool={tool} amazon={amazon} />
-          ))}
-          {comingSoonTitles.map((title) => (
-            <ComingSoonCard key={title} title={title} amazon={amazon} />
-          ))}
+        {freeTools.length > 0 && (
+          <div className="mb-6">
+            <h2 className="font-bebas text-lg tracking-wide text-brand-cream mb-3">Free tools</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+              {freeTools.map((tool) => (
+                <CompactToolCard key={tool.id} tool={tool} amazon={amazon} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="mb-8">
+          {paidTools.length > 0 && <h2 className="font-bebas text-lg tracking-wide text-brand-cream mb-3">Tools</h2>}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            {paidTools.map((tool) => (
+              <CompactToolCard key={tool.id} tool={tool} amazon={amazon} />
+            ))}
+            {comingSoonTitles.map((title) => (
+              <ComingSoonCard key={title} title={title} amazon={amazon} />
+            ))}
+          </div>
         </div>
 
         <Link href="/#tools" className={backClass}>
