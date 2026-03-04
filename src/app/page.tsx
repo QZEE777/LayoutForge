@@ -1,46 +1,57 @@
 import Link from "next/link";
 import AuthNav from "@/components/AuthNav";
+import AmazonLogo from "@/components/AmazonLogo";
 import { PLATFORMS, getToolsForPlatform, type Platform, type Tool } from "@/data/platformTools";
 
-/** Compact platform box on homepage: logo + tagline + small tool buttons + big Launch. */
+const isAmazon = (id: string) => id === "kdp";
+
+/** Compact platform box on homepage: logo + tagline + small tool buttons + big Launch. Amazon KDP uses Amazon logo and colors. */
 function PlatformBox({ platform, tools }: { platform: Platform; tools: Tool[] }) {
   const initial = platform.name.charAt(0);
   const platformHref = `/platform/${platform.id}`;
+  const amazon = isAmazon(platform.id);
+
+  const boxClass = amazon
+    ? "rounded-xl border border-amazon-orange/30 bg-amazon-dark overflow-hidden mb-8"
+    : "rounded-xl border border-brand-cardHover bg-brand-card overflow-hidden mb-8";
+  const logoSlotClass = amazon
+    ? "w-12 h-12 rounded-lg bg-amazon-card flex items-center justify-center flex-shrink-0"
+    : "w-12 h-12 rounded-lg bg-brand-cardHover flex items-center justify-center flex-shrink-0 text-xl font-bebas tracking-wide text-brand-gold";
+  const titleClass = amazon ? "font-bebas text-xl tracking-wide text-white" : "font-bebas text-xl tracking-wide text-brand-cream";
+  const taglineClass = amazon ? "font-sans text-xs text-amazon-muted mt-0.5" : "font-sans text-xs text-brand-muted mt-0.5";
+  const pillClass = amazon
+    ? "rounded-md border border-amazon-orange/40 px-3 py-1.5 text-xs font-sans text-amazon-muted hover:bg-amazon-orange/10 hover:border-amazon-orange/60 transition-colors"
+    : "rounded-md border border-brand-cardHover px-3 py-1.5 text-xs font-sans text-brand-cream hover:bg-white/5 hover:border-brand-gold/50 transition-colors";
+  const launchClass = amazon
+    ? "inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold bg-amazon-orange text-black hover:opacity-90 transition-opacity w-full sm:w-auto"
+    : "inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold bg-brand-gold text-brand-bg hover:opacity-90 transition-opacity w-full sm:w-auto";
+
   return (
-    <section className="rounded-xl border border-brand-cardHover bg-brand-card overflow-hidden mb-8">
+    <section className={boxClass}>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5">
-        {/* Logo + name + tagline */}
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-lg bg-brand-cardHover flex items-center justify-center flex-shrink-0 text-xl font-bebas tracking-wide text-brand-gold">
-            {initial}
+          <div className={logoSlotClass}>
+            {amazon ? <AmazonLogo className="w-8 h-8" /> : initial}
           </div>
           <div>
-            <h3 className="font-bebas text-xl tracking-wide text-brand-cream">{platform.name}</h3>
-            <p className="font-sans text-xs text-brand-muted mt-0.5">{platform.tagline}</p>
+            <h3 className={titleClass}>{platform.name}</h3>
+            <p className={taglineClass}>{platform.tagline}</p>
           </div>
         </div>
-        {/* Small tool buttons (wrap) + big Launch */}
         <div className="flex flex-col gap-3 sm:items-end">
           {tools.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {tools.slice(0, 8).map((tool) => (
-                <Link
-                  key={tool.id}
-                  href={tool.href}
-                  className="rounded-md border border-brand-cardHover px-3 py-1.5 text-xs font-sans text-brand-cream hover:bg-white/5 hover:border-brand-gold/50 transition-colors"
-                >
+                <Link key={tool.id} href={tool.href} className={pillClass}>
                   {tool.title.replace(/ \(DOCX\)| \(PDF\)| \(free\)/i, "")}
                 </Link>
               ))}
               {tools.length > 8 && (
-                <span className="rounded-md px-3 py-1.5 text-xs text-brand-muted">+{tools.length - 8} more</span>
+                <span className={amazon ? "text-amazon-muted rounded-md px-3 py-1.5 text-xs" : "text-brand-muted rounded-md px-3 py-1.5 text-xs"}>+{tools.length - 8} more</span>
               )}
             </div>
           )}
-          <Link
-            href={platformHref}
-            className="inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold bg-brand-gold text-brand-bg hover:opacity-90 transition-opacity w-full sm:w-auto"
-          >
+          <Link href={platformHref} className={launchClass}>
             <span className="font-bebas tracking-wide">Launch</span>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           </Link>
@@ -48,10 +59,7 @@ function PlatformBox({ platform, tools }: { platform: Platform; tools: Tool[] })
       </div>
       {tools.length === 0 && (
         <div className="px-5 pb-5">
-          <Link
-            href={platformHref}
-            className="inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold bg-brand-gold text-brand-bg hover:opacity-90 transition-opacity"
-          >
+          <Link href={platformHref} className={launchClass}>
             Launch
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           </Link>

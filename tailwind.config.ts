@@ -25,6 +25,12 @@ const config: Config = {
           muted: "#8B7355",
           locked: "#2A2520",
         },
+        amazon: {
+          orange: "#FF9900",
+          dark: "#131A22",
+          card: "#1C2833",
+          muted: "#A0AEC0",
+        },
       },
       boxShadow: {
         "gold-glow": "0 0 20px rgba(245, 166, 35, 0.15)",

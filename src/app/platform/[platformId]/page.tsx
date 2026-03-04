@@ -2,30 +2,40 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import AmazonLogo from "@/components/AmazonLogo";
 import { PLATFORMS, getToolsForPlatform, type Tool } from "@/data/platformTools";
 
-/** Small tool card for platform page — fits more above the fold. */
-function CompactToolCard({ tool }: { tool: Tool }) {
+const isAmazon = (id: string) => id === "kdp";
+
+/** Small tool card for platform page. Amazon theme when isAmazon. */
+function CompactToolCard({ tool, amazon }: { tool: Tool; amazon: boolean }) {
+  const cardClass = amazon
+    ? "rounded-lg border-l-2 border-amazon-orange border border-amazon-orange/20 p-3 bg-amazon-card hover:border-amazon-orange/50 transition-all"
+    : "rounded-lg border-l-2 border-brand-gold border border-brand-cardHover p-3 bg-brand-card hover:shadow-gold-glow hover:border-brand-cardHover transition-all";
+  const titleClass = amazon ? "font-bebas text-base tracking-wide text-white truncate" : "font-bebas text-base tracking-wide text-brand-cream truncate";
+  const descClass = amazon ? "font-sans text-xs text-amazon-muted mt-0.5 line-clamp-2" : "font-sans text-xs text-brand-muted mt-0.5 line-clamp-2";
+  const openClass = amazon
+    ? "inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-xs font-semibold bg-amazon-orange text-black hover:opacity-90"
+    : "inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-xs font-semibold bg-brand-gold text-brand-bg hover:opacity-90";
+  const soonClass = amazon
+    ? "rounded-md px-3 py-1.5 text-xs font-medium text-amazon-muted bg-amazon-dark border border-amazon-orange/20"
+    : "rounded-md px-3 py-1.5 text-xs font-medium text-brand-muted bg-brand-locked border border-brand-cardHover";
+
   return (
-    <div className="rounded-lg border-l-2 border-brand-gold border border-brand-cardHover p-3 bg-brand-card hover:shadow-gold-glow hover:border-brand-cardHover transition-all">
+    <div className={cardClass}>
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <h4 className="font-bebas text-base tracking-wide text-brand-cream truncate">{tool.title}</h4>
-          <p className="font-sans text-xs text-brand-muted mt-0.5 line-clamp-2">{tool.description}</p>
+          <h4 className={titleClass}>{tool.title}</h4>
+          <p className={descClass}>{tool.description}</p>
         </div>
         <div className="flex-shrink-0">
           {tool.available ? (
-            <Link
-              href={tool.href}
-              className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-xs font-semibold bg-brand-gold text-brand-bg hover:opacity-90"
-            >
+            <Link href={tool.href} className={openClass}>
               Open
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
             </Link>
           ) : (
-            <span className="rounded-md px-3 py-1.5 text-xs font-medium text-brand-muted bg-brand-locked border border-brand-cardHover">
-              Soon
-            </span>
+            <span className={soonClass}>Soon</span>
           )}
         </div>
       </div>
@@ -33,12 +43,18 @@ function CompactToolCard({ tool }: { tool: Tool }) {
   );
 }
 
-/** Placeholder for coming-soon tools on platform page. */
-function ComingSoonCard({ title }: { title: string }) {
+/** Placeholder for coming-soon tools. */
+function ComingSoonCard({ title, amazon }: { title: string; amazon: boolean }) {
+  const cardClass = amazon
+    ? "rounded-lg border border-amazon-orange/20 border-dashed p-3 bg-amazon-card/70 opacity-90"
+    : "rounded-lg border border-brand-cardHover border-dashed p-3 bg-brand-card/50 opacity-80";
+  const titleCls = amazon ? "font-bebas text-base tracking-wide text-amazon-muted" : "font-bebas text-base tracking-wide text-brand-muted";
+  const subCls = amazon ? "font-sans text-xs text-amazon-muted mt-1" : "font-sans text-xs text-brand-muted mt-1";
+
   return (
-    <div className="rounded-lg border border-brand-cardHover border-dashed p-3 bg-brand-card/50 opacity-80">
-      <h4 className="font-bebas text-base tracking-wide text-brand-muted">{title}</h4>
-      <p className="font-sans text-xs text-brand-muted mt-1">Coming soon</p>
+    <div className={cardClass}>
+      <h4 className={titleCls}>{title}</h4>
+      <p className={subCls}>Coming soon</p>
     </div>
   );
 }
@@ -61,6 +77,7 @@ export default function PlatformPage() {
   const tools = platform ? getToolsForPlatform(platform.toolIds) : [];
   const comingSoonTitles = getComingSoonTitles(platformId);
   const initial = platform?.name.charAt(0) ?? "?";
+  const amazon = isAmazon(platformId);
 
   if (!platform) {
     return (
@@ -71,50 +88,68 @@ export default function PlatformPage() {
     );
   }
 
+  const pageBg = amazon ? "min-h-screen bg-amazon-dark" : "min-h-screen bg-brand-bg";
+  const navClass = amazon
+    ? "sticky top-0 z-20 border-b border-amazon-orange/20 bg-amazon-dark/95 backdrop-blur-sm"
+    : "sticky top-0 z-20 border-b border-white/5 bg-brand-bg/80 backdrop-blur-sm";
+  const navLinkClass = amazon ? "text-sm font-medium text-white hover:text-amazon-orange transition-colors" : "text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors";
+  const headerSlotClass = amazon
+    ? "w-14 h-14 rounded-lg bg-amazon-card flex items-center justify-center flex-shrink-0"
+    : "w-14 h-14 rounded-lg bg-brand-cardHover flex items-center justify-center flex-shrink-0 text-2xl font-bebas tracking-wide text-brand-gold";
+  const h1Class = amazon ? "font-bebas text-2xl sm:text-3xl tracking-wide text-white" : "font-bebas text-2xl sm:text-3xl tracking-wide text-brand-cream";
+  const taglineClass = amazon ? "font-sans text-sm text-amazon-muted mt-0.5" : "font-sans text-sm text-brand-muted mt-0.5";
+  const backClass = amazon ? "font-sans text-sm text-amazon-orange hover:underline" : "font-sans text-sm text-brand-gold hover:underline";
+
   return (
-    <div className="min-h-screen bg-brand-bg">
-      <nav className="sticky top-0 z-20 border-b border-white/5 bg-brand-bg/80 backdrop-blur-sm">
+    <div className={pageBg}>
+      <nav className={navClass}>
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 bg-brand-gold">
-              <svg className="w-4 h-4" fill="none" stroke="#0F0D0B" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
-            </div>
-            <span className="text-lg font-bold tracking-tight text-brand-cream">
+            {amazon ? (
+              <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 bg-amazon-orange">
+                <svg className="w-4 h-4" fill="none" stroke="black" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+              </div>
+            ) : (
+              <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 bg-brand-gold">
+                <svg className="w-4 h-4" fill="none" stroke="#0F0D0B" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+              </div>
+            )}
+            <span className={amazon ? "text-lg font-bold tracking-tight text-white" : "text-lg font-bold tracking-tight text-brand-cream"}>
               <span className="font-serif">manu</span>
               <span className="font-sans">2print</span>
             </span>
           </Link>
-          <Link href="/#tools" className="text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors">
+          <Link href="/#tools" className={navLinkClass}>
             All platforms
           </Link>
         </div>
       </nav>
 
       <main className="mx-auto max-w-6xl px-6 py-8">
-        {/* Platform header */}
         <div className="flex items-center gap-4 mb-6">
-          <div className="w-14 h-14 rounded-lg bg-brand-cardHover flex items-center justify-center flex-shrink-0 text-2xl font-bebas tracking-wide text-brand-gold">
-            {initial}
+          <div className={headerSlotClass}>
+            {amazon ? <AmazonLogo className="w-10 h-10" /> : initial}
           </div>
           <div>
-            <h1 className="font-bebas text-2xl sm:text-3xl tracking-wide text-brand-cream">{platform.name}</h1>
-            <p className="font-sans text-sm text-brand-muted mt-0.5">{platform.tagline}</p>
+            <h1 className={h1Class}>{platform.name}</h1>
+            <p className={taglineClass}>{platform.tagline}</p>
           </div>
         </div>
 
-        {/* Compact tool grid — 4 cols desktop so more above the fold */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 mb-8">
           {tools.map((tool) => (
-            <CompactToolCard key={tool.id} tool={tool} />
+            <CompactToolCard key={tool.id} tool={tool} amazon={amazon} />
           ))}
           {comingSoonTitles.map((title) => (
-            <ComingSoonCard key={title} title={title} />
+            <ComingSoonCard key={title} title={title} amazon={amazon} />
           ))}
         </div>
 
-        <Link href="/#tools" className="font-sans text-sm text-brand-gold hover:underline">
+        <Link href="/#tools" className={backClass}>
           ← Back to all platforms
         </Link>
       </main>
