@@ -23,6 +23,8 @@ const MINI_TOOLS: { title: string; description: string; href: string; live: bool
   { title: "Trim Size Comparison", description: "Compare print costs and royalties across trim sizes.", href: "/trim-size-comparison", live: true },
   { title: "Spine width calculator", description: "Spine width and full-wrap cover dimensions for KDP paperbacks.", href: "/spine-calculator", live: true },
   { title: "Full-wrap cover calculator", description: "Cover canvas size in inches and pixels (300 DPI) for Canva and design tools.", href: "/cover-calculator", live: true },
+  { title: "Banned keyword checker", description: "Spot risky words in title, subtitle, or description before publishing.", href: "/banned-keyword-checker", live: true },
+  { title: "Kids book trim guide", description: "Trim sizes and page counts for picture books and children's titles.", href: "/kids-trim-guide", live: true },
 ];
 
 const COMING_SOON = [

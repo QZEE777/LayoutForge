@@ -31,6 +31,8 @@ export const ALL_TOOLS: Tool[] = [
   { id: "trim-size-comparison", title: "Trim Size Comparison", description: "Compare print cost and royalty across trim sizes.", href: "/trim-size-comparison", available: true, iconPath: "M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2H9a2 2 0 00-2 2v10z", free: true },
   { id: "spine-calculator", title: "Spine width calculator", description: "Spine width and full-wrap cover dimensions for KDP paperbacks.", href: "/spine-calculator", available: true, iconPath: "M4 6h16M4 10h16M4 14h16M4 18h16", free: true },
   { id: "cover-calculator", title: "Full-wrap cover calculator", description: "Cover canvas size in inches and pixels (300 DPI) for Canva and design tools.", href: "/cover-calculator", available: true, iconPath: "M3 6h18v12H3V6z", free: true },
+  { id: "banned-keyword-checker", title: "Banned keyword checker", description: "Spot risky words in title, subtitle, or description before publishing.", href: "/banned-keyword-checker", available: true, iconPath: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z", free: true },
+  { id: "kids-trim-guide", title: "Kids book trim guide", description: "Trim sizes and page counts for picture books and children's titles.", href: "/kids-trim-guide", available: true, iconPath: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253", free: true },
 ];
 
 export interface Platform {
@@ -41,7 +43,7 @@ export interface Platform {
 }
 
 export const PLATFORMS: Platform[] = [
-  { id: "kdp", name: "Amazon KDP", tagline: "Everything you need for Amazon KDP", toolIds: ["pdf-compress", "pdf-optimizer", "royalty-calculator", "page-count-estimator", "trim-size-comparison", "spine-calculator", "cover-calculator", "kdp-formatter", "keyword-research", "description-generator", "kdp-pdf-checker", "keyword-research-pdf", "description-generator-pdf", "epub-maker"] },
+  { id: "kdp", name: "Amazon KDP", tagline: "Everything you need for Amazon KDP", toolIds: ["pdf-compress", "pdf-optimizer", "royalty-calculator", "page-count-estimator", "trim-size-comparison", "spine-calculator", "cover-calculator", "banned-keyword-checker", "kids-trim-guide", "kdp-formatter", "keyword-research", "description-generator", "kdp-pdf-checker", "keyword-research-pdf", "description-generator-pdf", "epub-maker"] },
   { id: "ingramspark", name: "IngramSpark", tagline: "Everything you need for IngramSpark", toolIds: [] },
   { id: "gumroad", name: "Gumroad", tagline: "Everything you need for Gumroad", toolIds: [] },
 ];
