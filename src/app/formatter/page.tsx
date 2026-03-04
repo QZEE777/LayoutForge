@@ -3,18 +3,24 @@
 import { useState } from "react";
 import Link from "next/link";
 
-const PDF_COMPRESSOR = {
-  title: "PDF Compressor",
-  description: "Shrink PDFs up to 50MB. No account needed.",
-  href: "/pdf-compress",
-};
+/** FREE tools — shown in top row with bold FREE badge (green). */
+const FREE_TOOLS: { title: string; description: string; href: string }[] = [
+  { title: "PDF Compressor", description: "Shrink PDFs up to 50MB. No account needed.", href: "/pdf-compress" },
+  { title: "PDF Print Optimizer", description: "Shrink / print-optimize your PDF.", href: "/kdp-formatter-pdf" },
+];
 
 const PAID_TOOLS: { title: string; description: React.ReactNode; href: string; pricing: string; comingSoon?: boolean }[] = [
   { title: "KDP Formatter (DOCX)", description: "Format DOCX for Amazon KDP print. Trim size, bleed, print-ready PDF.", href: "/kdp-formatter", pricing: "$7 per use · $27 for 6 months" },
-  { title: "PDF Print Optimizer", description: <>Shrink / print-optimize your PDF.</>, href: "/kdp-formatter-pdf", pricing: "FREE" },
   { title: "KDP PDF Checker", description: <>Check your PDF against KDP specs.<br />Trim, page count, issues.</>, href: "/kdp-pdf-checker", pricing: "$7 per use · $27 for 6 months" },
   { title: "Kindle EPUB Maker", description: "Manuscript to Kindle-ready EPUB. Chapter structure, metadata.", href: "/epub-maker", pricing: "$7 per use · $27 for 6 months" },
   { title: "KDP Format Review", description: "Paste or upload your manuscript — AI review for margins, spacing, headings, lists, KDP rules. Optional preview with KDP params.", href: "#", pricing: "Coming soon", comingSoon: true },
+];
+
+/** Mini tools — calculator, estimators, etc. */
+const MINI_TOOLS: { title: string; description: string; href: string; live: boolean }[] = [
+  { title: "KDP Royalty Calculator", description: "Earnings by page count, trim size, list price. 60% or 35% royalty.", href: "/royalty-calculator", live: true },
+  { title: "Page Count Estimator", description: "Estimate interior pages from word count and trim size.", href: "#", live: false },
+  { title: "Trim Size Comparison", description: "Compare print costs and royalties across trim sizes.", href: "#", live: false },
 ];
 
 const COMING_SOON = [
@@ -152,32 +158,40 @@ export default function FormatterPage() {
         </div>
       </section>
 
-      {/* PDF Compressor — centered, FREE below title */}
+      {/* FREE tools — top row, FREE in caps bold green */}
       <section className="px-6 pb-8">
-        <div className="mx-auto max-w-md flex justify-center">
-          <Link
-            href={PDF_COMPRESSOR.href}
-            className="group relative rounded-xl border-l-4 border-brand-gold p-6 flex flex-col w-full bg-brand-card border border-brand-cardHover hover:shadow-gold-glow hover:border-brand-cardHover transition-all overflow-hidden"
-          >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-gold/10 rounded-full blur-3xl pointer-events-none" aria-hidden />
-            <div className="relative flex flex-col items-center text-center">
-              <h3 className="font-bebas text-xl tracking-wide text-brand-cream mb-1">
-                {PDF_COMPRESSOR.title}
-              </h3>
-              <p className="font-bebas text-3xl font-bold tracking-widest text-red-500 uppercase mb-2">
-                FREE
-              </p>
-              <p className="font-sans text-sm flex-1 mb-4 text-brand-muted">
-                {PDF_COMPRESSOR.description}
-              </p>
-              <span className="inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold w-fit bg-brand-gold text-brand-bg group-hover:opacity-90 transition-opacity">
-                Launch
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </span>
-            </div>
-          </Link>
+        <div className="mx-auto max-w-4xl">
+          <h2 className="font-bebas text-xl tracking-wide text-brand-cream text-center mb-4">
+            Free tools
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {FREE_TOOLS.map((tool) => (
+              <Link
+                key={tool.href}
+                href={tool.href}
+                className="group relative rounded-xl border-l-4 border-brand-gold p-6 flex flex-col bg-brand-card border border-brand-cardHover hover:shadow-gold-glow hover:border-brand-cardHover transition-all overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-gold/10 rounded-full blur-3xl pointer-events-none" aria-hidden />
+                <div className="relative flex flex-col items-center text-center">
+                  <h3 className="font-bebas text-xl tracking-wide text-brand-cream mb-1">
+                    {tool.title}
+                  </h3>
+                  <p className="font-bebas text-2xl font-bold tracking-widest uppercase mb-2 text-[#22c55e]">
+                    FREE
+                  </p>
+                  <p className="font-sans text-sm flex-1 mb-4 text-brand-muted">
+                    {tool.description}
+                  </p>
+                  <span className="inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold w-fit bg-brand-gold text-brand-bg group-hover:opacity-90 transition-opacity">
+                    Launch
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -231,6 +245,58 @@ export default function FormatterPage() {
                     </span>
                   </div>
                 </Link>
+              )
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Mini tools — calculator, estimators, placeholders */}
+      <section className="px-6 pb-14">
+        <div className="mx-auto max-w-4xl">
+          <h2 className="font-bebas text-xl tracking-wide text-brand-cream text-center mb-4">
+            Mini tools
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {MINI_TOOLS.map((tool) =>
+              tool.live ? (
+                <Link
+                  key={tool.href}
+                  href={tool.href}
+                  className="group relative rounded-xl border-l-4 border-brand-gold p-5 flex flex-col bg-brand-card border border-brand-cardHover hover:shadow-gold-glow hover:border-brand-cardHover transition-all overflow-hidden"
+                >
+                  <div className="relative flex flex-col items-center text-center">
+                    <h3 className="font-bebas text-xl tracking-wide text-brand-cream mb-2">
+                      {tool.title}
+                    </h3>
+                    <p className="font-sans text-sm flex-1 mb-4 text-brand-muted">
+                      {tool.description}
+                    </p>
+                    <span className="inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold w-fit bg-brand-gold text-brand-bg group-hover:opacity-90 transition-opacity">
+                      Launch
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </span>
+                  </div>
+                </Link>
+              ) : (
+                <div
+                  key={tool.title}
+                  className="group relative rounded-xl border-l-4 border-brand-gold/60 p-5 flex flex-col bg-brand-card border border-brand-cardHover opacity-85 overflow-hidden"
+                >
+                  <span className="rounded-full bg-brand-locked border border-brand-cardHover px-2 py-0.5 text-xs font-medium text-brand-muted w-fit mb-2 self-center">
+                    Coming soon
+                  </span>
+                  <div className="relative flex flex-col items-center text-center">
+                    <h3 className="font-bebas text-xl tracking-wide text-brand-cream mb-2">
+                      {tool.title}
+                    </h3>
+                    <p className="font-sans text-sm flex-1 text-brand-muted">
+                      {tool.description}
+                    </p>
+                  </div>
+                </div>
               )
             )}
           </div>

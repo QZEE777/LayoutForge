@@ -29,94 +29,77 @@ const kindleTools: Tool[] = [
 ];
 
 const publishingTools: Tool[] = [
-  { id: "royalty-calculator", title: "KDP Royalty Calculator", description: "Earnings by page count, trim size, marketplace, royalty rate.", href: "/royalty-calculator", available: false, iconPath: "M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" },
+  { id: "royalty-calculator", title: "KDP Royalty Calculator", description: "Earnings by page count, trim size, list price, 60% or 35% royalty.", href: "/royalty-calculator", available: true, iconPath: "M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" },
 ];
 
-const CARD_BG = "#1A1612";
-const CARD_BORDER = "#2A2420";
-const GOLD = "#F5A623";
-const WARM_WHITE = "#FAF7F2";
-
-function ToolCard({ tool, btnClass, iconClass }: { tool: Tool; btnClass: string; iconClass: string }) {
+function ToolCard({ tool }: { tool: Tool }) {
   return (
-    <div
-      className="relative rounded-xl border flex flex-col transition-all duration-200 min-h-0 p-4 hover:border-[#F5A623] hover:shadow-[0_0_12px_rgba(245,166,35,0.15)]"
-      style={{
-        backgroundColor: CARD_BG,
-        borderColor: CARD_BORDER,
-      }}
-    >
-      <div className="absolute top-3 right-3">
+    <div className="relative rounded-xl border-l-4 border-brand-gold border border-brand-cardHover flex flex-col min-h-0 p-5 bg-brand-card hover:shadow-gold-glow hover:border-brand-cardHover transition-all overflow-hidden">
+      <div className="absolute top-0 right-0 w-32 h-32 bg-brand-gold/10 rounded-full blur-3xl pointer-events-none" aria-hidden />
+      <div className="relative">
+        <div className="absolute top-0 right-0">
+          {tool.available ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-green-500/20 border border-green-500/30 px-2 py-0.5 text-xs font-medium text-green-300">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              Live
+            </span>
+          ) : (
+            <span className="rounded-full bg-brand-locked border border-brand-cardHover px-2 py-0.5 text-xs font-medium text-brand-muted">Coming Soon</span>
+          )}
+        </div>
+        <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3 bg-brand-gold/15">
+          <svg className="w-5 h-5 text-brand-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={tool.iconPath} />
+          </svg>
+        </div>
+        <h3 className="font-bebas text-xl tracking-wide text-brand-cream pr-24 mb-2">{tool.title}</h3>
+        <p className="font-sans text-sm leading-relaxed flex-1 mb-4 text-brand-muted">{tool.description}</p>
         {tool.available ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-green-500/20 border border-green-500/30 px-2 py-0.5 text-xs font-medium text-green-300">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-            Live
-          </span>
+          <Link
+            href={tool.href}
+            className="inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold bg-brand-gold text-brand-bg hover:opacity-90 transition-opacity"
+          >
+            Launch Tool
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          </Link>
         ) : (
-          <span className="rounded-full bg-[#2A2420] border border-[#3d3630] px-2 py-0.5 text-xs font-medium text-[#9c958a]">Coming Soon</span>
+          <button disabled className="inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium text-brand-muted bg-brand-locked cursor-not-allowed border border-brand-cardHover">
+            Coming Soon
+          </button>
         )}
       </div>
-      <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 ${iconClass}`} style={{ backgroundColor: "rgba(245,166,35,0.15)" }}>
-        <svg className="w-5 h-5" fill="none" stroke={GOLD} viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={tool.iconPath} />
-        </svg>
-      </div>
-      <h3 className="font-serif text-lg font-bold pr-20 mb-2" style={{ color: WARM_WHITE }}>{tool.title}</h3>
-      <p className="text-sm leading-relaxed flex-1 mb-4" style={{ color: "#a8a29e" }}>{tool.description}</p>
-      {tool.available ? (
-        <Link
-          href={tool.href}
-          className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors ${btnClass}`}
-          style={{ backgroundColor: GOLD, color: "#0F0D0B" }}
-        >
-          Launch Tool
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-        </Link>
-      ) : (
-        <button disabled className="inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium text-[#9c958a] bg-[#2A2420] cursor-not-allowed border border-[#3d3630]">
-          Coming Soon
-        </button>
-      )}
     </div>
   );
 }
 
-function ToolRow({ title, titleClass, tools }: { title: string; titleClass: string; tools: Tool[] }) {
+function ToolRow({ title, tools }: { title: string; tools: Tool[] }) {
   return (
     <div className="mb-10">
-      <h3 className={`font-bebas text-sm uppercase tracking-wider mb-3 px-3 py-1.5 rounded-md inline-block ${titleClass}`}>{title}</h3>
+      <h3 className="font-bebas text-lg tracking-wide text-brand-cream mb-4">{title}</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {tools.map((tool) => (
-          <ToolCard key={tool.id} tool={tool} btnClass="hover:opacity-90" iconClass="" />
+          <ToolCard key={tool.id} tool={tool} />
         ))}
       </div>
     </div>
   );
 }
 
-// Base64 SVG noise for texture (feTurbulence-based)
-const NOISE_DATA =
-  "data:image/svg+xml," +
-  encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(#n)"/></svg>`
-  );
-
 export default function Home() {
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#0F0D0B" }}>
-      {/* Sticky header */}
-      <header className="sticky top-0 z-10 border-b backdrop-blur-sm" style={{ borderColor: "#2A2420", backgroundColor: "rgba(15,13,11,0.9)" }}>
+    <div className="min-h-screen bg-brand-bg">
+      {/* Sticky nav — matches formatter */}
+      <nav className="sticky top-0 z-20 border-b border-white/5 bg-brand-bg/80 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0" style={{ backgroundColor: GOLD }}>
+            <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 bg-brand-gold">
               <svg className="w-4 h-4" fill="none" stroke="#0F0D0B" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
               </svg>
             </div>
             <span
-              className="text-lg font-bold tracking-tight"
+              className="text-lg font-bold tracking-tight text-brand-cream"
               style={{
-                color: WARM_WHITE,
                 textShadow: "0 0 24px rgba(250,247,242,0.25), 0 0 48px rgba(245,166,35,0.12)",
               }}
             >
@@ -124,108 +107,79 @@ export default function Home() {
               <span className="font-sans">2print</span>
             </span>
           </Link>
-          <nav className="flex items-center gap-6">
-            <Link
-              href="/formatter"
-              className="text-xs font-medium transition-colors hover:opacity-100 opacity-50"
-              style={{ color: WARM_WHITE }}
-              title="Formatting tools (PDF Compressor, KDP Formatters)"
-            >
-              Formatting
+          <div className="flex items-center gap-6">
+            <Link href="/formatter" className="text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors">
+              Tools
+            </Link>
+            <Link href="/founders" className="text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors">
+              Founders
             </Link>
             <AuthNav />
-          </nav>
+          </div>
         </div>
-      </header>
+      </nav>
 
-      {/* Hero section — three zones on desktop: 25% | 50% | 25% */}
-      <section className="relative px-6 pt-16 pb-14 overflow-hidden">
-        {/* Noise texture overlay */}
-        <div
-          className="absolute inset-0 pointer-events-none opacity-[0.04]"
-          style={{
-            backgroundImage: `url("${NOISE_DATA}")`,
-            backgroundRepeat: "repeat",
-          }}
-        />
-        <div className="relative mx-auto max-w-6xl flex flex-col lg:flex-row lg:items-stretch gap-6">
-          {/* Left placeholder — hidden on mobile */}
-          <div className="hidden lg:flex w-full lg:w-[25%] rounded-xl border items-center justify-center min-h-[280px]" style={{ backgroundColor: CARD_BG, borderColor: "#2A2420" }}>
-            <p className="text-sm" style={{ color: "rgba(245,166,35,0.7)" }}>[Illustration Coming]</p>
-          </div>
-          {/* Center: headline, subheading, buttons */}
-          <div className="flex-1 flex flex-col justify-center items-center text-center lg:w-[50%]">
-            <div className="font-bebas uppercase tracking-wide leading-none text-center max-w-xl mx-auto mb-5">
-              <div className="text-5xl text-white">YOUR MANUSCRIPT</div>
-              <div className="text-7xl lg:text-8xl" style={{ color: GOLD }}>DESERVES</div>
-              <div className="text-5xl text-white">A PROFESSIONAL FINISH</div>
-            </div>
-            <p
-              className="text-lg sm:text-xl leading-relaxed mb-9 max-w-lg mx-auto text-balance"
-              style={{ color: "#a8a29e" }}
+      {/* Hero — formatter-style typography and hierarchy */}
+      <section className="px-6 pt-16 pb-12">
+        <div className="mx-auto max-w-3xl text-center">
+          <h1 className="font-bebas text-4xl sm:text-5xl md:text-6xl font-normal tracking-wide text-brand-cream mb-4">
+            Your Manuscript Deserves a <span className="text-brand-gold">Professional Finish</span>
+          </h1>
+          <p className="font-sans text-lg sm:text-xl leading-relaxed text-brand-muted mb-8">
+            manu2print gives indie authors the same formatting, keyword, and listing tools that traditional publishers use — without the agency price tag.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/auth"
+              className="rounded-lg px-8 py-4 text-base font-semibold bg-brand-gold text-brand-bg hover:opacity-90 transition-opacity text-center"
             >
-              manu2print gives indie authors the same formatting, keyword, and listing tools that traditional publishers use — without the agency price tag.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/auth"
-                className="rounded-lg px-8 py-4 text-lg font-semibold transition-opacity hover:opacity-90 text-center"
-                style={{ backgroundColor: GOLD, color: "#0F0D0B" }}
-              >
-                Get Started
-              </Link>
-              <a
-                href="#tools"
-                className="rounded-lg px-8 py-4 text-lg font-semibold transition-opacity hover:opacity-90 text-center border"
-                style={{ borderColor: "#2A2420", color: WARM_WHITE }}
-              >
-                Browse Tools
-              </a>
-              <Link
-                href="/tools/pdf-compress"
-                className="rounded-lg border px-8 py-4 text-lg font-semibold transition-colors hover:bg-white/5"
-                style={{ borderColor: "#2A2420", color: WARM_WHITE }}
-              >
-                Try Free PDF Compressor
-              </Link>
-            </div>
-          </div>
-          {/* Right placeholder — hidden on mobile */}
-          <div className="hidden lg:flex w-full lg:w-[25%] rounded-xl border items-center justify-center min-h-[280px]" style={{ backgroundColor: CARD_BG, borderColor: "#2A2420" }}>
-            <p className="text-sm" style={{ color: "rgba(245,166,35,0.7)" }}>[Illustration Coming]</p>
+              Get Started
+            </Link>
+            <a
+              href="#tools"
+              className="rounded-lg px-8 py-4 text-base font-semibold border border-brand-cardHover text-brand-cream hover:bg-white/5 transition-colors text-center"
+            >
+              Browse Tools
+            </a>
+            <Link
+              href="/pdf-compress"
+              className="rounded-lg border border-brand-cardHover px-8 py-4 text-base font-semibold text-brand-cream hover:bg-white/5 transition-colors text-center"
+            >
+              Try Free PDF Compressor
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Stats */}
-      <div className="border-y py-6 mb-12" style={{ borderColor: "#2A2420", backgroundColor: "rgba(26,22,18,0.6)" }}>
+      {/* Stats — brand palette, builds trust */}
+      <div className="border-y border-white/5 py-6 mb-10 bg-brand-card/50">
         <div className="mx-auto max-w-4xl px-6 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
           <div>
-            <p className="text-2xl font-bold" style={{ color: WARM_WHITE }}>7</p>
-            <p className="text-sm mt-1" style={{ color: "#a8a29e" }}>Tools Live</p>
+            <p className="font-bebas text-2xl tracking-wide text-brand-gold">7</p>
+            <p className="font-sans text-sm mt-1 text-brand-muted">Tools Live</p>
           </div>
           <div>
-            <p className="text-2xl font-bold" style={{ color: WARM_WHITE }}>2</p>
-            <p className="text-sm mt-1" style={{ color: "#a8a29e" }}>Coming Soon</p>
+            <p className="font-bebas text-2xl tracking-wide text-brand-gold">2</p>
+            <p className="font-sans text-sm mt-1 text-brand-muted">Coming Soon</p>
           </div>
           <div>
-            <p className="text-2xl font-bold" style={{ color: WARM_WHITE }}>Free</p>
-            <p className="text-sm mt-1" style={{ color: "#a8a29e" }}>During Beta</p>
+            <p className="font-bebas text-2xl tracking-wide text-brand-gold">Free</p>
+            <p className="font-sans text-sm mt-1 text-brand-muted">During Beta</p>
           </div>
           <div>
-            <p className="text-2xl font-bold" style={{ color: WARM_WHITE }}>50MB</p>
-            <p className="text-sm mt-1" style={{ color: "#a8a29e" }}>PDF Support</p>
+            <p className="font-bebas text-2xl tracking-wide text-brand-gold">50MB</p>
+            <p className="font-sans text-sm mt-1 text-brand-muted">PDF Support</p>
           </div>
         </div>
       </div>
 
-      {/* Social proof strip */}
-      <section className="py-4 mb-4 overflow-hidden" style={{ backgroundColor: CARD_BG }}>
+      {/* Social proof — gold accent for warmth and credibility */}
+      <section className="py-4 mb-10 overflow-hidden bg-brand-card border-y border-white/5">
         <div className="flex w-[200%] animate-marquee">
-          <span className="text-sm whitespace-nowrap flex-shrink-0 w-1/2 pr-16" style={{ color: "rgba(245,166,35,0.85)" }}>
+          <span className="text-sm font-sans whitespace-nowrap flex-shrink-0 w-1/2 pr-16 text-brand-gold/90">
             ✦ Trusted By Indie Authors On Amazon KDP ✦ Format Once, Publish Everywhere ✦ No Account Required To Start ✦
           </span>
-          <span className="text-sm whitespace-nowrap flex-shrink-0 w-1/2 pr-16" style={{ color: "rgba(245,166,35,0.85)" }}>
+          <span className="text-sm font-sans whitespace-nowrap flex-shrink-0 w-1/2 pr-16 text-brand-gold/90">
             ✦ Trusted By Indie Authors On Amazon KDP ✦ Format Once, Publish Everywhere ✦ No Account Required To Start ✦
           </span>
         </div>
@@ -234,35 +188,37 @@ export default function Home() {
       {/* Tools */}
       <section id="tools" className="px-6 pb-24">
         <div className="mx-auto max-w-6xl">
-          <div className="mb-8">
-            <h2 className="font-bebas text-3xl uppercase tracking-wide mb-2" style={{ color: WARM_WHITE }}>The Tools</h2>
-            <p style={{ color: "#a8a29e" }}>Each one does a single job — and does it right.</p>
-          </div>
+          <h2 className="font-bebas text-2xl sm:text-3xl tracking-wide text-brand-cream mb-2">
+            The Tools
+          </h2>
+          <p className="font-sans text-brand-muted mb-8">
+            Each one does a single job — and does it right.
+          </p>
 
-          <ToolRow title="DOCX TOOLS" titleClass="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" tools={docxTools} />
-          <ToolRow title="PDF TOOLS" titleClass="bg-amber-500/20 text-amber-300 border border-amber-500/30" tools={pdfTools} />
-          <ToolRow title="KINDLE & EPUB" titleClass="bg-orange-500/20 text-orange-300 border border-orange-500/30" tools={kindleTools} />
-          <ToolRow title="PUBLISHING TOOLS" titleClass="bg-violet-500/20 text-violet-300 border border-violet-500/30" tools={publishingTools} />
+          <ToolRow title="DOCX tools" tools={docxTools} />
+          <ToolRow title="PDF tools" tools={pdfTools} />
+          <ToolRow title="Kindle & EPUB" tools={kindleTools} />
+          <ToolRow title="Publishing tools" tools={publishingTools} />
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t px-6 py-8" style={{ borderColor: "#2A2420", backgroundColor: "rgba(15,13,11,0.8)" }}>
-        <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-4 text-sm" style={{ color: "#78716c" }}>
+      {/* Footer — formatter-aligned */}
+      <footer className="border-t border-white/5 px-6 py-8 bg-brand-bg">
+        <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-brand-muted">
           <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded flex items-center justify-center" style={{ backgroundColor: GOLD }}>
+            <div className="w-5 h-5 rounded flex items-center justify-center bg-brand-gold">
               <svg className="w-3 h-3" fill="none" stroke="#0F0D0B" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
               </svg>
             </div>
-            <span className="font-medium" style={{ color: "#a8a29e" }}>manu2print</span>
+            <span className="font-medium text-brand-cream">manu2print</span>
           </div>
           <p className="flex items-center gap-4 flex-wrap">
             Your files are processed securely and never stored permanently.
-            <Link href="/formatter" className="hover:underline" style={{ color: "#78716c" }}>Formatting tools</Link>
+            <Link href="/formatter" className="hover:text-brand-gold transition-colors">Formatting tools</Link>
           </p>
         </div>
-        <p className="mx-auto max-w-6xl text-center text-sm mt-3" style={{ color: "#78716c" }}>
+        <p className="mx-auto max-w-6xl text-center text-sm mt-3 text-brand-muted">
           © 2026 manu2print. Built for indie authors.
         </p>
       </footer>
