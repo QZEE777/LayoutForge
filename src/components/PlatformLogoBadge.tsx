@@ -3,9 +3,7 @@
 import AmazonLogo from "@/components/AmazonLogo";
 
 /**
- * Circular badge for platform logo. Used on homepage platform boxes and platform pages.
- * Amazon KDP = name logo inside circle; other platforms = initial inside circle.
- * Same shape for all brands for consistent design.
+ * Platform logo badge. Amazon = squircle with wordmark + depth; others = circle with initial.
  */
 export default function PlatformLogoBadge({
   platformId,
@@ -22,23 +20,25 @@ export default function PlatformLogoBadge({
   const initial = platformName.charAt(0);
 
   const sizeClass =
-    size === "sm" ? "w-12 h-12" :
+    size === "sm" ? "w-14 h-14" :
     size === "lg" ? "w-20 h-20" :
     size === "xl" ? "w-24 h-24" :
-    "w-16 h-16"; // md = larger default for homepage
+    "w-[72px] h-[72px]"; // md
   const logoSize =
-    size === "sm" ? "w-8 h-8" :
-    size === "lg" ? "w-12 h-12" :
-    size === "xl" ? "w-14 h-14" :
-    "w-10 h-10"; // md: logo fills circle well
+    size === "sm" ? "w-[52px] h-[52px]" :
+    size === "lg" ? "w-[76px] h-[76px]" :
+    size === "xl" ? "w-[90px] h-[90px]" :
+    "w-[60px] h-[60px]";
 
-  const circleClass = isAmazon
-    ? "rounded-full bg-white flex items-center justify-center flex-shrink-0 text-black shadow-sm ring-1 ring-black/5"
-    : "rounded-full bg-brand-cardHover flex items-center justify-center flex-shrink-0 text-xl font-bebas tracking-wide text-brand-gold border border-brand-cardHover";
+  const badgeClass =
+    "rounded-2xl flex items-center justify-center flex-shrink-0 " +
+    "shadow-lg ring-1 ring-black/[0.06] " +
+    "bg-gradient-to-br from-white via-white to-gray-100 " +
+    (isAmazon ? "" : "text-brand-gold font-bebas text-xl tracking-wide");
 
   return (
     <div
-      className={`${sizeClass} ${circleClass} ${className}`}
+      className={`${sizeClass} ${badgeClass} ${className}`}
       role="img"
       aria-label={platformName}
     >
