@@ -177,12 +177,12 @@ export default function PlatformPage() {
             </div>
           </section>
         )}
-        <div className="flex items-center gap-4 mb-6">
-          <PlatformLogoBadge platformId={platform.id} platformName={platform.name} size="lg" />
-          <div>
-            <h1 className={h1Class}>{platform.name}</h1>
-            <p className={taglineClass}>{platform.tagline}</p>
+        <div className="flex flex-col mb-6">
+          <h1 className={h1Class}>{platform.name}</h1>
+          <div className="mt-3">
+            <PlatformLogoBadge platformId={platform.id} platformName={platform.name} size="lg" />
           </div>
+          <p className={`${taglineClass} mt-3`}>{platform.tagline}</p>
         </div>
 
         {freeTools.length > 0 && (
