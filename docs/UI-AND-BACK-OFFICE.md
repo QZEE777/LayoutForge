@@ -39,7 +39,7 @@ One place for: what to check and create (user UI, admin UI, payment flows, datab
 | Piece | Purpose |
 |-------|---------|
 | **`/admin`** | Password (`ADMIN_PASSWORD_MANU2`). Dashboard: total revenue, paying customers, active subscriptions, beta users. Tables: recent payments, subscriptions, beta usage. Refresh / Log out. |
-| **`GET /api/admin/stats`** | Auth: `x-admin-password` = ADMIN_PASSWORD. Returns aggregates + recentPayments, subscriptions, betaUsage from Supabase. |
+| **`GET /api/admin/stats`** | Auth: `x-admin-password` = ADMIN_PASSWORD_MANU2. Returns aggregates, recentPayments, subscriptions, betaUsage, formatterLeads, emailCaptures, latestPaymentAt. |
 | **`GET /api/admin/leads`** | Auth: ADMIN_SECRET (Bearer or ?secret=). Returns leads from storage (manuscript meta with leadEmail + any file-based leads). |
 | **`GET /api/admin/emails`** | Auth: `x-admin-key` = ADMIN_SECRET. Returns all rows from Supabase `email_captures` (e.g. PDF Compressor). |
 | **`GET /api/admin/payments`** | Same password as stats; different response shape. (Admin page uses **stats**, not payments.) |

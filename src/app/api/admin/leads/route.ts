@@ -3,24 +3,21 @@ import { listLeads } from "@/lib/storage";
 
 /**
  * GET /api/admin/leads
- * Returns captured leads (PDF Compressor + any manuscript with leadEmail).
- * Auth: set ADMIN_SECRET in env; send header Authorization: Bearer <ADMIN_SECRET> or ?secret=<ADMIN_SECRET>.
- * If ADMIN_SECRET is not set, returns 503.
+ * Returns captured leads from storage (manuscript meta with leadEmail).
+ * Auth: x-admin-password = ADMIN_PASSWORD_MANU2, or ADMIN_SECRET (Bearer / ?secret=).
  */
 export async function GET(request: NextRequest) {
+  const password = (request.headers.get("x-admin-password") ?? "").trim();
+  const expectedPassword = process.env.ADMIN_PASSWORD_MANU2?.trim();
   const secret = process.env.ADMIN_SECRET;
-  if (!secret) {
-    return NextResponse.json(
-      { error: "Not configured", message: "ADMIN_SECRET is not set. Set it to enable the back office." },
-      { status: 503 }
-    );
-  }
-
   const authHeader = request.headers.get("authorization");
   const token = authHeader?.replace(/^Bearer\s+/i, "") ?? request.nextUrl.searchParams.get("secret");
-  if (token !== secret) {
+
+  const allowedByPassword = expectedPassword && password === expectedPassword;
+  const allowedBySecret = secret && token === secret;
+  if (!allowedByPassword && !allowedBySecret) {
     return NextResponse.json(
-      { error: "Unauthorized", message: "Invalid or missing admin secret." },
+      { error: "Unauthorized", message: "Invalid or missing admin auth." },
       { status: 401 }
     );
   }

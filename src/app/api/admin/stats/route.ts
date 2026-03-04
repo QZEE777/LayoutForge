@@ -24,21 +24,29 @@ export async function GET(request: NextRequest) {
   const supabase = createClient(supabaseUrl, supabaseKey);
 
   try {
-    const [paymentsRes, subscriptionsRes, betaRes] = await Promise.all([
+    const [paymentsRes, subscriptionsRes, betaRes, formatterLeadsRes, emailCapturesRes] = await Promise.all([
       supabase.from("payments").select("*").order("created_at", { ascending: false }).limit(50),
       supabase.from("subscriptions").select("*").order("created_at", { ascending: false }),
       supabase.from("beta_access").select("*").order("created_at", { ascending: false }).limit(50),
+      supabase.from("formatter_leads").select("*").order("created_at", { ascending: false }).limit(200),
+      supabase.from("email_captures").select("*").order("created_at", { ascending: false }).limit(200),
     ]);
 
     const recentPayments = paymentsRes.data || [];
     const subscriptions = subscriptionsRes.data || [];
     const betaUsage = betaRes.data || [];
+    const formatterLeads = formatterLeadsRes.data || [];
+    const emailCaptures = emailCapturesRes.data || [];
 
     const completed = recentPayments.filter((p: { status: string }) => p.status === "complete");
     const totalRevenue = completed.reduce((sum: number, p: { amount: number | null }) => sum + (p.amount || 0), 0);
     const totalPayingCustomers = new Set(completed.map((p: { email: string | null }) => p.email)).size;
     const activeSubscriptions = subscriptions.filter((s: { status: string }) => s.status === "active").length;
     const betaUsers = betaUsage.length;
+    const latestPaymentAt =
+      recentPayments.length > 0 && (recentPayments[0] as { created_at?: string }).created_at
+        ? (recentPayments[0] as { created_at: string }).created_at
+        : null;
 
     return NextResponse.json({
       totalRevenue,
@@ -48,6 +56,9 @@ export async function GET(request: NextRequest) {
       recentPayments,
       subscriptions,
       betaUsage,
+      formatterLeads,
+      emailCaptures,
+      latestPaymentAt,
     });
   } catch (err) {
     console.error("[admin/stats]", err);

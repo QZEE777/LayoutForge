@@ -4,20 +4,19 @@ import { createClient } from "@supabase/supabase-js";
 /**
  * GET /api/admin/emails
  * Returns all rows from email_captures (Supabase), ordered by created_at desc.
- * Auth: header x-admin-key must match process.env.ADMIN_SECRET.
+ * Auth: x-admin-password = ADMIN_PASSWORD_MANU2, or x-admin-key / ADMIN_SECRET.
  */
 export async function GET(request: NextRequest) {
+  const password = (request.headers.get("x-admin-password") ?? "").trim();
+  const expectedPassword = process.env.ADMIN_PASSWORD_MANU2?.trim();
   const adminKey = request.headers.get("x-admin-key");
   const secret = process.env.ADMIN_SECRET;
-  if (!secret) {
+
+  const allowedByPassword = expectedPassword && password === expectedPassword;
+  const allowedBySecret = secret && adminKey === secret;
+  if (!allowedByPassword && !allowedBySecret) {
     return NextResponse.json(
-      { error: "Not configured", message: "ADMIN_SECRET is not set." },
-      { status: 503 }
-    );
-  }
-  if (adminKey !== secret) {
-    return NextResponse.json(
-      { error: "Unauthorized", message: "Invalid or missing x-admin-key." },
+      { error: "Unauthorized", message: "Invalid or missing admin auth." },
       { status: 401 }
     );
   }
