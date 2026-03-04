@@ -47,14 +47,24 @@ No need for “AI writes the book” or heavy editing — just **review + report
 
 ## What the report contains (example sections)
 
-- **Margins & gutter** — Whether the text suggests adequate inner margin; recommended gutter for estimated page count (from your existing logic).
-- **Spacing** — Double/single spacing, spacing around headings, consistency.
-- **Headings** — Use of styles, hierarchy (e.g. chapter vs section), KDP-friendly structure.
-- **Lists** — Bullets/numbering, indentation, consistency.
-- **KDP rules** — General compliance (no weird characters, page-break issues, etc.), plus 1–2 sentence summary.
-- **Summary** — 2–3 bullet “Top actions” so the user knows what to fix first.
+**Minimum (current):** Margins & gutter, Spacing, Headings, Lists, KDP rules, Summary.
 
-All of this is **doable with one strong prompt** and a single LLM call (or two if you split “structure” vs “rules”).
+**Expanded (recommended so the review is extensive and worth $7):** Map the report directly to KDP’s interior requirements so the output feels like a professional formatter checklist.
+
+| Section | What to cover (KDP-aligned) |
+|--------|------------------------------|
+| **Front matter & back matter** | Title page, copyright, TOC, dedication, “About the author.” Present? Right order? KDP expects front matter before body, back matter after. |
+| **Margins & gutter** | Min outside (0.25″), gutter by page count (0.375″–0.875″ via `getGutterMargin`). State: “For ~X pages use Y″ gutter.” Trim size note. |
+| **Paragraphs & indentation** | First-line indent 0.3–0.5″; no indent on first paragraph after chapter/section. Spacing: 0pt before, 6–12pt after. Left-align vs justify (KDP-friendly default). |
+| **Spacing** | No single spacing; 1.15–1.5 line spacing. Consistency across document. Blank lines after headings (2–3). |
+| **Headings** | Heading 1 = chapter (for auto TOC in ebook). Clear hierarchy (H1 > H2 > H3). No floating headings at bottom of page (orphans). |
+| **Page breaks** | Chapter starts must use page breaks, not multiple returns. Flag “soft” chapter starts that could break across print pages. |
+| **Lists** | Bullets/numbering consistent; indentation; no broken lists across pages where avoidable. |
+| **Fonts & typography** | Body 11–12pt recommended; chapter titles 18–24pt. Single body font; embed fonts in final PDF. (Review can only infer from structure; state recommendation.) |
+| **KDP rules & gotchas** | No weird/control characters; no missing page breaks; consistent section breaks; images (if any) 300 DPI for print; file size under 650 MB. |
+| **Summary** | 3–5 “Top actions” in priority order so the user knows what to fix first. One-line “KDP readiness” (e.g. “Close; fix gutter and chapter page breaks”). |
+
+All of this is **doable with one strong prompt** (or two calls: structure + rules). The prompt should cite KDP’s own expectations (min margins, gutter by page count, page breaks, indentation) so the model’s output is aligned with what KDP rejects in practice.
 
 ---
 
@@ -72,4 +82,4 @@ All of this is **doable with one strong prompt** and a single LLM call (or two i
 
 ## One-line pitch
 
-**“Paste or upload your manuscript — get an AI format review for margins, spacing, headings, lists, and KDP rules, in one click.”** Sold as a standalone, paid tool alongside your existing KDP Checker and formatters.
+**“Paste or upload your manuscript — get an AI format review that covers KDP’s interior requirements: front matter, margins & gutter, paragraphs & indentation, spacing, headings, page breaks, lists, fonts, and KDP gotchas. One report, prioritized next steps.”** Sold as a standalone, paid tool alongside your existing KDP Checker and formatters. Worth the spend because it explicitly ties each finding to what KDP expects and rejects.
