@@ -27,6 +27,11 @@ const MINI_TOOLS: { title: string; description: string; href: string; live: bool
   { title: "Kids book trim guide", description: "Trim sizes and page counts for picture books and children's titles.", href: "/kids-trim-guide", live: true },
 ];
 
+/**
+ * Archived: multi-platform "coming soon" items.
+ * Not rendered in the current KDP/Kindle-only build, but kept here for a possible
+ * future multi-platform expansion.
+ */
 const COMING_SOON = [
   { platform: "IngramSpark Formatter", description: "Print-ready files for IngramSpark distribution." },
   { platform: "Gumroad Digital Product Formatter", description: "Format ebooks and low-content for Gumroad." },
@@ -41,47 +46,11 @@ const COMING_SOON = [
 ];
 
 export default function FormatterPage() {
-  const [notifyModal, setNotifyModal] = useState<{ platform: string } | null>(null);
-  const [notifyEmail, setNotifyEmail] = useState("");
-  const [notifyAll, setNotifyAll] = useState(false);
-  const [notifyStatus, setNotifyStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [leadsName, setLeadsName] = useState("");
   const [leadsEmail, setLeadsEmail] = useState("");
   const [leadsStatus, setLeadsStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [leadsSuccessName, setLeadsSuccessName] = useState("");
   const [leadsErrorMsg, setLeadsErrorMsg] = useState("");
-  const [notifyErrorMsg, setNotifyErrorMsg] = useState("");
-
-  const handleNotifySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!notifyModal) return;
-    setNotifyStatus("loading");
-    setNotifyErrorMsg("");
-    try {
-      const res = await fetch("/api/platform-notify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: notifyEmail.trim(),
-          platform: notifyModal.platform,
-          notify_all: notifyAll,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setNotifyStatus("error");
-        setNotifyErrorMsg((data?.error as string) || "Something went wrong. Please try again.");
-        return;
-      }
-      setNotifyStatus("success");
-      setNotifyEmail("");
-      setNotifyAll(false);
-      setNotifyErrorMsg("");
-    } catch {
-      setNotifyStatus("error");
-      setNotifyErrorMsg("Something went wrong. Please try again.");
-    }
-  };
 
   const handleLeadsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,14 +77,6 @@ export default function FormatterPage() {
       setLeadsStatus("error");
       setLeadsErrorMsg("Something went wrong. Please try again.");
     }
-  };
-
-  const closeNotifyModal = () => {
-    setNotifyModal(null);
-    setNotifyStatus("idle");
-    setNotifyEmail("");
-    setNotifyAll(false);
-    setNotifyErrorMsg("");
   };
 
   return (
@@ -157,7 +118,7 @@ export default function FormatterPage() {
             Professional Book Formatting — <span className="text-brand-gold">Done in Minutes</span>
           </h1>
           <p className="font-sans text-lg sm:text-xl leading-relaxed text-brand-muted">
-            Format your manuscript for any publishing platform — KDP, IngramSpark, Draft2Digital and more. Free tools for indie authors.
+            Format your manuscript for Amazon KDP and Kindle. Free tools for indie authors.
           </p>
         </div>
       </section>
@@ -307,42 +268,7 @@ export default function FormatterPage() {
         </div>
       </section>
 
-      {/* Coming soon */}
-      <section className="px-6 pb-14">
-        <div className="mx-auto max-w-5xl">
-          <h2 className="font-bebas text-2xl sm:text-3xl tracking-wide text-brand-cream text-center mb-2">
-            More publishing platforms. More tools. Coming soon.
-          </h2>
-          <p className="font-sans text-sm text-brand-muted text-center mb-8">
-            manu2print is expanding to every major publishing platform. Sign up to be notified when your platform launches.
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {COMING_SOON.map((item) => (
-              <div
-                key={item.platform}
-                className="rounded-xl border p-4 flex flex-col bg-brand-card border-brand-locked opacity-80 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-200"
-              >
-                <span className="rounded-full bg-brand-locked border border-brand-cardHover px-2 py-0.5 text-xs font-medium text-brand-muted w-fit mb-2">
-                  Coming Soon
-                </span>
-                <h3 className="font-bebas text-lg tracking-wide text-brand-muted">
-                  {item.platform}
-                </h3>
-                <p className="font-sans text-sm flex-1 mb-4 text-brand-muted/80">
-                  {item.description}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setNotifyModal({ platform: item.platform })}
-                  className="rounded-lg border border-brand-cardHover px-4 py-2 text-sm font-medium w-fit text-brand-muted hover:bg-white/5 transition-colors"
-                >
-                  Notify Me
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Coming soon (archived multi-platform section omitted in current KDP/Kindle-only build) */}
 
       {/* Email capture — formatting tips */}
       <section className="px-6 pb-14">
@@ -412,75 +338,6 @@ export default function FormatterPage() {
         </div>
       </section>
 
-      {/* Notify Me modal */}
-      {notifyModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70"
-          onClick={closeNotifyModal}
-        >
-          <div
-            className="w-full max-w-md rounded-xl border border-brand-cardHover p-6 shadow-gold-glow-lg bg-brand-card"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="font-bebas text-xl tracking-wide text-brand-cream mb-4">
-              Get notified when {notifyModal.platform} launches
-            </h3>
-            {notifyStatus === "success" ? (
-              <p className="font-sans text-sm mb-4 text-brand-gold">
-                You&apos;re on the list. We&apos;ll notify you the moment it launches.
-              </p>
-            ) : (
-              <form onSubmit={handleNotifySubmit} className="space-y-4">
-                <input
-                  type="email"
-                  placeholder="you@example.com"
-                  value={notifyEmail}
-                  onChange={(e) => setNotifyEmail(e.target.value)}
-                  required
-                  className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-brand-bg font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold"
-                />
-                <label className="flex items-center gap-2 font-sans text-sm cursor-pointer text-brand-muted">
-                  <input
-                    type="checkbox"
-                    checked={notifyAll}
-                    onChange={(e) => setNotifyAll(e.target.checked)}
-                    className="rounded border-brand-cardHover"
-                  />
-                  Also notify me about all new manu2print tools
-                </label>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={closeNotifyModal}
-                    className="rounded-lg border border-brand-cardHover px-4 py-2 text-sm font-medium text-brand-muted hover:bg-white/5"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={notifyStatus === "loading"}
-                    className="rounded-lg px-4 py-2 text-sm font-semibold bg-brand-gold text-brand-bg hover:opacity-90 disabled:opacity-60"
-                  >
-                    {notifyStatus === "loading" ? "Submitting…" : "Notify Me"}
-                  </button>
-                </div>
-              </form>
-            )}
-            {notifyStatus === "error" && notifyErrorMsg && (
-              <p className="mt-2 font-sans text-sm text-red-400">{notifyErrorMsg}</p>
-            )}
-            {notifyStatus === "success" && (
-              <button
-                type="button"
-                onClick={closeNotifyModal}
-                className="rounded-lg border border-brand-cardHover px-4 py-2 text-sm font-medium text-brand-muted mt-2"
-              >
-                Close
-              </button>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

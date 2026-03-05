@@ -44,6 +44,15 @@ export interface Platform {
 
 export const PLATFORMS: Platform[] = [
   { id: "kdp", name: "Amazon KDP", tagline: "Everything you need for Amazon KDP", toolIds: ["pdf-compress", "pdf-optimizer", "royalty-calculator", "page-count-estimator", "trim-size-comparison", "spine-calculator", "cover-calculator", "banned-keyword-checker", "kids-trim-guide", "kdp-formatter", "keyword-research", "description-generator", "kdp-pdf-checker", "keyword-research-pdf", "description-generator-pdf", "epub-maker"] },
+];
+
+/**
+ * Archived platforms (not used in the current KDP/Kindle-only build).
+ *
+ * Keep these definitions here so they can be re-attached later if manu2print
+ * expands beyond Amazon again.
+ */
+export const ARCHIVED_PLATFORMS: Platform[] = [
   { id: "ingramspark", name: "IngramSpark", tagline: "Everything you need for IngramSpark", toolIds: [] },
   { id: "gumroad", name: "Gumroad", tagline: "Everything you need for Gumroad", toolIds: [] },
 ];

@@ -175,10 +175,10 @@ export default function Home() {
       <section className="py-4 mb-10 overflow-hidden bg-brand-card border-y border-white/5">
         <div className="flex w-[200%] animate-marquee">
           <span className="text-sm font-sans whitespace-nowrap flex-shrink-0 w-1/2 pr-16 text-brand-gold/90">
-            ✦ Trusted By Indie Authors On Amazon KDP ✦ Format Once, Publish Everywhere ✦ No Account Required To Start ✦
+            ✦ Trusted By Indie Authors On Amazon KDP ✦ Built For KDP & Kindle ✦ No Account Required To Start ✦
           </span>
           <span className="text-sm font-sans whitespace-nowrap flex-shrink-0 w-1/2 pr-16 text-brand-gold/90">
-            ✦ Trusted By Indie Authors On Amazon KDP ✦ Format Once, Publish Everywhere ✦ No Account Required To Start ✦
+            ✦ Trusted By Indie Authors On Amazon KDP ✦ Built For KDP & Kindle ✦ No Account Required To Start ✦
           </span>
         </div>
       </section>
@@ -187,10 +187,10 @@ export default function Home() {
       <section id="tools" className="px-6 pb-24">
         <div className="mx-auto max-w-6xl">
           <h2 className="font-bebas text-2xl sm:text-3xl tracking-wide text-brand-cream mb-2">
-            Tools by platform
+            Tools for KDP &amp; Kindle
           </h2>
           <p className="font-sans text-brand-muted mb-8">
-            Pick your platform. Everything you need in one place.
+            Built for Amazon KDP and Kindle. Everything you need in one place.
           </p>
 
           {PLATFORMS.map((platform) => (

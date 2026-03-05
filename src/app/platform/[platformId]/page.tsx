@@ -72,6 +72,11 @@ function ComingSoonCard({ title, amazon }: { title: string; amazon: boolean }) {
 }
 
 const COMING_SOON_KDP = ["KDP Format Review"];
+
+/**
+ * Archived: coming-soon tools for non-KDP platforms.
+ * Not used in the current KDP/Kindle-only build but kept for potential future expansion.
+ */
 const COMING_SOON_INGRAM = ["IngramSpark Formatter", "Print-ready PDF"];
 const COMING_SOON_GUMROAD = ["Gumroad Formatter", "Digital product pack"];
 
@@ -135,7 +140,7 @@ export default function PlatformPage() {
             </span>
           </Link>
           <Link href="/#tools" className={navLinkClass}>
-            All platforms
+            All tools
           </Link>
         </div>
       </nav>
@@ -209,7 +214,7 @@ export default function PlatformPage() {
         </div>
 
         <Link href="/#tools" className={backClass}>
-          ← Back to all platforms
+          ← Back to all tools
         </Link>
       </main>
     </div>

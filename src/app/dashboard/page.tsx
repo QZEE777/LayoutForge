@@ -97,6 +97,13 @@ export default function DashboardPage() {
             >
               Home
             </Link>
+            <Link
+              href="/dashboard/profile"
+              className="rounded-lg px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90"
+              style={{ color: "#a8a29e" }}
+            >
+              Profile
+            </Link>
             <button
               type="button"
               onClick={async () => {
@@ -132,7 +139,14 @@ export default function DashboardPage() {
               Account
             </h2>
             <p className="text-sm mb-1" style={{ color: "#a8a29e" }}>Email</p>
-            <p className="font-medium truncate" style={{ color: WARM_WHITE }}>{user.email}</p>
+            <p className="font-medium truncate mb-3" style={{ color: WARM_WHITE }}>{user.email}</p>
+            <Link
+              href="/dashboard/profile"
+              className="text-sm font-medium transition-opacity hover:opacity-90"
+              style={{ color: GOLD }}
+            >
+              Edit profile (e.g. first name)
+            </Link>
             {usage?.is_founder && (
               <span
                 className="inline-flex items-center mt-3 rounded-full px-2.5 py-0.5 text-xs font-medium"
