@@ -30,6 +30,8 @@ PHASE 3-5: 📋 PLANNED - Premium Features
 
 ## 🚀 Quick Start
 
+**Migrating to a new machine?** See **[MIGRATION.md](MIGRATION.md)** for step-by-step prep and restore. Use **docs/CONTINUE-PROJECT.md** in Cursor on the new laptop to restore AI context.
+
 ### For Development:
 
 ```bash
