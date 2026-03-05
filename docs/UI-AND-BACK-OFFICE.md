@@ -9,7 +9,7 @@ One place for: what to check and create (user UI, admin UI, payment flows, datab
 | Area | Check / Create | Pre-emptive idea |
 |------|----------------|------------------|
 | **Navigation** | Same nav pattern on all tool pages (manu2print logo, Tools, platform link). No dead links. | Breadcrumb or “Back to KDP tools” on long flows. |
-| **Free tools** | Clear “FREE” badge; CTAs after use (“Try KDP Formatter”). Copy explains what happens next. | One primary CTA per page so the next step is obvious. |
+| **Free tools** | Clear “FREE” badge; CTAs after use (“Try KDP Formatter”). Copy explains what happens next. **Dashboard:** Free and paid tools are both listed (dashboard uses same `platformTools` data as homepage; free tools in a “Free tools” section with badge, paid in “Paid tools”). | One primary CTA per page so the next step is obvious. |
 | **Paid tools** | Price visible before upload ($7 / $27). PaymentGate copy: “Your file is ready — choose how to access.” Beta code path visible. | Short “What happens next” (3 steps) on upload page. |
 | **Upload / progress** | File type and size limits shown. Progress bar and label during upload/convert. Error messages actionable. | “Max 50MB” and “DOCX only” in placeholder and error. |
 | **Download / success** | Success page confirms payment and links to download. Download page shows report and one clear “Download” button. | If verify-access is slow, show “Confirming…” and retry link. |

@@ -5,22 +5,18 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabaseClient";
 import type { User } from "@supabase/supabase-js";
+import { PLATFORMS, getToolsForPlatform, type Tool } from "@/data/platformTools";
 
 const GOLD = "#F5A623";
 const WARM_WHITE = "#FAF7F2";
 const CARD_BG = "#1A1612";
 const CARD_BORDER = "#2A2420";
+const FREE_GREEN = "#22c55e";
 
-const TOOL_LINKS = [
-  { href: "/kdp-formatter", label: "KDP Formatter (DOCX)" },
-  { href: "/keyword-research", label: "7 Keyword Research (DOCX)" },
-  { href: "/description-generator", label: "Description Generator (DOCX)" },
-  { href: "/pdf-compress", label: "PDF Compressor" },
-  { href: "/kdp-formatter-pdf", label: "PDF Print Optimizer" },
-  { href: "/kdp-pdf-checker", label: "KDP PDF Checker" },
-  { href: "/keyword-research-pdf", label: "7 Keyword Research (PDF)" },
-  { href: "/description-generator-pdf", label: "Description Generator (PDF)" },
-];
+const kdp = PLATFORMS.find((p) => p.id === "kdp");
+const ALL_TOOLS: Tool[] = kdp ? getToolsForPlatform(kdp.toolIds) : [];
+const FREE_TOOLS = ALL_TOOLS.filter((t) => t.free);
+const PAID_TOOLS = ALL_TOOLS.filter((t) => !t.free);
 
 type Usage = {
   usage_count: number;
@@ -93,13 +89,27 @@ export default function DashboardPage() {
               manu2print
             </span>
           </Link>
-          <Link
-            href="/"
-            className="rounded-lg px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90"
-            style={{ color: "#a8a29e" }}
-          >
-            Home
-          </Link>
+          <nav className="flex items-center gap-2">
+            <Link
+              href="/"
+              className="rounded-lg px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90"
+              style={{ color: "#a8a29e" }}
+            >
+              Home
+            </Link>
+            <button
+              type="button"
+              onClick={async () => {
+                const client = createClient();
+                await client.auth.signOut();
+                router.replace("/auth");
+              }}
+              className="rounded-lg px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90"
+              style={{ color: "#a8a29e" }}
+            >
+              Log out
+            </button>
+          </nav>
         </div>
       </header>
 
@@ -152,22 +162,55 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <h2 className="font-semibold mb-4" style={{ color: WARM_WHITE }}>
-          Tools
-        </h2>
-        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {TOOL_LINKS.map(({ href, label }) => (
-            <li key={href}>
-              <Link
-                href={href}
-                className="block rounded-xl border px-4 py-3.5 text-sm font-medium transition-all hover:border-[#F5A623] hover:bg-[#F5A623]/10"
-                style={{ borderColor: CARD_BORDER, color: WARM_WHITE }}
-              >
-                {label}
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <section className="mb-10">
+          <h2 className="text-lg font-semibold mb-1" style={{ color: WARM_WHITE }}>
+            Free tools
+          </h2>
+          <p className="text-sm mb-4" style={{ color: "#a8a29e" }}>
+            No sign-in or payment required.
+          </p>
+          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {FREE_TOOLS.map((t) => (
+              <li key={t.id}>
+                <Link
+                  href={t.href}
+                  className="flex items-center justify-between gap-2 rounded-xl border px-4 py-3.5 text-sm font-medium transition-all hover:border-[#22c55e] hover:bg-[#22c55e]/10"
+                  style={{ borderColor: CARD_BORDER, color: WARM_WHITE }}
+                >
+                  <span>{t.title}</span>
+                  <span
+                    className="shrink-0 rounded px-2 py-0.5 text-xs font-medium"
+                    style={{ backgroundColor: "rgba(34,197,94,0.2)", color: FREE_GREEN }}
+                  >
+                    Free
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section>
+          <h2 className="text-lg font-semibold mb-1" style={{ color: WARM_WHITE }}>
+            Paid tools
+          </h2>
+          <p className="text-sm mb-4" style={{ color: "#a8a29e" }}>
+            Pay per use or unlock with a 6‑month pass.
+          </p>
+          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {PAID_TOOLS.map((t) => (
+              <li key={t.id}>
+                <Link
+                  href={t.href}
+                  className="block rounded-xl border px-4 py-3.5 text-sm font-medium transition-all hover:border-[#F5A623] hover:bg-[#F5A623]/10"
+                  style={{ borderColor: CARD_BORDER, color: WARM_WHITE }}
+                >
+                  {t.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
       </main>
     </div>
   );
