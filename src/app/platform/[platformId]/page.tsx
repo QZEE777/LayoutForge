@@ -156,7 +156,7 @@ export default function PlatformPage() {
             </p>
             <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-1 font-sans text-sm text-white">
               <li className="flex items-center gap-1.5">
-                <span className="text-amazon-orange">✓</span> Print-ready PDFs &amp; KDP specs
+                <span className="text-amazon-orange">✓</span> Print-ready PDFs, KDP specs &amp; Kindle EPUB
               </li>
               <li className="flex items-center gap-1.5">
                 <span className="text-amazon-orange">✓</span> Keywords &amp; Amazon listing copy

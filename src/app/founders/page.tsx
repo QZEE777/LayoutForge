@@ -134,6 +134,9 @@ export default function FoundersPage() {
           <p className="font-sans text-lg mb-4 text-brand-muted">
             Free access for life. Earn from every author you refer. Built for publishing influencers with a real audience.
           </p>
+          <p className="font-sans text-sm mb-4 text-brand-muted">
+            manu2print is KDP &amp; Kindle only — formatting, keywords, listing copy, and Kindle EPUB tools for indie authors.
+          </p>
           <p className="font-sans text-sm leading-relaxed text-brand-muted">
             We&apos;re opening a limited number of Founder spots to content creators and influencers in the self-publishing space. Founders get full lifetime access to manu2print — free, forever — plus affiliate commissions on every author they bring in. To qualify, you need an active presence on at least one platform with a minimum of 1,000 subscribers or followers.
           </p>

@@ -117,14 +117,14 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Hero — formatter-style typography and hierarchy */}
+      {/* Hero */}
       <section className="px-6 pt-16 pb-12">
         <div className="mx-auto max-w-3xl text-center">
           <h1 className="font-bebas text-4xl sm:text-5xl md:text-6xl font-normal tracking-wide text-brand-cream mb-4">
-            Your Manuscript Deserves a <span className="text-brand-gold">Professional Finish</span>
+            KDP &amp; Kindle Tools <span className="text-brand-gold">for Indie Authors</span>
           </h1>
           <p className="font-sans text-lg sm:text-xl leading-relaxed text-brand-muted mb-8">
-            manu2print gives indie authors the same formatting, keyword, and listing tools that traditional publishers use — without the agency price tag.
+            Format interiors, check PDFs, get keywords and listing copy, build Kindle EPUBs. Free calculators and compressors. Paid tools when you need them.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
@@ -139,34 +139,28 @@ export default function Home() {
             >
               Browse Tools
             </a>
-            <Link
-              href="/pdf-compress"
-              className="rounded-lg border border-brand-cardHover px-8 py-4 text-base font-semibold text-brand-cream hover:bg-white/5 transition-colors text-center"
-            >
-              Try Free PDF Compressor
-            </Link>
           </div>
         </div>
       </section>
 
-      {/* Stats — brand palette, builds trust */}
+      {/* Stats */}
       <div className="border-y border-white/5 py-6 mb-10 bg-brand-card/50">
         <div className="mx-auto max-w-4xl px-6 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
           <div>
-            <p className="font-bebas text-2xl tracking-wide text-brand-gold">7</p>
-            <p className="font-sans text-sm mt-1 text-brand-muted">Tools Live</p>
+            <p className="font-bebas text-2xl tracking-wide text-brand-gold">9</p>
+            <p className="font-sans text-sm mt-1 text-brand-muted">Free Tools</p>
           </div>
           <div>
-            <p className="font-bebas text-2xl tracking-wide text-brand-gold">2</p>
-            <p className="font-sans text-sm mt-1 text-brand-muted">Coming Soon</p>
-          </div>
-          <div>
-            <p className="font-bebas text-2xl tracking-wide text-brand-gold">Free</p>
-            <p className="font-sans text-sm mt-1 text-brand-muted">During Beta</p>
+            <p className="font-bebas text-2xl tracking-wide text-brand-gold">8</p>
+            <p className="font-sans text-sm mt-1 text-brand-muted">Paid Tools</p>
           </div>
           <div>
             <p className="font-bebas text-2xl tracking-wide text-brand-gold">50MB</p>
-            <p className="font-sans text-sm mt-1 text-brand-muted">PDF Support</p>
+            <p className="font-sans text-sm mt-1 text-brand-muted">PDF / DOCX</p>
+          </div>
+          <div>
+            <p className="font-bebas text-2xl tracking-wide text-brand-gold">KDP</p>
+            <p className="font-sans text-sm mt-1 text-brand-muted">+ Kindle</p>
           </div>
         </div>
       </div>
@@ -216,11 +210,11 @@ export default function Home() {
           </div>
           <p className="flex items-center gap-4 flex-wrap">
             Your files are processed securely and never stored permanently.
-            <Link href="/formatter" className="hover:text-brand-gold transition-colors">Formatting tools</Link>
+            <Link href="/formatter" className="hover:text-brand-gold transition-colors">KDP &amp; Kindle tools</Link>
           </p>
         </div>
         <p className="mx-auto max-w-6xl text-center text-sm mt-3 text-brand-muted">
-          © 2026 manu2print. Built for indie authors.
+          © 2026 manu2print. KDP &amp; Kindle tools for indie authors.
         </p>
       </footer>
     </div>

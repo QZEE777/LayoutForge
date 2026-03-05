@@ -118,7 +118,7 @@ export default function FormatterPage() {
             Professional Book Formatting — <span className="text-brand-gold">Done in Minutes</span>
           </h1>
           <p className="font-sans text-lg sm:text-xl leading-relaxed text-brand-muted">
-            Format your manuscript for Amazon KDP and Kindle. Free tools for indie authors.
+            Format for KDP and Kindle. Free calculators and compressors; paid formatter, keywords, description, and Kindle EPUB tools.
           </p>
         </div>
       </section>
