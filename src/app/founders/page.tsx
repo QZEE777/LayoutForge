@@ -98,10 +98,7 @@ export default function FoundersPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
               </svg>
             </div>
-            <span className="text-lg font-bold tracking-tight text-brand-cream">
-              <span className="font-serif">Scribe</span>
-              <span className="font-sans">Stack</span>
-            </span>
+            <span className="text-lg font-bold tracking-tight text-brand-cream">manu2print</span>
           </Link>
           <div className="flex items-center gap-6">
             <Link href="/formatter" className="text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors">
@@ -120,11 +117,11 @@ export default function FoundersPage() {
           {/* Gold S logo circle */}
           <div className="flex justify-center mb-6">
             <div className="w-16 h-16 rounded-full bg-brand-gold flex items-center justify-center">
-              <span className="font-bebas text-3xl text-brand-bg">S</span>
+              <span className="font-bebas text-3xl text-brand-bg">m</span>
             </div>
           </div>
           <h1 className="font-bebas text-4xl sm:text-5xl md:text-6xl font-normal tracking-wide text-brand-cream mb-4">
-            Become a manu2print <span className="text-brand-gold">Founder</span>
+            Become a <span className="text-brand-gold">manu2print</span> Founder
           </h1>
           {/* Gold gradient divider */}
           <div className="h-px w-24 mx-auto mb-6 bg-gradient-to-r from-transparent via-brand-gold to-transparent" />
@@ -132,7 +129,7 @@ export default function FoundersPage() {
             Free access for life. Earn from every author you refer. Built for influencers whose audience publishes on KDP and Kindle.
           </p>
           <p className="font-sans text-sm mb-4 text-brand-muted">
-            manu2print is KDP &amp; Kindle only — formatting, keywords, listing copy, and Kindle EPUB tools for indie authors.
+            KDP &amp; Kindle only: formatting, keywords, listing copy, and Kindle EPUB for indie&nbsp;authors.
           </p>
           <p className="font-sans text-sm leading-relaxed text-brand-muted">
             We&apos;re opening a limited number of Founder spots to content creators whose audience includes indie authors on Amazon KDP or Kindle. Founders get full lifetime access to manu2print — free, forever — plus affiliate commissions on every author they bring in. To qualify, you need an active presence on at least one platform with a minimum of 1,000 subscribers or followers.
