@@ -20,17 +20,10 @@ const FOLLOWER_COUNTS = [
   "100,000+",
 ];
 
-const PUBLISHING_PLATFORMS = [
-  "Amazon KDP",
-  "IngramSpark",
-  "Draft2Digital",
-  "Etsy",
-  "Gumroad",
-  "Lulu",
-  "Barnes & Noble Press",
-  "Kobo",
-  "Smashwords",
-  "PublishDrive",
+const AUDIENCE_PUBLISHING = [
+  "Amazon KDP (print)",
+  "Kindle eBooks",
+  "Both KDP & Kindle",
   "Other",
 ];
 
@@ -40,20 +33,24 @@ export default function FoundersPage() {
   const [primaryPlatform, setPrimaryPlatform] = useState("");
   const [platformUrl, setPlatformUrl] = useState("");
   const [followerCount, setFollowerCount] = useState("");
-  const [publishingPlatforms, setPublishingPlatforms] = useState<string[]>([]);
+  const [audiencePublishing, setAudiencePublishing] = useState<string[]>([]);
   const [audienceDescription, setAudienceDescription] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const togglePublishing = (platform: string) => {
-    setPublishingPlatforms((prev) =>
-      prev.includes(platform) ? prev.filter((p) => p !== platform) : [...prev, platform]
+  const toggleAudiencePublishing = (value: string) => {
+    setAudiencePublishing((prev) =>
+      prev.includes(value) ? prev.filter((p) => p !== value) : [...prev, value]
     );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
+    if (audiencePublishing.length === 0) {
+      setErrorMessage("Please select at least one option for where your audience publishes.");
+      return;
+    }
     setStatus("loading");
     try {
       const res = await fetch("/api/founder-applications", {
@@ -65,7 +62,7 @@ export default function FoundersPage() {
           primary_platform: primaryPlatform,
           platform_url: platformUrl.trim(),
           follower_count: followerCount,
-          publishing_platforms: publishingPlatforms,
+          publishing_platforms: audiencePublishing,
           audience_description: audienceDescription.trim(),
         }),
       });
@@ -132,13 +129,13 @@ export default function FoundersPage() {
           {/* Gold gradient divider */}
           <div className="h-px w-24 mx-auto mb-6 bg-gradient-to-r from-transparent via-brand-gold to-transparent" />
           <p className="font-sans text-lg mb-4 text-brand-muted">
-            Free access for life. Earn from every author you refer. Built for publishing influencers with a real audience.
+            Free access for life. Earn from every author you refer. Built for influencers whose audience publishes on KDP and Kindle.
           </p>
           <p className="font-sans text-sm mb-4 text-brand-muted">
             manu2print is KDP &amp; Kindle only — formatting, keywords, listing copy, and Kindle EPUB tools for indie authors.
           </p>
           <p className="font-sans text-sm leading-relaxed text-brand-muted">
-            We&apos;re opening a limited number of Founder spots to content creators and influencers in the self-publishing space. Founders get full lifetime access to manu2print — free, forever — plus affiliate commissions on every author they bring in. To qualify, you need an active presence on at least one platform with a minimum of 1,000 subscribers or followers.
+            We&apos;re opening a limited number of Founder spots to content creators whose audience includes indie authors on Amazon KDP or Kindle. Founders get full lifetime access to manu2print — free, forever — plus affiliate commissions on every author they bring in. To qualify, you need an active presence on at least one platform with a minimum of 1,000 subscribers or followers.
           </p>
         </div>
       </section>
@@ -250,24 +247,24 @@ export default function FoundersPage() {
               </div>
               <div>
                 <label className={labelClass}>
-                  Publishing Platforms You Cover <span className="text-brand-gold">*</span>
+                  Where does your audience publish? <span className="text-brand-gold">*</span>
                 </label>
                 <p className="font-sans text-xs mb-2 text-brand-muted/80">
-                  Select all that apply.
+                  manu2print supports KDP &amp; Kindle only. Select what best describes your audience.
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {PUBLISHING_PLATFORMS.map((platform) => (
+                  {AUDIENCE_PUBLISHING.map((value) => (
                     <label
-                      key={platform}
+                      key={value}
                       className="flex items-center gap-2 font-sans text-sm cursor-pointer text-brand-muted"
                     >
                       <input
                         type="checkbox"
-                        checked={publishingPlatforms.includes(platform)}
-                        onChange={() => togglePublishing(platform)}
+                        checked={audiencePublishing.includes(value)}
+                        onChange={() => toggleAudiencePublishing(value)}
                         className="rounded border-brand-cardHover text-brand-gold focus:ring-brand-gold"
                       />
-                      {platform}
+                      {value}
                     </label>
                   ))}
                 </div>
@@ -306,7 +303,7 @@ export default function FoundersPage() {
               className="inline-flex items-center gap-1 font-sans text-sm text-brand-muted hover:text-brand-gold transition-colors group"
             >
               <span className="group-hover:-translate-x-0.5 transition-transform inline-block">←</span>
-              Back to Formatter
+              Back to Tools
             </Link>
           </p>
         </div>
