@@ -30,11 +30,13 @@ export default function ProfilePage() {
         return;
       }
       setUser(user);
-      client
-        .from("profiles")
-        .select("id, email, first_name")
-        .eq("id", user.id)
-        .single()
+      Promise.resolve(
+        client
+          .from("profiles")
+          .select("id, email, first_name")
+          .eq("id", user.id)
+          .single()
+      )
         .then(({ data, error }) => {
           if (!error && data) {
             setProfile(data as ProfileRow);
