@@ -1,20 +1,34 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import Link from "next/link";
 import { truncateFilenameMiddle, formatFileSize } from "@/lib/formatFileName";
 import { compressPdfInBrowser } from "@/lib/clientPdfCompress";
 
 const MAX_MB = 50;
+const STORAGE_LEAD_CAPTURED = "pdf_compress_lead_captured";
+const STORAGE_EMAIL = "pdf_compress_email";
 
 export default function PdfCompressPage() {
   const [file, setFile] = useState<File | null>(null);
   const [email, setEmail] = useState("");
+  const [leadCaptured, setLeadCaptured] = useState(false);
   const [compressing, setCompressing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [doneBlobUrl, setDoneBlobUrl] = useState<string | null>(null);
   const [outputName, setOutputName] = useState<string>("");
+  const [originalSize, setOriginalSize] = useState<number | null>(null);
+  const [compressedSize, setCompressedSize] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (localStorage.getItem(STORAGE_LEAD_CAPTURED) === "1") {
+      setLeadCaptured(true);
+      const stored = localStorage.getItem(STORAGE_EMAIL);
+      if (stored) setEmail(stored);
+    }
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
@@ -43,13 +57,16 @@ export default function PdfCompressPage() {
       return;
     }
     const trimmedEmail = email.trim();
-    if (!trimmedEmail) {
-      setError("Please enter your email to continue.");
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
-      setError("Please enter a valid email address.");
-      return;
+    const needLead = !leadCaptured;
+    if (needLead) {
+      if (!trimmedEmail) {
+        setError("Please enter your email to continue.");
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+        setError("Please enter a valid email address.");
+        return;
+      }
     }
 
     setError(null);
@@ -58,15 +75,22 @@ export default function PdfCompressPage() {
     setProgress(0);
 
     try {
-      setProgress(5);
-      const leadRes = await fetch("/api/pdf-compress/lead", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: trimmedEmail }),
-      });
-      if (!leadRes.ok) {
-        const data = await leadRes.json().catch(() => ({}));
-        throw new Error(data.message || "Could not continue.");
+      if (needLead) {
+        setProgress(5);
+        const leadRes = await fetch("/api/pdf-compress/lead", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: trimmedEmail }),
+        });
+        if (!leadRes.ok) {
+          const data = await leadRes.json().catch(() => ({}));
+          throw new Error(data.message || "Could not continue.");
+        }
+        if (typeof window !== "undefined") {
+          localStorage.setItem(STORAGE_LEAD_CAPTURED, "1");
+          localStorage.setItem(STORAGE_EMAIL, trimmedEmail);
+        }
+        setLeadCaptured(true);
       }
 
       setProgress(10);
@@ -77,6 +101,8 @@ export default function PdfCompressPage() {
       setProgress(95);
       const url = URL.createObjectURL(blob);
       setDoneBlobUrl(url);
+      setOriginalSize(file.size);
+      setCompressedSize(blob.size);
       const base = file.name.replace(/\.pdf$/i, "") || "document";
       setOutputName(`${base}-compressed.pdf`);
       setProgress(100);
@@ -86,16 +112,18 @@ export default function PdfCompressPage() {
       setCompressing(false);
       setProgress(0);
     }
-  }, [file, email]);
+  }, [file, email, leadCaptured]);
 
   const handleReset = useCallback(() => {
     if (doneBlobUrl) URL.revokeObjectURL(doneBlobUrl);
     setDoneBlobUrl(null);
     setOutputName("");
+    setOriginalSize(null);
+    setCompressedSize(null);
     setFile(null);
-    setEmail("");
+    if (!leadCaptured) setEmail("");
     setError(null);
-  }, [doneBlobUrl]);
+  }, [doneBlobUrl, leadCaptured]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex flex-col">
@@ -130,7 +158,7 @@ export default function PdfCompressPage() {
       <main className="flex-1 mx-auto max-w-xl w-full px-6 py-10">
         <h1 className="text-3xl font-bold text-white mb-2">Free PDF Compressor</h1>
         <p className="text-slate-400 mb-8">
-          Compress your PDF in your browser—your file never leaves your device. Use the result in our Keyword Research and Amazon Description Generator. Enter your email to continue.
+          Compress your PDF in your browser—your file never leaves your device. Use the result in our Keyword Research and Amazon Description Generator. {leadCaptured ? "Pick a PDF below to compress another." : "Enter your email to continue."}
         </p>
 
         {doneBlobUrl ? (
@@ -144,6 +172,17 @@ export default function PdfCompressPage() {
               <h2 className="text-xl font-bold text-white">Your PDF is ready</h2>
             </div>
             <p className="text-slate-400 text-sm mb-6">Download your compressed PDF. Use it in our Keyword Research or Description Generator.</p>
+            {originalSize != null && compressedSize != null && (
+              <p className="text-slate-300 text-sm mb-4">
+                Your file was <strong>{formatFileSize(originalSize)}</strong> and is now <strong>{formatFileSize(compressedSize)}</strong>
+                {originalSize > 0 && (
+                  <span className="text-slate-400">
+                    {" "}({Math.round((1 - compressedSize / originalSize) * 100)}% smaller)
+                  </span>
+                )}
+                .
+              </p>
+            )}
             <div className="flex flex-col sm:flex-row gap-3">
               <a
                 href={doneBlobUrl}
@@ -183,15 +222,29 @@ export default function PdfCompressPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">Your email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => { setEmail(e.target.value); setError(null); }}
-                placeholder="you@example.com"
-                disabled={compressing}
-                className="w-full rounded-lg border border-slate-600 bg-slate-900/60 px-4 py-3 text-white placeholder-slate-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-              />
-              <p className="mt-1.5 text-xs text-slate-500">We use this only to stay in touch. No spam.</p>
+              {leadCaptured ? (
+                <>
+                  <input
+                    type="email"
+                    value={email}
+                    readOnly
+                    className="w-full rounded-lg border border-slate-600 bg-slate-800/60 px-4 py-3 text-slate-400"
+                  />
+                  <p className="mt-1.5 text-xs text-slate-500">We have your email on file. Just pick a PDF to compress.</p>
+                </>
+              ) : (
+                <>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => { setEmail(e.target.value); setError(null); }}
+                    placeholder="you@example.com"
+                    disabled={compressing}
+                    className="w-full rounded-lg border border-slate-600 bg-slate-900/60 px-4 py-3 text-white placeholder-slate-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                  />
+                  <p className="mt-1.5 text-xs text-slate-500">We use this only to stay in touch. No spam.</p>
+                </>
+              )}
             </div>
             {error && <div className="rounded-lg bg-red-500/10 border border-red-500/30 p-3 text-sm text-red-400">{error}</div>}
             {compressing && progress > 0 && (
@@ -208,7 +261,7 @@ export default function PdfCompressPage() {
             <button
               type="button"
               onClick={handleSubmit}
-              disabled={!file || !email.trim() || compressing}
+              disabled={!file || (!leadCaptured && !email.trim()) || compressing}
               className="w-full rounded-xl bg-red-600 px-6 py-3.5 font-semibold text-white hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               {compressing ? "Compressing…" : "Compress PDF (free)"}
