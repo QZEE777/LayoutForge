@@ -1,0 +1,21 @@
+============================================
+  CHECK: Is Node.js installed?
+============================================
+
+Double-click:  CHECK-NODE.bat
+
+It will open a window and tell you:
+  - "Node.js is installed" and a version number  --> You're OK, the problem is something else.
+  - "Node.js is NOT installed"  --> You need to install it first (see below).
+
+============================================
+  How to install Node.js (if needed)
+============================================
+
+1. Open your browser and go to:  https://nodejs.org
+2. Click the green button to download the LTS version.
+3. Run the downloaded file and go through the installer (Next, Next...).
+4. Restart your computer if the installer asks you to.
+5. Then try START-HERE.bat again.
+
+============================================

@@ -1,0 +1,452 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import { useParams, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import PaymentGate from "@/components/PaymentGate";
+
+interface ProcessingReport {
+  pagesGenerated?: number;
+  chaptersDetected: number;
+  sectionsDetected?: number;
+  lessonsDetected?: number;
+  estimatedPages?: number;
+  issues: string[];
+  fontUsed: string;
+  trimSize: string;
+  gutterInches?: number;
+  outputType?: "pdf" | "docx" | "epub" | "checker";
+  outputFilename?: string;
+  status?: string;
+  formatReviewText?: string;
+  /** Checker report */
+  pageCount?: number;
+  trimDetected?: string;
+  trimMatchKDP?: boolean;
+  kdpTrimName?: string | null;
+  recommendations?: string[];
+  fileSizeMB?: number;
+  recommendedGutterInches?: number;
+}
+
+export default function DownloadPage() {
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const id = typeof params.id === "string" ? params.id : "";
+  const isPdfFlow = searchParams.get("source") === "pdf";
+  const isEpubFlow = searchParams.get("source") === "epub";
+  const isCheckerFlow = searchParams.get("source") === "checker";
+  const [report, setReport] = useState<ProcessingReport | null>(null);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [copyReviewStatus, setCopyReviewStatus] = useState<"idle" | "ok" | "fail">("idle");
+
+  const isDocx = report?.outputType === "docx";
+  const isEpub = isEpubFlow || report?.outputType === "epub";
+  const isChecker = isCheckerFlow || report?.outputType === "checker";
+  const downloadFilename =
+    report?.outputFilename ||
+    (isDocx ? "kdp-review.docx" : isEpub ? "book.epub" : "kdp-print.pdf");
+
+  const handleDownload = useCallback(async () => {
+    setDownloadError(null);
+    const url = `/api/download/${id}/${encodeURIComponent(downloadFilename)}`;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.message || data.error || `Download failed (${response.status})`);
+      }
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = downloadFilename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(blobUrl);
+      document.body.removeChild(a);
+    } catch (err) {
+      setDownloadError(err instanceof Error ? err.message : "Download failed");
+    }
+  }, [id, downloadFilename]);
+
+  const handleCopyForAIReview = useCallback(async () => {
+    if (!report?.formatReviewText) return;
+    setCopyReviewStatus("idle");
+    try {
+      await navigator.clipboard.writeText(report.formatReviewText);
+      setCopyReviewStatus("ok");
+      setTimeout(() => setCopyReviewStatus("idle"), 3000);
+    } catch {
+      setCopyReviewStatus("fail");
+      setTimeout(() => setCopyReviewStatus("idle"), 3000);
+    }
+  }, [report?.formatReviewText]);
+
+  useEffect(() => {
+    if (!id) return;
+    fetch(`/api/format-report?id=${encodeURIComponent(id)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success && data.report) setReport(data.report);
+      })
+      .catch(() => {});
+  }, [id]);
+
+  if (!id) {
+    return (
+      <div className="min-h-screen bg-[#1a1a12] text-[#F5F0E8] p-8">
+        <p className="text-red-400">Invalid file ID.</p>
+        <Link href={isCheckerFlow ? "/kdp-pdf-checker" : isEpubFlow ? "/epub-maker" : isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"} className="mt-4 block text-[#D4A843] hover:text-[#F5F0E8]">
+          Upload a file
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#1a1a12] text-[#F5F0E8]">
+      {/* Header */}
+      <header className="border-b border-white/10">
+        <div className="mx-auto max-w-4xl px-4 py-4 flex items-center justify-between">
+          <Link href="/" className="text-2xl font-bold tracking-tight text-[#F5F0E8]">
+            manu2print
+          </Link>
+          <Link href={isChecker ? "/kdp-pdf-checker" : isEpub ? "/epub-maker" : isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"} className="text-sm text-[#8B8B6B] hover:text-[#F5F0E8]">
+            New upload
+          </Link>
+        </div>
+      </header>
+
+      {/* Main content */}
+      <main className="max-w-2xl mx-auto px-6 py-12">
+        <PaymentGate tool={isChecker ? "kdp-pdf-checker" : isEpub ? "epub-maker" : isPdfFlow ? "kdp-formatter-pdf" : "kdp-formatter"} downloadId={id}>
+        {/* Processing report card */}
+        {report && (
+          <div className="mb-8 bg-[#24241a] border border-white/10 rounded-lg p-6">
+            {report.outputType === "checker" && (
+              <div className="mb-4 flex flex-wrap items-center gap-3">
+                <span className={`inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-semibold ${(report.issues?.length ?? 0) === 0 ? "bg-green-500/20 text-green-300 border border-green-500/40" : "bg-amber-500/20 text-amber-300 border border-amber-500/40"}`}>
+                  KDP Ready: {(report.issues?.length ?? 0) === 0 ? "Yes" : `No — ${report.issues?.length ?? 0} issue${(report.issues?.length ?? 0) === 1 ? "" : "s"}`}
+                </span>
+              </div>
+            )}
+            <h2 className="font-semibold text-[#F5F0E8] mb-4">Processing report</h2>
+            <ul className="text-sm text-[#8B8B6B] space-y-1">
+              {report.outputType === "checker" ? (
+                <>
+                  <li>Trim detected: <span className="text-[#F5F0E8]">{report.trimDetected ?? "—"}</span></li>
+                  <li>Matches KDP trim: <span className="text-[#F5F0E8]">{report.trimMatchKDP ? "Yes" : "No"}{report.kdpTrimName ? ` (${report.kdpTrimName})` : ""}</span></li>
+                  <li>Page count: <span className="text-[#F5F0E8]">{report.pageCount ?? "—"}</span></li>
+                  {report.fileSizeMB != null && (
+                    <li>File size: <span className="text-[#F5F0E8]">{report.fileSizeMB} MB</span></li>
+                  )}
+                  {report.recommendedGutterInches != null && (
+                    <li>
+                      Recommended gutter (inner margin) for your page count:{" "}
+                      <span className="text-[#F5F0E8]">
+                        {report.recommendedGutterInches}&quot; ({Math.round(report.recommendedGutterInches * 2.54 * 10) / 10} cm / {Math.round(report.recommendedGutterInches * 25.4 * 10) / 10} mm)
+                      </span>
+                      . We can&apos;t measure margins from the PDF; set inner margin ≥ 0.5&quot; + gutter in your layout app.
+                    </li>
+                  )}
+                </>
+              ) : report.outputType === "epub" ? (
+                <>
+                  <li>Format: <span className="text-[#F5F0E8]">Kindle-ready EPUB</span></li>
+                  <li>Chapters: <span className="text-[#F5F0E8]">{report.chaptersDetected ?? 0}</span></li>
+                </>
+              ) : report.outputType === "docx" ? (
+                <>
+                  <li>Sections detected: <span className="text-[#F5F0E8]">{report.sectionsDetected ?? 0}</span></li>
+                  <li>Lessons detected: <span className="text-[#F5F0E8]">{report.lessonsDetected ?? 0}</span></li>
+                  <li>Estimated pages (PDF): <span className="text-[#F5F0E8]">~{report.estimatedPages ?? report.chaptersDetected}</span></li>
+                  <li>Font applied: <span className="text-[#F5F0E8]">{report.fontUsed}</span></li>
+                  <li>Trim size: <span className="text-[#F5F0E8]">{report.trimSize}</span></li>
+                  {report.status && (
+                    <li>Status: <span className="text-[#F5F0E8]">{report.status}</span></li>
+                  )}
+                </>
+              ) : (
+                <>
+                  <li>Pages generated: <span className="text-[#F5F0E8]">{report.pagesGenerated}</span></li>
+                  <li>Chapters detected: <span className="text-[#F5F0E8]">{report.chaptersDetected}</span></li>
+                  <li>Trim size: <span className="text-[#F5F0E8]">{report.trimSize}</span></li>
+                  <li>Font: <span className="text-[#F5F0E8]">{report.fontUsed}</span></li>
+                  {report.gutterInches != null && (
+                    <li>Gutter: <span className="text-[#F5F0E8]">{report.gutterInches}&quot;</span></li>
+                  )}
+                </>
+              )}
+            </ul>
+            {report.issues && report.issues.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-white/10">
+                <p className="text-xs font-medium text-[#D4A843] mb-2">Issues</p>
+                <ul className="text-xs text-[#8B8B6B] list-disc list-inside space-y-1">
+                  {report.issues.map((issue, i) => (
+                    <li key={i}>{issue}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {report.outputType === "checker" && report.recommendations && report.recommendations.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-white/10">
+                <p className="text-xs font-medium text-green-400 mb-2">Recommendations</p>
+                <ul className="text-xs text-[#8B8B6B] list-disc list-inside space-y-1">
+                  {report.recommendations.map((rec, i) => (
+                    <li key={i}>{rec}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {report.outputType === "checker" && (
+              <div className="mt-4 pt-4 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const lines: string[] = [
+                      "KDP PDF Check Report",
+                      "manu2print.com",
+                      "",
+                      `KDP Ready: ${(report.issues?.length ?? 0) === 0 ? "Yes" : `No — ${report.issues?.length ?? 0} issue(s)`}`,
+                      "",
+                      `Trim detected: ${report.trimDetected ?? "—"}`,
+                      `Matches KDP trim: ${report.trimMatchKDP ? "Yes" : "No"}${report.kdpTrimName ? ` (${report.kdpTrimName})` : ""}`,
+                      `Page count: ${report.pageCount ?? "—"}`,
+                      ...(report.fileSizeMB != null ? [`File size: ${report.fileSizeMB} MB`] : []),
+                      ...(report.recommendedGutterInches != null ? [`Recommended gutter (inner margin): ${report.recommendedGutterInches}" (${Math.round(report.recommendedGutterInches * 2.54 * 10) / 10} cm / ${Math.round(report.recommendedGutterInches * 25.4 * 10) / 10} mm)`] : []),
+                      "",
+                      ...(report.issues && report.issues.length > 0 ? ["Issues:", ...report.issues.map((i) => `  • ${i}`), ""] : []),
+                      ...(report.recommendations && report.recommendations.length > 0 ? ["Recommendations:", ...report.recommendations.map((r) => `  • ${r}`)] : []),
+                    ];
+                    const blob = new Blob([lines.join("\n")], { type: "text/plain" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "kdp-check-report.txt";
+                    a.click();
+                    URL.revokeObjectURL(url);
+                  }}
+                  className="text-sm font-medium text-[#D4A843] hover:text-[#F5F0E8] transition-colors"
+                >
+                  Download report (.txt)
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+        {/* Success message */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-[#D4A843] mb-2">
+            {isChecker ? "KDP Check Complete" : isEpub ? "EPUB Ready!" : isDocx ? "Review DOCX Ready!" : "PDF Generated!"}
+          </h1>
+          <p className="text-[#8B8B6B]">
+            {isChecker
+              ? "Review the report above. Fix any issues in your file, then re-upload to KDP."
+              : isEpub
+                ? "Your Kindle-ready EPUB is ready to download."
+                : isDocx
+                  ? "Your formatted review draft is ready. Download it, proofread and edit as needed, then return to generate your final KDP PDF."
+                  : "Your KDP-compliant PDF is ready for download."}
+          </p>
+        </div>
+
+        {/* Download section - hide for checker */}
+        {!isChecker && (
+        <div className="bg-[#24241a] border border-[#D4A843] rounded-lg p-6 mb-6">
+          <h2 className="text-xl font-semibold text-center mb-6 text-[#F5F0E8]">Download your file</h2>
+
+          <div className="mb-6">
+            {downloadError && (
+              <div className="mb-3 rounded-lg bg-red-500/10 border border-red-500/30 p-3 text-sm text-red-400">
+                {downloadError}
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={handleDownload}
+              aria-label={isEpub ? "Download Kindle EPUB" : isDocx ? "Download review DOCX" : "Download KDP Print PDF"}
+              className="w-full flex items-center justify-between border border-[#D4A843] rounded-lg p-4 bg-[#1a1a12]/50 text-left hover:bg-[#1a1a12]/70 transition-colors cursor-pointer"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 border border-[#D4A843]/30 rounded flex items-center justify-center text-[#D4A843]">
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-medium text-[#F5F0E8]">
+                    {isEpub ? "Kindle EPUB" : isDocx ? "Review DOCX" : "KDP Print PDF"}
+                  </h3>
+                  <p className="text-sm text-[#8B8B6B]">
+                    {isEpub ? "Ready to download" : isDocx ? "Proofread and edit, then return to generate PDF" : "Ready to download"}
+                  </p>
+                </div>
+              </div>
+              <div className="text-[#D4A843] hover:text-[#F5F0E8]">
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  />
+                </svg>
+              </div>
+            </button>
+          </div>
+
+          {report && report.formatReviewText && !isEpub && (
+            <div className="mb-6 p-4 rounded-lg bg-[#1a1a12]/50 border border-[#D4A843]/30">
+              <h3 className="font-medium text-[#F5F0E8] mb-2">Get a full-document AI format review</h3>
+              <p className="text-sm text-[#8B8B6B] mb-3">
+                Copy the whole manuscript (structure + text). Paste it in Cursor chat and ask the AI to scan it as a professional KDP formatter — margins, spacing, headings, lists, and Amazon KDP rules.
+              </p>
+              <button
+                type="button"
+                onClick={handleCopyForAIReview}
+                className="border border-[#D4A843]/60 hover:border-[#D4A843] hover:bg-[#D4A843]/10 text-[#D4A843] font-medium py-2 px-4 rounded-lg text-sm transition-colors"
+              >
+                {copyReviewStatus === "ok" ? "✓ Copied to clipboard" : copyReviewStatus === "fail" ? "Copy failed" : "Copy for AI review"}
+              </button>
+            </div>
+          )}
+
+          {isDocx && !isEpub && (
+            <div className="mb-6 p-4 rounded-lg bg-[#1a1a12]/50 border border-white/10">
+              <p className="text-sm text-[#8B8B6B] mb-2">
+                This is your review draft. Open it in Word or Google Docs to proofread and make any edits.
+                When ready, return to Manu2Print KDP to generate your final KDP-ready PDF.
+              </p>
+              <p className="text-sm text-[#8B8B6B] mb-2">
+                Margins in this draft are equal on all sides (0.7&quot;) for easier editing. Your final PDF will use Amazon KDP–compliant inside/outside margins and gutter.
+              </p>
+              <p className="text-sm text-[#8B8B6B] mb-4">
+                <span className="text-[#D4A843]">Tip:</span> To get layout feedback from the AI, open the document, take a screenshot of a page, and paste it in chat.
+              </p>
+              <Link
+                href={`/kdp-formatter?id=${id}`}
+                className="inline-block bg-[#D4A843] hover:bg-[#c49a3d] text-[#1a1a12] font-semibold py-2.5 px-5 rounded-lg"
+              >
+                Generate KDP PDF from this file
+              </Link>
+            </div>
+          )}
+
+          {/* EPUB Info Box — only for PDF/DOCX flows */}
+          {!isEpub && (
+          <div className="bg-[#24241a] border-l-4 border-l-[#D4A843] rounded-r-lg p-6 mb-6">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-10 h-10 border border-[#D4A843]/30 rounded-full flex items-center justify-center text-[#D4A843]">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-[#F5F0E8] mb-2">Need an EPUB file?</h3>
+                <p className="text-[#8B8B6B] text-sm">
+                  Your KDP PDF is ready to download. To also get an EPUB file for eBook distribution, use the free tool <span className="text-[#D4A843]">Calibre</span>:
+                </p>
+                <ol className="mt-3 text-[#8B8B6B] text-sm space-y-1 ml-4 list-decimal">
+                  <li>Download Calibre from <a href="https://calibre-ebook.com" target="_blank" rel="noopener noreferrer" className="text-[#D4A843] hover:underline">calibre-ebook.com</a></li>
+                  <li>Open your downloaded PDF in Calibre</li>
+                  <li>Click &quot;Convert books&quot; and choose EPUB as output</li>
+                </ol>
+                <p className="text-[#8B8B6B] text-xs italic mt-3">
+                  Calibre is free, open-source, and used by publishing professionals worldwide.
+                </p>
+              </div>
+            </div>
+          </div>
+          )}
+
+          {/* What's included / Next steps */}
+          <div className="bg-[#24241a] rounded-lg p-6 mb-6 space-y-6">
+            {isEpub ? (
+              <>
+                <p className="text-[#8B8B6B] text-sm">
+                  <span className="text-[#D4A843]">✓</span> Kindle-ready EPUB for eBook distribution on Amazon KDP and other retailers.
+                </p>
+                <p className="text-[#8B8B6B] text-sm">
+                  Upload to KDP as your eBook manuscript, or use with other platforms (Apple Books, Kobo, etc.).
+                </p>
+              </>
+            ) : (
+              <>
+                <div>
+                  <h3 className="font-semibold text-[#F5F0E8] mb-4">What&apos;s included:</h3>
+                  <ul className="space-y-1 text-[#8B8B6B] text-sm">
+                    <li><span className="text-[#D4A843]">✓</span> KDP Print PDF (for paperback printing)</li>
+                    <li><span className="text-[#D4A843]">✓</span> EPUB conversion guide (using free Calibre tool)</li>
+                    <li><span className="text-[#D4A843]">✓</span> KDP-compliant trim size and margins</li>
+                    <li><span className="text-[#D4A843]">✓</span> Proper bleed settings (if selected)</li>
+                    <li><span className="text-[#D4A843]">✓</span> Professional typography and spacing</li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-[#F5F0E8] mb-4">Next steps:</h3>
+                  <ol className="space-y-1 text-[#8B8B6B] text-sm list-decimal ml-4">
+                    <li>Download the PDF above</li>
+                    <li>Review the format in a PDF reader</li>
+                    <li>Upload to Amazon KDP as your manuscript</li>
+                    <li>Design/upload your cover separately</li>
+                  </ol>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+        )}
+
+        {/* Action buttons */}
+        <div className="flex gap-4">
+          {!isChecker && (
+          <button
+            type="button"
+            onClick={handleDownload}
+            aria-label={isEpub ? "Download EPUB file" : isDocx ? "Download review DOCX" : "Download PDF file"}
+            className="flex-1 bg-[#D4A843] hover:bg-[#c49a3d] text-[#1a1a12] font-semibold py-3 px-6 rounded-lg text-center cursor-pointer"
+          >
+            {isEpub ? "Download EPUB" : isDocx ? "Download Review DOCX" : "Download PDF"}
+          </button>
+          )}
+          <Link
+            href={isChecker ? "/kdp-pdf-checker" : isEpub ? "/epub-maker" : isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"}
+            className="flex-1 border border-white/20 hover:border-[#D4A843] text-[#F5F0E8] font-medium py-3 px-6 rounded-lg text-center"
+          >
+            {isChecker ? "Check Another PDF" : isEpub ? "Create Another EPUB" : "Format Another"}
+          </Link>
+        </div>
+        </PaymentGate>
+
+        {/* Storage notice + Save this link */}
+        <div className="mt-8 bg-[#24241a]/50 border border-white/10 rounded-lg p-4 space-y-2">
+          <p>
+            <span className="text-[#F5F0E8] font-medium">Storage:</span>{" "}
+            <span className="text-xs text-[#8B8B6B]">
+              {isChecker ? "Your report is stored temporarily for 24 hours." : "Your files are stored temporarily for 24 hours. Download now and keep a backup."}
+            </span>
+          </p>
+          <p className="text-xs text-[#8B8B6B]">
+            <span className="text-[#F5F0E8] font-medium">Save this link:</span> Bookmark this page or copy the URL to return to your download within 24 hours.
+          </p>
+        </div>
+      </main>
+    </div>
+  );
+}
