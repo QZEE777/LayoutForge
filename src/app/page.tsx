@@ -1,92 +1,62 @@
 import Link from "next/link";
 import AuthNav from "@/components/AuthNav";
-import PlatformLogoBadge from "@/components/PlatformLogoBadge";
-import { PLATFORMS, getToolsForPlatform, type Platform, type Tool } from "@/data/platformTools";
 
-const isAmazon = (id: string) => id === "kdp";
-
-const FREE_GREEN = "#22c55e";
-
-/** Compact platform box: free tools in one row at top (FREE in green), then paid, then Launch. */
-function PlatformBox({ platform, tools }: { platform: Platform; tools: Tool[] }) {
-  const platformHref = `/platform/${platform.id}`;
-  const amazon = isAmazon(platform.id);
-  const freeTools = tools.filter((t) => t.free);
-  const paidTools = tools.filter((t) => !t.free);
-  const displayPaid = paidTools.slice(0, 6);
-  const moreCount = Math.max(0, paidTools.length - 6);
-
-  const boxClass = amazon
-    ? "rounded-xl border border-amazon-orange/30 bg-amazon-dark overflow-hidden mb-8"
-    : "rounded-xl border border-brand-cardHover bg-brand-card overflow-hidden mb-8";
-  const titleClass = amazon ? "font-bebas text-xl tracking-wide text-white" : "font-bebas text-xl tracking-wide text-brand-cream";
-  const taglineClass = amazon ? "font-sans text-xs text-amazon-muted mt-0.5" : "font-sans text-xs text-brand-muted mt-0.5";
-  const pillClass = amazon
-    ? "rounded-md border border-amazon-orange/40 px-3 py-1.5 text-xs font-sans text-amazon-muted hover:bg-amazon-orange/10 hover:border-amazon-orange/60 transition-colors"
-    : "rounded-md border border-brand-cardHover px-3 py-1.5 text-xs font-sans text-brand-cream hover:bg-white/5 hover:border-brand-gold/50 transition-colors";
-  const launchClass = amazon
-    ? "inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold bg-amazon-orange text-black hover:opacity-90 transition-opacity w-full sm:w-auto"
-    : "inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold bg-brand-gold text-brand-bg hover:opacity-90 transition-opacity w-full sm:w-auto";
-
-  const toolLabel = (t: Tool) => t.title.replace(/ \(DOCX\)| \(PDF\)| \(free\)| \(FREE\)/gi, "").trim();
-
-  return (
-    <section className={boxClass}>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5">
-        <div className="flex items-center gap-3">
-          <PlatformLogoBadge platformId={platform.id} platformName={platform.name} size="md" />
-          <div>
-            <h3 className={titleClass}>{platform.name}</h3>
-            <p className={taglineClass}>{platform.tagline}</p>
-          </div>
-        </div>
-        <div className="flex flex-col gap-3 sm:items-end">
-          {tools.length > 0 && (
-            <>
-              {freeTools.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {freeTools.map((tool) => (
-                    <Link key={tool.id} href={tool.href} className={`${pillClass} inline-flex items-center gap-1.5`}>
-                      <span style={amazon ? {} : {}}>{toolLabel(tool)}</span>
-                      <span className="font-bold uppercase text-[10px] tracking-wide" style={{ color: FREE_GREEN }}>FREE</span>
-                    </Link>
-                  ))}
-                </div>
-              )}
-              <div className="flex flex-wrap gap-2">
-                {displayPaid.map((tool) => (
-                  <Link key={tool.id} href={tool.href} className={pillClass}>
-                    {toolLabel(tool)}
-                  </Link>
-                ))}
-                {moreCount > 0 && (
-                  <span className={amazon ? "text-amazon-muted rounded-md px-3 py-1.5 text-xs" : "text-brand-muted rounded-md px-3 py-1.5 text-xs"}>+{moreCount} more</span>
-                )}
-              </div>
-            </>
-          )}
-          <Link href={platformHref} className={launchClass}>
-            <span className="font-bebas tracking-wide">Launch</span>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          </Link>
-        </div>
-      </div>
-      {tools.length === 0 && (
-        <div className="px-5 pb-5">
-          <Link href={platformHref} className={launchClass}>
-            Launch
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          </Link>
-        </div>
-      )}
-    </section>
-  );
-}
+const BENEFITS = [
+  {
+    title: "Format for KDP",
+    description: "DOCX to print-ready PDF. Trim size, bleed, margins.",
+    href: "/kdp-formatter",
+    icon: (
+      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+    ),
+  },
+  {
+    title: "Check your PDF",
+    description: "Trim size, page count, KDP specs before you upload.",
+    href: "/kdp-pdf-checker",
+    icon: (
+      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+      </svg>
+    ),
+  },
+  {
+    title: "Keywords & description",
+    description: "7 keyword phrases and Amazon listing copy from your manuscript.",
+    href: "/keyword-research-pdf",
+    icon: (
+      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+    ),
+  },
+  {
+    title: "Kindle EPUB",
+    description: "Manuscript to Kindle-ready EPUB. One export, one place.",
+    href: "/epub-maker",
+    icon: (
+      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+      </svg>
+    ),
+  },
+  {
+    title: "FREE calculators & compressors",
+    description: "Royalty, page count, trim, spine, cover size. Shrink PDFs in your browser.",
+    href: "/platform/kdp",
+    icon: (
+      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+      </svg>
+    ),
+  },
+];
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-brand-bg">
-      {/* Sticky nav */}
       <nav className="sticky top-0 z-20 border-b border-white/5 bg-brand-bg/80 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
@@ -97,9 +67,7 @@ export default function Home() {
             </div>
             <span
               className="text-lg font-bold tracking-tight text-brand-cream"
-              style={{
-                textShadow: "0 0 24px rgba(250,247,242,0.25), 0 0 48px rgba(245,166,35,0.12)",
-              }}
+              style={{ textShadow: "0 0 24px rgba(250,247,242,0.25), 0 0 48px rgba(245,166,35,0.12)" }}
             >
               <span className="font-serif">manu</span>
               <span className="font-sans">2print</span>
@@ -118,13 +86,13 @@ export default function Home() {
       </nav>
 
       {/* Hero */}
-      <section className="px-6 pt-16 pb-12">
+      <section className="px-6 pt-20 pb-16">
         <div className="mx-auto max-w-3xl text-center">
-          <h1 className="font-bebas text-4xl sm:text-5xl md:text-6xl font-normal tracking-wide text-brand-cream mb-4">
-            KDP &amp; Kindle Tools <span className="text-brand-gold">for Indie Authors</span>
+          <h1 className="font-bebas text-4xl sm:text-5xl md:text-6xl font-normal tracking-wide text-brand-cream mb-5">
+            The formatting &amp; listing stack <span className="text-brand-gold">for KDP &amp; Kindle</span>
           </h1>
-          <p className="font-sans text-lg sm:text-xl leading-relaxed text-brand-muted mb-8">
-            Format interiors, check PDFs, get keywords and listing copy, build Kindle EPUBs. FREE calculators and compressors. Paid tools when you need them.
+          <p className="font-sans text-lg sm:text-xl leading-relaxed text-brand-muted mb-10 max-w-2xl mx-auto">
+            Print-ready interiors, PDF checks, keywords, descriptions, and Kindle EPUB. Pay per use — no subscription.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
@@ -137,36 +105,21 @@ export default function Home() {
               href="/platform/kdp"
               className="rounded-lg px-8 py-4 text-base font-semibold border border-brand-cardHover text-brand-cream hover:bg-white/5 transition-colors text-center"
             >
-              Browse Tools
+              See all tools
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Stats — centred */}
-      <div className="border-y border-white/5 py-8 mb-10 bg-brand-card/50">
-        <div className="mx-auto max-w-4xl px-6 grid grid-cols-2 sm:grid-cols-4 gap-8 text-center">
-          <div>
-            <p className="font-bebas text-2xl tracking-wide text-brand-gold">9</p>
-            <p className="font-sans text-sm mt-1 text-emerald-400">FREE Tools</p>
-          </div>
-          <div>
-            <p className="font-bebas text-2xl tracking-wide text-brand-gold">8</p>
-            <p className="font-sans text-sm mt-1 text-brand-muted">Paid Tools</p>
-          </div>
-          <div>
-            <p className="font-bebas text-2xl tracking-wide text-brand-gold">50MB</p>
-            <p className="font-sans text-sm mt-1 text-brand-muted">PDF / DOCX</p>
-          </div>
-          <div>
-            <p className="font-bebas text-2xl tracking-wide text-brand-gold">KDP</p>
-            <p className="font-sans text-sm mt-1 text-brand-muted">+ Kindle</p>
-          </div>
-        </div>
+      {/* Trust line */}
+      <div className="border-y border-white/5 py-4 bg-brand-card/40">
+        <p className="text-center text-sm text-brand-muted">
+          Your files are processed securely and never stored permanently. Pay when you need it — no lock-in.
+        </p>
       </div>
 
-      {/* Social proof ticker — spaced phrases, slow scroll */}
-      <section className="py-5 mb-10 overflow-hidden bg-brand-card border-y border-white/5" aria-label="Social proof">
+      {/* Social proof ticker */}
+      <section className="py-5 overflow-hidden bg-brand-card border-y border-white/5" aria-label="Social proof">
         <div className="flex w-[200%] animate-marquee">
           <span className="text-sm font-sans whitespace-nowrap flex-shrink-0 w-1/2 flex items-center gap-12 pr-12 text-brand-gold/90">
             <span className="tracking-wide">Trusted by indie authors on Amazon KDP</span>
@@ -185,31 +138,45 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Tools by platform */}
-      <section id="tools" className="px-6 pb-24">
-        <div className="mx-auto max-w-6xl">
-          <div className="mx-auto max-w-2xl text-center mb-10">
-            <h2 className="font-bebas text-2xl sm:text-3xl tracking-wide text-brand-cream mb-2">
-              Tools for KDP &amp; Kindle
-            </h2>
-            <p className="font-sans text-brand-muted">
-              Built for Amazon KDP and Kindle. Everything you need in one place.
-            </p>
+      {/* What you get */}
+      <section id="tools" className="px-6 py-16">
+        <div className="mx-auto max-w-4xl">
+          <h2 className="font-bebas text-2xl sm:text-3xl tracking-wide text-brand-cream text-center mb-3">
+            What you get
+          </h2>
+          <p className="font-sans text-brand-muted text-center mb-12 max-w-xl mx-auto">
+            One place for everything Amazon KDP and Kindle — format, check, list, and export.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {BENEFITS.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="group rounded-xl border border-brand-cardHover bg-brand-card p-6 hover:border-brand-gold/40 hover:shadow-gold-glow transition-all"
+              >
+                <div className="text-brand-gold mb-4 group-hover:text-brand-cream transition-colors">
+                  {item.icon}
+                </div>
+                <h3 className="font-bebas text-lg tracking-wide text-brand-cream mb-2">
+                  {item.title}
+                </h3>
+                <p className="font-sans text-sm text-brand-muted">
+                  {item.description}
+                </p>
+              </Link>
+            ))}
+          </div>
+          <div className="text-center mt-12">
             <Link
               href="/platform/kdp"
-              className="inline-block mt-4 text-sm font-medium text-brand-gold hover:text-brand-cream transition-colors"
+              className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold bg-brand-gold text-brand-bg hover:opacity-90 transition-opacity"
             >
-              View all tools →
+              See all tools
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </Link>
           </div>
-
-          {PLATFORMS.map((platform) => (
-            <PlatformBox
-              key={platform.id}
-              platform={platform}
-              tools={getToolsForPlatform(platform.toolIds)}
-            />
-          ))}
         </div>
       </section>
 
