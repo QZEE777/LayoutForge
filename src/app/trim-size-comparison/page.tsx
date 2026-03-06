@@ -58,7 +58,7 @@ export default function TrimSizeComparisonPage() {
             </span>
           </Link>
           <div className="flex items-center gap-6">
-            <Link href="/formatter" className="text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors">Tools</Link>
+            <Link href="/platform/kdp" className="text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors">Tools</Link>
             <Link href="/platform/kdp" className="text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors">Amazon KDP</Link>
           </div>
         </div>

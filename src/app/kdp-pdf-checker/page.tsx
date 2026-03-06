@@ -110,7 +110,7 @@ export default function KdpPdfCheckerPage() {
           <Link href="/" className="flex items-center gap-2.5">
             <span className="text-lg font-bold text-white">manu2print</span>
           </Link>
-          <Link href="/formatter" className="text-sm text-slate-400 hover:text-white transition-colors">
+          <Link href="/platform/kdp" className="text-sm text-slate-400 hover:text-white transition-colors">
             All Tools
           </Link>
         </div>

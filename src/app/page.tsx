@@ -106,7 +106,7 @@ export default function Home() {
             </span>
           </Link>
           <div className="flex items-center gap-6">
-            <Link href="/formatter" className="text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors">
+            <Link href="/platform/kdp" className="text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors">
               Tools
             </Link>
             <Link href="/founders" className="text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors">
@@ -210,7 +210,7 @@ export default function Home() {
           </div>
           <p className="flex items-center gap-4 flex-wrap">
             Your files are processed securely and never stored permanently.
-            <Link href="/formatter" className="hover:text-brand-gold transition-colors">KDP &amp; Kindle tools</Link>
+            <Link href="/platform/kdp" className="hover:text-brand-gold transition-colors">KDP &amp; Kindle tools</Link>
           </p>
         </div>
         <p className="mx-auto max-w-6xl text-center text-sm mt-3 text-brand-muted">

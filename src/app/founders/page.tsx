@@ -92,7 +92,7 @@ export default function FoundersPage() {
       {/* Sticky nav */}
       <nav className="sticky top-0 z-20 border-b border-white/5 bg-brand-bg/80 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-          <Link href="/formatter" className="flex items-center gap-2.5">
+          <Link href="/platform/kdp" className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 bg-brand-gold">
               <svg className="w-4 h-4" fill="none" stroke="#0F0D0B" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -101,7 +101,7 @@ export default function FoundersPage() {
             <span className="text-lg font-bold tracking-tight text-brand-cream">manu2print</span>
           </Link>
           <div className="flex items-center gap-6">
-            <Link href="/formatter" className="text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors">
+            <Link href="/platform/kdp" className="text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors">
               Tools
             </Link>
             <Link href="/founders" className="text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors">
@@ -296,7 +296,7 @@ export default function FoundersPage() {
           )}
           <p className="mt-6 text-center">
             <Link
-              href="/formatter"
+              href="/platform/kdp"
               className="inline-flex items-center gap-1 font-sans text-sm text-brand-muted hover:text-brand-gold transition-colors group"
             >
               <span className="group-hover:-translate-x-0.5 transition-transform inline-block">←</span>

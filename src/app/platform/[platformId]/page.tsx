@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import PlatformLogoBadge from "@/components/PlatformLogoBadge";
@@ -97,6 +98,37 @@ export default function PlatformPage() {
   const comingSoonTitles = getComingSoonTitles(platformId);
   const amazon = isAmazon(platformId);
 
+  const [leadsName, setLeadsName] = useState("");
+  const [leadsEmail, setLeadsEmail] = useState("");
+  const [leadsStatus, setLeadsStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [leadsSuccessName, setLeadsSuccessName] = useState("");
+  const [leadsErrorMsg, setLeadsErrorMsg] = useState("");
+  const handleLeadsSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLeadsStatus("loading");
+    setLeadsErrorMsg("");
+    try {
+      const res = await fetch("/api/formatter-leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: leadsName.trim(), email: leadsEmail.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setLeadsStatus("error");
+        setLeadsErrorMsg((data?.error as string) || "Something went wrong. Please try again.");
+        return;
+      }
+      setLeadsStatus("success");
+      setLeadsSuccessName(data.name ?? leadsName.trim());
+      setLeadsName("");
+      setLeadsEmail("");
+    } catch {
+      setLeadsStatus("error");
+      setLeadsErrorMsg("Something went wrong. Please try again.");
+    }
+  };
+
   if (!platform) {
     return (
       <div className="min-h-screen bg-brand-bg flex flex-col items-center justify-center px-6">
@@ -151,6 +183,9 @@ export default function PlatformPage() {
             <h2 className="font-bebas text-2xl sm:text-3xl tracking-wide text-white">
               Format, list &amp; publish — all in one place
             </h2>
+            <p className="font-sans text-base text-amazon-orange/90 mt-1">
+              Professional Book Formatting — Done in Minutes
+            </p>
             <p className="font-sans text-sm text-amazon-muted mt-2 max-w-xl">
               FREE calculators and compressors. Paid tools: one-time or 6‑month access. No subscription.
             </p>
@@ -216,6 +251,71 @@ export default function PlatformPage() {
         <Link href="/#tools" className={backClass}>
           ← Back to all tools
         </Link>
+
+        {amazon && (
+          <>
+            <section className="mt-12 mb-10 max-w-xl">
+              <h2 className={sectionTitleClass}>Get formatting tips and tool updates</h2>
+              {leadsStatus === "success" ? (
+                <p className="font-sans text-sm text-amazon-orange">
+                  Thanks{leadsSuccessName ? ` ${leadsSuccessName}` : ""}! You&apos;re on the list.
+                </p>
+              ) : (
+                <form onSubmit={handleLeadsSubmit} className="space-y-3">
+                  <input
+                    type="text"
+                    placeholder="Your name"
+                    value={leadsName}
+                    onChange={(e) => setLeadsName(e.target.value)}
+                    required
+                    className="w-full rounded-lg border border-amazon-orange/30 px-4 py-2.5 bg-amazon-card font-sans text-sm text-white placeholder-amazon-muted focus:outline-none focus:ring-2 focus:ring-amazon-orange"
+                  />
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <input
+                      type="email"
+                      placeholder="your@email.com"
+                      value={leadsEmail}
+                      onChange={(e) => setLeadsEmail(e.target.value)}
+                      required
+                      className="flex-1 rounded-lg border border-amazon-orange/30 px-4 py-2.5 bg-amazon-card font-sans text-sm text-white placeholder-amazon-muted focus:outline-none focus:ring-2 focus:ring-amazon-orange"
+                    />
+                    <button
+                      type="submit"
+                      disabled={leadsStatus === "loading"}
+                      className="rounded-lg px-5 py-2.5 text-sm font-semibold bg-amazon-orange text-black hover:opacity-90 disabled:opacity-60"
+                    >
+                      {leadsStatus === "loading" ? "Submitting…" : "Submit"}
+                    </button>
+                  </div>
+                </form>
+              )}
+              {leadsStatus === "error" && leadsErrorMsg && (
+                <p className="mt-2 font-sans text-sm text-red-400">{leadsErrorMsg}</p>
+              )}
+            </section>
+            <section className="border-t-2 border-b-2 border-amazon-orange/40 bg-amazon-card/50 rounded-xl py-12 px-6">
+              <div className="mx-auto max-w-2xl text-center">
+                <h2 className="font-bebas text-2xl sm:text-3xl tracking-wide text-white mb-3">
+                  This isn&apos;t just a tool. It&apos;s a publishing business.
+                </h2>
+                <p className="font-sans text-sm leading-relaxed text-amazon-muted mb-6">
+                  manu2print is building the publishing stack every indie author needs. Founders get in FREE forever and earn from every author they refer.
+                  <br />
+                  <span className="font-bebas text-xl tracking-widest text-amazon-orange uppercase mt-2 inline-block">Limited invitations.</span>
+                </p>
+                <Link
+                  href="/founders"
+                  className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold bg-amazon-orange text-black hover:opacity-90"
+                >
+                  Apply for Founder Access
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </Link>
+              </div>
+            </section>
+          </>
+        )}
       </main>
     </div>
   );

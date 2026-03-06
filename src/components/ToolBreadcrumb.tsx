@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 interface ToolBreadcrumbProps {
-  /** Link to tools list (e.g. / or /formatter) */
+  /** Link to tools list (e.g. / or /platform/kdp) */
   backHref?: string;
   /** Label for the back link */
   backLabel?: string;
