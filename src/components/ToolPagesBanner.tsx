@@ -18,6 +18,7 @@ const TOOL_PATHS = [
   "/royalty-calculator",
   "/page-count-estimator",
   "/trim-size-comparison",
+  "/interior-template",
   "/upload",
 ];
 

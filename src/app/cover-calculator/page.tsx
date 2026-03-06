@@ -195,7 +195,7 @@ export default function CoverCalculatorPage() {
         </p>
 
         <p className="mt-4 font-sans text-sm text-brand-muted">
-          <Link href="/spine-calculator" className="text-brand-gold hover:underline">Spine width calculator</Link> for spine-only and full-wrap in mm.
+          <Link href="/interior-template" className="text-brand-gold hover:underline">Interior margin template</Link> for Canva (trim + safe zone). <Link href="/spine-calculator" className="text-brand-gold hover:underline">Spine width calculator</Link> for spine-only and full-wrap in mm.
         </p>
 
         <FreeToolCta
