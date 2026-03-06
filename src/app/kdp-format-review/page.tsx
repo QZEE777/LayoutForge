@@ -6,6 +6,8 @@ import Link from "next/link";
 import { ToolBreadcrumb } from "@/components/ToolBreadcrumb";
 import { WhatHappensNext } from "@/components/WhatHappensNext";
 import PaymentGate from "@/components/PaymentGate";
+import { formatFileSize } from "@/lib/formatFileName";
+import { extractTextFromFileInBrowser } from "@/lib/clientFormatReviewExtract";
 
 const MAX_PASTE_CHARS = 100_000;
 
@@ -23,27 +25,24 @@ export default function KdpFormatReviewPage() {
     setLoading(true);
     setError(null);
     try {
+      let textToSend: string;
       if (file && (file.name.toLowerCase().endsWith(".docx") || file.name.toLowerCase().endsWith(".pdf"))) {
-        const formData = new FormData();
-        formData.append("file", file, file.name);
-        const res = await fetch("/api/kdp-format-review", { method: "POST", body: formData });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data.message || data.error || `Review failed (${res.status}).`);
-        if (data.id) router.push(`/download/${data.id}?source=format-review`);
-        else throw new Error("No report ID returned.");
+        const raw = await extractTextFromFileInBrowser(file);
+        textToSend = raw.slice(0, MAX_PASTE_CHARS);
+        if (textToSend.length < 200) throw new Error("Could not extract enough text from the file. Try pasting the manuscript above.");
       } else {
-        const text = pastedText.trim().slice(0, MAX_PASTE_CHARS);
-        if (text.length < 200) throw new Error("Paste at least 200 characters.");
-        const res = await fetch("/api/kdp-format-review", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ pastedText: text }),
-        });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data.message || data.error || `Review failed (${res.status}).`);
-        if (data.id) router.push(`/download/${data.id}?source=format-review`);
-        else throw new Error("No report ID returned.");
+        textToSend = pastedText.trim().slice(0, MAX_PASTE_CHARS);
+        if (textToSend.length < 200) throw new Error("Paste at least 200 characters.");
       }
+      const res = await fetch("/api/kdp-format-review", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pastedText: textToSend }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.message || data?.error || `Review failed (${res.status}).`);
+      if (data.id) router.push(`/download/${data.id}?source=format-review`);
+      else throw new Error("No report ID returned.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Review failed");
     } finally {
@@ -126,7 +125,7 @@ export default function KdpFormatReviewPage() {
                 }}
               />
               <p className="text-sm text-slate-600 mt-1.5">
-                Or upload a file below. Max {MAX_PASTE_CHARS.toLocaleString()} characters.
+                Or upload a file below. We extract text in your browser (any size – no upload limit). Max {MAX_PASTE_CHARS.toLocaleString()} characters used for the review.
               </p>
             </div>
 
@@ -139,9 +138,15 @@ export default function KdpFormatReviewPage() {
                 onChange={(e) => {
                   const f = e.target.files?.[0];
                   setFile(f || null);
+                  setError(null);
                   if (f && pastedText.trim().length > 0) setPastedText("");
                 }}
               />
+              {file && (
+                <p className="text-sm text-slate-600 mt-1.5">
+                  {formatFileSize(file.size)} — we&apos;ll extract text in your browser (no size limit).
+                </p>
+              )}
             </div>
 
             {error && (
@@ -156,7 +161,7 @@ export default function KdpFormatReviewPage() {
               disabled={!hasInput || loading}
               className="w-full py-3.5 px-4 rounded-lg text-base font-semibold bg-amber-500 text-slate-900 hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {loading ? "Running review…" : "Run format review"}
+              {loading ? "Extracting text & running review…" : "Run format review"}
             </button>
           </div>
 
