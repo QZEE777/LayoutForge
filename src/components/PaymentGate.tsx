@@ -2,6 +2,13 @@
 
 import { useState, useEffect } from "react";
 
+const STORED_EMAIL_KEY = "manu2print_email";
+
+function getStoredEmail(): string {
+  if (typeof window === "undefined") return "";
+  return (localStorage.getItem(STORED_EMAIL_KEY) || "").trim();
+}
+
 type GateState = "processing" | "verifying" | "preview" | "unlocked";
 
 interface PaymentGateProps {
@@ -22,16 +29,21 @@ export default function PaymentGate({ tool, children, isProcessing = false, down
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   useEffect(() => {
+    setUserEmail((prev) => (prev ? prev : getStoredEmail()));
+  }, []);
+
+  useEffect(() => {
     if (isProcessing) setState((s) => (s === "unlocked" ? "unlocked" : "processing"));
     else if (!downloadId) setState((s) => (s === "unlocked" ? "unlocked" : "preview"));
   }, [isProcessing, downloadId]);
 
   useEffect(() => {
     if (!downloadId) return;
+    const emailToSend = (userEmail || getStoredEmail()) || undefined;
     fetch("/api/verify-access", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ downloadId, email: userEmail || undefined, tool }),
+      body: JSON.stringify({ downloadId, email: emailToSend, tool }),
     })
       .then((r) => r.json())
       .then((data) => {
@@ -96,7 +108,14 @@ export default function PaymentGate({ tool, children, isProcessing = false, down
     }
   };
 
+  const saveEmailForNextTime = (email: string) => {
+    const trimmed = email.trim();
+    if (trimmed && typeof window !== "undefined") localStorage.setItem(STORED_EMAIL_KEY, trimmed);
+  };
+
   const handleSingleUse = async () => {
+    const email = userEmail.trim();
+    saveEmailForNextTime(email);
     setCheckoutLoading(true);
     try {
       const res = await fetch("/api/create-checkout-session", {
@@ -106,7 +125,7 @@ export default function PaymentGate({ tool, children, isProcessing = false, down
           priceType: "single_use",
           tool,
           downloadId: downloadId ?? "",
-          email: userEmail || "",
+          email: email || "",
         }),
       });
       const data = await res.json();
@@ -117,6 +136,8 @@ export default function PaymentGate({ tool, children, isProcessing = false, down
   };
 
   const handleSubscription = async () => {
+    const email = userEmail.trim();
+    saveEmailForNextTime(email);
     setCheckoutLoading(true);
     try {
       const res = await fetch("/api/create-checkout-session", {
@@ -126,7 +147,7 @@ export default function PaymentGate({ tool, children, isProcessing = false, down
           priceType: "subscription",
           tool,
           downloadId: downloadId ?? "",
-          email: userEmail || "",
+          email: email || "",
         }),
       });
       const data = await res.json();

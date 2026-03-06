@@ -11,25 +11,7 @@ export async function POST(req: Request) {
 
     if (tool === "kdp-formatter-pdf") return NextResponse.json({ access: true, type: "free" });
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-    if (supabaseUrl && supabaseKey) {
-      const supabase = createClient(supabaseUrl, supabaseKey);
-
-      if (email && tool) {
-        const { data: betaAccess } = await supabase
-          .from("beta_access")
-          .select("id")
-          .eq("email", email)
-          .eq("tool", tool)
-          .limit(1);
-        if (betaAccess?.length) {
-          return NextResponse.json({ access: true, type: "beta" });
-        }
-      }
-    }
-
+    // 1. This report already paid for (one pay per report): same download id = already unlocked
     if (downloadId) {
       const meta = await getStored(downloadId);
       if (meta?.payment_confirmed) {
@@ -37,6 +19,24 @@ export async function POST(req: Request) {
       }
     }
 
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    // 2. Beta access for this email + tool
+    if (email && tool && supabaseUrl && supabaseKey) {
+      const supabase = createClient(supabaseUrl, supabaseKey);
+      const { data: betaAccess } = await supabase
+        .from("beta_access")
+        .select("id")
+        .eq("email", email)
+        .eq("tool", tool)
+        .limit(1);
+      if (betaAccess?.length) {
+        return NextResponse.json({ access: true, type: "beta" });
+      }
+    }
+
+    // 3. Active subscription: any report unlock for this email
     if (email && supabaseUrl && supabaseKey) {
       const supabase = createClient(supabaseUrl, supabaseKey);
       const { data: sub } = await supabase
