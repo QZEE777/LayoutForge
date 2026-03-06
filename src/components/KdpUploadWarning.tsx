@@ -35,6 +35,9 @@ export function KdpUploadWarning({ variant, className = "" }: KdpUploadWarningPr
               <p className="text-amber-100/90 mt-1">
                 For your actual KDP interior upload, use your <strong>original high-resolution file</strong>, or create a print-ready PDF from our <Link href="/kdp-formatter" className="underline font-medium text-amber-200 hover:text-amber-100">KDP Formatter (DOCX)</Link>.
               </p>
+              <p className="text-amber-100/90 mt-2 text-xs border-t border-amber-500/30 pt-2">
+                If you design in Canva (or similar) and export PDF, that PDF is your interior — use our <Link href="/kdp-pdf-checker" className="underline font-medium text-amber-200 hover:text-amber-100">KDP PDF Checker</Link> to verify. If you write in Word, use KDP Formatter (DOCX) to generate your print PDF.
+              </p>
             </>
           )}
           {variant === "optimizer" && (
@@ -44,6 +47,9 @@ export function KdpUploadWarning({ variant, className = "" }: KdpUploadWarningPr
               </p>
               <p className="text-amber-100/90 mt-1">
                 For KDP print upload use your <strong>original high-resolution interior PDF</strong>, or generate a print-ready PDF from our <Link href="/kdp-formatter" className="underline font-medium text-amber-200 hover:text-amber-100">KDP Formatter (DOCX)</Link> (margins, trim, bleed, proper resolution).
+              </p>
+              <p className="text-amber-100/90 mt-2 text-xs border-t border-amber-500/30 pt-2">
+                If you design in Canva (or similar) and export PDF, that PDF is your interior — use our <Link href="/kdp-pdf-checker" className="underline font-medium text-amber-200 hover:text-amber-100">KDP PDF Checker</Link> to verify. If you write in Word, use KDP Formatter (DOCX) to generate your print PDF.
               </p>
             </>
           )}

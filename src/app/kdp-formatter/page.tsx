@@ -255,6 +255,7 @@ export default function KdpFormatterPage() {
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-white">Upload your manuscript</h1>
           <p className="mt-2 text-slate-400">Supports DOCX only. Maximum {MAX_MB}MB.</p>
+          <p className="mt-2 text-slate-500 text-sm">If you design in Canva and export PDF, that PDF is your interior — use <Link href="/kdp-pdf-checker" className="text-green-400 hover:text-green-300 underline">KDP PDF Checker</Link> to verify. This formatter is for the Word/manuscript path.</p>
         </div>
 
         <div className="mb-8 flex items-center gap-2 text-sm">

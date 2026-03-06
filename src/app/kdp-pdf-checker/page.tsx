@@ -128,7 +128,8 @@ export default function KdpPdfCheckerPage() {
       <main className="mx-auto max-w-2xl px-6 py-12">
         <ToolBreadcrumb backHref="/" backLabel="All Tools" currentLabel="KDP PDF Checker" className="mb-6" />
         <h1 className="text-3xl font-bold text-white">KDP PDF Checker</h1>
-        <p className="mt-2 text-slate-400">Upload your interior PDF. We’ll report trim size, page count, and any issues so you can fix before uploading to KDP. Max {SERVER_MAX_MB} MB per upload (use our free PDF Compressor for larger files). $7 per use or $27 for 6 months.</p>
+        <p className="mt-2 text-slate-400">Upload your interior PDF. We’ll report trim size, page count, and any issues so you can fix before uploading to KDP. Max {SERVER_MAX_MB} MB per upload (use our FREE PDF Compressor for larger files). $7 per use or $27 for 6 months.</p>
+        <p className="mt-2 text-slate-500 text-sm">Many indies design in Canva (or similar) and upload the PDF they export — we'll check that PDF against KDP specs. If you format from Word, use <Link href="/kdp-formatter" className="text-amber-300 hover:text-amber-200 underline">KDP Formatter (DOCX)</Link> for your print PDF.</p>
 
         <div
           onDragOver={handleDragOver}

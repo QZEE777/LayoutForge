@@ -140,6 +140,7 @@ export default function KdpFormatterPdfPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white">PDF Print Optimizer</h1>
           <p className="mt-2 text-slate-400">Shrink or print-optimize your PDF. FREE. Runs in your browser—your file never leaves your device. PDF only, up to {MAX_MB} MB.</p>
+          <p className="mt-2 text-slate-500 text-sm">If you design in Canva and export PDF, that PDF is your interior — use <Link href="/kdp-pdf-checker" className="text-amber-300 hover:text-amber-200 underline">KDP PDF Checker</Link> to verify. This optimizer is for smaller/crisper copies, not for replacing that PDF.</p>
         </div>
 
         {doneBlobUrl ? (
