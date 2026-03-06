@@ -64,12 +64,7 @@ export default function KdpFormatReviewPage() {
       </header>
 
       <main className="mx-auto max-w-3xl px-4 py-8">
-        <ToolBreadcrumb
-          items={[
-            { label: "Tools", href: "/tools" },
-            { label: "KDP Format Review", href: "/kdp-format-review" },
-          ]}
-        />
+        <ToolBreadcrumb backHref="/tools" backLabel="Tools" currentLabel="KDP Format Review" />
 
         <h1 className="text-2xl font-bold text-[#F5F0E8] mt-4 mb-2">KDP Format Review</h1>
         <p className="text-[#8B8B6B] mb-6">
