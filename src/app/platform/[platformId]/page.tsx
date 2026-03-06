@@ -15,7 +15,7 @@ function CompactToolCard({ tool, amazon }: { tool: Tool; amazon: boolean }) {
   const cardClass = amazon
     ? "rounded-lg border-l-2 border-amazon-orange border border-amazon-orange/20 p-3 bg-amazon-card hover:border-amazon-orange/50 transition-all"
     : "rounded-lg border-l-2 border-brand-gold border border-brand-cardHover p-3 bg-brand-card hover:shadow-gold-glow hover:border-brand-cardHover transition-all";
-  const titleClass = amazon ? "font-bebas text-base tracking-wide text-white truncate" : "font-bebas text-base tracking-wide text-brand-cream truncate";
+  const titleClass = amazon ? "font-bebas text-base tracking-wide text-white line-clamp-2" : "font-bebas text-base tracking-wide text-brand-cream line-clamp-2";
   const descClass = amazon ? "font-sans text-xs text-amazon-muted mt-0.5 line-clamp-2" : "font-sans text-xs text-brand-muted mt-0.5 line-clamp-2";
   const openClass = amazon
     ? "inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-xs font-semibold bg-amazon-orange text-black hover:opacity-90"
