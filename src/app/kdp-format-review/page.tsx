@@ -64,39 +64,39 @@ export default function KdpFormatReviewPage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-4 py-8">
-        <ToolBreadcrumb backHref="/platform/kdp" backLabel="KDP tools" currentLabel="KDP Format Review" />
+      <main className="mx-auto max-w-3xl px-4 py-8 bg-slate-50 text-slate-800 min-h-[calc(100vh-4rem)]">
+        <ToolBreadcrumb backHref="/platform/kdp" backLabel="KDP tools" currentLabel="KDP Format Review" className="text-slate-500 [&_a]:text-slate-600 [&_a:hover]:text-slate-900" />
 
         {/* Hero — viral hook */}
-        <h1 className="text-3xl md:text-4xl font-bold text-[#F5F0E8] mt-4 mb-3 tracking-tight">
+        <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mt-4 mb-3 tracking-tight">
           Stop KDP rejections.
         </h1>
-        <p className="text-xl text-[#D4A843] font-medium mb-2">
+        <p className="text-xl text-amber-700 font-medium mb-2">
           Get a pro format review in minutes.
         </p>
-        <p className="text-[#8B8B6B] mb-6 max-w-xl">
-          Paste or upload your manuscript (DOCX or PDF). Our AI checks front matter, margins & gutter, widows & orphans, page breaks, fonts, and KDP gotchas — then gives you a clear <strong className="text-[#F5F0E8]">KDP Readiness</strong> line and <strong className="text-[#F5F0E8]">Top 3–5 fixes</strong> so you know exactly what to fix before you upload.
+        <p className="text-base text-slate-600 mb-6 max-w-xl leading-relaxed">
+          Paste or upload your manuscript (DOCX or PDF). Our AI checks front matter, margins & gutter, widows & orphans, page breaks, fonts, and KDP gotchas — then gives you a clear <strong className="text-slate-800">KDP Readiness</strong> line and <strong className="text-slate-800">Top 3–5 fixes</strong> so you know exactly what to fix before you upload.
         </p>
 
-        <div className="flex flex-wrap items-center gap-2 text-sm text-[#6B6B4B] mb-6">
+        <div className="flex flex-wrap items-center gap-2 text-base text-slate-600 mb-6">
           <span className="inline-flex items-center gap-1.5">
-            <span className="text-emerald-400">✓</span> Front matter order
+            <span className="text-emerald-600">✓</span> Front matter order
           </span>
-          <span className="text-white/30">·</span>
+          <span className="text-slate-400">·</span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="text-emerald-400">✓</span> Margins & gutter
+            <span className="text-emerald-600">✓</span> Margins & gutter
           </span>
-          <span className="text-white/30">·</span>
+          <span className="text-slate-400">·</span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="text-emerald-400">✓</span> Widows & orphans
+            <span className="text-emerald-600">✓</span> Widows & orphans
           </span>
-          <span className="text-white/30">·</span>
+          <span className="text-slate-400">·</span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="text-emerald-400">✓</span> Page breaks & headings
+            <span className="text-emerald-600">✓</span> Page breaks & headings
           </span>
-          <span className="text-white/30">·</span>
+          <span className="text-slate-400">·</span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="text-emerald-400">✓</span> KDP rules
+            <span className="text-emerald-600">✓</span> KDP rules
           </span>
         </div>
 
@@ -106,18 +106,18 @@ export default function KdpFormatReviewPage() {
             "AI reviews your manuscript (takes ~30 seconds)",
             "View report: KDP Readiness + Top fixes + full sections → download .txt",
           ]}
-          className="!bg-[#24241a] !border-white/10 !text-[#8B8B6B] [&_p]:!text-[#8B8B6B] [&_.font-medium]:!text-[#F5F0E8]"
+          className="!bg-slate-100 !border-slate-300 !text-slate-700 [&_p]:!text-slate-700 [&_.font-medium]:!text-slate-800"
         />
 
         <PaymentGate tool="kdp-format-review">
-          <div className="bg-[#24241a] border border-white/10 rounded-lg p-6 space-y-4 mt-6">
+          <div className="bg-slate-100 border border-slate-300 rounded-lg p-6 space-y-5 mt-6">
             <div>
-              <label htmlFor="paste" className="block text-sm font-medium text-[#F5F0E8] mb-2">
+              <label htmlFor="paste" className="block text-base font-semibold text-slate-800 mb-2">
                 Paste manuscript text
               </label>
               <textarea
                 id="paste"
-                className="w-full h-40 px-3 py-2 bg-[#1a1a12] border border-white/20 rounded text-[#F5F0E8] placeholder-[#6B6B4B] resize-y"
+                className="w-full h-40 px-3 py-2.5 text-base bg-white border border-slate-300 rounded text-slate-800 placeholder-slate-400 resize-y focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                 placeholder="Paste at least 200 characters of your manuscript here…"
                 value={pastedText}
                 onChange={(e) => {
@@ -125,17 +125,17 @@ export default function KdpFormatReviewPage() {
                   if (file) setFile(null);
                 }}
               />
-              <p className="text-xs text-[#8B8B6B] mt-1">
+              <p className="text-sm text-slate-600 mt-1.5">
                 Or upload a file below. Max {MAX_PASTE_CHARS.toLocaleString()} characters.
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#F5F0E8] mb-2">Or upload DOCX / PDF</label>
+              <label className="block text-base font-semibold text-slate-800 mb-2">Or upload DOCX / PDF</label>
               <input
                 type="file"
                 accept=".docx,.pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf"
-                className="block w-full text-sm text-[#8B8B6B] file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-[#D4A843] file:text-[#1a1a12] file:font-medium hover:file:bg-[#c4983a]"
+                className="block w-full text-base text-slate-600 file:mr-4 file:py-2.5 file:px-4 file:rounded file:border-0 file:bg-amber-500 file:text-slate-900 file:font-semibold file:text-base hover:file:bg-amber-600"
                 onChange={(e) => {
                   const f = e.target.files?.[0];
                   setFile(f || null);
@@ -145,7 +145,7 @@ export default function KdpFormatReviewPage() {
             </div>
 
             {error && (
-              <div className="rounded-lg bg-red-500/10 border border-red-500/30 p-3 text-sm text-red-400">
+              <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-base text-red-700">
                 {error}
               </div>
             )}
@@ -154,13 +154,13 @@ export default function KdpFormatReviewPage() {
               type="button"
               onClick={handleSubmit}
               disabled={!hasInput || loading}
-              className="w-full py-3 px-4 rounded-lg font-semibold bg-[#D4A843] text-[#1a1a12] hover:bg-[#c4983a] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full py-3.5 px-4 rounded-lg text-base font-semibold bg-amber-500 text-slate-900 hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? "Running review…" : "Run format review"}
             </button>
           </div>
 
-          <p className="mt-4 text-sm text-[#8B8B6B]">
+          <p className="mt-4 text-base text-slate-600">
             $7 per use · $27 for 6 months. Same pricing as KDP PDF Checker. After payment you can view and download the report.
           </p>
         </PaymentGate>
