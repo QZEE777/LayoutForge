@@ -197,7 +197,7 @@ Respond with only the JSON object.`;
     const stubBuffer = Buffer.from(manuscriptText.slice(0, 2000), "utf-8");
     const stored = await saveUpload(stubBuffer, "format-review-input.txt", "text/plain");
     await updateMeta(stored.id, {
-      processingReport: report as StoredManuscript["processingReport"],
+      processingReport: report as unknown as StoredManuscript["processingReport"],
     });
 
     return NextResponse.json({ success: true, id: stored.id });
