@@ -12,7 +12,7 @@ export type PdfProfile = "web" | "print";
 
 const PROFILE = {
   web: { scale: 1.5, jpegQuality: 0.72 },
-  print: { scale: 2, jpegQuality: 0.85 },
+  print: { scale: 2.5, jpegQuality: 0.88 },
 } as const;
 
 export interface CompressOptions {

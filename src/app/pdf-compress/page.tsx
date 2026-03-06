@@ -3,7 +3,7 @@
 import { useCallback, useState, useEffect } from "react";
 import Link from "next/link";
 import { truncateFilenameMiddle, formatFileSize } from "@/lib/formatFileName";
-import { compressPdfInBrowser } from "@/lib/clientPdfCompress";
+import { compressPdfInBrowser, type PdfProfile } from "@/lib/clientPdfCompress";
 
 const MAX_MB = 50;
 const STORAGE_LEAD_CAPTURED = "pdf_compress_lead_captured";
@@ -20,6 +20,7 @@ export default function PdfCompressPage() {
   const [outputName, setOutputName] = useState<string>("");
   const [originalSize, setOriginalSize] = useState<number | null>(null);
   const [compressedSize, setCompressedSize] = useState<number | null>(null);
+  const [quality, setQuality] = useState<PdfProfile>("print");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -99,7 +100,7 @@ export default function PdfCompressPage() {
 
       setProgress(10);
       const blob = await compressPdfInBrowser(file, {
-        profile: "web",
+        profile: quality,
         onProgress: (page, total) => setProgress(10 + Math.round((80 * page) / total)),
       });
       setProgress(95);
@@ -116,7 +117,7 @@ export default function PdfCompressPage() {
       setCompressing(false);
       setProgress(0);
     }
-  }, [file, email, leadCaptured]);
+  }, [file, email, leadCaptured, quality]);
 
   const handleReset = useCallback(() => {
     if (doneBlobUrl) URL.revokeObjectURL(doneBlobUrl);
@@ -176,6 +177,7 @@ export default function PdfCompressPage() {
               <h2 className="text-xl font-bold text-white">Your PDF is ready</h2>
             </div>
             <p className="text-slate-400 text-sm mb-6">Download your compressed PDF. Use it in our Keyword Research or Description Generator.</p>
+            <p className="text-amber-200/90 text-xs mb-4">For KDP print upload use your original high-resolution file; this tool is for smaller copies for our other tools or previews.</p>
             {originalSize != null && compressedSize != null && (
               <p className="text-slate-300 text-sm mb-4">
                 Your file was <strong>{formatFileSize(originalSize)}</strong> and is now <strong>{formatFileSize(compressedSize)}</strong>
@@ -223,6 +225,34 @@ export default function PdfCompressPage() {
                   <p className="text-slate-500 text-xs mt-0.5">{formatFileSize(file.size)}</p>
                 </div>
               )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Quality</label>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="quality"
+                    checked={quality === "print"}
+                    onChange={() => setQuality("print")}
+                    disabled={compressing}
+                    className="rounded border-slate-500 text-emerald-500 focus:ring-emerald-500"
+                  />
+                  <span className="text-sm text-slate-300">Better (crisper text)</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="quality"
+                    checked={quality === "web"}
+                    onChange={() => setQuality("web")}
+                    disabled={compressing}
+                    className="rounded border-slate-500 text-emerald-500 focus:ring-emerald-500"
+                  />
+                  <span className="text-sm text-slate-300">Smaller file</span>
+                </label>
+              </div>
+              <p className="mt-1 text-xs text-slate-500">Better quality is recommended for readability; smaller file uses more compression.</p>
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">Your email</label>
@@ -276,6 +306,9 @@ export default function PdfCompressPage() {
         <p className="text-slate-500 text-sm mt-6">
           After compressing, use your PDF in <Link href="/keyword-research-pdf" className="text-red-400 hover:text-red-300">7 Keyword Research</Link> or{" "}
           <Link href="/description-generator-pdf" className="text-red-400 hover:text-red-300">Amazon Description Generator</Link> (both accept PDFs up to 50MB).
+        </p>
+        <p className="text-slate-500 text-xs mt-3">
+          For final KDP print upload, always use your original high-resolution interior file. This compressor is for smaller copies (e.g. for our tools or email).
         </p>
       </main>
     </div>
