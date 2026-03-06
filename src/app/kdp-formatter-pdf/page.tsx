@@ -5,6 +5,7 @@ import Link from "next/link";
 import { truncateFilenameMiddle, formatFileSize } from "@/lib/formatFileName";
 import { compressPdfInBrowser } from "@/lib/clientPdfCompress";
 import { WhatHappensNext } from "@/components/WhatHappensNext";
+import { KdpUploadWarning } from "@/components/KdpUploadWarning";
 import { ErrorRecovery } from "@/components/ErrorRecovery";
 import { ToolBreadcrumb } from "@/components/ToolBreadcrumb";
 
@@ -151,7 +152,8 @@ export default function KdpFormatterPdfPage() {
               </div>
               <h2 className="text-xl font-bold text-white">Your PDF is ready</h2>
             </div>
-            <p className="text-slate-400 text-sm mb-6">Download your print-optimized PDF.</p>
+            <p className="text-slate-400 text-sm mb-4">Download your print-optimized PDF.</p>
+            <KdpUploadWarning variant="optimizer" className="mb-4" />
             <div className="flex flex-col sm:flex-row gap-3">
               <a
                 href={doneBlobUrl}
@@ -167,6 +169,12 @@ export default function KdpFormatterPdfPage() {
               >
                 Optimize another
               </button>
+            </div>
+            <div className="mt-6 rounded-xl bg-slate-800/60 border border-slate-600/60 p-4 text-sm text-slate-400 space-y-2">
+              <p className="font-medium text-slate-300">What happens next</p>
+              <p>1. <strong className="text-slate-300">Use this file for:</strong> smaller size for email or our Keyword Research / Description Generator tools, or a crisper preview. It is optimized in your browser (rasterized) and is not intended as your final KDP interior.</p>
+              <p>2. <strong className="text-slate-300">For KDP print upload:</strong> use your original high-resolution interior PDF, or create a print-ready PDF from our <Link href="/kdp-formatter" className="text-red-400 hover:text-red-300">KDP Formatter (DOCX)</Link> (correct margins, trim, bleed, and resolution for KDP).</p>
+              <p>3. <strong className="text-slate-300">Check before you upload:</strong> run your final interior through our <Link href="/kdp-pdf-checker" className="text-red-400 hover:text-red-300">KDP PDF Checker</Link> to confirm trim, page count, and specs.</p>
             </div>
           </div>
         ) : (
@@ -260,8 +268,8 @@ export default function KdpFormatterPdfPage() {
           className="mt-8"
           steps={[
             "You select your PDF (up to 50MB).",
-            "We optimize it in your browser for smaller size and print quality — no file is sent to our servers.",
-            "You download the optimized PDF when ready.",
+            "We optimize it in your browser for smaller size and crisper viewing — no file is sent to our servers. Output is rasterized; for KDP print upload use your original or KDP Formatter (DOCX).",
+            "You download the optimized PDF. Use it for our other tools or preview; for final KDP interior upload use your high-res original or a PDF from KDP Formatter (DOCX).",
           ]}
         />
       </main>

@@ -4,6 +4,7 @@ import { useCallback, useState, useEffect } from "react";
 import Link from "next/link";
 import { truncateFilenameMiddle, formatFileSize } from "@/lib/formatFileName";
 import { compressPdfInBrowser, type PdfProfile } from "@/lib/clientPdfCompress";
+import { KdpUploadWarning } from "@/components/KdpUploadWarning";
 
 const MAX_MB = 50;
 const STORAGE_LEAD_CAPTURED = "pdf_compress_lead_captured";
@@ -176,8 +177,8 @@ export default function PdfCompressPage() {
               </div>
               <h2 className="text-xl font-bold text-white">Your PDF is ready</h2>
             </div>
-            <p className="text-slate-400 text-sm mb-6">Download your compressed PDF. Use it in our Keyword Research or Description Generator.</p>
-            <p className="text-amber-200/90 text-xs mb-4">For KDP print upload use your original high-resolution file; this tool is for smaller copies for our other tools or previews.</p>
+            <p className="text-slate-400 text-sm mb-4">Download your compressed PDF. Use it in our Keyword Research or Description Generator.</p>
+            <KdpUploadWarning variant="compressor" className="mb-4" />
             {originalSize != null && compressedSize != null && (
               <p className="text-slate-300 text-sm mb-4">
                 Your file was <strong>{formatFileSize(originalSize)}</strong> and is now <strong>{formatFileSize(compressedSize)}</strong>
@@ -204,6 +205,12 @@ export default function PdfCompressPage() {
               >
                 Compress another
               </button>
+            </div>
+            <div className="mt-6 rounded-xl bg-slate-800/60 border border-slate-600/60 p-4 text-sm text-slate-400 space-y-2">
+              <p className="font-medium text-slate-300">What happens next</p>
+              <p>1. Use this smaller PDF in <Link href="/keyword-research-pdf" className="text-red-400 hover:text-red-300">7 Keyword Research</Link> or <Link href="/description-generator-pdf" className="text-red-400 hover:text-red-300">Amazon Description Generator</Link> (both have file size limits).</p>
+              <p>2. For KDP print upload, use your <strong className="text-slate-300">original</strong> high-resolution interior file, not this copy.</p>
+              <p>3. Need a proper print-ready PDF? Use our <Link href="/kdp-formatter" className="text-red-400 hover:text-red-300">KDP Formatter (DOCX)</Link> to generate one from your manuscript.</p>
             </div>
           </div>
         ) : (
@@ -307,9 +314,7 @@ export default function PdfCompressPage() {
           After compressing, use your PDF in <Link href="/keyword-research-pdf" className="text-red-400 hover:text-red-300">7 Keyword Research</Link> or{" "}
           <Link href="/description-generator-pdf" className="text-red-400 hover:text-red-300">Amazon Description Generator</Link> (both accept PDFs up to 50MB).
         </p>
-        <p className="text-slate-500 text-xs mt-3">
-          For final KDP print upload, always use your original high-resolution interior file. This compressor is for smaller copies (e.g. for our tools or email).
-        </p>
+        <KdpUploadWarning variant="compressor" className="mt-4" />
       </main>
     </div>
   );
