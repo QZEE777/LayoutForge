@@ -181,6 +181,10 @@ Respond with only the JSON object.`;
 
     const report = {
       outputType: "format-review" as const,
+      chaptersDetected: 0,
+      issues: [] as string[],
+      fontUsed: "",
+      trimSize: "6x9",
       formatReviewSections: parsed.sections,
       summary: parsed.summary,
       topActions: Array.isArray(parsed.topActions) ? parsed.topActions : [],
@@ -188,7 +192,6 @@ Respond with only the JSON object.`;
       wordCount,
       estimatedPages,
       recommendedGutterInches,
-      issues: [] as string[],
     };
 
     const stubBuffer = Buffer.from(manuscriptText.slice(0, 2000), "utf-8");

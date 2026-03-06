@@ -65,6 +65,7 @@ export async function POST(request: NextRequest) {
     if (buffer.length > 650 * 1024 * 1024) {
       issues.push("File size exceeds KDP limit (650 MB).");
     }
+    recommendations.push("If you have full-bleed art (images to the edge), ensure 0.125\" bleed in your export. We can't detect bleed from the PDF.");
 
     const recommendedGutterInches = getGutterInches(pageCount);
     const report = {
