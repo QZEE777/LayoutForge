@@ -19,6 +19,9 @@ const TOOL_PATHS = [
   "/page-count-estimator",
   "/trim-size-comparison",
   "/interior-template",
+  "/kids-trim-guide",
+  "/journals-coloring-puzzle-guide",
+  "/market-analysis",
   "/upload",
 ];
 
