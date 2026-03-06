@@ -15,6 +15,8 @@ export default function PdfCompressPage() {
   const [error, setError] = useState<string | null>(null);
   const [doneBlobUrl, setDoneBlobUrl] = useState<string | null>(null);
   const [outputName, setOutputName] = useState<string>("");
+  const [originalSize, setOriginalSize] = useState<number | null>(null);
+  const [compressedSize, setCompressedSize] = useState<number | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
@@ -77,6 +79,8 @@ export default function PdfCompressPage() {
       setProgress(95);
       const url = URL.createObjectURL(blob);
       setDoneBlobUrl(url);
+      setOriginalSize(file.size);
+      setCompressedSize(blob.size);
       const base = file.name.replace(/\.pdf$/i, "") || "document";
       setOutputName(`${base}-compressed.pdf`);
       setProgress(100);
@@ -92,6 +96,8 @@ export default function PdfCompressPage() {
     if (doneBlobUrl) URL.revokeObjectURL(doneBlobUrl);
     setDoneBlobUrl(null);
     setOutputName("");
+    setOriginalSize(null);
+    setCompressedSize(null);
     setFile(null);
     setEmail("");
     setError(null);
@@ -144,6 +150,17 @@ export default function PdfCompressPage() {
               <h2 className="text-xl font-bold text-white">Your PDF is ready</h2>
             </div>
             <p className="text-slate-400 text-sm mb-6">Download your compressed PDF. Use it in our Keyword Research or Description Generator.</p>
+            {originalSize != null && compressedSize != null && (
+              <p className="text-slate-300 text-sm mb-4">
+                Your file was <strong>{formatFileSize(originalSize)}</strong> and is now <strong>{formatFileSize(compressedSize)}</strong>
+                {originalSize > 0 && (
+                  <span className="text-slate-400">
+                    {" "}({Math.round((1 - compressedSize / originalSize) * 100)}% smaller)
+                  </span>
+                )}
+                .
+              </p>
+            )}
             <div className="flex flex-col sm:flex-row gap-3">
               <a
                 href={doneBlobUrl}
