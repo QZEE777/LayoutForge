@@ -30,6 +30,24 @@
 
 ---
 
+## What “Service Unavailable” (503) means
+
+When you see **503** or **“Service Unavailable”**, the server is saying: *this feature is turned off because a required setting is missing.*
+
+The app returns 503 when:
+
+| If you see 503 on… | Cause | Fix |
+|--------------------|--------|-----|
+| **Admin** (`/admin`) | `ADMIN_PASSWORD_MANU2` not set in Vercel | Add it in Vercel → Project → Settings → Environment Variables. |
+| **Keyword Research / Description Generator / KDP Format Review** | `ANTHROPIC_API_KEY` not set | Add it in Vercel (from console.anthropic.com). |
+| **Checkout / Payment** | `LEMONSQUEEZY_API_KEY` or `LEMONSQUEEZY_STORE_ID` or variant IDs not set | Add all Lemon Squeezy env vars in Vercel. |
+| **Usage banner / Dashboard usage** | Supabase URL or key not set | Add `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (and anon key) in Vercel. |
+| **KDP Formatter (DOCX→PDF)** | `CLOUDCONVERT_API_KEY` not set | Add it in Vercel (or use fallback if implemented). |
+
+So: **503 = “this endpoint needs an env var you haven’t set (or that isn’t available in this environment).”** Check Vercel env vars for the feature that’s failing.
+
+---
+
 ## Pending: do once
 
 ### Migration 007 (first_name) — done

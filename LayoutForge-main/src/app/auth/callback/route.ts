@@ -10,23 +10,39 @@ const supabaseAnonKey =
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
+  const tokenHash = searchParams.get("token_hash");
+  const type = searchParams.get("type");
   const next = searchParams.get("next") ?? "/dashboard";
 
-  if (code) {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          );
-        },
+  const cookieStore = await cookies();
+  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
       },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) =>
+          cookieStore.set(name, value, options)
+        );
+      },
+    },
+  });
+
+  if (code) {
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (error) {
+      console.error("[auth/callback] exchangeCodeForSession:", error.message);
+      return NextResponse.redirect(new URL(`/auth?error=${encodeURIComponent(error.message)}`, request.url));
+    }
+  } else if (tokenHash && (type === "email" || type === "magiclink")) {
+    const { error } = await supabase.auth.verifyOtp({
+      token_hash: tokenHash,
+      type: "email",
     });
-    await supabase.auth.exchangeCodeForSession(code);
+    if (error) {
+      console.error("[auth/callback] verifyOtp:", error.message);
+      return NextResponse.redirect(new URL(`/auth?error=${encodeURIComponent(error.message)}`, request.url));
+    }
   }
 
   return NextResponse.redirect(new URL(next, request.url));
