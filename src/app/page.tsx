@@ -86,7 +86,7 @@ function PlatformBox({ platform, tools }: { platform: Platform; tools: Tool[] })
 export default function Home() {
   return (
     <div className="min-h-screen bg-brand-bg">
-      {/* Sticky nav — matches formatter */}
+      {/* Sticky nav */}
       <nav className="sticky top-0 z-20 border-b border-white/5 bg-brand-bg/80 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
@@ -133,19 +133,19 @@ export default function Home() {
             >
               Get Started
             </Link>
-            <a
-              href="#tools"
+            <Link
+              href="/platform/kdp"
               className="rounded-lg px-8 py-4 text-base font-semibold border border-brand-cardHover text-brand-cream hover:bg-white/5 transition-colors text-center"
             >
               Browse Tools
-            </a>
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Stats */}
-      <div className="border-y border-white/5 py-6 mb-10 bg-brand-card/50">
-        <div className="mx-auto max-w-4xl px-6 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+      {/* Stats — centred */}
+      <div className="border-y border-white/5 py-8 mb-10 bg-brand-card/50">
+        <div className="mx-auto max-w-4xl px-6 grid grid-cols-2 sm:grid-cols-4 gap-8 text-center">
           <div>
             <p className="font-bebas text-2xl tracking-wide text-brand-gold">9</p>
             <p className="font-sans text-sm mt-1 text-emerald-400">FREE Tools</p>
@@ -165,14 +165,22 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Social proof — gold accent for warmth and credibility */}
-      <section className="py-4 mb-10 overflow-hidden bg-brand-card border-y border-white/5">
+      {/* Social proof ticker — spaced phrases, slow scroll */}
+      <section className="py-5 mb-10 overflow-hidden bg-brand-card border-y border-white/5" aria-label="Social proof">
         <div className="flex w-[200%] animate-marquee">
-          <span className="text-sm font-sans whitespace-nowrap flex-shrink-0 w-1/2 pr-16 text-brand-gold/90">
-            ✦ Trusted By Indie Authors On Amazon KDP ✦ Built For KDP & Kindle ✦ No Account Required To Start ✦
+          <span className="text-sm font-sans whitespace-nowrap flex-shrink-0 w-1/2 flex items-center gap-12 pr-12 text-brand-gold/90">
+            <span className="tracking-wide">Trusted by indie authors on Amazon KDP</span>
+            <span className="text-brand-gold/50" aria-hidden>·</span>
+            <span className="tracking-wide">Built for KDP &amp; Kindle</span>
+            <span className="text-brand-gold/50" aria-hidden>·</span>
+            <span className="tracking-wide">No account required to start</span>
           </span>
-          <span className="text-sm font-sans whitespace-nowrap flex-shrink-0 w-1/2 pr-16 text-brand-gold/90">
-            ✦ Trusted By Indie Authors On Amazon KDP ✦ Built For KDP & Kindle ✦ No Account Required To Start ✦
+          <span className="text-sm font-sans whitespace-nowrap flex-shrink-0 w-1/2 flex items-center gap-12 pr-12 text-brand-gold/90">
+            <span className="tracking-wide">Trusted by indie authors on Amazon KDP</span>
+            <span className="text-brand-gold/50" aria-hidden>·</span>
+            <span className="tracking-wide">Built for KDP &amp; Kindle</span>
+            <span className="text-brand-gold/50" aria-hidden>·</span>
+            <span className="tracking-wide">No account required to start</span>
           </span>
         </div>
       </section>
@@ -180,12 +188,20 @@ export default function Home() {
       {/* Tools by platform */}
       <section id="tools" className="px-6 pb-24">
         <div className="mx-auto max-w-6xl">
-          <h2 className="font-bebas text-2xl sm:text-3xl tracking-wide text-brand-cream mb-2">
-            Tools for KDP &amp; Kindle
-          </h2>
-          <p className="font-sans text-brand-muted mb-8">
-            Built for Amazon KDP and Kindle. Everything you need in one place.
-          </p>
+          <div className="mx-auto max-w-2xl text-center mb-10">
+            <h2 className="font-bebas text-2xl sm:text-3xl tracking-wide text-brand-cream mb-2">
+              Tools for KDP &amp; Kindle
+            </h2>
+            <p className="font-sans text-brand-muted">
+              Built for Amazon KDP and Kindle. Everything you need in one place.
+            </p>
+            <Link
+              href="/platform/kdp"
+              className="inline-block mt-4 text-sm font-medium text-brand-gold hover:text-brand-cream transition-colors"
+            >
+              View all tools →
+            </Link>
+          </div>
 
           {PLATFORMS.map((platform) => (
             <PlatformBox
@@ -197,23 +213,23 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer — formatter-aligned */}
-      <footer className="border-t border-white/5 px-6 py-8 bg-brand-bg">
-        <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-brand-muted">
+      {/* Footer */}
+      <footer className="border-t border-white/5 px-6 py-10 bg-brand-bg">
+        <div className="mx-auto max-w-3xl flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-4 text-sm text-brand-muted text-center sm:text-left">
           <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded flex items-center justify-center bg-brand-gold">
+            <div className="w-5 h-5 rounded flex items-center justify-center bg-brand-gold flex-shrink-0">
               <svg className="w-3 h-3" fill="none" stroke="#0F0D0B" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
               </svg>
             </div>
             <span className="font-medium text-brand-cream">manu2print</span>
           </div>
-          <p className="flex items-center gap-4 flex-wrap">
+          <p className="flex items-center gap-4 flex-wrap justify-center sm:justify-end">
             Your files are processed securely and never stored permanently.
             <Link href="/platform/kdp" className="hover:text-brand-gold transition-colors">KDP &amp; Kindle tools</Link>
           </p>
         </div>
-        <p className="mx-auto max-w-6xl text-center text-sm mt-3 text-brand-muted">
+        <p className="mx-auto max-w-6xl text-center text-sm mt-5 text-brand-muted">
           © 2026 manu2print. KDP &amp; Kindle tools for indie authors.
         </p>
       </footer>
