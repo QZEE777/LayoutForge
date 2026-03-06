@@ -150,9 +150,9 @@ export default function DashboardPage() {
             {usage?.is_founder && (
               <span
                 className="inline-flex items-center mt-3 rounded-full px-2.5 py-0.5 text-xs font-medium"
-                style={{ backgroundColor: "rgba(245,166,35,0.2)", color: GOLD }}
+                style={{ backgroundColor: "rgba(34,197,94,0.2)", color: FREE_GREEN }}
               >
-                Founder — Free Access
+                Founder — FREE Access
               </span>
             )}
           </div>
@@ -163,7 +163,7 @@ export default function DashboardPage() {
             <h2 className="font-semibold mb-4" style={{ color: WARM_WHITE }}>
               Usage
             </h2>
-            <p className="text-sm mb-1" style={{ color: "#a8a29e" }}>Free uses this period</p>
+            <p className="text-sm mb-1" style={{ color: "#a8a29e" }}>FREE uses this period</p>
             <p className="text-2xl font-bold" style={{ color: WARM_WHITE }}>
               {usage?.usage_count ?? 0}
               {usage?.is_founder ? "" : " / 10"}
@@ -178,7 +178,7 @@ export default function DashboardPage() {
 
         <section className="mb-10">
           <h2 className="text-lg font-semibold mb-1" style={{ color: WARM_WHITE }}>
-            Free tools
+            FREE tools
           </h2>
           <p className="text-sm mb-4" style={{ color: "#a8a29e" }}>
             No sign-in or payment required.
@@ -196,7 +196,7 @@ export default function DashboardPage() {
                     className="shrink-0 rounded px-2 py-0.5 text-xs font-medium"
                     style={{ backgroundColor: "rgba(34,197,94,0.2)", color: FREE_GREEN }}
                   >
-                    Free
+                    FREE
                   </span>
                 </Link>
               </li>

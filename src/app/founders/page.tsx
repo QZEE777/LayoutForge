@@ -126,13 +126,13 @@ export default function FoundersPage() {
           {/* Gold gradient divider */}
           <div className="h-px w-24 mx-auto mb-6 bg-gradient-to-r from-transparent via-brand-gold to-transparent" />
           <p className="font-sans text-lg mb-4 text-brand-muted">
-            Free access for life. Earn from every author you refer. Built for influencers whose audience publishes on KDP and Kindle.
+            FREE access for life. Earn from every author you refer. Built for influencers whose audience publishes on KDP and Kindle.
           </p>
           <p className="font-sans text-sm mb-4 text-brand-muted">
             KDP &amp; Kindle only: formatting, keywords, listing copy, and Kindle EPUB for indie&nbsp;authors.
           </p>
           <p className="font-sans text-sm leading-relaxed text-brand-muted">
-            We&apos;re opening a limited number of Founder spots to content creators whose audience includes indie authors on Amazon KDP or Kindle. Founders get full lifetime access to manu2print — free, forever — plus affiliate commissions on every author they bring in. To qualify, you need an active presence on at least one platform with a minimum of 1,000 subscribers or followers.
+            We&apos;re opening a limited number of Founder spots to content creators whose audience includes indie authors on Amazon KDP or Kindle. Founders get full lifetime access to manu2print — FREE, forever — plus affiliate commissions on every author they bring in. To qualify, you need an active presence on at least one platform with a minimum of 1,000 subscribers or followers.
           </p>
         </div>
       </section>

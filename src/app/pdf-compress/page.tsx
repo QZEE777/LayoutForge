@@ -23,9 +23,11 @@ export default function PdfCompressPage() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (localStorage.getItem(STORAGE_LEAD_CAPTURED) === "1") {
+    const fromLocal = localStorage.getItem(STORAGE_LEAD_CAPTURED) === "1";
+    const fromSession = sessionStorage.getItem(STORAGE_LEAD_CAPTURED) === "1";
+    if (fromLocal || fromSession) {
       setLeadCaptured(true);
-      const stored = localStorage.getItem(STORAGE_EMAIL);
+      const stored = localStorage.getItem(STORAGE_EMAIL) || sessionStorage.getItem(STORAGE_EMAIL);
       if (stored) setEmail(stored);
     }
   }, []);
@@ -89,6 +91,8 @@ export default function PdfCompressPage() {
         if (typeof window !== "undefined") {
           localStorage.setItem(STORAGE_LEAD_CAPTURED, "1");
           localStorage.setItem(STORAGE_EMAIL, trimmedEmail);
+          sessionStorage.setItem(STORAGE_LEAD_CAPTURED, "1");
+          sessionStorage.setItem(STORAGE_EMAIL, trimmedEmail);
         }
         setLeadCaptured(true);
       }
@@ -148,15 +152,15 @@ export default function PdfCompressPage() {
 
       <div className="border-b border-slate-800 bg-red-900/20">
         <div className="mx-auto max-w-4xl px-6 py-3 flex items-center gap-3">
-          <span className="inline-flex items-center rounded-full bg-red-500/20 border border-red-500/30 px-2.5 py-0.5 text-xs font-medium text-red-300">Free</span>
+          <span className="inline-flex items-center rounded-full bg-emerald-500/20 border border-emerald-500/40 px-2.5 py-0.5 text-xs font-medium text-emerald-400">FREE</span>
           <span className="text-sm font-semibold text-white">PDF Compressor</span>
           <span className="mx-2 text-slate-600">|</span>
-          <span className="text-sm text-slate-400">Shrink PDFs in your browser. No upload to our servers. Email required.</span>
+          <span className="text-sm text-slate-400">Shrink PDFs in your browser. No upload to our servers. {leadCaptured ? "Pick a file to compress." : "Email required first time."}</span>
         </div>
       </div>
 
       <main className="flex-1 mx-auto max-w-xl w-full px-6 py-10">
-        <h1 className="text-3xl font-bold text-white mb-2">Free PDF Compressor</h1>
+        <h1 className="text-3xl font-bold text-white mb-2">FREE PDF Compressor</h1>
         <p className="text-slate-400 mb-8">
           Compress your PDF in your browser—your file never leaves your device. Use the result in our Keyword Research and Amazon Description Generator. {leadCaptured ? "Pick a PDF below to compress another." : "Enter your email to continue."}
         </p>
@@ -264,7 +268,7 @@ export default function PdfCompressPage() {
               disabled={!file || (!leadCaptured && !email.trim()) || compressing}
               className="w-full rounded-xl bg-red-600 px-6 py-3.5 font-semibold text-white hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
-              {compressing ? "Compressing…" : "Compress PDF (free)"}
+              {compressing ? "Compressing…" : "Compress PDF (FREE)"}
             </button>
           </div>
         )}

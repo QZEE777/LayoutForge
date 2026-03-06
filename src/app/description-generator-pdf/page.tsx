@@ -212,8 +212,8 @@ export default function DescriptionGeneratorPdfPage() {
           <div className="rounded-xl bg-red-500/10 border border-red-500/30 p-4 text-red-400 text-sm mb-8">
             {error}
             {error === SIZE_ERROR_MESSAGE && (
-              <Link href="/pdf-compress" className="mt-2 block text-red-300 hover:text-red-200 font-medium">
-                Free PDF Compressor →
+              <Link href="/pdf-compress" className="mt-2 block text-emerald-400 hover:text-emerald-300 font-medium">
+                FREE PDF Compressor →
               </Link>
             )}
             <ErrorRecovery />

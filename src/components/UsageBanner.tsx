@@ -51,14 +51,13 @@ export default function UsageBanner() {
       <div className="mx-auto max-w-6xl flex flex-wrap items-center justify-between gap-2">
         {usage.is_founder ? (
           <span
-            className="font-medium"
-            style={{ color: "rgba(245,166,35,0.95)" }}
+            className="font-medium text-emerald-400"
           >
-            Founder — Free Access
+            Founder — FREE Access
           </span>
         ) : atLimit ? (
           <>
-            <span className="text-amber-300/90">Free limit reached.</span>
+            <span className="text-emerald-400">FREE limit reached.</span>
             <Link
               href="/dashboard"
               className="rounded px-3 py-1 font-medium transition-opacity hover:opacity-90"

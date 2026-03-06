@@ -118,7 +118,7 @@ export default function FormatterPage() {
             Professional Book Formatting — <span className="text-brand-gold">Done in Minutes</span>
           </h1>
           <p className="font-sans text-lg sm:text-xl leading-relaxed text-brand-muted">
-            Format for KDP and Kindle. Free calculators and compressors; paid formatter, keywords, description, and Kindle EPUB tools.
+            Format for KDP and Kindle. FREE calculators and compressors; paid formatter, keywords, description, and Kindle EPUB tools.
           </p>
         </div>
       </section>
@@ -126,8 +126,8 @@ export default function FormatterPage() {
       {/* FREE tools — top row, FREE in caps bold green */}
       <section className="px-6 pb-8">
         <div className="mx-auto max-w-4xl">
-          <h2 className="font-bebas text-xl tracking-wide text-brand-cream text-center mb-4">
-            Free tools
+          <h2 className="font-bebas text-xl tracking-wide text-center mb-4 text-emerald-400">
+            FREE tools
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {FREE_TOOLS.map((tool) => (

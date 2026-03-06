@@ -152,7 +152,7 @@ export default function PlatformPage() {
               Format, list &amp; publish — all in one place
             </h2>
             <p className="font-sans text-sm text-amazon-muted mt-2 max-w-xl">
-              Free calculators and compressors. Paid tools: one-time or 6‑month access. No subscription.
+              FREE calculators and compressors. Paid tools: one-time or 6‑month access. No subscription.
             </p>
             <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-1 font-sans text-sm text-white">
               <li className="flex items-center gap-1.5">
@@ -170,7 +170,7 @@ export default function PlatformPage() {
                 href="/#tools"
                 className="inline-flex items-center gap-2 rounded-lg bg-amazon-orange px-4 py-2.5 text-sm font-semibold text-black hover:opacity-90"
               >
-                Try free tools
+                Try FREE tools
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
               </Link>
               <Link
@@ -192,7 +192,7 @@ export default function PlatformPage() {
 
         {freeTools.length > 0 && (
           <div className="mb-6">
-            <h2 className={sectionTitleClass}>Free tools</h2>
+            <h2 className={sectionTitleClass} style={{ color: FREE_GREEN }}>FREE tools</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
               {freeTools.map((tool) => (
                 <CompactToolCard key={tool.id} tool={tool} amazon={amazon} />

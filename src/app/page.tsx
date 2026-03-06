@@ -124,7 +124,7 @@ export default function Home() {
             KDP &amp; Kindle Tools <span className="text-brand-gold">for Indie Authors</span>
           </h1>
           <p className="font-sans text-lg sm:text-xl leading-relaxed text-brand-muted mb-8">
-            Format interiors, check PDFs, get keywords and listing copy, build Kindle EPUBs. Free calculators and compressors. Paid tools when you need them.
+            Format interiors, check PDFs, get keywords and listing copy, build Kindle EPUBs. FREE calculators and compressors. Paid tools when you need them.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
@@ -148,7 +148,7 @@ export default function Home() {
         <div className="mx-auto max-w-4xl px-6 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
           <div>
             <p className="font-bebas text-2xl tracking-wide text-brand-gold">9</p>
-            <p className="font-sans text-sm mt-1 text-brand-muted">Free Tools</p>
+            <p className="font-sans text-sm mt-1 text-emerald-400">FREE Tools</p>
           </div>
           <div>
             <p className="font-bebas text-2xl tracking-wide text-brand-gold">8</p>
