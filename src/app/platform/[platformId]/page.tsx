@@ -72,7 +72,7 @@ function ComingSoonCard({ title, amazon }: { title: string; amazon: boolean }) {
   );
 }
 
-const COMING_SOON_KDP = ["KDP Format Review"];
+const COMING_SOON_KDP: string[] = [];
 
 /**
  * Archived: coming-soon tools for non-KDP platforms.

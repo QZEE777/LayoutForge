@@ -40,7 +40,7 @@ export interface StoredManuscript {
     fontUsed: string;
     trimSize: string;
     gutterInches?: number;
-    outputType?: "pdf" | "docx" | "epub" | "checker";
+    outputType?: "pdf" | "docx" | "epub" | "checker" | "format-review";
     status?: string;
     formatReviewText?: string;
     /** Checker report */
@@ -51,6 +51,12 @@ export interface StoredManuscript {
     recommendations?: string[];
     fileSizeMB?: number;
     recommendedGutterInches?: number;
+    /** Format review report */
+    formatReviewSections?: Array<{ title: string; issues?: string[]; recommendations?: string[]; content?: string }>;
+    summary?: string;
+    topActions?: string[];
+    kdpReadiness?: string;
+    wordCount?: number;
   };
 }
 
