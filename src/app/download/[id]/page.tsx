@@ -150,7 +150,7 @@ export default function DownloadPage() {
         <PaymentGate tool={isFormatReview ? "kdp-format-review" : isChecker ? "kdp-pdf-checker" : isEpub ? "epub-maker" : isPdfFlow ? "kdp-formatter-pdf" : "kdp-formatter"} downloadId={id}>
         {/* Processing report card */}
         {report && (
-          <div className="mb-8 bg-[#24241a] border border-white/10 rounded-lg p-6">
+          <div className={`mb-8 rounded-lg p-6 border ${report.outputType === "format-review" ? "bg-slate-100 border-slate-300 text-slate-800" : "bg-[#24241a] border-white/10"}`}>
             {report.outputType === "checker" && (
               <div className="mb-4 flex flex-wrap items-center gap-3">
                 <span className={`inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-semibold ${(report.issues?.length ?? 0) === 0 ? "bg-green-500/20 text-green-300 border border-green-500/40" : "bg-amber-500/20 text-amber-300 border border-amber-500/40"}`}>
@@ -158,7 +158,7 @@ export default function DownloadPage() {
                 </span>
               </div>
             )}
-            <h2 className="font-semibold text-[#F5F0E8] mb-4">{report.outputType === "format-review" ? "Format review" : "Processing report"}</h2>
+            <h2 className={`font-semibold mb-4 ${report.outputType === "format-review" ? "text-xl text-slate-800" : "text-[#F5F0E8]"}`}>{report.outputType === "format-review" ? "Format review" : "Processing report"}</h2>
             <ul className="text-sm text-[#8B8B6B] space-y-1">
               {report.outputType === "format-review" ? null : report.outputType === "checker" ? (
                 <>
@@ -264,27 +264,27 @@ export default function DownloadPage() {
               <>
                 {report.kdpReadiness && (
                   <div className="mt-4 flex flex-wrap items-center gap-3">
-                    <span className="inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-semibold bg-[#D4A843]/20 text-[#D4A843] border border-[#D4A843]/40">
+                    <span className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-base font-semibold bg-amber-200 text-amber-900 border border-amber-400">
                       KDP readiness: {report.kdpReadiness}
                     </span>
                   </div>
                 )}
                 {report.wordCount != null && (
-                  <p className="mt-2 text-sm text-[#8B8B6B]">
+                  <p className="mt-3 text-base text-slate-600">
                     Word count: {report.wordCount.toLocaleString()} · Est. pages (6×9): ~{report.estimatedPages ?? "—"}
                     {report.recommendedGutterInches != null && ` · Recommended gutter: ${report.recommendedGutterInches}"`}
                   </p>
                 )}
                 {report.summary && (
-                  <div className="mt-4 pt-4 border-t border-white/10">
-                    <p className="text-xs font-medium text-[#D4A843] mb-2">Summary</p>
-                    <p className="text-sm text-[#8B8B6B]">{report.summary}</p>
+                  <div className="mt-5 pt-4 border-t border-slate-300">
+                    <p className="text-sm font-semibold text-slate-700 mb-2">Summary</p>
+                    <p className="text-base text-slate-700 leading-relaxed">{report.summary}</p>
                   </div>
                 )}
                 {report.topActions && report.topActions.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-white/10">
-                    <p className="text-xs font-medium text-green-400 mb-2">Top actions</p>
-                    <ul className="text-sm text-[#8B8B6B] list-disc list-inside space-y-1">
+                  <div className="mt-5 pt-4 border-t border-slate-300">
+                    <p className="text-sm font-semibold text-emerald-800 mb-2">Top actions</p>
+                    <ul className="text-base text-slate-700 list-disc list-inside space-y-2">
                       {report.topActions.map((a, i) => (
                         <li key={i}>{a}</li>
                       ))}
@@ -292,20 +292,20 @@ export default function DownloadPage() {
                   </div>
                 )}
                 {report.formatReviewSections && report.formatReviewSections.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-white/10 space-y-4">
+                  <div className="mt-5 pt-4 border-t border-slate-300 space-y-4">
                     {report.formatReviewSections.map((sec, i) => (
                       <div key={i}>
-                        <p className="text-xs font-medium text-[#F5F0E8] mb-1">{sec.title}</p>
-                        {sec.content && <p className="text-sm text-[#8B8B6B]">{sec.content}</p>}
+                        <p className="text-base font-semibold text-slate-800 mb-1">{sec.title}</p>
+                        {sec.content && <p className="text-base text-slate-600 leading-relaxed">{sec.content}</p>}
                         {sec.issues && sec.issues.length > 0 && (
-                          <ul className="text-xs text-amber-400/90 list-disc list-inside mt-1">
+                          <ul className="text-sm text-amber-800 list-disc list-inside mt-1.5 space-y-0.5">
                             {sec.issues.map((issue, j) => (
                               <li key={j}>{issue}</li>
                             ))}
                           </ul>
                         )}
                         {sec.recommendations && sec.recommendations.length > 0 && (
-                          <ul className="text-xs text-green-400/90 list-disc list-inside mt-1">
+                          <ul className="text-sm text-emerald-800 list-disc list-inside mt-1.5 space-y-0.5">
                             {sec.recommendations.map((rec, j) => (
                               <li key={j}>{rec}</li>
                             ))}
@@ -315,15 +315,15 @@ export default function DownloadPage() {
                     ))}
                   </div>
                 )}
-                <div className="mt-4 pt-4 border-t border-white/10 flex flex-wrap items-center gap-3">
+                <div className="mt-5 pt-4 border-t border-slate-300 flex flex-wrap items-center gap-3">
                   <button
                     type="button"
                     onClick={handleCopyFormatReviewShare}
-                    className="text-sm font-medium text-[#8B8B6B] hover:text-[#F5F0E8] transition-colors"
+                    className="text-base font-medium text-slate-600 hover:text-slate-900 transition-colors"
                   >
                     {copyShareStatus === "ok" ? "Copied!" : copyShareStatus === "fail" ? "Copy failed" : "Copy summary for social"}
                   </button>
-                  <span className="text-white/20">|</span>
+                  <span className="text-slate-400">|</span>
                   <button
                     type="button"
                     onClick={() => {
@@ -353,7 +353,7 @@ export default function DownloadPage() {
                       a.click();
                       URL.revokeObjectURL(url);
                     }}
-                    className="text-sm font-medium text-[#D4A843] hover:text-[#F5F0E8] transition-colors"
+                    className="text-base font-medium text-amber-700 hover:text-amber-900 transition-colors"
                   >
                     Download report (.txt)
                   </button>
