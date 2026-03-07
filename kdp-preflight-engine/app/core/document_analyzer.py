@@ -83,11 +83,17 @@ def analyze_document(pdf_path: Path) -> dict[str, Any]:
             "trim_height_pt": t_h,
         })
 
+    # Trim size in inches (from first page) for trim-profile rule
+    trim_width_in = pages_analysis[0]["trim_width_pt"] / POINTS_PER_INCH if pages_analysis else 0.0
+    trim_height_in = pages_analysis[0]["trim_height_pt"] / POINTS_PER_INCH if pages_analysis else 0.0
+
     return {
         "parsed": parsed,
         "analysis": {
             "page_count": page_count,
             "gutter_inches": gutter_in,
+            "trim_width_in": trim_width_in,
+            "trim_height_in": trim_height_in,
             "pages": pages_analysis,
             "allowed_trim_points": ALLOWED_TRIM_POINTS,
         },

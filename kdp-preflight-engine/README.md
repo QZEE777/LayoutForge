@@ -165,6 +165,28 @@ A minimal React app in `frontend/` uploads PDFs, polls for the report, and displ
 cd frontend && npm install && npm run dev
 ```
 
+## Pre-push checklist
+
+Before committing and pushing, run these locally so CI and deploys stay green:
+
+**Backend**
+
+```bash
+cd kdp-preflight-engine
+pip install -e .
+python -c "from app.main import app; print('Backend OK')"
+# Optional: pytest (if you add tests)
+```
+
+**Frontend**
+
+```bash
+cd kdp-preflight-engine/frontend
+npm run build
+```
+
+If both succeed, it’s safe to commit and push.
+
 ## License
 
 Proprietary. Part of manu2print / KDP tooling.

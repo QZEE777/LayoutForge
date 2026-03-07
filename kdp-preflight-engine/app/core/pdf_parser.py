@@ -1,6 +1,7 @@
 """
 PDF parser: load PDF and extract raw structure and metadata using PyMuPDF (fitz).
 No validation logic here — only extraction.
+Security: active-content and resource-limit checks run at open time before parsing.
 """
 from __future__ import annotations
 
@@ -11,6 +12,64 @@ from typing import Any
 import fitz  # PyMuPDF
 
 logger = structlog.get_logger(__name__)
+
+# PDF bomb protection: safe processing limits
+MAX_PAGES = 1000
+MAX_OBJECTS = 200000
+MAX_IMAGES = 10000
+
+
+class ActiveContentError(ValueError):
+    """Raised when PDF contains disallowed active or embedded content (JS, OpenAction, Launch, embedded files)."""
+    pass
+
+
+def _check_active_content(doc: fitz.Document) -> None:
+    """Raise ActiveContentError if document has JavaScript, OpenAction, Launch actions, or embedded files."""
+    if getattr(doc, "has_js", None) and callable(doc.has_js) and doc.has_js():
+        doc.close()
+        raise ActiveContentError("PDF contains JavaScript which is not allowed")
+    if doc.embfile_count() > 0:
+        doc.close()
+        raise ActiveContentError("PDF contains embedded files which are not allowed")
+    try:
+        cat_xref = doc.pdf_catalog()
+        catalog_str = doc.xref_object(cat_xref) or ""
+        if "/OpenAction" in catalog_str:
+            doc.close()
+            raise ActiveContentError("PDF contains OpenAction which is not allowed")
+        if "/Launch" in catalog_str:
+            doc.close()
+            raise ActiveContentError("PDF contains Launch actions which are not allowed")
+        if "/JavaScript" in catalog_str or "/JS " in catalog_str:
+            doc.close()
+            raise ActiveContentError("PDF contains JavaScript which is not allowed")
+    except ActiveContentError:
+        raise
+    except Exception:
+        pass  # if catalog access fails, continue without failing on active content
+
+
+class ResourceLimitError(ValueError):
+    """Raised when PDF exceeds safe processing limits (pages, objects, or images)."""
+    pass
+
+
+def _check_resource_limits(doc: fitz.Document) -> None:
+    """Raise ResourceLimitError if document exceeds MAX_PAGES, MAX_OBJECTS, or MAX_IMAGES."""
+    if doc.page_count > MAX_PAGES:
+        doc.close()
+        raise ResourceLimitError("PDF exceeds maximum page count limit")
+    if doc.xref_length() > MAX_OBJECTS:
+        doc.close()
+        raise ResourceLimitError("PDF contains excessive internal objects")
+    image_count = 0
+    for page in doc:
+        image_count += len(page.get_images())
+    if image_count > MAX_IMAGES:
+        doc.close()
+        raise ResourceLimitError("PDF contains excessive embedded images")
+
 
 # KDP allowed trim sizes (width x height in inches). Order: width <= height.
 TRIM_SIZE_INCHES = [
@@ -42,6 +101,8 @@ def load_document(path: Path) -> fitz.Document:
     if doc.is_encrypted:
         doc.close()
         raise ValueError("Encrypted PDFs are not supported")
+    _check_active_content(doc)
+    _check_resource_limits(doc)
     return doc
 
 

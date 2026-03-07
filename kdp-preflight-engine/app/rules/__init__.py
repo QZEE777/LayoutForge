@@ -36,8 +36,9 @@ from app.rules.image_rules import (
     rule_image_color_mode,
     rule_image_placement,
 )
+from app.rules.trim_rules import rule_kdp_trim_profile
 
-# Ordered list of all 25 rules (id, name, fn)
+# Ordered list of rules (id, name, fn)
 ALL_RULES = [
     ("MIN_PAGE_COUNT", "Minimum page count (24)", rule_min_page_count),
     ("MAX_PAGE_COUNT", "Maximum page count (828)", rule_max_page_count),
@@ -65,3 +66,4 @@ ALL_RULES = [
     ("TRIM_BOX", "Trim box validation", rule_trim_box_validation),
     ("SAFE_ZONE", "Safe zone validation", rule_safe_zone_validation),
 ]
+ALL_RULES.append(("KDP_TRIM_PROFILE", "KDP Trim Profile", rule_kdp_trim_profile))

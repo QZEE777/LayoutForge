@@ -1,0 +1,21 @@
+# Render Blueprint: KDP Preflight Engine (API + worker in one service)
+# Deploy: Connect this repo, set root directory to "kdp-preflight-engine", add REDIS_URL in dashboard
+# Docs: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: kdp-preflight-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile.live
+    dockerContext: .
+    region: oregon
+    plan: free
+    envVars:
+      - key: REDIS_URL
+        sync: false
+      - key: LOCAL_UPLOAD_DIR
+        value: /app/data/uploads
+    disk:
+      name: preflight-uploads
+      mountPath: /app/data
+      sizeGB: 1

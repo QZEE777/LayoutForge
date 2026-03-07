@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { getReport, getStatus, uploadPdf } from "./api";
 import type { ValidationReport } from "./types";
 import { ErrorPanel } from "./components/ErrorPanel";
-import { PdfViewer } from "./components/PdfViewer";
+import { KdpPdfViewer } from "./components/KdpPdfViewer";
 import { UploadForm } from "./components/UploadForm";
 
 type FlowStatus = "idle" | "uploading" | "polling" | "completed" | "failed";
@@ -104,7 +104,7 @@ export default function App() {
               {report.summary.warning_count} warning(s) across{" "}
               {report.summary.total_pages} pages.
             </div>
-            <PdfViewer fileUrl={fileUrl} report={report} />
+            <KdpPdfViewer pdfUrl={fileUrl} report={report} />
           </div>
           <div className="viewer-sidebar">
             <ErrorPanel report={report} />

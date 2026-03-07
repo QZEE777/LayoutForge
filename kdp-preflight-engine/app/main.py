@@ -6,9 +6,13 @@ from __future__ import annotations
 import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
 
 from app.api import report, status, upload
 from app.config import settings
+from app.limiter import limiter
 
 structlog.configure(
     processors=[
@@ -22,6 +26,15 @@ app = FastAPI(
     description="Deterministic PDF validation for Amazon KDP paperback requirements",
     version="0.1.0",
 )
+app.state.limiter = limiter
+app.add_exception_handler(
+    RateLimitExceeded,
+    lambda request, exc: JSONResponse(
+        status_code=429,
+        content={"error": "Upload rate limit exceeded. Please try again later."},
+    ),
+)
+app.add_middleware(SlowAPIMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

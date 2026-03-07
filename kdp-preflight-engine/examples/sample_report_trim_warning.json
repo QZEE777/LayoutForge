@@ -1,0 +1,31 @@
+{
+  "file_hash": "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456",
+  "file_size": 2457600,
+  "ruleset_version": "kdp_preflight_v1.0.0",
+  "status": "PASS",
+  "errors": [],
+  "warnings": [
+    {
+      "page": 1,
+      "rule_id": "KDP_TRIM_PROFILE",
+      "severity": "WARNING",
+      "message": "PDF trim 5.25x8.00\" not in KDP allowed sizes: [(5, 8), (5.5, 8.5), (6, 9), (6.14, 9.21), (7, 10), (8, 10)]. Suggested closest trim: 5x8\"",
+      "bbox": null
+    }
+  ],
+  "summary": {
+    "total_pages": 150,
+    "error_count": 0,
+    "warning_count": 1,
+    "rules_checked": 26
+  },
+  "page_issues": [
+    {
+      "page": 1,
+      "rule_id": "KDP_TRIM_PROFILE",
+      "severity": "WARNING",
+      "message": "PDF trim 5.25x8.00\" not in KDP allowed sizes: [(5, 8), (5.5, 8.5), (6, 9), (6.14, 9.21), (7, 10), (8, 10)]. Suggested closest trim: 5x8\"",
+      "bbox": null
+    }
+  ]
+}

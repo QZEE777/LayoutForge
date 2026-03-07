@@ -4,9 +4,10 @@ from __future__ import annotations
 from pathlib import Path
 
 import structlog
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, File, HTTPException, Request, UploadFile
 
 from app.config import settings
+from app.limiter import limiter
 from app.job_store import set_status
 from app.schemas import UploadResponse
 from app.security import security_checks, validate_file_size, validate_mime
@@ -18,7 +19,8 @@ router = APIRouter()
 
 
 @router.post("/upload", response_model=UploadResponse)
-async def upload_pdf(file: UploadFile = File(...)) -> UploadResponse:
+@limiter.limit("5/minute")
+async def upload_pdf(request: Request, file: UploadFile = File(...)) -> UploadResponse:
     content_type = file.content_type
     if not validate_mime(content_type):
         raise HTTPException(400, "Invalid file type. Only application/pdf is accepted.")

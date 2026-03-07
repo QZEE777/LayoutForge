@@ -19,6 +19,9 @@ def build_report(
     errors: list[dict],
     warnings: list[dict],
     rules_checked: int,
+    ruleset_version: str = "kdp_preflight_v1.0.0",
+    file_hash: str = "",
+    file_size: int = 0,
 ) -> ValidationReport:
     """Build ValidationReport from rule outputs."""
     status = "FAIL" if errors else "PASS"
@@ -48,6 +51,9 @@ def build_report(
         rules_checked=rules_checked,
     )
     return ValidationReport(
+        file_hash=file_hash,
+        file_size=file_size,
+        ruleset_version=ruleset_version,
         status=status,
         errors=err_issues,
         warnings=warn_issues,

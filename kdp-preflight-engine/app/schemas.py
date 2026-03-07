@@ -21,6 +21,9 @@ class ValidationSummary(BaseModel):
 
 class ValidationReport(BaseModel):
     """Full validation report returned by GET /report/{job_id}."""
+    file_hash: str = ""
+    file_size: int = 0
+    ruleset_version: str = "kdp_preflight_v1.0.0"
     status: str  # "PASS" | "FAIL"
     errors: list[PageIssue] = Field(default_factory=list)
     warnings: list[PageIssue] = Field(default_factory=list)

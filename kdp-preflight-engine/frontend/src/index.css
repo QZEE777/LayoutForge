@@ -155,3 +155,9 @@ input[type="file"] {
 }
 .page-overlay .error-rect { stroke: #dc2626; }
 .page-overlay .warning-rect { stroke: #ca8a04; }
+
+.kdp-pdf-viewer .overlay-trim { }
+.kdp-pdf-viewer .overlay-safe { }
+.kdp-pdf-viewer .overlay-bleed { }
+.kdp-pdf-viewer .kdp-overlay .error-rect,
+.kdp-pdf-viewer .kdp-overlay .warning-rect { pointer-events: auto; cursor: help; }
