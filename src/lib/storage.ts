@@ -51,6 +51,10 @@ export interface StoredManuscript {
     recommendations?: string[];
     fileSizeMB?: number;
     recommendedGutterInches?: number;
+    /** Preflight page-level issues with bbox for visual overlay [x, y, width, height] in PDF points */
+    page_issues?: Array<{ page: number; rule_id: string; severity: string; message: string; bbox: number[] | null }>;
+    /** True when the stored file is the user's PDF (server-side check); false when from preflight (placeholder PDF). */
+    hasPdfPreview?: boolean;
     /** Format review report */
     formatReviewSections?: Array<{ title: string; issues?: string[]; recommendations?: string[]; content?: string }>;
     summary?: string;

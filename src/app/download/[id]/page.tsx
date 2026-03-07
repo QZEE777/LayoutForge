@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import PaymentGate from "@/components/PaymentGate";
+import CheckerPdfViewer from "@/components/CheckerPdfViewer";
 
 interface ProcessingReport {
   pagesGenerated?: number;
@@ -27,6 +28,8 @@ interface ProcessingReport {
   recommendations?: string[];
   fileSizeMB?: number;
   recommendedGutterInches?: number;
+  page_issues?: Array<{ page: number; rule_id: string; severity: string; message: string; bbox: number[] | null }>;
+  hasPdfPreview?: boolean;
   /** Format review report */
   formatReviewSections?: Array<{ title: string; issues?: string[]; recommendations?: string[]; content?: string }>;
   summary?: string;
@@ -148,6 +151,23 @@ export default function DownloadPage() {
       {/* Main content */}
       <main className="max-w-2xl mx-auto px-6 py-12">
         <PaymentGate tool={isFormatReview ? "kdp-format-review" : isChecker ? "kdp-pdf-checker" : isEpub ? "epub-maker" : isPdfFlow ? "kdp-formatter-pdf" : "kdp-formatter"} downloadId={id}>
+        {/* Checker: PDF viewer with issue overlays (when we have the user's PDF + page_issues) */}
+        {report?.outputType === "checker" && report.hasPdfPreview && report.page_issues && report.page_issues.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold text-[#F5F0E8] mb-3">View issues on your PDF</h2>
+            <CheckerPdfViewer
+              pdfUrl={`/api/view-pdf/${id}`}
+              pageIssues={report.page_issues}
+              totalPages={report.pageCount ?? 0}
+            />
+          </div>
+        )}
+        {report?.outputType === "checker" && report.page_issues && report.page_issues.length > 0 && !report.hasPdfPreview && (
+          <p className="mb-6 text-sm text-[#8B8B6B]">
+            For a visual report with highlights on each page, run the check with a file under 4 MB (uploaded on this site).
+          </p>
+        )}
+
         {/* Processing report card */}
         {report && (
           <div className={`mb-8 rounded-lg p-6 border ${report.outputType === "format-review" ? "bg-slate-100 border-slate-300 text-slate-800" : "bg-[#24241a] border-white/10"}`}>

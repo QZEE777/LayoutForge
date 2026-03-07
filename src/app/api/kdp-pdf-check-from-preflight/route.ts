@@ -9,9 +9,10 @@ import { getGutterInches } from "@/lib/kdpConfig";
 
 interface PreflightReport {
   status: string;
-  errors: Array<{ page: number; rule_id: string; severity: string; message: string }>;
-  warnings: Array<{ page: number; rule_id: string; severity: string; message: string }>;
+  errors: Array<{ page: number; rule_id: string; severity: string; message: string; bbox?: number[] | null }>;
+  warnings: Array<{ page: number; rule_id: string; severity: string; message: string; bbox?: number[] | null }>;
   summary: { total_pages: number; error_count: number; warning_count: number; rules_checked: number };
+  page_issues?: Array<{ page: number; rule_id: string; severity: string; message: string; bbox: number[] | null }>;
 }
 
 function buildReportFromPreflightOnly(preflight: PreflightReport, fileSizeMB?: number) {
@@ -21,8 +22,12 @@ function buildReportFromPreflightOnly(preflight: PreflightReport, fileSizeMB?: n
   ];
   const recommendations =
     preflight.status === "PASS"
-      ? ["Full KDP preflight (25 rules) passed. No errors found."]
+      ? ["Full KDP preflight (26 rules) passed. No errors found."]
       : ["Fix the issues above before uploading to KDP."];
+  const page_issues = preflight.page_issues ?? [
+    ...preflight.errors.map((e) => ({ page: e.page, rule_id: e.rule_id, severity: e.severity, message: e.message, bbox: e.bbox ?? null })),
+    ...preflight.warnings.map((w) => ({ page: w.page, rule_id: w.rule_id, severity: w.severity, message: w.message, bbox: w.bbox ?? null })),
+  ];
   return {
     outputType: "checker" as const,
     chaptersDetected: 0,
@@ -36,6 +41,7 @@ function buildReportFromPreflightOnly(preflight: PreflightReport, fileSizeMB?: n
     recommendations,
     fileSizeMB: fileSizeMB ?? undefined,
     recommendedGutterInches: getGutterInches(preflight.summary.total_pages),
+    page_issues,
   };
 }
 
