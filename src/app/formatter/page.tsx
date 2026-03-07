@@ -11,7 +11,7 @@ const FREE_TOOLS: { title: string; description: string; href: string }[] = [
 
 const PAID_TOOLS: { title: string; description: React.ReactNode; href: string; pricing: string; comingSoon?: boolean }[] = [
   { title: "KDP Formatter (DOCX)", description: "Format DOCX for Amazon KDP print. Trim size, bleed, print-ready PDF.", href: "/kdp-formatter", pricing: "$7 per use · $27 for 6 months" },
-  { title: "KDP PDF Checker", description: <>Check your PDF against KDP specs.<br />Trim, page count, issues.</>, href: "/kdp-pdf-checker", pricing: "$7 per use · $27 for 6 months" },
+  { title: "KDP Preflight", description: <>Full PDF validation: 26 KDP rules.<br />Trim, margins, bleed — pass/fail report.</>, href: "/kdp-pdf-checker", pricing: "$7 per use · $27 for 6 months" },
   { title: "Kindle EPUB Maker", description: "Manuscript to Kindle-ready EPUB. Chapter structure, metadata.", href: "/epub-maker", pricing: "$7 per use · $27 for 6 months" },
   { title: "KDP Format Review", description: "Paste or upload your manuscript — AI review for margins, spacing, headings, lists, KDP rules. Optional preview with KDP params.", href: "#", pricing: "Coming soon", comingSoon: true },
 ];

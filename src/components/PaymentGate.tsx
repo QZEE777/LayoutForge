@@ -51,6 +51,8 @@ export default function PaymentGate({ tool, children, isProcessing = false, down
         else setState("preview");
       })
       .catch(() => setState("preview"));
+  // Intentionally omit userEmail: we verify once per downloadId/tool; re-running on every keystroke would spam the API.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [downloadId, tool]);
 
   if (state === "processing") {

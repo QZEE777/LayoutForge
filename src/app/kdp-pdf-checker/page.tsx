@@ -8,9 +8,13 @@ import { WhatHappensNext } from "@/components/WhatHappensNext";
 import { ErrorRecovery } from "@/components/ErrorRecovery";
 import { ToolBreadcrumb } from "@/components/ToolBreadcrumb";
 
-/** Vercel serverless body limit; larger files must use PDF Compressor first. */
+/** Vercel body limit; files larger than this go via direct upload to preflight when available. */
 const SERVER_MAX_MB = 4;
-const MAX_SELECT_MB = 50;
+/** Max PDF size we accept (direct upload to preflight or fallback message). */
+const MAX_SELECT_MB = 100;
+
+const PREFLIGHT_POLL_MS = 2500;
+const PREFLIGHT_MAX_WAIT_MS = 120000;
 
 export default function KdpPdfCheckerPage() {
   const router = useRouter();
@@ -19,6 +23,10 @@ export default function KdpPdfCheckerPage() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const preflightUrl = typeof process.env.NEXT_PUBLIC_KDP_PREFLIGHT_API_URL === "string"
+    ? process.env.NEXT_PUBLIC_KDP_PREFLIGHT_API_URL.trim()
+    : "";
+
   const validateFile = useCallback((f: File): string | null => {
     const ext = f.name.toLowerCase().slice(f.name.lastIndexOf("."));
     if (ext !== ".pdf") return "This tool accepts PDF files only.";
@@ -26,7 +34,11 @@ export default function KdpPdfCheckerPage() {
     return null;
   }, []);
 
-  const fileTooBigForServer = file ? file.size > SERVER_MAX_MB * 1024 * 1024 : false;
+  const fileSizeMB = file ? file.size / (1024 * 1024) : 0;
+  const useDirectUpload = preflightUrl && file && fileSizeMB > SERVER_MAX_MB && fileSizeMB <= MAX_SELECT_MB;
+  const fileTooBigForServer = file
+    ? fileSizeMB > SERVER_MAX_MB && !preflightUrl
+    : false;
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -76,7 +88,35 @@ export default function KdpPdfCheckerPage() {
     if (!file) return;
     setUploading(true);
     setError(null);
+    const fileSizeMB = file.size / (1024 * 1024);
     try {
+      if (useDirectUpload && preflightUrl) {
+        const url = preflightUrl.replace(/\/$/, "");
+        const form = new FormData();
+        form.append("file", file, file.name.toLowerCase().endsWith(".pdf") ? file.name : "document.pdf");
+        let res = await fetch(`${url}/upload`, { method: "POST", body: form });
+        if (!res.ok) throw new Error("Upload to checker failed. Try again.");
+        const { job_id } = (await res.json()) as { job_id: string };
+        const deadline = Date.now() + PREFLIGHT_MAX_WAIT_MS;
+        while (Date.now() < deadline) {
+          await new Promise((r) => setTimeout(r, PREFLIGHT_POLL_MS));
+          res = await fetch(`${url}/status/${job_id}`);
+          if (!res.ok) continue;
+          const statusData = (await res.json()) as { status: string; report?: unknown };
+          if (statusData.status === "completed") break;
+          if (statusData.status === "failed") throw new Error("Check failed. Try again.");
+        }
+        const saveRes = await fetch("/api/kdp-pdf-check-from-preflight", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ jobId: job_id, fileSizeMB: Math.round(fileSizeMB * 100) / 100 }),
+        });
+        const saveData = (await saveRes.json()) as { id?: string; message?: string };
+        if (!saveRes.ok) throw new Error(saveData.message || "Could not save report.");
+        if (saveData.id) router.push(`/download/${saveData.id}?source=checker`);
+        else throw new Error("No report ID returned.");
+        return;
+      }
       const formData = new FormData();
       formData.append("file", file, file.name.toLowerCase().endsWith(".pdf") ? file.name : "document.pdf");
       const res = await fetch("/api/kdp-pdf-check", { method: "POST", body: formData });
@@ -90,7 +130,7 @@ export default function KdpPdfCheckerPage() {
       if (!res.ok) {
         const msg =
           res.status === 413 && file
-            ? `Your file is ${formatFileSize(file.size)}. This tool accepts up to ${SERVER_MAX_MB} MB per upload. Use our free PDF Compressor to shrink it first, then check again.`
+            ? `Your file is ${formatFileSize(file.size)}. This tool accepts up to ${SERVER_MAX_MB} MB per upload. Use our free PDF Compressor to shrink it first, then return here.`
             : data?.message || `Check failed (${res.status}). Try a smaller file or try again.`;
         throw new Error(msg);
       }
@@ -101,7 +141,7 @@ export default function KdpPdfCheckerPage() {
     } finally {
       setUploading(false);
     }
-  }, [file, router]);
+  }, [file, router, useDirectUpload, preflightUrl]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
@@ -119,16 +159,16 @@ export default function KdpPdfCheckerPage() {
       <div className="border-b border-slate-800 bg-amber-500/10">
         <div className="mx-auto max-w-4xl px-6 py-3 flex items-center gap-3">
           <span className="inline-flex items-center rounded-full bg-amber-500/20 border border-amber-500/30 px-2.5 py-0.5 text-xs font-medium text-amber-300">Paid</span>
-          <span className="text-sm font-semibold text-white">KDP PDF Checker</span>
+          <span className="text-sm font-semibold text-white">KDP Preflight</span>
           <span className="mx-2 text-slate-600">|</span>
-          <span className="text-sm text-slate-400">Check your PDF against Amazon KDP specs before you upload</span>
+          <span className="text-sm text-slate-400">Full PDF validation: 26 KDP rules, trim, margins, bleed — pass/fail before you upload</span>
         </div>
       </div>
 
       <main className="mx-auto max-w-2xl px-6 py-12">
-        <ToolBreadcrumb backHref="/" backLabel="All Tools" currentLabel="KDP PDF Checker" className="mb-6" />
-        <h1 className="text-3xl font-bold text-white">KDP PDF Checker</h1>
-        <p className="mt-2 text-slate-400">Upload your interior PDF. We’ll report trim size, page count, and any issues so you can fix before uploading to KDP. Max {SERVER_MAX_MB} MB per upload (use our FREE PDF Compressor for larger files). $7 per use or $27 for 6 months.</p>
+        <ToolBreadcrumb backHref="/" backLabel="All Tools" currentLabel="KDP Preflight" className="mb-6" />
+        <h1 className="text-3xl font-bold text-white">KDP Preflight</h1>
+        <p className="mt-2 text-slate-400">Upload your interior PDF. We’ll report trim size, page count, and any issues so you can fix before uploading to KDP. Max {MAX_SELECT_MB} MB. $7 per use or $27 for 6 months.</p>
         <p className="mt-2 text-slate-500 text-sm">Many indies design in Canva (or similar) and upload the PDF they export — we'll check that PDF against KDP specs. If you format from Word, use <Link href="/kdp-formatter" className="text-amber-300 hover:text-amber-200 underline">KDP Formatter (DOCX)</Link> for your print PDF.</p>
 
         <div
@@ -160,11 +200,11 @@ export default function KdpPdfCheckerPage() {
 
         {file && fileTooBigForServer && (
           <div className="mt-4 rounded-lg bg-amber-500/10 border border-amber-500/30 p-3 text-sm text-amber-200">
-            Your file is <strong>{formatFileSize(file.size)}</strong>. This tool accepts up to {SERVER_MAX_MB} MB per upload.{" "}
+            Your file is <strong>{formatFileSize(file.size)}</strong>. For files over {SERVER_MAX_MB} MB, use our free{" "}
             <Link href="/pdf-compress" className="underline font-medium text-amber-200 hover:text-white">
-              Use our free PDF Compressor
+              PDF Compressor
             </Link>{" "}
-            to shrink it first, then return here.
+            first, then check again (or try again later for large-file support).
           </div>
         )}
 

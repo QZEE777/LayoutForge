@@ -13,12 +13,22 @@ const BENEFITS = [
     ),
   },
   {
-    title: "Check your PDF",
-    description: "Trim size, page count, KDP specs before you upload.",
+    title: "KDP Preflight",
+    description: "Full PDF validation: 26 rules, trim, margins, bleed. Pass/fail report with on-page highlights.",
     href: "/kdp-pdf-checker",
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+      </svg>
+    ),
+  },
+  {
+    title: "KDP Format Review",
+    description: "AI review: margins, spacing, headings, KDP readiness. Paste or upload DOCX/PDF.",
+    href: "/kdp-format-review",
+    icon: (
+      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     ),
   },
