@@ -1,0 +1,42 @@
+# KDP Preflight Engine — local run with Docker
+# Usage: docker-compose up -d
+# API: http://localhost:8000  Docs: http://localhost:8000/docs
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - LOCAL_UPLOAD_DIR=/app/data/uploads
+    volumes:
+      - upload_data:/app/data
+    depends_on:
+      - redis
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - LOCAL_UPLOAD_DIR=/app/data/uploads
+    volumes:
+      - upload_data:/app/data
+    depends_on:
+      - redis
+      - api
+
+volumes:
+  redis_data:
+  upload_data:

@@ -1,0 +1,57 @@
+{
+  "status": "FAIL",
+  "errors": [
+    {
+      "page": 23,
+      "rule_id": "MARGIN_GUTTER",
+      "severity": "ERROR",
+      "message": "Text inside gutter margin.",
+      "bbox": [28.0, 72.0, 120.5, 14.0]
+    },
+    {
+      "page": 5,
+      "rule_id": "IMAGE_RESOLUTION",
+      "severity": "ERROR",
+      "message": "Image resolution (240x240 DPI) is below 300 DPI.",
+      "bbox": [72.0, 144.0, 252.0, 189.0]
+    }
+  ],
+  "warnings": [
+    {
+      "page": 12,
+      "rule_id": "EMPTY_PAGE",
+      "severity": "WARNING",
+      "message": "Page appears to be blank (no text or images).",
+      "bbox": null
+    }
+  ],
+  "summary": {
+    "total_pages": 85,
+    "error_count": 2,
+    "warning_count": 1,
+    "rules_checked": 25
+  },
+  "page_issues": [
+    {
+      "page": 23,
+      "rule_id": "MARGIN_GUTTER",
+      "severity": "ERROR",
+      "message": "Text inside gutter margin.",
+      "bbox": [28.0, 72.0, 120.5, 14.0]
+    },
+    {
+      "page": 5,
+      "rule_id": "IMAGE_RESOLUTION",
+      "severity": "ERROR",
+      "message": "Image resolution (240x240 DPI) is below 300 DPI.",
+      "bbox": [72.0, 144.0, 252.0, 189.0]
+    },
+    {
+      "page": 12,
+      "rule_id": "EMPTY_PAGE",
+      "severity": "WARNING",
+      "message": "Page appears to be blank (no text or images).",
+      "bbox": null
+    }
+  ]
+}

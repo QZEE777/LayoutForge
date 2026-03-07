@@ -1,0 +1,15 @@
+# KDP Preflight Engine — Celery worker
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY pyproject.toml ./
+RUN pip install --no-cache-dir -e .
+
+COPY app ./app
+RUN mkdir -p /app/data/uploads
+
+ENV PYTHONUNBUFFERED=1
+
+# Shared volume mount for uploads: -v ./data:/app/data
+CMD ["celery", "-A", "app.tasks.validate_pdf", "worker", "-l", "info"]
