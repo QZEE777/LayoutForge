@@ -55,13 +55,13 @@ def root():
     return {"service": settings.app_name, "docs": "/health", "ready": "/health/ready"}
 
 
-@app.get("/health")
+@app.api_route("/health", methods=["GET", "HEAD"])
 def health():
-    """Liveness: app is up. Use for simple ping."""
+    """Liveness: app is up. GET and HEAD both return 200 so monitors (e.g. UptimeRobot) can ping."""
     return {"status": "ok", "service": settings.app_name}
 
 
-@app.get("/health/ready")
+@app.api_route("/health/ready", methods=["GET", "HEAD"])
 def health_ready():
     """Readiness: app + Redis. Returns 503 if Redis unreachable so load balancers don't send traffic."""
     if not redis_ping():
