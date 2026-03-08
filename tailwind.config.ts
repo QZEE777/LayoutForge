@@ -43,6 +43,10 @@ const config: Config = {
         arctic: "#F8FAFC",
         /** Accent: burnt orange */
         burnt: "#CC5500",
+        /** Brave logo orange */
+        brave: "#FB542B",
+        /** FREE badge bright green */
+        freeGreen: "#16A34A",
       },
       boxShadow: {
         "gold-glow": "0 0 20px rgba(245, 166, 35, 0.15)",

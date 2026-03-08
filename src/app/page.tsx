@@ -2,30 +2,25 @@ import Link from "next/link";
 import AuthNav from "@/components/AuthNav";
 import { ALL_TOOLS, PLATFORMS, type Tool } from "@/data/platformTools";
 
-const BURNT = "#CC5500";
+const BRAVE = "#FB542B";
 const NAVY = "#131A22";
 
-/** Full-bleed bullseye with arrow: spans viewport, center = CTA link to upload. */
+/** Full-bleed bullseye: spans viewport, center = CTA link to upload. */
 function HeroBullseye() {
   return (
     <section className="relative w-full min-h-[88vh] flex flex-col items-center justify-center overflow-hidden bg-ivory">
-      {/* Giant bullseye + arrow: edge-to-edge, below the fold */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden>
         <svg
           viewBox="0 0 400 400"
           className="w-full h-full min-h-[88vh] max-w-[180vw] object-contain text-amazon-navy"
           style={{ opacity: 0.92 }}
         >
-          {/* Outer rings — concentric circles */}
           <circle cx="200" cy="200" r="195" fill="none" stroke="currentColor" strokeWidth="2" opacity={0.08} />
           <circle cx="200" cy="200" r="160" fill="none" stroke="currentColor" strokeWidth="3" opacity={0.12} />
-          <circle cx="200" cy="200" r="125" fill="none" stroke={BURNT} strokeWidth="4" opacity={0.25} />
+          <circle cx="200" cy="200" r="125" fill="none" stroke={BRAVE} strokeWidth="4" opacity={0.25} />
           <circle cx="200" cy="200" r="90" fill="none" stroke="currentColor" strokeWidth="3" opacity={0.2} />
           <circle cx="200" cy="200" r="58" fill={NAVY} opacity={0.9} />
-          <circle cx="200" cy="200" r="36" fill={BURNT} />
-          {/* Arrow: shaft + head pointing into center from left */}
-          <line x1="48" y1="200" x2="165" y2="200" stroke={BURNT} strokeWidth="6" strokeLinecap="round" opacity={0.9} />
-          <path d="M158 182 L178 200 L158 218 Z" fill={BURNT} opacity={0.95} />
+          <circle cx="200" cy="200" r="36" fill={BRAVE} />
         </svg>
       </div>
 
@@ -33,7 +28,7 @@ function HeroBullseye() {
       <div className="relative z-10 flex flex-col items-center justify-center flex-1 w-full px-4">
         <Link
           href="/kdp-pdf-checker"
-          className="group flex flex-col items-center justify-center rounded-full w-44 h-44 sm:w-52 sm:h-52 md:w-60 md:h-60 bg-burnt text-white shadow-xl shadow-burnt/30 hover:shadow-2xl hover:shadow-burnt/40 hover:scale-105 transition-all duration-300 border-4 border-white/90"
+          className="group flex flex-col items-center justify-center rounded-full w-44 h-44 sm:w-52 sm:h-52 md:w-60 md:h-60 bg-brave text-white shadow-xl shadow-brave/30 hover:shadow-2xl hover:shadow-brave/40 hover:scale-105 transition-all duration-300 border-4 border-white/90"
           aria-label="Check your PDF — go to upload"
         >
           <span className="font-bebas text-xl sm:text-2xl md:text-3xl tracking-tight text-center leading-tight text-balance px-2">
@@ -56,39 +51,40 @@ function HeroBullseye() {
   );
 }
 
+/** Card ~1/3 smaller, centered text and icon; FREE in caps green, COMING SOON in caps. */
 function ToolCard({ tool }: { tool: Tool }) {
   const isComingSoon = tool.comingSoon;
-  const cardClassName = `rounded-2xl border-2 border-soft-border bg-white p-8 transition-all ${
+  const cardClassName = `rounded-xl border border-soft-border bg-white p-5 transition-all flex flex-col items-center text-center ${
     isComingSoon
       ? "opacity-85 cursor-default"
-      : "hover:border-burnt/50 hover:shadow-lg hover:shadow-burnt/10"
+      : "hover:border-brave/50 hover:shadow-md hover:shadow-brave/10"
   }`;
   const content = (
     <>
-      <div className="flex items-start justify-between gap-3 mb-4">
-        <span className={`p-3 rounded-xl ${isComingSoon ? "bg-soft-border text-soft-muted" : "bg-burnt/10 text-burnt"}`}>
-          <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="flex flex-col items-center gap-2 mb-3">
+        <span className={`p-2 rounded-lg ${isComingSoon ? "bg-soft-border text-soft-muted" : "bg-brave/10 text-brave"}`}>
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={tool.iconPath} />
           </svg>
         </span>
         {isComingSoon && (
-          <span className="rounded-full bg-soft-border px-3 py-1 text-xs font-semibold uppercase tracking-wide text-soft-muted">
-            Coming soon
+          <span className="rounded-full bg-soft-border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-soft-muted">
+            COMING SOON
           </span>
         )}
       </div>
-      <h3 className="font-bebas text-xl sm:text-2xl tracking-wide text-amazon-navy mb-2">
+      <h3 className="font-bebas text-base sm:text-lg tracking-wide text-amazon-navy mb-1.5">
         {tool.title}
       </h3>
-      <p className="font-sans text-sm sm:text-base text-soft-muted leading-relaxed">
+      <p className="font-sans text-xs text-soft-muted leading-snug">
         {tool.description}
       </p>
-        {!isComingSoon && (
-        <p className="mt-4">
+      {!isComingSoon && (
+        <p className="mt-2">
           {tool.free ? (
-            <span className="text-sm font-medium text-burnt">Free</span>
+            <span className="text-xs font-bold uppercase text-freeGreen">FREE</span>
           ) : (
-            <span className="text-sm font-medium text-amazon-navy">{tool.pricing}</span>
+            <span className="text-xs font-medium text-amazon-navy">{tool.pricing}</span>
           )}
         </p>
       )}
@@ -110,13 +106,16 @@ export default function Home() {
   const tools = kdpPlatform.toolIds
     .map((id) => ALL_TOOLS.find((t) => t.id === id))
     .filter((t): t is Tool => !!t && t.available);
+  const paidTools = tools.filter((t) => !t.free && !t.comingSoon);
+  const comingSoonTools = tools.filter((t) => t.comingSoon);
+  const freeTools = tools.filter((t) => t.free);
 
   return (
     <div className="min-h-screen bg-ivory">
       <nav className="sticky top-0 z-30 border-b border-soft-border bg-ivory/95 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-burnt">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-brave">
               <svg className="w-4 h-4" fill="none" stroke="#131A22" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
               </svg>
@@ -127,10 +126,10 @@ export default function Home() {
             </span>
           </Link>
           <div className="flex items-center gap-6">
-            <Link href="/platform/kdp" className="text-sm font-medium text-amazon-navy hover:text-burnt transition-colors">
+            <Link href="/platform/kdp" className="text-sm font-medium text-amazon-navy hover:text-brave transition-colors">
               Tools
             </Link>
-            <Link href="/founders" className="text-sm font-medium text-amazon-navy hover:text-burnt transition-colors">
+            <Link href="/founders" className="text-sm font-medium text-amazon-navy hover:text-brave transition-colors">
               Founders
             </Link>
             <AuthNav theme="light" />
@@ -140,64 +139,75 @@ export default function Home() {
 
       <HeroBullseye />
 
-      {/* Secondary CTA + trust */}
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 py-5 bg-arctic/80 border-y border-soft-border">
-        <Link
-          href="/platform/kdp"
-          className="rounded-xl px-6 py-3 text-sm font-bold border-2 border-amazon-navy text-amazon-navy hover:bg-amazon-navy hover:text-white transition-colors text-center"
-        >
-          See all tools
-        </Link>
+      {/* Trust: two lines, centered */}
+      <div className="py-5 bg-arctic/80 border-y border-soft-border">
         <p className="text-center text-sm text-soft-muted max-w-xl mx-auto px-4">
-          Your files are processed securely and never stored permanently. No subscription, no lock-in.
+          Your files are processed securely and never stored permanently.
+        </p>
+        <p className="text-center text-sm text-soft-muted mt-1">
+          No subscription, no lock-in.
         </p>
       </div>
 
-      {/* Social proof ticker */}
+      {/* Social proof ticker — all caps, bold, bright orange */}
       <section className="py-4 overflow-hidden bg-amazon-navy border-y border-amazon-navy" aria-label="Social proof">
         <div className="flex w-[200%] animate-marquee">
-          <span className="text-sm font-sans whitespace-nowrap flex-shrink-0 w-1/2 flex items-center gap-12 pr-12 text-burnt">
-            <span className="tracking-wide">Trusted by indie authors on Amazon KDP</span>
-            <span className="text-white/40" aria-hidden>·</span>
-            <span className="tracking-wide">Built for KDP &amp; Kindle</span>
-            <span className="text-white/40" aria-hidden>·</span>
-            <span className="tracking-wide">No account required to start</span>
+          <span className="text-sm font-bold font-sans uppercase whitespace-nowrap flex-shrink-0 w-1/2 flex items-center gap-12 pr-12 tracking-wider text-brave">
+            <span>Trusted by indie authors on Amazon KDP</span>
+            <span className="text-white/50" aria-hidden>✦</span>
+            <span>Built for KDP &amp; Kindle</span>
+            <span className="text-white/50" aria-hidden>✦</span>
+            <span>No account required to start</span>
           </span>
-          <span className="text-sm font-sans whitespace-nowrap flex-shrink-0 w-1/2 flex items-center gap-12 pr-12 text-burnt">
-            <span className="tracking-wide">Trusted by indie authors on Amazon KDP</span>
-            <span className="text-white/40" aria-hidden>·</span>
-            <span className="tracking-wide">Built for KDP &amp; Kindle</span>
-            <span className="text-white/40" aria-hidden>·</span>
-            <span className="tracking-wide">No account required to start</span>
+          <span className="text-sm font-bold font-sans uppercase whitespace-nowrap flex-shrink-0 w-1/2 flex items-center gap-12 pr-12 tracking-wider text-brave">
+            <span>Trusted by indie authors on Amazon KDP</span>
+            <span className="text-white/50" aria-hidden>✦</span>
+            <span>Built for KDP &amp; Kindle</span>
+            <span className="text-white/50" aria-hidden>✦</span>
+            <span>No account required to start</span>
           </span>
         </div>
       </section>
 
-      {/* What you get — tool cards */}
+      {/* What you get — paid, then coming soon (shaded), then free (shaded) */}
       <section id="tools" className="px-6 py-16 bg-ivory">
         <div className="mx-auto max-w-5xl">
           <h2 className="font-bebas text-3xl sm:text-4xl tracking-tight text-amazon-navy text-center mb-3 text-balance">
             What you get
           </h2>
-          <p className="font-sans text-soft-muted text-center mb-12 max-w-xl mx-auto leading-snug text-balance">
+          <p className="font-sans text-soft-muted text-center mb-10 max-w-xl mx-auto leading-snug text-balance">
             One place for Amazon KDP and Kindle — check, format, list, and export.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-            {tools.map((tool) => (
-              <ToolCard key={tool.id} tool={tool} />
-            ))}
-          </div>
-          <div className="text-center mt-14">
-            <Link
-              href="/platform/kdp"
-              className="inline-flex items-center gap-2 rounded-xl px-6 py-3.5 text-base font-bold bg-burnt text-white hover:bg-burnt/90 transition-opacity shadow-md"
-            >
-              See all tools
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          </div>
+
+          {paidTools.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-10">
+              {paidTools.map((tool) => (
+                <ToolCard key={tool.id} tool={tool} />
+              ))}
+            </div>
+          )}
+
+          {comingSoonTools.length > 0 && (
+            <div className="rounded-2xl bg-soft-border/50 border border-soft-border p-6 mb-10">
+              <p className="font-bebas text-sm uppercase tracking-wider text-soft-muted text-center mb-4">Coming soon</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {comingSoonTools.map((tool) => (
+                  <ToolCard key={tool.id} tool={tool} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {freeTools.length > 0 && (
+            <div className="rounded-2xl bg-freeGreen/5 border border-freeGreen/20 p-6">
+              <p className="font-bebas text-sm uppercase tracking-wider text-freeGreen text-center mb-4">Free tools</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {freeTools.map((tool) => (
+                  <ToolCard key={tool.id} tool={tool} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -205,7 +215,7 @@ export default function Home() {
       <footer className="border-t border-soft-border px-6 py-10 bg-arctic">
         <div className="mx-auto max-w-3xl flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-4 text-sm text-soft-muted text-center sm:text-left">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded flex items-center justify-center bg-burnt flex-shrink-0">
+            <div className="w-6 h-6 rounded flex items-center justify-center bg-brave flex-shrink-0">
               <svg className="w-3.5 h-3.5" fill="none" stroke="#131A22" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
               </svg>
@@ -214,7 +224,7 @@ export default function Home() {
           </div>
           <p className="flex items-center gap-4 flex-wrap justify-center sm:justify-end">
             Your files are processed securely and never stored permanently.
-            <Link href="/platform/kdp" className="text-burnt hover:underline font-medium">KDP &amp; Kindle tools</Link>
+            <Link href="/platform/kdp" className="text-brave hover:underline font-medium">KDP &amp; Kindle tools</Link>
           </p>
         </div>
         <p className="mx-auto max-w-6xl text-center text-sm mt-5 text-soft-muted">
