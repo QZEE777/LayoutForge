@@ -15,7 +15,8 @@ Short, updatable reference. Pass this (or the current version) into the support 
 
 | Context | Limit / format |
 |--------|-----------------|
-| **PDF uploads** (Compressor, PDF Print Optimizer, KDP PDF Checker, keyword/description PDF) | Max **50 MB**. PDF only. |
+| **PDF uploads** (Compressor, PDF Print Optimizer, keyword/description PDF) | Max **50 MB**. PDF only. |
+| **Print Ready Check (KDP PDF Checker)** | Max **100 MB**. PDF only. |
 | **DOCX uploads** (KDP Formatter, 7 Keyword Research DOCX, Description Generator DOCX) | Max **50 MB**. DOCX only. |
 | **KDP PDF (final)** | KDP allows up to 650 MB; we check up to 50 MB. Page count max **828** for KDP. |
 
@@ -54,5 +55,7 @@ Short, updatable reference. Pass this (or the current version) into the support 
 - **Description generator** — DOCX version: DOCX only. PDF version: PDF only. Check the tool page for which input it expects.
 
 ---
+
+**Bot:** The in-product AI assistant is **Manny**. It uses this file plus `docs/FAQ-FOR-BOT.md` and the persona in `docs/UI-AND-BACK-OFFICE.md` §6.4–6.6. See `docs/AI-ASSISTANT-NAME-AND-SETUP.md`.
 
 *Update this file when you add tools, change limits, or change URLs.*

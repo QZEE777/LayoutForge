@@ -1,0 +1,11 @@
+---
+description: manu2print is a business — we ship to LIVE, not localhost
+alwaysApply: true
+---
+
+# manu2print — Ship LIVE
+
+- **This is a business.** Goal is to make money. Not a hobby or experiment.
+- **LIVE = done.** Products and features are done when they are deployed and usable on the domain (layout-forge.vercel.app / manu2print). Localhost is for testing only.
+- **From the start:** When building any new tool or feature, the deployment path (Vercel, API host, env on production) is part of the plan. Do not build local-only and "deploy later."
+- **Same page:** Every session assumes we are shipping for the live platform. If in doubt, default to "how does this go live?" not "how does this run on my machine?"

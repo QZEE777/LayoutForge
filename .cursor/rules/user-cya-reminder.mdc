@@ -1,0 +1,12 @@
+---
+description: When user says "cya" or similar goodbye, remind them to move project off OneDrive
+alwaysApply: true
+---
+
+# Sign-off reminder (ROE)
+
+When the user signs off with **"cya"**, **"see you"**, **"bye"**, or similar, briefly remind them:
+
+- **Move project folder from OneDrive to C:\Dev** if they haven’t yet (security + avoid OneDrive sync issues). Steps: create `C:\Dev`, move `LayoutForge-main` from OneDrive Desktop into it, then in Cursor use File → Open Folder → `C:\Dev\LayoutForge-main`.
+
+Keep the reminder to one short sentence unless they ask for steps again.
