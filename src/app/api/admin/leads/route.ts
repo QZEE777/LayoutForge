@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { listLeads } from "@/lib/storage";
 import { checkAdminRateLimit } from "@/lib/rateLimitAdmin";
+import { timingSafeEqualStrings } from "@/lib/security";
 
 /**
  * GET /api/admin/leads
@@ -17,8 +18,8 @@ export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
   const token = authHeader?.replace(/^Bearer\s+/i, "") ?? request.nextUrl.searchParams.get("secret");
 
-  const allowedByPassword = expectedPassword && password === expectedPassword;
-  const allowedBySecret = secret && token === secret;
+  const allowedByPassword = expectedPassword && timingSafeEqualStrings(password, expectedPassword);
+  const allowedBySecret = secret && typeof token === "string" && timingSafeEqualStrings(token, secret);
   if (!allowedByPassword && !allowedBySecret) {
     return NextResponse.json(
       { error: "Unauthorized", message: "Invalid or missing admin auth." },

@@ -64,10 +64,7 @@ export default function ProfilePage() {
 
   if (loading || !user) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        className="min-h-screen flex items-center justify-center bg-ivory"
-      >
+      <div className="min-h-screen flex items-center justify-center bg-ivory">
         <p className="text-soft-muted">Loading…</p>
       </div>
     );
@@ -78,10 +75,7 @@ export default function ProfilePage() {
       <header className="border-b border-soft-border sticky top-0 z-10 bg-white/95 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-              className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-brave"
-            >
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-brave">
               <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
                 <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
@@ -89,14 +83,13 @@ export default function ProfilePage() {
                 <path d="M8 11h8" />
               </svg>
             </div>
-            <span className="text-lg font-bold tracking-tight" className="text-lg font-bold tracking-tight text-amazon-navy">
+            <span className="text-lg font-bold tracking-tight text-amazon-navy">
               manu2print
             </span>
           </Link>
           <nav className="flex items-center gap-2">
             <Link
               href="/dashboard"
-              className="rounded-lg px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90"
               className="rounded-lg px-4 py-2 text-sm font-medium text-soft-muted hover:text-brave transition-colors"
             >
               Dashboard
@@ -111,7 +104,6 @@ export default function ProfilePage() {
                 await client.auth.signOut();
                 router.replace("/auth");
               }}
-              className="rounded-lg px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90"
               className="rounded-lg px-4 py-2 text-sm font-medium text-soft-muted hover:text-brave transition-colors"
             >
               Log out
@@ -130,9 +122,7 @@ export default function ProfilePage() {
           </p>
         </div>
 
-        <div
-className="rounded-xl border border-soft-border bg-white p-6 max-w-md"
-        >
+        <div className="rounded-xl border border-soft-border bg-white p-6 max-w-md">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label htmlFor="first_name" className="block text-sm font-medium mb-1.5 text-soft-muted">

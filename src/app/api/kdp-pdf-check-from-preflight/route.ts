@@ -88,6 +88,13 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+    // Restrict to UUID-like id to prevent path traversal / injection into report URL
+    if (!/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(jobId)) {
+      return NextResponse.json(
+        { error: "Invalid jobId", message: "jobId must be a valid UUID." },
+        { status: 400 }
+      );
+    }
     const fileSizeMB = typeof body.fileSizeMB === "number" ? body.fileSizeMB : undefined;
     const url = baseUrl.replace(/\/$/, "");
     const res = await fetch(`${url}/report/${encodeURIComponent(jobId)}`);

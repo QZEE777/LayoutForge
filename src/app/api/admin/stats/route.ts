@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { checkAdminRateLimit } from "@/lib/rateLimitAdmin";
+import { timingSafeEqualStrings } from "@/lib/security";
 
 export async function GET(request: NextRequest) {
   const rateLimitRes = checkAdminRateLimit(request);
@@ -15,7 +16,7 @@ export async function GET(request: NextRequest) {
       { status: 503 }
     );
   }
-  if (password !== expected) {
+  if (!timingSafeEqualStrings(password, expected)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

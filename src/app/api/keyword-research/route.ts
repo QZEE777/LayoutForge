@@ -31,7 +31,6 @@ export async function POST(request: NextRequest) {
     const text = await docxText(buffer);
     if (!text || text.length < 100) return NextResponse.json({ error: "Too little text", message: "Could not extract enough text." }, { status: 400 });
     const apiKey = process.env.ANTHROPIC_API_KEY;
-    console.log("keyword-research: ANTHROPIC_API_KEY length:", apiKey?.length ?? 0);
     if (!apiKey) return NextResponse.json({ error: "Not configured", message: "ANTHROPIC_API_KEY is not set." }, { status: 503 });
     const excerpt = firstNWords(text, MAX_WORDS);
     const userPrompt = "From this manuscript excerpt, suggest exactly 7 keyword phrases for Amazon KDP book search. Return only a JSON object with one key: \"keywords\" (array of exactly 7 strings). No other text.\n\nExcerpt:\n\n" + excerpt;

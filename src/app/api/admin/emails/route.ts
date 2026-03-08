@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { checkAdminRateLimit } from "@/lib/rateLimitAdmin";
+import { timingSafeEqualStrings } from "@/lib/security";
 
 /**
  * GET /api/admin/emails
@@ -16,8 +17,8 @@ export async function GET(request: NextRequest) {
   const adminKey = request.headers.get("x-admin-key");
   const secret = process.env.ADMIN_SECRET;
 
-  const allowedByPassword = expectedPassword && password === expectedPassword;
-  const allowedBySecret = secret && adminKey === secret;
+  const allowedByPassword = expectedPassword && timingSafeEqualStrings(password, expectedPassword);
+  const allowedBySecret = secret && typeof adminKey === "string" && timingSafeEqualStrings(adminKey, secret);
   if (!allowedByPassword && !allowedBySecret) {
     return NextResponse.json(
       { error: "Unauthorized", message: "Invalid or missing admin auth." },

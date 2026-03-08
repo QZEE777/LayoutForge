@@ -1,5 +1,13 @@
+import { createHash, timingSafeEqual } from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { hashApiKey } from '@/lib/encryption';
+
+/** Constant-time string comparison to prevent timing attacks on admin auth. */
+export function timingSafeEqualStrings(a: string, b: string): boolean {
+  const ha = createHash('sha256').update(a, 'utf8').digest();
+  const hb = createHash('sha256').update(b, 'utf8').digest();
+  return ha.length === hb.length && timingSafeEqual(ha, hb);
+}
 
 export async function validateApiKey(request: NextRequest): Promise<string | null> {
   const authHeader = request.headers.get('authorization');
