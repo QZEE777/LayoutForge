@@ -27,6 +27,16 @@ def _client() -> redis.Redis:
     return redis.from_url(url, decode_responses=True)
 
 
+def redis_ping() -> bool:
+    """Return True if Redis is reachable, False otherwise. For health/ready checks."""
+    try:
+        r = _client()
+        r.ping()
+        return True
+    except Exception:
+        return False
+
+
 def set_status(job_id: str, status: str, message: str | None = None) -> None:
     """Set job status: pending, processing, completed, failed."""
     r = _client()

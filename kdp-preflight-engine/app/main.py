@@ -12,6 +12,7 @@ from slowapi.middleware import SlowAPIMiddleware
 
 from app.api import report, status, upload
 from app.config import settings
+from app.job_store import redis_ping
 from app.limiter import limiter
 
 structlog.configure(
@@ -49,4 +50,16 @@ app.include_router(report.router, tags=["report"])
 
 @app.get("/health")
 def health():
+    """Liveness: app is up. Use for simple ping."""
     return {"status": "ok", "service": settings.app_name}
+
+
+@app.get("/health/ready")
+def health_ready():
+    """Readiness: app + Redis. Returns 503 if Redis unreachable so load balancers don't send traffic."""
+    if not redis_ping():
+        return JSONResponse(
+            status_code=503,
+            content={"status": "unhealthy", "service": settings.app_name, "redis": "unreachable"},
+        )
+    return {"status": "ok", "service": settings.app_name, "redis": "ok"}

@@ -8,7 +8,7 @@ import { WhatHappensNext } from "@/components/WhatHappensNext";
 import { ErrorRecovery } from "@/components/ErrorRecovery";
 import { ToolBreadcrumb } from "@/components/ToolBreadcrumb";
 
-/** Vercel body limit; files larger than this go via direct upload to preflight when available. */
+/** Host body limit (e.g. Vercel 4.5 MB). Files larger than this use direct preflight upload when available. */
 const SERVER_MAX_MB = 4;
 /** Max PDF size we accept (direct upload to preflight or fallback message). */
 const MAX_SELECT_MB = 100;
@@ -30,6 +30,7 @@ export default function KdpPdfCheckerPage() {
   const validateFile = useCallback((f: File): string | null => {
     const ext = f.name.toLowerCase().slice(f.name.lastIndexOf("."));
     if (ext !== ".pdf") return "This tool accepts PDF files only.";
+    if (f.size === 0) return "File is empty. Please choose a non-empty PDF.";
     if (f.size > MAX_SELECT_MB * 1024 * 1024) return `File must be smaller than ${MAX_SELECT_MB} MB.`;
     return null;
   }, []);
@@ -137,7 +138,14 @@ export default function KdpPdfCheckerPage() {
       if (data.id) router.push(`/download/${data.id}?source=checker`);
       else throw new Error("No report ID returned.");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Check failed");
+      const msg = err instanceof Error ? err.message : "Check failed";
+      const isFailedFetch = msg === "Failed to fetch";
+      const fileOverLimit = file && file.size > SERVER_MAX_MB * 1024 * 1024;
+      setError(
+        isFailedFetch && fileOverLimit
+          ? `Upload failed — files over ${SERVER_MAX_MB} MB can't be sent through this page. Use our PDF Compressor to shrink the file first, then try again.`
+          : msg
+      );
     } finally {
       setUploading(false);
     }
@@ -198,6 +206,11 @@ export default function KdpPdfCheckerPage() {
           </label>
         </div>
 
+        {file && useDirectUpload && (
+          <div className="mt-4 rounded-lg bg-slate-700/50 border border-slate-600 p-3 text-sm text-slate-300">
+            Your file is <strong>{formatFileSize(file.size)}</strong>. Files over {SERVER_MAX_MB} MB are sent directly to the checker (you’ll get the full report; the on-page visual overlay is only for files under {SERVER_MAX_MB} MB).
+          </div>
+        )}
         {file && fileTooBigForServer && (
           <div className="mt-4 rounded-lg bg-amber-500/10 border border-amber-500/30 p-3 text-sm text-amber-200">
             Your file is <strong>{formatFileSize(file.size)}</strong>. For files over {SERVER_MAX_MB} MB, use our free{" "}

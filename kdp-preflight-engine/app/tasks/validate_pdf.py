@@ -4,6 +4,7 @@ Celery task: run full validation pipeline for a job (parse → analyze → rules
 from __future__ import annotations
 
 import hashlib
+import ssl
 from pathlib import Path
 
 import structlog
@@ -27,6 +28,10 @@ celery_app = Celery(
 celery_app.conf.task_serializer = "json"
 celery_app.conf.result_serializer = "json"
 celery_app.conf.accept_content = ["json"]
+# Upstash (rediss://) often needs CERT_NONE for broker/backend
+if settings.broker_url.strip().lower().startswith("rediss://"):
+    celery_app.conf.broker_use_ssl = {"ssl_cert_reqs": ssl.CERT_NONE}
+    celery_app.conf.redis_backend_use_ssl = {"ssl_cert_reqs": ssl.CERT_NONE}
 
 
 def compute_sha256(path: Path) -> str:
