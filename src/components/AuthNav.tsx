@@ -17,7 +17,7 @@ export default function AuthNav({ theme = "dark" }: { theme?: NavTheme }) {
   const linkStyle = isLight ? undefined : { color: WARM_WHITE };
   const btnStyle = isLight ? undefined : { backgroundColor: GOLD, color: "#0F0D0B" };
   const borderStyleInline = isLight ? undefined : { borderColor: "#2A2420", color: "#a8a29e" };
-  const avatarBg = isLight ? "bg-amazon-orange/20 text-amazon-orange" : "";
+  const avatarBg = isLight ? "bg-burnt/20 text-burnt" : "";
   const avatarStyle = isLight ? undefined : { backgroundColor: "rgba(245,166,35,0.25)", color: GOLD };
   const loadingStyle = isLight ? undefined : { color: WARM_WHITE };
   const [user, setUser] = useState<User | null>(null);
@@ -101,7 +101,7 @@ export default function AuthNav({ theme = "dark" }: { theme?: NavTheme }) {
       </Link>
       <Link
         href="/auth"
-        className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors hover:opacity-90 ${isLight ? "bg-amazon-orange text-amazon-navy hover:bg-amazon-orange/90" : ""}`}
+        className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors hover:opacity-90 ${isLight ? "bg-burnt text-white hover:bg-burnt/90" : ""}`}
         style={btnStyle}
       >
         Get Started

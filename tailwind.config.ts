@@ -38,6 +38,11 @@ const config: Config = {
           border: "#E5E4E1",
           muted: "#6B7280",
         },
+        /** Hero: brighter backgrounds */
+        ivory: "#FFFFF0",
+        arctic: "#F8FAFC",
+        /** Accent: burnt orange */
+        burnt: "#CC5500",
       },
       boxShadow: {
         "gold-glow": "0 0 20px rgba(245, 166, 35, 0.15)",
