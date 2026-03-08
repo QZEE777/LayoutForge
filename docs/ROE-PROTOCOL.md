@@ -63,10 +63,17 @@ When you say **“cya”** (or similar goodbye):
 
 ---
 
-## 6. Quick ROE summary
+## 6. Homepage design freeze (MVP beta)
+
+**Do not redesign the homepage again.** The homepage layout and sections are locked for MVP beta. Next priority: stabilize and perfect MVP tool functionality (e.g. Print Ready Check). Content placeholders (testimonials, comparison table) may be replaced with real copy later without changing structure.
+
+---
+
+## 7. Quick ROE summary
 
 1. **Security-driven** — no secrets in code, validate input, safe auth.  
 2. **Confirm before big/design changes** — detect conflicts, plan, then integrate on your say-so.  
 3. **Push is local** — you run `git add` / `commit` / `push` on your machine.  
 4. **CYA** — when you say cya, remind about moving folder off OneDrive if needed.  
-5. **Clarity over cleverness** — clear, trustworthy, working tools first.
+5. **Clarity over cleverness** — clear, trustworthy, working tools first.  
+6. **Homepage design freeze** — no homepage redesign; focus on tool reliability.

@@ -1,11 +1,11 @@
 import Link from "next/link";
 import AuthNav from "@/components/AuthNav";
 
-/** Hero visual: PDF-style doc with diagnostic-style markers (red / yellow / green). Static SVG only. */
+/** Hero visual: PDF diagnostic image + bullseye overlay with CTA. Bullseye = "hit the print-ready target". */
 function HeroPdfVisual() {
   return (
-    <div className="w-full max-w-md mx-auto flex justify-center" aria-hidden>
-      <svg viewBox="0 0 280 360" className="w-full h-auto drop-shadow-lg" fill="none">
+    <div className="relative w-full max-w-md mx-auto">
+      <svg viewBox="0 0 280 360" className="w-full h-auto drop-shadow-lg" fill="none" aria-hidden>
         {/* Page shape */}
         <rect x="20" y="20" width="240" height="320" rx="4" fill="#FFFFF0" stroke="#E5E4E1" strokeWidth="2" />
         {/* Trim area (green = safe) */}
@@ -23,6 +23,23 @@ function HeroPdfVisual() {
         <rect x="60" y="118" width="160" height="8" rx="2" fill="#E5E4E1" opacity="0.5" />
         <rect x="60" y="136" width="140" height="8" rx="2" fill="#E5E4E1" opacity="0.5" />
       </svg>
+      {/* Bullseye overlay centered on PDF page (between left/right borders) */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="flex flex-col items-center">
+          <div className="relative flex items-center justify-center w-28 h-28 sm:w-32 sm:h-32">
+            <span className="absolute inset-0 rounded-full border-4 border-amazon-navy/30" aria-hidden />
+            <span className="absolute inset-2 rounded-full border-4 border-brave/50" aria-hidden />
+            <span className="absolute inset-4 rounded-full border-4 border-brave bg-brave/90" aria-hidden />
+            <Link
+              href="/kdp-pdf-checker"
+              className="relative z-10 rounded-full bg-brave text-white font-semibold text-sm sm:text-base px-4 py-2.5 shadow-lg hover:bg-brave/90 transition-colors hover:scale-105"
+              title="Hit the Target → Check My PDF"
+            >
+              Check My PDF
+            </Link>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -185,6 +202,13 @@ export default function Home() {
               variant="primary"
             />
             <DirectiveToolCard
+              title="TRIM SIZE CALCULATOR"
+              description="Calculate the correct trim, margins, and bleed for your book."
+              cta="Open Tool"
+              ctaHref="/trim-size-comparison"
+              variant="available"
+            />
+            <DirectiveToolCard
               title="COVER CHECK"
               description="Validate your full-wrap KDP cover for spine width, bleed, and trim alignment."
               cta="Coming Soon"
@@ -192,22 +216,15 @@ export default function Home() {
             />
             <DirectiveToolCard
               title="BOOK LAYOUT FIXER"
-              description="Automatically repair common interior layout problems before publishing."
+              description="Automatically repair common layout mistakes."
               cta="Coming Soon"
               variant="coming"
             />
             <DirectiveToolCard
               title="AI FORMATTER"
-              description="Turn a raw manuscript into a properly formatted book interior."
+              description="Turn a manuscript into a properly formatted book interior."
               cta="Coming Soon"
               variant="ai"
-            />
-            <DirectiveToolCard
-              title="TRIM SIZE CALCULATOR"
-              description="Calculate the correct trim size, margins, and bleed for your book."
-              cta="Open Tool"
-              ctaHref="/trim-size-comparison"
-              variant="available"
             />
           </div>
           <p className="text-center mt-8">
@@ -267,6 +284,26 @@ export default function Home() {
         </div>
       </section>
 
+      {/* 5b. Testimonials (placeholder for beta) */}
+      <section className="px-6 py-16 bg-arctic/60 border-y border-soft-border">
+        <div className="mx-auto max-w-4xl">
+          <h2 className="font-bebas text-3xl sm:text-4xl tracking-tight text-amazon-navy text-center mb-10">
+            What Authors Are Saying
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="rounded-xl border border-soft-border bg-white p-5 shadow-sm">
+              <p className="text-sm text-soft-muted italic">&ldquo;manu2print saved me hours trying to figure out why KDP rejected my PDF.&rdquo;</p>
+            </div>
+            <div className="rounded-xl border border-soft-border bg-white p-5 shadow-sm">
+              <p className="text-sm text-soft-muted italic">&ldquo;Finally a tool that shows exactly what&apos;s wrong with my book layout.&rdquo;</p>
+            </div>
+            <div className="rounded-xl border border-soft-border bg-white p-5 shadow-sm">
+              <p className="text-sm text-soft-muted italic">&ldquo;Placeholder — real testimonial after beta.&rdquo;</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 6. Trust */}
       <section className="py-8 bg-arctic/80 border-y border-soft-border">
         <p className="text-center text-sm text-soft-muted max-w-xl mx-auto px-4">
@@ -295,18 +332,44 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7. Final CTA */}
+      {/* 7. Competitor comparison (placeholder for beta) */}
       <section className="px-6 py-16 bg-ivory">
+        <div className="mx-auto max-w-4xl overflow-x-auto">
+          <h2 className="font-bebas text-3xl sm:text-4xl tracking-tight text-amazon-navy text-center mb-10">
+            How manu2print Compares
+          </h2>
+          <table className="w-full text-sm border-collapse border border-soft-border bg-white rounded-lg overflow-hidden shadow-sm">
+            <thead>
+              <tr className="bg-arctic">
+                <th className="border border-soft-border px-4 py-3 text-left font-semibold text-amazon-navy">Feature</th>
+                <th className="border border-soft-border px-4 py-3 text-center font-semibold text-brave bg-brave/10">manu2print</th>
+                <th className="border border-soft-border px-4 py-3 text-center font-semibold text-amazon-navy">Vellum</th>
+                <th className="border border-soft-border px-4 py-3 text-center font-semibold text-amazon-navy">Atticus</th>
+                <th className="border border-soft-border px-4 py-3 text-center font-semibold text-amazon-navy">Other tools</th>
+              </tr>
+            </thead>
+            <tbody className="text-soft-muted">
+              <tr><td className="border border-soft-border px-4 py-2">PDF Layout Validation</td><td className="border border-soft-border px-4 py-2 text-center text-brave font-medium">✓</td><td className="border border-soft-border px-4 py-2 text-center">—</td><td className="border border-soft-border px-4 py-2 text-center">—</td><td className="border border-soft-border px-4 py-2 text-center">Varies</td></tr>
+              <tr><td className="border border-soft-border px-4 py-2">KDP Print Readiness Check</td><td className="border border-soft-border px-4 py-2 text-center text-brave font-medium">✓</td><td className="border border-soft-border px-4 py-2 text-center">—</td><td className="border border-soft-border px-4 py-2 text-center">—</td><td className="border border-soft-border px-4 py-2 text-center">Varies</td></tr>
+              <tr><td className="border border-soft-border px-4 py-2">Margin + Gutter Analysis</td><td className="border border-soft-border px-4 py-2 text-center text-brave font-medium">✓</td><td className="border border-soft-border px-4 py-2 text-center">—</td><td className="border border-soft-border px-4 py-2 text-center">—</td><td className="border border-soft-border px-4 py-2 text-center">Varies</td></tr>
+              <tr><td className="border border-soft-border px-4 py-2">Trim Size Detection</td><td className="border border-soft-border px-4 py-2 text-center text-brave font-medium">✓</td><td className="border border-soft-border px-4 py-2 text-center">—</td><td className="border border-soft-border px-4 py-2 text-center">—</td><td className="border border-soft-border px-4 py-2 text-center">Varies</td></tr>
+              <tr><td className="border border-soft-border px-4 py-2">Visual Error Highlighting</td><td className="border border-soft-border px-4 py-2 text-center text-brave font-medium">✓</td><td className="border border-soft-border px-4 py-2 text-center">—</td><td className="border border-soft-border px-4 py-2 text-center">—</td><td className="border border-soft-border px-4 py-2 text-center">Varies</td></tr>
+              <tr><td className="border border-soft-border px-4 py-2">Price</td><td className="border border-soft-border px-4 py-2 text-center text-brave font-medium">$7 / $27</td><td className="border border-soft-border px-4 py-2 text-center">Paid</td><td className="border border-soft-border px-4 py-2 text-center">Subscription</td><td className="border border-soft-border px-4 py-2 text-center">Varies</td></tr>
+            </tbody>
+          </table>
+          <p className="text-center text-xs text-soft-muted mt-4">Placeholder — expand with real data after beta.</p>
+        </div>
+      </section>
+
+      {/* 8. Final CTA */}
+      <section className="px-6 py-16 bg-arctic/80 border-t border-soft-border">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="font-bebas text-3xl sm:text-4xl tracking-tight text-amazon-navy mb-4">
-            Ready to check your book?
+            Ready to See if Your Book Will Pass KDP?
           </h2>
-          <p className="text-soft-muted mb-8">
-            See if your PDF will pass KDP — in minutes.
-          </p>
           <Link
             href="/kdp-pdf-checker"
-            className="inline-block rounded-lg px-8 py-4 text-base font-medium bg-brave text-white hover:opacity-90 transition-opacity shadow-lg shadow-brave/20"
+            className="inline-block rounded-lg px-8 py-4 text-base font-medium bg-brave text-white hover:opacity-90 transition-opacity shadow-lg shadow-brave/20 mt-6"
           >
             Check My PDF
           </Link>
