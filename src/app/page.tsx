@@ -23,21 +23,20 @@ function HeroPdfVisual() {
         <rect x="60" y="118" width="160" height="8" rx="2" fill="#E5E4E1" opacity="0.5" />
         <rect x="60" y="136" width="140" height="8" rx="2" fill="#E5E4E1" opacity="0.5" />
       </svg>
-      {/* Bullseye overlay centered on PDF page (between left/right borders) */}
+      {/* Bullseye overlay — much bigger; button bright brave orange */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="flex flex-col items-center">
-          <div className="relative flex items-center justify-center w-28 h-28 sm:w-32 sm:h-32">
-            <span className="absolute inset-0 rounded-full border-4 border-amazon-navy/30" aria-hidden />
-            <span className="absolute inset-2 rounded-full border-4 border-brave/50" aria-hidden />
-            <span className="absolute inset-4 rounded-full border-4 border-brave bg-brave/90" aria-hidden />
-            <Link
-              href="/kdp-pdf-checker"
-              className="relative z-10 rounded-full bg-brave text-white font-semibold text-sm sm:text-base px-4 py-2.5 shadow-lg hover:bg-brave/90 transition-colors hover:scale-105"
-              title="Hit the Target → Check My PDF"
-            >
-              Check My PDF
-            </Link>
-          </div>
+        <div className="relative flex items-center justify-center w-52 h-52 sm:w-64 sm:h-64 md:w-72 md:h-72">
+          <span className="absolute inset-0 rounded-full border-4 border-amazon-navy/25" aria-hidden />
+          <span className="absolute inset-4 rounded-full border-4 border-brave/40" aria-hidden />
+          <span className="absolute inset-8 rounded-full border-4 border-brave/70" aria-hidden />
+          <span className="absolute inset-12 rounded-full border-4 border-brave bg-brave/20" aria-hidden />
+          <Link
+            href="/kdp-pdf-checker"
+            className="relative z-10 rounded-full bg-brave text-white font-bold text-base sm:text-lg px-6 py-3.5 shadow-xl hover:opacity-95 transition-opacity hover:scale-105"
+            title="Hit the Target → Check My PDF"
+          >
+            Check My PDF
+          </Link>
         </div>
       </div>
     </div>
@@ -74,11 +73,11 @@ function DirectiveToolCard({
   };
   const isComingSoon = variant === "coming" && !ctaHref;
   return (
-    <div className={`rounded-xl p-5 flex flex-col ${variantStyles[variant]}`}>
+    <div className={`rounded-xl p-5 flex flex-col items-center text-center ${variantStyles[variant]}`}>
       <h3 className="font-bebas text-lg sm:text-xl tracking-wide text-amazon-navy mb-2">{title}</h3>
-      <p className="text-sm text-soft-muted flex-1 mb-3">{description}</p>
+      <p className="text-sm text-soft-muted flex-1 mb-3 max-w-xs line-clamp-3">{description}</p>
       {capabilities && capabilities.length > 0 && (
-        <ul className="text-xs text-amazon-navy/80 space-y-1 mb-3 list-disc list-inside">
+        <ul className="text-xs text-amazon-navy/80 space-y-1 mb-3 list-none text-center">
           {capabilities.slice(0, 5).map((c, i) => (
             <li key={i}>{c}</li>
           ))}
@@ -87,12 +86,12 @@ function DirectiveToolCard({
       {ctaHref ? (
         <Link
           href={ctaHref}
-          className={`inline-block text-center rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${buttonStyles[variant]}`}
+          className={`inline-block text-center rounded-lg px-4 py-2.5 text-sm font-medium transition-colors w-full sm:w-auto ${buttonStyles[variant]}`}
         >
           {cta}
         </Link>
       ) : (
-        <span className={`inline-block text-center rounded-lg px-4 py-2.5 text-sm font-medium ${buttonStyles[variant]}`}>
+        <span className={`inline-block text-center rounded-lg px-4 py-2.5 text-sm font-medium w-full sm:w-auto ${buttonStyles[variant]}`}>
           {cta}
         </span>
       )}
@@ -183,48 +182,133 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. Toolkit — 5 directive cards */}
+      {/* 3. Toolkit — PDF tools (live) + DOCX/others (coming soon). Same block format, all text centered. */}
       <section id="tools" className="px-6 py-16 bg-ivory">
         <div className="mx-auto max-w-5xl">
           <h2 className="font-bebas text-3xl sm:text-4xl tracking-tight text-amazon-navy text-center mb-3">
             The toolkit
           </h2>
           <p className="font-sans text-soft-muted text-center mb-10 max-w-xl mx-auto">
-            Everything you need to get your book ready for KDP.
+            PDF tools ready now. DOCX tools coming soon.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <DirectiveToolCard
               title="PRINT READY CHECK"
-              description="Upload your book PDF and instantly see if Amazon KDP will reject it."
-              capabilities={["trim size validation", "margin analysis", "gutter calculation", "layout error detection", "page-level diagnostics"]}
+              description="Upload your book PDF and instantly see if Amazon KDP will reject it. Trim, margins, bleed — 26 rules. Pass/fail report with on-page highlights."
               cta="Analyze My PDF"
               ctaHref="/kdp-pdf-checker"
               variant="primary"
             />
             <DirectiveToolCard
-              title="TRIM SIZE CALCULATOR"
-              description="Calculate the correct trim, margins, and bleed for your book."
+              title="PDF COMPRESSOR"
+              description="Shrink PDFs up to 50 MB in your browser. No account needed. Your file never leaves your device."
               cta="Open Tool"
-              ctaHref="/trim-size-comparison"
+              ctaHref="/pdf-compress"
               variant="available"
             />
             <DirectiveToolCard
+              title="PDF PRINT OPTIMIZER"
+              description="Shrink and print-optimize your PDF for smaller file size. Runs in your browser. Free."
+              cta="Open Tool"
+              ctaHref="/kdp-formatter-pdf"
+              variant="available"
+            />
+            <DirectiveToolCard
+              title="KDP FORMATTER (DOCX)"
+              description="Format your Word manuscript for KDP print. Trim size, bleed, margins. Outputs print-ready PDF."
+              cta="Coming Soon"
+              variant="coming"
+            />
+            <DirectiveToolCard
+              title="7 KEYWORD RESEARCH (DOCX)"
+              description="Get 7 KDP keyword phrases from your DOCX manuscript. AI-powered suggestions for your listing."
+              cta="Coming Soon"
+              variant="coming"
+            />
+            <DirectiveToolCard
+              title="DESCRIPTION GENERATOR (DOCX)"
+              description="Full Amazon listing from your manuscript: book description, author bio, BISAC categories."
+              cta="Coming Soon"
+              variant="coming"
+            />
+            <DirectiveToolCard
               title="COVER CHECK"
-              description="Validate your full-wrap KDP cover for spine width, bleed, and trim alignment."
+              description="Validate your full-wrap KDP cover for spine width, bleed, and trim alignment before you upload."
               cta="Coming Soon"
               variant="coming"
             />
             <DirectiveToolCard
               title="BOOK LAYOUT FIXER"
-              description="Automatically repair common layout mistakes."
+              description="Automatically repair common interior layout mistakes so your PDF passes KDP validation."
               cta="Coming Soon"
               variant="coming"
             />
             <DirectiveToolCard
               title="AI FORMATTER"
-              description="Turn a manuscript into a properly formatted book interior."
+              description="Turn a raw manuscript into a properly formatted book interior. AI-powered structure and layout."
               cta="Coming Soon"
               variant="ai"
+            />
+          </div>
+          <p className="text-center mt-8">
+            <Link href="/platform/kdp" className="text-brave font-medium hover:underline">
+              See all tools →
+            </Link>
+          </p>
+        </div>
+      </section>
+
+      {/* 3b. Free tools — 6 cards, same block format, all text centered */}
+      <section className="px-6 py-16 bg-arctic/60 border-y border-soft-border">
+        <div className="mx-auto max-w-5xl">
+          <h2 className="font-bebas text-3xl sm:text-4xl tracking-tight text-amazon-navy text-center mb-3">
+            Free tools
+          </h2>
+          <p className="font-sans text-soft-muted text-center mb-10 max-w-xl mx-auto">
+            Calculators and helpers — no payment required.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <DirectiveToolCard
+              title="PDF COMPRESSOR"
+              description="Shrink PDFs up to 50 MB in your browser. No account needed. Your file never leaves your device."
+              cta="Open Tool"
+              ctaHref="/pdf-compress"
+              variant="available"
+            />
+            <DirectiveToolCard
+              title="KDP ROYALTY CALCULATOR"
+              description="Earnings by page count, trim size, and list price. See royalty and print cost before you publish."
+              cta="Open Tool"
+              ctaHref="/royalty-calculator"
+              variant="available"
+            />
+            <DirectiveToolCard
+              title="PAGE COUNT ESTIMATOR"
+              description="Estimate interior page count from your word count and trim size. Plan your book length."
+              cta="Open Tool"
+              ctaHref="/page-count-estimator"
+              variant="available"
+            />
+            <DirectiveToolCard
+              title="TRIM SIZE COMPARISON"
+              description="Compare print cost and royalty across trim sizes. Pick the best size for your book."
+              cta="Open Tool"
+              ctaHref="/trim-size-comparison"
+              variant="available"
+            />
+            <DirectiveToolCard
+              title="SPINE WIDTH CALCULATOR"
+              description="Spine width and full-wrap cover dimensions for KDP paperbacks. Use with cover design tools."
+              cta="Open Tool"
+              ctaHref="/spine-calculator"
+              variant="available"
+            />
+            <DirectiveToolCard
+              title="FULL-WRAP COVER CALCULATOR"
+              description="Cover canvas size in inches and 300 DPI pixels for Canva and other design tools."
+              cta="Open Tool"
+              ctaHref="/cover-calculator"
+              variant="available"
             />
           </div>
           <p className="text-center mt-8">
