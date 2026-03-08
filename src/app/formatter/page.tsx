@@ -80,18 +80,18 @@ export default function FormatterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-brand-bg">
+    <div className="min-h-screen bg-ivory">
       {/* Sticky nav */}
-      <nav className="sticky top-0 z-20 border-b border-white/5 bg-brand-bg/80 backdrop-blur-sm">
+      <nav className="sticky top-0 z-20 border-b border-soft-border bg-ivory/80 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 bg-brand-gold">
+            <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 bg-brave">
               <svg className="w-4 h-4" fill="none" stroke="#0F0D0B" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
               </svg>
             </div>
             <span
-              className="text-lg font-bold tracking-tight text-brand-cream"
+              className="text-lg font-bold tracking-tight text-amazon-navy"
               style={{
                 textShadow: "0 0 24px rgba(250,247,242,0.25), 0 0 48px rgba(245,166,35,0.12)",
               }}
@@ -101,10 +101,10 @@ export default function FormatterPage() {
             </span>
           </Link>
           <div className="flex items-center gap-6">
-            <Link href="/formatter" className="text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors">
+            <Link href="/formatter" className="text-sm font-medium text-amazon-navy hover:text-brave transition-colors">
               Tools
             </Link>
-            <Link href="/founders" className="text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors">
+            <Link href="/founders" className="text-sm font-medium text-amazon-navy hover:text-brave transition-colors">
               Founders
             </Link>
           </div>
@@ -114,10 +114,10 @@ export default function FormatterPage() {
       {/* Hero */}
       <section className="px-6 pt-16 pb-12">
         <div className="mx-auto max-w-3xl text-center">
-          <h1 className="font-bebas text-4xl sm:text-5xl md:text-6xl font-normal tracking-wide text-brand-cream mb-4">
-            Professional Book Formatting — <span className="text-brand-gold">Done in Minutes</span>
+          <h1 className="font-bebas text-4xl sm:text-5xl md:text-6xl font-normal tracking-wide text-amazon-navy mb-4">
+            Professional Book Formatting — <span className="text-brave">Done in Minutes</span>
           </h1>
-          <p className="font-sans text-lg sm:text-xl leading-relaxed text-brand-muted">
+          <p className="font-sans text-lg sm:text-xl leading-relaxed text-soft-muted">
             Format for KDP and Kindle. FREE calculators and compressors; paid formatter, keywords, description, and Kindle EPUB tools.
           </p>
         </div>
@@ -134,20 +134,20 @@ export default function FormatterPage() {
               <Link
                 key={tool.href}
                 href={tool.href}
-                className="group relative rounded-xl border-l-4 border-brand-gold p-6 flex flex-col bg-brand-card border border-brand-cardHover hover:shadow-gold-glow hover:border-brand-cardHover transition-all overflow-hidden"
+                className="group relative rounded-xl border-l-4 border-brave p-6 flex flex-col bg-white border border-soft-border hover:shadow-lg hover:shadow-brave/10 hover:border-soft-border transition-all overflow-hidden"
               >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-gold/10 rounded-full blur-3xl pointer-events-none" aria-hidden />
+                <div className="absolute top-0 right-0 w-32 h-32 bg-brave/10 rounded-full blur-3xl pointer-events-none" aria-hidden />
                 <div className="relative flex flex-col items-center text-center">
-                  <h3 className="font-bebas text-xl tracking-wide text-brand-cream mb-1">
+                  <h3 className="font-bebas text-xl tracking-wide text-amazon-navy mb-1">
                     {tool.title}
                   </h3>
                   <p className="font-bebas text-2xl font-bold tracking-widest uppercase mb-2 text-[#22c55e]">
                     FREE
                   </p>
-                  <p className="font-sans text-sm flex-1 mb-4 text-brand-muted">
+                  <p className="font-sans text-sm flex-1 mb-4 text-soft-muted">
                     {tool.description}
                   </p>
-                  <span className="inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold w-fit bg-brand-gold text-brand-bg group-hover:opacity-90 transition-opacity">
+                  <span className="inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold w-fit bg-brave text-amazon-navy group-hover:opacity-90 transition-opacity">
                     Launch
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -168,19 +168,19 @@ export default function FormatterPage() {
               tool.comingSoon ? (
                 <div
                   key={tool.title}
-                  className="group relative rounded-xl border-l-4 border-brand-gold/60 p-5 flex flex-col bg-brand-card border border-brand-cardHover opacity-85 overflow-hidden"
+                  className="group relative rounded-xl border-l-4 border-brave/60 p-5 flex flex-col bg-white border border-soft-border opacity-85 overflow-hidden"
                 >
-                  <span className="rounded-full bg-brand-locked border border-brand-cardHover px-2 py-0.5 text-xs font-medium text-brand-muted w-fit mb-2 self-center">
+                  <span className="rounded-full bg-soft-border border border-soft-border px-2 py-0.5 text-xs font-medium text-soft-muted w-fit mb-2 self-center">
                     Coming soon
                   </span>
                   <div className="relative flex flex-col items-center text-center">
-                    <h3 className="font-bebas text-xl tracking-wide text-brand-cream mb-2">
+                    <h3 className="font-bebas text-xl tracking-wide text-amazon-navy mb-2">
                       {tool.title}
                     </h3>
-                    <p className="font-sans text-sm flex-1 mb-2 text-brand-muted">
+                    <p className="font-sans text-sm flex-1 mb-2 text-soft-muted">
                       {tool.description}
                     </p>
-                    <p className="font-sans text-xs text-brand-muted">
+                    <p className="font-sans text-xs text-soft-muted">
                       {tool.pricing}
                     </p>
                   </div>
@@ -189,20 +189,20 @@ export default function FormatterPage() {
                 <Link
                   key={tool.href}
                   href={tool.href}
-                  className="group relative rounded-xl border-l-4 border-brand-gold p-5 flex flex-col bg-brand-card border border-brand-cardHover hover:shadow-gold-glow hover:border-brand-cardHover transition-all overflow-hidden"
+                  className="group relative rounded-xl border-l-4 border-brave p-5 flex flex-col bg-white border border-soft-border hover:shadow-lg hover:shadow-brave/10 hover:border-soft-border transition-all overflow-hidden"
                 >
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-brand-gold/10 rounded-full blur-3xl pointer-events-none" aria-hidden />
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-brave/10 rounded-full blur-3xl pointer-events-none" aria-hidden />
                   <div className="relative flex flex-col items-center text-center">
-                    <h3 className="font-bebas text-xl tracking-wide text-brand-cream mb-2">
+                    <h3 className="font-bebas text-xl tracking-wide text-amazon-navy mb-2">
                       {tool.title}
                     </h3>
-                    <p className="font-sans text-sm flex-1 mb-2 text-brand-muted">
+                    <p className="font-sans text-sm flex-1 mb-2 text-soft-muted">
                       {tool.description}
                     </p>
                     <p className="font-sans text-xs text-white mb-4">
                       {tool.pricing}
                     </p>
-                    <span className="inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold w-fit bg-brand-gold text-brand-bg group-hover:opacity-90 transition-opacity">
+                    <span className="inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold w-fit bg-brave text-amazon-navy group-hover:opacity-90 transition-opacity">
                       Launch
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -219,7 +219,7 @@ export default function FormatterPage() {
       {/* Mini tools — calculator, estimators, placeholders */}
       <section className="px-6 pb-14">
         <div className="mx-auto max-w-4xl">
-          <h2 className="font-bebas text-xl tracking-wide text-brand-cream text-center mb-4">
+          <h2 className="font-bebas text-xl tracking-wide text-amazon-navy text-center mb-4">
             Mini tools
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -228,16 +228,16 @@ export default function FormatterPage() {
                 <Link
                   key={tool.href}
                   href={tool.href}
-                  className="group relative rounded-xl border-l-4 border-brand-gold p-5 flex flex-col bg-brand-card border border-brand-cardHover hover:shadow-gold-glow hover:border-brand-cardHover transition-all overflow-hidden"
+                  className="group relative rounded-xl border-l-4 border-brave p-5 flex flex-col bg-white border border-soft-border hover:shadow-lg hover:shadow-brave/10 hover:border-soft-border transition-all overflow-hidden"
                 >
                   <div className="relative flex flex-col items-center text-center">
-                    <h3 className="font-bebas text-xl tracking-wide text-brand-cream mb-2">
+                    <h3 className="font-bebas text-xl tracking-wide text-amazon-navy mb-2">
                       {tool.title}
                     </h3>
-                    <p className="font-sans text-sm flex-1 mb-4 text-brand-muted">
+                    <p className="font-sans text-sm flex-1 mb-4 text-soft-muted">
                       {tool.description}
                     </p>
-                    <span className="inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold w-fit bg-brand-gold text-brand-bg group-hover:opacity-90 transition-opacity">
+                    <span className="inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold w-fit bg-brave text-amazon-navy group-hover:opacity-90 transition-opacity">
                       Launch
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -248,16 +248,16 @@ export default function FormatterPage() {
               ) : (
                 <div
                   key={tool.title}
-                  className="group relative rounded-xl border-l-4 border-brand-gold/60 p-5 flex flex-col bg-brand-card border border-brand-cardHover opacity-85 overflow-hidden"
+                  className="group relative rounded-xl border-l-4 border-brave/60 p-5 flex flex-col bg-white border border-soft-border opacity-85 overflow-hidden"
                 >
-                  <span className="rounded-full bg-brand-locked border border-brand-cardHover px-2 py-0.5 text-xs font-medium text-brand-muted w-fit mb-2 self-center">
+                  <span className="rounded-full bg-soft-border border border-soft-border px-2 py-0.5 text-xs font-medium text-soft-muted w-fit mb-2 self-center">
                     Coming soon
                   </span>
                   <div className="relative flex flex-col items-center text-center">
-                    <h3 className="font-bebas text-xl tracking-wide text-brand-cream mb-2">
+                    <h3 className="font-bebas text-xl tracking-wide text-amazon-navy mb-2">
                       {tool.title}
                     </h3>
-                    <p className="font-sans text-sm flex-1 text-brand-muted">
+                    <p className="font-sans text-sm flex-1 text-soft-muted">
                       {tool.description}
                     </p>
                   </div>
@@ -273,11 +273,11 @@ export default function FormatterPage() {
       {/* Email capture — formatting tips */}
       <section className="px-6 pb-14">
         <div className="mx-auto max-w-xl">
-          <h2 className="font-bebas text-xl tracking-wide text-brand-cream mb-4">
+          <h2 className="font-bebas text-xl tracking-wide text-amazon-navy mb-4">
             Get formatting tips and tool updates
           </h2>
           {leadsStatus === "success" ? (
-            <p className="font-sans text-sm text-brand-gold">
+            <p className="font-sans text-sm text-brave">
               Thanks{leadsSuccessName ? ` ${leadsSuccessName}` : ""}! You&apos;re on the list.
             </p>
           ) : (
@@ -288,7 +288,7 @@ export default function FormatterPage() {
                 value={leadsName}
                 onChange={(e) => setLeadsName(e.target.value)}
                 required
-                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-brand-card font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold focus:border-transparent"
+                className="w-full rounded-lg border border-soft-border px-4 py-2.5 bg-white font-sans text-sm text-amazon-navy focus:outline-none focus:ring-2 focus:ring-brave focus:border-transparent"
               />
               <div className="flex flex-col sm:flex-row gap-2">
                 <input
@@ -297,12 +297,12 @@ export default function FormatterPage() {
                   value={leadsEmail}
                   onChange={(e) => setLeadsEmail(e.target.value)}
                   required
-                  className="flex-1 rounded-lg border border-brand-cardHover px-4 py-2.5 bg-brand-card font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold focus:border-transparent"
+                  className="flex-1 rounded-lg border border-soft-border px-4 py-2.5 bg-white font-sans text-sm text-amazon-navy focus:outline-none focus:ring-2 focus:ring-brave focus:border-transparent"
                 />
                 <button
                   type="submit"
                   disabled={leadsStatus === "loading"}
-                  className="rounded-lg px-5 py-2.5 text-sm font-semibold bg-brand-gold text-brand-bg hover:opacity-90 disabled:opacity-60 transition-opacity"
+                  className="rounded-lg px-5 py-2.5 text-sm font-semibold bg-brave text-amazon-navy hover:opacity-90 disabled:opacity-60 transition-opacity"
                 >
                   {leadsStatus === "loading" ? "Submitting…" : "Submit"}
                 </button>
@@ -316,19 +316,19 @@ export default function FormatterPage() {
       </section>
 
       {/* Founder CTA — full width, gold gradient borders */}
-      <section className="relative border-t-2 border-b-2 border-brand-gold/60 bg-brand-card">
+      <section className="relative border-t-2 border-b-2 border-brave/60 bg-white">
         <div className="mx-auto max-w-2xl px-6 py-14 text-center">
-          <h2 className="font-bebas text-3xl sm:text-4xl tracking-wide text-brand-cream mb-3">
+          <h2 className="font-bebas text-3xl sm:text-4xl tracking-wide text-amazon-navy mb-3">
             This isn&apos;t just a tool. It&apos;s a publishing business.
           </h2>
-          <p className="font-sans text-sm leading-relaxed text-brand-muted mb-6">
+          <p className="font-sans text-sm leading-relaxed text-soft-muted mb-6">
             manu2print is building the publishing stack every indie author needs — whatever platform they publish on. Founders get in free forever and earn from every author they refer.
             <br />
-            <span className="font-bebas text-2xl tracking-widest text-brand-gold uppercase">LIMITED INVITATIONS.</span>
+            <span className="font-bebas text-2xl tracking-widest text-brave uppercase">LIMITED INVITATIONS.</span>
           </p>
           <Link
             href="/founders"
-            className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold bg-brand-gold text-brand-bg hover:opacity-90 transition-opacity"
+            className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold bg-brave text-amazon-navy hover:opacity-90 transition-opacity"
           >
             Apply for Founder Access
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

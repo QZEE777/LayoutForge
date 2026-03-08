@@ -133,7 +133,7 @@ export default function PdfCompressPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex flex-col">
-      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-sm">
+      <header className="border-b border-soft-border bg-white/95 backdrop-blur-sm">
         <div className="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-md bg-red-600 flex items-center justify-center">

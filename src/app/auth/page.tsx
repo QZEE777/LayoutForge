@@ -5,11 +5,6 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabaseClient";
 
-const GOLD = "#F5A623";
-const WARM_WHITE = "#FAF7F2";
-const CARD_BG = "#1A1612";
-const CARD_BORDER = "#2A2420";
-
 export default function AuthPage() {
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
@@ -74,50 +69,34 @@ export default function AuthPage() {
   };
 
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center px-6"
-      style={{ backgroundColor: "#0F0D0B" }}
-    >
-      <div
-        className="w-full max-w-md rounded-2xl border-t-4 shadow-2xl p-8"
-        style={{
-          backgroundColor: CARD_BG,
-          borderColor: CARD_BORDER,
-          borderTopColor: GOLD,
-        }}
-      >
+    <div className="min-h-screen flex flex-col items-center justify-center px-6 bg-ivory">
+      <div className="w-full max-w-md rounded-2xl border-t-4 border-t-brave border border-soft-border bg-white shadow-xl p-8">
         <Link
           href="/"
           className="flex items-center gap-2.5 mb-8 justify-center"
         >
-          <div
-            className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-            style={{ backgroundColor: GOLD }}
-          >
-            <svg className="w-5 h-5" fill="none" stroke="#0F0D0B" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-brave">
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
               <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
               <path d="M8 7h8" />
               <path d="M8 11h8" />
             </svg>
           </div>
-          <span className="text-xl font-bold tracking-tight" style={{ color: WARM_WHITE }}>
+          <span className="text-xl font-bold tracking-tight text-amazon-navy">
             manu2print
           </span>
         </Link>
 
-        <h1 className="text-2xl font-bold text-center mb-1" style={{ color: WARM_WHITE }}>
+        <h1 className="text-2xl font-bold text-center mb-1 text-amazon-navy">
           Sign in
         </h1>
-        <p className="text-center text-sm mb-6" style={{ color: "#a8a29e" }}>
+        <p className="text-center text-sm mb-6 text-soft-muted">
           Get access to KDP formatting, keywords, and more.
         </p>
 
         {success ? (
-          <p
-            className="text-center py-4 rounded-lg border mb-4"
-            style={{ color: "rgba(245,166,35,0.95)", borderColor: "rgba(245,166,35,0.4)", backgroundColor: "rgba(245,166,35,0.08)" }}
-          >
+          <p className="text-center py-4 rounded-lg border border-brave/40 bg-brave/10 text-brave mb-4">
             Check your email for a magic link.
           </p>
         ) : (
@@ -128,33 +107,30 @@ export default function AuthPage() {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-lg border px-4 py-3 bg-[#0F0D0B] text-sm focus:outline-none focus:ring-2 focus:ring-[#F5A623]/50"
-                style={{ borderColor: CARD_BORDER, color: WARM_WHITE }}
+                className="w-full rounded-lg border border-soft-border px-4 py-3 bg-ivory text-amazon-navy text-sm focus:outline-none focus:ring-2 focus:ring-brave/50"
                 disabled={loading}
                 autoComplete="email"
               />
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-lg px-4 py-3 text-sm font-semibold transition-opacity hover:opacity-90 disabled:opacity-60"
-                style={{ backgroundColor: GOLD, color: "#0F0D0B" }}
+                className="w-full rounded-lg px-4 py-3 text-sm font-semibold bg-brave text-white transition-opacity hover:opacity-90 disabled:opacity-60"
               >
                 {loading ? "Sending…" : "Send Magic Link"}
               </button>
             </form>
 
             <div className="flex items-center gap-4 my-6">
-              <div className="flex-1 h-px" style={{ backgroundColor: CARD_BORDER }} />
-              <span className="text-xs uppercase tracking-wider" style={{ color: "#78716c" }}>or</span>
-              <div className="flex-1 h-px" style={{ backgroundColor: CARD_BORDER }} />
+              <div className="flex-1 h-px bg-soft-border" />
+              <span className="text-xs uppercase tracking-wider text-soft-muted">or</span>
+              <div className="flex-1 h-px bg-soft-border" />
             </div>
 
             <button
               type="button"
               onClick={handleGoogle}
               disabled={loading}
-              className="w-full rounded-lg border px-4 py-3 text-sm font-medium transition-colors hover:bg-white/5 disabled:opacity-60 flex items-center justify-center gap-2"
-              style={{ borderColor: CARD_BORDER, color: WARM_WHITE }}
+              className="w-full rounded-lg border border-soft-border px-4 py-3 text-sm font-medium text-amazon-navy hover:bg-arctic transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -168,11 +144,11 @@ export default function AuthPage() {
         )}
 
         {error && (
-          <p className="mt-4 text-sm text-red-400 text-center">{error}</p>
+          <p className="mt-4 text-sm text-red-500 text-center">{error}</p>
         )}
 
         <p className="mt-6 text-center">
-          <Link href="/" className="text-sm hover:underline" style={{ color: "#a8a29e" }}>
+          <Link href="/" className="text-sm text-soft-muted hover:text-brave transition-colors">
             ← Back to home
           </Link>
         </p>

@@ -36,7 +36,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${bebasNeue.variable} ${playfair.variable} ${inter.variable}`}>
-      <body className="antialiased bg-slate-50 text-slate-900 font-sans">
+      <body className="antialiased bg-ivory text-amazon-navy font-sans">
         <ToolPagesBanner />
         {children}
       </body>

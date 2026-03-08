@@ -69,25 +69,25 @@ export default function CoverCalculatorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-brand-bg">
-      <nav className="sticky top-0 z-20 border-b border-white/5 bg-brand-bg/80 backdrop-blur-sm">
+    <div className="min-h-screen bg-ivory">
+      <nav className="sticky top-0 z-20 border-b border-white/5 bg-ivory/80 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 bg-brand-gold">
+            <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 bg-brave">
               <svg className="w-4 h-4" fill="none" stroke="#0F0D0B" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
               </svg>
             </div>
-            <span className="text-lg font-bold tracking-tight text-brand-cream">
+            <span className="text-lg font-bold tracking-tight text-amazon-navy">
               <span className="font-serif">manu</span>
               <span className="font-sans">2print</span>
             </span>
           </Link>
           <div className="flex items-center gap-6">
-            <Link href="/platform/kdp" className="text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors">
+            <Link href="/platform/kdp" className="text-sm font-medium text-amazon-navy hover:text-brave transition-colors">
               Tools
             </Link>
-            <Link href="/platform/kdp" className="text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors">
+            <Link href="/platform/kdp" className="text-sm font-medium text-amazon-navy hover:text-brave transition-colors">
               Amazon KDP
             </Link>
           </div>
@@ -95,33 +95,33 @@ export default function CoverCalculatorPage() {
       </nav>
 
       <main className="mx-auto max-w-2xl px-6 py-12">
-        <h1 className="font-bebas text-3xl sm:text-4xl tracking-wide text-brand-cream mb-2">
+        <h1 className="font-bebas text-3xl sm:text-4xl tracking-wide text-amazon-navy mb-2">
           Full-wrap cover calculator
         </h1>
         <p className="font-sans text-brand-muted mb-8">
           Get the exact canvas size for your KDP cover (front + spine + back). Use the pixel dimensions in Canva, Photoshop, or other design tools at 300 DPI.
         </p>
 
-        <div className="rounded-xl border border-brand-cardHover bg-brand-card p-6 mb-8">
+        <div className="rounded-xl border border-whiteHover bg-white p-6 mb-8">
           <div className="space-y-5">
             <div>
-              <label className="block font-sans text-sm font-medium text-brand-cream mb-2">Interior page count</label>
+              <label className="block font-sans text-sm font-medium text-amazon-navy mb-2">Interior page count</label>
               <input
                 type="number"
                 min={MIN_PAGES}
                 max={MAX_PAGES}
                 value={pageCount}
                 onChange={(e) => setPageCount(e.target.valueAsNumber ?? MIN_PAGES)}
-                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-brand-bg font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold"
+                className="w-full rounded-lg border border-whiteHover px-4 py-2.5 bg-ivory font-sans text-sm text-amazon-navy focus:outline-none focus:ring-2 focus:ring-brave"
               />
               <p className="font-sans text-xs text-brand-muted mt-1">KDP range: {MIN_PAGES}–{MAX_PAGES} pages.</p>
             </div>
             <div>
-              <label className="block font-sans text-sm font-medium text-brand-cream mb-2">Paper type</label>
+              <label className="block font-sans text-sm font-medium text-amazon-navy mb-2">Paper type</label>
               <select
                 value={paperType}
                 onChange={(e) => setPaperType(e.target.value as PaperType)}
-                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-brand-bg font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold"
+                className="w-full rounded-lg border border-whiteHover px-4 py-2.5 bg-ivory font-sans text-sm text-amazon-navy focus:outline-none focus:ring-2 focus:ring-brave"
               >
                 {PAPER_OPTIONS.map((o) => (
                   <option key={o.id} value={o.id}>{o.label}</option>
@@ -129,11 +129,11 @@ export default function CoverCalculatorPage() {
               </select>
             </div>
             <div>
-              <label className="block font-sans text-sm font-medium text-brand-cream mb-2">Trim size</label>
+              <label className="block font-sans text-sm font-medium text-amazon-navy mb-2">Trim size</label>
               <select
                 value={trimId}
                 onChange={(e) => setTrimId(e.target.value as TrimSizeId)}
-                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-brand-bg font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold"
+                className="w-full rounded-lg border border-whiteHover px-4 py-2.5 bg-ivory font-sans text-sm text-amazon-navy focus:outline-none focus:ring-2 focus:ring-brave"
               >
                 {KDP_TRIM_SIZES.map((t) => (
                   <option key={t.id} value={t.id}>{t.name}</option>
@@ -143,14 +143,14 @@ export default function CoverCalculatorPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border-l-4 border-brand-gold border border-brand-cardHover bg-brand-card p-6">
-          <h2 className="font-bebas text-xl tracking-wide text-brand-cream mb-4">Your cover canvas size</h2>
+        <div className="rounded-xl border-l-4 border-brave border border-whiteHover bg-white p-6">
+          <h2 className="font-bebas text-xl tracking-wide text-amazon-navy mb-4">Your cover canvas size</h2>
           <dl className="font-sans text-sm space-y-4">
             {pixels && fullWrap && (
               <>
                 <div>
                   <dt className="text-brand-muted">For Canva / design tools (300 DPI)</dt>
-                  <dd className="text-brand-cream font-semibold text-lg mt-0.5">
+                  <dd className="text-amazon-navy font-semibold text-lg mt-0.5">
                     {pixels.width} × {pixels.height} px
                   </dd>
                   <dd className="text-brand-muted text-xs mt-1">
@@ -159,13 +159,13 @@ export default function CoverCalculatorPage() {
                 </div>
                 <div>
                   <dt className="text-brand-muted">Exact size (inches, with 0.125&quot; bleed)</dt>
-                  <dd className="text-brand-cream font-semibold">
+                  <dd className="text-amazon-navy font-semibold">
                     {fullWrap.widthInches.toFixed(3)} × {fullWrap.heightInches.toFixed(3)} in
                   </dd>
                 </div>
                 <div>
                   <dt className="text-brand-muted">Spine width</dt>
-                  <dd className="text-brand-cream font-semibold">
+                  <dd className="text-amazon-navy font-semibold">
                     {spineInches.toFixed(3)} in
                   </dd>
                 </div>
@@ -174,7 +174,7 @@ export default function CoverCalculatorPage() {
                     type="button"
                     onClick={handleDownloadTemplate}
                     disabled={downloading}
-                    className="inline-flex items-center gap-2 rounded-lg bg-brand-gold px-4 py-2.5 text-sm font-semibold text-brand-bg hover:opacity-90 disabled:opacity-50"
+                    className="inline-flex items-center gap-2 rounded-lg bg-brave px-4 py-2.5 text-sm font-semibold text-brand-bg hover:opacity-90 disabled:opacity-50"
                   >
                     {downloading ? "Generating…" : "Download template PDF"}
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -195,7 +195,7 @@ export default function CoverCalculatorPage() {
         </p>
 
         <p className="mt-4 font-sans text-sm text-brand-muted">
-          <Link href="/interior-template" className="text-brand-gold hover:underline">Interior margin template</Link> for Canva (trim + safe zone). <Link href="/spine-calculator" className="text-brand-gold hover:underline">Spine width calculator</Link> for spine-only and full-wrap in mm.
+          <Link href="/interior-template" className="text-brave hover:underline">Interior margin template</Link> for Canva (trim + safe zone). <Link href="/spine-calculator" className="text-brave hover:underline">Spine width calculator</Link> for spine-only and full-wrap in mm.
         </p>
 
         <FreeToolCta

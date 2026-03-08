@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-const GOLD = "#F5A623";
+const BRAVE = "#FB542B";
 const FREE_LIMIT = 10;
 
 type Usage = {
@@ -41,12 +41,7 @@ export default function UsageBanner() {
 
   return (
     <div
-      className="border-b px-4 py-2 text-sm"
-      style={{
-        borderColor: "#2A2420",
-        backgroundColor: "rgba(26,22,18,0.95)",
-        color: "#FAF7F2",
-      }}
+      className="border-b border-brave/30 px-4 py-2 text-sm bg-amazon-navy text-white"
     >
       <div className="mx-auto max-w-6xl flex flex-wrap items-center justify-between gap-2">
         {usage.is_founder ? (
@@ -60,23 +55,21 @@ export default function UsageBanner() {
             <span className="text-emerald-400">FREE limit reached.</span>
             <Link
               href="/dashboard"
-              className="rounded px-3 py-1 font-medium transition-opacity hover:opacity-90"
-              style={{ backgroundColor: GOLD, color: "#0F0D0B" }}
+              className="rounded px-3 py-1 font-medium bg-brave text-white hover:opacity-90 transition-opacity"
             >
               Upgrade
             </Link>
           </>
         ) : (
           <>
-            <span style={{ color: "#a8a29e" }}>
+            <span className="text-white/80">
               {(usage.uses_remaining ?? FREE_LIMIT - usage.usage_count)} of {FREE_LIMIT} free uses remaining
             </span>
-            <div className="w-32 h-1.5 rounded-full bg-[#2A2420] overflow-hidden">
+            <div className="w-32 h-1.5 rounded-full bg-white/20 overflow-hidden">
               <div
-                className="h-full rounded-full transition-all"
+                className="h-full rounded-full transition-all bg-brave"
                 style={{
                   width: `${Math.min(100, (usage.usage_count / FREE_LIMIT) * 100)}%`,
-                  backgroundColor: GOLD,
                 }}
               />
             </div>

@@ -6,10 +6,6 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabaseClient";
 import type { User } from "@supabase/supabase-js";
 
-const GOLD = "#F5A623";
-const WARM_WHITE = "#FAF7F2";
-const CARD_BG = "#1A1612";
-const CARD_BORDER = "#2A2420";
 
 type ProfileRow = { id: string; email: string; first_name: string | null };
 
@@ -70,33 +66,30 @@ export default function ProfilePage() {
     return (
       <div
         className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: "#0F0D0B" }}
+        className="min-h-screen flex items-center justify-center bg-ivory"
       >
-        <p style={{ color: "#a8a29e" }}>Loading…</p>
+        <p className="text-soft-muted">Loading…</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#0F0D0B" }}>
-      <header
-        className="border-b sticky top-0 z-10 backdrop-blur-sm"
-        style={{ borderColor: CARD_BORDER, backgroundColor: "rgba(15,13,11,0.9)" }}
-      >
+    <div className="min-h-screen bg-ivory">
+      <header className="border-b border-soft-border sticky top-0 z-10 bg-white/95 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <div
               className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ backgroundColor: GOLD }}
+              className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-brave"
             >
-              <svg className="w-4 h-4" fill="none" stroke="#0F0D0B" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
                 <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
                 <path d="M8 7h8" />
                 <path d="M8 11h8" />
               </svg>
             </div>
-            <span className="text-lg font-bold tracking-tight" style={{ color: WARM_WHITE }}>
+            <span className="text-lg font-bold tracking-tight" className="text-lg font-bold tracking-tight text-amazon-navy">
               manu2print
             </span>
           </Link>
@@ -104,11 +97,11 @@ export default function ProfilePage() {
             <Link
               href="/dashboard"
               className="rounded-lg px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90"
-              style={{ color: "#a8a29e" }}
+              className="rounded-lg px-4 py-2 text-sm font-medium text-soft-muted hover:text-brave transition-colors"
             >
               Dashboard
             </Link>
-            <span className="rounded-lg px-4 py-2 text-sm font-medium" style={{ color: WARM_WHITE }}>
+            <span className="rounded-lg px-4 py-2 text-sm font-medium text-amazon-navy">
               Profile
             </span>
             <button
@@ -119,7 +112,7 @@ export default function ProfilePage() {
                 router.replace("/auth");
               }}
               className="rounded-lg px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90"
-              style={{ color: "#a8a29e" }}
+              className="rounded-lg px-4 py-2 text-sm font-medium text-soft-muted hover:text-brave transition-colors"
             >
               Log out
             </button>
@@ -129,21 +122,20 @@ export default function ProfilePage() {
 
       <main className="mx-auto max-w-6xl px-6 py-12">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-1" style={{ color: WARM_WHITE }}>
+          <h1 className="font-bebas text-3xl tracking-wide text-amazon-navy mb-1">
             Profile
           </h1>
-          <p className="text-sm" style={{ color: "#a8a29e" }}>
+          <p className="text-sm text-soft-muted">
             We use your first name in emails so they feel personal.
           </p>
         </div>
 
         <div
-          className="rounded-xl border p-6 max-w-md"
-          style={{ backgroundColor: CARD_BG, borderColor: CARD_BORDER }}
+className="rounded-xl border border-soft-border bg-white p-6 max-w-md"
         >
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label htmlFor="first_name" className="block text-sm font-medium mb-1.5" style={{ color: "#a8a29e" }}>
+              <label htmlFor="first_name" className="block text-sm font-medium mb-1.5 text-soft-muted">
                 First name
               </label>
               <input
@@ -153,25 +145,23 @@ export default function ProfilePage() {
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 placeholder="e.g. Alex"
-                className="w-full rounded-lg border px-4 py-2.5 text-sm bg-transparent focus:outline-none focus:ring-2 focus:ring-[#F5A623]"
-                style={{ borderColor: CARD_BORDER, color: WARM_WHITE }}
+                className="w-full rounded-lg border border-soft-border px-4 py-2.5 text-sm bg-ivory text-amazon-navy focus:outline-none focus:ring-2 focus:ring-brave"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: "#a8a29e" }}>
+              <label className="block text-sm font-medium mb-1.5 text-soft-muted">
                 Email
               </label>
-              <p className="text-sm truncate" style={{ color: WARM_WHITE }}>
+              <p className="text-sm truncate text-amazon-navy">
                 {profile?.email ?? user.email ?? "—"}
               </p>
-              <p className="text-xs mt-1" style={{ color: "#78716c" }}>
+              <p className="text-xs mt-1 text-soft-muted">
                 Email is set when you sign in and can’t be changed here.
               </p>
             </div>
             {message && (
               <p
-                className="text-sm"
-                style={{ color: message.type === "ok" ? "#22c55e" : "#ef4444" }}
+                className={`text-sm ${message.type === "ok" ? "text-freeGreen" : "text-red-500"}`}
               >
                 {message.text}
               </p>
@@ -179,8 +169,7 @@ export default function ProfilePage() {
             <button
               type="submit"
               disabled={saving}
-              className="rounded-lg px-5 py-2.5 text-sm font-medium disabled:opacity-60 transition-opacity"
-              style={{ backgroundColor: GOLD, color: "#0F0D0B" }}
+              className="rounded-lg px-5 py-2.5 text-sm font-medium bg-brave text-white hover:opacity-90 disabled:opacity-60 transition-opacity"
             >
               {saving ? "Saving…" : "Save"}
             </button>
