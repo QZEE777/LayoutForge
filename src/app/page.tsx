@@ -23,7 +23,7 @@ function HeroPdfVisual() {
         <rect x="60" y="118" width="160" height="8" rx="2" fill="#E5E4E1" opacity="0.5" />
         <rect x="60" y="136" width="140" height="8" rx="2" fill="#E5E4E1" opacity="0.5" />
       </svg>
-      {/* Bullseye overlay — much bigger; button bright brave orange */}
+      {/* Bullseye overlay — glossy bright orange round button centered */}
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="relative flex items-center justify-center w-52 h-52 sm:w-64 sm:h-64 md:w-72 md:h-72">
           <span className="absolute inset-0 rounded-full border-4 border-amazon-navy/25" aria-hidden />
@@ -32,7 +32,8 @@ function HeroPdfVisual() {
           <span className="absolute inset-12 rounded-full border-4 border-brave bg-brave/20" aria-hidden />
           <Link
             href="/kdp-pdf-checker"
-            className="relative z-10 rounded-full bg-brave text-white font-bold text-base sm:text-lg px-6 py-3.5 shadow-xl hover:opacity-95 transition-opacity hover:scale-105"
+            className="relative z-10 flex items-center justify-center rounded-full w-28 h-28 sm:w-32 sm:h-32 font-bold text-sm sm:text-base text-white shadow-[0_0_0_3px_rgba(251,84,43,0.4),0_4px_14px_rgba(251,84,43,0.5),inset_0_1px_0_rgba(255,255,255,0.25)] hover:scale-105 transition-transform"
+            style={{ background: "linear-gradient(180deg, #FF6B4A 0%, #FB542B 50%, #E84A1C 100%)" }}
             title="Hit the Target → Check My PDF"
           >
             Check My PDF
