@@ -13,16 +13,16 @@ const FREE_GREEN = "#22c55e";
 /** Small tool card. Shows green FREE badge when tool.free. */
 function CompactToolCard({ tool, amazon }: { tool: Tool; amazon: boolean }) {
   const cardClass = amazon
-    ? "rounded-lg border-l-2 border-amazon-orange border border-amazon-orange/20 p-3 bg-amazon-card hover:border-amazon-orange/50 transition-all"
-    : "rounded-lg border-l-2 border-brand-gold border border-brand-cardHover p-3 bg-brand-card hover:shadow-gold-glow hover:border-brand-cardHover transition-all";
-  const titleClass = amazon ? "font-bebas text-base tracking-wide text-white line-clamp-2" : "font-bebas text-base tracking-wide text-brand-cream line-clamp-2";
-  const descClass = amazon ? "font-sans text-xs text-amazon-muted mt-0.5 line-clamp-2" : "font-sans text-xs text-brand-muted mt-0.5 line-clamp-2";
+    ? "rounded-lg border-l-2 border-brave border border-brave/20 p-3 bg-white hover:border-brave/50 transition-all"
+    : "rounded-lg border-l-2 border-brave border border-soft-border p-3 bg-white hover:border-brave/50 transition-all";
+  const titleClass = amazon ? "font-bebas text-base tracking-wide text-amazon-navy line-clamp-2" : "font-bebas text-base tracking-wide text-amazon-navy line-clamp-2";
+  const descClass = amazon ? "font-sans text-xs text-soft-muted mt-0.5 line-clamp-2" : "font-sans text-xs text-soft-muted mt-0.5 line-clamp-2";
   const openClass = amazon
-    ? "inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-xs font-semibold bg-amazon-orange text-black hover:opacity-90"
-    : "inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-xs font-semibold bg-brand-gold text-brand-bg hover:opacity-90";
+    ? "inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-xs font-semibold bg-brave text-white hover:opacity-90"
+    : "inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-xs font-semibold bg-brave text-white hover:opacity-90";
   const soonClass = amazon
-    ? "rounded-md px-3 py-1.5 text-xs font-medium text-amazon-muted bg-amazon-dark border border-amazon-orange/20"
-    : "rounded-md px-3 py-1.5 text-xs font-medium text-brand-muted bg-brand-locked border border-brand-cardHover";
+    ? "rounded-md px-3 py-1.5 text-xs font-medium text-soft-muted bg-arctic border border-brave/20"
+    : "rounded-md px-3 py-1.5 text-xs font-medium text-soft-muted bg-arctic border border-soft-border";
 
   return (
     <div className={cardClass}>
@@ -36,7 +36,7 @@ function CompactToolCard({ tool, amazon }: { tool: Tool; amazon: boolean }) {
           </div>
           <p className={descClass}>{tool.description}</p>
           {tool.pricing && (
-            <p className={amazon ? "font-sans text-[11px] text-amazon-orange mt-1.5 font-medium" : "font-sans text-[11px] text-brand-gold mt-1.5 font-medium"}>
+            <p className="font-sans text-[11px] text-brave mt-1.5 font-medium">
               {tool.pricing}
             </p>
           )}
@@ -58,11 +58,9 @@ function CompactToolCard({ tool, amazon }: { tool: Tool; amazon: boolean }) {
 
 /** Placeholder for coming-soon tools. */
 function ComingSoonCard({ title, amazon }: { title: string; amazon: boolean }) {
-  const cardClass = amazon
-    ? "rounded-lg border border-amazon-orange/20 border-dashed p-3 bg-amazon-card/70 opacity-90"
-    : "rounded-lg border border-brand-cardHover border-dashed p-3 bg-brand-card/50 opacity-80";
-  const titleCls = amazon ? "font-bebas text-base tracking-wide text-amazon-muted" : "font-bebas text-base tracking-wide text-brand-muted";
-  const subCls = amazon ? "font-sans text-xs text-amazon-muted mt-1" : "font-sans text-xs text-brand-muted mt-1";
+  const cardClass = "rounded-lg border border-soft-border border-dashed p-3 bg-arctic/80 opacity-90";
+  const titleCls = "font-bebas text-base tracking-wide text-soft-muted";
+  const subCls = "font-sans text-xs text-soft-muted mt-1";
 
   return (
     <div className={cardClass}>
@@ -153,20 +151,12 @@ export default function PlatformPage() {
       <nav className={navClass}>
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            {amazon ? (
-              <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 bg-amazon-orange">
-                <svg className="w-4 h-4" fill="none" stroke="black" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
-              </div>
-            ) : (
-              <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 bg-brand-gold">
-                <svg className="w-4 h-4" fill="none" stroke="#0F0D0B" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
-              </div>
-            )}
-            <span className={amazon ? "text-lg font-bold tracking-tight text-white" : "text-lg font-bold tracking-tight text-brand-cream"}>
+            <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 bg-brave">
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            </div>
+            <span className="text-lg font-bold tracking-tight text-amazon-navy">
               <span className="font-serif">manu</span>
               <span className="font-sans">2print</span>
             </span>
@@ -179,38 +169,38 @@ export default function PlatformPage() {
 
       <main className="mx-auto max-w-6xl px-6 py-8">
         {amazon && (
-          <section className="mb-10 rounded-xl border border-amazon-orange/30 bg-amazon-card/80 p-6 sm:p-8">
-            <h2 className="font-bebas text-2xl sm:text-3xl tracking-wide text-white">
+          <section className="mb-10 rounded-xl border border-brave/30 bg-brave/5 p-6 sm:p-8">
+            <h2 className="font-bebas text-2xl sm:text-3xl tracking-wide text-amazon-navy">
               Format, list &amp; publish — all in one place
             </h2>
-            <p className="font-sans text-base text-amazon-orange/90 mt-1">
+            <p className="font-sans text-base text-brave mt-1">
               Professional Book Formatting — Done in Minutes
             </p>
-            <p className="font-sans text-sm text-amazon-muted mt-2 max-w-xl">
+            <p className="font-sans text-sm text-soft-muted mt-2 max-w-xl">
               FREE calculators and compressors. Paid tools: one-time or 6‑month access. No subscription.
             </p>
-            <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-1 font-sans text-sm text-white">
+            <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-1 font-sans text-sm text-amazon-navy">
               <li className="flex items-center gap-1.5">
-                <span className="text-amazon-orange">✓</span> Print-ready PDFs, KDP specs &amp; Kindle EPUB
+                <span className="text-brave">✓</span> Print-ready PDFs, KDP specs &amp; Kindle EPUB
               </li>
               <li className="flex items-center gap-1.5">
-                <span className="text-amazon-orange">✓</span> Keywords &amp; Amazon listing copy
+                <span className="text-brave">✓</span> Keywords &amp; Amazon listing copy
               </li>
               <li className="flex items-center gap-1.5">
-                <span className="text-amazon-orange">✓</span> Pay per use or 6 months — your choice
+                <span className="text-brave">✓</span> Pay per use or 6 months — your choice
               </li>
             </ul>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
                 href="/#tools"
-                className="inline-flex items-center gap-2 rounded-lg bg-amazon-orange px-4 py-2.5 text-sm font-semibold text-black hover:opacity-90"
+                className="inline-flex items-center gap-2 rounded-lg bg-brave px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90"
               >
                 Try FREE tools
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
               </Link>
               <Link
                 href="/kdp-formatter"
-                className="inline-flex items-center gap-2 rounded-lg border border-amazon-orange/50 px-4 py-2.5 text-sm font-medium text-white hover:bg-amazon-orange/10"
+                className="inline-flex items-center gap-2 rounded-lg border-2 border-amazon-navy px-4 py-2.5 text-sm font-medium text-amazon-navy hover:bg-amazon-navy hover:text-white transition-colors"
               >
                 Get started with formatter
               </Link>
@@ -227,7 +217,7 @@ export default function PlatformPage() {
 
         {freeTools.length > 0 && (
           <div className="mb-6">
-            <h2 className={sectionTitleClass} style={{ color: FREE_GREEN }}>FREE tools</h2>
+            <h2 className={`${sectionTitleClass} text-freeGreen`}>FREE tools</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
               {freeTools.map((tool) => (
                 <CompactToolCard key={tool.id} tool={tool} amazon={amazon} />
@@ -257,7 +247,7 @@ export default function PlatformPage() {
             <section className="mt-12 mb-10 max-w-xl">
               <h2 className={sectionTitleClass}>Get formatting tips and tool updates</h2>
               {leadsStatus === "success" ? (
-                <p className="font-sans text-sm text-amazon-orange">
+                <p className="font-sans text-sm text-brave">
                   Thanks{leadsSuccessName ? ` ${leadsSuccessName}` : ""}! You&apos;re on the list.
                 </p>
               ) : (
@@ -268,7 +258,7 @@ export default function PlatformPage() {
                     value={leadsName}
                     onChange={(e) => setLeadsName(e.target.value)}
                     required
-                    className="w-full rounded-lg border border-amazon-orange/30 px-4 py-2.5 bg-amazon-card font-sans text-sm text-white placeholder-amazon-muted focus:outline-none focus:ring-2 focus:ring-amazon-orange"
+                    className="w-full rounded-lg border border-soft-border px-4 py-2.5 bg-white font-sans text-sm text-amazon-navy placeholder-soft-muted focus:outline-none focus:ring-2 focus:ring-brave"
                   />
                   <div className="flex flex-col sm:flex-row gap-2">
                     <input
@@ -277,12 +267,12 @@ export default function PlatformPage() {
                       value={leadsEmail}
                       onChange={(e) => setLeadsEmail(e.target.value)}
                       required
-                      className="flex-1 rounded-lg border border-amazon-orange/30 px-4 py-2.5 bg-amazon-card font-sans text-sm text-white placeholder-amazon-muted focus:outline-none focus:ring-2 focus:ring-amazon-orange"
+                      className="flex-1 rounded-lg border border-soft-border px-4 py-2.5 bg-white font-sans text-sm text-amazon-navy placeholder-soft-muted focus:outline-none focus:ring-2 focus:ring-brave"
                     />
                     <button
                       type="submit"
                       disabled={leadsStatus === "loading"}
-                      className="rounded-lg px-5 py-2.5 text-sm font-semibold bg-amazon-orange text-black hover:opacity-90 disabled:opacity-60"
+                      className="rounded-lg px-5 py-2.5 text-sm font-semibold bg-brave text-white hover:opacity-90 disabled:opacity-60"
                     >
                       {leadsStatus === "loading" ? "Submitting…" : "Submit"}
                     </button>
@@ -290,22 +280,22 @@ export default function PlatformPage() {
                 </form>
               )}
               {leadsStatus === "error" && leadsErrorMsg && (
-                <p className="mt-2 font-sans text-sm text-red-400">{leadsErrorMsg}</p>
+                <p className="mt-2 font-sans text-sm text-red-500">{leadsErrorMsg}</p>
               )}
             </section>
-            <section className="border-t-2 border-b-2 border-amazon-orange/40 bg-amazon-card/50 rounded-xl py-12 px-6">
+            <section className="border-t-2 border-b-2 border-brave/40 bg-brave/5 rounded-xl py-12 px-6">
               <div className="mx-auto max-w-2xl text-center">
-                <h2 className="font-bebas text-2xl sm:text-3xl tracking-wide text-white mb-3">
+                <h2 className="font-bebas text-2xl sm:text-3xl tracking-wide text-amazon-navy mb-3">
                   This isn&apos;t just a tool. It&apos;s a publishing business.
                 </h2>
-                <p className="font-sans text-sm leading-relaxed text-amazon-muted mb-6">
+                <p className="font-sans text-sm leading-relaxed text-soft-muted mb-6">
                   manu2print is building the publishing stack every indie author needs. Founders get in FREE forever and earn from every author they refer.
                   <br />
-                  <span className="font-bebas text-xl tracking-widest text-amazon-orange uppercase mt-2 inline-block">Limited invitations.</span>
+                  <span className="font-bebas text-xl tracking-widest text-brave uppercase mt-2 inline-block">Limited invitations.</span>
                 </p>
                 <Link
                   href="/founders"
-                  className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold bg-amazon-orange text-black hover:opacity-90"
+                  className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold bg-brave text-white hover:opacity-90"
                 >
                   Apply for Founder Access
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
