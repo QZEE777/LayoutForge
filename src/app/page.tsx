@@ -44,7 +44,7 @@ function HeroBullseye() {
           Hit the target before you upload to KDP.
         </h1>
         <p className="font-sans text-base sm:text-lg leading-snug text-soft-muted text-balance">
-          26 rules. Trim, margins, bleed. Pass or fix in one click.
+          26 Rules. Trim, Margins, Bleed. Pass or fix in one click.
         </p>
       </div>
     </section>
@@ -54,7 +54,7 @@ function HeroBullseye() {
 /** Card ~1/3 smaller, centered text and icon; FREE in caps green, COMING SOON in caps. */
 function ToolCard({ tool }: { tool: Tool }) {
   const isComingSoon = tool.comingSoon;
-  const cardClassName = `rounded-xl border border-soft-border bg-white p-5 transition-all flex flex-col items-center text-center ${
+  const cardClassName = `rounded-xl border border-soft-border bg-white p-5 transition-all flex flex-col items-center text-center min-h-0 ${
     isComingSoon
       ? "opacity-85 cursor-default"
       : "hover:border-brave/50 hover:shadow-md hover:shadow-brave/10"
@@ -67,19 +67,18 @@ function ToolCard({ tool }: { tool: Tool }) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={tool.iconPath} />
           </svg>
         </span>
-        {isComingSoon && (
-          <span className="rounded-full bg-soft-border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-soft-muted">
-            COMING SOON
-          </span>
-        )}
       </div>
       <h3 className="font-bebas text-base sm:text-lg tracking-wide text-amazon-navy mb-1.5">
         {tool.title}
       </h3>
-      <p className="font-sans text-xs text-soft-muted leading-snug">
+      <p className="font-sans text-xs text-soft-muted leading-snug flex-1">
         {tool.description}
       </p>
-      {!isComingSoon && (
+      {isComingSoon ? (
+        <div className="mt-3 w-full rounded-lg bg-freeGreen py-2 text-center">
+          <span className="text-xs font-bold uppercase tracking-wider text-white">Coming Soon</span>
+        </div>
+      ) : (
         <p className="mt-2">
           {tool.free ? (
             <span className="text-xs font-bold uppercase text-freeGreen">FREE</span>
@@ -180,16 +179,18 @@ export default function Home() {
           </p>
 
           {paidTools.length > 0 && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-10">
-              {paidTools.map((tool) => (
-                <ToolCard key={tool.id} tool={tool} />
-              ))}
+            <div className="rounded-2xl border-2 border-brave bg-brave/10 p-6 mb-10 flex justify-center">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl">
+                {paidTools.map((tool) => (
+                  <ToolCard key={tool.id} tool={tool} />
+                ))}
+              </div>
             </div>
           )}
 
           {comingSoonTools.length > 0 && (
             <div className="rounded-2xl bg-soft-border/50 border border-soft-border p-6 mb-10">
-              <p className="font-bebas text-sm uppercase tracking-wider text-soft-muted text-center mb-4">Coming soon</p>
+              <p className="font-bebas text-xl sm:text-2xl font-bold uppercase tracking-wider text-amazon-navy text-center mb-4">Coming Soon</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 {comingSoonTools.map((tool) => (
                   <ToolCard key={tool.id} tool={tool} />
@@ -200,7 +201,7 @@ export default function Home() {
 
           {freeTools.length > 0 && (
             <div className="rounded-2xl bg-freeGreen/5 border border-freeGreen/20 p-6">
-              <p className="font-bebas text-sm uppercase tracking-wider text-freeGreen text-center mb-4">Free tools</p>
+              <p className="font-bebas text-xl sm:text-2xl font-bold uppercase tracking-wider text-freeGreen text-center mb-4">Free Tools</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 {freeTools.map((tool) => (
                   <ToolCard key={tool.id} tool={tool} />
