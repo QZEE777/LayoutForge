@@ -141,33 +141,25 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* 1. Hero */}
-      <section className="px-6 pt-10 pb-16 sm:pt-16 sm:pb-20 bg-ivory">
+      {/* 1. Hero — target above the fold; only round button in bullseye; How it works above graphic */}
+      <section className="px-6 pt-6 pb-10 sm:pt-8 sm:pb-12 bg-ivory min-h-0">
         <div className="mx-auto max-w-4xl text-center">
-          <h1 className="font-bebas text-3xl sm:text-4xl md:text-5xl font-normal tracking-tight text-amazon-navy mb-4 text-balance leading-tight">
+          <h1 className="font-bebas text-2xl sm:text-3xl md:text-4xl font-normal tracking-tight text-amazon-navy mb-2 text-balance leading-tight">
             Turn Your Manuscript Into a Print-Ready Book
           </h1>
-          <p className="font-sans text-lg sm:text-xl text-soft-muted text-balance mb-2 max-w-2xl mx-auto">
+          <p className="font-sans text-base sm:text-lg text-soft-muted text-balance mb-6 max-w-2xl mx-auto">
             Check, fix, and prepare your PDF for Amazon KDP before you upload.
           </p>
-          <p className="font-sans text-sm sm:text-base text-soft-muted text-balance mb-8">
+          <h2 className="font-bebas text-xl sm:text-2xl tracking-wide text-amazon-navy mb-4">
+            <a href="#how-it-works" className="hover:text-brave transition-colors">How it works</a>
+          </h2>
+          <HeroPdfVisual />
+          <p className="font-sans text-sm text-soft-muted text-balance mt-4 max-w-xl mx-auto">
             Avoid rejection. Save hours of frustration. Publish with confidence.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
-            <Link
-              href="/kdp-pdf-checker"
-              className="w-full sm:w-auto rounded-lg px-6 py-3.5 text-base font-medium bg-brave text-white hover:opacity-90 transition-opacity shadow-lg shadow-brave/20"
-            >
-              Check My PDF
-            </Link>
-            <a
-              href="#how-it-works"
-              className="w-full sm:w-auto rounded-lg px-6 py-3.5 text-base font-medium border-2 border-amazon-navy text-amazon-navy hover:bg-amazon-navy hover:text-white transition-colors"
-            >
-              See How It Works
-            </a>
-          </div>
-          <HeroPdfVisual />
+          <a href="#how-it-works" className="inline-block mt-2 text-sm font-medium text-brave hover:underline">
+            See How It Works
+          </a>
         </div>
       </section>
 
