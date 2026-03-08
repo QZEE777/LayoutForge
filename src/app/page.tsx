@@ -212,37 +212,33 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer — Legals, T&Cs, About, Affiliate, FAQ, Contact, Refunds, etc. */}
-      <footer className="border-t border-soft-border px-6 py-10 bg-arctic">
-        <div className="mx-auto max-w-4xl">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 flex-wrap">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded flex items-center justify-center bg-brave flex-shrink-0">
-                <svg className="w-3.5 h-3.5" fill="none" stroke="#131A22" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
-              </div>
-              <span className="font-medium text-amazon-navy">manu2print</span>
+      {/* Footer — logo centered; links in bright orange bar, white text */}
+      <footer className="border-t border-soft-border bg-arctic">
+        <div className="flex justify-center py-6">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded flex items-center justify-center bg-brave flex-shrink-0">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="#131A22" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
             </div>
-            <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-sm" aria-label="Footer">
-              <Link href="/legal" className="text-soft-muted hover:text-brave transition-colors">Legal</Link>
-              <Link href="/terms" className="text-soft-muted hover:text-brave transition-colors">Terms &amp; Conditions</Link>
-              <Link href="/privacy" className="text-soft-muted hover:text-brave transition-colors">Privacy Policy</Link>
-              <Link href="/about" className="text-soft-muted hover:text-brave transition-colors">About</Link>
-              <Link href="/affiliate" className="text-soft-muted hover:text-brave transition-colors">Affiliate</Link>
-              <Link href="/faq" className="text-soft-muted hover:text-brave transition-colors">FAQ</Link>
-              <Link href="/contact" className="text-soft-muted hover:text-brave transition-colors">Contact</Link>
-              <Link href="/refunds" className="text-soft-muted hover:text-brave transition-colors">Refund Policy</Link>
-              <Link href="/cookies" className="text-soft-muted hover:text-brave transition-colors">Cookies</Link>
-              <Link href="/platform/kdp" className="text-brave hover:underline font-medium">Tools</Link>
-            </nav>
-          </div>
-          <p className="text-center text-sm text-soft-muted mt-4">
-            Your files are processed securely and never stored permanently.
-          </p>
-          <p className="text-center text-sm mt-3 text-soft-muted">
-            © 2026 manu2print. KDP &amp; Kindle tools for indie authors.
-          </p>
+            <span className="font-medium text-amazon-navy">manu2print</span>
+          </Link>
+        </div>
+        <nav className="w-full bg-brave py-4 px-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-white" aria-label="Footer">
+          <Link href="/legal" className="hover:underline">Legal</Link>
+          <Link href="/terms" className="hover:underline">Terms &amp; Conditions</Link>
+          <Link href="/privacy" className="hover:underline">Privacy Policy</Link>
+          <Link href="/about" className="hover:underline">About</Link>
+          <Link href="/affiliate" className="hover:underline">Affiliate</Link>
+          <Link href="/faq" className="hover:underline">FAQ</Link>
+          <Link href="/contact" className="hover:underline">Contact</Link>
+          <Link href="/refunds" className="hover:underline">Refund Policy</Link>
+          <Link href="/cookies" className="hover:underline">Cookies</Link>
+          <Link href="/platform/kdp" className="hover:underline font-medium">Tools</Link>
+        </nav>
+        <div className="px-6 py-4 text-center text-sm text-soft-muted">
+          <p>Your files are processed securely and never stored permanently.</p>
+          <p className="mt-2">© 2026 manu2print. KDP &amp; Kindle tools for indie authors.</p>
         </div>
       </footer>
     </div>
