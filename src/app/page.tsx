@@ -19,18 +19,13 @@ function BullseyeIcon() {
 
 function ToolCard({ tool }: { tool: Tool }) {
   const isComingSoon = tool.comingSoon;
-  const Wrapper = isComingSoon ? "div" : Link;
-  const wrapperProps = isComingSoon ? {} : { href: tool.href };
-
-  return (
-    <Wrapper
-      {...wrapperProps}
-      className={`rounded-2xl border-2 border-soft-border bg-white p-8 transition-all ${
-        isComingSoon
-          ? "opacity-85 cursor-default"
-          : "hover:border-amazon-orange/50 hover:shadow-lg hover:shadow-amazon-orange/10"
-      }`}
-    >
+  const cardClassName = `rounded-2xl border-2 border-soft-border bg-white p-8 transition-all ${
+    isComingSoon
+      ? "opacity-85 cursor-default"
+      : "hover:border-amazon-orange/50 hover:shadow-lg hover:shadow-amazon-orange/10"
+  }`;
+  const content = (
+    <>
       <div className="flex items-start justify-between gap-3 mb-4">
         <span className={`p-3 rounded-xl ${isComingSoon ? "bg-soft-border text-soft-muted" : "bg-amazon-orange/10 text-amazon-orange"}`}>
           <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -58,7 +53,16 @@ function ToolCard({ tool }: { tool: Tool }) {
           )}
         </p>
       )}
-    </Wrapper>
+    </>
+  );
+
+  if (isComingSoon) {
+    return <div className={cardClassName}>{content}</div>;
+  }
+  return (
+    <Link href={tool.href} className={cardClassName}>
+      {content}
+    </Link>
   );
 }
 
