@@ -15,7 +15,25 @@ interface PreflightReport {
   page_issues?: Array<{ page: number; rule_id: string; severity: string; message: string; bbox: number[] | null }>;
 }
 
-function buildReportFromPreflightOnly(preflight: PreflightReport, fileSizeMB?: number) {
+interface CheckerReport {
+  outputType: "checker";
+  chaptersDetected: number;
+  issues: string[];
+  fontUsed: string;
+  trimSize: string;
+  pageCount: number;
+  trimDetected: string;
+  trimMatchKDP: boolean;
+  kdpTrimName: string | null;
+  recommendations: string[];
+  fileSizeMB?: number;
+  recommendedGutterInches: number;
+  page_issues: Array<{ page: number; rule_id: string; severity: string; message: string; bbox: number[] | null }>;
+  hasPdfPreview?: boolean;
+  pdfSourceUrl?: string;
+}
+
+function buildReportFromPreflightOnly(preflight: PreflightReport, fileSizeMB?: number): CheckerReport {
   const issues = [
     ...preflight.errors.map((e) => `[p.${e.page}] ${e.message}`),
     ...preflight.warnings.map((w) => `[p.${w.page}] ${w.message}`),
@@ -80,7 +98,7 @@ export async function POST(request: NextRequest) {
       );
     }
     const preflight = (await res.json()) as PreflightReport;
-    const report = buildReportFromPreflightOnly(preflight, fileSizeMB);
+    const report: CheckerReport = buildReportFromPreflightOnly(preflight, fileSizeMB);
     report.hasPdfPreview = true;
     report.pdfSourceUrl = `${url}/file/${encodeURIComponent(jobId)}`;
     const doc = await PDFDocument.create();
