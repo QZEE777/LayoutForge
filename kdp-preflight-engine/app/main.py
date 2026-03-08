@@ -48,6 +48,12 @@ app.include_router(status.router, tags=["status"])
 app.include_router(report.router, tags=["report"])
 
 
+@app.get("/")
+def root():
+    """Root: so health probes hitting / get 200. Prefer /health or /health/ready for checks."""
+    return {"service": settings.app_name, "docs": "/health", "ready": "/health/ready"}
+
+
 @app.get("/health")
 def health():
     """Liveness: app is up. Use for simple ping."""

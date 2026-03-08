@@ -56,10 +56,15 @@ if settings.broker_url.strip().lower().startswith("rediss://"):
 - **Liveness:** `GET https://<your-render-url>/health` — app is up. Returns `{"status":"ok","service":"KDP Preflight Engine"}`.
 - **Readiness:** `GET https://<your-render-url>/health/ready` — app + Redis. Returns 200 with `"redis":"ok"` when Redis is reachable, **503** when Redis is down (so load balancers don’t send traffic). Prefer this as Render’s health check path if supported.
 
-### 6. **Build / runtime**
+### 6. **Expected log warnings (safe to ignore for this setup)**
+
+- **Celery: "running the worker with superuser privileges"** — The container runs as root so the app can write to Render’s mounted disk (`/app/data`). To remove the warning you’d run as a non-root user and ensure the volume is writable; for Render free tier this is acceptable.
+- **Celery: "ssl_cert_reqs=CERT_NONE ... vulnerable to man in the middle"** — Upstash Redis over TLS often needs `CERT_NONE` for compatibility. The broker is a managed service; risk is low. For stricter security you’d use proper cert validation if Upstash supports it.
+
+### 7. **Build / runtime**
 
 - **Dockerfile:** `Dockerfile.live` (API + worker in one container). Ensure Render uses **Root Directory** `kdp-preflight-engine` and **Dockerfile path** `./Dockerfile.live`.
-- **Port:** App listens on 8000; Render expects web services on 8000 or 10000 (no change needed if Dockerfile `EXPOSE 8000` and CMD use port 8000).
+- **Port:** The Dockerfile uses `$PORT` (default 8000); Render sets `PORT=10000`. Root path: `GET /` returns 200 and points to `/health` and `/health/ready` so probes don’t get 404.
 
 ---
 
