@@ -27,9 +27,16 @@ const config: Config = {
         },
         amazon: {
           orange: "#FF9900",
+          navy: "#131A22",
           dark: "#131A22",
           card: "#1C2833",
-          muted: "#A0AEC0",
+          muted: "#6B7280",
+        },
+        /** Homepage: soft white background */
+        soft: {
+          white: "#FAFAF9",
+          border: "#E5E4E1",
+          muted: "#6B7280",
         },
       },
       boxShadow: {
