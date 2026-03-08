@@ -44,7 +44,7 @@ function HeroBullseye() {
           Hit the target before you upload to KDP.
         </h1>
         <p className="font-sans text-base sm:text-lg leading-snug text-soft-muted text-balance">
-          26 Rules. Trim, Margins, Bleed. Pass or fix in one click.
+          26 Rules. Trim, Margins, Bleed. Pass Or Fix In One Click.
         </p>
       </div>
     </section>
@@ -212,25 +212,38 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
+      {/* Footer — Legals, T&Cs, About, Affiliate, FAQ, Contact, Refunds, etc. */}
       <footer className="border-t border-soft-border px-6 py-10 bg-arctic">
-        <div className="mx-auto max-w-3xl flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-4 text-sm text-soft-muted text-center sm:text-left">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded flex items-center justify-center bg-brave flex-shrink-0">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="#131A22" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
+        <div className="mx-auto max-w-4xl">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 flex-wrap">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded flex items-center justify-center bg-brave flex-shrink-0">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="#131A22" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+              </div>
+              <span className="font-medium text-amazon-navy">manu2print</span>
             </div>
-            <span className="font-medium text-amazon-navy">manu2print</span>
+            <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-sm" aria-label="Footer">
+              <Link href="/legal" className="text-soft-muted hover:text-brave transition-colors">Legal</Link>
+              <Link href="/terms" className="text-soft-muted hover:text-brave transition-colors">Terms &amp; Conditions</Link>
+              <Link href="/privacy" className="text-soft-muted hover:text-brave transition-colors">Privacy Policy</Link>
+              <Link href="/about" className="text-soft-muted hover:text-brave transition-colors">About</Link>
+              <Link href="/affiliate" className="text-soft-muted hover:text-brave transition-colors">Affiliate</Link>
+              <Link href="/faq" className="text-soft-muted hover:text-brave transition-colors">FAQ</Link>
+              <Link href="/contact" className="text-soft-muted hover:text-brave transition-colors">Contact</Link>
+              <Link href="/refunds" className="text-soft-muted hover:text-brave transition-colors">Refund Policy</Link>
+              <Link href="/cookies" className="text-soft-muted hover:text-brave transition-colors">Cookies</Link>
+              <Link href="/platform/kdp" className="text-brave hover:underline font-medium">Tools</Link>
+            </nav>
           </div>
-          <p className="flex items-center gap-4 flex-wrap justify-center sm:justify-end">
+          <p className="text-center text-sm text-soft-muted mt-4">
             Your files are processed securely and never stored permanently.
-            <Link href="/platform/kdp" className="text-brave hover:underline font-medium">KDP &amp; Kindle tools</Link>
+          </p>
+          <p className="text-center text-sm mt-3 text-soft-muted">
+            © 2026 manu2print. KDP &amp; Kindle tools for indie authors.
           </p>
         </div>
-        <p className="mx-auto max-w-6xl text-center text-sm mt-5 text-soft-muted">
-          © 2026 manu2print. KDP &amp; Kindle tools for indie authors.
-        </p>
       </footer>
     </div>
   );
