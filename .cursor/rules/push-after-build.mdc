@@ -1,0 +1,26 @@
+---
+description: After each build, output exact push commands for the user
+alwaysApply: true
+---
+
+# Push after each build
+
+After each build or set of code changes that are ready to deploy, **you must output the exact push sequence** so the user can run it in the Cursor terminal without asking.
+
+Include these three blocks (with the actual files and commit message for this change):
+
+```
+git add <paths or .>
+git commit -m "Short description of change"
+git push origin main
+```
+
+Example: if you changed `src/app/page.tsx`, output:
+
+```
+git add src/app/page.tsx
+git commit -m "Hero: graphic first, target above fold"
+git push origin main
+```
+
+Do this at the end of your response whenever you have made changes that should be pushed. The user does not want to request the push each time.

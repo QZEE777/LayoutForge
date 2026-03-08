@@ -26,6 +26,8 @@ Step-by-step protocol for working on manu2print. Follow in order unless a step s
 
 ## 3. After changes — push (you run locally)
 
+**Rule:** After each build or set of changes that are ready to deploy, the agent **MUST** output the exact push sequence below so the user can run it in the Cursor terminal **without having to ask**.
+
 Terminal from this environment may not run; run these on your machine:
 
 | Step | Command / action |
@@ -68,5 +70,6 @@ When you say **“cya”** (or similar goodbye):
 1. **Security-driven** — no secrets in code, validate input, safe auth.  
 2. **Confirm before big/design changes** — detect conflicts, plan, then integrate on your say-so.  
 3. **Push is local** — you run `git add` / `commit` / `push` on your machine.  
-4. **CYA** — when you say cya, remind about moving folder off OneDrive if needed.  
-5. **Clarity over cleverness** — clear, trustworthy, working tools first.
+4. **After each build** — agent must give the exact push commands (add, commit, push) so you don’t have to ask.  
+5. **CYA** — when you say cya, remind about moving folder off OneDrive if needed.  
+6. **Clarity over cleverness** — clear, trustworthy, working tools first.
