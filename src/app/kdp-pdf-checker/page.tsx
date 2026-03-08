@@ -15,6 +15,8 @@ const MAX_SELECT_MB = 100;
 
 const PREFLIGHT_POLL_MS = 2500;
 const PREFLIGHT_MAX_WAIT_MS = 120000;
+/** Timeout for direct upload to checker (cold start can take ~50s on free tier). */
+const DIRECT_UPLOAD_TIMEOUT_MS = 90000;
 
 export default function KdpPdfCheckerPage() {
   const router = useRouter();
@@ -90,12 +92,21 @@ export default function KdpPdfCheckerPage() {
     setUploading(true);
     setError(null);
     const fileSizeMB = file.size / (1024 * 1024);
+    let wasDirectUpload = false;
     try {
       if (useDirectUpload && preflightUrl) {
+        wasDirectUpload = true;
         const url = preflightUrl.replace(/\/$/, "");
         const form = new FormData();
         form.append("file", file, file.name.toLowerCase().endsWith(".pdf") ? file.name : "document.pdf");
-        let res = await fetch(`${url}/upload`, { method: "POST", body: form });
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), DIRECT_UPLOAD_TIMEOUT_MS);
+        let res: Response;
+        try {
+          res = await fetch(`${url}/upload`, { method: "POST", body: form, signal: controller.signal });
+        } finally {
+          clearTimeout(timeoutId);
+        }
         if (!res.ok) throw new Error("Upload to checker failed. Try again.");
         const { job_id } = (await res.json()) as { job_id: string };
         const deadline = Date.now() + PREFLIGHT_MAX_WAIT_MS;
@@ -140,12 +151,19 @@ export default function KdpPdfCheckerPage() {
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Check failed";
       const isFailedFetch = msg === "Failed to fetch";
+      const isAbort = err instanceof Error && err.name === "AbortError";
       const fileOverLimit = file && file.size > SERVER_MAX_MB * 1024 * 1024;
-      setError(
-        isFailedFetch && fileOverLimit
-          ? `Upload failed — files over ${SERVER_MAX_MB} MB can't be sent through this page. Use our PDF Compressor to shrink the file first, then try again.`
-          : msg
-      );
+      if (wasDirectUpload && (isFailedFetch || isAbort || msg.includes("Upload to checker"))) {
+        setError(
+          "Large-file check failed. The checker may be waking up—wait 30 seconds and try again. Or use our PDF Compressor for a smaller file."
+        );
+      } else if (!wasDirectUpload && isFailedFetch && fileOverLimit) {
+        setError(
+          `Upload failed — files over ${SERVER_MAX_MB} MB can't be sent through this page. Use our PDF Compressor to shrink the file first, then try again.`
+        );
+      } else {
+        setError(msg);
+      }
     } finally {
       setUploading(false);
     }
@@ -167,15 +185,15 @@ export default function KdpPdfCheckerPage() {
       <div className="border-b border-slate-800 bg-amber-500/10">
         <div className="mx-auto max-w-4xl px-6 py-3 flex items-center gap-3">
           <span className="inline-flex items-center rounded-full bg-amber-500/20 border border-amber-500/30 px-2.5 py-0.5 text-xs font-medium text-amber-300">Paid</span>
-          <span className="text-sm font-semibold text-white">KDP Preflight</span>
+          <span className="text-sm font-semibold text-white">Print Ready Check</span>
           <span className="mx-2 text-slate-600">|</span>
           <span className="text-sm text-slate-400">Full PDF validation: 26 KDP rules, trim, margins, bleed — pass/fail before you upload</span>
         </div>
       </div>
 
       <main className="mx-auto max-w-2xl px-6 py-12">
-        <ToolBreadcrumb backHref="/" backLabel="All Tools" currentLabel="KDP Preflight" className="mb-6" />
-        <h1 className="text-3xl font-bold text-white">KDP Preflight</h1>
+        <ToolBreadcrumb backHref="/" backLabel="All Tools" currentLabel="Print Ready Check" className="mb-6" />
+        <h1 className="text-3xl font-bold text-white">Print Ready Check</h1>
         <p className="mt-2 text-slate-400">Upload your interior PDF. We’ll report trim size, page count, and any issues so you can fix before uploading to KDP. Max {MAX_SELECT_MB} MB. $7 per use or $27 for 6 months.</p>
         <p className="mt-2 text-slate-500 text-sm">Many indies design in Canva (or similar) and upload the PDF they export — we'll check that PDF against KDP specs. If you format from Word, use <Link href="/kdp-formatter" className="text-amber-300 hover:text-amber-200 underline">KDP Formatter (DOCX)</Link> for your print PDF.</p>
 
@@ -208,7 +226,7 @@ export default function KdpPdfCheckerPage() {
 
         {file && useDirectUpload && (
           <div className="mt-4 rounded-lg bg-slate-700/50 border border-slate-600 p-3 text-sm text-slate-300">
-            Your file is <strong>{formatFileSize(file.size)}</strong>. Files over {SERVER_MAX_MB} MB are sent directly to the checker (you’ll get the full report; the on-page visual overlay is only for files under {SERVER_MAX_MB} MB).
+            Large file detected. Page preview disabled. Full analysis will still run.
           </div>
         )}
         {file && fileTooBigForServer && (

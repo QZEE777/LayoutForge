@@ -10,6 +10,7 @@ services:
     dockerContext: .
     region: oregon
     plan: free
+    preDeployCommand: ""
     envVars:
       - key: REDIS_URL
         sync: false

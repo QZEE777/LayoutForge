@@ -10,7 +10,7 @@ from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
-from app.api import report, status, upload
+from app.api import file as file_api, report, status, upload
 from app.config import settings
 from app.job_store import redis_ping
 from app.limiter import limiter
@@ -46,6 +46,7 @@ app.add_middleware(
 app.include_router(upload.router, tags=["upload"])
 app.include_router(status.router, tags=["status"])
 app.include_router(report.router, tags=["report"])
+app.include_router(file_api.router, tags=["file"])
 
 
 @app.get("/")

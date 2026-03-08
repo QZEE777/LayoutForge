@@ -55,6 +55,8 @@ export interface StoredManuscript {
     page_issues?: Array<{ page: number; rule_id: string; severity: string; message: string; bbox: number[] | null }>;
     /** True when the stored file is the user's PDF (server-side check); false when from preflight (placeholder PDF). */
     hasPdfPreview?: boolean;
+    /** When set, viewer should load PDF from this URL (e.g. engine GET /file/{job_id}) instead of /api/view-pdf/{id}. */
+    pdfSourceUrl?: string;
     /** Format review report */
     formatReviewSections?: Array<{ title: string; issues?: string[]; recommendations?: string[]; content?: string }>;
     summary?: string;

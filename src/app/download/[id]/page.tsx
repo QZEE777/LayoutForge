@@ -30,6 +30,7 @@ interface ProcessingReport {
   recommendedGutterInches?: number;
   page_issues?: Array<{ page: number; rule_id: string; severity: string; message: string; bbox: number[] | null }>;
   hasPdfPreview?: boolean;
+  pdfSourceUrl?: string;
   /** Format review report */
   formatReviewSections?: Array<{ title: string; issues?: string[]; recommendations?: string[]; content?: string }>;
   summary?: string;
@@ -156,7 +157,7 @@ export default function DownloadPage() {
           <div className="mb-8">
             <h2 className="text-lg font-semibold text-[#F5F0E8] mb-3">View issues on your PDF</h2>
             <CheckerPdfViewer
-              pdfUrl={`/api/view-pdf/${id}`}
+              pdfUrl={report.pdfSourceUrl ?? `/api/view-pdf/${id}`}
               pageIssues={report.page_issues}
               totalPages={report.pageCount ?? 0}
             />

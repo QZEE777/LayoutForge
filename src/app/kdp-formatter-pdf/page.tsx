@@ -140,7 +140,7 @@ export default function KdpFormatterPdfPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white">PDF Print Optimizer</h1>
           <p className="mt-2 text-slate-400">Shrink or print-optimize your PDF. FREE. Runs in your browser—your file never leaves your device. PDF only, up to {MAX_MB} MB.</p>
-          <p className="mt-2 text-slate-500 text-sm">If you design in Canva and export PDF, that PDF is your interior — use <Link href="/kdp-pdf-checker" className="text-amber-300 hover:text-amber-200 underline">KDP Preflight</Link> to verify. This optimizer is for smaller/crisper copies, not for replacing that PDF.</p>
+          <p className="mt-2 text-slate-500 text-sm">If you design in Canva and export PDF, that PDF is your interior — use <Link href="/kdp-pdf-checker" className="text-amber-300 hover:text-amber-200 underline">Print Ready Check</Link> to verify. This optimizer is for smaller/crisper copies, not for replacing that PDF.</p>
         </div>
 
         {doneBlobUrl ? (
@@ -175,7 +175,7 @@ export default function KdpFormatterPdfPage() {
               <p className="font-medium text-slate-300">What happens next</p>
               <p>1. <strong className="text-slate-300">Use this file for:</strong> smaller size for email or our Keyword Research / Description Generator tools, or a crisper preview. It is optimized in your browser (rasterized) and is not intended as your final KDP interior.</p>
               <p>2. <strong className="text-slate-300">For KDP print upload:</strong> use your original high-resolution interior PDF, or create a print-ready PDF from our <Link href="/kdp-formatter" className="text-red-400 hover:text-red-300">KDP Formatter (DOCX)</Link> (correct margins, trim, bleed, and resolution for KDP).</p>
-              <p>3. <strong className="text-slate-300">Check before you upload:</strong> run your final interior through our <Link href="/kdp-pdf-checker" className="text-red-400 hover:text-red-300">KDP Preflight</Link> to confirm trim, page count, and specs.</p>
+              <p>3. <strong className="text-slate-300">Check before you upload:</strong> run your final interior through our <Link href="/kdp-pdf-checker" className="text-red-400 hover:text-red-300">Print Ready Check</Link> to confirm trim, page count, and specs.</p>
             </div>
           </div>
         ) : (

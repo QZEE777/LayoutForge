@@ -166,7 +166,7 @@ export default function KdpFormatReviewPage() {
           </div>
 
           <p className="mt-4 text-base text-slate-600">
-            $7 per use · $27 for 6 months. Same pricing as KDP Preflight. After payment you can view and download the report.
+            $7 per use · $27 for 6 months. Same pricing as Print Ready Check. After payment you can view and download the report.
           </p>
         </PaymentGate>
       </main>

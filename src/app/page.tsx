@@ -3,22 +3,22 @@ import AuthNav from "@/components/AuthNav";
 
 const BENEFITS = [
   {
+    title: "Print Ready Check",
+    description: "Check your interior PDF before KDP. 26 rules, trim, margins, bleed — pass/fail report. Up to 100 MB.",
+    href: "/kdp-pdf-checker",
+    icon: (
+      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+      </svg>
+    ),
+  },
+  {
     title: "Format for KDP",
     description: "DOCX to print-ready PDF. Trim size, bleed, margins.",
     href: "/kdp-formatter",
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>
-    ),
-  },
-  {
-    title: "KDP Preflight",
-    description: "Full PDF validation: 26 rules, trim, margins, bleed. Pass/fail report with on-page highlights.",
-    href: "/kdp-pdf-checker",
-    icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
       </svg>
     ),
   },
@@ -95,27 +95,27 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Hero */}
+      {/* Hero — Print Ready Check is the MVP, front and center */}
       <section className="px-6 pt-20 pb-16">
         <div className="mx-auto max-w-3xl text-center">
           <h1 className="font-bebas text-4xl sm:text-5xl md:text-6xl font-normal tracking-wide text-brand-cream mb-5">
-            The formatting &amp; listing stack <span className="text-brand-gold">for KDP &amp; Kindle</span>
+            Check your print PDF <span className="text-brand-gold">before you upload</span>
           </h1>
           <p className="font-sans text-lg sm:text-xl leading-relaxed text-brand-muted mb-10 max-w-2xl mx-auto">
-            Print-ready interiors, PDF checks, keywords, descriptions, and Kindle EPUB. Pay per use — no subscription.
+            26 KDP rules. Trim, margins, bleed. Pass/fail in minutes. Then format, keywords, descriptions, and Kindle EPUB — pay per use.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/auth"
+              href="/kdp-pdf-checker"
               className="rounded-lg px-8 py-4 text-base font-semibold bg-brand-gold text-brand-bg hover:opacity-90 transition-opacity text-center"
             >
-              Get Started
+              Check your PDF
             </Link>
             <Link
               href="/platform/kdp"
               className="rounded-lg px-8 py-4 text-base font-semibold border border-brand-cardHover text-brand-cream hover:bg-white/5 transition-colors text-center"
             >
-              See all tools
+              All tools
             </Link>
           </div>
         </div>

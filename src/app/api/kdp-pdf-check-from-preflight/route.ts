@@ -81,6 +81,8 @@ export async function POST(request: NextRequest) {
     }
     const preflight = (await res.json()) as PreflightReport;
     const report = buildReportFromPreflightOnly(preflight, fileSizeMB);
+    report.hasPdfPreview = true;
+    report.pdfSourceUrl = `${url}/file/${encodeURIComponent(jobId)}`;
     const doc = await PDFDocument.create();
     doc.addPage([612, 792]);
     const minimalPdf = Buffer.from(await doc.save());
