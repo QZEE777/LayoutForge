@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PDFDocument } from "pdf-lib";
 import { saveUpload, updateMeta, type StoredManuscript } from "@/lib/storage";
+import { getSignedDownloadUrl } from "@/lib/r2Storage";
 import { TRIM_SIZES, getGutterInches } from "@/lib/kdpConfig";
 
 const PT_PER_INCH = 72;
@@ -174,6 +175,18 @@ export async function POST(request: NextRequest) {
 
     const stored = await saveUpload(buffer, f.name || "document.pdf", "application/pdf");
     await updateMeta(stored.id, { processingReport: report as StoredManuscript["processingReport"] });
+
+    if (process.env.USE_R2 === "true" && stored.storedPath) {
+      const filename = stored.storedPath.split("/").pop();
+      if (filename) {
+        try {
+          const reportDownloadUrl = await getSignedDownloadUrl(stored.id, filename);
+          await updateMeta(stored.id, { reportDownloadUrl });
+        } catch {
+          // non-fatal
+        }
+      }
+    }
 
     return NextResponse.json({
       success: true,
