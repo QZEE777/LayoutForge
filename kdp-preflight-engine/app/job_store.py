@@ -13,6 +13,8 @@ from app.schemas import ValidationReport
 REDIS_PREFIX = "kdp_preflight"
 STATUS_TTL = 86400 * 7  # 7 days
 REPORT_TTL = 86400 * 7
+ANNOTATED_TTL = 259200  # 72 hours
+ANNOTATED_TTL = 259200  # 72 hours
 
 
 def _client() -> redis.Redis:
@@ -71,3 +73,27 @@ def get_report(job_id: str) -> dict[str, Any] | None:
     if not raw:
         return None
     return json.loads(raw)
+
+
+def set_annotated_path(job_id: str, path: str) -> None:
+    """Store path to annotated PDF. Key annotated:{job_id}, TTL 72h."""
+    r = _client()
+    r.setex(f"annotated:{job_id}", ANNOTATED_TTL, path)
+
+
+def get_annotated_path(job_id: str) -> str | None:
+    """Return path to annotated PDF or None."""
+    r = _client()
+    return r.get(f"annotated:{job_id}")
+
+
+def set_annotated_status(job_id: str, status: str) -> None:
+    """Store annotated job status (ready | error). Key annotated_status:{job_id}, TTL 72h."""
+    r = _client()
+    r.setex(f"annotated_status:{job_id}", ANNOTATED_TTL, status)
+
+
+def get_annotated_status(job_id: str) -> str | None:
+    """Return annotated status or None."""
+    r = _client()
+    return r.get(f"annotated_status:{job_id}")
