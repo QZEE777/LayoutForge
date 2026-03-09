@@ -25,8 +25,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "manu2print — KDP Manuscript Formatting",
-  description: "Professional manuscript formatting for Amazon KDP. Upload DOCX or PDF. Get print-ready PDF with KDP specifications.",
+  title: "Manu2Print — Scan Your Book PDF for Amazon KDP Formatting Errors",
+  description: "Check your manuscript PDF for KDP formatting issues before uploading. Detect margin errors, trim size problems, and print formatting mistakes instantly.",
 };
 
 export default function RootLayout({

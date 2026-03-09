@@ -1,7 +1,7 @@
 import Link from "next/link";
 import AuthNav from "@/components/AuthNav";
 
-/** Hero visual: PDF diagnostic image + bullseye overlay with CTA. Bullseye = "hit the print-ready target". */
+/** Hero visual: PDF diagnostic image + bullseye in safe area. Crosshairs, thinner rings, label + CTA. */
 function HeroPdfVisual() {
   return (
     <div className="relative w-full max-w-md mx-auto">
@@ -12,6 +12,9 @@ function HeroPdfVisual() {
         <rect x="40" y="40" width="200" height="280" rx="2" fill="none" stroke="#16A34A" strokeWidth="2" strokeDasharray="6 4" opacity="0.9" />
         {/* Margin warning (yellow) */}
         <rect x="52" y="52" width="176" height="256" rx="1" fill="none" stroke="#EAB308" strokeWidth="1.5" strokeDasharray="4 3" opacity="0.8" />
+        {/* Crosshairs — light grey, inside page only */}
+        <line x1="140" y1="20" x2="140" y2="340" stroke="#D1D5DB" strokeWidth="1" opacity="0.35" />
+        <line x1="20" y1="180" x2="260" y2="180" stroke="#D1D5DB" strokeWidth="1" opacity="0.35" />
         {/* Bleed / edge issue (red) */}
         <line x1="20" y1="80" x2="260" y2="80" stroke="#DC2626" strokeWidth="2" opacity="0.7" />
         <circle cx="50" cy="80" r="4" fill="#DC2626" opacity="0.8" />
@@ -23,21 +26,25 @@ function HeroPdfVisual() {
         <rect x="60" y="118" width="160" height="8" rx="2" fill="#E5E4E1" opacity="0.5" />
         <rect x="60" y="136" width="140" height="8" rx="2" fill="#E5E4E1" opacity="0.5" />
       </svg>
-      {/* Bullseye overlay — glossy bright orange round button centered */}
+      {/* Bullseye overlay — centered in page safe area; ~15% smaller; thinner rings, softer opacity */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="relative flex items-center justify-center w-52 h-52 sm:w-64 sm:h-64 md:w-72 md:h-72">
-          <span className="absolute inset-0 rounded-full border-4 border-amazon-navy/25" aria-hidden />
-          <span className="absolute inset-4 rounded-full border-4 border-brave/40" aria-hidden />
-          <span className="absolute inset-8 rounded-full border-4 border-brave/70" aria-hidden />
-          <span className="absolute inset-12 rounded-full border-4 border-brave bg-brave/20" aria-hidden />
-          <Link
-            href="/kdp-pdf-checker"
-            className="relative z-10 flex items-center justify-center rounded-full w-28 h-28 sm:w-32 sm:h-32 font-bold text-sm sm:text-base text-white shadow-[0_0_0_3px_rgba(251,84,43,0.4),0_4px_14px_rgba(251,84,43,0.5),inset_0_1px_0_rgba(255,255,255,0.25)] hover:scale-105 transition-transform"
-            style={{ background: "linear-gradient(180deg, #FF6B4A 0%, #FB542B 50%, #E84A1C 100%)" }}
-            title="Hit the Target → Check My PDF"
-          >
-            Check My PDF
-          </Link>
+        <div className="relative flex flex-col items-center justify-center w-44 h-44 sm:w-56 sm:h-56 md:w-60 md:h-60">
+          <span className="font-bebas text-xs sm:text-sm tracking-widest text-amazon-navy/80 mb-2">SCAN YOUR MANUSCRIPT</span>
+          <div className="relative flex items-center justify-center flex-1 w-full">
+            <span className="absolute inset-0 rounded-full border-2 border-amazon-navy/15" aria-hidden />
+            <span className="absolute inset-2 rounded-full border-2 border-brave/25" aria-hidden />
+            <span className="absolute inset-4 rounded-full border-2 border-brave/40" aria-hidden />
+            <span className="absolute inset-6 rounded-full border-2 border-brave/60 bg-brave/10" aria-hidden />
+            <Link
+              href="/kdp-pdf-checker"
+              className="relative z-10 flex items-center justify-center rounded-full w-24 h-24 sm:w-28 sm:h-28 font-bold text-sm text-white shadow-[0_0_0_2px_rgba(251,84,43,0.35),0_4px_12px_rgba(251,84,43,0.4),inset_0_1px_0_rgba(255,255,255,0.2)] hover:scale-105 transition-transform"
+              style={{ background: "linear-gradient(180deg, #FF6B4A 0%, #FB542B 50%, #E84A1C 100%)" }}
+              title="Scan My PDF"
+            >
+              Scan My PDF
+            </Link>
+          </div>
+          <p className="text-[11px] sm:text-xs text-soft-muted mt-2 text-center">Free scan • Instant report • No signup required</p>
         </div>
       </div>
     </div>
@@ -134,254 +141,190 @@ export default function Home() {
               href="/kdp-pdf-checker"
               className="rounded-lg px-4 py-2 text-sm font-medium bg-brave text-white hover:opacity-90 transition-opacity"
             >
-              Check My PDF
+              Scan My PDF
             </Link>
             <AuthNav theme="light" />
           </div>
         </div>
       </nav>
 
-      {/* 1. Hero — graphic first so target is above the fold; only round button in bullseye */}
-      <section className="px-6 pt-2 pb-8 sm:pt-4 sm:pb-10 bg-ivory min-h-0">
+      {/* 1. Hero — PDF visual + bullseye; headline and subheadline */}
+      <section className="px-6 pt-2 pb-12 sm:pt-4 sm:pb-14 bg-ivory min-h-0">
         <div className="mx-auto max-w-4xl text-center">
           <HeroPdfVisual />
-          <h2 className="font-bebas text-xl sm:text-2xl tracking-wide text-amazon-navy mt-4 mb-1">
-            <a href="#how-it-works" className="hover:text-brave transition-colors">How it works</a>
-          </h2>
-          <h1 className="font-bebas text-2xl sm:text-3xl md:text-4xl font-normal tracking-tight text-amazon-navy mb-2 text-balance leading-tight">
-            Turn Your Manuscript Into a Print-Ready Book
+          <h1 className="font-bebas text-2xl sm:text-3xl md:text-4xl font-normal tracking-tight text-amazon-navy mt-6 mb-2 text-balance leading-tight">
+            Turn Your Manuscript Into a Print-Ready PDF
           </h1>
-          <p className="font-sans text-base sm:text-lg text-soft-muted text-balance mb-2 max-w-2xl mx-auto">
-            Check, fix, and prepare your PDF for Amazon KDP before you upload.
+          <p className="font-sans text-base sm:text-lg text-soft-muted text-balance max-w-2xl mx-auto">
+            Scan your book for trim size, margins, bleed, and print formatting issues before uploading to Amazon KDP.
           </p>
-          <p className="font-sans text-sm text-soft-muted text-balance">
-            Avoid rejection. Save hours of frustration. Publish with confidence.
-          </p>
-          <a href="#how-it-works" className="inline-block mt-2 text-sm font-medium text-brave hover:underline">
-            See How It Works
-          </a>
         </div>
       </section>
 
-      {/* 2. The problem */}
+      {/* Section 1 — Credibility */}
       <section className="px-6 py-12 bg-arctic/80 border-y border-soft-border">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-bebas text-2xl sm:text-3xl text-amazon-navy mb-4">
-            KDP rejection hurts
-          </h2>
-          <p className="text-soft-muted leading-relaxed">
-            You upload your interior — and Amazon bounces it. Wrong trim, margins too tight, bleed missing. Hours of guessing. Our tools show you exactly what to fix before you hit upload, so your book passes the first time.
+          <p className="text-soft-muted text-sm sm:text-base">
+            Built for self-publishing authors preparing books for Amazon KDP.
           </p>
         </div>
       </section>
 
-      {/* 3. Toolkit — PDF tools (live) + DOCX/others (coming soon). Same block format, all text centered. */}
-      <section id="tools" className="px-6 py-16 bg-ivory">
+      {/* Section 2 — What the Scanner Checks */}
+      <section className="px-6 py-16 bg-ivory">
         <div className="mx-auto max-w-5xl">
-          <h2 className="font-bebas text-3xl sm:text-4xl tracking-tight text-amazon-navy text-center mb-3">
-            The toolkit
+          <h2 className="font-bebas text-2xl sm:text-3xl tracking-tight text-amazon-navy text-center mb-10">
+            What the Scanner Checks
           </h2>
-          <p className="font-sans text-soft-muted text-center mb-10 max-w-xl mx-auto">
-            PDF tools ready now. DOCX tools coming soon.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <DirectiveToolCard
-              title="PRINT READY CHECK"
-              description="Upload your book PDF and instantly see if Amazon KDP will reject it. Trim, margins, bleed — 26 rules. Pass/fail report with on-page highlights."
-              cta="Analyze My PDF"
-              ctaHref="/kdp-pdf-checker"
-              variant="primary"
-            />
-            <DirectiveToolCard
-              title="PDF COMPRESSOR"
-              description="Shrink PDFs up to 50 MB in your browser. No account needed. Your file never leaves your device."
-              cta="Open Tool"
-              ctaHref="/pdf-compress"
-              variant="available"
-            />
-            <DirectiveToolCard
-              title="PDF PRINT OPTIMIZER"
-              description="Shrink and print-optimize your PDF for smaller file size. Runs in your browser. Free."
-              cta="Open Tool"
-              ctaHref="/kdp-formatter-pdf"
-              variant="available"
-            />
-            <DirectiveToolCard
-              title="KDP FORMATTER (DOCX)"
-              description="Format your Word manuscript for KDP print. Trim size, bleed, margins. Outputs print-ready PDF."
-              cta="Coming Soon"
-              variant="coming"
-            />
-            <DirectiveToolCard
-              title="7 KEYWORD RESEARCH (DOCX)"
-              description="Get 7 KDP keyword phrases from your DOCX manuscript. AI-powered suggestions for your listing."
-              cta="Coming Soon"
-              variant="coming"
-            />
-            <DirectiveToolCard
-              title="DESCRIPTION GENERATOR (DOCX)"
-              description="Full Amazon listing from your manuscript: book description, author bio, BISAC categories."
-              cta="Coming Soon"
-              variant="coming"
-            />
-            <DirectiveToolCard
-              title="COVER CHECK"
-              description="Validate your full-wrap KDP cover for spine width, bleed, and trim alignment before you upload."
-              cta="Coming Soon"
-              variant="coming"
-            />
-            <DirectiveToolCard
-              title="BOOK LAYOUT FIXER"
-              description="Automatically repair common interior layout mistakes so your PDF passes KDP validation."
-              cta="Coming Soon"
-              variant="coming"
-            />
-            <DirectiveToolCard
-              title="AI FORMATTER"
-              description="Turn a raw manuscript into a properly formatted book interior. AI-powered structure and layout."
-              cta="Coming Soon"
-              variant="ai"
-            />
-          </div>
-          <p className="text-center mt-8">
-            <Link href="/platform/kdp" className="text-brave font-medium hover:underline">
-              See all tools →
-            </Link>
-          </p>
-        </div>
-      </section>
-
-      {/* 3b. Free tools — 6 cards, same block format, all text centered */}
-      <section className="px-6 py-16 bg-arctic/60 border-y border-soft-border">
-        <div className="mx-auto max-w-5xl">
-          <h2 className="font-bebas text-3xl sm:text-4xl tracking-tight text-amazon-navy text-center mb-3">
-            Free tools
-          </h2>
-          <p className="font-sans text-soft-muted text-center mb-10 max-w-xl mx-auto">
-            Calculators and helpers — no payment required.
-          </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <DirectiveToolCard
-              title="PDF COMPRESSOR"
-              description="Shrink PDFs up to 50 MB in your browser. No account needed. Your file never leaves your device."
-              cta="Open Tool"
-              ctaHref="/pdf-compress"
-              variant="available"
-            />
-            <DirectiveToolCard
-              title="KDP ROYALTY CALCULATOR"
-              description="Earnings by page count, trim size, and list price. See royalty and print cost before you publish."
-              cta="Open Tool"
-              ctaHref="/royalty-calculator"
-              variant="available"
-            />
-            <DirectiveToolCard
-              title="PAGE COUNT ESTIMATOR"
-              description="Estimate interior page count from your word count and trim size. Plan your book length."
-              cta="Open Tool"
-              ctaHref="/page-count-estimator"
-              variant="available"
-            />
-            <DirectiveToolCard
-              title="TRIM SIZE COMPARISON"
-              description="Compare print cost and royalty across trim sizes. Pick the best size for your book."
-              cta="Open Tool"
-              ctaHref="/trim-size-comparison"
-              variant="available"
-            />
-            <DirectiveToolCard
-              title="SPINE WIDTH CALCULATOR"
-              description="Spine width and full-wrap cover dimensions for KDP paperbacks. Use with cover design tools."
-              cta="Open Tool"
-              ctaHref="/spine-calculator"
-              variant="available"
-            />
-            <DirectiveToolCard
-              title="FULL-WRAP COVER CALCULATOR"
-              description="Cover canvas size in inches and 300 DPI pixels for Canva and other design tools."
-              cta="Open Tool"
-              ctaHref="/cover-calculator"
-              variant="available"
-            />
+            {[
+              { title: "Trim Size Detection", desc: "Validates your PDF matches KDP trim size requirements.", icon: "ruler" },
+              { title: "Margin Safety Check", desc: "Ensures inner and outer margins meet KDP minimums.", icon: "margin" },
+              { title: "Bleed & Gutter Validation", desc: "Checks bleed and gutter so content stays in safe area.", icon: "bleed" },
+              { title: "Page Count Validation", desc: "Verifies page count is within KDP limits for your trim.", icon: "pages" },
+              { title: "Font Embedding Check", desc: "Confirms fonts are embedded for print reliability.", icon: "font" },
+            ].map((item, i) => (
+              <div key={i} className="rounded-xl border border-soft-border bg-white p-5 text-center">
+                <div className="w-10 h-10 rounded-lg bg-brave/15 text-brave flex items-center justify-center mx-auto mb-3">
+                  {item.icon === "ruler" && <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>}
+                  {item.icon === "margin" && <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>}
+                  {item.icon === "bleed" && <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" /></svg>}
+                  {item.icon === "pages" && <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>}
+                  {item.icon === "font" && <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12 6.75v10.5" /></svg>}
+                </div>
+                <h3 className="font-semibold text-amazon-navy mb-1">{item.title}</h3>
+                <p className="text-sm text-soft-muted">{item.desc}</p>
+              </div>
+            ))}
           </div>
-          <p className="text-center mt-8">
-            <Link href="/platform/kdp" className="text-brave font-medium hover:underline">
-              See all tools →
-            </Link>
-          </p>
         </div>
       </section>
 
-      {/* 4. How it works */}
+      {/* Section 3 — How It Works */}
       <section id="how-it-works" className="px-6 py-16 bg-arctic/60 border-y border-soft-border">
         <div className="mx-auto max-w-3xl">
-          <h2 className="font-bebas text-3xl sm:text-4xl tracking-tight text-amazon-navy text-center mb-10">
-            How it works
+          <h2 className="font-bebas text-2xl sm:text-3xl tracking-tight text-amazon-navy text-center mb-10">
+            How It Works
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="w-12 h-12 rounded-full bg-brave/20 text-brave flex items-center justify-center font-bebas text-xl mx-auto mb-3">1</div>
-              <h3 className="font-semibold text-amazon-navy mb-2">Upload your manuscript PDF</h3>
-              <p className="text-sm text-soft-muted">Drop your interior file. We accept up to 100 MB.</p>
+              <h3 className="font-semibold text-amazon-navy mb-2">Upload your PDF</h3>
+              <p className="text-sm text-soft-muted">Drop your manuscript interior file.</p>
             </div>
             <div className="text-center">
               <div className="w-12 h-12 rounded-full bg-brave/20 text-brave flex items-center justify-center font-bebas text-xl mx-auto mb-3">2</div>
-              <h3 className="font-semibold text-amazon-navy mb-2">We analyze every page</h3>
-              <p className="text-sm text-soft-muted">26 rules. Trim, margins, bleed, gutter — we check it all.</p>
+              <h3 className="font-semibold text-amazon-navy mb-2">Scan for formatting issues</h3>
+              <p className="text-sm text-soft-muted">We check trim, margins, bleed, and more.</p>
             </div>
             <div className="text-center">
               <div className="w-12 h-12 rounded-full bg-brave/20 text-brave flex items-center justify-center font-bebas text-xl mx-auto mb-3">3</div>
-              <h3 className="font-semibold text-amazon-navy mb-2">See exactly what to fix</h3>
-              <p className="text-sm text-soft-muted">Pass/fail report and on-page highlights before you upload to KDP.</p>
+              <h3 className="font-semibold text-amazon-navy mb-2">Fix problems before uploading to KDP</h3>
+              <p className="text-sm text-soft-muted">Get a clear report and fix before you submit.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 5. Benefits */}
-      <section className="px-6 py-16 bg-ivory">
-        <div className="mx-auto max-w-3xl">
-          <h2 className="font-bebas text-3xl sm:text-4xl tracking-tight text-amazon-navy text-center mb-10">
-            Why authors use us
+      {/* Section 4 — Author Tools (FREE / PRO) */}
+      <section id="tools" className="px-6 py-16 bg-ivory">
+        <div className="mx-auto max-w-5xl">
+          <h2 className="font-bebas text-2xl sm:text-3xl tracking-tight text-amazon-navy text-center mb-10">
+            Author Tools
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-            <div className="text-center">
-              <h3 className="font-semibold text-amazon-navy mb-2">Avoid KDP Rejection</h3>
-              <p className="text-sm text-soft-muted">Find layout issues before Amazon does.</p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            <div>
+              <h3 className="font-bebas text-lg tracking-wide text-freeGreen mb-4">FREE TOOLS</h3>
+              <ul className="space-y-3">
+                {[
+                  { name: "Margin Checker", href: "/kdp-pdf-checker" },
+                  { name: "Trim Size Checker", href: "/kdp-pdf-checker" },
+                  { name: "Page Count Validator", href: "/page-count-estimator" },
+                ].map((t, i) => (
+                  <li key={i}>
+                    <Link href={t.href} className="text-amazon-navy hover:text-brave font-medium text-sm sm:text-base">
+                      {t.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="text-center">
-              <h3 className="font-semibold text-amazon-navy mb-2">Save Hours of Frustration</h3>
-              <p className="text-sm text-soft-muted">Stop guessing why your book failed validation.</p>
-            </div>
-            <div className="text-center">
-              <h3 className="font-semibold text-amazon-navy mb-2">Publish With Confidence</h3>
-              <p className="text-sm text-soft-muted">Know your book is ready before you click upload.</p>
+            <div>
+              <h3 className="font-bebas text-lg tracking-wide text-brave mb-4">PRO TOOLS</h3>
+              <ul className="space-y-3">
+                {[
+                  { name: "Full Print Readiness Scan", href: "/kdp-pdf-checker" },
+                  { name: "KDP Compliance Report", href: "/kdp-pdf-checker" },
+                  { name: "Formatting Fix Suggestions", href: "/kdp-pdf-checker" },
+                ].map((t, i) => (
+                  <li key={i}>
+                    <Link href={t.href} className="text-amazon-navy hover:text-brave font-medium text-sm sm:text-base">
+                      {t.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
+          <p className="text-center mt-8">
+            <Link href="/platform/kdp" className="text-brave font-medium hover:underline text-sm">
+              See all tools →
+            </Link>
+          </p>
         </div>
       </section>
 
-      {/* 5b. Testimonials (placeholder for beta) */}
+      {/* Section 5 — Comparison Table */}
       <section className="px-6 py-16 bg-arctic/60 border-y border-soft-border">
-        <div className="mx-auto max-w-4xl">
-          <h2 className="font-bebas text-3xl sm:text-4xl tracking-tight text-amazon-navy text-center mb-10">
-            What Authors Are Saying
+        <div className="mx-auto max-w-4xl overflow-x-auto">
+          <h2 className="font-bebas text-2xl sm:text-3xl tracking-tight text-amazon-navy text-center mb-10">
+            Why Authors Use manu2print
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="rounded-xl border border-soft-border bg-white p-5 shadow-sm">
-              <p className="text-sm text-soft-muted italic">&ldquo;manu2print saved me hours trying to figure out why KDP rejected my PDF.&rdquo;</p>
-            </div>
-            <div className="rounded-xl border border-soft-border bg-white p-5 shadow-sm">
-              <p className="text-sm text-soft-muted italic">&ldquo;Finally a tool that shows exactly what&apos;s wrong with my book layout.&rdquo;</p>
-            </div>
-            <div className="rounded-xl border border-soft-border bg-white p-5 shadow-sm">
-              <p className="text-sm text-soft-muted italic">&ldquo;Placeholder — real testimonial after beta.&rdquo;</p>
-            </div>
-          </div>
+          <table className="w-full text-sm border-collapse border border-soft-border bg-white rounded-lg overflow-hidden shadow-sm">
+            <thead>
+              <tr className="bg-arctic">
+                <th className="border border-soft-border px-4 py-3 text-left font-semibold text-amazon-navy">Feature</th>
+                <th className="border border-soft-border px-4 py-3 text-center font-semibold text-brave bg-brave/10">manu2print</th>
+                <th className="border border-soft-border px-4 py-3 text-center font-semibold text-amazon-navy">Vellum</th>
+                <th className="border border-soft-border px-4 py-3 text-center font-semibold text-amazon-navy">Other Formatting Tools</th>
+              </tr>
+            </thead>
+            <tbody className="text-soft-muted">
+              <tr><td className="border border-soft-border px-4 py-2">PDF Print Check</td><td className="border border-soft-border px-4 py-2 text-center text-brave font-medium">✓</td><td className="border border-soft-border px-4 py-2 text-center">—</td><td className="border border-soft-border px-4 py-2 text-center">Varies</td></tr>
+              <tr><td className="border border-soft-border px-4 py-2">KDP Compliance Scan</td><td className="border border-soft-border px-4 py-2 text-center text-brave font-medium">✓</td><td className="border border-soft-border px-4 py-2 text-center">—</td><td className="border border-soft-border px-4 py-2 text-center">Varies</td></tr>
+              <tr><td className="border border-soft-border px-4 py-2">Automated Issue Detection</td><td className="border border-soft-border px-4 py-2 text-center text-brave font-medium">✓</td><td className="border border-soft-border px-4 py-2 text-center">—</td><td className="border border-soft-border px-4 py-2 text-center">Varies</td></tr>
+              <tr><td className="border border-soft-border px-4 py-2">Price</td><td className="border border-soft-border px-4 py-2 text-center text-brave font-medium">$7 / $27</td><td className="border border-soft-border px-4 py-2 text-center">Paid</td><td className="border border-soft-border px-4 py-2 text-center">Varies</td></tr>
+            </tbody>
+          </table>
         </div>
       </section>
 
-      {/* 6. Trust */}
+      {/* Section 6 — Testimonial Placeholder */}
+      <section className="px-6 py-16 bg-ivory">
+        <div className="mx-auto max-w-2xl text-center">
+          <blockquote className="text-lg sm:text-xl text-amazon-navy/90 italic">
+            &ldquo;Found margin issues before uploading to KDP. Saved me hours.&rdquo;
+          </blockquote>
+          <cite className="not-italic text-sm text-soft-muted mt-2 block">— Self-Publishing Author</cite>
+        </div>
+      </section>
+
+      {/* Section 7 — Final CTA */}
+      <section className="px-6 py-16 bg-arctic/80 border-t border-soft-border">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="font-bebas text-2xl sm:text-3xl tracking-tight text-amazon-navy mb-4">
+            Ready to check your book before publishing?
+          </h2>
+          <Link
+            href="/kdp-pdf-checker"
+            className="inline-block rounded-lg px-8 py-4 text-base font-medium bg-brave text-white hover:opacity-90 transition-opacity shadow-lg shadow-brave/20 mt-6"
+          >
+            Scan My PDF
+          </Link>
+        </div>
+      </section>
+
+      {/* Trust + marquee (keep existing) */}
       <section className="py-8 bg-arctic/80 border-y border-soft-border">
         <p className="text-center text-sm text-soft-muted max-w-xl mx-auto px-4">
           Your files are processed securely and never stored permanently.
@@ -406,50 +349,6 @@ export default function Home() {
             <span className="text-white/50" aria-hidden>✦</span>
             <span>No account required to start</span>
           </span>
-        </div>
-      </section>
-
-      {/* 7. Competitor comparison (placeholder for beta) */}
-      <section className="px-6 py-16 bg-ivory">
-        <div className="mx-auto max-w-4xl overflow-x-auto">
-          <h2 className="font-bebas text-3xl sm:text-4xl tracking-tight text-amazon-navy text-center mb-10">
-            How manu2print Compares
-          </h2>
-          <table className="w-full text-sm border-collapse border border-soft-border bg-white rounded-lg overflow-hidden shadow-sm">
-            <thead>
-              <tr className="bg-arctic">
-                <th className="border border-soft-border px-4 py-3 text-left font-semibold text-amazon-navy">Feature</th>
-                <th className="border border-soft-border px-4 py-3 text-center font-semibold text-brave bg-brave/10">manu2print</th>
-                <th className="border border-soft-border px-4 py-3 text-center font-semibold text-amazon-navy">Vellum</th>
-                <th className="border border-soft-border px-4 py-3 text-center font-semibold text-amazon-navy">Atticus</th>
-                <th className="border border-soft-border px-4 py-3 text-center font-semibold text-amazon-navy">Other tools</th>
-              </tr>
-            </thead>
-            <tbody className="text-soft-muted">
-              <tr><td className="border border-soft-border px-4 py-2">PDF Layout Validation</td><td className="border border-soft-border px-4 py-2 text-center text-brave font-medium">✓</td><td className="border border-soft-border px-4 py-2 text-center">—</td><td className="border border-soft-border px-4 py-2 text-center">—</td><td className="border border-soft-border px-4 py-2 text-center">Varies</td></tr>
-              <tr><td className="border border-soft-border px-4 py-2">KDP Print Readiness Check</td><td className="border border-soft-border px-4 py-2 text-center text-brave font-medium">✓</td><td className="border border-soft-border px-4 py-2 text-center">—</td><td className="border border-soft-border px-4 py-2 text-center">—</td><td className="border border-soft-border px-4 py-2 text-center">Varies</td></tr>
-              <tr><td className="border border-soft-border px-4 py-2">Margin + Gutter Analysis</td><td className="border border-soft-border px-4 py-2 text-center text-brave font-medium">✓</td><td className="border border-soft-border px-4 py-2 text-center">—</td><td className="border border-soft-border px-4 py-2 text-center">—</td><td className="border border-soft-border px-4 py-2 text-center">Varies</td></tr>
-              <tr><td className="border border-soft-border px-4 py-2">Trim Size Detection</td><td className="border border-soft-border px-4 py-2 text-center text-brave font-medium">✓</td><td className="border border-soft-border px-4 py-2 text-center">—</td><td className="border border-soft-border px-4 py-2 text-center">—</td><td className="border border-soft-border px-4 py-2 text-center">Varies</td></tr>
-              <tr><td className="border border-soft-border px-4 py-2">Visual Error Highlighting</td><td className="border border-soft-border px-4 py-2 text-center text-brave font-medium">✓</td><td className="border border-soft-border px-4 py-2 text-center">—</td><td className="border border-soft-border px-4 py-2 text-center">—</td><td className="border border-soft-border px-4 py-2 text-center">Varies</td></tr>
-              <tr><td className="border border-soft-border px-4 py-2">Price</td><td className="border border-soft-border px-4 py-2 text-center text-brave font-medium">$7 / $27</td><td className="border border-soft-border px-4 py-2 text-center">Paid</td><td className="border border-soft-border px-4 py-2 text-center">Subscription</td><td className="border border-soft-border px-4 py-2 text-center">Varies</td></tr>
-            </tbody>
-          </table>
-          <p className="text-center text-xs text-soft-muted mt-4">Placeholder — expand with real data after beta.</p>
-        </div>
-      </section>
-
-      {/* 8. Final CTA */}
-      <section className="px-6 py-16 bg-arctic/80 border-t border-soft-border">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-bebas text-3xl sm:text-4xl tracking-tight text-amazon-navy mb-4">
-            Ready to See if Your Book Will Pass KDP?
-          </h2>
-          <Link
-            href="/kdp-pdf-checker"
-            className="inline-block rounded-lg px-8 py-4 text-base font-medium bg-brave text-white hover:opacity-90 transition-opacity shadow-lg shadow-brave/20 mt-6"
-          >
-            Check My PDF
-          </Link>
         </div>
       </section>
 
