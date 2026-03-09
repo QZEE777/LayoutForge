@@ -334,7 +334,7 @@ export default function Home() {
                   ["Compliance report page", "✅ Included", "❌", "❌", "❌"],
                   ["Keeps your original formatting", "✅ Surgical edits", "❌ Rebuilds book", "❌ Rebuilds book", "❌ Rebuilds book"],
                   ["Price", "$XXX per book", "$249 upfront", "$147 upfront", "Free (limited)"],
-                  ["Built by KDP authors", "✅ 8 books published", "❌", "❌", "❌"],
+                  ["Built by KDP authors", "✅ 18 books published", "❌", "❌", "❌"],
                   ["Auto-fix margins & breaks", "✅", "❌", "❌", "❌"],
                 ].map((row, i) => (
                   <tr key={i} className={`${i % 2 === 0 ? "bg-white" : "bg-[#F5F0E3]"} hover:bg-[#FAF7EE]/80 transition-colors`}>
@@ -367,7 +367,7 @@ export default function Home() {
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl mx-auto text-center">
             {[
-              ["8", "KDP Books Published by Founder"],
+              ["18", "KDP Books Published by Founder"],
               ["~3 MIN", "Average Processing Time"],
               ["100%", "Browser-Based, No Install"],
               ["$XXX", "vs $249 Vellum · $147 Atticus"],
