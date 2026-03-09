@@ -40,6 +40,12 @@ export default function TargetGraphic({ size = 420 }: { size?: number }) {
           strokeWidth="2"
           filter="url(#page-shadow)"
         />
+        {/* Top white area: three-line caption in neon green, cap each word, no periods */}
+        <g fontFamily="Inter, sans-serif" fontSize={Math.max(10, size * 0.028)} fill="#39FF14" fontWeight="600" textAnchor="middle">
+          <text x={pageX + pageW / 2} y={pageY + size * 0.078}>Upload Your PDF</text>
+          <text x={pageX + pageW / 2} y={pageY + size * 0.115}>See Every KDP Error</text>
+          <text x={pageX + pageW / 2} y={pageY + size * 0.152}>Download The Fix</text>
+        </g>
         {/* Outer dashed = KDP safe zone green */}
         <rect
           x={pageX + safeInset}

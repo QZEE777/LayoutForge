@@ -106,39 +106,27 @@ export default function Home() {
               <p className="text-base text-[#6B6151] max-w-xl mx-auto lg:mx-0 mt-0 mb-4 leading-snug" style={{ fontFamily: "Inter, sans-serif", fontWeight: 400 }}>
                 Your PDF gets rejected by KDP because of margin violations, incorrect page size, and formatting errors Amazon won&apos;t explain clearly. Upload your PDF. We scan it, show you exactly what&apos;s wrong, and fix it — so you can publish without the guesswork.
               </p>
-              <div className="flex flex-wrap gap-2 justify-center lg:justify-start mt-0">
+              <div className="flex flex-wrap gap-2 justify-center lg:justify-start mt-0 items-center">
                 <Link
                   href="/formatter"
-                  className="bg-[#F05A28] hover:bg-[#D94E20] text-white font-bold text-sm px-6 py-3 rounded-xl shadow-[0_4px_20px_rgba(240,90,40,0.35)] hover:-translate-y-0.5 transition-all"
+                  className="bg-[#F05A28] hover:bg-[#D94E20] text-white font-bold text-sm px-6 py-3 rounded-xl shadow-[0_4px_20px_rgba(240,90,40,0.35)] hover:-translate-y-0.5 transition-all uppercase tracking-wide"
                   style={{ fontFamily: "Inter, sans-serif" }}
                 >
                   📄 Scan My PDF — See What&apos;s Wrong
                 </Link>
                 <a
                   href="#how-it-works"
-                  className="lg:hidden border border-[#E0D8C4] text-[#6B6151] font-medium text-xs px-4 py-2 rounded-xl hover:bg-[#F5F0E3] transition-all inline-block"
+                  className="bg-[#39FF14] hover:bg-[#32E612] text-white font-bold text-sm px-6 py-3 rounded-xl shadow-[0_4px_20px_rgba(57,255,20,0.4)] hover:-translate-y-0.5 transition-all uppercase tracking-wide"
                   style={{ fontFamily: "Inter, sans-serif" }}
                 >
                   See How It Works ↓
                 </a>
               </div>
             </div>
-            {/* RIGHT COLUMN — compact; graphic + caption only on desktop, "See How It Works" above on lg */}
+            {/* RIGHT COLUMN — graphic only; caption moved inside graphic */}
             <div className="flex-[0.9] flex flex-col items-center w-full lg:w-auto order-1 lg:order-2">
-              <div className="hidden lg:block mb-2">
-                <a
-                  href="#how-it-works"
-                  className="bg-[#2D8C4E] hover:bg-[#26803f] text-[#F05A28] font-bold text-xs px-4 py-2 rounded-xl transition-all uppercase tracking-wide"
-                  style={{ fontFamily: "Inter, sans-serif" }}
-                >
-                  See How It Works ↓
-                </a>
-              </div>
               <div className="max-w-lg mx-auto w-full flex flex-col items-center">
                 <TargetGraphic size={380} />
-                <p className="text-[11px] text-[#6B6151] italic mt-1.5 text-center" style={{ fontFamily: "Inter, sans-serif" }}>
-                  Upload your PDF. See every KDP error. Download the fix.
-                </p>
               </div>
             </div>
           </div>
