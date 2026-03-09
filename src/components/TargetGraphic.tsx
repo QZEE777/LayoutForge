@@ -40,13 +40,7 @@ export default function TargetGraphic({ size = 420 }: { size?: number }) {
           strokeWidth="2"
           filter="url(#page-shadow)"
         />
-        {/* Top white strip only: three-line caption, neon green, above the dashed border */}
-        <g fontFamily="Inter, sans-serif" fontSize={Math.max(8, size * 0.02)} fill="#39FF14" fontWeight="600" textAnchor="middle">
-          <text x={pageX + pageW / 2} y={pageY + size * 0.032}>Upload Your PDF</text>
-          <text x={pageX + pageW / 2} y={pageY + size * 0.048}>See Every KDP Error</text>
-          <text x={pageX + pageW / 2} y={pageY + size * 0.064}>Download The Fix</text>
-        </g>
-        {/* Outer dashed = KDP safe zone green (neon to match site green) */}
+        {/* Outer dashed = KDP safe zone green */}
         <rect
           x={pageX + safeInset}
           y={pageY + safeInset}
@@ -54,11 +48,11 @@ export default function TargetGraphic({ size = 420 }: { size?: number }) {
           height={pageH - safeInset * 2}
           rx={size * 0.008}
           fill="none"
-          stroke="#39FF14"
+          stroke="#4cd964"
           strokeWidth="2"
           strokeDasharray="8 6"
         />
-        {/* Inner dashed = content area gold */}
+        {/* Inner dashed = content area orange/gold */}
         <rect
           x={pageX + innerInset}
           y={pageY + innerInset}
@@ -70,6 +64,12 @@ export default function TargetGraphic({ size = 420 }: { size?: number }) {
           strokeWidth="1.5"
           strokeDasharray="6 4"
         />
+        {/* Three-line caption below orange dashed line, in white space above target */}
+        <g fontFamily="Inter, sans-serif" fontSize={Math.max(9, size * 0.024)} fill="#4cd964" fontWeight="600" textAnchor="middle">
+          <text x={pageX + pageW / 2} y={pageY + innerInset + size * 0.068}>Upload Your PDF</text>
+          <text x={pageX + pageW / 2} y={pageY + innerInset + size * 0.098}>See Every KDP Error</text>
+          <text x={pageX + pageW / 2} y={pageY + innerInset + size * 0.128}>Download The Fix</text>
+        </g>
         {/* Red crosshair horizontal */}
         <line
           x1={pageX}
