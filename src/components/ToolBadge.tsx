@@ -2,15 +2,15 @@
 
 const styles = {
   live: {
-    background: "#EAF7EE",
-    color: "#2D8C4E",
-    border: "1px solid #2D8C4E",
+    background: "#E8FFE5",
+    color: "#39FF14",
+    border: "1px solid #39FF14",
     text: "● LIVE",
   },
   free: {
-    background: "#EAF7EE",
-    color: "#2D8C4E",
-    border: "1px solid #2D8C4E",
+    background: "#E8FFE5",
+    color: "#39FF14",
+    border: "1px solid #39FF14",
     text: "◆ FREE",
   },
   "coming-soon": {

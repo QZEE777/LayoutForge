@@ -40,13 +40,13 @@ export default function TargetGraphic({ size = 420 }: { size?: number }) {
           strokeWidth="2"
           filter="url(#page-shadow)"
         />
-        {/* Top white area: three-line caption in neon green, cap each word, no periods */}
-        <g fontFamily="Inter, sans-serif" fontSize={Math.max(10, size * 0.028)} fill="#39FF14" fontWeight="600" textAnchor="middle">
-          <text x={pageX + pageW / 2} y={pageY + size * 0.078}>Upload Your PDF</text>
-          <text x={pageX + pageW / 2} y={pageY + size * 0.115}>See Every KDP Error</text>
-          <text x={pageX + pageW / 2} y={pageY + size * 0.152}>Download The Fix</text>
+        {/* Top white strip only: three-line caption, neon green, above the dashed border */}
+        <g fontFamily="Inter, sans-serif" fontSize={Math.max(8, size * 0.02)} fill="#39FF14" fontWeight="600" textAnchor="middle">
+          <text x={pageX + pageW / 2} y={pageY + size * 0.032}>Upload Your PDF</text>
+          <text x={pageX + pageW / 2} y={pageY + size * 0.048}>See Every KDP Error</text>
+          <text x={pageX + pageW / 2} y={pageY + size * 0.064}>Download The Fix</text>
         </g>
-        {/* Outer dashed = KDP safe zone green */}
+        {/* Outer dashed = KDP safe zone green (neon to match site green) */}
         <rect
           x={pageX + safeInset}
           y={pageY + safeInset}
@@ -54,7 +54,7 @@ export default function TargetGraphic({ size = 420 }: { size?: number }) {
           height={pageH - safeInset * 2}
           rx={size * 0.008}
           fill="none"
-          stroke="#2ECC71"
+          stroke="#39FF14"
           strokeWidth="2"
           strokeDasharray="8 6"
         />

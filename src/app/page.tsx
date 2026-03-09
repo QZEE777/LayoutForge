@@ -95,18 +95,18 @@ export default function Home() {
           </span>
         </div>
         <div className="max-w-6xl mx-auto px-6 w-full flex-1 min-h-0 flex flex-col justify-center">
-          <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-10">
-            {/* LEFT COLUMN — no top offset; compact spacing */}
-            <div className="flex-[1.1] text-center lg:text-left w-full lg:w-auto order-2 lg:order-1">
-              <h1 className="text-[#1A1208] leading-tight tracking-wide mt-0 mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1.9rem, 3.8vw, 3.75rem)" }}>
+          <div className="flex flex-col lg:flex-row items-start gap-6 lg:gap-10">
+            {/* LEFT COLUMN — headline larger, centered above body; aligned no higher than graphic */}
+            <div className="flex-[1.1] w-full lg:w-auto order-2 lg:order-1 text-center">
+              <h1 className="text-[#1A1208] leading-tight tracking-wide mt-0 mb-3 text-center" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2.25rem, 4.8vw, 4.25rem)" }}>
                 KDP KILLED YOUR PDF?
                 <br />
                 <span className="text-[#F05A28]">WE FIX IT.</span>
               </h1>
-              <p className="text-base text-[#6B6151] max-w-xl mx-auto lg:mx-0 mt-0 mb-4 leading-snug" style={{ fontFamily: "Inter, sans-serif", fontWeight: 400 }}>
+              <p className="text-base text-[#6B6151] max-w-xl mx-auto mt-0 mb-4 leading-snug text-center lg:text-left" style={{ fontFamily: "Inter, sans-serif", fontWeight: 400 }}>
                 Your PDF gets rejected by KDP because of margin violations, incorrect page size, and formatting errors Amazon won&apos;t explain clearly. Upload your PDF. We scan it, show you exactly what&apos;s wrong, and fix it — so you can publish without the guesswork.
               </p>
-              <div className="flex flex-wrap gap-2 justify-center lg:justify-start mt-0 items-center">
+              <div className="flex flex-wrap gap-2 justify-center lg:justify-start mt-0 items-center text-center lg:text-left">
                 <Link
                   href="/formatter"
                   className="bg-[#F05A28] hover:bg-[#D94E20] text-white font-bold text-sm px-6 py-3 rounded-xl shadow-[0_4px_20px_rgba(240,90,40,0.35)] hover:-translate-y-0.5 transition-all uppercase tracking-wide"
@@ -133,7 +133,7 @@ export default function Home() {
         </div>
         {/* Trust row — faded green box */}
         <div className="max-w-6xl mx-auto px-6 mt-4 flex-shrink-0">
-          <div className="rounded-xl bg-[#EAF7EE]/90 border border-[#2D8C4E]/25 px-4 py-2.5 flex flex-wrap gap-x-4 gap-y-1 justify-center text-xs text-[#1A1208]/90 shadow-sm" style={{ fontFamily: "Inter, sans-serif" }}>
+          <div className="rounded-xl bg-[#E8FFE5]/90 border border-[#39FF14]/25 px-4 py-2.5 flex flex-wrap gap-x-4 gap-y-1 justify-center text-xs text-[#1A1208]/90 shadow-sm" style={{ fontFamily: "Inter, sans-serif" }}>
             <span>✓ Free compliance scan — no credit card</span>
             <span>✓ See every KDP error before you pay</span>
             <span>✓ Download the fixed PDF to publish</span>
@@ -323,7 +323,7 @@ export default function Home() {
                 ].map((row, i) => (
                   <tr key={i} className={`${i % 2 === 0 ? "bg-white" : "bg-[#F5F0E3]"} hover:bg-[#FAF7EE]/80 transition-colors`}>
                     <td className="px-4 py-3 text-[#1A1208]">{row[0]}</td>
-                    <td className="px-4 py-3 text-center font-bold text-[#2D8C4E] border-l-2 border-r-2 border-[#F05A28]">{row[1]}</td>
+                    <td className="px-4 py-3 text-center font-bold text-[#39FF14] border-l-2 border-r-2 border-[#F05A28]">{row[1]}</td>
                     <td className="px-4 py-3 text-center">{row[2] === "❌" || row[2].startsWith("❌") ? <span className="text-[#E74C3C]">{row[2]}</span> : row[2] === "⚠️ Partial" ? <span className="text-[#C8860A]">{row[2]}</span> : row[2]}</td>
                     <td className="px-4 py-3 text-center">{row[3] === "❌" || row[3].startsWith("❌") ? <span className="text-[#E74C3C]">{row[3]}</span> : row[3]}</td>
                     <td className="px-4 py-3 text-center">{row[4] === "❌" || row[4].startsWith("❌") ? <span className="text-[#E74C3C]">{row[4]}</span> : row[4]}</td>
