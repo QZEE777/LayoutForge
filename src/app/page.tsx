@@ -141,20 +141,20 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* 1. Hero — target above the fold; only round button in bullseye; How it works above graphic */}
-      <section className="px-6 pt-6 pb-10 sm:pt-8 sm:pb-12 bg-ivory min-h-0">
+      {/* 1. Hero — graphic first so target is above the fold; only round button in bullseye */}
+      <section className="px-6 pt-2 pb-8 sm:pt-4 sm:pb-10 bg-ivory min-h-0">
         <div className="mx-auto max-w-4xl text-center">
+          <HeroPdfVisual />
+          <h2 className="font-bebas text-xl sm:text-2xl tracking-wide text-amazon-navy mt-4 mb-1">
+            <a href="#how-it-works" className="hover:text-brave transition-colors">How it works</a>
+          </h2>
           <h1 className="font-bebas text-2xl sm:text-3xl md:text-4xl font-normal tracking-tight text-amazon-navy mb-2 text-balance leading-tight">
             Turn Your Manuscript Into a Print-Ready Book
           </h1>
-          <p className="font-sans text-base sm:text-lg text-soft-muted text-balance mb-6 max-w-2xl mx-auto">
+          <p className="font-sans text-base sm:text-lg text-soft-muted text-balance mb-2 max-w-2xl mx-auto">
             Check, fix, and prepare your PDF for Amazon KDP before you upload.
           </p>
-          <h2 className="font-bebas text-xl sm:text-2xl tracking-wide text-amazon-navy mb-4">
-            <a href="#how-it-works" className="hover:text-brave transition-colors">How it works</a>
-          </h2>
-          <HeroPdfVisual />
-          <p className="font-sans text-sm text-soft-muted text-balance mt-4 max-w-xl mx-auto">
+          <p className="font-sans text-sm text-soft-muted text-balance">
             Avoid rejection. Save hours of frustration. Publish with confidence.
           </p>
           <a href="#how-it-works" className="inline-block mt-2 text-sm font-medium text-brave hover:underline">

@@ -1,268 +1,89 @@
-# 🎯 Manu2Print - The Complete Author Publishing Platform
+# Manu2Print — KDP-focused author tools
 
-**Transform how authors publish on Amazon KDP** — Professional formatting, metadata optimization, AI analysis, and publishing tools all in one platform.
-
----
-
-## 📊 Project Status
-
-```
-PHASE 1: ✅ COMPLETE - Security Foundation
-├── Authentication (Clerk)
-├── Encryption (AES-256-GCM)
-├── Rate Limiting
-├── Protected Dashboard
-└── Database Schema
-
-PHASE 2: ⏳ READY - AI Features (Revenue Core)
-├── AI Metadata Optimization
-├── Competitor Analysis
-├── Export for KDP
-└── $2.99 per analysis
-
-PHASE 3-5: 📋 PLANNED - Premium Features
-```
-
-**Manu2Print KDP (shipped formatter):** One template, one pipeline — [`docs/MANU2PRINT-KDP.md`](docs/MANU2PRINT-KDP.md)  
-**Smart Format (AI formatter, future):** Spec and API flow → [`docs/SMART-FORMAT-SPEC.md`](docs/SMART-FORMAT-SPEC.md)
+**Transform how authors publish on Amazon KDP** — PDF checker, formatter, keyword research, description generator, and related tools. Live at layout-forge.vercel.app (manu2print).
 
 ---
 
-## 🚀 Quick Start
+## Project status
 
-**Migrating to a new machine?** See **[MIGRATION.md](MIGRATION.md)** for step-by-step prep and restore. Use **docs/CONTINUE-PROJECT.md** in Cursor on the new laptop to restore AI context.
+**Current status:** See **[docs/STATUS.md](docs/STATUS.md)** for work completed, security check, and pending items.
 
-### For Development:
+**Shipped:** KDP PDF Checker, KDP Formatter (DOCX→PDF), Keyword Research (PDF), Description Generator, PDF Compressor (free), Print Optimizer (free), cover/spine/trim tools. Auth and profile via Supabase; payments via Lemon Squeezy ($7 per use / $27 for 6 months).
+
+**Docs:** [docs/MANU2PRINT-KDP.md](docs/MANU2PRINT-KDP.md) — formatter pipeline. [docs/TODO.md](docs/TODO.md) — saved task list.
+
+---
+
+## Quick start
+
+**New machine / restore context:** [MIGRATION.md](MIGRATION.md), [docs/CONTINUE-PROJECT.md](docs/CONTINUE-PROJECT.md).
+
+### Development
 
 ```bash
-# Install
 npm install
-
-# Setup environment (see .env.example)
-cp .env.example .env.local
-
-# Run dev server
+# Copy .env.example to .env.local and set env vars (no secrets in repo)
 npm run dev
 ```
 
-Visit: `http://localhost:3000`
+Visit `http://localhost:3000`.
 
-### For Production:
+### Production
 
-Push to GitHub → Auto-deploys to Vercel
-
----
-
-## 🔐 Security First
-
-- ✅ Clerk OAuth authentication
-- ✅ AES-256-GCM file encryption
-- ✅ Rate limiting (100 req/min per IP)
-- ✅ Security headers (XSS, CSRF, Clickjacking protection)
-- ✅ Input validation & sanitization
-- ✅ Audit logging
-- ✅ GDPR-compliant
+Push to GitHub → auto-deploys to Vercel. All secrets from environment (Vercel env vars); never commit keys.
 
 ---
 
-## 💡 What Authors Get
+## Security
 
-### Free Tier
-- Upload manuscripts (PDF, DOCX)
-- Generate KDP-ready PDF
-- Preview text content
-- Configure trim sizes & fonts
-
-### Pro Tier ($2.99 per analysis)
-- **AI-optimized descriptions** (analyzes full manuscript)
-- **Keyword suggestions** (competitor research)
-- **Hidden KDP categories** (auto-matched)
-- **Copy-paste export** (direct to Amazon)
-
-### Pro+ Tier ($4.99/month)
-- Unlimited analyses
-- Priority processing
-- Cover generator (Phase 5)
-- Series management
-- Marketing assets generator
+- **Secrets:** All from `process.env`; no API keys or passwords in code.
+- **Auth:** Supabase (magic link); session server-side; rate-limited.
+- **Admin:** Routes gated by `ADMIN_PASSWORD_MANU2`; rate-limited per IP.
+- **Payments:** Lemon Squeezy; webhook signature verified with `LEMONSQUEEZY_WEBHOOK_SECRET`.
+- **Profile:** RLS; users update only their own row; client only updates `first_name`.
+- **Free tools:** PDF Compressor / Print Optimizer run client-side only (no server file upload).
 
 ---
 
-## 🛠️ Tech Stack
+## Tech stack
 
 - **Frontend:** Next.js 15, React 19, Tailwind CSS
 - **Backend:** Next.js API routes, TypeScript
-- **Database:** PostgreSQL with Prisma ORM
-- **Authentication:** Clerk (OAuth, 2FA)
-- **Payments:** Stripe
-- **AI:** Google Gemini (free tier)
-- **Deployment:** Vercel
-- **Security:** AES-256-GCM encryption, Rate limiting
+- **Auth & DB:** Supabase (PostgreSQL, auth, RLS)
+- **Payments:** Lemon Squeezy
+- **AI:** Anthropic (Claude) for keyword research, description generator
+- **Files:** pdf-lib, pdfjs-dist, docx, mammoth, CloudConvert (paid flows only)
+- **Deploy:** Vercel
 
 ---
 
-## 📁 Project Structure
+## Project structure (high level)
 
 ```
-layoutforge/
-├── src/
-│   ├── app/              # Pages & API routes
-│   │   ├── api/         # Protected API endpoints
-│   │   ├── dashboard/   # User dashboard
-│   │   ├── upload/      # Manuscript upload
-│   │   ├── preview/     # Manuscript preview
-│   │   ├── metadata/    # AI metadata editor
-│   │   └── download/    # File downloads
-│   ├── lib/             # Core utilities
-│   │   ├── encryption.ts
-│   │   ├── rate-limit.ts
-│   │   ├── security.ts
-│   │   └── storage.ts
-│   └── middleware.ts    # Global security
-├── prisma/
-│   └── schema.prisma    # Database schema
-├── public/              # Static assets
-└── docs/               # Documentation
-    ├── GITHUB_PUSH_INSTRUCTIONS.md
-    ├── VERCEL_DEPLOYMENT.md
-    ├── PHASE_1_SUMMARY.md
-    ├── ACTION_CHECKLIST.md
-    └── IMMEDIATE_NEXT_STEPS.md
+src/
+├── app/           # Pages & API routes (dashboard, tools, download, api/*)
+├── lib/           # Utilities (encryption, KDP generator, Supabase, etc.)
+├── components/    # Shared UI
+docs/              # STATUS.md, TODO.md, product/legal/ROE docs
+ai-knowledgebase/  # Static product/feature docs for AI/support
 ```
 
 ---
 
-## 🚀 Deployment
+## Environment
 
-### 1. Push to GitHub
-```bash
-git add .
-git commit -m "Phase 1: Security Foundation"
-git push origin main
-```
-
-### 2. Deploy to Vercel
-- Go to vercel.com
-- Import GitHub repository
-- Add environment variables
-- Deploy (1 click)
-
-### 3. Live Production
-- Auto-deploys on every push
-- SSL/HTTPS included
-- Global CDN
-- Performance monitoring
+Use **.env.example** as reference. Copy to `.env.local` for local dev. Set all variables in Vercel for production. Never commit `.env` or real keys.
 
 ---
 
-## 💰 Revenue Model
+## Docs
 
-| Tier | Price | Monthly Users | ARR |
-|------|-------|---------------|-----|
-| Free | $0 | 1,000 | $0 |
-| Pro (Pay-per-use) | $2.99/analysis | 500 × 3 books | $4,485 |
-| Pro+ (Subscription) | $4.99/month | 100 | $5,988 |
-| **TOTAL** | - | **1,600** | **$10,473** |
-
-At scale (10K users): **$150K+/year potential**
+- **[Status](docs/STATUS.md)** — Current state, security check, pending once/later
+- **[TODO](docs/TODO.md)** — Saved task list
+- **[ROE](docs/ROE-PROTOCOL.md)** — Rules of engagement
+- **[Manu2Print KDP](docs/MANU2PRINT-KDP.md)** — Formatter pipeline
+- **[Free tools cost](docs/FREE-TOOLS-COST.md)** — What runs client-side vs paid APIs
 
 ---
 
-## 📚 Documentation
-
-- **[Immediate Next Steps](./IMMEDIATE_NEXT_STEPS.md)** - Start here
-- **[GitHub Push Instructions](./GITHUB_PUSH_INSTRUCTIONS.md)** - Push code
-- **[Vercel Deployment](./VERCEL_DEPLOYMENT.md)** - Deploy live
-- **[Phase 1 Summary](./PHASE_1_SUMMARY.md)** - What was built
-- **[Action Checklist](./ACTION_CHECKLIST.md)** - Setup checklist
-
----
-
-## 🎯 Next Phases
-
-### Phase 2: AI Features (2-3 weeks)
-- AI metadata optimization (using Gemini)
-- Competitor analysis (Amazon scraper)
-- Copy-paste KDP export
-- **Revenue:** $2.99 per analysis
-
-### Phase 3: Manuscript Intelligence (3-4 weeks)
-- Table of Contents generator
-- Marketing assets generator
-- Series management
-- Reading level analysis
-
-### Phase 4: Business Tools (3-4 weeks)
-- Pricing calculator
-- Sales dashboard
-- Competitor price tracker
-- Batch processing
-
-### Phase 5: Premium Features (4-6 weeks)
-- AI Cover generator
-- Print-on-Demand integration
-- Author website builder
-- Audiobook setup assistant
-
----
-
-## 🔗 Links
-
-- **Repository:** https://github.com/QZEE777/LayoutForge
-- **Live App:** (deployed to Vercel)
-- **Clerk:** https://clerk.com
-- **Vercel:** https://vercel.com
-- **Stripe:** https://stripe.com
-
----
-
-## 📝 Environment Setup
-
-Copy `.env.example` to `.env.local` and fill in:
-
-```env
-# Authentication
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
-CLERK_SECRET_KEY=
-
-# Database
-DATABASE_URL=
-
-# Payments
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
-STRIPE_SECRET_KEY=
-
-# Security
-ENCRYPTION_KEY=
-
-# API
-NEXT_PUBLIC_API_URL=http://localhost:3000
-```
-
----
-
-## 👤 Author
-
-Built for independent authors publishing on Amazon KDP.
-
----
-
-## 📄 License
-
-MIT
-
----
-
-## 🚀 Get Started
-
-**[Start with Immediate Next Steps →](./IMMEDIATE_NEXT_STEPS.md)**
-
-Push to GitHub → Deploy to Vercel → Phase 2 AI Features → Revenue
-
-**Total time to live revenue:** ~1 week
-
----
-
-**Last Updated:** February 2026
-**Status:** Phase 1 Complete - Ready for Production
-**Next:** Phase 2 AI Features
+**Last updated:** March 2026
