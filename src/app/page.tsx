@@ -6,14 +6,14 @@ import ToolBadge from "@/components/ToolBadge";
 import FAQAccordion from "@/components/FAQAccordion";
 
 export const metadata = {
-  title: "KDP Manuscript Formatter Online — manu2print | Format in 60 Seconds",
+  title: "KDP Manuscript Formatter Online — manu2print | Format in Minutes",
   description:
-    "Upload your DOCX, get a KDP-compliant print-ready PDF instantly. Auto-fix margins, page size, chapter breaks and widow control. No install. No Mac. Built by a self-published author.",
+    "Upload your DOCX, get a KDP-compliant print-ready PDF. Auto-fix margins, page size, chapter breaks and widow control. No install. No Mac. Built by a self-published author.",
   keywords:
     "KDP formatter online, Amazon KDP manuscript formatter, KDP compliance check, format DOCX for KDP, Vellum alternative Windows, Atticus alternative, self publishing book formatting tool",
   openGraph: {
     title: "manu2print — KDP Manuscript Formatter",
-    description: "Your manuscript. KDP-ready in 60 seconds. Browser-based. No install.",
+    description: "Your manuscript. KDP-ready in minutes. Browser-based. No install.",
     url: "https://www.manu2print.com",
     type: "website",
   },
@@ -23,7 +23,7 @@ const faqItems = [
   {
     question: "Do I need to create an account to use manu2print?",
     answer:
-      "No account is needed for a free compliance scan. To download a formatted PDF, you'll need to sign up — it takes 30 seconds with Google or your email.",
+      "No account is needed to run a free compliance scan and see your full report. To download your corrected, print-ready PDF you will need to sign up — it takes 30 seconds with Google or your email.",
   },
   {
     question: "Will manu2print change my book's fonts or layout?",
@@ -87,46 +87,54 @@ export default function Home() {
       </nav>
 
       {/* SECTION 2 — HERO */}
-      <section className="bg-[#FAF7EE] py-24 text-center">
+      <section className="bg-[#FAF7EE] py-16">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="bg-[#FEF0EB] border border-[#F05A28]/25 text-[#F05A28] text-xs font-semibold uppercase tracking-widest px-4 py-1.5 rounded-full inline-block mb-8" style={{ fontFamily: "Inter, sans-serif" }}>
-            ⚡ Built for Amazon KDP Authors — Browser-Based, No Install Required
-          </div>
-          <h1 className="text-[#1A1208] leading-tight tracking-wide" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(3rem, 6vw, 5.5rem)" }}>
-            YOUR MANUSCRIPT.
-            <br />
-            <span className="text-[#F05A28]">KDP-READY IN 60 SECONDS.</span>
-          </h1>
-          <p className="text-lg text-[#6B6151] max-w-xl mx-auto mt-4" style={{ fontFamily: "Inter, sans-serif", fontWeight: 400 }}>
-            Upload your DOCX. We automatically fix KDP margins, page size, chapter breaks, and widow control. Download a print-ready PDF instantly — no software, no Mac, no waiting.
-          </p>
-          <div className="flex flex-wrap gap-4 justify-center mt-10">
-            <Link
-              href="/formatter"
-              className="bg-[#F05A28] hover:bg-[#D94E20] text-white font-bold text-base px-8 py-4 rounded-xl shadow-[0_4px_20px_rgba(240,90,40,0.35)] hover:-translate-y-0.5 transition-all"
-              style={{ fontFamily: "Inter, sans-serif" }}
-            >
-              📄 Scan My PDF — It&apos;s Free
-            </Link>
-            <a
-              href="#how-it-works"
-              className="border border-[#E0D8C4] text-[#6B6151] font-medium text-base px-6 py-4 rounded-xl hover:bg-[#F5F0E3] transition-all"
-              style={{ fontFamily: "Inter, sans-serif" }}
-            >
-              See How It Works ↓
-            </a>
-          </div>
-          <div className="flex flex-wrap gap-6 justify-center mt-6 text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>
-            <span>✓ No Mac required</span>
-            <span>✓ Any browser, any OS</span>
-            <span>✓ KDP margins auto-applied</span>
-            <span>✓ Built by a published KDP author</span>
-          </div>
-          <div className="mt-12 max-w-lg mx-auto">
-            <TargetGraphic size={420} />
-            <p className="text-xs text-[#6B6151] italic mt-3" style={{ fontFamily: "Inter, sans-serif" }}>
-              Drop your DOCX. Precision-formatted for KDP. Every time.
-            </p>
+          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
+            {/* LEFT COLUMN — text content */}
+            <div className="flex-1 text-center lg:text-left">
+              <div className="bg-[#FEF0EB] border border-[#F05A28]/25 text-[#F05A28] text-xs font-semibold uppercase tracking-widest px-4 py-1.5 rounded-full inline-block mb-6" style={{ fontFamily: "Inter, sans-serif" }}>
+                ⚡ Built for Amazon KDP Authors — Browser-Based, No Install Required
+              </div>
+              <h1 className="text-[#1A1208] leading-tight tracking-wide mt-0 mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(3rem, 6vw, 5.5rem)" }}>
+                KDP KILLED YOUR PDF.
+                <br />
+                <span className="text-[#F05A28]">WE FIX IT.</span>
+              </h1>
+              <p className="text-lg text-[#6B6151] max-w-xl mx-auto lg:mx-0 mt-0 mb-6" style={{ fontFamily: "Inter, sans-serif", fontWeight: 400 }}>
+                Your PDF gets rejected by KDP because of margin violations, incorrect page size, and formatting errors Amazon won&apos;t explain clearly. Upload your PDF. We scan it, show you exactly what&apos;s wrong, and fix it — so you can publish without the guesswork.
+              </p>
+              <div className="flex flex-wrap gap-3 justify-center lg:justify-start mt-0">
+                <Link
+                  href="/formatter"
+                  className="bg-[#F05A28] hover:bg-[#D94E20] text-white font-bold text-base px-8 py-4 rounded-xl shadow-[0_4px_20px_rgba(240,90,40,0.35)] hover:-translate-y-0.5 transition-all"
+                  style={{ fontFamily: "Inter, sans-serif" }}
+                >
+                  📄 Scan My PDF Free — See What&apos;s Wrong
+                </Link>
+                <a
+                  href="#how-it-works"
+                  className="border border-[#E0D8C4] text-[#6B6151] font-medium text-base px-6 py-4 rounded-xl hover:bg-[#F5F0E3] transition-all"
+                  style={{ fontFamily: "Inter, sans-serif" }}
+                >
+                  See How It Works ↓
+                </a>
+              </div>
+              <div className="flex flex-wrap gap-4 justify-center lg:justify-start mt-4 text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>
+                <span>✓ Free compliance scan — no credit card</span>
+                <span>✓ See every KDP error before you pay</span>
+                <span>✓ Download the fixed PDF to publish</span>
+                <span>✓ Built by a published KDP author</span>
+              </div>
+            </div>
+            {/* RIGHT COLUMN — graphic */}
+            <div className="flex-1 flex justify-center items-center">
+              <div className="max-w-lg mx-auto">
+                <TargetGraphic size={420} />
+                <p className="text-xs text-[#6B6151] italic mt-3" style={{ fontFamily: "Inter, sans-serif" }}>
+                  Drop your DOCX. Precision-formatted for KDP. Every time.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -321,7 +329,7 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl mx-auto text-center">
             {[
               ["8", "KDP Books Published by Founder"],
-              ["60s", "Average Formatting Time"],
+              ["~3 MIN", "Average Processing Time"],
               ["100%", "Browser-Based, No Install"],
               ["$XXX", "vs $249 Vellum · $147 Atticus"],
             ].map(([num, label], i) => (
@@ -334,7 +342,7 @@ export default function Home() {
           <div className="max-w-2xl mx-auto mt-16 text-center">
             <div className="text-7xl text-[#F05A28] leading-none" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>❝</div>
             <p className="text-xl italic text-white mt-2" style={{ fontFamily: "Inter, sans-serif" }}>
-              Finally — a formatting tool that actually understands KDP. I uploaded my manuscript and had a compliant PDF in under two minutes. This is what authors have needed for years.
+              Finally — a formatting tool that actually understands KDP. I uploaded my manuscript and had a compliant PDF in just a few minutes. This is what authors have needed for years.
             </p>
             <p className="text-sm text-[#6B6151] mt-4" style={{ fontFamily: "Inter, sans-serif" }}>— Beta Author, 3-book KDP Publisher</p>
           </div>
@@ -358,15 +366,15 @@ export default function Home() {
               <div className="mb-4"><ToolBadge status="free" /></div>
               <h3 className="text-3xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>COMPLIANCE SCAN</h3>
               <div className="text-6xl text-[#1A1208]" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>$0</div>
-              <p className="text-sm text-[#6B6151] mt-1" style={{ fontFamily: "Inter, sans-serif" }}>No credit card needed</p>
+              <p className="text-sm text-[#6B6151] mt-1" style={{ fontFamily: "Inter, sans-serif" }}>Upload free. See every KDP error instantly.</p>
               <ul className="text-sm text-[#2E2A22] text-left mt-6 space-y-2" style={{ fontFamily: "Inter, sans-serif" }}>
                 <li>✓ Full KDP compliance report</li>
                 <li>✓ Margin &amp; page size error detection</li>
-                <li>✓ Chapter break analysis</li>
-                <li>✓ Widow/orphan flag report</li>
-                <li>✓ Unlimited free scans</li>
+                <li>✓ Chapter break &amp; widow flag analysis</li>
+                <li>✓ See exactly what KDP will reject — before you pay</li>
+                <li>✓ No credit card required to scan</li>
               </ul>
-              <Link href="/formatter" className="block border-2 border-[#F05A28] text-[#F05A28] font-bold px-6 py-3 rounded-xl w-full mt-6 hover:bg-[#FEF0EB] transition-all" style={{ fontFamily: "Inter, sans-serif" }}>Start Free Scan →</Link>
+              <Link href="/formatter" className="block border-2 border-[#F05A28] text-[#F05A28] font-bold px-6 py-3 rounded-xl w-full mt-6 hover:bg-[#FEF0EB] transition-all" style={{ fontFamily: "Inter, sans-serif" }}>Scan My PDF Free — See the Report →</Link>
             </div>
             <div className="bg-white border-2 border-[#F05A28] rounded-2xl overflow-hidden text-center relative">
               <div className="bg-[#F05A28] text-white font-bold text-xs tracking-widest uppercase py-2 text-center" style={{ fontFamily: "Inter, sans-serif" }}>MOST POPULAR</div>
@@ -374,7 +382,7 @@ export default function Home() {
                 <div className="mb-4"><ToolBadge status="live" /></div>
                 <h3 className="text-3xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>KDP FORMATTER</h3>
                 <div className="text-6xl text-[#F05A28]" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>$XXX</div>
-                <p className="text-sm text-[#6B6151] mt-1" style={{ fontFamily: "Inter, sans-serif" }}>per book · one-time · no subscription</p>
+                <p className="text-sm text-[#6B6151] mt-1" style={{ fontFamily: "Inter, sans-serif" }}>Pay only to download your fixed, print-ready PDF</p>
                 <ul className="text-sm text-[#2E2A22] text-left mt-6 space-y-2" style={{ fontFamily: "Inter, sans-serif" }}>
                   <li>✓ Everything in free scan, plus:</li>
                   <li>✓ Auto-fix ALL KDP compliance issues</li>
@@ -414,7 +422,7 @@ export default function Home() {
             YOUR NEXT BOOK DESERVES A CLEAN LAUNCH.
           </h2>
           <p className="text-lg text-white/80 max-w-lg mx-auto mt-4 mb-10" style={{ fontFamily: "Inter, sans-serif" }}>
-            Stop fighting with margins. Upload your manuscript and get a KDP-compliant PDF in under 60 seconds — free to try, right now.
+            Stop fighting with margins. Upload your manuscript and get a KDP-compliant PDF in minutes — free to try, right now.
           </p>
           <Link href="/formatter" className="inline-block bg-white text-[#F05A28] font-bold text-lg px-10 py-4 rounded-xl hover:scale-105 transition-transform shadow-lg" style={{ fontFamily: "Inter, sans-serif" }}>
             📄 Scan My PDF Free →

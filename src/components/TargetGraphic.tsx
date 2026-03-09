@@ -81,23 +81,24 @@ export default function TargetGraphic({ size = 420 }: { size?: number }) {
         <circle cx={cx} cy={cy} r={centerR * 1.3} fill="none" stroke="#E0E0E0" strokeWidth="2" opacity="0.5" />
         <circle cx={cx} cy={cy} r={centerR * 0.95} fill="none" stroke="rgba(240,90,40,0.15)" strokeWidth="2" />
       </svg>
-      {/* Center button: HTML so we can use box-shadow pulse animation */}
-      <div
-        className="m2p-pulse-ring absolute left-1/2 top-1/2 flex items-center justify-center rounded-full text-white"
+      {/* Center button: live link with pulse animation and hover */}
+      <a
+        href="/formatter"
+        className="m2p-pulse-ring absolute left-1/2 top-1/2 flex items-center justify-center rounded-full text-white bg-[#F05A28] hover:bg-[#D94E20] transition-colors"
         style={{
           width: centerR * 1.9,
           height: centerR * 1.9,
           marginLeft: -centerR * 0.95,
           marginTop: -centerR * 0.95,
-          background: "#F05A28",
           fontFamily: "Inter, sans-serif",
           fontWeight: 700,
           fontSize: Math.max(12, size * 0.032),
+          cursor: "pointer",
         }}
-        aria-hidden
+        title="Scan My PDF — Go to Formatter"
       >
         Scan My PDF
-      </div>
+      </a>
     </div>
   );
 }
