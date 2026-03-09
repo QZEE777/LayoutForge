@@ -57,7 +57,7 @@ export default function Home() {
     <div className="min-h-screen">
       {/* SECTION 1 — NAVBAR */}
       <nav className="sticky top-0 z-50 border-b border-[#E0D8C4] bg-[#FAF7EE]/98 backdrop-blur-sm">
-        <div className="mx-auto max-w-6xl px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+        <div className="mx-auto max-w-6xl px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
           <Link href="/" className="flex items-center gap-2.5" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
             <span className="text-2xl text-[#1A1208] tracking-tight">manu2print</span>
           </Link>
@@ -86,57 +86,57 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* SECTION 2 — HERO */}
-      <section className="bg-[#FAF7EE] py-12">
+      {/* SECTION 2 — HERO — constrained so nav + hero fit in one viewport (above the fold) */}
+      <section className="bg-[#FAF7EE] py-4 max-h-[calc(100vh-3.5rem)] min-h-0 flex flex-col">
         {/* Full-width eyebrow bar below navbar */}
-        <div className="w-full bg-[#FEF0EB] border-b border-[#F05A28]/20 py-2.5 text-center">
-          <span className="text-[#F05A28] text-xs font-semibold uppercase tracking-widest" style={{ fontFamily: "Inter, sans-serif" }}>
+        <div className="w-full flex-shrink-0 bg-[#FEF0EB] border-b border-[#F05A28]/20 py-1.5 text-center">
+          <span className="text-[#F05A28] text-[11px] font-semibold uppercase tracking-widest" style={{ fontFamily: "Inter, sans-serif" }}>
             ⚡ Built for Amazon KDP Authors — Browser-Based, No Install Required
           </span>
         </div>
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="flex flex-col lg:flex-row items-start gap-12 lg:gap-16">
-            {/* LEFT COLUMN — pushed down on desktop so top of headline aligns with top of graphic */}
-            <div className="flex-[1.1] text-center lg:text-left w-full lg:w-auto lg:pt-[7rem]">
-              <h1 className="text-[#1A1208] leading-tight tracking-wide whitespace-nowrap mt-0 mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2.2rem, 4.5vw, 5rem)" }}>
+        <div className="max-w-6xl mx-auto px-6 w-full flex-1 min-h-0 flex flex-col justify-center">
+          <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-10">
+            {/* LEFT COLUMN — no top offset; compact spacing */}
+            <div className="flex-[1.1] text-center lg:text-left w-full lg:w-auto order-2 lg:order-1">
+              <h1 className="text-[#1A1208] leading-tight tracking-wide mt-0 mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(1.9rem, 3.8vw, 3.75rem)" }}>
                 KDP KILLED YOUR PDF?
                 <br />
                 <span className="text-[#F05A28]">WE FIX IT.</span>
               </h1>
-              <p className="text-lg text-[#6B6151] max-w-xl mx-auto lg:mx-0 mt-0 mb-6" style={{ fontFamily: "Inter, sans-serif", fontWeight: 400 }}>
+              <p className="text-base text-[#6B6151] max-w-xl mx-auto lg:mx-0 mt-0 mb-4 leading-snug" style={{ fontFamily: "Inter, sans-serif", fontWeight: 400 }}>
                 Your PDF gets rejected by KDP because of margin violations, incorrect page size, and formatting errors Amazon won&apos;t explain clearly. Upload your PDF. We scan it, show you exactly what&apos;s wrong, and fix it — so you can publish without the guesswork.
               </p>
-              <div className="flex flex-wrap gap-3 justify-center lg:justify-start mt-0">
+              <div className="flex flex-wrap gap-2 justify-center lg:justify-start mt-0">
                 <Link
                   href="/formatter"
-                  className="bg-[#F05A28] hover:bg-[#D94E20] text-white font-bold text-base px-8 py-4 rounded-xl shadow-[0_4px_20px_rgba(240,90,40,0.35)] hover:-translate-y-0.5 transition-all"
+                  className="bg-[#F05A28] hover:bg-[#D94E20] text-white font-bold text-sm px-6 py-3 rounded-xl shadow-[0_4px_20px_rgba(240,90,40,0.35)] hover:-translate-y-0.5 transition-all"
                   style={{ fontFamily: "Inter, sans-serif" }}
                 >
                   📄 Scan My PDF — See What&apos;s Wrong
                 </Link>
                 <a
                   href="#how-it-works"
-                  className="lg:hidden border border-[#E0D8C4] text-[#6B6151] font-medium text-sm px-5 py-2.5 rounded-xl hover:bg-[#F5F0E3] transition-all inline-block"
+                  className="lg:hidden border border-[#E0D8C4] text-[#6B6151] font-medium text-xs px-4 py-2 rounded-xl hover:bg-[#F5F0E3] transition-all inline-block"
                   style={{ fontFamily: "Inter, sans-serif" }}
                 >
                   See How It Works ↓
                 </a>
               </div>
             </div>
-            {/* RIGHT COLUMN — button centered between eyebrow bar and graphic top, then graphic, caption */}
-            <div className="flex-[0.9] flex flex-col items-center w-full lg:w-auto">
-              <div className="hidden lg:flex flex-col items-center justify-center py-10 min-h-[7rem]">
+            {/* RIGHT COLUMN — compact; graphic + caption only on desktop, "See How It Works" above on lg */}
+            <div className="flex-[0.9] flex flex-col items-center w-full lg:w-auto order-1 lg:order-2">
+              <div className="hidden lg:block mb-2">
                 <a
                   href="#how-it-works"
-                  className="bg-[#2D8C4E] hover:bg-[#26803f] text-[#F05A28] font-bold text-sm px-5 py-2.5 rounded-xl transition-all uppercase tracking-wide"
+                  className="bg-[#2D8C4E] hover:bg-[#26803f] text-[#F05A28] font-bold text-xs px-4 py-2 rounded-xl transition-all uppercase tracking-wide"
                   style={{ fontFamily: "Inter, sans-serif" }}
                 >
                   See How It Works ↓
                 </a>
               </div>
               <div className="max-w-lg mx-auto w-full flex flex-col items-center">
-                <TargetGraphic size={520} />
-                <p className="text-xs text-[#6B6151] italic mt-3 text-center" style={{ fontFamily: "Inter, sans-serif" }}>
+                <TargetGraphic size={380} />
+                <p className="text-[11px] text-[#6B6151] italic mt-1.5 text-center" style={{ fontFamily: "Inter, sans-serif" }}>
                   Upload your PDF. See every KDP error. Download the fix.
                 </p>
               </div>
@@ -144,8 +144,8 @@ export default function Home() {
           </div>
         </div>
         {/* Trust row — faded green box */}
-        <div className="max-w-6xl mx-auto px-6 mt-8">
-          <div className="rounded-2xl bg-[#EAF7EE]/90 border border-[#2D8C4E]/25 px-6 py-4 flex flex-wrap gap-x-6 gap-y-2 justify-center text-sm text-[#1A1208]/90 shadow-sm" style={{ fontFamily: "Inter, sans-serif" }}>
+        <div className="max-w-6xl mx-auto px-6 mt-4 flex-shrink-0">
+          <div className="rounded-xl bg-[#EAF7EE]/90 border border-[#2D8C4E]/25 px-4 py-2.5 flex flex-wrap gap-x-4 gap-y-1 justify-center text-xs text-[#1A1208]/90 shadow-sm" style={{ fontFamily: "Inter, sans-serif" }}>
             <span>✓ Free compliance scan — no credit card</span>
             <span>✓ See every KDP error before you pay</span>
             <span>✓ Download the fixed PDF to publish</span>

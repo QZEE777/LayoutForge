@@ -80,6 +80,9 @@ export default function TargetGraphic({ size = 420 }: { size?: number }) {
         <circle cx={cx} cy={cy} r={centerR * 1.7} fill="none" stroke="rgba(240,90,40,0.15)" strokeWidth="2" />
         <circle cx={cx} cy={cy} r={centerR * 1.3} fill="none" stroke="#E0E0E0" strokeWidth="2" opacity="0.5" />
         <circle cx={cx} cy={cy} r={centerR * 0.95} fill="none" stroke="rgba(240,90,40,0.15)" strokeWidth="2" />
+        {/* Faint gray crosshairs through target circle — rifle-scope style */}
+        <line x1={cx} y1={cy - centerR * 2.2} x2={cx} y2={cy + centerR * 2.2} stroke="rgba(100,100,100,0.25)" strokeWidth="1.5" />
+        <line x1={cx - centerR * 2.2} y1={cy} x2={cx + centerR * 2.2} y2={cy} stroke="rgba(100,100,100,0.25)" strokeWidth="1.5" />
       </svg>
       {/* Center button: live link with pulse animation and hover */}
       <a
