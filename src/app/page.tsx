@@ -75,7 +75,7 @@ export default function Home() {
               About
             </Link>
             <Link
-              href="/formatter"
+              href="/kdp-pdf-checker"
               className="bg-[#F05A28] hover:bg-[#D94E20] text-white font-bold px-6 py-2.5 rounded-xl shadow-[0_2px_12px_rgba(240,90,40,0.3)] hover:shadow-[0_4px_16px_rgba(240,90,40,0.4)] transition-all"
               style={{ fontFamily: "Inter, sans-serif" }}
             >
@@ -108,7 +108,7 @@ export default function Home() {
               </p>
               <div className="flex flex-wrap gap-2 justify-center lg:justify-start mt-0 items-center text-center lg:text-left">
                 <Link
-                  href="/formatter"
+                  href="/kdp-pdf-checker"
                   className="bg-[#F05A28] hover:bg-[#D94E20] text-white font-bold text-sm px-6 py-3 rounded-xl shadow-[0_4px_20px_rgba(240,90,40,0.35)] hover:-translate-y-0.5 transition-all uppercase tracking-wide"
                   style={{ fontFamily: "Inter, sans-serif" }}
                 >
@@ -414,7 +414,7 @@ export default function Home() {
                 <li>✓ See exactly what KDP will reject — before you pay</li>
                 <li>✓ No credit card required to scan</li>
               </ul>
-              <Link href="/formatter" className="block border-2 border-[#F05A28] text-[#F05A28] font-bold px-6 py-3 rounded-xl w-full mt-6 hover:bg-[#FEF0EB] transition-all" style={{ fontFamily: "Inter, sans-serif" }}>Scan My PDF Free — See the Report →</Link>
+              <Link href="/kdp-pdf-checker" className="block border-2 border-[#F05A28] text-[#F05A28] font-bold px-6 py-3 rounded-xl w-full mt-6 hover:bg-[#FEF0EB] transition-all" style={{ fontFamily: "Inter, sans-serif" }}>Scan My PDF Free — See the Report →</Link>
             </div>
             <div className="bg-white border-2 border-[#F05A28] rounded-2xl overflow-hidden text-center relative shadow-md">
               <div className="bg-[#F05A28] text-white font-bold text-xs tracking-widest uppercase py-2 text-center" style={{ fontFamily: "Inter, sans-serif" }}>MOST POPULAR</div>
@@ -464,7 +464,7 @@ export default function Home() {
           <p className="text-lg text-white/80 max-w-lg mx-auto mt-4 mb-10" style={{ fontFamily: "Inter, sans-serif" }}>
             Stop fighting with margins. Upload your PDF and get a KDP-compliant file in minutes — free to try, right now.
           </p>
-          <Link href="/formatter" className="inline-block bg-white text-[#F05A28] font-bold text-lg px-10 py-4 rounded-xl hover:scale-[1.02] transition-transform shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#F05A28]" style={{ fontFamily: "Inter, sans-serif" }}>
+          <Link href="/kdp-pdf-checker" className="inline-block bg-white text-[#F05A28] font-bold text-lg px-10 py-4 rounded-xl hover:scale-[1.02] transition-transform shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#F05A28]" style={{ fontFamily: "Inter, sans-serif" }}>
             📄 Scan My PDF Free →
           </Link>
         </div>

@@ -92,7 +92,7 @@ export default function TargetGraphic({ size = 420 }: { size?: number }) {
       </svg>
       {/* Center button: live link with pulse animation and hover */}
       <a
-        href="/formatter"
+        href="/kdp-pdf-checker"
         className="m2p-pulse-ring absolute left-1/2 top-1/2 flex items-center justify-center rounded-full text-white bg-[#F05A28] hover:bg-[#D94E20] transition-colors shadow-[0_4px_20px_rgba(240,90,40,0.45)] hover:shadow-[0_6px_24px_rgba(240,90,40,0.5)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F05A28] focus-visible:ring-offset-2 focus-visible:ring-offset-white"
         style={{
           width: centerR * 1.9,
@@ -104,7 +104,7 @@ export default function TargetGraphic({ size = 420 }: { size?: number }) {
           fontSize: Math.max(12, size * 0.032),
           cursor: "pointer",
         }}
-        title="Scan My PDF — Go to Formatter"
+        title="Scan My PDF — Go to Print Ready Check"
       >
         Scan My PDF
       </a>
