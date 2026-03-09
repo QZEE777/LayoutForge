@@ -8,12 +8,12 @@ import FAQAccordion from "@/components/FAQAccordion";
 export const metadata = {
   title: "KDP Manuscript Formatter Online — manu2print | Format in Minutes",
   description:
-    "Upload your DOCX, get a KDP-compliant print-ready PDF. Auto-fix margins, page size, chapter breaks and widow control. No install. No Mac. Built by a self-published author.",
+    "Upload your PDF, get a KDP compliance report and print-ready fix. Scan for margin, page size, and formatting errors. No install. No Mac. Built by a self-published author.",
   keywords:
-    "KDP formatter online, Amazon KDP manuscript formatter, KDP compliance check, format DOCX for KDP, Vellum alternative Windows, Atticus alternative, self publishing book formatting tool",
+    "KDP formatter online, Amazon KDP PDF formatter, KDP compliance check, format PDF for KDP, Vellum alternative Windows, Atticus alternative, self publishing book formatting tool",
   openGraph: {
-    title: "manu2print — KDP Manuscript Formatter",
-    description: "Your manuscript. KDP-ready in minutes. Browser-based. No install.",
+    title: "manu2print — KDP PDF Formatter",
+    description: "Your PDF. KDP-ready in minutes. Browser-based. No install.",
     url: "https://www.manu2print.com",
     type: "website",
   },
@@ -43,12 +43,12 @@ const faqItems = [
   {
     question: "How is this different from Vellum or Atticus?",
     answer:
-      "Vellum ($249, Mac only) and Atticus ($147) are full book design suites that rebuild your manuscript inside their own templates. manu2print is a precision KDP compliance tool — we fix your existing manuscript without rebuilding it, at a fraction of the cost, from any browser.",
+      "Vellum ($249, Mac only) and Atticus ($147) are full book design suites that rebuild your book inside their own templates. manu2print is a precision KDP compliance tool — we fix your existing PDF without rebuilding it, at a fraction of the cost, from any browser.",
   },
   {
-    question: "Is my manuscript safe?",
+    question: "Is my file safe?",
     answer:
-      "Your file is processed securely and deleted after formatting. We never store your manuscript permanently.",
+      "Your file is processed securely and deleted after formatting. We never store your PDF permanently.",
   },
 ];
 
@@ -87,16 +87,19 @@ export default function Home() {
       </nav>
 
       {/* SECTION 2 — HERO */}
-      <section className="bg-[#FAF7EE] py-16">
+      <section className="bg-[#FAF7EE] py-12">
+        {/* Full-width eyebrow bar below navbar */}
+        <div className="w-full bg-[#FEF0EB] border-b border-[#F05A28]/20 py-2.5 text-center">
+          <span className="text-[#F05A28] text-xs font-semibold uppercase tracking-widest" style={{ fontFamily: "Inter, sans-serif" }}>
+            ⚡ Built for Amazon KDP Authors — Browser-Based, No Install Required
+          </span>
+        </div>
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
-            {/* LEFT COLUMN — text content */}
-            <div className="flex-1 text-center lg:text-left">
-              <div className="bg-[#FEF0EB] border border-[#F05A28]/25 text-[#F05A28] text-xs font-semibold uppercase tracking-widest px-4 py-1.5 rounded-full inline-block mb-6" style={{ fontFamily: "Inter, sans-serif" }}>
-                ⚡ Built for Amazon KDP Authors — Browser-Based, No Install Required
-              </div>
-              <h1 className="text-[#1A1208] leading-tight tracking-wide mt-0 mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(3rem, 6vw, 5.5rem)" }}>
-                KDP KILLED YOUR PDF.
+            {/* LEFT COLUMN — headline, subhead, CTA only */}
+            <div className="flex-[1.1] text-center lg:text-left">
+              <h1 className="text-[#1A1208] leading-tight tracking-wide whitespace-nowrap mt-0 mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2.2rem, 4.5vw, 5rem)" }}>
+                KDP KILLED YOUR PDF?
                 <br />
                 <span className="text-[#F05A28]">WE FIX IT.</span>
               </h1>
@@ -109,32 +112,42 @@ export default function Home() {
                   className="bg-[#F05A28] hover:bg-[#D94E20] text-white font-bold text-base px-8 py-4 rounded-xl shadow-[0_4px_20px_rgba(240,90,40,0.35)] hover:-translate-y-0.5 transition-all"
                   style={{ fontFamily: "Inter, sans-serif" }}
                 >
-                  📄 Scan My PDF Free — See What&apos;s Wrong
+                  📄 Scan My PDF — See What&apos;s Wrong
                 </Link>
                 <a
                   href="#how-it-works"
-                  className="border border-[#E0D8C4] text-[#6B6151] font-medium text-base px-6 py-4 rounded-xl hover:bg-[#F5F0E3] transition-all"
+                  className="lg:hidden border border-[#E0D8C4] text-[#6B6151] font-medium text-sm px-5 py-2.5 rounded-xl hover:bg-[#F5F0E3] transition-all inline-block"
                   style={{ fontFamily: "Inter, sans-serif" }}
                 >
                   See How It Works ↓
                 </a>
               </div>
-              <div className="flex flex-wrap gap-4 justify-center lg:justify-start mt-4 text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>
-                <span>✓ Free compliance scan — no credit card</span>
-                <span>✓ See every KDP error before you pay</span>
-                <span>✓ Download the fixed PDF to publish</span>
-                <span>✓ Built by a published KDP author</span>
-              </div>
             </div>
-            {/* RIGHT COLUMN — graphic */}
-            <div className="flex-1 flex justify-center items-center">
+            {/* RIGHT COLUMN — See How It Works (desktop), graphic, caption */}
+            <div className="flex-[0.9] flex flex-col justify-center items-center">
+              <a
+                href="#how-it-works"
+                className="hidden lg:inline-block border border-[#E0D8C4] text-[#6B6151] font-medium text-sm px-5 py-2.5 rounded-xl hover:bg-[#F5F0E3] transition-all mb-6"
+                style={{ fontFamily: "Inter, sans-serif" }}
+              >
+                See How It Works ↓
+              </a>
               <div className="max-w-lg mx-auto">
-                <TargetGraphic size={420} />
-                <p className="text-xs text-[#6B6151] italic mt-3" style={{ fontFamily: "Inter, sans-serif" }}>
-                  Drop your DOCX. Precision-formatted for KDP. Every time.
+                <TargetGraphic size={520} />
+                <p className="text-xs text-[#6B6151] italic mt-3 text-center" style={{ fontFamily: "Inter, sans-serif" }}>
+                  Upload your PDF. See every KDP error. Download the fix.
                 </p>
               </div>
             </div>
+          </div>
+        </div>
+        {/* Trust row — full-width bar below two-column */}
+        <div className="w-full border-t border-[#E0D8C4]/60 mt-8 pt-6">
+          <div className="max-w-6xl mx-auto px-6 flex flex-wrap gap-4 justify-center text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>
+            <span>✓ Free compliance scan — no credit card</span>
+            <span>✓ See every KDP error before you pay</span>
+            <span>✓ Download the fixed PDF to publish</span>
+            <span>✓ Built by a published KDP author</span>
           </div>
         </div>
       </section>
@@ -154,7 +167,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             {[
               { icon: "😤", title: "Hours Lost to Margin Hell", body: "KDP's margin requirements differ by trim size and page count. One wrong setting = rejection. Most authors spend 3–8 hours on formatting alone." },
-              { icon: "💸", title: "Expensive Tools, Wrong Jobs", body: "Vellum and Atticus are book design suites. You don't need a suite. You need your existing manuscript made KDP-compliant — fast, on any device." },
+              { icon: "💸", title: "Expensive Tools, Wrong Jobs", body: "Vellum and Atticus are book design suites. You don't need a suite. You need your existing PDF made KDP-compliant — fast, on any device." },
               { icon: "🔄", title: "Upload. Reject. Repeat.", body: "KDP's own formatter is limited. Rejection messages are vague. Authors guess, re-upload, and waste days before publishing. That ends here." },
             ].map((card, i) => (
               <div key={i} className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center hover:-translate-y-1 transition-transform">
@@ -178,7 +191,7 @@ export default function Home() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-5 gap-8 max-w-4xl mx-auto mt-12 items-start">
             {[
-              { num: "01", title: "UPLOAD YOUR DOCX", body: "Drag and drop your manuscript. Any version of Word. Any operating system. No account required for a free scan." },
+              { num: "01", title: "UPLOAD YOUR PDF", body: "Drag and drop your PDF. Any browser, any operating system. No account required for a free scan." },
               { num: "02", title: "WE SCAN & FIX", body: "Our engine checks every KDP compliance rule: page size, margins, chapter breaks, widow/orphan control, and double-spacing. Issues found are listed. Issues fixable are fixed automatically." },
               { num: "03", title: "DOWNLOAD & PUBLISH", body: "Get a print-ready KDP-compliant PDF with a compliance report page prepended. Upload directly to KDP. Done." },
             ].map((step, i) => (
@@ -206,59 +219,83 @@ export default function Home() {
             EVERYTHING AN INDIE AUTHOR NEEDS. NOTHING THEY DON&apos;T.
           </h2>
           <p className="text-base text-[#6B6151] max-w-lg mx-auto mt-3 mb-12" style={{ fontFamily: "Inter, sans-serif" }}>
-            A growing suite of precision publishing tools — browser-based, built for KDP.
+            PDF tools first — browser-based, built for KDP. More formats and tools coming soon.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl mx-auto">
-            {/* Card 1: free + live */}
+            {/* Card 1: KDP PDF Checker — free + live */}
             <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative hover:-translate-y-1 transition-transform">
               <div className="absolute top-4 right-4 flex gap-2">
                 <ToolBadge status="free" />
                 <ToolBadge status="live" />
               </div>
               <div className="text-4xl mb-3">🎯</div>
-              <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>KDP Compliance Scanner</h3>
-              <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>Upload your DOCX or PDF and get a full KDP compliance report. Margins, page size, widow lines — flagged instantly. Free for every manuscript.</p>
-              <Link href="/formatter" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Scan Now</Link>
+              <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>KDP PDF Checker</h3>
+              <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>Upload your PDF and get a full KDP compliance report. Margins, page size, bleed, widow lines — flagged instantly. Free scan, no signup.</p>
+              <Link href="/kdp-pdf-checker" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Scan My PDF</Link>
             </div>
-            {/* Card 2 */}
+            {/* Card 2: PDF Formatter / fix — live */}
             <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative hover:-translate-y-1 transition-transform">
               <div className="absolute top-4 right-4"><ToolBadge status="live" /></div>
               <div className="text-4xl mb-3">📄</div>
-              <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>KDP Formatter</h3>
-              <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>The full fix. Upload your DOCX, we auto-correct all KDP compliance issues and deliver a print-ready PDF. Works on any trim size.</p>
-              <Link href="/formatter" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Format My Book</Link>
+              <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>KDP PDF Formatter</h3>
+              <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>The full fix. Upload your PDF, we flag issues and deliver a print-ready PDF. Works on any trim size. Pay only to download.</p>
+              <Link href="/formatter" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Format My PDF</Link>
             </div>
-            {/* Card 3 */}
+            {/* Card 3: PDF Compressor — free */}
             <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative hover:-translate-y-1 transition-transform">
-              <div className="absolute top-4 right-4"><ToolBadge status="coming-soon" /></div>
-              <div className="text-4xl mb-3">🤖</div>
-              <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>Smart Format AI</h3>
-              <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>AI-powered manuscript intelligence. Detects book structure, fixes inconsistencies, generates front matter, and formats your interior automatically.</p>
-              <span className="text-[#7A6E5F] text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>Notify Me When Live</span>
+              <div className="absolute top-4 right-4"><ToolBadge status="free" /></div>
+              <div className="text-4xl mb-3">🗜️</div>
+              <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>PDF Compressor</h3>
+              <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>Shrink PDFs in your browser. No upload to our servers — runs locally. Free, no account required.</p>
+              <Link href="/pdf-compress" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Compress PDF</Link>
             </div>
-            {/* Card 4 */}
+            {/* Card 4: Spine Calculator — free */}
             <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative hover:-translate-y-1 transition-transform">
-              <div className="absolute top-4 right-4"><ToolBadge status="coming-soon" /></div>
+              <div className="absolute top-4 right-4"><ToolBadge status="free" /></div>
+              <div className="text-4xl mb-3">📐</div>
+              <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>Spine Width Calculator</h3>
+              <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>Spine width and full-wrap cover dimensions for KDP paperbacks. Essential for cover design.</p>
+              <Link href="/spine-calculator" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Calculate Spine</Link>
+            </div>
+            {/* Card 5: Cover Calculator — free */}
+            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative hover:-translate-y-1 transition-transform">
+              <div className="absolute top-4 right-4"><ToolBadge status="free" /></div>
               <div className="text-4xl mb-3">🎨</div>
-              <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>Cover Compliance Checker</h3>
-              <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>Upload your cover file. We verify bleed, DPI, spine width, and color space against KDP specifications before you upload.</p>
-              <span className="text-[#7A6E5F] text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>Notify Me When Live</span>
+              <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>Cover Size Calculator</h3>
+              <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>Full-wrap cover dimensions in inches and 300 DPI pixels for Canva and other design tools.</p>
+              <Link href="/cover-calculator" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Cover Dimensions</Link>
             </div>
-            {/* Card 5 */}
+            {/* Card 6: Cover Compliance Checker — coming soon */}
+            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative hover:-translate-y-1 transition-transform">
+              <div className="absolute top-4 right-4"><ToolBadge status="coming-soon" /></div>
+              <div className="text-4xl mb-3">✔️</div>
+              <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>Cover Compliance Checker</h3>
+              <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>Upload your cover file. We verify bleed, DPI, spine width, and color space against KDP specs.</p>
+              <span className="text-[#7A6E5F] text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>Coming soon</span>
+            </div>
+            {/* Card 7: DOCX Formatter — coming soon */}
+            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative hover:-translate-y-1 transition-transform">
+              <div className="absolute top-4 right-4"><ToolBadge status="coming-soon" /></div>
+              <div className="text-4xl mb-3">📝</div>
+              <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>DOCX to KDP PDF</h3>
+              <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>Upload your Word manuscript and get a print-ready KDP PDF. Auto margins, trim size, chapter breaks.</p>
+              <span className="text-[#7A6E5F] text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>Coming soon</span>
+            </div>
+            {/* Card 8: Keyword Research — coming soon */}
+            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative hover:-translate-y-1 transition-transform">
+              <div className="absolute top-4 right-4"><ToolBadge status="coming-soon" /></div>
+              <div className="text-4xl mb-3">🔑</div>
+              <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>Keyword Research</h3>
+              <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>KDP keyword suggestions from your manuscript. Built for authors who want to rank.</p>
+              <span className="text-[#7A6E5F] text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>Coming soon</span>
+            </div>
+            {/* Card 9: Royalty Calculator — coming soon */}
             <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative hover:-translate-y-1 transition-transform">
               <div className="absolute top-4 right-4"><ToolBadge status="coming-soon" /></div>
               <div className="text-4xl mb-3">📊</div>
               <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>Royalty & Trim Calculator</h3>
-              <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>Enter page count, trim size, and price. Instantly see your KDP print cost, royalty per sale, and breakeven across all markets.</p>
-              <span className="text-[#7A6E5F] text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>Notify Me When Live</span>
-            </div>
-            {/* Card 6 */}
-            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative hover:-translate-y-1 transition-transform">
-              <div className="absolute top-4 right-4"><ToolBadge status="free" /></div>
-              <div className="text-4xl mb-3">📚</div>
-              <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>KDP Margin Reference Guide</h3>
-              <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>A live reference table of KDP margin requirements by trim size and page count. Always updated. Bookmark it.</p>
-              <Link href="#" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ View Guide</Link>
+              <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>Page count, trim size, and price → KDP print cost, royalty per sale, and breakeven.</p>
+              <span className="text-[#7A6E5F] text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>Coming soon</span>
             </div>
           </div>
         </div>
@@ -311,7 +348,7 @@ export default function Home() {
           </div>
           <div className="max-w-2xl mx-auto mt-8 bg-[#FEF0EB] border-l-4 border-[#F05A28] rounded-lg px-6 py-5 text-left">
             <p className="text-sm text-[#2E2A22]" style={{ fontFamily: "Inter, sans-serif" }}>
-              🎯 The Key Difference: manu2print makes surgical corrections to YOUR existing DOCX — preserving your fonts, layout, and formatting choices. Every other tool rebuilds your book from scratch inside their own template. Your book stays your book.
+              🎯 The Key Difference: manu2print makes surgical corrections to YOUR existing PDF — preserving your fonts, layout, and formatting choices. Every other tool rebuilds your book from scratch inside their own template. Your book stays your book.
             </p>
           </div>
         </div>
@@ -342,7 +379,7 @@ export default function Home() {
           <div className="max-w-2xl mx-auto mt-16 text-center">
             <div className="text-7xl text-[#F05A28] leading-none" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>❝</div>
             <p className="text-xl italic text-white mt-2" style={{ fontFamily: "Inter, sans-serif" }}>
-              Finally — a formatting tool that actually understands KDP. I uploaded my manuscript and had a compliant PDF in just a few minutes. This is what authors have needed for years.
+              Finally — a formatting tool that actually understands KDP. I uploaded my PDF and had a compliant file in just a few minutes. This is what authors have needed for years.
             </p>
             <p className="text-sm text-[#6B6151] mt-4" style={{ fontFamily: "Inter, sans-serif" }}>— Beta Author, 3-book KDP Publisher</p>
           </div>
@@ -397,7 +434,7 @@ export default function Home() {
             </div>
           </div>
           <p className="text-sm text-[#6B6151] text-center mt-6" style={{ fontFamily: "Inter, sans-serif" }}>
-            🔒 Secure payment processing. Your manuscript is processed and immediately deleted — never stored permanently.
+            🔒 Secure payment processing. Your PDF is processed and immediately deleted — never stored permanently.
           </p>
         </div>
       </section>
@@ -422,7 +459,7 @@ export default function Home() {
             YOUR NEXT BOOK DESERVES A CLEAN LAUNCH.
           </h2>
           <p className="text-lg text-white/80 max-w-lg mx-auto mt-4 mb-10" style={{ fontFamily: "Inter, sans-serif" }}>
-            Stop fighting with margins. Upload your manuscript and get a KDP-compliant PDF in minutes — free to try, right now.
+            Stop fighting with margins. Upload your PDF and get a KDP-compliant file in minutes — free to try, right now.
           </p>
           <Link href="/formatter" className="inline-block bg-white text-[#F05A28] font-bold text-lg px-10 py-4 rounded-xl hover:scale-105 transition-transform shadow-lg" style={{ fontFamily: "Inter, sans-serif" }}>
             📄 Scan My PDF Free →
@@ -437,6 +474,7 @@ export default function Home() {
             <span className="text-2xl text-[#F05A28]" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>manu2print</span>
           </Link>
           <p className="text-sm text-[#6B6151] mt-2" style={{ fontFamily: "Inter, sans-serif" }}>Precision KDP formatting. Browser-based. Built by authors.</p>
+          <p className="text-xs text-[#6B6151]/90 mt-1 italic max-w-md mx-auto" style={{ fontFamily: "Inter, sans-serif" }}>Always exploring new ways to help authors launch more and stress less.</p>
         </div>
         <nav className="w-full py-4 px-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm" aria-label="Footer" style={{ fontFamily: "Inter, sans-serif" }}>
           <Link href="/legal" className="text-[#6B6151] hover:text-[#F05A28] transition-colors">Legal</Link>

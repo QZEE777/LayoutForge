@@ -8,9 +8,9 @@ const styles = {
     text: "● LIVE",
   },
   free: {
-    background: "#FEF7E6",
-    color: "#C8860A",
-    border: "1px solid #C8860A",
+    background: "#EAF7EE",
+    color: "#2D8C4E",
+    border: "1px solid #2D8C4E",
     text: "◆ FREE",
   },
   "coming-soon": {
