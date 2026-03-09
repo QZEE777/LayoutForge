@@ -44,3 +44,35 @@ input:-webkit-autofill:focus {
   -webkit-text-fill-color: #FAF7F2;
   -webkit-box-shadow: 0 0 0px 1000px #1A1612 inset;
 }
+
+/* manu2print homepage — appended variables and keyframes */
+:root {
+  --m2p-ivory: #FAF7EE;
+  --m2p-ivory-alt: #F5F0E3;
+  --m2p-ivory-deep: #EDE8D8;
+  --m2p-orange: #F05A28;
+  --m2p-orange-hover: #D94E20;
+  --m2p-orange-soft: #FEF0EB;
+  --m2p-ink: #1A1208;
+  --m2p-charcoal: #2E2A22;
+  --m2p-mid: #6B6151;
+  --m2p-border: #E0D8C4;
+  --m2p-live: #2D8C4E;
+  --m2p-live-bg: #EAF7EE;
+  --m2p-free: #C8860A;
+  --m2p-free-bg: #FEF7E6;
+  --m2p-soon: #7A6E5F;
+  --m2p-soon-bg: #F0EDE6;
+}
+
+@keyframes pulse-ring {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(240, 90, 40, 0.5); }
+  50% { box-shadow: 0 0 0 20px rgba(240, 90, 40, 0); }
+}
+.m2p-pulse-ring {
+  animation: pulse-ring 2s infinite;
+}
+
+html {
+  scroll-behavior: smooth;
+}

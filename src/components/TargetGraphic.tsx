@@ -1,0 +1,103 @@
+"use client";
+
+/** Pure SVG + center button overlay. size = viewBox width/height, default 420. */
+export default function TargetGraphic({ size = 420 }: { size?: number }) {
+  const cx = size / 2;
+  const cy = size / 2;
+  const pageW = size * 0.75;
+  const pageH = size * 0.95;
+  const pageX = (size - pageW) / 2;
+  const pageY = (size - pageH) / 2;
+  const safeInset = size * 0.06;
+  const innerInset = size * 0.08;
+  const centerR = size * 0.12;
+
+  return (
+    <div className="relative inline-block" style={{ width: size, height: size }}>
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="block"
+        aria-hidden
+      >
+        <defs>
+          <filter id="page-shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="4" stdDeviation="8" floodOpacity="0.15" />
+          </filter>
+        </defs>
+        {/* White rounded rect = book page */}
+        <rect
+          x={pageX}
+          y={pageY}
+          width={pageW}
+          height={pageH}
+          rx={size * 0.012}
+          fill="#FFFFFF"
+          stroke="#E8E4DC"
+          strokeWidth="2"
+          filter="url(#page-shadow)"
+        />
+        {/* Outer dashed = KDP safe zone green */}
+        <rect
+          x={pageX + safeInset}
+          y={pageY + safeInset}
+          width={pageW - safeInset * 2}
+          height={pageH - safeInset * 2}
+          rx={size * 0.008}
+          fill="none"
+          stroke="#2ECC71"
+          strokeWidth="2"
+          strokeDasharray="8 6"
+        />
+        {/* Inner dashed = content area gold */}
+        <rect
+          x={pageX + innerInset}
+          y={pageY + innerInset}
+          width={pageW - innerInset * 2}
+          height={pageH - innerInset * 2}
+          rx={size * 0.006}
+          fill="none"
+          stroke="#F0C040"
+          strokeWidth="1.5"
+          strokeDasharray="6 4"
+        />
+        {/* Red crosshair horizontal */}
+        <line
+          x1={pageX}
+          y1={cy}
+          x2={pageX + pageW}
+          y2={cy}
+          stroke="#E74C3C"
+          strokeWidth="2"
+        />
+        <circle cx={pageX + size * 0.08} cy={cy} r="5" fill="#E74C3C" />
+        <circle cx={pageX + pageW - size * 0.08} cy={cy} r="5" fill="#E74C3C" />
+        {/* Four concentric circles: alternating gray and orange tint */}
+        <circle cx={cx} cy={cy} r={centerR * 2.2} fill="none" stroke="#E0E0E0" strokeWidth="2" opacity="0.6" />
+        <circle cx={cx} cy={cy} r={centerR * 1.7} fill="none" stroke="rgba(240,90,40,0.15)" strokeWidth="2" />
+        <circle cx={cx} cy={cy} r={centerR * 1.3} fill="none" stroke="#E0E0E0" strokeWidth="2" opacity="0.5" />
+        <circle cx={cx} cy={cy} r={centerR * 0.95} fill="none" stroke="rgba(240,90,40,0.15)" strokeWidth="2" />
+      </svg>
+      {/* Center button: HTML so we can use box-shadow pulse animation */}
+      <div
+        className="m2p-pulse-ring absolute left-1/2 top-1/2 flex items-center justify-center rounded-full text-white"
+        style={{
+          width: centerR * 1.9,
+          height: centerR * 1.9,
+          marginLeft: -centerR * 0.95,
+          marginTop: -centerR * 0.95,
+          background: "#F05A28",
+          fontFamily: "Inter, sans-serif",
+          fontWeight: 700,
+          fontSize: Math.max(12, size * 0.032),
+        }}
+        aria-hidden
+      >
+        Scan My PDF
+      </div>
+    </div>
+  );
+}
