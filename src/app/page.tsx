@@ -95,9 +95,9 @@ export default function Home() {
           </span>
         </div>
         <div className="max-w-6xl mx-auto px-6">
-          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
-            {/* LEFT COLUMN — headline, subhead, CTA only */}
-            <div className="flex-[1.1] text-center lg:text-left">
+          <div className="flex flex-col lg:flex-row items-start gap-12 lg:gap-16">
+            {/* LEFT COLUMN — headline, subhead, CTA only; top aligns with graphic */}
+            <div className="flex-[1.1] text-center lg:text-left w-full lg:w-auto">
               <h1 className="text-[#1A1208] leading-tight tracking-wide whitespace-nowrap mt-0 mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2.2rem, 4.5vw, 5rem)" }}>
                 KDP KILLED YOUR PDF?
                 <br />
@@ -123,16 +123,16 @@ export default function Home() {
                 </a>
               </div>
             </div>
-            {/* RIGHT COLUMN — See How It Works (desktop), graphic, caption */}
-            <div className="flex-[0.9] flex flex-col justify-center items-center">
+            {/* RIGHT COLUMN — See How It Works just above graphic, then graphic, caption */}
+            <div className="flex-[0.9] flex flex-col items-center w-full lg:w-auto">
               <a
                 href="#how-it-works"
-                className="hidden lg:inline-block border border-[#E0D8C4] text-[#6B6151] font-medium text-sm px-5 py-2.5 rounded-xl hover:bg-[#F5F0E3] transition-all mb-6"
+                className="hidden lg:inline-block bg-[#2D8C4E] hover:bg-[#26803f] text-[#F05A28] font-bold text-sm px-5 py-2.5 rounded-xl transition-all mb-6 uppercase tracking-wide"
                 style={{ fontFamily: "Inter, sans-serif" }}
               >
                 See How It Works ↓
               </a>
-              <div className="max-w-lg mx-auto">
+              <div className="max-w-lg mx-auto w-full flex flex-col items-center">
                 <TargetGraphic size={520} />
                 <p className="text-xs text-[#6B6151] italic mt-3 text-center" style={{ fontFamily: "Inter, sans-serif" }}>
                   Upload your PDF. See every KDP error. Download the fix.
@@ -141,9 +141,9 @@ export default function Home() {
             </div>
           </div>
         </div>
-        {/* Trust row — full-width bar below two-column */}
-        <div className="w-full border-t border-[#E0D8C4]/60 mt-8 pt-6">
-          <div className="max-w-6xl mx-auto px-6 flex flex-wrap gap-4 justify-center text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>
+        {/* Trust row — faded green box */}
+        <div className="max-w-6xl mx-auto px-6 mt-8">
+          <div className="rounded-xl bg-[#EAF7EE]/80 border border-[#2D8C4E]/30 px-6 py-4 flex flex-wrap gap-x-6 gap-y-2 justify-center text-sm text-[#1A1208]/90" style={{ fontFamily: "Inter, sans-serif" }}>
             <span>✓ Free compliance scan — no credit card</span>
             <span>✓ See every KDP error before you pay</span>
             <span>✓ Download the fixed PDF to publish</span>
@@ -376,12 +376,29 @@ export default function Home() {
               </div>
             ))}
           </div>
-          <div className="max-w-2xl mx-auto mt-16 text-center">
-            <div className="text-7xl text-[#F05A28] leading-none" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>❝</div>
-            <p className="text-xl italic text-white mt-2" style={{ fontFamily: "Inter, sans-serif" }}>
-              Finally — a formatting tool that actually understands KDP. I uploaded my PDF and had a compliant file in just a few minutes. This is what authors have needed for years.
-            </p>
-            <p className="text-sm text-[#6B6151] mt-4" style={{ fontFamily: "Inter, sans-serif" }}>— Beta Author, 3-book KDP Publisher</p>
+          {/* Testimonials carousel / ticker placeholder — profile pic + quote; marquee loop */}
+          <p className="text-[#F05A28] uppercase tracking-widest text-xs mt-16 mb-6" style={{ fontFamily: "Inter, sans-serif" }}>What authors say</p>
+          <div className="relative w-full overflow-hidden" aria-label="Testimonials carousel">
+            <div className="flex animate-marquee gap-8 py-4" style={{ width: "200%" }}>
+              {[1, 2].map((set) => (
+                <div key={set} className="flex gap-8 flex-shrink-0 justify-center" style={{ width: "50%" }}>
+                  {[1, 2, 3].map((i) => (
+                    <div key={`${set}-${i}`} className="flex-shrink-0 w-[280px] sm:w-[320px] rounded-xl bg-white/10 border border-white/20 p-6 text-left">
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className="w-12 h-12 rounded-full bg-[#F05A28]/30 flex items-center justify-center text-white/80 text-sm" style={{ fontFamily: "Inter, sans-serif" }} aria-hidden>👤</div>
+                        <div>
+                          <p className="text-white font-medium text-sm" style={{ fontFamily: "Inter, sans-serif" }}>Author name</p>
+                          <p className="text-[#6B6151] text-xs" style={{ fontFamily: "Inter, sans-serif" }}>KDP Publisher</p>
+                        </div>
+                      </div>
+                      <p className="text-white/95 text-sm italic leading-relaxed" style={{ fontFamily: "Inter, sans-serif" }}>
+                        &ldquo;Finally — a formatting tool that actually understands KDP. I uploaded my PDF and had a compliant file in just a few minutes.&rdquo;
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
