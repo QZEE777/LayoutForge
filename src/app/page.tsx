@@ -191,22 +191,18 @@ export default function Home() {
           <h2 className="text-[#1A1208] leading-tight" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2rem, 4vw, 3rem)" }}>
             THREE STEPS. ZERO CONFUSION.
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-8 max-w-4xl mx-auto mt-12 items-start">
+          <div className="grid grid-cols-1 grid-rows-3 gap-4 max-w-2xl mx-auto mt-12 min-h-[420px]">
             {[
               { num: "01", title: "UPLOAD YOUR PDF", body: "Drag and drop your PDF. Any browser, any operating system. No account required for a free scan." },
               { num: "02", title: "WE SCAN & FIX", body: "Our engine checks every KDP compliance rule: page size, margins, chapter breaks, widow/orphan control, and double-spacing. Issues found are listed. Issues fixable are fixed automatically." },
               { num: "03", title: "DOWNLOAD & PUBLISH", body: "Get a print-ready KDP-compliant PDF with a compliance report page prepended. Upload directly to KDP. Done." },
             ].map((step, i) => (
-              <div key={i} className="text-center bg-white/70 border border-[#E0D8C4]/80 rounded-2xl p-6 shadow-sm">
-                <div className="text-7xl text-[#F05A28] leading-none mb-3" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>{step.num}</div>
-                <h3 className="text-2xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>{step.title}</h3>
+              <div key={i} className="min-h-0 flex flex-col justify-center text-center bg-white/70 border border-[#E0D8C4]/80 rounded-2xl px-6 py-5 shadow-sm">
+                <div className="text-5xl text-[#F05A28] leading-none mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>{step.num}</div>
+                <h3 className="text-xl text-[#1A1208] mb-1.5" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>{step.title}</h3>
                 <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>{step.body}</p>
               </div>
-            )).reduce<ReactNode[]>((acc, el, i) => {
-              acc.push(el);
-              if (i < 2) acc.push(<div key={`arrow-${i}`} className="hidden md:flex items-center justify-center text-3xl text-[#E0D8C4]" aria-hidden>→</div>);
-              return acc;
-            }, [])}
+            ))}
           </div>
         </div>
       </section>
