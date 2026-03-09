@@ -96,8 +96,8 @@ export default function Home() {
         </div>
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex flex-col lg:flex-row items-start gap-12 lg:gap-16">
-            {/* LEFT COLUMN — headline, subhead, CTA only; top aligns with graphic */}
-            <div className="flex-[1.1] text-center lg:text-left w-full lg:w-auto">
+            {/* LEFT COLUMN — pushed down on desktop so top of headline aligns with top of graphic */}
+            <div className="flex-[1.1] text-center lg:text-left w-full lg:w-auto lg:pt-[7rem]">
               <h1 className="text-[#1A1208] leading-tight tracking-wide whitespace-nowrap mt-0 mb-4" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2.2rem, 4.5vw, 5rem)" }}>
                 KDP KILLED YOUR PDF?
                 <br />
@@ -123,15 +123,17 @@ export default function Home() {
                 </a>
               </div>
             </div>
-            {/* RIGHT COLUMN — See How It Works just above graphic, then graphic, caption */}
+            {/* RIGHT COLUMN — button centered between eyebrow bar and graphic top, then graphic, caption */}
             <div className="flex-[0.9] flex flex-col items-center w-full lg:w-auto">
-              <a
-                href="#how-it-works"
-                className="hidden lg:inline-block bg-[#2D8C4E] hover:bg-[#26803f] text-[#F05A28] font-bold text-sm px-5 py-2.5 rounded-xl transition-all mb-6 uppercase tracking-wide"
-                style={{ fontFamily: "Inter, sans-serif" }}
-              >
-                See How It Works ↓
-              </a>
+              <div className="hidden lg:flex flex-col items-center justify-center py-10 min-h-[7rem]">
+                <a
+                  href="#how-it-works"
+                  className="bg-[#2D8C4E] hover:bg-[#26803f] text-[#F05A28] font-bold text-sm px-5 py-2.5 rounded-xl transition-all uppercase tracking-wide"
+                  style={{ fontFamily: "Inter, sans-serif" }}
+                >
+                  See How It Works ↓
+                </a>
+              </div>
               <div className="max-w-lg mx-auto w-full flex flex-col items-center">
                 <TargetGraphic size={520} />
                 <p className="text-xs text-[#6B6151] italic mt-3 text-center" style={{ fontFamily: "Inter, sans-serif" }}>
