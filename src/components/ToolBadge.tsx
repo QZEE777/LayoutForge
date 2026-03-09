@@ -25,6 +25,7 @@ export default function ToolBadge({ status }: { status: "live" | "free" | "comin
   const s = styles[status];
   return (
     <span
+      className="shadow-sm"
       style={{
         fontFamily: "Inter, sans-serif",
         fontWeight: 700,

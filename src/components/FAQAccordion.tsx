@@ -16,6 +16,7 @@ export default function FAQAccordion({ items }: { items: Item[] }) {
             <button
               type="button"
               onClick={() => setOpenIndex(isOpen ? null : i)}
+              className="focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F05A28] focus-visible:ring-offset-2"
               style={{
                 fontFamily: "'Bebas Neue', sans-serif",
                 fontSize: "18px",

@@ -56,27 +56,27 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* SECTION 1 — NAVBAR */}
-      <nav className="sticky top-0 z-50 border-b border-[#E0D8C4] bg-[#FAF7EE]">
+      <nav className="sticky top-0 z-50 border-b border-[#E0D8C4] bg-[#FAF7EE]/98 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-6 py-4 flex flex-wrap items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2.5" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-            <span className="text-2xl text-[#1A1208]">manu2print</span>
+            <span className="text-2xl text-[#1A1208] tracking-tight">manu2print</span>
           </Link>
           <div className="flex items-center gap-4 sm:gap-6">
-            <Link href="/platform/kdp" className="font-medium text-[#6B6151] hover:text-[#F05A28] transition-colors" style={{ fontFamily: "Inter, sans-serif" }}>
+            <Link href="/platform/kdp" className="font-medium text-[#6B6151] hover:text-[#F05A28] transition-colors text-sm" style={{ fontFamily: "Inter, sans-serif" }}>
               Tools
             </Link>
-            <a href="#how-it-works" className="font-medium text-[#6B6151] hover:text-[#F05A28] transition-colors" style={{ fontFamily: "Inter, sans-serif" }}>
+            <a href="#how-it-works" className="font-medium text-[#6B6151] hover:text-[#F05A28] transition-colors text-sm" style={{ fontFamily: "Inter, sans-serif" }}>
               How It Works
             </a>
-            <Link href="/pricing" className="font-medium text-[#6B6151] hover:text-[#F05A28] transition-colors" style={{ fontFamily: "Inter, sans-serif" }}>
+            <Link href="/pricing" className="font-medium text-[#6B6151] hover:text-[#F05A28] transition-colors text-sm" style={{ fontFamily: "Inter, sans-serif" }}>
               Pricing
             </Link>
-            <Link href="/about" className="font-medium text-[#6B6151] hover:text-[#F05A28] transition-colors" style={{ fontFamily: "Inter, sans-serif" }}>
+            <Link href="/about" className="font-medium text-[#6B6151] hover:text-[#F05A28] transition-colors text-sm" style={{ fontFamily: "Inter, sans-serif" }}>
               About
             </Link>
             <Link
               href="/formatter"
-              className="bg-[#F05A28] hover:bg-[#D94E20] text-white font-bold px-6 py-2.5 rounded-lg transition-colors"
+              className="bg-[#F05A28] hover:bg-[#D94E20] text-white font-bold px-6 py-2.5 rounded-xl shadow-[0_2px_12px_rgba(240,90,40,0.3)] hover:shadow-[0_4px_16px_rgba(240,90,40,0.4)] transition-all"
               style={{ fontFamily: "Inter, sans-serif" }}
             >
               Scan My PDF
@@ -145,7 +145,7 @@ export default function Home() {
         </div>
         {/* Trust row — faded green box */}
         <div className="max-w-6xl mx-auto px-6 mt-8">
-          <div className="rounded-xl bg-[#EAF7EE]/80 border border-[#2D8C4E]/30 px-6 py-4 flex flex-wrap gap-x-6 gap-y-2 justify-center text-sm text-[#1A1208]/90" style={{ fontFamily: "Inter, sans-serif" }}>
+          <div className="rounded-2xl bg-[#EAF7EE]/90 border border-[#2D8C4E]/25 px-6 py-4 flex flex-wrap gap-x-6 gap-y-2 justify-center text-sm text-[#1A1208]/90 shadow-sm" style={{ fontFamily: "Inter, sans-serif" }}>
             <span>✓ Free compliance scan — no credit card</span>
             <span>✓ See every KDP error before you pay</span>
             <span>✓ Download the fixed PDF to publish</span>
@@ -172,7 +172,7 @@ export default function Home() {
               { icon: "💸", title: "Expensive Tools, Wrong Jobs", body: "Vellum and Atticus are book design suites. You don't need a suite. You need your existing PDF made KDP-compliant — fast, on any device." },
               { icon: "🔄", title: "Upload. Reject. Repeat.", body: "KDP's own formatter is limited. Rejection messages are vague. Authors guess, re-upload, and waste days before publishing. That ends here." },
             ].map((card, i) => (
-              <div key={i} className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center hover:-translate-y-1 transition-transform">
+              <div key={i} className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center shadow-sm hover:shadow-md hover:-translate-y-0.5 border-[#E0D8C4]/90 transition-all">
                 <div className="text-4xl mb-3">{card.icon}</div>
                 <h3 className="text-[#1A1208] mb-2 text-[22px]" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>{card.title}</h3>
                 <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>{card.body}</p>
@@ -197,7 +197,7 @@ export default function Home() {
               { num: "02", title: "WE SCAN & FIX", body: "Our engine checks every KDP compliance rule: page size, margins, chapter breaks, widow/orphan control, and double-spacing. Issues found are listed. Issues fixable are fixed automatically." },
               { num: "03", title: "DOWNLOAD & PUBLISH", body: "Get a print-ready KDP-compliant PDF with a compliance report page prepended. Upload directly to KDP. Done." },
             ].map((step, i) => (
-              <div key={i} className="text-center">
+              <div key={i} className="text-center bg-white/70 border border-[#E0D8C4]/80 rounded-2xl p-6 shadow-sm">
                 <div className="text-7xl text-[#F05A28] leading-none mb-3" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>{step.num}</div>
                 <h3 className="text-2xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>{step.title}</h3>
                 <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>{step.body}</p>
@@ -225,7 +225,7 @@ export default function Home() {
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl mx-auto">
             {/* Card 1: KDP PDF Checker — free + live */}
-            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative hover:-translate-y-1 transition-transform">
+            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
               <div className="absolute top-4 right-4 flex gap-2">
                 <ToolBadge status="free" />
                 <ToolBadge status="live" />
@@ -236,7 +236,7 @@ export default function Home() {
               <Link href="/kdp-pdf-checker" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Scan My PDF</Link>
             </div>
             {/* Card 2: PDF Formatter / fix — live */}
-            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative hover:-translate-y-1 transition-transform">
+            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
               <div className="absolute top-4 right-4"><ToolBadge status="live" /></div>
               <div className="text-4xl mb-3">📄</div>
               <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>KDP PDF Formatter</h3>
@@ -244,7 +244,7 @@ export default function Home() {
               <Link href="/formatter" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Format My PDF</Link>
             </div>
             {/* Card 3: PDF Compressor — free */}
-            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative hover:-translate-y-1 transition-transform">
+            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
               <div className="absolute top-4 right-4"><ToolBadge status="free" /></div>
               <div className="text-4xl mb-3">🗜️</div>
               <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>PDF Compressor</h3>
@@ -252,7 +252,7 @@ export default function Home() {
               <Link href="/pdf-compress" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Compress PDF</Link>
             </div>
             {/* Card 4: Spine Calculator — free */}
-            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative hover:-translate-y-1 transition-transform">
+            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
               <div className="absolute top-4 right-4"><ToolBadge status="free" /></div>
               <div className="text-4xl mb-3">📐</div>
               <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>Spine Width Calculator</h3>
@@ -260,7 +260,7 @@ export default function Home() {
               <Link href="/spine-calculator" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Calculate Spine</Link>
             </div>
             {/* Card 5: Cover Calculator — free */}
-            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative hover:-translate-y-1 transition-transform">
+            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
               <div className="absolute top-4 right-4"><ToolBadge status="free" /></div>
               <div className="text-4xl mb-3">🎨</div>
               <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>Cover Size Calculator</h3>
@@ -268,7 +268,7 @@ export default function Home() {
               <Link href="/cover-calculator" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Cover Dimensions</Link>
             </div>
             {/* Card 6: Cover Compliance Checker — coming soon */}
-            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative hover:-translate-y-1 transition-transform">
+            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
               <div className="absolute top-4 right-4"><ToolBadge status="coming-soon" /></div>
               <div className="text-4xl mb-3">✔️</div>
               <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>Cover Compliance Checker</h3>
@@ -276,7 +276,7 @@ export default function Home() {
               <span className="text-[#7A6E5F] text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>Coming soon</span>
             </div>
             {/* Card 7: DOCX Formatter — coming soon */}
-            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative hover:-translate-y-1 transition-transform">
+            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
               <div className="absolute top-4 right-4"><ToolBadge status="coming-soon" /></div>
               <div className="text-4xl mb-3">📝</div>
               <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>DOCX to KDP PDF</h3>
@@ -284,7 +284,7 @@ export default function Home() {
               <span className="text-[#7A6E5F] text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>Coming soon</span>
             </div>
             {/* Card 8: Keyword Research — coming soon */}
-            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative hover:-translate-y-1 transition-transform">
+            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
               <div className="absolute top-4 right-4"><ToolBadge status="coming-soon" /></div>
               <div className="text-4xl mb-3">🔑</div>
               <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>Keyword Research</h3>
@@ -292,7 +292,7 @@ export default function Home() {
               <span className="text-[#7A6E5F] text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>Coming soon</span>
             </div>
             {/* Card 9: Royalty Calculator — coming soon */}
-            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative hover:-translate-y-1 transition-transform">
+            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
               <div className="absolute top-4 right-4"><ToolBadge status="coming-soon" /></div>
               <div className="text-4xl mb-3">📊</div>
               <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>Royalty & Trim Calculator</h3>
@@ -315,7 +315,7 @@ export default function Home() {
           <p className="text-base text-[#6B6151] max-w-xl mx-auto mt-3 mb-12" style={{ fontFamily: "Inter, sans-serif" }}>
             Vellum and Atticus are excellent writing tools. They are not KDP compliance specialists. We are. Here&apos;s the difference that matters.
           </p>
-          <div className="max-w-3xl mx-auto overflow-x-auto">
+          <div className="max-w-3xl mx-auto overflow-x-auto rounded-2xl overflow-hidden shadow-md border border-[#E0D8C4]">
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr className="bg-[#1A1208] text-[#FAF7EE]" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
@@ -337,7 +337,7 @@ export default function Home() {
                   ["Built by KDP authors", "✅ 8 books published", "❌", "❌", "❌"],
                   ["Auto-fix margins & breaks", "✅", "❌", "❌", "❌"],
                 ].map((row, i) => (
-                  <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-[#F5F0E3]"}>
+                  <tr key={i} className={`${i % 2 === 0 ? "bg-white" : "bg-[#F5F0E3]"} hover:bg-[#FAF7EE]/80 transition-colors`}>
                     <td className="px-4 py-3 text-[#1A1208]">{row[0]}</td>
                     <td className="px-4 py-3 text-center font-bold text-[#2D8C4E] border-l-2 border-r-2 border-[#F05A28]">{row[1]}</td>
                     <td className="px-4 py-3 text-center">{row[2] === "❌" || row[2].startsWith("❌") ? <span className="text-[#E74C3C]">{row[2]}</span> : row[2] === "⚠️ Partial" ? <span className="text-[#C8860A]">{row[2]}</span> : row[2]}</td>
@@ -348,7 +348,7 @@ export default function Home() {
               </tbody>
             </table>
           </div>
-          <div className="max-w-2xl mx-auto mt-8 bg-[#FEF0EB] border-l-4 border-[#F05A28] rounded-lg px-6 py-5 text-left">
+          <div className="max-w-2xl mx-auto mt-8 bg-[#FEF0EB] border-l-4 border-[#F05A28] rounded-2xl px-6 py-5 text-left shadow-sm">
             <p className="text-sm text-[#2E2A22]" style={{ fontFamily: "Inter, sans-serif" }}>
               🎯 The Key Difference: manu2print makes surgical corrections to YOUR existing PDF — preserving your fonts, layout, and formatting choices. Every other tool rebuilds your book from scratch inside their own template. Your book stays your book.
             </p>
@@ -385,7 +385,7 @@ export default function Home() {
               {[1, 2].map((set) => (
                 <div key={set} className="flex gap-8 flex-shrink-0 justify-center" style={{ width: "50%" }}>
                   {[1, 2, 3].map((i) => (
-                    <div key={`${set}-${i}`} className="flex-shrink-0 w-[280px] sm:w-[320px] rounded-xl bg-white/10 border border-white/20 p-6 text-left">
+                    <div key={`${set}-${i}`} className="flex-shrink-0 w-[280px] sm:w-[320px] rounded-2xl bg-white/10 border border-white/25 p-6 text-left shadow-lg backdrop-blur-sm">
                       <div className="flex items-center gap-4 mb-4">
                         <div className="w-12 h-12 rounded-full bg-[#F05A28]/30 flex items-center justify-center text-white/80 text-sm" style={{ fontFamily: "Inter, sans-serif" }} aria-hidden>👤</div>
                         <div>
@@ -418,7 +418,7 @@ export default function Home() {
             No subscriptions. No monthly fees. Format one book or one hundred — you only pay when you use it.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-8 text-center">
+            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-8 text-center shadow-sm">
               <div className="mb-4"><ToolBadge status="free" /></div>
               <h3 className="text-3xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>COMPLIANCE SCAN</h3>
               <div className="text-6xl text-[#1A1208]" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>$0</div>
@@ -432,7 +432,7 @@ export default function Home() {
               </ul>
               <Link href="/formatter" className="block border-2 border-[#F05A28] text-[#F05A28] font-bold px-6 py-3 rounded-xl w-full mt-6 hover:bg-[#FEF0EB] transition-all" style={{ fontFamily: "Inter, sans-serif" }}>Scan My PDF Free — See the Report →</Link>
             </div>
-            <div className="bg-white border-2 border-[#F05A28] rounded-2xl overflow-hidden text-center relative">
+            <div className="bg-white border-2 border-[#F05A28] rounded-2xl overflow-hidden text-center relative shadow-md">
               <div className="bg-[#F05A28] text-white font-bold text-xs tracking-widest uppercase py-2 text-center" style={{ fontFamily: "Inter, sans-serif" }}>MOST POPULAR</div>
               <div className="p-8">
                 <div className="mb-4"><ToolBadge status="live" /></div>
@@ -480,7 +480,7 @@ export default function Home() {
           <p className="text-lg text-white/80 max-w-lg mx-auto mt-4 mb-10" style={{ fontFamily: "Inter, sans-serif" }}>
             Stop fighting with margins. Upload your PDF and get a KDP-compliant file in minutes — free to try, right now.
           </p>
-          <Link href="/formatter" className="inline-block bg-white text-[#F05A28] font-bold text-lg px-10 py-4 rounded-xl hover:scale-105 transition-transform shadow-lg" style={{ fontFamily: "Inter, sans-serif" }}>
+          <Link href="/formatter" className="inline-block bg-white text-[#F05A28] font-bold text-lg px-10 py-4 rounded-xl hover:scale-[1.02] transition-transform shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#F05A28]" style={{ fontFamily: "Inter, sans-serif" }}>
             📄 Scan My PDF Free →
           </Link>
         </div>
