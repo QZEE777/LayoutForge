@@ -1,3 +1,4 @@
+# Redis connection — ssl_cert_reqs=None required for Upstash compatibility
 """Job status and report storage (Redis)."""
 from __future__ import annotations
 
