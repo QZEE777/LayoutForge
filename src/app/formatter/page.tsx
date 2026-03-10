@@ -120,7 +120,7 @@ export default function FormatterPage() {
             Professional Book Formatting — <span className="text-brave">Done in Minutes</span>
           </h1>
           <p className="font-sans text-lg sm:text-xl leading-relaxed text-soft-muted">
-            Format for KDP and Kindle. FREE calculators and compressors; paid formatter, keywords, description, and Kindle EPUB tools.
+            Format for KDP and Kindle. FREE calculators and compressors; paid formatter and Print Ready Check.
           </p>
         </div>
       </section>

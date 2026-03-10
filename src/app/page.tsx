@@ -240,15 +240,7 @@ export default function Home() {
               <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>Upload your Word manuscript and get a print-ready KDP PDF. Auto margins, trim size, chapter breaks.</p>
               <span className="text-[#7A6E5F] text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>Coming soon</span>
             </div>
-            {/* Card 8: Keyword Research — coming soon */}
-            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
-              <div className="absolute top-4 right-4"><ToolBadge status="coming-soon" /></div>
-              <div className="text-4xl mb-3">🔑</div>
-              <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>Keyword Research</h3>
-              <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>KDP keyword suggestions from your manuscript. Built for authors who want to rank.</p>
-              <span className="text-[#7A6E5F] text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>Coming soon</span>
-            </div>
-            {/* Card 9: Royalty Calculator — free */}
+            {/* Card 8: Royalty Calculator — free */}
             <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
               <div className="absolute top-4 right-4"><ToolBadge status="free" /></div>
               <div className="text-4xl mb-3">📊</div>
