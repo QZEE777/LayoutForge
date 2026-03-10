@@ -14,15 +14,19 @@ const PAID_TOOLS: { title: string; description: React.ReactNode; href: string; p
   { title: "Print Ready Check", description: <>Full PDF validation: 26 KDP rules.<br />Trim, margins, bleed — pass/fail report.</>, href: "/kdp-pdf-checker", pricing: "$7 per use · $27 for 6 months" },
 ];
 
-/** Mini tools — calculator, estimators, etc. */
+/** Free tools — calculators, estimators, checker, template. */
+const FREE_TOOLS_ROW: { title: string; description: string; href: string }[] = [
+  { title: "Banned Keyword Checker", description: "Spot risky words in title, subtitle, or description before publishing.", href: "/banned-keyword-checker" },
+  { title: "Royalty Calculator", description: "Earnings by page count, trim size, list price. 60% or 35% royalty.", href: "/royalty-calculator" },
+  { title: "Page Count Estimator", description: "Estimate interior pages from word count and trim size.", href: "/page-count-estimator" },
+  { title: "Trim Size Comparison", description: "Compare print costs and royalties across trim sizes.", href: "/trim-size-comparison" },
+  { title: "Interior Template", description: "Download a PDF with your book's exact trim and safe zone for Canva.", href: "/interior-template" },
+];
+
+/** Mini tools — calculator, estimators, etc. (spine, cover; others in FREE_TOOLS_ROW). */
 const MINI_TOOLS: { title: string; description: string; href: string; live: boolean }[] = [
-  { title: "KDP Royalty Calculator", description: "Earnings by page count, trim size, list price. 60% or 35% royalty.", href: "/royalty-calculator", live: true },
-  { title: "Page Count Estimator", description: "Estimate interior pages from word count and trim size.", href: "/page-count-estimator", live: true },
-  { title: "Trim Size Comparison", description: "Compare print costs and royalties across trim sizes.", href: "/trim-size-comparison", live: true },
   { title: "Spine width calculator", description: "Spine width and full-wrap cover dimensions for KDP paperbacks.", href: "/spine-calculator", live: true },
   { title: "Full-wrap cover calculator", description: "Cover canvas size in inches and pixels (300 DPI) for Canva and design tools.", href: "/cover-calculator", live: true },
-  { title: "Banned keyword checker", description: "Spot risky words in title, subtitle, or description before publishing.", href: "/banned-keyword-checker", live: true },
-  { title: "Kids book trim guide", description: "Trim sizes and page counts for picture books and children's titles.", href: "/kids-trim-guide", live: true },
 ];
 
 /**
@@ -214,7 +218,43 @@ export default function FormatterPage() {
         </div>
       </section>
 
-      {/* Mini tools — calculator, estimators, placeholders */}
+      {/* Free tools — Banned Keyword, Royalty, Page Count, Trim Comparison, Interior Template */}
+      <section className="px-6 pb-14">
+        <div className="mx-auto max-w-4xl">
+          <h2 className="font-bebas text-xl tracking-wide text-center mb-4 text-emerald-400">
+            More free tools
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {FREE_TOOLS_ROW.map((tool) => (
+              <Link
+                key={tool.href}
+                href={tool.href}
+                className="group relative rounded-xl border-l-4 border-brave p-5 flex flex-col bg-white border border-soft-border hover:shadow-lg hover:shadow-brave/10 hover:border-soft-border transition-all overflow-hidden"
+              >
+                <div className="relative flex flex-col items-center text-center">
+                  <h3 className="font-bebas text-xl tracking-wide text-amazon-navy mb-1">
+                    {tool.title}
+                  </h3>
+                  <p className="font-bebas text-sm font-bold tracking-widest uppercase mb-2 text-[#22c55e]">
+                    FREE
+                  </p>
+                  <p className="font-sans text-sm flex-1 mb-4 text-soft-muted">
+                    {tool.description}
+                  </p>
+                  <span className="inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold w-fit bg-brave text-amazon-navy group-hover:opacity-90 transition-opacity">
+                    Launch
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Mini tools — spine, cover */}
       <section className="px-6 pb-14">
         <div className="mx-auto max-w-4xl">
           <h2 className="font-bebas text-xl tracking-wide text-amazon-navy text-center mb-4">

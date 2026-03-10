@@ -248,13 +248,45 @@ export default function Home() {
               <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>KDP keyword suggestions from your manuscript. Built for authors who want to rank.</p>
               <span className="text-[#7A6E5F] text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>Coming soon</span>
             </div>
-            {/* Card 9: Royalty Calculator — coming soon */}
+            {/* Card 9: Royalty Calculator — free */}
             <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
-              <div className="absolute top-4 right-4"><ToolBadge status="coming-soon" /></div>
+              <div className="absolute top-4 right-4"><ToolBadge status="free" /></div>
               <div className="text-4xl mb-3">📊</div>
-              <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>Royalty & Trim Calculator</h3>
+              <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>Royalty Calculator</h3>
               <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>Page count, trim size, and price → KDP print cost, royalty per sale, and breakeven.</p>
-              <span className="text-[#7A6E5F] text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>Coming soon</span>
+              <Link href="/royalty-calculator" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Royalty Calculator</Link>
+            </div>
+            {/* Card 10: Banned Keyword Checker — free */}
+            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+              <div className="absolute top-4 right-4"><ToolBadge status="free" /></div>
+              <div className="text-4xl mb-3">🚫</div>
+              <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>Banned Keyword Checker</h3>
+              <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>Spot risky words in title, subtitle, or description before publishing on KDP.</p>
+              <Link href="/banned-keyword-checker" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Check Keywords</Link>
+            </div>
+            {/* Card 11: Page Count Estimator — free */}
+            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+              <div className="absolute top-4 right-4"><ToolBadge status="free" /></div>
+              <div className="text-4xl mb-3">📄</div>
+              <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>Page Count Estimator</h3>
+              <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>Estimate interior pages from word count and trim size.</p>
+              <Link href="/page-count-estimator" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Estimate Pages</Link>
+            </div>
+            {/* Card 12: Trim Size Comparison — free */}
+            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+              <div className="absolute top-4 right-4"><ToolBadge status="free" /></div>
+              <div className="text-4xl mb-3">📐</div>
+              <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>Trim Size Comparison</h3>
+              <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>Compare print cost and royalty across trim sizes.</p>
+              <Link href="/trim-size-comparison" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Compare Trims</Link>
+            </div>
+            {/* Card 13: Interior Template — free */}
+            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+              <div className="absolute top-4 right-4"><ToolBadge status="free" /></div>
+              <div className="text-4xl mb-3">📋</div>
+              <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>Interior Template</h3>
+              <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>Download a PDF with your book&apos;s exact trim and safe zone for Canva.</p>
+              <Link href="/interior-template" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Get Template</Link>
             </div>
           </div>
         </div>
