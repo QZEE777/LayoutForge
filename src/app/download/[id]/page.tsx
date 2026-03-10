@@ -127,14 +127,26 @@ export default function DownloadPage() {
           const r = data.report as ProcessingReport;
           setReport(r);
           if (r.annotatedPdfStatus === "ready") setAnnotatedReady(true);
+          if (r.annotatedPdfUrl && searchParams.get("source") === "checker") {
+            const match = r.annotatedPdfUrl.match(/\/file\/([^/]+)\/annotated\/?$/);
+            const jobId = match?.[1];
+            if (jobId) {
+              fetch(`/api/kdp-annotated-status?job_id=${encodeURIComponent(jobId)}`)
+                .then((res) => res.json())
+                .then((statusData: { status?: string }) => {
+                  if (statusData.status === "ready") setAnnotatedReady(true);
+                })
+                .catch(() => {});
+            }
+          }
         }
       })
       .catch(() => {});
-  }, [id]);
+  }, [id, searchParams]);
 
-  // Poll annotated PDF status when checker flow and status is "processing"
+  // Poll annotated PDF status when checker flow (storage never updated to "ready", so poll whenever we have URL)
   useEffect(() => {
-    if (!report?.annotatedPdfUrl || report.annotatedPdfStatus !== "processing" || !isCheckerFlow) return;
+    if (!report?.annotatedPdfUrl || !isCheckerFlow) return;
     const match = report.annotatedPdfUrl.match(/\/file\/([^/]+)\/annotated\/?$/);
     const jobId = match?.[1];
     if (!jobId) return;
@@ -437,7 +449,11 @@ export default function DownloadPage() {
             ) : annotatedReady ? (
               <button
                 type="button"
-                onClick={() => window.open(report.annotatedPdfUrl!, "_blank")}
+                onClick={() => {
+                  const match = report.annotatedPdfUrl?.match(/\/file\/([^/]+)\/annotated\/?$/);
+                  const jobId = match?.[1];
+                  if (jobId) window.open(`/api/kdp-annotated-pdf?job_id=${encodeURIComponent(jobId)}`, "_blank");
+                }}
                 className="flex items-center gap-3 border border-[#D4A843] rounded-lg p-4 bg-[#1a1a12]/50 hover:bg-[#1a1a12]/70 transition-colors cursor-pointer text-left w-full"
               >
                 <div className="w-10 h-10 border border-[#D4A843]/30 rounded flex items-center justify-center text-[#D4A843] flex-shrink-0">
