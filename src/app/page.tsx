@@ -170,7 +170,7 @@ export default function Home() {
       </section>
 
       {/* SECTION 5 — TOOL SUITE */}
-      <section className="bg-[#EDE8D8] py-24 text-center">
+      <section id="tools" className="bg-[#EDE8D8] py-24 text-center">
         <div className="max-w-6xl mx-auto px-6">
           <p className="text-[#F05A28] mb-2 uppercase tracking-[0.1em] text-sm" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
             OUR TOOLS

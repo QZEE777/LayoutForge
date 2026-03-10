@@ -11,7 +11,7 @@ export default function SiteNav() {
           <span className="text-2xl text-[#1A1208] tracking-tight">manu2print</span>
         </Link>
         <div className="flex items-center gap-4 sm:gap-6">
-          <Link href="/platform/kdp" className="font-medium text-[#6B6151] hover:text-[#F05A28] transition-colors text-sm" style={{ fontFamily: "Inter, sans-serif" }}>
+          <Link href="/#tools" className="font-medium text-[#6B6151] hover:text-[#F05A28] transition-colors text-sm" style={{ fontFamily: "Inter, sans-serif" }}>
             Tools
           </Link>
           <Link href="/#how-it-works" className="font-medium text-[#6B6151] hover:text-[#F05A28] transition-colors text-sm" style={{ fontFamily: "Inter, sans-serif" }}>
