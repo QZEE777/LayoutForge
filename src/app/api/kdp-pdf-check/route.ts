@@ -178,13 +178,37 @@ export async function POST(request: NextRequest) {
     const stored = await saveUpload(buffer, f.name || "document.pdf", "application/pdf");
     await updateMeta(stored.id, { processingReport: report as StoredManuscript["processingReport"] });
 
-    if (preflightUrl?.trim() && preflightJobId) {
-      const engineBaseUrl = preflightUrl.replace(/\/$/, "");
-      fetch(`${engineBaseUrl}/annotate/${preflightJobId}`, { method: "POST" }).catch(() => {});
+    // Trigger annotation — for preflight path use existing job_id,
+    // for local path upload to preflight engine just to get annotations
+    const engineBaseUrl = preflightUrl?.trim() ? preflightUrl.replace(/\/$/, "") : null;
+    let annotateJobId: string | null = preflightJobId ?? null;
+
+    if (engineBaseUrl && !annotateJobId) {
+      // Small file: upload to engine solely for annotation
+      try {
+        const form = new FormData();
+        form.append("file", new Blob([buffer], { type: "application/pdf" }), f.name || "document.pdf");
+        const uploadRes = await fetch(`${engineBaseUrl}/upload`, { method: "POST", body: form });
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json() as { job_id?: string };
+          annotateJobId = uploadData.job_id ?? null;
+          console.log("[kdp-pdf-check] uploaded to engine for annotation, job_id:", annotateJobId);
+        }
+      } catch (e) {
+        console.error("[kdp-pdf-check] annotation upload failed:", e);
+      }
+    }
+
+    if (engineBaseUrl && annotateJobId) {
+      console.log("[kdp-pdf-check] firing annotate for job:", annotateJobId);
+      fetch(`${engineBaseUrl}/annotate/${annotateJobId}`, { method: "POST" }).catch((e) => console.error("[annotate trigger]", e));
       await updateMeta(stored.id, {
-        annotatedPdfUrl: `${engineBaseUrl}/file/${preflightJobId}/annotated`,
+        annotatedPdfUrl: `${engineBaseUrl}/file/${annotateJobId}/annotated`,
         annotatedPdfStatus: "processing",
       });
+      console.log("[kdp-pdf-check] annotatedPdfUrl written for stored.id:", stored.id);
+    } else {
+      console.log("[kdp-pdf-check] annotate skipped — engineBaseUrl:", engineBaseUrl, "annotateJobId:", annotateJobId);
     }
 
     if (process.env.USE_R2 === "true" && stored.storedPath) {
