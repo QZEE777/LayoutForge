@@ -96,7 +96,7 @@ export default function FAQPage() {
             a={<>You upload a DOCX manuscript. We format it for KDP print (trim, margins, bleed) and give you a <Link href="/kdp-formatter">print-ready PDF</Link>.</>}
           />
           <FaqItem
-            q="What is Print Ready Check (KDP PDF Checker)?"
+            q="What is Print Ready Check?"
             a={<>You upload your interior PDF. We run it against KDP's rules and give a pass/fail report with highlights. Use it before you upload to KDP. <Link href="/kdp-pdf-checker">Print Ready Check</Link> accepts PDFs up to 100 MB.</>}
           />
           <FaqItem

@@ -104,9 +104,9 @@ export default function TargetGraphic({ size = 420 }: { size?: number }) {
           fontSize: Math.max(12, size * 0.032),
           cursor: "pointer",
         }}
-        title="Scan My PDF — Go to Print Ready Check"
+        title="Check my PDF — Print Ready Check"
       >
-        Scan My PDF
+        Check my PDF
       </a>
     </div>
   );
