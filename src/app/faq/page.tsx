@@ -161,7 +161,7 @@ export default function FAQPage() {
           <h2 className="text-lg font-semibold text-[#1A1208] mb-4" style={{ fontFamily: "Inter, sans-serif" }}>KDP basics</h2>
           <FaqItem
             q="What trim sizes does KDP support?"
-            a={<>KDP supports many trim sizes. Use our <Link href="/trim-size-comparison">Trim Size Comparison</Link> and <Link href="/kids-trim-guide">Kids book trim guide</Link>.</>}
+            a={<>KDP supports many trim sizes. Use our <Link href="/trim-size-comparison">Trim Size Comparison</Link> and <Link href="/interior-template">Interior template</Link>.</>}
           />
           <FaqItem
             q="What is bleed?"
