@@ -144,42 +144,40 @@ export default function DownloadPage() {
       .catch(() => {});
   }, [id, searchParams]);
 
-  // Poll annotated PDF status when checker flow (storage never updated to "ready", so poll whenever we have URL)
   useEffect(() => {
     if (!report?.annotatedPdfUrl || !isCheckerFlow) return;
+    if (annotatedReady || annotatedError) return;
     const match = report.annotatedPdfUrl.match(/\/file\/([^/]+)\/annotated\/?$/);
     const jobId = match?.[1];
     if (!jobId) return;
     let attempts = 0;
-    const maxAttempts = 10;
-    const intervalMs = 3000;
+    const maxAttempts = 20;
     let intervalId: ReturnType<typeof setInterval> | null = null;
-    const poll = () => {
+    const poll = async () => {
       attempts += 1;
-      fetch(`/api/kdp-annotated-status?job_id=${encodeURIComponent(jobId)}`)
-        .then((res) => res.json())
-        .then((data: { status?: string }) => {
-          if (data.status === "ready") {
-            setAnnotatedReady(true);
-            if (intervalId) clearInterval(intervalId);
-            return;
-          }
-          if (data.status === "error" || attempts >= maxAttempts) {
-            setAnnotatedError(true);
-            if (intervalId) clearInterval(intervalId);
-          }
-        })
-        .catch(() => {
-          if (attempts >= maxAttempts) setAnnotatedError(true);
+      try {
+        const res = await fetch(`/api/kdp-annotated-status?job_id=${encodeURIComponent(jobId)}`);
+        const data = await res.json() as { status?: string };
+        if (data.status === "ready") {
+          setAnnotatedReady(true);
           if (intervalId) clearInterval(intervalId);
-        });
+          return;
+        }
+        if (data.status === "error" || attempts >= maxAttempts) {
+          setAnnotatedError(true);
+          if (intervalId) clearInterval(intervalId);
+        }
+      } catch {
+        if (attempts >= maxAttempts) {
+          setAnnotatedError(true);
+          if (intervalId) clearInterval(intervalId);
+        }
+      }
     };
     poll();
-    intervalId = setInterval(poll, intervalMs);
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [report?.annotatedPdfUrl, report?.annotatedPdfStatus, isCheckerFlow]);
+    intervalId = setInterval(poll, 3000);
+    return () => { if (intervalId) clearInterval(intervalId); };
+  }, [report?.annotatedPdfUrl, isCheckerFlow, annotatedReady, annotatedError]);
 
   if (!id) {
     return (
