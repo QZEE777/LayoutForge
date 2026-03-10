@@ -39,7 +39,7 @@ async def annotate_status(job_id: str) -> dict:
     return {"job_id": job_id, "status": "processing"}
 
 
-@router.get("/file/{job_id}/annotated")
+@router.get("/file/{job_id}/annotated", response_model=None)
 async def get_annotated_file(job_id: str) -> FileResponse | JSONResponse:
     """Stream annotated PDF if ready; 202 if still processing, 404 if missing."""
     if get_annotated_status(job_id) != "ready":
