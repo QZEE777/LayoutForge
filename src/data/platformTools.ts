@@ -49,7 +49,7 @@ export interface Platform {
 }
 
 export const PLATFORMS: Platform[] = [
-  { id: "kdp", name: "Amazon KDP", tagline: "Everything you need for Amazon KDP", toolIds: ["pdf-compress", "pdf-optimizer", "royalty-calculator", "page-count-estimator", "trim-size-comparison", "spine-calculator", "cover-calculator", "interior-template", "banned-keyword-checker", "kdp-formatter", "kdp-pdf-checker"] },
+  { id: "kdp", name: "Amazon KDP", tagline: "Everything you need for Amazon KDP", toolIds: ["pdf-compress", "pdf-optimizer", "royalty-calculator", "page-count-estimator", "trim-size-comparison", "spine-calculator", "cover-calculator", "interior-template", "banned-keyword-checker", "kdp-pdf-checker"] },
 ];
 
 /**

@@ -4,6 +4,7 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import TargetGraphic from "@/components/TargetGraphic";
 import ToolBadge from "@/components/ToolBadge";
+import DocxVoteCard from "@/components/DocxVoteCard";
 import FAQAccordion from "@/components/FAQAccordion";
 
 export const metadata = {
@@ -180,8 +181,8 @@ export default function Home() {
           <p className="text-base text-[#6B6151] max-w-lg mx-auto mt-3 mb-12" style={{ fontFamily: "Inter, sans-serif" }}>
             PDF tools first — browser-based, built for KDP. More formats and tools coming soon.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl mx-auto">
-            {/* Card 1: KDP PDF Checker — free + live */}
+          {/* PAID TOOLS — top row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl mx-auto mb-12">
             <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
               <div className="absolute top-4 right-4 flex gap-2">
                 <ToolBadge status="free" />
@@ -192,15 +193,17 @@ export default function Home() {
               <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>Upload your PDF and get a full KDP compliance report. Margins, page size, bleed, widow lines — flagged instantly. Free scan, no signup.</p>
               <Link href="/kdp-pdf-checker" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Scan My PDF</Link>
             </div>
-            {/* Card 2: PDF Formatter / fix — live */}
             <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
-              <div className="absolute top-4 right-4"><ToolBadge status="live" /></div>
+              <div className="absolute top-4 right-4"><ToolBadge status="coming-soon" /></div>
               <div className="text-4xl mb-3">📄</div>
               <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>KDP PDF Formatter</h3>
               <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>The full fix. Upload your PDF, we flag issues and deliver a print-ready PDF. Works on any trim size. Pay only to download.</p>
-              <Link href="/formatter" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Format My PDF</Link>
+              <Link href="/kdp-formatter-pdf" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Format My PDF</Link>
             </div>
-            {/* Card 3: PDF Compressor — free */}
+          </div>
+
+          {/* FREE TOOLS */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl mx-auto mb-12">
             <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
               <div className="absolute top-4 right-4"><ToolBadge status="free" /></div>
               <div className="text-4xl mb-3">🗜️</div>
@@ -208,7 +211,6 @@ export default function Home() {
               <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>Shrink PDFs in your browser. No upload to our servers — runs locally. Free, no account required.</p>
               <Link href="/pdf-compress" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Compress PDF</Link>
             </div>
-            {/* Card 4: Spine Calculator — free */}
             <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
               <div className="absolute top-4 right-4"><ToolBadge status="free" /></div>
               <div className="text-4xl mb-3">📐</div>
@@ -216,7 +218,6 @@ export default function Home() {
               <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>Spine width and full-wrap cover dimensions for KDP paperbacks. Essential for cover design.</p>
               <Link href="/spine-calculator" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Calculate Spine</Link>
             </div>
-            {/* Card 5: Cover Calculator — free */}
             <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
               <div className="absolute top-4 right-4"><ToolBadge status="free" /></div>
               <div className="text-4xl mb-3">🎨</div>
@@ -224,23 +225,6 @@ export default function Home() {
               <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>Full-wrap cover dimensions in inches and 300 DPI pixels for Canva and other design tools.</p>
               <Link href="/cover-calculator" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Cover Dimensions</Link>
             </div>
-            {/* Card 6: Cover Compliance Checker — coming soon */}
-            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
-              <div className="absolute top-4 right-4"><ToolBadge status="coming-soon" /></div>
-              <div className="text-4xl mb-3">✔️</div>
-              <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>Cover Compliance Checker</h3>
-              <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>Upload your cover file. We verify bleed, DPI, spine width, and color space against KDP specs.</p>
-              <span className="text-[#7A6E5F] text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>Coming soon</span>
-            </div>
-            {/* Card 7: DOCX Formatter — coming soon */}
-            <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
-              <div className="absolute top-4 right-4"><ToolBadge status="coming-soon" /></div>
-              <div className="text-4xl mb-3">📝</div>
-              <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>DOCX to KDP PDF</h3>
-              <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>Upload your Word manuscript and get a print-ready KDP PDF. Auto margins, trim size, chapter breaks.</p>
-              <span className="text-[#7A6E5F] text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>Coming soon</span>
-            </div>
-            {/* Card 8: Royalty Calculator — free */}
             <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
               <div className="absolute top-4 right-4"><ToolBadge status="free" /></div>
               <div className="text-4xl mb-3">📊</div>
@@ -248,7 +232,6 @@ export default function Home() {
               <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>Page count, trim size, and price → KDP print cost, royalty per sale, and breakeven.</p>
               <Link href="/royalty-calculator" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Royalty Calculator</Link>
             </div>
-            {/* Card 10: Banned Keyword Checker — free */}
             <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
               <div className="absolute top-4 right-4"><ToolBadge status="free" /></div>
               <div className="text-4xl mb-3">🚫</div>
@@ -256,7 +239,6 @@ export default function Home() {
               <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>Spot risky words in title, subtitle, or description before publishing on KDP.</p>
               <Link href="/banned-keyword-checker" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Check Keywords</Link>
             </div>
-            {/* Card 11: Page Count Estimator — free */}
             <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
               <div className="absolute top-4 right-4"><ToolBadge status="free" /></div>
               <div className="text-4xl mb-3">📄</div>
@@ -264,7 +246,6 @@ export default function Home() {
               <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>Estimate interior pages from word count and trim size.</p>
               <Link href="/page-count-estimator" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Estimate Pages</Link>
             </div>
-            {/* Card 12: Trim Size Comparison — free */}
             <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
               <div className="absolute top-4 right-4"><ToolBadge status="free" /></div>
               <div className="text-4xl mb-3">📐</div>
@@ -272,7 +253,6 @@ export default function Home() {
               <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>Compare print cost and royalty across trim sizes.</p>
               <Link href="/trim-size-comparison" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Compare Trims</Link>
             </div>
-            {/* Card 13: Interior Template — free */}
             <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
               <div className="absolute top-4 right-4"><ToolBadge status="free" /></div>
               <div className="text-4xl mb-3">📋</div>
@@ -280,6 +260,14 @@ export default function Home() {
               <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>Download a PDF with your book&apos;s exact trim and safe zone for Canva.</p>
               <Link href="/interior-template" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Get Template</Link>
             </div>
+          </div>
+
+          {/* COMING SOON / VOTE */}
+          <p className="text-[#F05A28] mb-4 uppercase tracking-[0.1em] text-sm" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+            Coming soon
+          </p>
+          <div className="max-w-md mx-auto">
+            <DocxVoteCard variant="homepage" />
           </div>
         </div>
       </section>

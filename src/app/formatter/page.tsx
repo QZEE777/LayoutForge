@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import DocxVoteCard from "@/components/DocxVoteCard";
 
 /** FREE tools — shown in top row with bold FREE badge (green). */
 const FREE_TOOLS: { title: string; description: string; href: string }[] = [
@@ -10,7 +11,6 @@ const FREE_TOOLS: { title: string; description: string; href: string }[] = [
 ];
 
 const PAID_TOOLS: { title: string; description: React.ReactNode; href: string; pricing: string; comingSoon?: boolean }[] = [
-  { title: "KDP Formatter (DOCX)", description: "Format DOCX for Amazon KDP print. Trim size, bleed, print-ready PDF.", href: "/kdp-formatter", pricing: "$7 per use · $27 for 6 months" },
   { title: "Print Ready Check", description: <>Full PDF validation: 26 KDP rules.<br />Trim, margins, bleed — pass/fail report.</>, href: "/kdp-pdf-checker", pricing: "$7 per use · $27 for 6 months" },
 ];
 
@@ -306,7 +306,17 @@ export default function FormatterPage() {
         </div>
       </section>
 
-      {/* Coming soon (archived multi-platform section omitted in current KDP/Kindle-only build) */}
+      {/* Coming soon — DOCX Formatter vote */}
+      <section className="px-6 pb-14">
+        <div className="mx-auto max-w-4xl">
+          <h2 className="font-bebas text-xl tracking-wide text-center mb-4 text-soft-muted">
+            Coming soon
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <DocxVoteCard variant="formatter" />
+          </div>
+        </div>
+      </section>
 
       {/* Email capture — formatting tips */}
       <section className="px-6 pb-14">
