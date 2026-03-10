@@ -24,7 +24,7 @@ def _client() -> redis.Redis:
         return redis.from_url(
             url,
             decode_responses=True,
-            ssl_cert_reqs=ssl.CERT_NONE,
+            ssl_cert_reqs=None,
         )
     return redis.from_url(url, decode_responses=True)
 
