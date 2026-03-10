@@ -64,11 +64,11 @@ export default function TargetGraphic({ size = 420 }: { size?: number }) {
           strokeWidth="1.5"
           strokeDasharray="6 4"
         />
-        {/* Three-line caption below orange dashed line, in white space above target */}
-        <g fontFamily="Inter, sans-serif" fontSize={Math.max(9, size * 0.024)} fill="#4cd964" fontWeight="600" textAnchor="middle">
-          <text x={pageX + pageW / 2} y={pageY + innerInset + size * 0.068}>Upload Your PDF</text>
-          <text x={pageX + pageW / 2} y={pageY + innerInset + size * 0.098}>See Every KDP Error</text>
-          <text x={pageX + pageW / 2} y={pageY + innerInset + size * 0.128}>Download The Fix</text>
+        {/* Three-line caption lifted slightly above outer circle */}
+        <g fontFamily="Inter, sans-serif" fontSize={Math.max(9, size * 0.024)} fill="#4cd964" fontWeight="700" textAnchor="middle">
+          <text x={pageX + pageW / 2} y={pageY + innerInset + size * 0.058}>Upload Your PDF</text>
+          <text x={pageX + pageW / 2} y={pageY + innerInset + size * 0.088}>See Every KDP Error</text>
+          <text x={pageX + pageW / 2} y={pageY + innerInset + size * 0.118}>Download The Fix</text>
         </g>
         {/* Red crosshair horizontal */}
         <line
