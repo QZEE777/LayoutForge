@@ -46,21 +46,31 @@ export default function CoverCalculatorPage() {
 
   const [downloading, setDownloading] = useState(false);
   const handleDownloadTemplate = async () => {
-    if (!fullWrap || !trim) return;
+    // Read current values at call time to avoid stale closure
+    const currentPages = clampPages(pageCount);
+    const currentSpineInches = getSpineWidthInches(currentPages, paperType);
+    const currentTrim = getTrimSize(trimId);
+    const currentFullWrap = currentTrim
+      ? getFullWrapDimensions(currentTrim.widthInches, currentTrim.heightInches, currentSpineInches)
+      : null;
+    if (!currentFullWrap || !currentTrim) return;
+    const params = {
+      widthInches: currentFullWrap.widthInches,
+      heightInches: currentFullWrap.heightInches,
+      spineWidthInches: currentSpineInches,
+      trimWidthInches: currentTrim.widthInches,
+      trimHeightInches: currentTrim.heightInches,
+      bleedInches: 0.125,
+    };
+    console.log("createCoverTemplatePdf params:", params);
     setDownloading(true);
     try {
-      const bytes = await createCoverTemplatePdf({
-        widthInches: fullWrap.widthInches,
-        heightInches: fullWrap.heightInches,
-        spineWidthInches: spineInches,
-        trimWidthInches: trim.widthInches,
-        trimHeightInches: trim.heightInches,
-      });
+      const bytes = await createCoverTemplatePdf(params);
       const blob = new Blob([bytes], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `kdp-cover-template-${trim.id}-${pages}p.pdf`;
+      a.download = `kdp-cover-template-${currentTrim.id}-${currentPages}p.pdf`;
       a.click();
       URL.revokeObjectURL(url);
     } finally {
