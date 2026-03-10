@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import SiteShell from "@/components/SiteShell";
 
 const PRIMARY_PLATFORMS = [
   "YouTube",
@@ -84,32 +85,11 @@ export default function FoundersPage() {
   const labelClass = "block font-sans text-sm font-medium mb-1.5 text-brand-muted";
 
   return (
-    <div className="min-h-screen bg-brand-bg relative overflow-hidden">
+    <SiteShell>
+    <div className="relative overflow-hidden bg-brand-bg">
       {/* Ambient gold blur (decorative) */}
       <div className="absolute top-20 -left-20 w-64 h-64 bg-brand-gold/10 rounded-full blur-3xl pointer-events-none" aria-hidden />
       <div className="absolute top-1/2 right-0 w-80 h-80 bg-brand-gold/5 rounded-full blur-3xl pointer-events-none" aria-hidden />
-
-      {/* Sticky nav */}
-      <nav className="sticky top-0 z-20 border-b border-white/5 bg-brand-bg/80 backdrop-blur-sm">
-        <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-          <Link href="/platform/kdp" className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 bg-brand-gold">
-              <svg className="w-4 h-4" fill="none" stroke="#0F0D0B" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
-            </div>
-            <span className="text-lg font-bold tracking-tight text-brand-cream">manu2print</span>
-          </Link>
-          <div className="flex items-center gap-6">
-            <Link href="/platform/kdp" className="text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors">
-              Tools
-            </Link>
-            <Link href="/founders" className="text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors">
-              Founders
-            </Link>
-          </div>
-        </div>
-      </nav>
 
       {/* Hero */}
       <section className="relative px-6 pt-12 pb-10">
@@ -306,5 +286,6 @@ export default function FoundersPage() {
         </div>
       </section>
     </div>
+    </SiteShell>
   );
 }
