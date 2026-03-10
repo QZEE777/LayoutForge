@@ -184,15 +184,30 @@ export async function POST(request: NextRequest) {
     let annotateJobId: string | null = preflightJobId ?? null;
 
     if (engineBaseUrl && !annotateJobId) {
-      // Small file: upload to engine solely for annotation
       try {
+        // Wake up Render first with a lightweight ping, wait up to 10s
+        try {
+          await Promise.race([
+            fetch(`${engineBaseUrl}/health`, { method: "GET" }),
+            new Promise((_, reject) => setTimeout(() => reject(new Error("ping timeout")), 10000))
+          ]);
+        } catch {
+          // ping failed or timed out — engine may still be waking, continue anyway
+        }
+        // Now upload for annotation
         const form = new FormData();
         form.append("file", new Blob([buffer], { type: "application/pdf" }), f.name || "document.pdf");
-        const uploadRes = await fetch(`${engineBaseUrl}/upload`, { method: "POST", body: form });
+        const uploadRes = await fetch(`${engineBaseUrl}/upload`, {
+          method: "POST",
+          body: form,
+          signal: AbortSignal.timeout(25000)
+        });
         if (uploadRes.ok) {
           const uploadData = await uploadRes.json() as { job_id?: string };
           annotateJobId = uploadData.job_id ?? null;
           console.log("[kdp-pdf-check] uploaded to engine for annotation, job_id:", annotateJobId);
+        } else {
+          console.log("[kdp-pdf-check] engine upload returned:", uploadRes.status);
         }
       } catch (e) {
         console.error("[kdp-pdf-check] annotation upload failed:", e);
