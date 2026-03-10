@@ -115,6 +115,12 @@ export async function POST(request: NextRequest) {
     const stored = await saveUpload(minimalPdf, "preflight-report.pdf", "application/pdf");
     await updateMeta(stored.id, { processingReport: report as StoredManuscript["processingReport"] });
 
+    fetch(`${url}/annotate/${jobId}`, { method: "POST" }).catch(() => {});
+    await updateMeta(stored.id, {
+      annotatedPdfUrl: `${url}/file/${jobId}/annotated`,
+      annotatedPdfStatus: "processing",
+    });
+
     if (process.env.USE_R2 === "true" && stored.storedPath) {
       const filename = stored.storedPath.split("/").pop();
       if (filename) {

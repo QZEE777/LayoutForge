@@ -34,6 +34,9 @@ export interface StoredManuscript {
   payment_confirmed?: boolean;
   /** Pre-signed R2 download URL for the report file (when USE_R2). */
   reportDownloadUrl?: string;
+  /** Annotated PDF from preflight engine (checker flow). */
+  annotatedPdfUrl?: string;
+  annotatedPdfStatus?: string;
   // KDP format processing report (pages, chapters, issues, etc.)
   processingReport?: {
     pagesGenerated?: number;

@@ -35,7 +35,7 @@ async function runPreflightCheck(
   baseUrl: string,
   buffer: Buffer,
   fileName: string
-): Promise<PreflightReport | null> {
+): Promise<{ report: PreflightReport; job_id: string } | null> {
   const url = baseUrl.replace(/\/$/, "");
   const form = new FormData();
   form.append("file", new Blob([buffer], { type: "application/pdf" }), fileName || "document.pdf");
@@ -48,7 +48,7 @@ async function runPreflightCheck(
     res = await fetch(`${url}/status/${job_id}`);
     if (!res.ok) continue;
     const statusData = (await res.json()) as { status: string; report?: PreflightReport };
-    if (statusData.status === "completed" && statusData.report) return statusData.report;
+    if (statusData.status === "completed" && statusData.report) return { report: statusData.report, job_id };
     if (statusData.status === "failed") return null;
   }
   return null;
@@ -162,10 +162,12 @@ export async function POST(request: NextRequest) {
 
     const preflightUrl = process.env.KDP_PREFLIGHT_API_URL;
     let report: ReturnType<typeof buildBasicReport>;
+    let preflightJobId: string | null = null;
     if (preflightUrl?.trim()) {
       const preflight = await runPreflightCheck(preflightUrl, buffer, f.name || "document.pdf");
       if (preflight) {
-        report = buildReportFromPreflight(preflight, buffer, widthIn, heightIn, kdpTrim);
+        report = buildReportFromPreflight(preflight.report, buffer, widthIn, heightIn, kdpTrim);
+        preflightJobId = preflight.job_id;
       } else {
         report = buildBasicReport(doc, buffer);
       }
@@ -175,6 +177,15 @@ export async function POST(request: NextRequest) {
 
     const stored = await saveUpload(buffer, f.name || "document.pdf", "application/pdf");
     await updateMeta(stored.id, { processingReport: report as StoredManuscript["processingReport"] });
+
+    if (preflightUrl?.trim() && preflightJobId) {
+      const engineBaseUrl = preflightUrl.replace(/\/$/, "");
+      fetch(`${engineBaseUrl}/annotate/${preflightJobId}`, { method: "POST" }).catch(() => {});
+      await updateMeta(stored.id, {
+        annotatedPdfUrl: `${engineBaseUrl}/file/${preflightJobId}/annotated`,
+        annotatedPdfStatus: "processing",
+      });
+    }
 
     if (process.env.USE_R2 === "true" && stored.storedPath) {
       const filename = stored.storedPath.split("/").pop();

@@ -31,6 +31,8 @@ interface ProcessingReport {
   page_issues?: Array<{ page: number; rule_id: string; severity: string; message: string; bbox: number[] | null }>;
   hasPdfPreview?: boolean;
   pdfSourceUrl?: string;
+  annotatedPdfUrl?: string;
+  annotatedPdfStatus?: string;
   /** Format review report */
   formatReviewSections?: Array<{ title: string; issues?: string[]; recommendations?: string[]; content?: string }>;
   summary?: string;
@@ -51,6 +53,8 @@ export default function DownloadPage() {
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [copyReviewStatus, setCopyReviewStatus] = useState<"idle" | "ok" | "fail">("idle");
   const [copyShareStatus, setCopyShareStatus] = useState<"idle" | "ok" | "fail">("idle");
+  const [annotatedReady, setAnnotatedReady] = useState(false);
+  const [annotatedError, setAnnotatedError] = useState(false);
 
   const isDocx = report?.outputType === "docx";
   const isEpub = isEpubFlow || report?.outputType === "epub";
@@ -119,10 +123,51 @@ export default function DownloadPage() {
     fetch(`/api/format-report?id=${encodeURIComponent(id)}`)
       .then((r) => r.json())
       .then((data) => {
-        if (data.success && data.report) setReport(data.report);
+        if (data.success && data.report) {
+          const r = data.report as ProcessingReport;
+          setReport(r);
+          if (r.annotatedPdfStatus === "ready") setAnnotatedReady(true);
+        }
       })
       .catch(() => {});
   }, [id]);
+
+  // Poll annotated PDF status when checker flow and status is "processing"
+  useEffect(() => {
+    if (!report?.annotatedPdfUrl || report.annotatedPdfStatus !== "processing" || !isCheckerFlow) return;
+    const match = report.annotatedPdfUrl.match(/\/file\/([^/]+)\/annotated\/?$/);
+    const jobId = match?.[1];
+    if (!jobId) return;
+    let attempts = 0;
+    const maxAttempts = 10;
+    const intervalMs = 3000;
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+    const poll = () => {
+      attempts += 1;
+      fetch(`/api/kdp-annotated-status?job_id=${encodeURIComponent(jobId)}`)
+        .then((res) => res.json())
+        .then((data: { status?: string }) => {
+          if (data.status === "ready") {
+            setAnnotatedReady(true);
+            if (intervalId) clearInterval(intervalId);
+            return;
+          }
+          if (data.status === "error" || attempts >= maxAttempts) {
+            setAnnotatedError(true);
+            if (intervalId) clearInterval(intervalId);
+          }
+        })
+        .catch(() => {
+          if (attempts >= maxAttempts) setAnnotatedError(true);
+          if (intervalId) clearInterval(intervalId);
+        });
+    };
+    poll();
+    intervalId = setInterval(poll, intervalMs);
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [report?.annotatedPdfUrl, report?.annotatedPdfStatus, isCheckerFlow]);
 
   if (!id) {
     return (
@@ -383,6 +428,40 @@ export default function DownloadPage() {
             )}
           </div>
         )}
+
+        {/* Checker: annotated PDF status and download */}
+        {isChecker && report?.annotatedPdfUrl && (
+          <div className="mb-8 rounded-lg p-6 border bg-[#24241a] border-white/10">
+            {annotatedError ? (
+              <p className="text-sm text-[#8B8B6B]">Annotated preview unavailable.</p>
+            ) : annotatedReady ? (
+              <button
+                type="button"
+                onClick={() => window.open(report.annotatedPdfUrl!, "_blank")}
+                className="flex items-center gap-3 border border-[#D4A843] rounded-lg p-4 bg-[#1a1a12]/50 hover:bg-[#1a1a12]/70 transition-colors cursor-pointer text-left w-full"
+              >
+                <div className="w-10 h-10 border border-[#D4A843]/30 rounded flex items-center justify-center text-[#D4A843] flex-shrink-0">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <span className="font-medium text-[#F5F0E8]">Download Annotated PDF (issues highlighted)</span>
+                  <p className="text-sm text-[#8B8B6B] mt-0.5">Opens in a new tab</p>
+                </div>
+              </button>
+            ) : (
+              <div className="flex items-center gap-3 text-sm text-[#8B8B6B]">
+                <svg className="animate-spin h-5 w-5 text-[#D4A843] flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden>
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12 0s12 5.373 12 12-5.373 12-12 12v-2a8 8 0 01-8-8z" />
+                </svg>
+                <span>Annotated PDF preparing…</span>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Success message */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-[#D4A843] mb-2">

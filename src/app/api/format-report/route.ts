@@ -20,7 +20,12 @@ export async function GET(request: NextRequest) {
     }
 
     const report = meta.processingReport
-      ? { ...meta.processingReport, outputFilename: meta.outputFilename }
+      ? {
+          ...meta.processingReport,
+          outputFilename: meta.outputFilename,
+          ...(meta.annotatedPdfUrl != null && { annotatedPdfUrl: meta.annotatedPdfUrl }),
+          ...(meta.annotatedPdfStatus != null && { annotatedPdfStatus: meta.annotatedPdfStatus }),
+        }
       : meta.outputFilename
         ? { chaptersDetected: 0, issues: [], fontUsed: "", trimSize: "", outputFilename: meta.outputFilename, outputType: meta.mimeType?.includes("epub") ? "epub" : "pdf" }
         : null;
