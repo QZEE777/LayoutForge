@@ -30,10 +30,11 @@ export async function middleware(request: NextRequest) {
     "Permissions-Policy",
     "geolocation=(), microphone=(), camera=()"
   );
-  response.headers.set(
-    "Access-Control-Allow-Origin",
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
-  );
+  const corsOrigin =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    "http://localhost:3000";
+  response.headers.set("Access-Control-Allow-Origin", corsOrigin);
   response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
   response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
 

@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import Link from "next/link";
 import { truncateFilenameMiddle, formatFileSize } from "@/lib/formatFileName";
+import { sanitizeHtml } from "@/lib/sanitizeHtml";
 import { WhatHappensNext } from "@/components/WhatHappensNext";
 import { ErrorRecovery } from "@/components/ErrorRecovery";
 import { ToolBreadcrumb } from "@/components/ToolBreadcrumb";
@@ -233,7 +234,7 @@ export default function DescriptionGeneratorPdfPage() {
           <div className="space-y-8">
             <div className="rounded-2xl bg-slate-800/50 border border-red-700/40 p-6">
               <h2 className="text-lg font-bold text-white mb-3">Amazon book description (KDP-ready HTML)</h2>
-              <div className="rounded-lg bg-slate-900/60 border border-slate-700 p-4 text-slate-300 text-sm leading-relaxed prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: result.amazonDescription }} />
+              <div className="rounded-lg bg-slate-900/60 border border-slate-700 p-4 text-slate-300 text-sm leading-relaxed prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: sanitizeHtml(result.amazonDescription) }} />
             </div>
             <div className="rounded-2xl bg-slate-800/50 border border-red-700/40 p-6">
               <h2 className="text-lg font-bold text-white mb-3">Author bio template</h2>

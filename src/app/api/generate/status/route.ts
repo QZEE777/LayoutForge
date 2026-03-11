@@ -42,8 +42,6 @@ export async function GET(request: NextRequest) {
     const job = await jobRes.json();
     const jobStatus: string = job.data?.status ?? "waiting";
 
-    console.log("[status] jobId:", jobId, "| status:", jobStatus);
-
     if (jobStatus === "error") {
       const failedTask = job.data?.tasks?.find(
         (t: { status: string; message?: string }) => t.status === "error"
@@ -70,8 +68,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Download the converted PDF
-    console.log("[status] Downloading converted PDF from CloudConvert...");
     const dlRes = await fetch(fileUrl);
     if (!dlRes.ok) {
       console.error("[status] PDF download failed:", dlRes.status);
@@ -83,7 +79,6 @@ export async function GET(request: NextRequest) {
     const pdfBuffer = Buffer.from(await dlRes.arrayBuffer());
     const outputFilename = "kdp-print.pdf";
     await writeOutput(id, outputFilename, pdfBuffer);
-    console.log("[status] PDF saved. Size:", pdfBuffer.length, "bytes");
 
     return NextResponse.json({ status: "done", id, outputFilename });
 

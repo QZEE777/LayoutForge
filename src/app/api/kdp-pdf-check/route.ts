@@ -185,20 +185,14 @@ export async function POST(request: NextRequest) {
 
     if (engineBaseUrl && !annotateJobId) {
       try {
-        console.log("[annotate] starting wake ping");
-        // Wake up Render first with a lightweight ping, wait up to 10s
         try {
           await Promise.race([
             fetch(`${engineBaseUrl}/health`, { method: "GET" }),
             new Promise((_, reject) => setTimeout(() => reject(new Error("ping timeout")), 10000))
           ]);
-          console.log("[annotate] ping succeeded");
-        } catch (e) {
-          console.log("[annotate] ping failed or timed out:", e);
+        } catch {
           // ping failed or timed out — engine may still be waking, continue anyway
         }
-        // Now upload for annotation
-        console.log("[annotate] attempting upload to engine");
         const form = new FormData();
         form.append("file", new Blob([buffer], { type: "application/pdf" }), f.name || "document.pdf");
         const uploadRes = await fetch(`${engineBaseUrl}/upload`, {
@@ -206,30 +200,21 @@ export async function POST(request: NextRequest) {
           body: form,
           signal: AbortSignal.timeout(25000)
         });
-        console.log("[annotate] upload response status:", uploadRes.status);
         if (uploadRes.ok) {
           const uploadData = await uploadRes.json() as { job_id?: string };
           annotateJobId = uploadData.job_id ?? null;
-          console.log("[kdp-pdf-check] uploaded to engine for annotation, job_id:", annotateJobId);
-        } else {
-          console.log("[kdp-pdf-check] engine upload returned:", uploadRes.status);
         }
       } catch (e) {
-        console.log("[annotate] upload block threw:", e);
         console.error("[kdp-pdf-check] annotation upload failed:", e);
       }
     }
 
     if (engineBaseUrl && annotateJobId) {
-      console.log("[kdp-pdf-check] firing annotate for job:", annotateJobId);
       fetch(`${engineBaseUrl}/annotate/${annotateJobId}`, { method: "POST" }).catch((e) => console.error("[annotate trigger]", e));
       await updateMeta(stored.id, {
         annotatedPdfUrl: `${engineBaseUrl}/file/${annotateJobId}/annotated`,
         annotatedPdfStatus: "processing",
       });
-      console.log("[kdp-pdf-check] annotatedPdfUrl written for stored.id:", stored.id);
-    } else {
-      console.log("[kdp-pdf-check] annotate skipped — engineBaseUrl:", engineBaseUrl, "annotateJobId:", annotateJobId);
     }
 
     if (process.env.USE_R2 === "true" && stored.storedPath) {

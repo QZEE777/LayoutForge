@@ -62,7 +62,6 @@ export default function CoverCalculatorPage() {
       trimHeightInches: currentTrim.heightInches,
       bleedInches: 0.125,
     };
-    console.log("createCoverTemplatePdf params:", params);
     setDownloading(true);
     try {
       const bytes = await createCoverTemplatePdf(params);

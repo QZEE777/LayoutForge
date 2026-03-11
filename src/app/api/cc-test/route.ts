@@ -3,9 +3,13 @@ import { NextResponse } from "next/server";
 /**
  * GET /api/cc-test
  * Diagnostic endpoint — tests the CloudConvert API key and returns status.
- * Remove this endpoint before going to production with paid users.
+ * Disabled in production (returns 404).
  */
 export async function GET() {
+  if (process.env.NODE_ENV === "production") {
+    return new NextResponse(null, { status: 404 });
+  }
+
   const apiKey = process.env.CLOUDCONVERT_API_KEY;
 
   if (!apiKey) {

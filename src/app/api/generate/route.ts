@@ -43,7 +43,6 @@ export async function POST(request: NextRequest) {
     }
 
     const apiKey = process.env.CLOUDCONVERT_API_KEY;
-    console.log("[generate] API key present:", !!apiKey, "| file:", id, "| mime:", mimeType);
 
     if (!apiKey) {
       return NextResponse.json(
@@ -73,8 +72,6 @@ export async function POST(request: NextRequest) {
     // ----------------------------------------------------------------
     // Step 1: Create CloudConvert job
     // ----------------------------------------------------------------
-    console.log("[generate] Creating CloudConvert job for:", inputFilename);
-
     const jobRes = await fetch("https://api.cloudconvert.com/v2/jobs", {
       method: "POST",
       headers: {
@@ -110,7 +107,6 @@ export async function POST(request: NextRequest) {
     }
 
     const jobData = await jobRes.json();
-    console.log("[generate] Job created:", jobData?.data?.id, "| tasks:", jobData?.data?.tasks?.length);
 
     const jobId: string = jobData.data?.id;
     const tasks: Array<Record<string, unknown>> = jobData.data?.tasks ?? [];
@@ -119,7 +115,6 @@ export async function POST(request: NextRequest) {
     // Step 2: Find the upload task and get the presigned form URL
     // ----------------------------------------------------------------
     const uploadTask = tasks.find((t) => t.operation === "import/upload");
-    console.log("[generate] Upload task found:", !!uploadTask, "| has form:", !!(uploadTask?.result as Record<string,unknown>)?.form);
 
     const form = (uploadTask?.result as Record<string,unknown>)?.form as {
       url: string;
@@ -137,8 +132,6 @@ export async function POST(request: NextRequest) {
     // ----------------------------------------------------------------
     // Step 3: Upload file to CloudConvert
     // ----------------------------------------------------------------
-    console.log("[generate] Uploading", buffer.length, "bytes to CloudConvert...");
-
     const uploadForm = new FormData();
     for (const [key, val] of Object.entries(form.parameters)) {
       uploadForm.append(key, val);
@@ -155,8 +148,6 @@ export async function POST(request: NextRequest) {
       body: uploadForm,
     });
 
-    console.log("[generate] Upload response status:", uploadRes.status);
-
     if (!uploadRes.ok && uploadRes.status !== 204) {
       const body = await uploadRes.text().catch(() => "");
       console.error("[generate] Upload failed:", uploadRes.status, body.substring(0, 300));
@@ -169,8 +160,6 @@ export async function POST(request: NextRequest) {
     // ----------------------------------------------------------------
     // Return jobId to client — client polls /api/generate/status
     // ----------------------------------------------------------------
-    console.log("[generate] Job started successfully. jobId:", jobId);
-
     return NextResponse.json({
       success: true,
       id,

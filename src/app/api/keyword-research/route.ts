@@ -39,10 +39,8 @@ export async function POST(request: NextRequest) {
       headers: { "x-api-key": apiKey, "anthropic-version": "2023-06-01", "content-type": "application/json" },
       body: JSON.stringify({ model: ANTHROPIC_MODEL, max_tokens: 1024, messages: [{ role: "user", content: [{ type: "text", text: userPrompt }] }], system: "You output only valid JSON. No markdown or extra text." }),
     });
-    console.log("keyword-research: Anthropic response status:", res.status);
     if (!res.ok) {
       const errText = await res.text();
-      console.log("keyword-research: Anthropic error response (full text):", errText);
       let msg = "Keyword generation failed. Check your API key and credits.";
       if (res.status === 401) msg = "Invalid API key. Update ANTHROPIC_API_KEY in Vercel (or .env.local) and redeploy.";
       else if (res.status === 403) msg = "Access denied. Check your API key has access to the Messages API.";
