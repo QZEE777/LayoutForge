@@ -1,0 +1,55 @@
+# manu2print.com — Cursor Agent Rules
+# Project: LayoutForge | Repo: QZEE777/LayoutForge
+# Live site: https://www.manu2print.com
+
+## IDENTITY & PURPOSE
+This is manu2print.com — a browser-based publishing toolkit for indie authors.
+The core product is a KDP Formatter that takes a raw DOCX manuscript and outputs
+a KDP-compliant DOCX with a prepended compliance report page.
+
+## TECH STACK
+- Framework: Next.js 15 (App Router)
+- Language: TypeScript (strict mode)
+- Styling: Tailwind CSS
+- DOCX processing: JSZip (direct XML parsing — NO mammoth.js, ever)
+- Auth: Supabase (Magic Link + Google OAuth)
+- Database: Supabase (persistent storage)
+- Payments: Lemon Squeezy (webhooks configured)
+- Deployment: Vercel (production)
+- Domain: manu2print.com via Hostinger DNS → Vercel
+
+## CRITICAL ARCHITECTURE RULES
+1. NEVER use mammoth.js. All DOCX processing is done via JSZip + direct XML manipulation.
+2. NEVER suggest localhost testing. All testing happens at https://www.manu2print.com
+3. The DOCX formatter applies SURGICAL corrections only — preserve original fonts and layout.
+4. Original fonts, layout, and formatting must be PRESERVED. Only fix what is non-compliant.
+5. The /formatter page is a standalone mini-site — treat it as the primary beta product.
+
+## FORMATTER INPUT — 3 FIELDS ONLY
+- Book Title
+- Author Name
+- Trim Size (dropdown)
+
+## DESIGN SYSTEM
+- Font: Bebas Neue (headings)
+- Accent: Gold (#D4AF37)
+- Aesthetic: Warm, publishing-themed, professional
+
+## CODING STANDARDS
+- TypeScript strict — no any types
+- Next.js 15 App Router conventions only
+- Tailwind for all styling
+- No unused imports
+- No console.log in production code
+
+## DEPLOYMENT
+- Never suggest localhost or npm run dev
+- Environment variables live in Vercel dashboard
+- Test at https://www.manu2print.com after every deployment
+
+## AGENT BEHAVIOUR
+- Think before acting. Test logic internally first.
+- No trial and error. Proven solutions only.
+- Zero tolerance for regressions.
+- When fixing a bug, find root cause — do not patch symptoms.
+- Always preserve original DOCX content integrity.
