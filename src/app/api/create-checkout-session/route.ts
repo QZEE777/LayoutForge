@@ -19,7 +19,7 @@ export async function POST(req: Request) {
       );
     }
 
-    if (priceType !== "single_use" && priceType !== "subscription") {
+    if (priceType !== "single_use") {
       return NextResponse.json(
         { error: "Invalid priceType" },
         { status: 400 }
@@ -28,10 +28,7 @@ export async function POST(req: Request) {
 
     lemonSqueezySetup({ apiKey });
 
-    const variantId =
-      priceType === "single_use"
-        ? process.env.LEMONSQUEEZY_SINGLE_USE_VARIANT_ID
-        : process.env.LEMONSQUEEZY_SUBSCRIPTION_VARIANT_ID;
+    const variantId = process.env.LEMONSQUEEZY_SINGLE_USE_VARIANT_ID ?? "1346943";
 
     if (!variantId) {
       return NextResponse.json(

@@ -136,28 +136,6 @@ export default function PaymentGate({ tool, children, isProcessing = false, down
     }
   };
 
-  const handleSubscription = async () => {
-    const email = userEmail.trim();
-    saveEmailForNextTime(email);
-    setCheckoutLoading(true);
-    try {
-      const res = await fetch("/api/create-checkout-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          priceType: "subscription",
-          tool,
-          downloadId: downloadId ?? "",
-          email: email || "",
-        }),
-      });
-      const data = await res.json();
-      if (data?.checkoutUrl) window.location.href = data.checkoutUrl;
-    } finally {
-      setCheckoutLoading(false);
-    }
-  };
-
   return (
     <div className="relative">
       <div className="select-none pointer-events-none blur-sm">
@@ -181,15 +159,7 @@ export default function PaymentGate({ tool, children, isProcessing = false, down
               disabled={checkoutLoading}
               className="rounded-lg px-5 py-3 text-sm font-semibold bg-[#D4A843] text-[#1a1a12] border border-[#c49a3d] hover:opacity-90 disabled:opacity-60"
             >
-              {checkoutLoading ? "Redirecting…" : "$7 — One-Time Use"}
-            </button>
-            <button
-              type="button"
-              onClick={handleSubscription}
-              disabled={checkoutLoading}
-              className="rounded-lg px-5 py-3 text-sm font-semibold bg-[#2A2420] text-[#D4A843] border border-[#D4A843] hover:bg-[#3d3630] disabled:opacity-60"
-            >
-              {checkoutLoading ? "Redirecting…" : "$27 · Six Month Access"}
+              {checkoutLoading ? "Redirecting…" : "$9 — One-Time Use"}
             </button>
           </div>
           <p className="text-slate-500 text-sm">or</p>
