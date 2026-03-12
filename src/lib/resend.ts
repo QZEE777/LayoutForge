@@ -1,7 +1,5 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 const FROM = "noreply@manu2print.com";
 const SUBJECT = "Your KDP PDF Check Report is Ready";
 
@@ -18,6 +16,7 @@ function escapeHtmlAttr(s: string): string {
 }
 
 export async function sendDownloadLinkEmail(to: string, downloadUrl: string) {
+  const resend = new Resend(process.env.RESEND_API_KEY ?? "");
   const safeUrl = escapeHtmlAttr(downloadUrl);
   const html = `
 <!DOCTYPE html>
