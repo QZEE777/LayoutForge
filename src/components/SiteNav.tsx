@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import AuthNav from "@/components/AuthNav";
 
 export default function SiteNav() {
@@ -9,7 +8,8 @@ export default function SiteNav() {
     <nav className="sticky top-0 z-50 overflow-visible border-b border-[#E0D8C4] bg-[#FAF7EE]/98 backdrop-blur-sm" style={{ overflow: "visible" }}>
       <div className="mx-auto max-w-6xl px-6 py-3 flex flex-wrap items-center justify-between gap-3">
         <Link href="/" className="flex items-center gap-2 overflow-visible">
-          <Image src="/MANNY%20AVATAR.png" alt="Manny" width={32} height={32} unoptimized style={{ flexShrink: 0 }} />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/manny-avatar.png" alt="Manny" width={32} height={32} style={{ flexShrink: 0, display: "block" }} />
           <span className="font-bold text-xl">
             <span style={{ color: "#F05A28" }}>manu</span>
             <span style={{ color: "#4CAF50" }}>2print</span>
