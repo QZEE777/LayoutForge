@@ -22,14 +22,14 @@ export function ToolBreadcrumb({
   className = "",
 }: ToolBreadcrumbProps) {
   return (
-    <nav aria-label="Breadcrumb" className={`text-sm text-slate-500 ${className}`}>
-      <Link href={backHref} className="text-slate-400 hover:text-white transition-colors">
+    <nav aria-label="Breadcrumb" className={`text-sm text-m2p-muted ${className}`}>
+      <Link href={backHref} className="text-m2p-muted hover:text-m2p-orange transition-colors">
         {backLabel}
       </Link>
       {currentLabel && (
         <>
-          <span className="mx-2 text-slate-600" aria-hidden>→</span>
-          <span className="text-slate-400">{currentLabel}</span>
+          <span className="mx-2 text-m2p-muted" aria-hidden>→</span>
+          <span className="text-m2p-muted">{currentLabel}</span>
         </>
       )}
     </nav>

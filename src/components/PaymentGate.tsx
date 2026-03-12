@@ -65,10 +65,10 @@ export default function PaymentGate({ tool, children, isProcessing = false, down
         <div className="absolute inset-0 flex items-center justify-center p-6 bg-black/70 rounded-lg min-h-[200px]">
           <div className="max-w-md w-full text-center space-y-4">
             <h2 className="text-xl font-bold text-white">Confirming your purchase…</h2>
-            <p className="text-sm text-slate-300">
+            <p className="text-sm text-white/90">
               We’re checking your payment. This usually takes a few seconds.
             </p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-white/70">
               If this takes longer than a minute, refresh the page or open this link again in a new tab.
             </p>
           </div>
@@ -144,13 +144,13 @@ export default function PaymentGate({ tool, children, isProcessing = false, down
       <div className="absolute inset-0 flex items-center justify-center p-6 bg-black/70 rounded-lg min-h-[280px]">
         <div className="max-w-md w-full text-center space-y-5">
           <h2 className="text-xl font-bold text-white">Your file is ready.</h2>
-          <p className="text-sm text-slate-300">Choose how you&apos;d like to access it.</p>
+          <p className="text-sm text-white/90">Choose how you&apos;d like to access it.</p>
           <input
             type="email"
             placeholder="Your email (for receipt)"
             value={userEmail}
             onChange={(e) => setUserEmail(e.target.value)}
-            className="w-full rounded-lg border border-slate-600 bg-slate-900/90 px-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-m2p-orange"
+            className="w-full rounded-lg border border-white/20 bg-m2p-ink/95 px-4 py-2 text-sm text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-m2p-orange"
           />
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button
@@ -162,7 +162,7 @@ export default function PaymentGate({ tool, children, isProcessing = false, down
               {checkoutLoading ? "Redirecting…" : "$9 — One-Time Use"}
             </button>
           </div>
-          <p className="text-slate-500 text-sm">or</p>
+          <p className="text-white/70 text-sm">or</p>
           {!showBetaInput ? (
             <button
               type="button"
@@ -178,7 +178,7 @@ export default function PaymentGate({ tool, children, isProcessing = false, down
                 placeholder="Enter beta code"
                 value={betaCode}
                 onChange={(e) => { setBetaCode(e.target.value); setBetaError(""); }}
-                className="w-full rounded-lg border border-slate-600 bg-slate-900/90 px-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-m2p-orange"
+                className="w-full rounded-lg border border-white/20 bg-m2p-ink/95 px-4 py-2 text-sm text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-m2p-orange"
               />
               <div className="flex gap-2 justify-center">
                 <button
@@ -191,7 +191,7 @@ export default function PaymentGate({ tool, children, isProcessing = false, down
                 <button
                   type="button"
                   onClick={() => { setShowBetaInput(false); setBetaCode(""); setBetaError(""); }}
-                  className="rounded-lg px-4 py-2 text-sm text-slate-400 hover:text-white"
+                  className="rounded-lg px-4 py-2 text-sm text-white/80 hover:text-white"
                 >
                   Cancel
                 </button>

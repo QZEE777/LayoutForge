@@ -16,13 +16,11 @@ export default function FAQAccordion({ items }: { items: Item[] }) {
             <button
               type="button"
               onClick={() => setOpenIndex(isOpen ? null : i)}
-              className="focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F05A28] focus-visible:ring-offset-2"
+              className="focus:outline-none focus-visible:ring-2 focus-visible:ring-m2p-orange focus-visible:ring-offset-2 font-bebas text-lg text-m2p-ink cursor-pointer border-b border-m2p-border"
               style={{
                 fontFamily: "'Bebas Neue', sans-serif",
                 fontSize: "18px",
-                color: "#1A1208",
                 cursor: "pointer",
-                borderBottom: "1px solid #E0D8C4",
                 padding: "18px 0",
                 width: "100%",
                 textAlign: "left",
@@ -32,10 +30,10 @@ export default function FAQAccordion({ items }: { items: Item[] }) {
               {item.question}
             </button>
             <div
+              className="text-m2p-muted"
               style={{
                 fontFamily: "Inter, sans-serif",
                 fontSize: "15px",
-                color: "#6B6151",
                 padding: "12px 0 18px",
                 overflow: "hidden",
                 transition: "max-height 0.3s ease",

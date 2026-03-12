@@ -12,12 +12,12 @@ type NavTheme = "dark" | "light";
 
 export default function AuthNav({ theme = "dark" }: { theme?: NavTheme }) {
   const isLight = theme === "light";
-  const textColor = isLight ? "text-amazon-navy" : "";
-  const muteColor = isLight ? "text-soft-muted" : "";
+  const textColor = isLight ? "text-m2p-ink" : "";
+  const muteColor = isLight ? "text-m2p-muted" : "";
   const linkStyle = isLight ? undefined : { color: WARM_WHITE };
-  const btnStyle = isLight ? undefined : { backgroundColor: GOLD, color: "#0F0D0B" };
+  const btnStyle = isLight ? undefined : { backgroundColor: "#F05A28", color: "white" };
   const borderStyleInline = isLight ? undefined : { borderColor: "#2A2420", color: "#a8a29e" };
-  const avatarBg = isLight ? "bg-brave/20 text-brave" : "";
+  const avatarBg = isLight ? "bg-m2p-orange/20 text-m2p-orange" : "";
   const avatarStyle = isLight ? undefined : { backgroundColor: "rgba(245,166,35,0.25)", color: GOLD };
   const loadingStyle = isLight ? undefined : { color: WARM_WHITE };
   const [user, setUser] = useState<User | null>(null);
@@ -45,7 +45,7 @@ export default function AuthNav({ theme = "dark" }: { theme?: NavTheme }) {
   if (loading) {
     return (
       <div
-        className={`rounded-lg px-4 py-2 text-sm font-medium opacity-70 ${isLight ? "text-soft-muted" : ""}`}
+        className={`rounded-lg px-4 py-2 text-sm font-medium opacity-70 ${isLight ? "text-m2p-muted" : ""}`}
         style={loadingStyle}
       >
         …

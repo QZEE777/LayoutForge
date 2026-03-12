@@ -41,21 +41,21 @@ export default function UsageBanner() {
 
   return (
     <div
-      className="border-b border-brave/30 px-4 py-2 text-sm bg-amazon-navy text-white"
+      className="border-b border-m2p-orange/30 px-4 py-2 text-sm bg-m2p-ink text-white"
     >
       <div className="mx-auto max-w-6xl flex flex-wrap items-center justify-between gap-2">
         {usage.is_founder ? (
           <span
-            className="font-medium text-emerald-400"
+            className="font-medium text-m2p-live"
           >
             Founder — FREE Access
           </span>
         ) : atLimit ? (
           <>
-            <span className="text-emerald-400">FREE limit reached.</span>
+            <span className="text-m2p-live">FREE limit reached.</span>
             <Link
               href="/dashboard"
-              className="rounded px-3 py-1 font-medium bg-brave text-white hover:opacity-90 transition-opacity"
+              className="rounded px-3 py-1 font-medium bg-m2p-orange text-white hover:bg-m2p-orange-hover transition-colors"
             >
               Upgrade
             </Link>
@@ -67,7 +67,7 @@ export default function UsageBanner() {
             </span>
             <div className="w-32 h-1.5 rounded-full bg-white/20 overflow-hidden">
               <div
-                className="h-full rounded-full transition-all bg-brave"
+                className="h-full rounded-full transition-all bg-m2p-orange"
                 style={{
                   width: `${Math.min(100, (usage.usage_count / FREE_LIMIT) * 100)}%`,
                 }}

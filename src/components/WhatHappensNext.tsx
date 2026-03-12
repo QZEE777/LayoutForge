@@ -12,11 +12,11 @@ interface WhatHappensNextProps {
 export function WhatHappensNext({ steps, className = "" }: WhatHappensNextProps) {
   return (
     <div
-      className={`rounded-xl bg-slate-800/40 border border-slate-700/60 p-4 text-sm text-slate-400 space-y-1 ${className}`}
+      className={`rounded-xl bg-m2p-orange-soft/50 border border-m2p-border p-4 text-sm text-m2p-muted space-y-1 ${className}`}
       role="region"
       aria-label="What happens next"
     >
-      <p className="font-medium text-slate-300">What happens next</p>
+      <p className="font-medium text-m2p-ink">What happens next</p>
       {steps.map((line, i) => (
         <p key={i}>{`${i + 1}. ${line}`}</p>
       ))}

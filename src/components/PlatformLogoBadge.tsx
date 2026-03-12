@@ -38,9 +38,8 @@ export default function PlatformLogoBadge({
 
   const badgeClass =
     "rounded-2xl flex items-center justify-center flex-shrink-0 " +
-    "shadow-lg ring-1 ring-black/[0.06] " +
-    "bg-gradient-to-br from-white via-white to-gray-100 " +
-    (isAmazon ? "" : "text-brand-gold font-bebas text-xl tracking-wide");
+    "shadow-lg ring-1 ring-m2p-border/30 bg-white " +
+    (isAmazon ? "" : "text-m2p-orange font-bebas text-xl tracking-wide");
 
   return (
     <div
