@@ -9,7 +9,7 @@ export default function SiteNav() {
       <div className="mx-auto max-w-6xl px-6 py-3 flex flex-wrap items-center justify-between gap-3">
         <Link href="/" className="flex items-center gap-2 overflow-visible">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/manny-avatar.png" alt="Manny" width={32} height={32} style={{ flexShrink: 0, display: "block" }} />
+          <img src="/manny-avatar.png" alt="Manny" width={44} height={44} style={{ flexShrink: 0, display: "block", borderRadius: "50%", objectFit: "cover" }} />
           <span className="font-bold text-xl">
             <span style={{ color: "#F05A28" }}>manu</span>
             <span style={{ color: "#4CAF50" }}>2print</span>
