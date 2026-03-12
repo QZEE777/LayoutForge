@@ -47,6 +47,19 @@ const config: Config = {
         brave: "#FB542B",
         /** FREE badge bright green */
         freeGreen: "#16A34A",
+        /** Site-wide (homepage) palette — use for nav, footer, content pages, links */
+        m2p: {
+          ivory: "#FAF7EE",
+          "ivory-alt": "#F5F0E3",
+          ink: "#1A1208",
+          muted: "#6B6151",
+          orange: "#F05A28",
+          "orange-hover": "#D94E20",
+          "orange-soft": "#FEF0EB",
+          border: "#E0D8C4",
+          live: "#4cd964",
+          "live-hover": "#43c257",
+        },
       },
       boxShadow: {
         "gold-glow": "0 0 20px rgba(245, 166, 35, 0.15)",
