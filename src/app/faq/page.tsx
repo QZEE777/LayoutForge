@@ -3,9 +3,9 @@ import SiteShell from "@/components/SiteShell";
 
 function FaqItem({ q, a }: { q: string; a: React.ReactNode }) {
   return (
-    <div className="border-b border-[#E0D8C4] pb-4 mb-4 last:border-0 last:mb-0">
-      <h3 className="text-[#1A1208] font-semibold mb-2" style={{ fontFamily: "Inter, sans-serif" }}>{q}</h3>
-      <div className="text-[#6B6151] text-sm [&_a]:text-[#F05A28] [&_a]:hover:underline" style={{ fontFamily: "Inter, sans-serif" }}>{a}</div>
+    <div className="border-b border-m2p-border pb-4 mb-4 last:border-0 last:mb-0">
+      <h3 className="text-m2p-ink font-semibold mb-2" >{q}</h3>
+      <div className="text-m2p-muted text-sm [&_a]:text-m2p-orange [&_a]:hover:underline>{a}</div>
     </div>
   );
 }
@@ -13,20 +13,20 @@ function FaqItem({ q, a }: { q: string; a: React.ReactNode }) {
 export default function FAQPage() {
   return (
     <SiteShell>
-      <section className="bg-[#FAF7EE] py-16">
+      <section className="bg-m2p-ivory py-16">
         <div className="max-w-6xl mx-auto px-6">
-          <p className="text-[#F05A28] mb-2 uppercase tracking-[0.1em] text-sm" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+          <p className="font-bebas text-m2p-orange mb-2 uppercase tracking-[0.1em] text-sm">
             HELP
           </p>
-          <h1 className="text-[#1A1208] leading-tight mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2rem, 4vw, 3rem)" }}>
+          <h1 className="font-bebas text-m2p-ink leading-tight mb-2 text-[clamp(2rem,4vw,3rem)]">
             FAQ
           </h1>
-          <p className="text-[#6B6151] text-sm mb-10 max-w-2xl" style={{ fontFamily: "Inter, sans-serif" }}>
-            Frequently asked questions about our tools, files, payment, and KDP. Our assistant <strong className="text-[#1A1208]">Manny</strong> uses this same info — you can ask in chat when the widget is available.
+          <p className="text-m2p-muted text-sm mb-10 max-w-2xl" >
+            Frequently asked questions about our tools, files, payment, and KDP. Our assistant <strong className="text-m2p-ink">Manny</strong> uses this same info — you can ask in chat when the widget is available.
           </p>
 
         <section className="mb-10">
-          <h2 className="text-lg font-semibold text-[#1A1208] mb-4" style={{ fontFamily: "Inter, sans-serif" }}>General</h2>
+          <h2 className="text-lg font-semibold text-m2p-ink mb-4" >General</h2>
           <FaqItem
             q="What is manu2print?"
             a="manu2print is a set of tools for indie authors and publishers. We focus on Amazon KDP and Kindle: formatting manuscripts, checking PDFs, keyword research, description generation, calculators, and guides."
@@ -58,7 +58,7 @@ export default function FAQPage() {
         </section>
 
         <section className="mb-10">
-          <h2 className="text-lg font-semibold text-[#1A1208] mb-4" style={{ fontFamily: "Inter, sans-serif" }}>Free tools</h2>
+          <h2 className="text-lg font-semibold text-m2p-ink mb-4" >Free tools</h2>
           <FaqItem
             q="What free tools do you have?"
             a={<>PDF Compressor, PDF Print Optimizer, KDP Royalty Calculator, Page Count Estimator, Trim Size Comparison, Spine calculator, Full-wrap cover calculator, KDP interior template, Banned keyword checker, Kids book trim guide, Journals &amp; coloring guide. All on the <Link href="/">homepage</Link> and <Link href="/platform/kdp">Tools</Link>.</>}
@@ -86,7 +86,7 @@ export default function FAQPage() {
         </section>
 
         <section className="mb-10">
-          <h2 className="text-lg font-semibold text-[#1A1208] mb-4" style={{ fontFamily: "Inter, sans-serif" }}>Paid tools</h2>
+          <h2 className="text-lg font-semibold text-m2p-ink mb-4" >Paid tools</h2>
           <FaqItem
             q="How much do paid tools cost?"
             a="$7 per use or $27 for 6 months (unlimited use of paid tools in that period). Price is on each paid tool page."
@@ -122,7 +122,7 @@ export default function FAQPage() {
         </section>
 
         <section className="mb-10">
-          <h2 className="text-lg font-semibold text-[#1A1208] mb-4" style={{ fontFamily: "Inter, sans-serif" }}>File &amp; upload</h2>
+          <h2 className="text-lg font-semibold text-m2p-ink mb-4" >File &amp; upload</h2>
           <FaqItem
             q="What is the maximum file size?"
             a="Most tools: 50 MB for PDF or DOCX. Print Ready Check: up to 100 MB PDF."
@@ -142,7 +142,7 @@ export default function FAQPage() {
         </section>
 
         <section className="mb-10">
-          <h2 className="text-lg font-semibold text-[#1A1208] mb-4" style={{ fontFamily: "Inter, sans-serif" }}>Payment &amp; refunds</h2>
+          <h2 className="text-lg font-semibold text-m2p-ink mb-4" >Payment &amp; refunds</h2>
           <FaqItem
             q="How do I pay?"
             a={<>Payment is through Lemon Squeezy. You can pay $7 per use or $27 for 6 months. You're redirected to their checkout; after payment you return to our site to download.</>}
@@ -158,7 +158,7 @@ export default function FAQPage() {
         </section>
 
         <section className="mb-10">
-          <h2 className="text-lg font-semibold text-[#1A1208] mb-4" style={{ fontFamily: "Inter, sans-serif" }}>KDP basics</h2>
+          <h2 className="text-lg font-semibold text-m2p-ink mb-4" >KDP basics</h2>
           <FaqItem
             q="What trim sizes does KDP support?"
             a={<>KDP supports many trim sizes. Use our <Link href="/trim-size-comparison">Trim Size Comparison</Link> and <Link href="/interior-template">Interior template</Link>.</>}
@@ -178,7 +178,7 @@ export default function FAQPage() {
         </section>
 
         <section className="mb-10">
-          <h2 className="text-lg font-semibold text-[#1A1208] mb-4" style={{ fontFamily: "Inter, sans-serif" }}>Support &amp; Manny</h2>
+          <h2 className="text-lg font-semibold text-m2p-ink mb-4" >Support &amp; Manny</h2>
           <FaqItem
             q="Who do I contact for help?"
             a={<>Use the <Link href="/contact">Contact</Link> page. For payment or access issues, include the email you used to pay and what happened.</>}
@@ -189,8 +189,8 @@ export default function FAQPage() {
           />
         </section>
 
-        <p className="text-sm text-[#6B6151] mt-8" style={{ fontFamily: "Inter, sans-serif" }}>
-          Something missing? <Link href="/contact" className="text-[#F05A28] hover:underline">Contact us</Link>. For legal and policies, see <Link href="/legal" className="text-[#F05A28] hover:underline">Legal</Link>.
+        <p className="text-sm text-m2p-muted mt-8" >
+          Something missing? <Link href="/contact" className="text-m2p-orange hover:underline">Contact us</Link>. For legal and policies, see <Link href="/legal" className="text-m2p-orange hover:underline">Legal</Link>.
         </p>
         </div>
       </section>
