@@ -81,7 +81,7 @@ export default function PaymentGate({ tool, children, isProcessing = false, down
     return (
       <div className="relative">
         {children}
-        <p className="mb-6 flex items-center gap-2 text-sm text-[#D4A843]">
+        <p className="mb-6 flex items-center gap-2 text-sm text-m2p-orange">
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
@@ -150,14 +150,14 @@ export default function PaymentGate({ tool, children, isProcessing = false, down
             placeholder="Your email (for receipt)"
             value={userEmail}
             onChange={(e) => setUserEmail(e.target.value)}
-            className="w-full rounded-lg border border-slate-600 bg-slate-900/90 px-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#F5A623]"
+            className="w-full rounded-lg border border-slate-600 bg-slate-900/90 px-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-m2p-orange"
           />
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button
               type="button"
               onClick={handleSingleUse}
               disabled={checkoutLoading}
-              className="rounded-lg px-5 py-3 text-sm font-semibold bg-[#D4A843] text-[#1a1a12] border border-[#c49a3d] hover:opacity-90 disabled:opacity-60"
+              className="rounded-lg px-5 py-3 text-sm font-semibold bg-m2p-orange text-white border border-m2p-orange-hover hover:bg-m2p-orange-hover disabled:opacity-60"
             >
               {checkoutLoading ? "Redirecting…" : "$9 — One-Time Use"}
             </button>
@@ -167,7 +167,7 @@ export default function PaymentGate({ tool, children, isProcessing = false, down
             <button
               type="button"
               onClick={() => setShowBetaInput(true)}
-              className="text-sm text-[#F5A623] hover:underline"
+              className="text-sm text-m2p-orange hover:underline"
             >
               Have a beta access code?
             </button>
@@ -178,13 +178,13 @@ export default function PaymentGate({ tool, children, isProcessing = false, down
                 placeholder="Enter beta code"
                 value={betaCode}
                 onChange={(e) => { setBetaCode(e.target.value); setBetaError(""); }}
-                className="w-full rounded-lg border border-slate-600 bg-slate-900/90 px-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#F5A623]"
+                className="w-full rounded-lg border border-slate-600 bg-slate-900/90 px-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-m2p-orange"
               />
               <div className="flex gap-2 justify-center">
                 <button
                   type="submit"
                   disabled={betaLoading}
-                  className="rounded-lg px-4 py-2 text-sm font-medium bg-[#F5A623] text-[#0F0D0B] hover:opacity-90 disabled:opacity-60"
+                  className="rounded-lg px-4 py-2 text-sm font-medium bg-m2p-orange text-white hover:bg-m2p-orange-hover disabled:opacity-60"
                 >
                   {betaLoading ? "Checking…" : "Unlock"}
                 </button>
