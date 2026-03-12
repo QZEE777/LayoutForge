@@ -93,7 +93,7 @@ export default function TargetGraphic({ size = 420 }: { size?: number }) {
       {/* Center button: live link with pulse animation and hover */}
       <a
         href="/kdp-pdf-checker"
-        className="m2p-pulse-ring absolute left-1/2 top-1/2 flex items-center justify-center rounded-full text-white bg-[#F05A28] hover:bg-[#D94E20] transition-colors shadow-[0_4px_20px_rgba(240,90,40,0.45)] hover:shadow-[0_6px_24px_rgba(240,90,40,0.5)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F05A28] focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+        className="m2p-pulse-ring absolute left-1/2 top-1/2 flex flex-col items-center justify-center rounded-full text-white bg-[#F05A28] hover:bg-[#D94E20] transition-colors shadow-[0_4px_20px_rgba(240,90,40,0.45)] hover:shadow-[0_6px_24px_rgba(240,90,40,0.5)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F05A28] focus-visible:ring-offset-2 focus-visible:ring-offset-white leading-tight"
         style={{
           width: centerR * 1.9,
           height: centerR * 1.9,
@@ -101,12 +101,14 @@ export default function TargetGraphic({ size = 420 }: { size?: number }) {
           marginTop: -centerR * 0.95,
           fontFamily: "Inter, sans-serif",
           fontWeight: 700,
-          fontSize: Math.max(12, size * 0.032),
+          fontSize: Math.max(10, size * 0.026),
           cursor: "pointer",
         }}
-        title="Check my PDF — Print Ready Check"
+        title="Print Ready Check"
       >
-        Check my PDF
+        <span>PRINT</span>
+        <span>READY</span>
+        <span>CHECK</span>
       </a>
     </div>
   );

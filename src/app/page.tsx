@@ -86,7 +86,7 @@ export default function Home() {
                   className="bg-[#F05A28] hover:bg-[#D94E20] text-white font-bold text-sm px-6 py-3 rounded-xl shadow-[0_4px_20px_rgba(240,90,40,0.35)] hover:-translate-y-0.5 transition-all uppercase tracking-wide"
                   style={{ fontFamily: "Inter, sans-serif" }}
                 >
-                  📄 Check my PDF — See What&apos;s Wrong
+                  📄 Check My PDF — See What&apos;s Wrong
                 </Link>
                 <a
                   href="#how-it-works"
@@ -191,7 +191,7 @@ export default function Home() {
               <div className="text-4xl mb-3">🎯</div>
               <h3 className="text-xl text-[#1A1208] mb-2" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>Print Ready Check</h3>
               <p className="text-sm text-[#6B6151]" style={{ fontFamily: "Inter, sans-serif" }}>Upload your PDF and get a full KDP compliance report. Margins, page size, bleed, widow lines — flagged instantly. Free scan, no signup.</p>
-              <Link href="/kdp-pdf-checker" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Check my PDF</Link>
+              <Link href="/kdp-pdf-checker" className="text-[#F05A28] font-semibold text-sm mt-4 inline-block" style={{ fontFamily: "Inter, sans-serif" }}>→ Check My PDF</Link>
             </div>
             <div className="bg-white border border-[#E0D8C4] rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
               <div className="absolute top-4 right-4"><ToolBadge status="coming-soon" /></div>
@@ -399,7 +399,7 @@ export default function Home() {
                 <li>✓ See exactly what KDP will reject — before you pay</li>
                 <li>✓ No credit card required to scan</li>
               </ul>
-              <Link href="/kdp-pdf-checker" className="block border-2 border-[#F05A28] text-[#F05A28] font-bold px-6 py-3 rounded-xl w-full mt-6 hover:bg-[#FEF0EB] transition-all" style={{ fontFamily: "Inter, sans-serif" }}>Check my PDF free — See the report →</Link>
+              <Link href="/kdp-pdf-checker" className="block border-2 border-[#F05A28] text-[#F05A28] font-bold px-6 py-3 rounded-xl w-full mt-6 hover:bg-[#FEF0EB] transition-all" style={{ fontFamily: "Inter, sans-serif" }}>Check My PDF free — See the report →</Link>
             </div>
             <div className="bg-white border-2 border-[#F05A28] rounded-2xl overflow-hidden text-center relative shadow-md">
               <div className="bg-[#F05A28] text-white font-bold text-xs tracking-widest uppercase py-2 text-center" style={{ fontFamily: "Inter, sans-serif" }}>MOST POPULAR</div>
@@ -450,7 +450,7 @@ export default function Home() {
             Stop fighting with margins. Upload your PDF and get a KDP-compliant file in minutes — free to try, right now.
           </p>
           <Link href="/kdp-pdf-checker" className="inline-block bg-white text-[#F05A28] font-bold text-lg px-10 py-4 rounded-xl hover:scale-[1.02] transition-transform shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#F05A28]" style={{ fontFamily: "Inter, sans-serif" }}>
-            📄 Check my PDF free →
+            📄 Check My PDF free →
           </Link>
         </div>
       </section>
