@@ -1,8 +1,10 @@
 "use client";
 
+// TODO: Manny watermark to be added to generated PDF output
 import { useCallback, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { truncateFilenameMiddle, formatFileSize } from "@/lib/formatFileName";
 import {
   TRIM_SIZES,
@@ -251,6 +253,10 @@ export default function KdpFormatterPage() {
       </div>
 
       <main className="mx-auto max-w-2xl px-6 py-12">
+        <div className="flex items-center gap-2 mb-6">
+          <Image src="/MANNY AVATAR.png" alt="Manny" width={28} height={28} style={{ borderRadius: "50%" }} />
+          <span><span style={{ color: "#F05A28", fontWeight: "bold" }}>manu</span><span style={{ color: "#4cd964", fontWeight: "bold" }}>2print</span></span>
+        </div>
         <ToolBreadcrumb backHref="/" backLabel="All Tools" currentLabel="KDP Formatter" className="mb-6" />
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-m2p-ink">Upload your manuscript</h1>
@@ -601,6 +607,7 @@ export default function KdpFormatterPage() {
             ]}
           />
         )}
+        <p className="text-center text-m2p-muted text-xs mt-8">© manu2print.com — Built for indie authors</p>
       </main>
     </div>
   );

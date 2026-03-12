@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { truncateFilenameMiddle, formatFileSize } from "@/lib/formatFileName";
 import { sanitizeHtml } from "@/lib/sanitizeHtml";
 
@@ -91,6 +92,10 @@ export default function DescriptionGeneratorPage() {
       </div>
 
       <main className="flex-1 mx-auto max-w-3xl w-full px-6 py-10">
+        <div className="flex items-center gap-2 mb-6">
+          <Image src="/MANNY AVATAR.png" alt="Manny" width={28} height={28} style={{ borderRadius: "50%" }} />
+          <span><span style={{ color: "#F05A28", fontWeight: "bold" }}>manu</span><span style={{ color: "#4cd964", fontWeight: "bold" }}>2print</span></span>
+        </div>
         <h1 className="text-3xl font-bold text-m2p-ink mb-2">Amazon Description Generator</h1>
         <p className="text-m2p-muted mb-8">
           Upload your manuscript (.docx). We use the first 3,000 words to generate a KDP-ready description, author bio template, SEO keywords, and BISAC suggestions.
@@ -158,6 +163,7 @@ export default function DescriptionGeneratorPage() {
             </div>
           </div>
         )}
+        <p className="text-center text-m2p-muted text-xs mt-8">© manu2print.com — Built for indie authors</p>
       </main>
     </div>
   );

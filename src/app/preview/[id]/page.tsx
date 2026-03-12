@@ -1,8 +1,10 @@
 "use client";
 
+// TODO: Manny watermark to be added to generated PDF output
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { KDP_TRIM_SIZES, type TrimSizeId } from "@/lib/kdpSpecs";
 
 interface ManuscriptInfo {
@@ -182,7 +184,10 @@ export default function PreviewPage() {
       </div>
 
       <main className="mx-auto max-w-3xl px-6 py-10">
-
+        <div className="flex items-center gap-2 mb-6">
+          <Image src="/MANNY AVATAR.png" alt="Manny" width={28} height={28} style={{ borderRadius: "50%" }} />
+          <span><span style={{ color: "#F05A28", fontWeight: "bold" }}>manu</span><span style={{ color: "#4cd964", fontWeight: "bold" }}>2print</span></span>
+        </div>
         {/* Manuscript summary */}
         {info && (
           <div className="mb-8 rounded-2xl bg-m2p-orange-soft/50 border border-m2p-border p-6">
@@ -302,7 +307,7 @@ export default function PreviewPage() {
           <p className="font-medium text-m2p-ink mb-1">What gets preserved:</p>
           <p>All fonts, images, colors, headers, tables, bullet lists, and emoji from your original document.</p>
         </div>
-
+        <p className="text-center text-m2p-muted text-xs mt-8">© manu2print.com — Built for indie authors</p>
       </main>
     </div>
   );

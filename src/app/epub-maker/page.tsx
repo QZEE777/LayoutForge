@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { truncateFilenameMiddle, formatFileSize } from "@/lib/formatFileName";
 import { WhatHappensNext } from "@/components/WhatHappensNext";
 import { ErrorRecovery } from "@/components/ErrorRecovery";
@@ -185,6 +186,10 @@ export default function EpubMakerPage() {
       </div>
 
       <main className="mx-auto max-w-2xl px-6 py-12">
+        <div className="flex items-center gap-2 mb-6">
+          <Image src="/MANNY AVATAR.png" alt="Manny" width={28} height={28} style={{ borderRadius: "50%" }} />
+          <span><span style={{ color: "#F05A28", fontWeight: "bold" }}>manu</span><span style={{ color: "#4cd964", fontWeight: "bold" }}>2print</span></span>
+        </div>
         <ToolBreadcrumb backHref="/" backLabel="All Tools" currentLabel="Kindle EPUB Maker" className="mb-6" />
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white">Upload your manuscript</h1>
@@ -280,6 +285,7 @@ export default function EpubMakerPage() {
             "Complete payment (or use a beta code) and download your EPUB for KDP or other retailers.",
           ]}
         />
+        <p className="text-center text-m2p-muted text-xs mt-8">© manu2print.com — Built for indie authors</p>
       </main>
     </div>
   );

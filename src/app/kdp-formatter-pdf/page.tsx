@@ -1,7 +1,9 @@
 "use client";
 
+// TODO: Manny watermark to be added to generated PDF output
 import { useCallback, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { truncateFilenameMiddle, formatFileSize } from "@/lib/formatFileName";
 import { compressPdfInBrowser } from "@/lib/clientPdfCompress";
 import { WhatHappensNext } from "@/components/WhatHappensNext";
@@ -136,6 +138,10 @@ export default function KdpFormatterPdfPage() {
       </div>
 
       <main className="mx-auto max-w-2xl px-6 py-12">
+        <div className="flex items-center gap-2 mb-6">
+          <Image src="/MANNY AVATAR.png" alt="Manny" width={28} height={28} style={{ borderRadius: "50%" }} />
+          <span><span style={{ color: "#F05A28", fontWeight: "bold" }}>manu</span><span style={{ color: "#4cd964", fontWeight: "bold" }}>2print</span></span>
+        </div>
         <ToolBreadcrumb backHref="/" backLabel="All Tools" currentLabel="PDF Print Optimizer" className="mb-6" />
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-m2p-ink">PDF Print Optimizer</h1>
@@ -273,6 +279,7 @@ export default function KdpFormatterPdfPage() {
             "You download the optimized PDF. Use it for our other tools or preview; for final KDP interior upload use your high-res original or a PDF from KDP Formatter (DOCX).",
           ]}
         />
+        <p className="text-center text-m2p-muted text-xs mt-8">© manu2print.com — Built for indie authors</p>
       </main>
     </div>
   );

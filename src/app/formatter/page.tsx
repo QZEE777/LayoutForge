@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import DocxVoteCard from "@/components/DocxVoteCard";
 
 /** FREE tools — shown in top row with bold FREE badge (green). */
@@ -112,7 +113,12 @@ export default function FormatterPage() {
           </div>
         </div>
       </nav>
-
+      <div className="mx-auto max-w-6xl px-6 pt-6">
+        <div className="flex items-center gap-2 mb-6">
+          <Image src="/MANNY AVATAR.png" alt="Manny" width={28} height={28} style={{ borderRadius: "50%" }} />
+          <span><span style={{ color: "#F05A28", fontWeight: "bold" }}>manu</span><span style={{ color: "#4cd964", fontWeight: "bold" }}>2print</span></span>
+        </div>
+      </div>
       {/* Hero */}
       <section className="px-6 pt-16 pb-12">
         <div className="mx-auto max-w-3xl text-center">
@@ -385,7 +391,7 @@ export default function FormatterPage() {
           </Link>
         </div>
       </section>
-
+      <p className="text-center text-m2p-muted text-xs mt-8 pb-8">© manu2print.com — Built for indie authors</p>
     </div>
   );
 }

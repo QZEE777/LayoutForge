@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 const ADMIN_KEY = "Manu2Print_admin_auth";
 const ADMIN_PWD_KEY = "Manu2Print_admin_pwd";
@@ -295,6 +296,10 @@ export default function AdminPage() {
       </header>
 
       <main className="mx-auto max-w-5xl px-6 py-8">
+        <div className="flex items-center gap-2 mb-6">
+          <Image src="/MANNY AVATAR.png" alt="Manny" width={28} height={28} style={{ borderRadius: "50%" }} />
+          <span><span style={{ color: "#F05A28", fontWeight: "bold" }}>manu</span><span style={{ color: "#4cd964", fontWeight: "bold" }}>2print</span></span>
+        </div>
         {error && (
           <div className="mb-6 rounded-lg bg-red-500/10 border border-red-500/30 p-4 text-red-400 text-sm">
             {error}
@@ -578,6 +583,7 @@ export default function AdminPage() {
         {authed && stats === null && !loading && !error && (
           <p className="text-soft-muted">Use Refresh to load data (password was stored at login).</p>
         )}
+        <p className="text-center text-m2p-muted text-xs mt-8">© manu2print.com — Built for indie authors</p>
       </main>
     </div>
   );

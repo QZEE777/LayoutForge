@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { truncateFilenameMiddle, formatFileSize } from "@/lib/formatFileName";
 
 export default function KeywordResearchPage() {
@@ -64,6 +65,10 @@ export default function KeywordResearchPage() {
       </header>
 
       <main className="flex-1 mx-auto max-w-3xl w-full px-6 py-10">
+        <div className="flex items-center gap-2 mb-6">
+          <Image src="/MANNY AVATAR.png" alt="Manny" width={28} height={28} style={{ borderRadius: "50%" }} />
+          <span><span style={{ color: "#F05A28", fontWeight: "bold" }}>manu</span><span style={{ color: "#4cd964", fontWeight: "bold" }}>2print</span></span>
+        </div>
         <h1 className="text-3xl font-bold text-m2p-ink mb-2">7 Keyword Research</h1>
         <p className="text-m2p-muted mb-8">
           Upload your manuscript (.docx or .pdf). Claude suggests 7 Amazon KDP keyword phrases from the first 3,000 words.
@@ -111,6 +116,7 @@ export default function KeywordResearchPage() {
             </ul>
           </div>
         )}
+        <p className="text-center text-m2p-muted text-xs mt-8">© manu2print.com — Built for indie authors</p>
       </main>
     </div>
   );

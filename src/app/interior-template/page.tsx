@@ -1,7 +1,9 @@
 "use client";
 
+// TODO: Manny watermark to be added to generated PDF output
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   KDP_TRIM_SIZES,
   getTrimSize,
@@ -71,6 +73,10 @@ export default function InteriorTemplatePage() {
       </nav>
 
       <main className="mx-auto max-w-2xl px-6 py-12">
+        <div className="flex items-center gap-2 mb-6">
+          <Image src="/MANNY AVATAR.png" alt="Manny" width={28} height={28} style={{ borderRadius: "50%" }} />
+          <span><span style={{ color: "#F05A28", fontWeight: "bold" }}>manu</span><span style={{ color: "#4cd964", fontWeight: "bold" }}>2print</span></span>
+        </div>
         <h1 className="font-bebas text-3xl sm:text-4xl tracking-wide text-brand-cream mb-2">
           KDP interior margin template
         </h1>
@@ -164,6 +170,7 @@ export default function InteriorTemplatePage() {
         <p className="mt-4 font-sans text-sm text-brand-muted">
           <Link href="/cover-calculator" className="text-brand-gold hover:underline">Cover calculator</Link> for full-wrap dimensions and cover template. <Link href="/kdp-formatter" className="text-brand-gold hover:underline">KDP Formatter</Link> for Word → print-ready PDF.
         </p>
+        <p className="text-center text-m2p-muted text-xs mt-8">© manu2print.com — Built for indie authors</p>
       </main>
     </div>
   );

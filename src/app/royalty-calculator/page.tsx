@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import FreeToolCta from "@/components/FreeToolCta";
 import {
   ROYALTY_TRIM_SIZES,
@@ -63,6 +64,10 @@ export default function RoyaltyCalculatorPage() {
       </nav>
 
       <main className="mx-auto max-w-2xl px-6 py-12">
+        <div className="flex items-center gap-2 mb-6">
+          <Image src="/MANNY AVATAR.png" alt="Manny" width={28} height={28} style={{ borderRadius: "50%" }} />
+          <span><span style={{ color: "#F05A28", fontWeight: "bold" }}>manu</span><span style={{ color: "#4cd964", fontWeight: "bold" }}>2print</span></span>
+        </div>
         <h1 className="font-bebas text-3xl sm:text-4xl tracking-wide text-brand-cream mb-2">
           KDP Royalty Calculator
         </h1>
@@ -163,6 +168,7 @@ export default function RoyaltyCalculatorPage() {
           href="/kdp-formatter"
           buttonText="Try KDP Formatter"
         />
+        <p className="text-center text-m2p-muted text-xs mt-8">© manu2print.com — Built for indie authors</p>
       </main>
     </div>
   );
