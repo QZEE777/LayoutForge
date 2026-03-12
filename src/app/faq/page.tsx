@@ -1,11 +1,12 @@
+import React from "react";
 import Link from "next/link";
 import SiteShell from "@/components/SiteShell";
 
 function FaqItem({ q, a }: { q: string; a: React.ReactNode }) {
   return (
     <div className="border-b border-m2p-border pb-4 mb-4 last:border-0 last:mb-0">
-      <h3 className="text-m2p-ink font-semibold mb-2" >{q}</h3>
-      <div className="text-m2p-muted text-sm [&_a]:text-m2p-orange [&_a]:hover:underline>{a}</div>
+      <h3 className="text-m2p-ink font-semibold mb-2">{q}</h3>
+      <div className="text-m2p-muted text-sm [&_a]:text-m2p-orange [&_a]:hover:underline">{a}</div>
     </div>
   );
 }
