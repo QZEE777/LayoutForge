@@ -68,8 +68,8 @@ export default function InteriorTemplatePage() {
       </nav>
 
       <main className="mx-auto max-w-2xl px-6 py-12">
-        <div className="flex items-center justify-center gap-2 mb-6 w-full">
-          <Image src="/MANNY AVATAR.png" alt="Manny" width={70} height={70} style={{ borderRadius: "50%" }} />
+        <div className="flex items-center justify-center gap-1 mb-6 w-full">
+          <Image src="/MANNY AVATAR.png" alt="Manny" width={120} height={120} style={{ borderRadius: "50%" }} />
           <span><span style={{ color: "#F05A28", fontWeight: "bold" }}>manu</span><span style={{ color: "#4cd964", fontWeight: "bold" }}>2print</span></span>
         </div>
         <h1 className="font-bebas text-3xl sm:text-4xl tracking-wide text-brand-cream mb-2">

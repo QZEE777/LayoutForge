@@ -83,9 +83,7 @@ export default function ProfilePage() {
                 <path d="M8 11h8" />
               </svg>
             </div>
-            <span className="text-lg font-bold tracking-tight text-m2p-ink">
-              manu2print
-            </span>
+            <span><span style={{color:'#F05A28', fontWeight:'bold', fontSize:'1.25rem'}}>manu</span><span style={{color:'#4cd964', fontWeight:'bold', fontSize:'1.25rem'}}>2print</span></span>
           </Link>
           <nav className="flex items-center gap-2">
             <Link

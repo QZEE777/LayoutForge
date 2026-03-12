@@ -20,7 +20,7 @@ export default function ComingSoonLayout({
       <header className="border-b border-m2p-border bg-white/90 backdrop-blur-sm">
         <div className="mx-auto max-w-3xl px-4 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-lg font-bold text-m2p-ink">
-            manu2print
+            <span><span style={{color:'#F05A28', fontWeight:'bold', fontSize:'1.25rem'}}>manu</span><span style={{color:'#4cd964', fontWeight:'bold', fontSize:'1.25rem'}}>2print</span></span>
           </Link>
           <Link href="/" className="text-sm text-m2p-muted hover:text-m2p-orange transition-colors">
             Home

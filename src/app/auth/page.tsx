@@ -83,9 +83,7 @@ export default function AuthPage() {
               <path d="M8 11h8" />
             </svg>
           </div>
-          <span className="text-xl font-bold tracking-tight text-m2p-ink">
-            manu2print
-          </span>
+          <span><span style={{color:'#F05A28', fontWeight:'bold', fontSize:'1.25rem'}}>manu</span><span style={{color:'#4cd964', fontWeight:'bold', fontSize:'1.25rem'}}>2print</span></span>
         </Link>
 
         <h1 className="text-2xl font-bold text-center mb-1 text-m2p-ink">

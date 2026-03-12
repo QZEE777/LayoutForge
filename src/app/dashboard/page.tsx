@@ -68,9 +68,7 @@ export default function DashboardPage() {
                 <path d="M8 11h8" />
               </svg>
             </div>
-            <span className="text-lg font-bold tracking-tight text-m2p-ink">
-              manu2print
-            </span>
+            <span><span style={{color:'#F05A28', fontWeight:'bold', fontSize:'1.25rem'}}>manu</span><span style={{color:'#4cd964', fontWeight:'bold', fontSize:'1.25rem'}}>2print</span></span>
           </Link>
           <nav className="flex items-center gap-2">
             <Link href="/" className="rounded-lg px-4 py-2 text-sm font-medium text-m2p-muted hover:text-brave transition-colors">
@@ -95,8 +93,8 @@ export default function DashboardPage() {
       </header>
 
       <main className="mx-auto max-w-6xl px-6 py-12">
-        <div className="flex items-center justify-center gap-2 mb-6 w-full">
-          <Image src="/MANNY AVATAR.png" alt="Manny" width={70} height={70} style={{ borderRadius: "50%" }} />
+        <div className="flex items-center justify-center gap-1 mb-6 w-full">
+          <Image src="/MANNY AVATAR.png" alt="Manny" width={120} height={120} style={{ borderRadius: "50%" }} />
           <span><span style={{ color: "#F05A28", fontWeight: "bold" }}>manu</span><span style={{ color: "#4cd964", fontWeight: "bold" }}>2print</span></span>
         </div>
         <div className="mb-8">

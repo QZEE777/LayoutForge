@@ -56,7 +56,7 @@ export default function KdpFormatReviewPage() {
       <header className="border-b border-m2p-border">
         <div className="mx-auto max-w-3xl px-4 py-4 flex items-center justify-between">
           <Link href="/" className="text-xl font-bold tracking-tight text-m2p-ink">
-            manu2print
+            <span><span style={{color:'#F05A28', fontWeight:'bold', fontSize:'1.25rem'}}>manu</span><span style={{color:'#4cd964', fontWeight:'bold', fontSize:'1.25rem'}}>2print</span></span>
           </Link>
           <Link href="/platform/kdp" className="text-sm text-m2p-muted hover:text-m2p-orange">
             All KDP tools
@@ -65,8 +65,8 @@ export default function KdpFormatReviewPage() {
       </header>
 
       <main className="mx-auto max-w-3xl px-4 py-8 bg-m2p-ivory text-m2p-ink min-h-[calc(100vh-4rem)]">
-        <div className="flex items-center justify-center gap-2 mb-6 w-full">
-          <Image src="/MANNY AVATAR.png" alt="Manny" width={70} height={70} style={{ borderRadius: "50%" }} />
+        <div className="flex items-center justify-center gap-1 mb-6 w-full">
+          <Image src="/MANNY AVATAR.png" alt="Manny" width={120} height={120} style={{ borderRadius: "50%" }} />
           <span><span style={{ color: "#F05A28", fontWeight: "bold" }}>manu</span><span style={{ color: "#4cd964", fontWeight: "bold" }}>2print</span></span>
         </div>
         <ToolBreadcrumb backHref="/platform/kdp" backLabel="KDP tools" currentLabel="KDP Format Review" className="text-m2p-muted [&_a]:text-m2p-muted [&_a:hover]:text-m2p-orange" />

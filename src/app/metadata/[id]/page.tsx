@@ -100,7 +100,7 @@ export default function MetadataPage() {
       <header className="border-b border-slate-200 bg-white shadow-sm">
         <div className="mx-auto max-w-4xl px-4 py-4 flex items-center justify-between">
           <Link href="/" className="text-2xl font-bold text-slate-900">
-            manu2print
+            <span><span style={{color:'#F05A28', fontWeight:'bold', fontSize:'1.25rem'}}>manu</span><span style={{color:'#4cd964', fontWeight:'bold', fontSize:'1.25rem'}}>2print</span></span>
           </Link>
           <Link href="/kdp-formatter" className="text-sm text-slate-600 hover:text-slate-900">
             Back to Upload

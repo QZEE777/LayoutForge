@@ -82,10 +82,7 @@ export default function CoverCalculatorPage() {
       <nav className="sticky top-0 z-20 border-b border-white/5 bg-m2p-ivory/80 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <span className="text-lg font-bold tracking-tight text-m2p-ink">
-              <span className="font-serif">manu</span>
-              <span className="font-sans">2print</span>
-            </span>
+            <span><span style={{color:'#F05A28', fontWeight:'bold', fontSize:'1.25rem'}}>manu</span><span style={{color:'#4cd964', fontWeight:'bold', fontSize:'1.25rem'}}>2print</span></span>
           </Link>
           <div className="flex items-center gap-6">
             <Link href="/platform/kdp" className="text-sm font-medium text-m2p-ink hover:text-m2p-orange transition-colors">
