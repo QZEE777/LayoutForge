@@ -183,7 +183,7 @@ export default function DownloadPage() {
     return (
       <div className="min-h-screen bg-[#1a1a12] text-[#F5F0E8] p-8">
         <p className="text-red-400">Invalid file ID.</p>
-        <Link href={isFormatReviewFlow ? "/kdp-format-review" : isCheckerFlow ? "/kdp-pdf-checker" : isEpubFlow ? "/epub-maker" : isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"} className="mt-4 block text-[#D4A843] hover:text-[#F5F0E8]">
+        <Link href={isFormatReviewFlow ? "/kdp-format-review" : isCheckerFlow ? "/kdp-pdf-checker" : isEpubFlow ? "/epub-maker" : isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"} className="mt-4 block text-m2p-orange hover:text-[#F5F0E8]">
           Upload a file
         </Link>
       </div>
@@ -198,7 +198,7 @@ export default function DownloadPage() {
           <Link href="/" className="text-2xl font-bold tracking-tight text-[#F5F0E8]">
             manu2print
           </Link>
-          <Link href={isFormatReview ? "/kdp-format-review" : isChecker ? "/kdp-pdf-checker" : isEpub ? "/epub-maker" : isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"} className="text-sm text-[#8B8B6B] hover:text-[#F5F0E8]">
+          <Link href={isFormatReview ? "/kdp-format-review" : isChecker ? "/kdp-pdf-checker" : isEpub ? "/epub-maker" : isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"} className="text-sm text-[#8B8B6B] hover:text-m2p-orange">
             New upload
           </Link>
         </div>
@@ -284,7 +284,7 @@ export default function DownloadPage() {
             </ul>
             {report.outputType !== "format-review" && report.issues && report.issues.length > 0 && (
               <div className="mt-4 pt-4 border-t border-white/10">
-                <p className="text-xs font-medium text-[#D4A843] mb-2">Issues</p>
+                <p className="text-xs font-medium text-m2p-orange mb-2">Issues</p>
                 <ul className="text-xs text-[#8B8B6B] list-disc list-inside space-y-1">
                   {report.issues.map((issue, i) => (
                     <li key={i}>{issue}</li>
@@ -330,7 +330,7 @@ export default function DownloadPage() {
                     a.click();
                     URL.revokeObjectURL(url);
                   }}
-                  className="text-sm font-medium text-[#D4A843] hover:text-[#F5F0E8] transition-colors"
+                  className="text-sm font-medium text-m2p-orange hover:text-[#F5F0E8] transition-colors"
                 >
                   Download report (.txt)
                 </button>
@@ -452,9 +452,9 @@ export default function DownloadPage() {
                   const jobId = match?.[1];
                   if (jobId) window.open(`/api/kdp-annotated-pdf?job_id=${encodeURIComponent(jobId)}`, "_blank");
                 }}
-                className="flex items-center gap-3 border border-[#D4A843] rounded-lg p-4 bg-[#1a1a12]/50 hover:bg-[#1a1a12]/70 transition-colors cursor-pointer text-left w-full"
+                className="flex items-center gap-3 border border-m2p-orange rounded-lg p-4 bg-[#1a1a12]/50 hover:bg-[#1a1a12]/70 transition-colors cursor-pointer text-left w-full"
               >
-                <div className="w-10 h-10 border border-[#D4A843]/30 rounded flex items-center justify-center text-[#D4A843] flex-shrink-0">
+                <div className="w-10 h-10 border border-m2p-orange/30 rounded flex items-center justify-center text-m2p-orange flex-shrink-0">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
@@ -466,7 +466,7 @@ export default function DownloadPage() {
               </button>
             ) : (
               <div className="flex items-center gap-3 text-sm text-[#8B8B6B]">
-                <svg className="animate-spin h-5 w-5 text-[#D4A843] flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden>
+                <svg className="animate-spin h-5 w-5 text-m2p-orange flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden>
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12 0s12 5.373 12 12-5.373 12-12 12v-2a8 8 0 01-8-8z" />
                 </svg>
@@ -478,7 +478,7 @@ export default function DownloadPage() {
 
         {/* Success message */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-[#D4A843] mb-2">
+          <h1 className="text-3xl font-bold text-m2p-orange mb-2">
             {isFormatReview ? "Format Review Complete" : isChecker ? "KDP Check Complete" : isEpub ? "EPUB Ready!" : isDocx ? "Review DOCX Ready!" : "PDF Generated!"}
           </h1>
           <p className="text-[#8B8B6B]">
@@ -496,7 +496,7 @@ export default function DownloadPage() {
 
         {/* Download section - hide for checker and format-review */}
         {!isChecker && !isFormatReview && (
-        <div className="bg-[#24241a] border border-[#D4A843] rounded-lg p-6 mb-6">
+        <div className="bg-[#24241a] border border-m2p-orange rounded-lg p-6 mb-6">
           <h2 className="text-xl font-semibold text-center mb-6 text-[#F5F0E8]">Download your file</h2>
 
           <div className="mb-6">
@@ -509,10 +509,10 @@ export default function DownloadPage() {
               type="button"
               onClick={handleDownload}
               aria-label={isEpub ? "Download Kindle EPUB" : isDocx ? "Download review DOCX" : "Download KDP Print PDF"}
-              className="w-full flex items-center justify-between border border-[#D4A843] rounded-lg p-4 bg-[#1a1a12]/50 text-left hover:bg-[#1a1a12]/70 transition-colors cursor-pointer"
+              className="w-full flex items-center justify-between border border-m2p-orange rounded-lg p-4 bg-[#1a1a12]/50 text-left hover:bg-[#1a1a12]/70 transition-colors cursor-pointer"
             >
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 border border-[#D4A843]/30 rounded flex items-center justify-center text-[#D4A843]">
+                <div className="w-10 h-10 border border-m2p-orange/30 rounded flex items-center justify-center text-m2p-orange">
                   <svg
                     className="w-5 h-5"
                     fill="none"
@@ -536,7 +536,7 @@ export default function DownloadPage() {
                   </p>
                 </div>
               </div>
-              <div className="text-[#D4A843] hover:text-[#F5F0E8]">
+              <div className="text-m2p-orange hover:text-[#F5F0E8]">
                 <svg
                   className="h-6 w-6"
                   fill="none"
@@ -555,7 +555,7 @@ export default function DownloadPage() {
           </div>
 
           {report && report.formatReviewText && !isEpub && (
-            <div className="mb-6 p-4 rounded-lg bg-[#1a1a12]/50 border border-[#D4A843]/30">
+            <div className="mb-6 p-4 rounded-lg bg-[#1a1a12]/50 border border-m2p-orange/30">
               <h3 className="font-medium text-[#F5F0E8] mb-2">Get a full-document AI format review</h3>
               <p className="text-sm text-[#8B8B6B] mb-3">
                 Copy the whole manuscript (structure + text). Paste it in Cursor chat and ask the AI to scan it as a professional KDP formatter — margins, spacing, headings, lists, and Amazon KDP rules.
@@ -563,7 +563,7 @@ export default function DownloadPage() {
               <button
                 type="button"
                 onClick={handleCopyForAIReview}
-                className="border border-[#D4A843]/60 hover:border-[#D4A843] hover:bg-[#D4A843]/10 text-[#D4A843] font-medium py-2 px-4 rounded-lg text-sm transition-colors"
+                className="border border-m2p-orange/60 hover:border-m2p-orange hover:bg-m2p-orange/10 text-m2p-orange font-medium py-2 px-4 rounded-lg text-sm transition-colors"
               >
                 {copyReviewStatus === "ok" ? "✓ Copied to clipboard" : copyReviewStatus === "fail" ? "Copy failed" : "Copy for AI review"}
               </button>
@@ -580,11 +580,11 @@ export default function DownloadPage() {
                 Margins in this draft are equal on all sides (0.7&quot;) for easier editing. Your final PDF will use Amazon KDP–compliant inside/outside margins and gutter.
               </p>
               <p className="text-sm text-[#8B8B6B] mb-4">
-                <span className="text-[#D4A843]">Tip:</span> To get layout feedback from the AI, open the document, take a screenshot of a page, and paste it in chat.
+                <span className="text-m2p-orange">Tip:</span> To get layout feedback from the AI, open the document, take a screenshot of a page, and paste it in chat.
               </p>
               <Link
                 href={`/kdp-formatter?id=${id}`}
-                className="inline-block bg-[#D4A843] hover:bg-[#c49a3d] text-[#1a1a12] font-semibold py-2.5 px-5 rounded-lg"
+                className="inline-block bg-m2p-orange hover:bg-m2p-orange-hover text-[#1a1a12] font-semibold py-2.5 px-5 rounded-lg"
               >
                 Generate KDP PDF from this file
               </Link>
@@ -593,9 +593,9 @@ export default function DownloadPage() {
 
           {/* EPUB Info Box — only for PDF/DOCX flows */}
           {!isEpub && (
-          <div className="bg-[#24241a] border-l-4 border-l-[#D4A843] rounded-r-lg p-6 mb-6">
+          <div className="bg-[#24241a] border-l-4 border-l-m2p-orange rounded-r-lg p-6 mb-6">
             <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-10 h-10 border border-[#D4A843]/30 rounded-full flex items-center justify-center text-[#D4A843]">
+              <div className="flex-shrink-0 w-10 h-10 border border-m2p-orange/30 rounded-full flex items-center justify-center text-m2p-orange">
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -603,10 +603,10 @@ export default function DownloadPage() {
               <div className="flex-1">
                 <h3 className="font-semibold text-[#F5F0E8] mb-2">Need an EPUB file?</h3>
                 <p className="text-[#8B8B6B] text-sm">
-                  Your KDP PDF is ready to download. To also get an EPUB file for eBook distribution, use the free tool <span className="text-[#D4A843]">Calibre</span>:
+                  Your KDP PDF is ready to download. To also get an EPUB file for eBook distribution, use the free tool <span className="text-m2p-orange">Calibre</span>:
                 </p>
                 <ol className="mt-3 text-[#8B8B6B] text-sm space-y-1 ml-4 list-decimal">
-                  <li>Download Calibre from <a href="https://calibre-ebook.com" target="_blank" rel="noopener noreferrer" className="text-[#D4A843] hover:underline">calibre-ebook.com</a></li>
+                  <li>Download Calibre from <a href="https://calibre-ebook.com" target="_blank" rel="noopener noreferrer" className="text-m2p-orange hover:underline">calibre-ebook.com</a></li>
                   <li>Open your downloaded PDF in Calibre</li>
                   <li>Click &quot;Convert books&quot; and choose EPUB as output</li>
                 </ol>
@@ -623,7 +623,7 @@ export default function DownloadPage() {
             {isEpub ? (
               <>
                 <p className="text-[#8B8B6B] text-sm">
-                  <span className="text-[#D4A843]">✓</span> Kindle-ready EPUB for eBook distribution on Amazon KDP and other retailers.
+                  <span className="text-m2p-orange">✓</span> Kindle-ready EPUB for eBook distribution on Amazon KDP and other retailers.
                 </p>
                 <p className="text-[#8B8B6B] text-sm">
                   Upload to KDP as your eBook manuscript, or use with other platforms (Apple Books, Kobo, etc.).
@@ -634,11 +634,11 @@ export default function DownloadPage() {
                 <div>
                   <h3 className="font-semibold text-[#F5F0E8] mb-4">What&apos;s included:</h3>
                   <ul className="space-y-1 text-[#8B8B6B] text-sm">
-                    <li><span className="text-[#D4A843]">✓</span> KDP Print PDF (for paperback printing)</li>
-                    <li><span className="text-[#D4A843]">✓</span> EPUB conversion guide (using free Calibre tool)</li>
-                    <li><span className="text-[#D4A843]">✓</span> KDP-compliant trim size and margins</li>
-                    <li><span className="text-[#D4A843]">✓</span> Proper bleed settings (if selected)</li>
-                    <li><span className="text-[#D4A843]">✓</span> Professional typography and spacing</li>
+                    <li><span className="text-m2p-orange">✓</span> KDP Print PDF (for paperback printing)</li>
+                    <li><span className="text-m2p-orange">✓</span> EPUB conversion guide (using free Calibre tool)</li>
+                    <li><span className="text-m2p-orange">✓</span> KDP-compliant trim size and margins</li>
+                    <li><span className="text-m2p-orange">✓</span> Proper bleed settings (if selected)</li>
+                    <li><span className="text-m2p-orange">✓</span> Professional typography and spacing</li>
                   </ul>
                 </div>
                 <div>
@@ -663,14 +663,14 @@ export default function DownloadPage() {
             type="button"
             onClick={handleDownload}
             aria-label={isEpub ? "Download EPUB file" : isDocx ? "Download review DOCX" : "Download PDF file"}
-            className="flex-1 bg-[#D4A843] hover:bg-[#c49a3d] text-[#1a1a12] font-semibold py-3 px-6 rounded-lg text-center cursor-pointer"
+            className="flex-1 bg-m2p-orange hover:bg-m2p-orange-hover text-[#1a1a12] font-semibold py-3 px-6 rounded-lg text-center cursor-pointer"
           >
             {isEpub ? "Download EPUB" : isDocx ? "Download Review DOCX" : "Download PDF"}
           </button>
           )}
           <Link
             href={isFormatReview ? "/kdp-format-review" : isChecker ? "/kdp-pdf-checker" : isEpub ? "/epub-maker" : isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"}
-            className="flex-1 border border-white/20 hover:border-[#D4A843] text-[#F5F0E8] font-medium py-3 px-6 rounded-lg text-center"
+            className="flex-1 border border-white/20 hover:border-m2p-orange text-[#F5F0E8] font-medium py-3 px-6 rounded-lg text-center"
           >
             {isFormatReview ? "Review Another" : isChecker ? "Check Another PDF" : isEpub ? "Create Another EPUB" : "Format Another"}
           </Link>

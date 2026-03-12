@@ -7,6 +7,7 @@ import { formatFileSize } from "@/lib/formatFileName";
 import { WhatHappensNext } from "@/components/WhatHappensNext";
 import { ErrorRecovery } from "@/components/ErrorRecovery";
 import { ToolBreadcrumb } from "@/components/ToolBreadcrumb";
+import SiteShell from "@/components/SiteShell";
 
 /** Host body limit (e.g. Vercel 4.5 MB). Files larger than this use direct preflight upload when available. */
 const SERVER_MAX_MB = 4;
@@ -177,39 +178,28 @@ export default function KdpPdfCheckerPage() {
   }, [file, router, useDirectUpload, preflightUrl]);
 
   return (
-    <div className="min-h-screen bg-ivory">
-      <header className="border-b border-soft-border bg-white/95 backdrop-blur-sm sticky top-0 z-10">
-        <div className="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <span className="text-lg font-bold text-amazon-navy">manu2print</span>
-          </Link>
-          <Link href="/platform/kdp" className="text-sm text-soft-muted hover:text-brave transition-colors">
-            All Tools
-          </Link>
-        </div>
-      </header>
-
-      <div className="border-b border-soft-border bg-brave/10">
+    <SiteShell>
+      <div className="border-b border-m2p-border bg-m2p-orange-soft">
         <div className="mx-auto max-w-4xl px-6 py-3 flex items-center gap-3">
-          <span className="inline-flex items-center rounded-full bg-brave/20 border border-brave/30 px-2.5 py-0.5 text-xs font-medium text-brave">Paid</span>
-          <span className="text-sm font-semibold text-amazon-navy">Print Ready Check</span>
-          <span className="mx-2 text-soft-muted">|</span>
-          <span className="text-sm text-soft-muted">Full PDF validation: 26 KDP rules, trim, margins, bleed — pass/fail before you upload</span>
+          <span className="inline-flex items-center rounded-full bg-m2p-orange/20 border border-m2p-orange/30 px-2.5 py-0.5 text-xs font-medium text-m2p-orange">Paid</span>
+          <span className="text-sm font-semibold text-m2p-ink">Print Ready Check</span>
+          <span className="mx-2 text-m2p-muted">|</span>
+          <span className="text-sm text-m2p-muted">Full PDF validation: 26 KDP rules, trim, margins, bleed — pass/fail before you upload</span>
         </div>
       </div>
 
       <main className="mx-auto max-w-2xl px-6 py-12">
-        <ToolBreadcrumb backHref="/" backLabel="All Tools" currentLabel="Print Ready Check" className="mb-6" />
-        <h1 className="font-bebas text-3xl tracking-wide text-amazon-navy">Print Ready Check</h1>
-        <p className="mt-2 text-soft-muted">Upload your interior PDF. We’ll report trim size, page count, and any issues so you can fix before uploading to KDP. Max {MAX_SELECT_MB} MB. $7 per use or $27 for 6 months.</p>
-        <p className="mt-2 text-soft-muted text-sm">Many indies design in Canva (or similar) and upload the PDF they export — we'll check that PDF against KDP specs. If you format from Word, use <Link href="/kdp-formatter" className="text-brave hover:underline">KDP Formatter (DOCX)</Link> for your print PDF.</p>
+        <ToolBreadcrumb backHref="/" backLabel="All Tools" currentLabel="Print Ready Check" className="mb-6 text-m2p-muted [&_a]:text-m2p-muted [&_a:hover]:text-m2p-orange [&_span]:text-m2p-muted" />
+        <h1 className="font-bebas text-3xl tracking-wide text-m2p-ink">Print Ready Check</h1>
+        <p className="mt-2 text-m2p-muted">Upload your interior PDF. We’ll report trim size, page count, and any issues so you can fix before uploading to KDP. Max {MAX_SELECT_MB} MB. $7 per use or $27 for 6 months.</p>
+        <p className="mt-2 text-m2p-muted text-sm">Many indies design in Canva (or similar) and upload the PDF they export — we'll check that PDF against KDP specs. If you format from Word, use <Link href="/kdp-formatter" className="text-m2p-orange hover:underline">KDP Formatter (DOCX)</Link> for your print PDF.</p>
 
         <div
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           className={`mt-8 rounded-2xl border-2 border-dashed p-14 text-center transition-all ${
-            isDragging ? "border-brave bg-brave/10" : "border-soft-border bg-white hover:border-brave/50"
+            isDragging ? "border-m2p-orange bg-m2p-orange-soft" : "border-m2p-border bg-white hover:border-m2p-orange/50"
           }`}
         >
           <input
@@ -222,24 +212,24 @@ export default function KdpPdfCheckerPage() {
           <label htmlFor="checker-file" className="cursor-pointer block">
             {file ? (
               <div>
-                <p className="text-amazon-navy font-medium">{file.name}</p>
-                <p className="text-sm text-soft-muted mt-1">{formatFileSize(file.size)} — ready to check</p>
+                <p className="text-m2p-ink font-medium">{file.name}</p>
+                <p className="text-sm text-m2p-muted mt-1">{formatFileSize(file.size)} — ready to check</p>
               </div>
             ) : (
-              <p className="text-soft-muted">Drop your PDF here or click to choose</p>
+              <p className="text-m2p-muted">Drop your PDF here or click to choose</p>
             )}
           </label>
         </div>
 
         {file && useDirectUpload && (
-          <div className="mt-4 rounded-lg bg-arctic border border-soft-border p-3 text-sm text-soft-muted">
+          <div className="mt-4 rounded-lg bg-m2p-orange-soft/50 border border-m2p-border p-3 text-sm text-m2p-muted">
             Large file: sent directly to the checker. You’ll get the full report and a visual preview on the results page.
           </div>
         )}
         {file && fileTooBigForServer && (
-          <div className="mt-4 rounded-lg bg-brave/10 border border-brave/30 p-3 text-sm text-brave">
+          <div className="mt-4 rounded-lg bg-m2p-orange-soft border border-m2p-orange/30 p-3 text-sm text-m2p-orange">
             Your file is <strong>{formatFileSize(file.size)}</strong>. For files over {SERVER_MAX_MB} MB, use our free{" "}
-            <Link href="/pdf-compress" className="underline font-medium text-brave hover:opacity-90">
+            <Link href="/pdf-compress" className="underline font-medium text-m2p-orange hover:opacity-90">
               PDF Compressor
             </Link>{" "}
             first, then check again (or try again later for large-file support).
@@ -247,11 +237,11 @@ export default function KdpPdfCheckerPage() {
         )}
 
         {error && (
-          <div className="mt-4 rounded-lg bg-red-500/10 border border-red-500/30 p-3 text-sm text-red-400">
+          <div className="mt-4 rounded-lg bg-red-500/10 border border-red-500/30 p-3 text-sm text-red-600">
             {error}
             {file && (
               <p className="mt-2">
-                <Link href="/pdf-compress" className="text-brave hover:underline">
+                <Link href="/pdf-compress" className="text-m2p-orange hover:underline">
                   Use our free PDF Compressor →
                 </Link>
               </p>
@@ -265,7 +255,7 @@ export default function KdpPdfCheckerPage() {
             type="button"
             onClick={handleSubmit}
             disabled={!file || uploading || fileTooBigForServer}
-            className="flex-1 rounded-xl bg-brave hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 transition-colors"
+            className="flex-1 rounded-xl bg-m2p-orange hover:bg-m2p-orange-hover disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 transition-colors"
           >
             {uploading ? "Checking…" : "Check PDF"}
           </button>
@@ -273,7 +263,7 @@ export default function KdpPdfCheckerPage() {
             <button
               type="button"
               onClick={() => { setFile(null); setError(null); }}
-              className="rounded-xl border border-soft-border text-soft-muted hover:bg-arctic py-3 px-6 transition-colors"
+              className="rounded-xl border border-m2p-border text-m2p-muted hover:bg-m2p-orange-soft/50 py-3 px-6 transition-colors"
             >
               Clear
             </button>
@@ -281,7 +271,7 @@ export default function KdpPdfCheckerPage() {
         </div>
 
         <WhatHappensNext
-          className="mt-8"
+          className="mt-8 bg-m2p-orange-soft/50 border border-m2p-border text-m2p-muted [&_p]:text-m2p-muted [&_.font-medium]:text-m2p-ink"
           steps={[
             "We check your PDF: trim size, page count (24–828), and file size.",
             "You're redirected to the download page with your report (issues and what to fix).",
@@ -289,6 +279,6 @@ export default function KdpPdfCheckerPage() {
           ]}
         />
       </main>
-    </div>
+    </SiteShell>
   );
 }
