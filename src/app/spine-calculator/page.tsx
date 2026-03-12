@@ -42,11 +42,6 @@ export default function SpineCalculatorPage() {
       <nav className="sticky top-0 z-20 border-b border-white/5 bg-m2p-ivory/80 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 bg-brand-gold">
-              <svg className="w-4 h-4" fill="none" stroke="#0F0D0B" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
-            </div>
             <span className="text-lg font-bold tracking-tight text-brand-cream">
               <span className="font-serif">manu</span>
               <span className="font-sans">2print</span>
@@ -64,8 +59,8 @@ export default function SpineCalculatorPage() {
       </nav>
 
       <main className="mx-auto max-w-2xl px-6 py-12">
-        <div className="flex items-center gap-2 mb-6">
-          <Image src="/MANNY AVATAR.png" alt="Manny" width={28} height={28} style={{ borderRadius: "50%" }} />
+        <div className="flex items-center justify-center gap-2 mb-6 w-full">
+          <Image src="/MANNY AVATAR.png" alt="Manny" width={70} height={70} style={{ borderRadius: "50%" }} />
           <span><span style={{ color: "#F05A28", fontWeight: "bold" }}>manu</span><span style={{ color: "#4cd964", fontWeight: "bold" }}>2print</span></span>
         </div>
         <h1 className="font-bebas text-3xl sm:text-4xl tracking-wide text-brand-cream mb-2">

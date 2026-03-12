@@ -20,11 +20,6 @@ export default function ComingSoonLayout({
       <header className="border-b border-m2p-border bg-white/90 backdrop-blur-sm">
         <div className="mx-auto max-w-3xl px-4 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-lg font-bold text-m2p-ink">
-            <span className="w-6 h-6 rounded bg-m2p-orange flex items-center justify-center">
-              <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
-            </span>
             manu2print
           </Link>
           <Link href="/" className="text-sm text-m2p-muted hover:text-m2p-orange transition-colors">

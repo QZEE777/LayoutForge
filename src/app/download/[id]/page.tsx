@@ -208,8 +208,8 @@ export default function DownloadPage() {
 
       {/* Main content */}
       <main className="max-w-2xl mx-auto px-6 py-12">
-        <div className="flex items-center gap-2 mb-6">
-          <Image src="/MANNY AVATAR.png" alt="Manny" width={28} height={28} style={{ borderRadius: "50%" }} />
+        <div className="flex items-center justify-center gap-2 mb-6 w-full">
+          <Image src="/MANNY AVATAR.png" alt="Manny" width={70} height={70} style={{ borderRadius: "50%" }} />
           <span><span style={{ color: "#F05A28", fontWeight: "bold" }}>manu</span><span style={{ color: "#4cd964", fontWeight: "bold" }}>2print</span></span>
         </div>
         <PaymentGate tool={isFormatReview ? "kdp-format-review" : isChecker ? "kdp-pdf-checker" : isEpub ? "epub-maker" : isPdfFlow ? "kdp-formatter-pdf" : "kdp-formatter"} downloadId={id}>

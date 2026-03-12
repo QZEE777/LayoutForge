@@ -82,11 +82,6 @@ export default function CoverCalculatorPage() {
       <nav className="sticky top-0 z-20 border-b border-white/5 bg-m2p-ivory/80 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 bg-m2p-orange">
-              <svg className="w-4 h-4" fill="none" stroke="#0F0D0B" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
-            </div>
             <span className="text-lg font-bold tracking-tight text-m2p-ink">
               <span className="font-serif">manu</span>
               <span className="font-sans">2print</span>

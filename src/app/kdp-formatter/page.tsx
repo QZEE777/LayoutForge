@@ -223,11 +223,6 @@ export default function KdpFormatterPage() {
       <header className="border-b border-m2p-border bg-m2p-ivory backdrop-blur-sm">
         <div className="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-md bg-green-600 flex items-center justify-center">
-              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
-            </div>
             <span className="text-lg font-bold text-m2p-ink">Manu2Print KDP</span>
           </Link>
           <Link href="/platform/kdp" className="text-sm text-m2p-muted hover:text-m2p-orange transition-colors flex items-center gap-1">
@@ -253,8 +248,8 @@ export default function KdpFormatterPage() {
       </div>
 
       <main className="mx-auto max-w-2xl px-6 py-12">
-        <div className="flex items-center gap-2 mb-6">
-          <Image src="/MANNY AVATAR.png" alt="Manny" width={28} height={28} style={{ borderRadius: "50%" }} />
+        <div className="flex items-center justify-center gap-2 mb-6 w-full">
+          <Image src="/MANNY AVATAR.png" alt="Manny" width={70} height={70} style={{ borderRadius: "50%" }} />
           <span><span style={{ color: "#F05A28", fontWeight: "bold" }}>manu</span><span style={{ color: "#4cd964", fontWeight: "bold" }}>2print</span></span>
         </div>
         <ToolBreadcrumb backHref="/" backLabel="All Tools" currentLabel="KDP Formatter" className="mb-6" />
