@@ -78,25 +78,25 @@ export default function CoverCalculatorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-ivory">
-      <nav className="sticky top-0 z-20 border-b border-white/5 bg-ivory/80 backdrop-blur-sm">
+    <div className="min-h-screen bg-m2p-ivory">
+      <nav className="sticky top-0 z-20 border-b border-white/5 bg-m2p-ivory/80 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 bg-brave">
+            <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 bg-m2p-orange">
               <svg className="w-4 h-4" fill="none" stroke="#0F0D0B" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
               </svg>
             </div>
-            <span className="text-lg font-bold tracking-tight text-amazon-navy">
+            <span className="text-lg font-bold tracking-tight text-m2p-ink">
               <span className="font-serif">manu</span>
               <span className="font-sans">2print</span>
             </span>
           </Link>
           <div className="flex items-center gap-6">
-            <Link href="/platform/kdp" className="text-sm font-medium text-amazon-navy hover:text-brave transition-colors">
+            <Link href="/platform/kdp" className="text-sm font-medium text-m2p-ink hover:text-m2p-orange transition-colors">
               Tools
             </Link>
-            <Link href="/platform/kdp" className="text-sm font-medium text-amazon-navy hover:text-brave transition-colors">
+            <Link href="/platform/kdp" className="text-sm font-medium text-m2p-ink hover:text-m2p-orange transition-colors">
               Amazon KDP
             </Link>
           </div>
@@ -104,33 +104,33 @@ export default function CoverCalculatorPage() {
       </nav>
 
       <main className="mx-auto max-w-2xl px-6 py-12">
-        <h1 className="font-bebas text-3xl sm:text-4xl tracking-wide text-amazon-navy mb-2">
+        <h1 className="font-bebas text-3xl sm:text-4xl tracking-wide text-m2p-ink mb-2">
           Full-wrap cover calculator
         </h1>
-        <p className="font-sans text-brand-muted mb-8">
+        <p className="font-sans text-m2p-muted mb-8">
           Get the exact canvas size for your KDP cover (front + spine + back). Use the pixel dimensions in Canva, Photoshop, or other design tools at 300 DPI.
         </p>
 
-        <div className="rounded-xl border border-whiteHover bg-white p-6 mb-8">
+        <div className="rounded-xl border border-m2p-border bg-white p-6 mb-8">
           <div className="space-y-5">
             <div>
-              <label className="block font-sans text-sm font-medium text-amazon-navy mb-2">Interior page count</label>
+              <label className="block font-sans text-sm font-medium text-m2p-ink mb-2">Interior page count</label>
               <input
                 type="number"
                 min={MIN_PAGES}
                 max={MAX_PAGES}
                 value={pageCount}
                 onChange={(e) => setPageCount(e.target.valueAsNumber ?? MIN_PAGES)}
-                className="w-full rounded-lg border border-whiteHover px-4 py-2.5 bg-ivory font-sans text-sm text-amazon-navy focus:outline-none focus:ring-2 focus:ring-brave"
+                className="w-full rounded-lg border border-m2p-border px-4 py-2.5 bg-m2p-ivory font-sans text-sm text-m2p-ink focus:outline-none focus:ring-2 focus:ring-m2p-orange"
               />
-              <p className="font-sans text-xs text-brand-muted mt-1">KDP range: {MIN_PAGES}–{MAX_PAGES} pages.</p>
+              <p className="font-sans text-xs text-m2p-muted mt-1">KDP range: {MIN_PAGES}–{MAX_PAGES} pages.</p>
             </div>
             <div>
-              <label className="block font-sans text-sm font-medium text-amazon-navy mb-2">Paper type</label>
+              <label className="block font-sans text-sm font-medium text-m2p-ink mb-2">Paper type</label>
               <select
                 value={paperType}
                 onChange={(e) => setPaperType(e.target.value as PaperType)}
-                className="w-full rounded-lg border border-whiteHover px-4 py-2.5 bg-ivory font-sans text-sm text-amazon-navy focus:outline-none focus:ring-2 focus:ring-brave"
+                className="w-full rounded-lg border border-m2p-border px-4 py-2.5 bg-m2p-ivory font-sans text-sm text-m2p-ink focus:outline-none focus:ring-2 focus:ring-m2p-orange"
               >
                 {PAPER_OPTIONS.map((o) => (
                   <option key={o.id} value={o.id}>{o.label}</option>
@@ -138,11 +138,11 @@ export default function CoverCalculatorPage() {
               </select>
             </div>
             <div>
-              <label className="block font-sans text-sm font-medium text-amazon-navy mb-2">Trim size</label>
+              <label className="block font-sans text-sm font-medium text-m2p-ink mb-2">Trim size</label>
               <select
                 value={trimId}
                 onChange={(e) => setTrimId(e.target.value as TrimSizeId)}
-                className="w-full rounded-lg border border-whiteHover px-4 py-2.5 bg-ivory font-sans text-sm text-amazon-navy focus:outline-none focus:ring-2 focus:ring-brave"
+                className="w-full rounded-lg border border-m2p-border px-4 py-2.5 bg-m2p-ivory font-sans text-sm text-m2p-ink focus:outline-none focus:ring-2 focus:ring-m2p-orange"
               >
                 {KDP_TRIM_SIZES.map((t) => (
                   <option key={t.id} value={t.id}>{t.name}</option>
@@ -152,29 +152,29 @@ export default function CoverCalculatorPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border-l-4 border-brave border border-whiteHover bg-white p-6">
-          <h2 className="font-bebas text-xl tracking-wide text-amazon-navy mb-4">Your cover canvas size</h2>
+        <div className="rounded-xl border-l-4 border-m2p-orange border border-m2p-border bg-white p-6">
+          <h2 className="font-bebas text-xl tracking-wide text-m2p-ink mb-4">Your cover canvas size</h2>
           <dl className="font-sans text-sm space-y-4">
             {pixels && fullWrap && (
               <>
                 <div>
-                  <dt className="text-brand-muted">For Canva / design tools (300 DPI)</dt>
-                  <dd className="text-amazon-navy font-semibold text-lg mt-0.5">
+                  <dt className="text-m2p-muted">For Canva / design tools (300 DPI)</dt>
+                  <dd className="text-m2p-ink font-semibold text-lg mt-0.5">
                     {pixels.width} × {pixels.height} px
                   </dd>
-                  <dd className="text-brand-muted text-xs mt-1">
+                  <dd className="text-m2p-muted text-xs mt-1">
                     Create a custom size with these dimensions. Front, spine, and back in one artboard.
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-brand-muted">Exact size (inches, with 0.125&quot; bleed)</dt>
-                  <dd className="text-amazon-navy font-semibold">
+                  <dt className="text-m2p-muted">Exact size (inches, with 0.125&quot; bleed)</dt>
+                  <dd className="text-m2p-ink font-semibold">
                     {fullWrap.widthInches.toFixed(3)} × {fullWrap.heightInches.toFixed(3)} in
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-brand-muted">Spine width</dt>
-                  <dd className="text-amazon-navy font-semibold">
+                  <dt className="text-m2p-muted">Spine width</dt>
+                  <dd className="text-m2p-ink font-semibold">
                     {spineInches.toFixed(3)} in
                   </dd>
                 </div>
@@ -183,14 +183,14 @@ export default function CoverCalculatorPage() {
                     type="button"
                     onClick={handleDownloadTemplate}
                     disabled={downloading}
-                    className="inline-flex items-center gap-2 rounded-lg bg-brave px-4 py-2.5 text-sm font-semibold text-brand-bg hover:opacity-90 disabled:opacity-50"
+                    className="inline-flex items-center gap-2 rounded-lg bg-m2p-orange px-4 py-2.5 text-sm font-semibold text-brand-bg hover:opacity-90 disabled:opacity-50"
                   >
                     {downloading ? "Generating…" : "Download template PDF"}
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                   </button>
-                  <dd className="text-brand-muted text-xs mt-1.5">
+                  <dd className="text-m2p-muted text-xs mt-1.5">
                     Exact size with trim and spine guide lines. Use as template in design software or print to measure.
                   </dd>
                 </div>
@@ -199,11 +199,11 @@ export default function CoverCalculatorPage() {
           </dl>
         </div>
 
-        <p className="mt-6 font-sans text-xs text-brand-muted">
+        <p className="mt-6 font-sans text-xs text-m2p-muted">
           Based on KDP paperback paper thickness. Keep text and key art inside the safe zone (away from trim). No data sent to the server.
         </p>
 
-        <p className="mt-4 font-sans text-sm text-brand-muted">
+        <p className="mt-4 font-sans text-sm text-m2p-muted">
           <Link href="/interior-template" className="text-brave hover:underline">Interior margin template</Link> for Canva (trim + safe zone). <Link href="/spine-calculator" className="text-brave hover:underline">Spine width calculator</Link> for spine-only and full-wrap in mm.
         </p>
 

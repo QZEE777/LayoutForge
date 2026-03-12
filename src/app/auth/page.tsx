@@ -69,13 +69,13 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6 bg-ivory">
-      <div className="w-full max-w-md rounded-2xl border-t-4 border-t-brave border border-soft-border bg-white shadow-xl p-8">
+    <div className="min-h-screen flex flex-col items-center justify-center px-6 bg-m2p-ivory">
+      <div className="w-full max-w-md rounded-2xl border-t-4 border-t-m2p-orange border border-m2p-border bg-white shadow-xl p-8">
         <Link
           href="/"
           className="flex items-center gap-2.5 mb-8 justify-center"
         >
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-brave">
+          <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-m2p-orange">
             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
               <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
@@ -83,20 +83,20 @@ export default function AuthPage() {
               <path d="M8 11h8" />
             </svg>
           </div>
-          <span className="text-xl font-bold tracking-tight text-amazon-navy">
+          <span className="text-xl font-bold tracking-tight text-m2p-ink">
             manu2print
           </span>
         </Link>
 
-        <h1 className="text-2xl font-bold text-center mb-1 text-amazon-navy">
+        <h1 className="text-2xl font-bold text-center mb-1 text-m2p-ink">
           Sign in
         </h1>
-        <p className="text-center text-sm mb-6 text-soft-muted">
+        <p className="text-center text-sm mb-6 text-m2p-muted">
           Get access to KDP formatting, keywords, and more.
         </p>
 
         {success ? (
-          <p className="text-center py-4 rounded-lg border border-brave/40 bg-brave/10 text-brave mb-4">
+          <p className="text-center py-4 rounded-lg border border-m2p-orange/40 bg-m2p-orange/10 text-m2p-orange mb-4">
             Check your email for a magic link.
           </p>
         ) : (
@@ -107,14 +107,14 @@ export default function AuthPage() {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-lg border border-soft-border px-4 py-3 bg-ivory text-amazon-navy text-sm focus:outline-none focus:ring-2 focus:ring-brave/50"
+                className="w-full rounded-lg border border-m2p-border px-4 py-3 bg-m2p-ivory text-m2p-ink text-sm focus:outline-none focus:ring-2 focus:ring-m2p-orange/50"
                 disabled={loading}
                 autoComplete="email"
               />
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-lg px-4 py-3 text-sm font-semibold bg-brave text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+                className="w-full rounded-lg px-4 py-3 text-sm font-semibold bg-m2p-orange text-white transition-opacity hover:opacity-90 disabled:opacity-60"
               >
                 {loading ? "Sending…" : "Send Magic Link"}
               </button>
@@ -122,7 +122,7 @@ export default function AuthPage() {
 
             <div className="flex items-center gap-4 my-6">
               <div className="flex-1 h-px bg-soft-border" />
-              <span className="text-xs uppercase tracking-wider text-soft-muted">or</span>
+              <span className="text-xs uppercase tracking-wider text-m2p-muted">or</span>
               <div className="flex-1 h-px bg-soft-border" />
             </div>
 
@@ -130,7 +130,7 @@ export default function AuthPage() {
               type="button"
               onClick={handleGoogle}
               disabled={loading}
-              className="w-full rounded-lg border border-soft-border px-4 py-3 text-sm font-medium text-amazon-navy hover:bg-arctic transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+              className="w-full rounded-lg border border-m2p-border px-4 py-3 text-sm font-medium text-m2p-ink hover:bg-m2p-orange-soft/50 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -148,7 +148,7 @@ export default function AuthPage() {
         )}
 
         <p className="mt-6 text-center">
-          <Link href="/" className="text-sm text-soft-muted hover:text-brave transition-colors">
+          <Link href="/" className="text-sm text-m2p-muted hover:text-m2p-orange transition-colors">
             ← Back to home
           </Link>
         </p>
