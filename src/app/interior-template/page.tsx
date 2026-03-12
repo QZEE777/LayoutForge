@@ -50,8 +50,8 @@ export default function InteriorTemplatePage() {
   };
 
   return (
-    <div className="min-h-screen bg-brand-bg">
-      <nav className="sticky top-0 z-20 border-b border-white/5 bg-brand-bg/80 backdrop-blur-sm">
+    <div className="min-h-screen bg-m2p-ivory">
+      <nav className="sticky top-0 z-20 border-b border-white/5 bg-m2p-ivory/80 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 bg-brand-gold">
@@ -85,7 +85,7 @@ export default function InteriorTemplatePage() {
               <select
                 value={trimId}
                 onChange={(e) => setTrimId(e.target.value as TrimSizeId)}
-                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-brand-bg font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold"
+                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-m2p-ivory font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold"
               >
                 {KDP_TRIM_SIZES.map((t) => (
                   <option key={t.id} value={t.id}>{t.name}</option>
@@ -100,7 +100,7 @@ export default function InteriorTemplatePage() {
                 max={maxPages}
                 value={pageCount}
                 onChange={(e) => setPageCount(e.target.valueAsNumber ?? minPages)}
-                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-brand-bg font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold"
+                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-m2p-ivory font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold"
               />
               <p className="font-sans text-xs text-brand-muted mt-1">KDP range: {minPages}–{maxPages} pages. Gutter for {pages} pages: <strong className="text-brand-cream">{gutterInches}&quot;</strong></p>
             </div>
@@ -110,7 +110,7 @@ export default function InteriorTemplatePage() {
                 type="checkbox"
                 checked={withBleed}
                 onChange={(e) => setWithBleed(e.target.checked)}
-                className="rounded border-brand-cardHover bg-brand-bg text-brand-gold focus:ring-brand-gold"
+                className="rounded border-brand-cardHover bg-m2p-ivory text-brand-gold focus:ring-brand-gold"
               />
               <label htmlFor="bleed" className="font-sans text-sm text-brand-cream">
                 Include bleed (0.125&quot;) and show trim line — for full-bleed interiors

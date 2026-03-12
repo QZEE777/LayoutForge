@@ -48,18 +48,18 @@ export default function DashboardPage() {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-ivory">
-        <p className="text-soft-muted">Loading…</p>
+      <div className="min-h-screen flex items-center justify-center bg-m2p-ivory">
+        <p className="text-m2p-muted">Loading…</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-ivory">
-      <header className="border-b border-soft-border sticky top-0 z-10 bg-white/95 backdrop-blur-sm">
+    <div className="min-h-screen bg-m2p-ivory">
+      <header className="border-b border-m2p-border sticky top-0 z-10 bg-m2p-ivory backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-brave">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-m2p-orange">
               <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
                 <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
@@ -67,15 +67,15 @@ export default function DashboardPage() {
                 <path d="M8 11h8" />
               </svg>
             </div>
-            <span className="text-lg font-bold tracking-tight text-amazon-navy">
+            <span className="text-lg font-bold tracking-tight text-m2p-ink">
               manu2print
             </span>
           </Link>
           <nav className="flex items-center gap-2">
-            <Link href="/" className="rounded-lg px-4 py-2 text-sm font-medium text-soft-muted hover:text-brave transition-colors">
+            <Link href="/" className="rounded-lg px-4 py-2 text-sm font-medium text-m2p-muted hover:text-brave transition-colors">
               Home
             </Link>
-            <Link href="/dashboard/profile" className="rounded-lg px-4 py-2 text-sm font-medium text-soft-muted hover:text-brave transition-colors">
+            <Link href="/dashboard/profile" className="rounded-lg px-4 py-2 text-sm font-medium text-m2p-muted hover:text-brave transition-colors">
               Profile
             </Link>
             <button
@@ -85,7 +85,7 @@ export default function DashboardPage() {
                 await client.auth.signOut();
                 router.replace("/auth");
               }}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-soft-muted hover:text-brave transition-colors"
+              className="rounded-lg px-4 py-2 text-sm font-medium text-m2p-muted hover:text-brave transition-colors"
             >
               Log out
             </button>
@@ -95,21 +95,21 @@ export default function DashboardPage() {
 
       <main className="mx-auto max-w-6xl px-6 py-12">
         <div className="mb-8">
-          <h1 className="font-bebas text-3xl tracking-wide text-amazon-navy mb-1">
+          <h1 className="font-bebas text-3xl tracking-wide text-m2p-ink mb-1">
             Dashboard
           </h1>
-          <p className="text-sm text-soft-muted">
+          <p className="text-sm text-m2p-muted">
             Welcome back. Your tools and usage in one place.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-          <div className="rounded-xl border-l-4 border-l-brave border border-soft-border bg-white p-6">
-            <h2 className="font-semibold mb-4 text-amazon-navy">
+          <div className="rounded-xl border-l-4 border-l-brave border border-m2p-border bg-white p-6">
+            <h2 className="font-semibold mb-4 text-m2p-ink">
               Account
             </h2>
-            <p className="text-sm mb-1 text-soft-muted">Email</p>
-            <p className="font-medium truncate mb-3 text-amazon-navy">{user.email}</p>
+            <p className="text-sm mb-1 text-m2p-muted">Email</p>
+            <p className="font-medium truncate mb-3 text-m2p-ink">{user.email}</p>
             <Link
               href="/dashboard/profile"
               className="text-sm font-medium text-brave hover:underline"
@@ -122,17 +122,17 @@ export default function DashboardPage() {
               </span>
             )}
           </div>
-          <div className="rounded-xl border-l-4 border-l-brave border border-soft-border bg-white p-6">
-            <h2 className="font-semibold mb-4 text-amazon-navy">
+          <div className="rounded-xl border-l-4 border-l-brave border border-m2p-border bg-white p-6">
+            <h2 className="font-semibold mb-4 text-m2p-ink">
               Usage
             </h2>
-            <p className="text-sm mb-1 text-soft-muted">FREE uses this period</p>
-            <p className="text-2xl font-bold text-amazon-navy">
+            <p className="text-sm mb-1 text-m2p-muted">FREE uses this period</p>
+            <p className="text-2xl font-bold text-m2p-ink">
               {usage?.usage_count ?? 0}
               {usage?.is_founder ? "" : " / 10"}
             </p>
             {usage && !usage.is_founder && usage.uses_remaining !== null && (
-              <p className="text-sm mt-1 text-soft-muted">
+              <p className="text-sm mt-1 text-m2p-muted">
                 {usage.uses_remaining} remaining
               </p>
             )}
@@ -140,10 +140,10 @@ export default function DashboardPage() {
         </div>
 
         <section className="mb-10">
-          <h2 className="font-bebas text-lg tracking-wide text-amazon-navy mb-1">
+          <h2 className="font-bebas text-lg tracking-wide text-m2p-ink mb-1">
             FREE tools
           </h2>
-          <p className="text-sm mb-4 text-soft-muted">
+          <p className="text-sm mb-4 text-m2p-muted">
             No sign-in or payment required.
           </p>
           <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -151,7 +151,7 @@ export default function DashboardPage() {
               <li key={t.id}>
                 <Link
                   href={t.href}
-                  className="flex items-center justify-between gap-2 rounded-xl border border-soft-border px-4 py-3.5 text-sm font-medium text-amazon-navy transition-all hover:border-freeGreen hover:bg-freeGreen/10"
+                  className="flex items-center justify-between gap-2 rounded-xl border border-m2p-border px-4 py-3.5 text-sm font-medium text-m2p-ink transition-all hover:border-freeGreen hover:bg-freeGreen/10"
                 >
                   <span>{t.title}</span>
                   <span className="shrink-0 rounded px-2 py-0.5 text-xs font-bold uppercase text-freeGreen bg-freeGreen/20">
@@ -164,10 +164,10 @@ export default function DashboardPage() {
         </section>
 
         <section>
-          <h2 className="font-bebas text-lg tracking-wide text-amazon-navy mb-1">
+          <h2 className="font-bebas text-lg tracking-wide text-m2p-ink mb-1">
             Paid tools
           </h2>
-          <p className="text-sm mb-4 text-soft-muted">
+          <p className="text-sm mb-4 text-m2p-muted">
             Pay per use or unlock with a 6‑month pass.
           </p>
           <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -175,7 +175,7 @@ export default function DashboardPage() {
               <li key={t.id}>
                 <Link
                   href={t.href}
-                  className="block rounded-xl border border-soft-border px-4 py-3.5 text-sm font-medium text-amazon-navy transition-all hover:border-brave hover:bg-brave/10"
+                  className="block rounded-xl border border-m2p-border px-4 py-3.5 text-sm font-medium text-m2p-ink transition-all hover:border-brave hover:bg-m2p-orange/10"
                 >
                   {t.title}
                 </Link>

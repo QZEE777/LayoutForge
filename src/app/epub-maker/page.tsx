@@ -155,18 +155,18 @@ export default function EpubMakerPage() {
   }, [file, router, pollStatus]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-sm">
+    <div className="min-h-screen bg-m2p-ivory">
+      <header className="border-b border-m2p-border bg-m2p-ivory backdrop-blur-sm">
         <div className="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-md bg-amber-500 flex items-center justify-center">
-              <svg className="w-4 h-4 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-m2p-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
               </svg>
             </div>
-            <span className="text-lg font-bold text-white">manu2print</span>
+            <span className="text-lg font-bold text-m2p-ink">manu2print</span>
           </Link>
-          <Link href="/platform/kdp" className="text-sm text-slate-400 hover:text-white transition-colors flex items-center gap-1">
+          <Link href="/platform/kdp" className="text-sm text-m2p-muted hover:text-m2p-orange transition-colors flex items-center gap-1">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
@@ -175,12 +175,12 @@ export default function EpubMakerPage() {
         </div>
       </header>
 
-      <div className="border-b border-slate-800 bg-amber-900/20">
+      <div className="border-b border-m2p-border bg-m2p-orange-soft">
         <div className="mx-auto max-w-4xl px-6 py-3 flex items-center gap-3">
           <span className="inline-flex items-center rounded-full bg-amber-500/20 border border-amber-500/30 px-2.5 py-0.5 text-xs font-medium text-amber-300">EPUB</span>
           <span className="text-sm font-semibold text-white">Kindle EPUB Maker</span>
-          <span className="mx-2 text-slate-600">|</span>
-          <span className="text-sm text-slate-400">Convert your manuscript to a Kindle-ready EPUB file</span>
+          <span className="mx-2 text-m2p-muted">|</span>
+          <span className="text-sm text-m2p-muted">Convert your manuscript to a Kindle-ready EPUB file</span>
         </div>
       </div>
 
@@ -188,7 +188,7 @@ export default function EpubMakerPage() {
         <ToolBreadcrumb backHref="/" backLabel="All Tools" currentLabel="Kindle EPUB Maker" className="mb-6" />
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white">Upload your manuscript</h1>
-          <p className="mt-2 text-slate-400">DOCX only. Maximum {MAX_MB}MB.</p>
+          <p className="mt-2 text-m2p-muted">DOCX only. Maximum {MAX_MB}MB.</p>
         </div>
 
         <div
@@ -196,7 +196,7 @@ export default function EpubMakerPage() {
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           className={`rounded-2xl border-2 border-dashed p-14 text-center transition-all ${
-            isDragging ? "border-amber-400 bg-amber-500/10" : "border-slate-700 bg-slate-800/40 hover:border-slate-500 hover:bg-slate-800/60"
+            isDragging ? "border-amber-400 bg-amber-500/10" : "border-m2p-border bg-m2p-orange-soft/50 hover:border-m2p-orange hover:bg-m2p-orange-soft/70"
           }`}
         >
           <input
@@ -216,17 +216,17 @@ export default function EpubMakerPage() {
                   </svg>
                 </div>
                 <p className="text-lg font-semibold text-white overflow-hidden text-ellipsis max-w-full" title={file.name}>{truncateFilenameMiddle(file.name)}</p>
-                <p className="mt-1 text-sm text-slate-400">{formatFileSize(file.size)} — ready to upload</p>
+                <p className="mt-1 text-sm text-m2p-muted">{formatFileSize(file.size)} — ready to upload</p>
               </div>
             ) : (
               <div>
-                <div className="w-12 h-12 rounded-xl bg-slate-700 flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-12 h-12 rounded-xl bg-m2p-orange-soft flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-6 h-6 text-m2p-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                   </svg>
                 </div>
-                <p className="text-slate-300 font-medium">Drag and drop a DOCX here, or browse</p>
-                <p className="mt-2 text-xs text-slate-500">.docx only • up to {MAX_MB}MB</p>
+                <p className="text-m2p-ink font-medium">Drag and drop a DOCX here, or browse</p>
+                <p className="mt-2 text-xs text-m2p-muted">.docx only • up to {MAX_MB}MB</p>
               </div>
             )}
           </label>
@@ -242,10 +242,10 @@ export default function EpubMakerPage() {
         {uploading && progress > 0 && (
           <div className="mt-6">
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-sm font-medium text-slate-300">{progressLabel || (converting ? "Converting…" : "Uploading…")}</span>
-              <span className="text-sm text-slate-500">{progress}%</span>
+              <span className="text-sm font-medium text-m2p-ink">{progressLabel || (converting ? "Converting…" : "Uploading…")}</span>
+              <span className="text-sm text-m2p-muted">{progress}%</span>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-slate-700">
+            <div className="h-2 overflow-hidden rounded-full bg-m2p-orange-soft">
               <div className="h-full bg-amber-500 transition-all duration-300 rounded-full" style={{ width: `${progress}%` }} />
             </div>
           </div>
@@ -255,7 +255,7 @@ export default function EpubMakerPage() {
           <button
             onClick={handleUpload}
             disabled={!file || uploading}
-            className="flex-1 rounded-xl bg-amber-500 px-6 py-3.5 font-semibold text-slate-900 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 rounded-xl bg-amber-500 px-6 py-3.5 font-semibold text-m2p-ink hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             {uploading ? (converting ? "Converting…" : "Uploading…") : "Upload & Create EPUB"}
           </button>
@@ -265,7 +265,7 @@ export default function EpubMakerPage() {
                 setFile(null);
                 setError(null);
               }}
-              className="rounded-xl border border-slate-700 px-5 py-3.5 font-medium text-slate-400 hover:bg-slate-800 transition-colors"
+              className="rounded-xl border border-m2p-border px-5 py-3.5 font-medium text-m2p-muted hover:bg-m2p-orange-soft/50 transition-colors"
             >
               Clear
             </button>

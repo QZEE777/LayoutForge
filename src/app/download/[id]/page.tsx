@@ -181,7 +181,7 @@ export default function DownloadPage() {
 
   if (!id) {
     return (
-      <div className="min-h-screen bg-[#1a1a12] text-white p-8">
+      <div className="min-h-screen bg-m2p-ivory text-m2p-ink p-8">
         <p className="text-red-400">Invalid file ID.</p>
         <Link href={isFormatReviewFlow ? "/kdp-format-review" : isCheckerFlow ? "/kdp-pdf-checker" : isEpubFlow ? "/epub-maker" : isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"} className="mt-4 block text-m2p-orange hover:text-white">
           Upload a file
@@ -191,11 +191,11 @@ export default function DownloadPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#1a1a12] text-white">
+    <div className="min-h-screen bg-m2p-ivory text-m2p-ink">
       {/* Header */}
       <header className="border-b border-white/10">
         <div className="mx-auto max-w-4xl px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-bold tracking-tight text-white">
+          <Link href="/" className="text-2xl font-bold tracking-tight text-m2p-ink">
             manu2print
           </Link>
           <Link href={isFormatReview ? "/kdp-format-review" : isChecker ? "/kdp-pdf-checker" : isEpub ? "/epub-maker" : isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"} className="text-sm text-m2p-muted hover:text-m2p-orange">
@@ -210,7 +210,7 @@ export default function DownloadPage() {
         {/* Checker: PDF viewer with issue overlays (when we have the user's PDF + page_issues) */}
         {report?.outputType === "checker" && report.hasPdfPreview && report.page_issues && report.page_issues.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-lg font-semibold text-white mb-3">View issues on your PDF</h2>
+            <h2 className="text-lg font-semibold text-m2p-ink mb-3">View issues on your PDF</h2>
             <CheckerPdfViewer
               pdfUrl={report.pdfSourceUrl ?? `/api/view-pdf/${id}`}
               pageIssues={report.page_issues}
@@ -226,7 +226,7 @@ export default function DownloadPage() {
 
         {/* Processing report card */}
         {report && (
-          <div className={`mb-8 rounded-lg p-6 border ${report.outputType === "format-review" ? "bg-m2p-ivory border-m2p-border text-m2p-ink" : "bg-m2p-ink/90 border-white/10"}`}>
+          <div className={`mb-8 rounded-lg p-6 border ${report.outputType === "format-review" ? "bg-m2p-ivory border-m2p-border text-m2p-ink" : "bg-white border-m2p-border text-m2p-ink"}`}>
             {report.outputType === "checker" && (
               <div className="mb-4 flex flex-wrap items-center gap-3">
                 <span className={`inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-semibold ${(report.issues?.length ?? 0) === 0 ? "bg-m2p-live/20 text-m2p-live border border-m2p-live/40" : "bg-m2p-orange/20 text-m2p-orange border border-m2p-orange/40"}`}>
@@ -234,20 +234,20 @@ export default function DownloadPage() {
                 </span>
               </div>
             )}
-            <h2 className={`font-semibold mb-4 ${report.outputType === "format-review" ? "text-xl text-m2p-ink" : "text-white"}`}>{report.outputType === "format-review" ? "Format review" : "Processing report"}</h2>
+            <h2 className={`font-semibold mb-4 ${report.outputType === "format-review" ? "text-xl text-m2p-ink" : "text-m2p-ink"}`}>{report.outputType === "format-review" ? "Format review" : "Processing report"}</h2>
             <ul className="text-sm text-m2p-muted space-y-1">
               {report.outputType === "format-review" ? null : report.outputType === "checker" ? (
                 <>
-                  <li>Trim detected: <span className="text-white">{report.trimDetected ?? "—"}</span></li>
-                  <li>Matches KDP trim: <span className="text-white">{report.trimMatchKDP ? "Yes" : "No"}{report.kdpTrimName ? ` (${report.kdpTrimName})` : ""}</span></li>
-                  <li>Page count: <span className="text-white">{report.pageCount ?? "—"}</span></li>
+                  <li>Trim detected: <span className="text-m2p-ink">{report.trimDetected ?? "—"}</span></li>
+                  <li>Matches KDP trim: <span className="text-m2p-ink">{report.trimMatchKDP ? "Yes" : "No"}{report.kdpTrimName ? ` (${report.kdpTrimName})` : ""}</span></li>
+                  <li>Page count: <span className="text-m2p-ink">{report.pageCount ?? "—"}</span></li>
                   {report.fileSizeMB != null && (
-                    <li>File size: <span className="text-white">{report.fileSizeMB} MB</span></li>
+                    <li>File size: <span className="text-m2p-ink">{report.fileSizeMB} MB</span></li>
                   )}
                   {report.recommendedGutterInches != null && (
                     <li>
                       Recommended gutter (inner margin) for your page count:{" "}
-                      <span className="text-white">
+                      <span className="text-m2p-ink">
                         {report.recommendedGutterInches}&quot; ({Math.round(report.recommendedGutterInches * 2.54 * 10) / 10} cm / {Math.round(report.recommendedGutterInches * 25.4 * 10) / 10} mm)
                       </span>
                       . We can&apos;t measure margins from the PDF; set inner margin ≥ 0.5&quot; + gutter in your layout app.
@@ -256,34 +256,34 @@ export default function DownloadPage() {
                 </>
               ) : report.outputType === "epub" ? (
                 <>
-                  <li>Format: <span className="text-white">Kindle-ready EPUB</span></li>
-                  <li>Chapters: <span className="text-white">{report.chaptersDetected ?? 0}</span></li>
+                  <li>Format: <span className="text-m2p-ink">Kindle-ready EPUB</span></li>
+                  <li>Chapters: <span className="text-m2p-ink">{report.chaptersDetected ?? 0}</span></li>
                 </>
               ) : report.outputType === "docx" ? (
                 <>
-                  <li>Sections detected: <span className="text-white">{report.sectionsDetected ?? 0}</span></li>
-                  <li>Lessons detected: <span className="text-white">{report.lessonsDetected ?? 0}</span></li>
-                  <li>Estimated pages (PDF): <span className="text-white">~{report.estimatedPages ?? report.chaptersDetected}</span></li>
-                  <li>Font applied: <span className="text-white">{report.fontUsed}</span></li>
-                  <li>Trim size: <span className="text-white">{report.trimSize}</span></li>
+                  <li>Sections detected: <span className="text-m2p-ink">{report.sectionsDetected ?? 0}</span></li>
+                  <li>Lessons detected: <span className="text-m2p-ink">{report.lessonsDetected ?? 0}</span></li>
+                  <li>Estimated pages (PDF): <span className="text-m2p-ink">~{report.estimatedPages ?? report.chaptersDetected}</span></li>
+                  <li>Font applied: <span className="text-m2p-ink">{report.fontUsed}</span></li>
+                  <li>Trim size: <span className="text-m2p-ink">{report.trimSize}</span></li>
                   {report.status && (
-                    <li>Status: <span className="text-white">{report.status}</span></li>
+                    <li>Status: <span className="text-m2p-ink">{report.status}</span></li>
                   )}
                 </>
               ) : (
                 <>
-                  <li>Pages generated: <span className="text-white">{report.pagesGenerated}</span></li>
-                  <li>Chapters detected: <span className="text-white">{report.chaptersDetected}</span></li>
-                  <li>Trim size: <span className="text-white">{report.trimSize}</span></li>
-                  <li>Font: <span className="text-white">{report.fontUsed}</span></li>
+                  <li>Pages generated: <span className="text-m2p-ink">{report.pagesGenerated}</span></li>
+                  <li>Chapters detected: <span className="text-m2p-ink">{report.chaptersDetected}</span></li>
+                  <li>Trim size: <span className="text-m2p-ink">{report.trimSize}</span></li>
+                  <li>Font: <span className="text-m2p-ink">{report.fontUsed}</span></li>
                   {report.gutterInches != null && (
-                    <li>Gutter: <span className="text-white">{report.gutterInches}&quot;</span></li>
+                    <li>Gutter: <span className="text-m2p-ink">{report.gutterInches}&quot;</span></li>
                   )}
                 </>
               )}
             </ul>
             {report.outputType !== "format-review" && report.issues && report.issues.length > 0 && (
-              <div className="mt-4 pt-4 border-t border-white/10">
+              <div className="mt-4 pt-4 border-t border-m2p-border">
                 <p className="text-xs font-medium text-m2p-orange mb-2">Issues</p>
                 <ul className="text-xs text-m2p-muted list-disc list-inside space-y-1">
                   {report.issues.map((issue, i) => (
@@ -293,7 +293,7 @@ export default function DownloadPage() {
               </div>
             )}
             {report.outputType === "checker" && report.recommendations && report.recommendations.length > 0 && (
-              <div className="mt-4 pt-4 border-t border-white/10">
+              <div className="mt-4 pt-4 border-t border-m2p-border">
                 <p className="text-xs font-medium text-m2p-live mb-2">Recommendations</p>
                 <ul className="text-xs text-m2p-muted list-disc list-inside space-y-1">
                   {report.recommendations.map((rec, i) => (
@@ -303,7 +303,7 @@ export default function DownloadPage() {
               </div>
             )}
             {report.outputType === "checker" && (
-              <div className="mt-4 pt-4 border-t border-white/10">
+              <div className="mt-4 pt-4 border-t border-m2p-border">
                 <button
                   type="button"
                   onClick={() => {
@@ -452,7 +452,7 @@ export default function DownloadPage() {
                   const jobId = match?.[1];
                   if (jobId) window.open(`/api/kdp-annotated-pdf?job_id=${encodeURIComponent(jobId)}`, "_blank");
                 }}
-                className="flex items-center gap-3 border border-m2p-orange rounded-lg p-4 bg-[#1a1a12]/50 hover:bg-[#1a1a12]/70 transition-colors cursor-pointer text-left w-full"
+                className="flex items-center gap-3 border border-m2p-orange rounded-lg p-4 bg-m2p-ivory/50 hover:bg-m2p-ivory/70 transition-colors cursor-pointer text-left w-full"
               >
                 <div className="w-10 h-10 border border-m2p-orange/30 rounded flex items-center justify-center text-m2p-orange flex-shrink-0">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -509,7 +509,7 @@ export default function DownloadPage() {
               type="button"
               onClick={handleDownload}
               aria-label={isEpub ? "Download Kindle EPUB" : isDocx ? "Download review DOCX" : "Download KDP Print PDF"}
-              className="w-full flex items-center justify-between border border-m2p-orange rounded-lg p-4 bg-[#1a1a12]/50 text-left hover:bg-[#1a1a12]/70 transition-colors cursor-pointer"
+              className="w-full flex items-center justify-between border border-m2p-orange rounded-lg p-4 bg-m2p-ivory/50 text-left hover:bg-m2p-ivory/70 transition-colors cursor-pointer"
             >
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 border border-m2p-orange/30 rounded flex items-center justify-center text-m2p-orange">
@@ -555,7 +555,7 @@ export default function DownloadPage() {
           </div>
 
           {report && report.formatReviewText && !isEpub && (
-            <div className="mb-6 p-4 rounded-lg bg-[#1a1a12]/50 border border-m2p-orange/30">
+            <div className="mb-6 p-4 rounded-lg bg-m2p-ivory/50 border border-m2p-orange/30">
               <h3 className="font-medium text-white mb-2">Get a full-document AI format review</h3>
               <p className="text-sm text-m2p-muted mb-3">
                 Copy the whole manuscript (structure + text). Paste it in Cursor chat and ask the AI to scan it as a professional KDP formatter — margins, spacing, headings, lists, and Amazon KDP rules.
@@ -571,7 +571,7 @@ export default function DownloadPage() {
           )}
 
           {isDocx && !isEpub && (
-            <div className="mb-6 p-4 rounded-lg bg-[#1a1a12]/50 border border-white/10">
+            <div className="mb-6 p-4 rounded-lg bg-m2p-ivory/50 border border-white/10">
               <p className="text-sm text-m2p-muted mb-2">
                 This is your review draft. Open it in Word or Google Docs to proofread and make any edits.
                 When ready, return to Manu2Print KDP to generate your final KDP-ready PDF.
@@ -678,7 +678,7 @@ export default function DownloadPage() {
         </PaymentGate>
 
         {/* Storage notice + Save this link */}
-        <div className="mt-8 bg-m2p-ink/50 border border-white/10 rounded-lg p-4 space-y-2">
+        <div className="mt-8 bg-m2p-orange-soft/50 border border-white/10 rounded-lg p-4 space-y-2">
           <p>
             <span className="text-white font-medium">Storage:</span>{" "}
             <span className="text-xs text-m2p-muted">

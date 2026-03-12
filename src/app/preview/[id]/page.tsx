@@ -124,25 +124,25 @@ export default function PreviewPage() {
   const isWorking = genStatus === "starting" || genStatus === "processing";
 
   if (!id) return (
-    <div className="min-h-screen bg-slate-950 p-10">
+    <div className="min-h-screen bg-m2p-ivory p-10">
       <p className="text-red-400 mb-4">Invalid file ID.</p>
       <Link href="/kdp-formatter" className="text-green-400 hover:underline">Upload a file</Link>
     </div>
   );
 
   if (loading) return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+    <div className="min-h-screen bg-m2p-ivory flex items-center justify-center">
       <div className="text-center">
-        <div className="w-12 h-12 border-4 border-slate-700 border-t-green-500 rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-slate-400">Analysing your manuscript...</p>
+        <div className="w-12 h-12 border-4 border-m2p-border border-t-m2p-live rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-m2p-muted">Analysing your manuscript...</p>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+    <div className="min-h-screen bg-m2p-ivory">
 
-      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-sm">
+      <header className="border-b border-m2p-border bg-m2p-ivory backdrop-blur-sm">
         <div className="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-md bg-green-600 flex items-center justify-center">
@@ -151,9 +151,9 @@ export default function PreviewPage() {
                   d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
               </svg>
             </div>
-            <span className="text-lg font-bold text-white">manu2print</span>
+            <span className="text-lg font-bold text-m2p-ink">manu2print</span>
           </Link>
-          <Link href="/kdp-formatter" className="text-sm text-slate-400 hover:text-white flex items-center gap-1">
+          <Link href="/kdp-formatter" className="text-sm text-m2p-muted hover:text-m2p-orange flex items-center gap-1">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
@@ -162,20 +162,20 @@ export default function PreviewPage() {
         </div>
       </header>
 
-      <div className="border-b border-slate-800 bg-green-900/20">
+      <div className="border-b border-m2p-border bg-m2p-orange-soft">
         <div className="mx-auto max-w-4xl px-6 py-3 flex items-center gap-2 text-sm">
-          <span className="flex items-center gap-1.5 text-slate-500">
+          <span className="flex items-center gap-1.5 text-m2p-muted">
             <span className="w-5 h-5 rounded-full bg-green-600 text-white flex items-center justify-center text-xs">1</span>
             Upload
           </span>
-          <span className="text-slate-700 mx-1">——</span>
+          <span className="text-m2p-ink mx-1">——</span>
           <span className="flex items-center gap-1.5 text-green-400 font-medium">
             <span className="w-5 h-5 rounded-full bg-green-600 text-white flex items-center justify-center text-xs">2</span>
             Configure
           </span>
-          <span className="text-slate-700 mx-1">——</span>
-          <span className="flex items-center gap-1.5 text-slate-500">
-            <span className="w-5 h-5 rounded-full bg-slate-700 text-slate-400 flex items-center justify-center text-xs">3</span>
+          <span className="text-m2p-ink mx-1">——</span>
+          <span className="flex items-center gap-1.5 text-m2p-muted">
+            <span className="w-5 h-5 rounded-full bg-m2p-orange-soft text-m2p-muted flex items-center justify-center text-xs">3</span>
             Download
           </span>
         </div>
@@ -185,13 +185,13 @@ export default function PreviewPage() {
 
         {/* Manuscript summary */}
         {info && (
-          <div className="mb-8 rounded-2xl bg-slate-800/50 border border-slate-700/60 p-6">
-            <h1 className="text-2xl font-bold text-white mb-4 truncate">{info.title || "Your Manuscript"}</h1>
+          <div className="mb-8 rounded-2xl bg-m2p-orange-soft/50 border border-m2p-border p-6">
+            <h1 className="text-2xl font-bold text-m2p-ink mb-4 truncate">{info.title || "Your Manuscript"}</h1>
             <div className="grid grid-cols-4 gap-4 text-sm">
-              <div><p className="text-slate-500 mb-1">Words</p><p className="text-xl font-bold text-white">{info.wordCount.toLocaleString()}</p></div>
-              <div><p className="text-slate-500 mb-1">Chapters</p><p className="text-xl font-bold text-white">{info.chapterCount}</p></div>
-              <div><p className="text-slate-500 mb-1">Est. pages</p><p className="text-xl font-bold text-white">{info.estimatedPages}</p></div>
-              <div><p className="text-slate-500 mb-1">Status</p><p className="text-xl font-bold text-green-400">Ready</p></div>
+              <div><p className="text-m2p-muted mb-1">Words</p><p className="text-xl font-bold text-m2p-ink">{info.wordCount.toLocaleString()}</p></div>
+              <div><p className="text-m2p-muted mb-1">Chapters</p><p className="text-xl font-bold text-m2p-ink">{info.chapterCount}</p></div>
+              <div><p className="text-m2p-muted mb-1">Est. pages</p><p className="text-xl font-bold text-m2p-ink">{info.estimatedPages}</p></div>
+              <div><p className="text-m2p-muted mb-1">Status</p><p className="text-xl font-bold text-green-400">Ready</p></div>
             </div>
           </div>
         )}
@@ -201,42 +201,42 @@ export default function PreviewPage() {
         )}
 
         {info?.previewText && (
-          <div className="mb-8 rounded-2xl bg-slate-800/50 border border-slate-700/60 p-6">
-            <h2 className="text-base font-semibold text-white mb-3">Content Preview</h2>
-            <div className="max-h-44 overflow-y-auto rounded-lg bg-slate-900/60 border border-slate-700 p-4 font-mono text-xs text-slate-300 leading-relaxed whitespace-pre-wrap">
+          <div className="mb-8 rounded-2xl bg-m2p-orange-soft/50 border border-m2p-border p-6">
+            <h2 className="text-base font-semibold text-m2p-ink mb-3">Content Preview</h2>
+            <div className="max-h-44 overflow-y-auto rounded-lg bg-m2p-ivory border border-m2p-border p-4 font-mono text-xs text-m2p-muted leading-relaxed whitespace-pre-wrap">
               {info.previewText}
             </div>
           </div>
         )}
 
         {/* KDP Options */}
-        <div className="rounded-2xl bg-slate-800/50 border border-slate-700/60 p-6 space-y-6">
-          <h2 className="text-lg font-bold text-white">KDP Format Settings</h2>
+        <div className="rounded-2xl bg-m2p-orange-soft/50 border border-m2p-border p-6 space-y-6">
+          <h2 className="text-lg font-bold text-m2p-ink">KDP Format Settings</h2>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Trim size</label>
+            <label className="block text-sm font-medium text-m2p-ink mb-2">Trim size</label>
             <select
               value={trimSize}
               onChange={(e) => setTrimSize(e.target.value as TrimSizeId)}
               disabled={isWorking}
-              className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
+              className="w-full px-4 py-2.5 rounded-xl bg-m2p-ivory border border-m2p-border text-m2p-ink focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
             >
               {KDP_TRIM_SIZES.map((s) => (
                 <option key={s.id} value={s.id}>{s.name}</option>
               ))}
             </select>
-            <p className="mt-1.5 text-xs text-slate-500">Match the page size you set in your Word document.</p>
+            <p className="mt-1.5 text-xs text-m2p-muted">Match the page size you set in your Word document.</p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
+            <label className="block text-sm font-medium text-m2p-ink mb-2">
               Font size — <span className="text-green-400">{fontSize}pt</span>
             </label>
             <input type="range" min="9" max="14" step="0.5" value={fontSize}
               onChange={(e) => setFontSize(parseFloat(e.target.value))}
               disabled={isWorking} className="w-full accent-green-500"
             />
-            <div className="flex justify-between text-xs text-slate-500 mt-1">
+            <div className="flex justify-between text-xs text-m2p-muted mt-1">
               <span>9pt</span><span>11pt (standard)</span><span>14pt</span>
             </div>
           </div>
@@ -246,7 +246,7 @@ export default function PreviewPage() {
               onChange={(e) => setWithBleed(e.target.checked)}
               disabled={isWorking} className="w-4 h-4 rounded accent-green-500 cursor-pointer"
             />
-            <label htmlFor="bleed" className="text-sm text-slate-300 cursor-pointer">
+            <label htmlFor="bleed" className="text-sm text-m2p-ink cursor-pointer">
               Include bleed (0.125") — only for full-page background images
             </label>
           </div>
@@ -256,8 +256,8 @@ export default function PreviewPage() {
             <div className="rounded-xl bg-red-500/10 border border-red-500/30 p-4">
               <p className="text-sm font-semibold text-red-400 mb-1">Conversion failed</p>
               <p className="text-sm text-red-300">{genMessage}</p>
-              <p className="text-xs text-slate-500 mt-2">
-                Visit <code className="bg-slate-800 px-1 rounded">/api/cc-test</code> in your browser to verify the API key is working.
+              <p className="text-xs text-m2p-muted mt-2">
+                Visit <code className="bg-m2p-orange-soft px-1 rounded">/api/cc-test</code> in your browser to verify the API key is working.
               </p>
             </div>
           )}
@@ -269,17 +269,17 @@ export default function PreviewPage() {
                 <div className="w-5 h-5 border-2 border-green-500 border-t-transparent rounded-full animate-spin flex-shrink-0" />
                 <p className="text-sm font-medium text-green-300">{genMessage}</p>
               </div>
-              <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+              <div className="h-1.5 bg-m2p-orange-soft rounded-full overflow-hidden">
                 <div className="h-full bg-green-500 rounded-full animate-pulse w-3/5" />
               </div>
-              <p className="text-xs text-slate-500 mt-2">
+              <p className="text-xs text-m2p-muted mt-2">
                 LibreOffice is processing your document. Typically 15–60 seconds.
               </p>
             </div>
           )}
 
           {/* Buttons */}
-          <div className="flex gap-3 pt-2 border-t border-slate-700">
+          <div className="flex gap-3 pt-2 border-t border-m2p-border">
             <button
               onClick={handleGenerate}
               disabled={isWorking}
@@ -288,18 +288,18 @@ export default function PreviewPage() {
               {isWorking ? "Converting..." : "Generate KDP PDF"}
             </button>
             <Link href={`/metadata/${id}`}
-              className="rounded-xl border border-slate-700 px-5 py-3.5 font-medium text-slate-300 hover:bg-slate-800 transition-colors text-center">
+              className="rounded-xl border border-m2p-border px-5 py-3.5 font-medium text-m2p-ink hover:bg-m2p-orange-soft/50 transition-colors text-center">
               Add Metadata
             </Link>
             <Link href="/kdp-formatter"
-              className="rounded-xl border border-slate-700 px-5 py-3.5 font-medium text-slate-400 hover:bg-slate-800 transition-colors">
+              className="rounded-xl border border-m2p-border px-5 py-3.5 font-medium text-m2p-muted hover:bg-m2p-orange-soft/50 transition-colors">
               Cancel
             </Link>
           </div>
         </div>
 
-        <div className="mt-6 rounded-xl bg-slate-800/30 border border-slate-700/50 p-4 text-sm text-slate-400">
-          <p className="font-medium text-slate-300 mb-1">What gets preserved:</p>
+        <div className="mt-6 rounded-xl bg-m2p-orange-soft/30 border border-m2p-border p-4 text-sm text-m2p-muted">
+          <p className="font-medium text-m2p-ink mb-1">What gets preserved:</p>
           <p>All fonts, images, colors, headers, tables, bullet lists, and emoji from your original document.</p>
         </div>
 

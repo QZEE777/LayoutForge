@@ -64,18 +64,18 @@ export default function ProfilePage() {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-ivory">
-        <p className="text-soft-muted">Loading…</p>
+      <div className="min-h-screen flex items-center justify-center bg-m2p-ivory">
+        <p className="text-m2p-muted">Loading…</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-ivory">
-      <header className="border-b border-soft-border sticky top-0 z-10 bg-white/95 backdrop-blur-sm">
+    <div className="min-h-screen bg-m2p-ivory">
+      <header className="border-b border-m2p-border sticky top-0 z-10 bg-m2p-ivory backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-brave">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-m2p-orange">
               <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
                 <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
@@ -83,18 +83,18 @@ export default function ProfilePage() {
                 <path d="M8 11h8" />
               </svg>
             </div>
-            <span className="text-lg font-bold tracking-tight text-amazon-navy">
+            <span className="text-lg font-bold tracking-tight text-m2p-ink">
               manu2print
             </span>
           </Link>
           <nav className="flex items-center gap-2">
             <Link
               href="/dashboard"
-              className="rounded-lg px-4 py-2 text-sm font-medium text-soft-muted hover:text-brave transition-colors"
+              className="rounded-lg px-4 py-2 text-sm font-medium text-m2p-muted hover:text-brave transition-colors"
             >
               Dashboard
             </Link>
-            <span className="rounded-lg px-4 py-2 text-sm font-medium text-amazon-navy">
+            <span className="rounded-lg px-4 py-2 text-sm font-medium text-m2p-ink">
               Profile
             </span>
             <button
@@ -104,7 +104,7 @@ export default function ProfilePage() {
                 await client.auth.signOut();
                 router.replace("/auth");
               }}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-soft-muted hover:text-brave transition-colors"
+              className="rounded-lg px-4 py-2 text-sm font-medium text-m2p-muted hover:text-brave transition-colors"
             >
               Log out
             </button>
@@ -114,18 +114,18 @@ export default function ProfilePage() {
 
       <main className="mx-auto max-w-6xl px-6 py-12">
         <div className="mb-8">
-          <h1 className="font-bebas text-3xl tracking-wide text-amazon-navy mb-1">
+          <h1 className="font-bebas text-3xl tracking-wide text-m2p-ink mb-1">
             Profile
           </h1>
-          <p className="text-sm text-soft-muted">
+          <p className="text-sm text-m2p-muted">
             We use your first name in emails so they feel personal.
           </p>
         </div>
 
-        <div className="rounded-xl border border-soft-border bg-white p-6 max-w-md">
+        <div className="rounded-xl border border-m2p-border bg-white p-6 max-w-md">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label htmlFor="first_name" className="block text-sm font-medium mb-1.5 text-soft-muted">
+              <label htmlFor="first_name" className="block text-sm font-medium mb-1.5 text-m2p-muted">
                 First name
               </label>
               <input
@@ -135,17 +135,17 @@ export default function ProfilePage() {
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 placeholder="e.g. Alex"
-                className="w-full rounded-lg border border-soft-border px-4 py-2.5 text-sm bg-ivory text-amazon-navy focus:outline-none focus:ring-2 focus:ring-brave"
+                className="w-full rounded-lg border border-m2p-border px-4 py-2.5 text-sm bg-m2p-ivory text-m2p-ink focus:outline-none focus:ring-2 focus:ring-brave"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1.5 text-soft-muted">
+              <label className="block text-sm font-medium mb-1.5 text-m2p-muted">
                 Email
               </label>
-              <p className="text-sm truncate text-amazon-navy">
+              <p className="text-sm truncate text-m2p-ink">
                 {profile?.email ?? user.email ?? "—"}
               </p>
-              <p className="text-xs mt-1 text-soft-muted">
+              <p className="text-xs mt-1 text-m2p-muted">
                 Email is set when you sign in and can’t be changed here.
               </p>
             </div>
@@ -159,7 +159,7 @@ export default function ProfilePage() {
             <button
               type="submit"
               disabled={saving}
-              className="rounded-lg px-5 py-2.5 text-sm font-medium bg-brave text-white hover:opacity-90 disabled:opacity-60 transition-opacity"
+              className="rounded-lg px-5 py-2.5 text-sm font-medium bg-m2p-orange text-white hover:opacity-90 disabled:opacity-60 transition-opacity"
             >
               {saving ? "Saving…" : "Save"}
             </button>

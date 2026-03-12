@@ -238,27 +238,27 @@ export default function AdminPage() {
 
   if (!authed) {
     return (
-      <div className="min-h-screen bg-ivory flex items-center justify-center px-6">
+      <div className="min-h-screen bg-m2p-ivory flex items-center justify-center px-6">
         <div className="w-full max-w-sm">
-          <h1 className="font-bebas text-xl tracking-wide text-amazon-navy mb-4">Admin</h1>
+          <h1 className="font-bebas text-xl tracking-wide text-m2p-ink mb-4">Admin</h1>
           <form onSubmit={handleLogin} className="space-y-3">
             <input
               type="password"
               value={password}
               onChange={(e) => { setPassword(e.target.value); setError(null); }}
               placeholder="Password"
-              className="w-full rounded-lg border border-soft-border bg-white px-4 py-2.5 text-amazon-navy placeholder-soft-muted focus:outline-none focus:ring-2 focus:ring-brave"
+              className="w-full rounded-lg border border-m2p-border bg-m2p-ivory px-4 py-2.5 text-m2p-ink placeholder-m2p-muted focus:outline-none focus:ring-2 focus:ring-m2p-orange"
             />
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-lg bg-brave text-white font-semibold py-2.5 hover:opacity-90 disabled:opacity-60"
+              className="w-full rounded-lg bg-m2p-orange text-white font-semibold py-2.5 hover:opacity-90 disabled:opacity-60"
             >
               {loading ? "Checking…" : "Log in"}
             </button>
           </form>
           {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
-          <Link href="/" className="block mt-4 text-sm text-soft-muted hover:text-brave transition-colors">
+          <Link href="/" className="block mt-4 text-sm text-m2p-muted hover:text-m2p-orange transition-colors">
             ← Home
           </Link>
         </div>
@@ -267,27 +267,27 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-ivory text-amazon-navy">
-      <header className="border-b border-soft-border bg-white/95 backdrop-blur-sm sticky top-0 z-10">
+    <div className="min-h-screen bg-m2p-ivory text-m2p-ink">
+      <header className="border-b border-m2p-border bg-m2p-ivory/95 backdrop-blur-sm sticky top-0 z-10">
         <div className="mx-auto max-w-5xl px-6 py-4 flex items-center justify-between">
-          <span className="text-lg font-bold text-amazon-navy">Payments &amp; Beta</span>
+          <span className="text-lg font-bold text-m2p-ink">Payments &amp; Beta</span>
           <div className="flex items-center gap-4">
             <button
               type="button"
               onClick={handleRefresh}
               disabled={loading}
-              className="text-sm text-brave hover:underline disabled:opacity-50"
+              className="text-sm text-m2p-orange hover:underline disabled:opacity-50"
             >
               Refresh
             </button>
             <button
               type="button"
               onClick={handleLogout}
-              className="text-sm text-soft-muted hover:text-amazon-navy"
+              className="text-sm text-soft-muted hover:text-m2p-ink"
             >
               Log out
             </button>
-            <Link href="/" className="text-sm text-soft-muted hover:text-amazon-navy">
+            <Link href="/" className="text-sm text-soft-muted hover:text-m2p-ink">
               Home
             </Link>
           </div>
@@ -304,22 +304,22 @@ export default function AdminPage() {
         {stats && (
           <>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-              <div className="rounded-xl border border-soft-border bg-white p-4">
+              <div className="rounded-xl border border-m2p-border bg-m2p-ivory p-4">
                 <p className="text-xs text-soft-muted mb-1">Total revenue</p>
                 <p className="text-2xl font-bold text-brave">
                   ${(stats.totalRevenue / 100).toFixed(2)}
                 </p>
                 <p className="text-[10px] text-soft-muted mt-1">Completed one-time + subscription</p>
               </div>
-              <div className="rounded-xl border border-soft-border bg-white p-4">
+              <div className="rounded-xl border border-m2p-border bg-m2p-ivory p-4">
                 <p className="text-xs text-soft-muted mb-1">Paying customers</p>
                 <p className="text-2xl font-bold">{stats.totalPayingCustomers}</p>
               </div>
-              <div className="rounded-xl border border-soft-border bg-white p-4">
+              <div className="rounded-xl border border-m2p-border bg-m2p-ivory p-4">
                 <p className="text-xs text-soft-muted mb-1">Active subscriptions</p>
                 <p className="text-2xl font-bold">{stats.activeSubscriptions}</p>
               </div>
-              <div className="rounded-xl border border-soft-border bg-white p-4">
+              <div className="rounded-xl border border-m2p-border bg-m2p-ivory p-4">
                 <p className="text-xs text-soft-muted mb-1">Beta users</p>
                 <p className="text-2xl font-bold">{stats.betaUsers}</p>
               </div>
@@ -336,15 +336,15 @@ export default function AdminPage() {
                 <button
                   type="button"
                   onClick={exportPaymentsCsv}
-                  className="text-sm text-brave hover:underline"
+                  className="text-sm text-m2p-orange hover:underline"
                 >
                   Export CSV
                 </button>
               </div>
-              <div className="overflow-x-auto rounded-xl border border-soft-border bg-white">
+              <div className="overflow-x-auto rounded-xl border border-m2p-border bg-m2p-ivory">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-soft-border text-left text-soft-muted">
+                    <tr className="border-b border-m2p-border text-left text-soft-muted">
                       <th className="px-4 py-3 font-medium">Date</th>
                       <th className="px-4 py-3 font-medium">Email</th>
                       <th className="px-4 py-3 font-medium">Tool</th>
@@ -356,7 +356,7 @@ export default function AdminPage() {
                   </thead>
                   <tbody>
                     {payments.map((p) => (
-                      <tr key={p.id} className="border-b border-soft-border/80">
+                      <tr key={p.id} className="border-b border-m2p-border/80">
                         <td className="px-4 py-3">{formatDate(p.created_at)}</td>
                         <td className="px-4 py-3">{p.email || "—"}</td>
                         <td className="px-4 py-3">{p.tool || "—"}</td>
@@ -369,7 +369,7 @@ export default function AdminPage() {
                               href={`https://app.lemonsqueezy.com/orders/${p.gateway_order_id}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-brave hover:underline"
+                              className="text-m2p-orange hover:underline"
                             >
                               {p.gateway_order_id}
                             </a>
@@ -393,15 +393,15 @@ export default function AdminPage() {
                 <button
                   type="button"
                   onClick={exportSubscriptionsCsv}
-                  className="text-sm text-brave hover:underline"
+                  className="text-sm text-m2p-orange hover:underline"
                 >
                   Export CSV
                 </button>
               </div>
-              <div className="overflow-x-auto rounded-xl border border-soft-border bg-white">
+              <div className="overflow-x-auto rounded-xl border border-m2p-border bg-m2p-ivory">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-soft-border text-left text-soft-muted">
+                    <tr className="border-b border-m2p-border text-left text-soft-muted">
                       <th className="px-4 py-3 font-medium">Email</th>
                       <th className="px-4 py-3 font-medium">Plan</th>
                       <th className="px-4 py-3 font-medium">Status</th>
@@ -410,7 +410,7 @@ export default function AdminPage() {
                   </thead>
                   <tbody>
                     {subscriptions.map((s, i) => (
-                      <tr key={i} className="border-b border-soft-border/80">
+                      <tr key={i} className="border-b border-m2p-border/80">
                         <td className="px-4 py-3">{s.email || "—"}</td>
                         <td className="px-4 py-3">{s.plan || "—"}</td>
                         <td className={`px-4 py-3 ${statusColor(s.status)}`}>{s.status || "—"}</td>
@@ -433,15 +433,15 @@ export default function AdminPage() {
                 <button
                   type="button"
                   onClick={exportBetaCsv}
-                  className="text-sm text-brave hover:underline"
+                  className="text-sm text-m2p-orange hover:underline"
                 >
                   Export CSV
                 </button>
               </div>
-              <div className="overflow-x-auto rounded-xl border border-soft-border bg-white">
+              <div className="overflow-x-auto rounded-xl border border-m2p-border bg-m2p-ivory">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-soft-border text-left text-soft-muted">
+                    <tr className="border-b border-m2p-border text-left text-soft-muted">
                       <th className="px-4 py-3 font-medium">Date</th>
                       <th className="px-4 py-3 font-medium">Email</th>
                       <th className="px-4 py-3 font-medium">Tool</th>
@@ -449,7 +449,7 @@ export default function AdminPage() {
                   </thead>
                   <tbody>
                     {betaAccess.map((b) => (
-                      <tr key={b.created_at + (b.email || "")} className="border-b border-soft-border/80">
+                      <tr key={b.created_at + (b.email || "")} className="border-b border-m2p-border/80">
                         <td className="px-4 py-3">{formatDate(b.created_at)}</td>
                         <td className="px-4 py-3">{b.email || "—"}</td>
                         <td className="px-4 py-3">{b.tool || "—"}</td>
@@ -469,15 +469,15 @@ export default function AdminPage() {
                 <button
                   type="button"
                   onClick={exportFormatterLeadsCsv}
-                  className="text-sm text-brave hover:underline"
+                  className="text-sm text-m2p-orange hover:underline"
                 >
                   Export CSV
                 </button>
               </div>
-              <div className="overflow-x-auto rounded-xl border border-soft-border bg-white">
+              <div className="overflow-x-auto rounded-xl border border-m2p-border bg-m2p-ivory">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-soft-border text-left text-soft-muted">
+                    <tr className="border-b border-m2p-border text-left text-soft-muted">
                       <th className="px-4 py-3 font-medium">Date</th>
                       <th className="px-4 py-3 font-medium">Email</th>
                       <th className="px-4 py-3 font-medium">Name</th>
@@ -485,7 +485,7 @@ export default function AdminPage() {
                   </thead>
                   <tbody>
                     {formatterLeads.map((f, i) => (
-                      <tr key={f.id ?? i} className="border-b border-soft-border/80">
+                      <tr key={f.id ?? i} className="border-b border-m2p-border/80">
                         <td className="px-4 py-3">{f.created_at ? formatDate(f.created_at) : "—"}</td>
                         <td className="px-4 py-3">{f.email ?? "—"}</td>
                         <td className="px-4 py-3">{f.name ?? "—"}</td>
@@ -505,16 +505,16 @@ export default function AdminPage() {
                 <button
                   type="button"
                   onClick={exportEmailCapturesCsv}
-                  className="text-sm text-brave hover:underline"
+                  className="text-sm text-m2p-orange hover:underline"
                 >
                   Export CSV
                 </button>
               </div>
               <p className="text-xs text-soft-muted mb-2">e.g. PDF Compressor signups.</p>
-              <div className="overflow-x-auto rounded-xl border border-soft-border bg-white">
+              <div className="overflow-x-auto rounded-xl border border-m2p-border bg-m2p-ivory">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-soft-border text-left text-soft-muted">
+                    <tr className="border-b border-m2p-border text-left text-soft-muted">
                       <th className="px-4 py-3 font-medium">Date</th>
                       <th className="px-4 py-3 font-medium">Email</th>
                       <th className="px-4 py-3 font-medium">Tool</th>
@@ -522,7 +522,7 @@ export default function AdminPage() {
                   </thead>
                   <tbody>
                     {emailCaptures.map((e, i) => (
-                      <tr key={e.id ?? i} className="border-b border-soft-border/80">
+                      <tr key={e.id ?? i} className="border-b border-m2p-border/80">
                         <td className="px-4 py-3">{e.created_at ? formatDate(e.created_at) : "—"}</td>
                         <td className="px-4 py-3">{e.email ?? "—"}</td>
                         <td className="px-4 py-3">{e.tool ?? "—"}</td>
@@ -542,16 +542,16 @@ export default function AdminPage() {
                 <button
                   type="button"
                   onClick={exportLeadsFromStorageCsv}
-                  className="text-sm text-brave hover:underline"
+                  className="text-sm text-m2p-orange hover:underline"
                 >
                   Export CSV
                 </button>
               </div>
               <p className="text-xs text-soft-muted mb-2">From manuscript meta (leadEmail).</p>
-              <div className="overflow-x-auto rounded-xl border border-soft-border bg-white">
+              <div className="overflow-x-auto rounded-xl border border-m2p-border bg-m2p-ivory">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-soft-border text-left text-soft-muted">
+                    <tr className="border-b border-m2p-border text-left text-soft-muted">
                       <th className="px-4 py-3 font-medium">Date</th>
                       <th className="px-4 py-3 font-medium">Email</th>
                       <th className="px-4 py-3 font-medium">Source</th>
@@ -559,7 +559,7 @@ export default function AdminPage() {
                   </thead>
                   <tbody>
                     {leadsFromStorage.map((l) => (
-                      <tr key={l.id} className="border-b border-soft-border/80">
+                      <tr key={l.id} className="border-b border-m2p-border/80">
                         <td className="px-4 py-3">{new Date(l.createdAt).toLocaleString()}</td>
                         <td className="px-4 py-3">{l.email}</td>
                         <td className="px-4 py-3">{l.source}</td>

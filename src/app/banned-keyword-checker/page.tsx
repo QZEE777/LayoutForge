@@ -20,8 +20,8 @@ export default function BannedKeywordCheckerPage() {
     f === "title" ? "Title" : f === "subtitle" ? "Subtitle" : "Description";
 
   return (
-    <div className="min-h-screen bg-brand-bg">
-      <nav className="sticky top-0 z-20 border-b border-white/5 bg-brand-bg/80 backdrop-blur-sm">
+    <div className="min-h-screen bg-m2p-ivory">
+      <nav className="sticky top-0 z-20 border-b border-white/5 bg-m2p-ivory/80 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 bg-brand-gold">
@@ -62,7 +62,7 @@ export default function BannedKeywordCheckerPage() {
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Your book title"
                 rows={2}
-                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-brand-bg font-sans text-sm text-brand-cream placeholder:text-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-gold resize-y"
+                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-m2p-ivory font-sans text-sm text-brand-cream placeholder:text-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-gold resize-y"
               />
             </div>
             <div>
@@ -72,7 +72,7 @@ export default function BannedKeywordCheckerPage() {
                 onChange={(e) => setSubtitle(e.target.value)}
                 placeholder="Subtitle"
                 rows={2}
-                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-brand-bg font-sans text-sm text-brand-cream placeholder:text-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-gold resize-y"
+                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-m2p-ivory font-sans text-sm text-brand-cream placeholder:text-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-gold resize-y"
               />
             </div>
             <div>
@@ -82,7 +82,7 @@ export default function BannedKeywordCheckerPage() {
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Book description"
                 rows={5}
-                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-brand-bg font-sans text-sm text-brand-cream placeholder:text-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-gold resize-y"
+                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-m2p-ivory font-sans text-sm text-brand-cream placeholder:text-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-gold resize-y"
               />
             </div>
           </div>

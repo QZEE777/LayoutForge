@@ -106,8 +106,8 @@ export default function KdpFormatterPdfPage() {
   }, [doneBlobUrl]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-sm">
+    <div className="min-h-screen bg-m2p-ivory">
+      <header className="border-b border-m2p-border bg-m2p-ivory backdrop-blur-sm">
         <div className="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-md bg-red-600 flex items-center justify-center">
@@ -115,9 +115,9 @@ export default function KdpFormatterPdfPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
               </svg>
             </div>
-            <span className="text-lg font-bold text-white">manu2print</span>
+            <span className="text-lg font-bold text-m2p-ink">manu2print</span>
           </Link>
-          <Link href="/platform/kdp" className="text-sm text-slate-400 hover:text-white transition-colors flex items-center gap-1">
+          <Link href="/platform/kdp" className="text-sm text-m2p-muted hover:text-m2p-orange transition-colors flex items-center gap-1">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
@@ -126,34 +126,34 @@ export default function KdpFormatterPdfPage() {
         </div>
       </header>
 
-      <div className="border-b border-slate-800 bg-red-900/20">
+      <div className="border-b border-m2p-border bg-m2p-orange-soft">
         <div className="mx-auto max-w-4xl px-6 py-3 flex items-center gap-3">
           <span className="inline-flex items-center rounded-full bg-green-500/20 border border-green-500/30 px-2.5 py-0.5 text-xs font-medium text-green-300">FREE</span>
-          <span className="text-sm font-semibold text-white">PDF Print Optimizer</span>
-          <span className="mx-2 text-slate-600">|</span>
-          <span className="text-sm text-slate-400">Shrink or print-optimize your PDF in your browser. No upload.</span>
+          <span className="text-sm font-semibold text-m2p-ink">PDF Print Optimizer</span>
+          <span className="mx-2 text-m2p-muted">|</span>
+          <span className="text-sm text-m2p-muted">Shrink or print-optimize your PDF in your browser. No upload.</span>
         </div>
       </div>
 
       <main className="mx-auto max-w-2xl px-6 py-12">
         <ToolBreadcrumb backHref="/" backLabel="All Tools" currentLabel="PDF Print Optimizer" className="mb-6" />
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white">PDF Print Optimizer</h1>
-          <p className="mt-2 text-slate-400">Shrink or print-optimize your PDF. FREE. Runs in your browser—your file never leaves your device. PDF only, up to {MAX_MB} MB.</p>
-          <p className="mt-2 text-slate-500 text-sm">If you design in Canva and export PDF, that PDF is your interior — use <Link href="/kdp-pdf-checker" className="text-amber-300 hover:text-amber-200 underline">Print Ready Check</Link> to verify. This optimizer is for smaller/crisper copies, not for replacing that PDF.</p>
+          <h1 className="text-3xl font-bold text-m2p-ink">PDF Print Optimizer</h1>
+          <p className="mt-2 text-m2p-muted">Shrink or print-optimize your PDF. FREE. Runs in your browser—your file never leaves your device. PDF only, up to {MAX_MB} MB.</p>
+          <p className="mt-2 text-m2p-muted text-sm">If you design in Canva and export PDF, that PDF is your interior — use <Link href="/kdp-pdf-checker" className="text-amber-300 hover:text-amber-200 underline">Print Ready Check</Link> to verify. This optimizer is for smaller/crisper copies, not for replacing that PDF.</p>
         </div>
 
         {doneBlobUrl ? (
-          <div className="rounded-2xl bg-slate-800/50 border border-red-700/40 p-8">
+          <div className="rounded-2xl bg-m2p-orange-soft/50 border border-m2p-border p-8">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 rounded-xl bg-red-600/20 border border-red-500/30 flex items-center justify-center">
                 <svg className="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h2 className="text-xl font-bold text-white">Your PDF is ready</h2>
+              <h2 className="text-xl font-bold text-m2p-ink">Your PDF is ready</h2>
             </div>
-            <p className="text-slate-400 text-sm mb-4">Download your print-optimized PDF.</p>
+            <p className="text-m2p-muted text-sm mb-4">Download your print-optimized PDF.</p>
             <KdpUploadWarning variant="optimizer" className="mb-4" />
             <div className="flex flex-col sm:flex-row gap-3">
               <a
@@ -166,16 +166,16 @@ export default function KdpFormatterPdfPage() {
               <button
                 type="button"
                 onClick={handleReset}
-                className="rounded-xl border border-slate-600 px-6 py-3.5 font-medium text-slate-300 hover:bg-slate-800 transition-colors"
+                className="rounded-xl border border-m2p-border px-6 py-3.5 font-medium text-m2p-muted hover:bg-m2p-orange-soft/50 transition-colors"
               >
                 Optimize another
               </button>
             </div>
-            <div className="mt-6 rounded-xl bg-slate-800/60 border border-slate-600/60 p-4 text-sm text-slate-400 space-y-2">
-              <p className="font-medium text-slate-300">What happens next</p>
-              <p>1. <strong className="text-slate-300">Use this file for:</strong> smaller size for email or our Keyword Research / Description Generator tools, or a crisper preview. It is optimized in your browser (rasterized) and is not intended as your final KDP interior.</p>
-              <p>2. <strong className="text-slate-300">For KDP print upload:</strong> use your original high-resolution interior PDF, or create a print-ready PDF from our <Link href="/kdp-formatter" className="text-red-400 hover:text-red-300">KDP Formatter (DOCX)</Link> (correct margins, trim, bleed, and resolution for KDP).</p>
-              <p>3. <strong className="text-slate-300">Check before you upload:</strong> run your final interior through our <Link href="/kdp-pdf-checker" className="text-red-400 hover:text-red-300">Print Ready Check</Link> to confirm trim, page count, and specs.</p>
+            <div className="mt-6 rounded-xl bg-m2p-orange-soft/50 border border-m2p-border p-4 text-sm text-m2p-muted space-y-2">
+              <p className="font-medium text-m2p-ink">What happens next</p>
+              <p>1. <strong className="text-m2p-ink">Use this file for:</strong> smaller size for email or our Keyword Research / Description Generator tools, or a crisper preview. It is optimized in your browser (rasterized) and is not intended as your final KDP interior.</p>
+              <p>2. <strong className="text-m2p-ink">For KDP print upload:</strong> use your original high-resolution interior PDF, or create a print-ready PDF from our <Link href="/kdp-formatter" className="text-red-400 hover:text-red-300">KDP Formatter (DOCX)</Link> (correct margins, trim, bleed, and resolution for KDP).</p>
+              <p>3. <strong className="text-m2p-ink">Check before you upload:</strong> run your final interior through our <Link href="/kdp-pdf-checker" className="text-red-400 hover:text-red-300">Print Ready Check</Link> to confirm trim, page count, and specs.</p>
             </div>
           </div>
         ) : (
@@ -185,7 +185,7 @@ export default function KdpFormatterPdfPage() {
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
               className={`rounded-2xl border-2 border-dashed p-14 text-center transition-all ${
-                isDragging ? "border-red-400 bg-red-500/10" : "border-slate-700 bg-slate-800/40 hover:border-slate-500 hover:bg-slate-800/60"
+                isDragging ? "border-red-400 bg-red-500/10" : "border-m2p-border bg-m2p-orange-soft/50 hover:border-m2p-orange hover:bg-m2p-orange-soft/70"
               }`}
             >
               <input
@@ -204,18 +204,18 @@ export default function KdpFormatterPdfPage() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
-                    <p className="text-lg font-semibold text-white overflow-hidden text-ellipsis max-w-full" title={file.name}>{truncateFilenameMiddle(file.name)}</p>
-                    <p className="mt-1 text-sm text-slate-400">{formatFileSize(file.size)} — ready</p>
+                    <p className="text-lg font-semibold text-m2p-ink overflow-hidden text-ellipsis max-w-full" title={file.name}>{truncateFilenameMiddle(file.name)}</p>
+                    <p className="mt-1 text-sm text-m2p-muted">{formatFileSize(file.size)} — ready</p>
                   </div>
                 ) : (
                   <div>
-                    <div className="w-12 h-12 rounded-xl bg-slate-700 flex items-center justify-center mx-auto mb-4">
-                      <svg className="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="w-12 h-12 rounded-xl bg-m2p-orange-soft flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-6 h-6 text-m2p-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                       </svg>
                     </div>
-                    <p className="text-slate-300 font-medium">Drag and drop a PDF here, or browse</p>
-                    <p className="mt-2 text-xs text-slate-500">.pdf only • up to {MAX_MB} MB</p>
+                    <p className="text-m2p-ink font-medium">Drag and drop a PDF here, or browse</p>
+                    <p className="mt-2 text-xs text-m2p-muted">.pdf only • up to {MAX_MB} MB</p>
                   </div>
                 )}
               </label>
@@ -225,7 +225,7 @@ export default function KdpFormatterPdfPage() {
               <div className="mt-4 rounded-xl bg-red-500/10 border border-red-500/30 p-4 text-sm text-red-400">
                 {error}
                 <p className="mt-2">
-                  <Link href="/pdf-compress" className="text-amber-300 hover:text-white underline">
+                  <Link href="/pdf-compress" className="text-amber-300 hover:text-m2p-orange underline">
                     Try our free PDF Compressor for large files →
                   </Link>
                 </p>
@@ -236,10 +236,10 @@ export default function KdpFormatterPdfPage() {
             {processing && progress > 0 && (
               <div className="mt-6">
                 <div className="mb-2 flex items-center justify-between">
-                  <span className="text-sm font-medium text-slate-300">Processing in your browser…</span>
-                  <span className="text-sm text-slate-500">{progress}%</span>
+                  <span className="text-sm font-medium text-m2p-ink">Processing in your browser…</span>
+                  <span className="text-sm text-m2p-muted">{progress}%</span>
                 </div>
-                <div className="h-2 overflow-hidden rounded-full bg-slate-700">
+                <div className="h-2 overflow-hidden rounded-full bg-m2p-orange-soft">
                   <div className="h-full bg-red-500 transition-all duration-300 rounded-full" style={{ width: `${progress}%` }} />
                 </div>
               </div>
@@ -256,7 +256,7 @@ export default function KdpFormatterPdfPage() {
               {file && !processing && (
                 <button
                   onClick={() => { setFile(null); setError(null); }}
-                  className="rounded-xl border border-slate-700 px-5 py-3.5 font-medium text-slate-400 hover:bg-slate-800 transition-colors"
+                  className="rounded-xl border border-m2p-border px-5 py-3.5 font-medium text-m2p-muted hover:bg-slate-800 transition-colors"
                 >
                   Clear
                 </button>

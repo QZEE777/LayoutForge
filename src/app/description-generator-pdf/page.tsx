@@ -135,8 +135,8 @@ export default function DescriptionGeneratorPdfPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex flex-col">
-      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-sm">
+    <div className="min-h-screen bg-m2p-ivory flex flex-col">
+      <header className="border-b border-m2p-border bg-m2p-ivory backdrop-blur-sm">
         <div className="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-md bg-red-600 flex items-center justify-center">
@@ -145,9 +145,9 @@ export default function DescriptionGeneratorPdfPage() {
                   d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
               </svg>
             </div>
-            <span className="text-lg font-bold text-white">manu2print</span>
+            <span className="text-lg font-bold text-m2p-ink">manu2print</span>
           </Link>
-          <Link href="/" className="text-sm text-slate-400 hover:text-white transition-colors flex items-center gap-1">
+          <Link href="/" className="text-sm text-m2p-muted hover:text-m2p-orange transition-colors flex items-center gap-1">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
@@ -156,45 +156,45 @@ export default function DescriptionGeneratorPdfPage() {
         </div>
       </header>
 
-      <div className="border-b border-slate-800 bg-red-900/20">
+      <div className="border-b border-m2p-border bg-m2p-orange-soft">
         <div className="mx-auto max-w-4xl px-6 py-3 flex items-center gap-3">
           <span className="inline-flex items-center rounded-full bg-red-500/20 border border-red-500/30 px-2.5 py-0.5 text-xs font-medium text-red-300">PDF</span>
           <span className="text-sm font-semibold text-white">Amazon Description Generator (PDF)</span>
-          <span className="mx-2 text-slate-600">|</span>
-          <span className="text-sm text-slate-400">Description, author bio, SEO & BISAC from PDF</span>
+          <span className="mx-2 text-m2p-muted">|</span>
+          <span className="text-sm text-m2p-muted">Description, author bio, SEO & BISAC from PDF</span>
         </div>
       </div>
 
       <main className="flex-1 mx-auto max-w-3xl w-full px-6 py-10">
         <ToolBreadcrumb backHref="/" backLabel="All Tools" currentLabel="Amazon Description Generator (PDF)" className="mb-6" />
-        <h1 className="text-3xl font-bold text-white mb-2">Amazon Description Generator (PDF)</h1>
-        <p className="text-slate-400 mb-8">
+        <h1 className="text-3xl font-bold text-m2p-ink mb-2">Amazon Description Generator (PDF)</h1>
+        <p className="text-m2p-muted mb-8">
           Upload your PDF manuscript (up to {MAX_MB}MB). We use the first 1,000 words to generate a KDP-ready description, author bio template, SEO keywords, and BISAC suggestions. Text-based PDFs only (not scans).
         </p>
 
-        <div className="rounded-2xl bg-slate-800/50 border border-red-700/40 p-6 mb-8">
-          <label className="block text-sm font-medium text-slate-300 mb-2">Manuscript file (PDF only, max {MAX_MB}MB)</label>
+        <div className="rounded-2xl bg-m2p-orange-soft/50 border border-m2p-border p-6 mb-8">
+          <label className="block text-sm font-medium text-m2p-ink mb-2">Manuscript file (PDF only, max {MAX_MB}MB)</label>
           <input
             type="file"
             accept=".pdf,application/pdf"
             onChange={handleFileChange}
-            className="block w-full text-sm text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-red-600 file:text-white file:font-medium file:hover:bg-red-700"
+            className="block w-full text-sm text-m2p-ink file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-red-600 file:text-white file:font-medium file:hover:bg-red-700"
           />
           {file && (
             <div className="mt-2">
-              <p className="text-slate-500 text-sm overflow-hidden text-ellipsis max-w-full" title={file.name}>
+              <p className="text-m2p-muted text-sm overflow-hidden text-ellipsis max-w-full" title={file.name}>
                 {truncateFilenameMiddle(file.name)}
               </p>
-              <p className="text-slate-500 text-xs mt-0.5">{formatFileSize(file.size)}</p>
+              <p className="text-m2p-muted text-xs mt-0.5">{formatFileSize(file.size)}</p>
             </div>
           )}
           {loading && progress > 0 && (
             <div className="mt-4">
-              <div className="mb-2 flex justify-between text-sm text-slate-400">
+              <div className="mb-2 flex justify-between text-sm text-m2p-muted">
                 <span>{progressLabel}</span>
                 <span>{progress}%</span>
               </div>
-              <div className="h-2 rounded-full bg-slate-700 overflow-hidden">
+              <div className="h-2 rounded-full bg-m2p-orange-soft overflow-hidden">
                 <div className="h-full bg-red-500 transition-all duration-300 rounded-full" style={{ width: `${progress}%` }} />
               </div>
             </div>
@@ -232,29 +232,29 @@ export default function DescriptionGeneratorPdfPage() {
 
         {result && (
           <div className="space-y-8">
-            <div className="rounded-2xl bg-slate-800/50 border border-red-700/40 p-6">
-              <h2 className="text-lg font-bold text-white mb-3">Amazon book description (KDP-ready HTML)</h2>
-              <div className="rounded-lg bg-slate-900/60 border border-slate-700 p-4 text-slate-300 text-sm leading-relaxed prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: sanitizeHtml(result.amazonDescription) }} />
+            <div className="rounded-2xl bg-m2p-orange-soft/50 border border-m2p-border p-6">
+              <h2 className="text-lg font-bold text-m2p-ink mb-3">Amazon book description (KDP-ready HTML)</h2>
+              <div className="rounded-lg bg-m2p-ivory border border-m2p-border p-4 text-m2p-ink text-sm leading-relaxed prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: sanitizeHtml(result.amazonDescription) }} />
             </div>
-            <div className="rounded-2xl bg-slate-800/50 border border-red-700/40 p-6">
-              <h2 className="text-lg font-bold text-white mb-3">Author bio template</h2>
-              <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">{result.authorBioTemplate}</p>
+            <div className="rounded-2xl bg-m2p-orange-soft/50 border border-m2p-border p-6">
+              <h2 className="text-lg font-bold text-m2p-ink mb-3">Author bio template</h2>
+              <p className="text-m2p-ink text-sm leading-relaxed whitespace-pre-wrap">{result.authorBioTemplate}</p>
             </div>
-            <div className="rounded-2xl bg-slate-800/50 border border-red-700/40 p-6">
-              <h2 className="text-lg font-bold text-white mb-3">7 SEO keywords</h2>
+            <div className="rounded-2xl bg-m2p-orange-soft/50 border border-m2p-border p-6">
+              <h2 className="text-lg font-bold text-m2p-ink mb-3">7 SEO keywords</h2>
               <ul className="flex flex-wrap gap-2">
                 {result.seoKeywords.map((kw, i) => (
-                  <li key={i} className="rounded-lg bg-red-900/30 border border-red-700/40 px-3 py-1.5 text-sm text-slate-200">{kw}</li>
+                  <li key={i} className="rounded-lg bg-red-900/30 border border-red-700/40 px-3 py-1.5 text-sm text-m2p-ink">{kw}</li>
                 ))}
               </ul>
             </div>
-            <div className="rounded-2xl bg-slate-800/50 border border-red-700/40 p-6">
-              <h2 className="text-lg font-bold text-white mb-3">2 recommended BISAC categories</h2>
+            <div className="rounded-2xl bg-m2p-orange-soft/50 border border-m2p-border p-6">
+              <h2 className="text-lg font-bold text-m2p-ink mb-3">2 recommended BISAC categories</h2>
               <ul className="space-y-4">
                 {result.bisacCategories.map((b, i) => (
                   <li key={i} className="border-l-2 border-red-500 pl-4">
                     <span className="font-mono text-red-400">{b.code}</span>
-                    <p className="text-slate-300 text-sm mt-1">{b.explanation}</p>
+                    <p className="text-m2p-ink text-sm mt-1">{b.explanation}</p>
                   </li>
                 ))}
               </ul>

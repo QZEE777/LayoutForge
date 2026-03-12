@@ -43,8 +43,8 @@ export default function TrimSizeComparisonPage() {
   );
 
   return (
-    <div className="min-h-screen bg-ivory">
-      <nav className="sticky top-0 z-20 border-b border-white/5 bg-ivory/80 backdrop-blur-sm">
+    <div className="min-h-screen bg-m2p-ivory">
+      <nav className="sticky top-0 z-20 border-b border-white/5 bg-m2p-ivory/80 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 bg-brave">
@@ -82,7 +82,7 @@ export default function TrimSizeComparisonPage() {
                 max={MAX_PAGES}
                 value={pageCount}
                 onChange={(e) => setPageCount(e.target.valueAsNumber || MIN_PAGES)}
-                className="w-full rounded-lg border border-soft-border px-4 py-2.5 bg-ivory font-sans text-sm text-amazon-navy focus:outline-none focus:ring-2 focus:ring-brave"
+                className="w-full rounded-lg border border-soft-border px-4 py-2.5 bg-m2p-ivory font-sans text-sm text-amazon-navy focus:outline-none focus:ring-2 focus:ring-brave"
               />
             </div>
             <div>
@@ -93,7 +93,7 @@ export default function TrimSizeComparisonPage() {
                 placeholder="9.99"
                 value={listPrice}
                 onChange={(e) => setListPrice(e.target.value)}
-                className="w-full rounded-lg border border-soft-border px-4 py-2.5 bg-ivory font-sans text-sm text-amazon-navy focus:outline-none focus:ring-2 focus:ring-brave"
+                className="w-full rounded-lg border border-soft-border px-4 py-2.5 bg-m2p-ivory font-sans text-sm text-amazon-navy focus:outline-none focus:ring-2 focus:ring-brave"
               />
             </div>
             <div>
@@ -101,7 +101,7 @@ export default function TrimSizeComparisonPage() {
               <select
                 value={rateId}
                 onChange={(e) => setRateId(e.target.value as "60" | "35")}
-                className="w-full rounded-lg border border-soft-border px-4 py-2.5 bg-ivory font-sans text-sm text-amazon-navy focus:outline-none focus:ring-2 focus:ring-brave"
+                className="w-full rounded-lg border border-soft-border px-4 py-2.5 bg-m2p-ivory font-sans text-sm text-amazon-navy focus:outline-none focus:ring-2 focus:ring-brave"
               >
                 {ROYALTY_RATES.map((r) => (
                   <option key={r.id} value={r.id}>{r.label}</option>

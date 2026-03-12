@@ -217,8 +217,8 @@ export default function KdpFormatterPage() {
   const isProcessing = step === "processing";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-sm">
+    <div className="min-h-screen bg-m2p-ivory">
+      <header className="border-b border-m2p-border bg-m2p-ivory backdrop-blur-sm">
         <div className="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-md bg-green-600 flex items-center justify-center">
@@ -226,16 +226,16 @@ export default function KdpFormatterPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
               </svg>
             </div>
-            <span className="text-lg font-bold text-white">Manu2Print KDP</span>
+            <span className="text-lg font-bold text-m2p-ink">Manu2Print KDP</span>
           </Link>
-          <Link href="/platform/kdp" className="text-sm text-slate-400 hover:text-white transition-colors flex items-center gap-1">
+          <Link href="/platform/kdp" className="text-sm text-m2p-muted hover:text-m2p-orange transition-colors flex items-center gap-1">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
             All Tools
           </Link>
         </div>
       </header>
 
-      <div className="border-b border-slate-800 bg-green-900/20">
+      <div className="border-b border-m2p-border bg-m2p-orange-soft">
         <div className="mx-auto max-w-4xl px-6 py-3 flex items-center justify-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-green-600/30 border border-green-500/30 flex items-center justify-center text-green-400">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -243,9 +243,9 @@ export default function KdpFormatterPage() {
             </svg>
           </div>
           <div>
-            <span className="text-sm font-semibold text-white">KDP</span>
-            <span className="mx-2 text-slate-600">|</span>
-            <span className="text-sm text-slate-400">One template. Upload DOCX → KDP-ready DOCX + PDF.</span>
+            <span className="text-sm font-semibold text-m2p-ink">KDP</span>
+            <span className="mx-2 text-m2p-muted">|</span>
+            <span className="text-sm text-m2p-muted">One template. Upload DOCX → KDP-ready DOCX + PDF.</span>
           </div>
         </div>
       </div>
@@ -253,24 +253,24 @@ export default function KdpFormatterPage() {
       <main className="mx-auto max-w-2xl px-6 py-12">
         <ToolBreadcrumb backHref="/" backLabel="All Tools" currentLabel="KDP Formatter" className="mb-6" />
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-white">Upload your manuscript</h1>
-          <p className="mt-2 text-slate-400">Supports DOCX only. Maximum {MAX_MB}MB.</p>
-          <p className="mt-2 text-slate-500 text-sm">If you design in Canva and export PDF, that PDF is your interior — use <Link href="/kdp-pdf-checker" className="text-green-400 hover:text-green-300 underline">Print Ready Check</Link> to verify. This formatter is for the Word/manuscript path.</p>
+          <h1 className="text-3xl font-bold text-m2p-ink">Upload your manuscript</h1>
+          <p className="mt-2 text-m2p-muted">Supports DOCX only. Maximum {MAX_MB}MB.</p>
+          <p className="mt-2 text-m2p-muted text-sm">If you design in Canva and export PDF, that PDF is your interior — use <Link href="/kdp-pdf-checker" className="text-green-400 hover:text-green-300 underline">Print Ready Check</Link> to verify. This formatter is for the Word/manuscript path.</p>
         </div>
 
         <div className="mb-8 flex items-center gap-2 text-sm">
-          <span className={`flex items-center gap-1.5 ${step === "upload" ? "text-green-400 font-medium" : "text-slate-500"}`}>
-            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${step === "upload" ? "bg-green-600 text-white" : "bg-slate-700 text-slate-400"}`}>1</span>
+          <span className={`flex items-center gap-1.5 ${step === "upload" ? "text-green-400 font-medium" : "text-m2p-muted"}`}>
+            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${step === "upload" ? "bg-green-600 text-white" : "bg-m2p-orange-soft text-m2p-muted"}`}>1</span>
             Upload
           </span>
-          <span className="text-slate-700 mx-1">——</span>
-          <span className={`flex items-center gap-1.5 ${isConfigure || isProcessing ? "text-green-400 font-medium" : "text-slate-500"}`}>
-            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${isConfigure || isProcessing ? "bg-green-600 text-white font-bold" : "bg-slate-700 text-slate-400"}`}>2</span>
+          <span className="text-m2p-ink mx-1">——</span>
+          <span className={`flex items-center gap-1.5 ${isConfigure || isProcessing ? "text-green-400 font-medium" : "text-m2p-muted"}`}>
+            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${isConfigure || isProcessing ? "bg-green-600 text-white font-bold" : "bg-m2p-orange-soft text-m2p-muted"}`}>2</span>
             Configure
           </span>
-          <span className="text-slate-700 mx-1">——</span>
-          <span className="flex items-center gap-1.5 text-slate-500">
-            <span className="w-6 h-6 rounded-full bg-slate-700 text-slate-400 flex items-center justify-center text-xs">3</span>
+          <span className="text-m2p-ink mx-1">——</span>
+          <span className="flex items-center gap-1.5 text-m2p-muted">
+            <span className="w-6 h-6 rounded-full bg-m2p-orange-soft text-m2p-muted flex items-center justify-center text-xs">3</span>
             Download
           </span>
         </div>
@@ -282,7 +282,7 @@ export default function KdpFormatterPage() {
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
               className={`rounded-2xl border-2 border-dashed p-14 text-center transition-all ${
-                isDragging ? "border-green-400 bg-green-500/10" : "border-slate-700 bg-slate-800/40 hover:border-slate-500 hover:bg-slate-800/60"
+                isDragging ? "border-green-400 bg-green-500/10" : "border-m2p-border bg-m2p-orange-soft/50 hover:border-m2p-orange hover:bg-m2p-orange-soft/70"
               }`}
             >
               <input
@@ -299,18 +299,18 @@ export default function KdpFormatterPage() {
                     <div className="w-12 h-12 rounded-xl bg-green-600/20 border border-green-500/30 flex items-center justify-center mx-auto mb-3">
                       <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13h4 4L19 7" /></svg>
                     </div>
-                    <p className="text-lg font-semibold text-white overflow-hidden text-ellipsis max-w-full" title={file.name}>{truncateFilenameMiddle(file.name)}</p>
-                    <p className="mt-1 text-sm text-slate-400">{formatFileSize(file.size)} — ready to upload</p>
+                    <p className="text-lg font-semibold text-m2p-ink overflow-hidden text-ellipsis max-w-full" title={file.name}>{truncateFilenameMiddle(file.name)}</p>
+                    <p className="mt-1 text-sm text-m2p-muted">{formatFileSize(file.size)} — ready to upload</p>
                   </div>
                 ) : (
                   <div>
-                    <div className="w-12 h-12 rounded-xl bg-slate-700 flex items-center justify-center mx-auto mb-4">
-                      <svg className="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="w-12 h-12 rounded-xl bg-m2p-orange-soft flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-6 h-6 text-m2p-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                       </svg>
                     </div>
-                    <p className="text-slate-300 font-medium">Drag and drop here, or <span className="text-green-400 hover:text-green-300">browse files</span></p>
-                    <p className="mt-2 text-xs text-slate-500">.docx only • up to {MAX_MB}MB</p>
+                    <p className="text-m2p-ink font-medium">Drag and drop here, or <span className="text-green-400 hover:text-green-300">browse files</span></p>
+                    <p className="mt-2 text-xs text-m2p-muted">.docx only • up to {MAX_MB}MB</p>
                   </div>
                 )}
               </label>
@@ -323,8 +323,8 @@ export default function KdpFormatterPage() {
             )}
             {uploading && progress > 0 && (
               <div className="mt-6">
-                <div className="mb-2 flex justify-between text-sm"><span className="text-slate-300">Uploading...</span><span className="text-slate-500">{progress}%</span></div>
-                <div className="h-2 overflow-hidden rounded-full bg-slate-700">
+                <div className="mb-2 flex justify-between text-sm"><span className="text-m2p-ink">Uploading...</span><span className="text-m2p-muted">{progress}%</span></div>
+                <div className="h-2 overflow-hidden rounded-full bg-m2p-orange-soft">
                   <div className="h-full bg-green-500 transition-all duration-300 rounded-full" style={{ width: `${progress}%` }} />
                 </div>
               </div>
@@ -338,15 +338,15 @@ export default function KdpFormatterPage() {
                 {uploading ? "Uploading..." : "Upload & Continue"}
               </button>
               {file && !uploading && (
-                <button onClick={() => { setFile(null); setError(null); }} className="rounded-xl border border-slate-700 px-5 py-3.5 font-medium text-slate-400 hover:bg-slate-800 transition-colors">Clear</button>
+                <button onClick={() => { setFile(null); setError(null); }} className="rounded-xl border border-m2p-border px-5 py-3.5 font-medium text-m2p-muted hover:bg-m2p-orange-soft/50 transition-colors">Clear</button>
               )}
             </div>
           </>
         )}
 
         {isConfigure && (
-          <div className="rounded-2xl bg-slate-800/50 border border-slate-700/60 p-6 space-y-6">
-            <h2 className="text-lg font-bold text-white">KDP format settings</h2>
+          <div className="rounded-2xl bg-m2p-orange-soft/50 border border-m2p-border p-6 space-y-6">
+            <h2 className="text-lg font-bold text-m2p-ink">KDP format settings</h2>
 
             <div className="rounded-xl bg-amber-500/10 border border-amber-500/30 p-4 flex items-start gap-3">
               <input
@@ -356,60 +356,60 @@ export default function KdpFormatterPage() {
                 onChange={(e) => setConfig((c) => ({ ...c, alreadyFormatted: e.target.checked }))}
                 className="mt-1 accent-amber-500"
               />
-              <label htmlFor="already-formatted" className="text-sm text-slate-200 cursor-pointer">
+              <label htmlFor="already-formatted" className="text-sm text-m2p-ink cursor-pointer">
                 <span className="font-medium">My manuscript is already KDP-ready</span>
-                <span className="block mt-1 text-slate-400">Only Word Heading 1/2/3 define chapters. No “smart” detection.</span>
+                <span className="block mt-1 text-m2p-muted">Only Word Heading 1/2/3 define chapters. No “smart” detection.</span>
               </label>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Book title *</label>
+              <label className="block text-sm font-medium text-m2p-ink mb-2">Book title *</label>
               <input
                 type="text"
                 value={config.bookTitle}
                 onChange={(e) => setConfig((c) => ({ ...c, bookTitle: e.target.value }))}
-                className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-4 py-2.5 rounded-xl bg-m2p-ivory border border-m2p-border text-m2p-ink focus:outline-none focus:ring-2 focus:ring-green-500"
                 placeholder="Your book title"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Author name *</label>
+              <label className="block text-sm font-medium text-m2p-ink mb-2">Author name *</label>
               <input
                 type="text"
                 value={config.authorName}
                 onChange={(e) => setConfig((c) => ({ ...c, authorName: e.target.value }))}
-                className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-4 py-2.5 rounded-xl bg-m2p-ivory border border-m2p-border text-m2p-ink focus:outline-none focus:ring-2 focus:ring-green-500"
                 placeholder="Author name"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Copyright year</label>
+                <label className="block text-sm font-medium text-m2p-ink mb-2">Copyright year</label>
                 <input
                   type="number"
                   value={config.copyrightYear}
                   onChange={(e) => setConfig((c) => ({ ...c, copyrightYear: parseInt(e.target.value, 10) || new Date().getFullYear() }))}
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-4 py-2.5 rounded-xl bg-m2p-ivory border border-m2p-border text-m2p-ink focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">ISBN (optional)</label>
+                <label className="block text-sm font-medium text-m2p-ink mb-2">ISBN (optional)</label>
                 <input
                   type="text"
                   value={config.isbn}
                   onChange={(e) => setConfig((c) => ({ ...c, isbn: e.target.value }))}
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-4 py-2.5 rounded-xl bg-m2p-ivory border border-m2p-border text-m2p-ink focus:outline-none focus:ring-2 focus:ring-green-500"
                   placeholder="ISBN"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Trim size</label>
+              <label className="block text-sm font-medium text-m2p-ink mb-2">Trim size</label>
               <select
                 value={config.trimSize}
                 onChange={(e) => setConfig((c) => ({ ...c, trimSize: e.target.value as KdpFormatConfig["trimSize"] }))}
-                className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-4 py-2.5 rounded-xl bg-m2p-ivory border border-m2p-border text-m2p-ink focus:outline-none focus:ring-2 focus:ring-green-500"
               >
                 {TRIM_SIZES.map((s) => (
                   <option key={s.id} value={s.id}>{s.name}</option>
@@ -417,11 +417,11 @@ export default function KdpFormatterPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Book type</label>
+              <label className="block text-sm font-medium text-m2p-ink mb-2">Book type</label>
               <select
                 value={config.bookType}
                 onChange={(e) => setConfig((c) => ({ ...c, bookType: e.target.value as KdpFormatConfig["bookType"] }))}
-                className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-4 py-2.5 rounded-xl bg-m2p-ivory border border-m2p-border text-m2p-ink focus:outline-none focus:ring-2 focus:ring-green-500"
               >
                 {BOOK_TYPES.map((b) => (
                   <option key={b.id} value={b.id}>{b.name}</option>
@@ -430,11 +430,11 @@ export default function KdpFormatterPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Body font</label>
+                <label className="block text-sm font-medium text-m2p-ink mb-2">Body font</label>
                 <select
                   value={config.bodyFont}
                   onChange={(e) => setConfig((c) => ({ ...c, bodyFont: e.target.value as KdpFormatConfig["bodyFont"] }))}
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-4 py-2.5 rounded-xl bg-m2p-ivory border border-m2p-border text-m2p-ink focus:outline-none focus:ring-2 focus:ring-green-500"
                 >
                   {BODY_FONTS.map((f) => (
                     <option key={f.id} value={f.id}>{f.name}</option>
@@ -442,11 +442,11 @@ export default function KdpFormatterPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Heading font</label>
+                <label className="block text-sm font-medium text-m2p-ink mb-2">Heading font</label>
                 <select
                   value={config.headingFont}
                   onChange={(e) => setConfig((c) => ({ ...c, headingFont: e.target.value as KdpFormatConfig["headingFont"] }))}
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-4 py-2.5 rounded-xl bg-m2p-ivory border border-m2p-border text-m2p-ink focus:outline-none focus:ring-2 focus:ring-green-500"
                 >
                   {HEADING_FONTS.map((f) => (
                     <option key={f.id} value={f.id}>{f.name}</option>
@@ -455,11 +455,11 @@ export default function KdpFormatterPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Font size</label>
+              <label className="block text-sm font-medium text-m2p-ink mb-2">Font size</label>
               <select
                 value={config.fontSize}
                 onChange={(e) => setConfig((c) => ({ ...c, fontSize: Number(e.target.value) as KdpFormatConfig["fontSize"] }))}
-                className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-4 py-2.5 rounded-xl bg-m2p-ivory border border-m2p-border text-m2p-ink focus:outline-none focus:ring-2 focus:ring-green-500"
               >
                 {FONT_SIZES.map((f) => (
                   <option key={f.id} value={f.id}>{f.name}</option>
@@ -467,11 +467,11 @@ export default function KdpFormatterPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Paragraph style</label>
+              <label className="block text-sm font-medium text-m2p-ink mb-2">Paragraph style</label>
               <select
                 value={config.paragraphStyle}
                 onChange={(e) => setConfig((c) => ({ ...c, paragraphStyle: e.target.value as KdpFormatConfig["paragraphStyle"] }))}
-                className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-4 py-2.5 rounded-xl bg-m2p-ivory border border-m2p-border text-m2p-ink focus:outline-none focus:ring-2 focus:ring-green-500"
               >
                 {PARAGRAPH_STYLES.map((p) => (
                   <option key={p.id} value={p.id}>{p.name}</option>
@@ -479,11 +479,11 @@ export default function KdpFormatterPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Line spacing</label>
+              <label className="block text-sm font-medium text-m2p-ink mb-2">Line spacing</label>
               <select
                 value={config.lineSpacing}
                 onChange={(e) => setConfig((c) => ({ ...c, lineSpacing: Number(e.target.value) as KdpFormatConfig["lineSpacing"] }))}
-                className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-4 py-2.5 rounded-xl bg-m2p-ivory border border-m2p-border text-m2p-ink focus:outline-none focus:ring-2 focus:ring-green-500"
               >
                 {LINE_SPACING_OPTIONS.map((l) => (
                   <option key={l.id} value={l.id}>{l.name}</option>
@@ -491,24 +491,24 @@ export default function KdpFormatterPage() {
               </select>
             </div>
             <div className="flex items-center gap-4">
-              <span className="text-sm text-slate-300">Interior</span>
-              <label className="flex items-center gap-2 text-slate-300">
+              <span className="text-sm text-m2p-ink">Interior</span>
+              <label className="flex items-center gap-2 text-m2p-ink">
                 <input type="radio" name="interior" checked={config.interiorColor === "bw"} onChange={() => setConfig((c) => ({ ...c, interiorColor: "bw" }))} className="accent-green-500" />
                 Black & White
               </label>
-              <label className="flex items-center gap-2 text-slate-300">
+              <label className="flex items-center gap-2 text-m2p-ink">
                 <input type="radio" name="interior" checked={config.interiorColor === "color"} onChange={() => setConfig((c) => ({ ...c, interiorColor: "color" }))} className="accent-green-500" />
                 Color
               </label>
             </div>
             {config.interiorColor === "bw" && (
               <div className="flex items-center gap-4">
-                <span className="text-sm text-slate-300">Paper</span>
-                <label className="flex items-center gap-2 text-slate-300">
+                <span className="text-sm text-m2p-ink">Paper</span>
+                <label className="flex items-center gap-2 text-m2p-ink">
                   <input type="radio" name="paper" checked={config.paperColor === "white"} onChange={() => setConfig((c) => ({ ...c, paperColor: "white" }))} className="accent-green-500" />
                   White
                 </label>
-                <label className="flex items-center gap-2 text-slate-300">
+                <label className="flex items-center gap-2 text-m2p-ink">
                   <input type="radio" name="paper" checked={config.paperColor === "cream"} onChange={() => setConfig((c) => ({ ...c, paperColor: "cream" }))} className="accent-green-500" />
                   Cream
                 </label>
@@ -516,11 +516,11 @@ export default function KdpFormatterPage() {
             )}
             <div className="flex items-center gap-3">
               <input type="checkbox" id="bleed" checked={config.bleedImages} onChange={(e) => setConfig((c) => ({ ...c, bleedImages: e.target.checked }))} className="w-4 h-4 rounded accent-green-500" />
-              <label htmlFor="bleed" className="text-sm text-slate-300">Bleed images (extend to page edges)</label>
+              <label htmlFor="bleed" className="text-sm text-m2p-ink">Bleed images (extend to page edges)</label>
             </div>
             <div className="space-y-2">
-              <p className="text-sm font-medium text-slate-300">Front matter</p>
-              <label className="flex items-center gap-2 text-slate-300">
+              <p className="text-sm font-medium text-m2p-ink">Front matter</p>
+              <label className="flex items-center gap-2 text-m2p-ink">
                 <input
                   type="checkbox"
                   checked={!config.frontMatter.titlePage}
@@ -529,15 +529,15 @@ export default function KdpFormatterPage() {
                 />
                 My manuscript already has a title page — skip adding one
               </label>
-              <label className="flex items-center gap-2 text-slate-300">
+              <label className="flex items-center gap-2 text-m2p-ink">
                 <input type="checkbox" checked={config.frontMatter.copyrightPage} onChange={(e) => setConfig((c) => ({ ...c, frontMatter: { ...c.frontMatter, copyrightPage: e.target.checked } }))} className="accent-green-500" />
                 Copyright page
               </label>
-              <label className="flex items-center gap-2 text-slate-300">
+              <label className="flex items-center gap-2 text-m2p-ink">
                 <input type="checkbox" checked={config.frontMatter.toc} onChange={(e) => setConfig((c) => ({ ...c, frontMatter: { ...c.frontMatter, toc: e.target.checked } }))} className="accent-green-500" />
                 Table of contents
               </label>
-              <label className="flex items-center gap-2 text-slate-300">
+              <label className="flex items-center gap-2 text-m2p-ink">
                 <input type="checkbox" checked={config.frontMatter.dedication} onChange={(e) => setConfig((c) => ({ ...c, frontMatter: { ...c.frontMatter, dedication: e.target.checked } }))} className="accent-green-500" />
                 Dedication page
               </label>
@@ -546,7 +546,7 @@ export default function KdpFormatterPage() {
                   value={config.frontMatter.dedicationText || ""}
                   onChange={(e) => setConfig((c) => ({ ...c, frontMatter: { ...c.frontMatter, dedicationText: e.target.value } }))}
                   placeholder="Dedication text..."
-                  className="w-full px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm min-h-[80px] focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-4 py-2 rounded-xl bg-m2p-ivory border border-m2p-border text-m2p-ink text-sm min-h-[80px] focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               )}
             </div>
@@ -561,11 +561,11 @@ export default function KdpFormatterPage() {
             <button
               onClick={handleGeneratePdf}
               disabled={isProcessing}
-              className="w-full rounded-xl border-2 border-slate-600 text-slate-300 hover:border-slate-500 hover:bg-slate-800/50 font-semibold py-4 px-6 disabled:opacity-50 disabled:cursor-not-allowed transition-colors mt-3"
+              className="w-full rounded-xl border-2 border-m2p-border text-m2p-ink hover:border-m2p-orange hover:bg-m2p-orange-soft/50 font-semibold py-4 px-6 disabled:opacity-50 disabled:cursor-not-allowed transition-colors mt-3"
             >
               Skip Review — Generate KDP PDF Directly
             </button>
-            <Link href="/kdp-formatter" className="block text-center text-sm text-slate-400 hover:text-white mt-4">Cancel and upload a different file</Link>
+            <Link href="/kdp-formatter" className="block text-center text-sm text-m2p-muted hover:text-m2p-orange mt-4">Cancel and upload a different file</Link>
           </div>
         )}
 
@@ -575,7 +575,7 @@ export default function KdpFormatterPage() {
               <div className="w-6 h-6 border-2 border-green-500 border-t-transparent rounded-full animate-spin flex-shrink-0" />
               <p className="text-green-300 font-medium">{PROGRESS_STEPS[processingStep]}</p>
             </div>
-            <ul className="text-sm text-slate-400 space-y-1">
+            <ul className="text-sm text-m2p-muted space-y-1">
               {PROGRESS_STEPS.map((s, i) => (
                 <li key={i} className={i <= processingStep ? "text-green-400" : ""}>
                   {i < processingStep ? "✓" : i === processingStep ? "…" : "○"} {s}

@@ -37,8 +37,8 @@ export default function SpineCalculatorPage() {
   );
 
   return (
-    <div className="min-h-screen bg-brand-bg">
-      <nav className="sticky top-0 z-20 border-b border-white/5 bg-brand-bg/80 backdrop-blur-sm">
+    <div className="min-h-screen bg-m2p-ivory">
+      <nav className="sticky top-0 z-20 border-b border-white/5 bg-m2p-ivory/80 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 bg-brand-gold">
@@ -80,7 +80,7 @@ export default function SpineCalculatorPage() {
                 max={MAX_PAGES}
                 value={pageCount}
                 onChange={(e) => setPageCount(e.target.valueAsNumber ?? MIN_PAGES)}
-                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-brand-bg font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold"
+                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-m2p-ivory font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold"
               />
               <p className="font-sans text-xs text-brand-muted mt-1">KDP range: {MIN_PAGES}–{MAX_PAGES} pages.</p>
             </div>
@@ -89,7 +89,7 @@ export default function SpineCalculatorPage() {
               <select
                 value={paperType}
                 onChange={(e) => setPaperType(e.target.value as PaperType)}
-                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-brand-bg font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold"
+                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-m2p-ivory font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold"
               >
                 {PAPER_OPTIONS.map((o) => (
                   <option key={o.id} value={o.id}>{o.label}</option>
@@ -101,7 +101,7 @@ export default function SpineCalculatorPage() {
               <select
                 value={trimId}
                 onChange={(e) => setTrimId(e.target.value as TrimSizeId)}
-                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-brand-bg font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold"
+                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-m2p-ivory font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold"
               >
                 {KDP_TRIM_SIZES.map((t) => (
                   <option key={t.id} value={t.id}>{t.name}</option>

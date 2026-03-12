@@ -37,8 +37,8 @@ export default function RoyaltyCalculatorPage() {
   );
 
   return (
-    <div className="min-h-screen bg-brand-bg">
-      <nav className="sticky top-0 z-20 border-b border-white/5 bg-brand-bg/80 backdrop-blur-sm">
+    <div className="min-h-screen bg-m2p-ivory">
+      <nav className="sticky top-0 z-20 border-b border-white/5 bg-m2p-ivory/80 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 bg-brand-gold">
@@ -77,7 +77,7 @@ export default function RoyaltyCalculatorPage() {
               <select
                 value={trimId}
                 onChange={(e) => setTrimId(e.target.value as RoyaltyTrimId)}
-                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-brand-bg font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold"
+                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-m2p-ivory font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold"
               >
                 {ROYALTY_TRIM_SIZES.map((t) => (
                   <option key={t.id} value={t.id}>
@@ -96,7 +96,7 @@ export default function RoyaltyCalculatorPage() {
                 max={MAX_PAGES}
                 value={pageCount}
                 onChange={(e) => setPageCount(e.target.valueAsNumber || MIN_PAGES)}
-                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-brand-bg font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold"
+                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-m2p-ivory font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold"
               />
             </div>
             <div>
@@ -107,7 +107,7 @@ export default function RoyaltyCalculatorPage() {
                 placeholder="9.99"
                 value={listPrice}
                 onChange={(e) => setListPrice(e.target.value)}
-                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-brand-bg font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold"
+                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-m2p-ivory font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold"
               />
             </div>
             <div>
