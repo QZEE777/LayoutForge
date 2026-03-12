@@ -7,8 +7,8 @@ export default function SiteNav() {
   return (
     <nav className="sticky top-0 z-50 border-b border-[#E0D8C4] bg-[#FAF7EE]/98 backdrop-blur-sm">
       <div className="mx-auto max-w-6xl px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
-        <Link href="/" className="flex items-center gap-2">
-          <img src="/MANNY AVATAR.png" alt="Manny" style={{ height: "36px", width: "36px", borderRadius: "50%", objectFit: "cover" }} />
+        <Link href="/" className="flex items-center gap-2 overflow-visible">
+          <img src="/MANNY AVATAR.png" alt="Manny" style={{ height: "40px", width: "40px", borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} />
           <span className="font-bold text-xl">
             <span style={{ color: "#F05A28" }}>manu</span>
             <span style={{ color: "#4CAF50" }}>2print</span>
