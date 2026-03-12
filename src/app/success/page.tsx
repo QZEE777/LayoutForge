@@ -29,29 +29,29 @@ export default function SuccessPage() {
   }, [id]);
 
   return (
-    <div className="min-h-screen bg-[#1a1a12] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-m2p-ink flex items-center justify-center px-4">
       <div className="text-center max-w-md">
-        <h1 className="font-display text-4xl text-[#F5F0E8] mb-4">
+        <h1 className="font-bebas text-4xl text-white mb-4">
           Payment successful! 🎉
         </h1>
-        <p className="text-[#8B8B6B] mb-8">
+        <p className="text-white/80 mb-8">
           Your manuscript is ready to download.
         </p>
         {checking && (
-          <p className="text-[#8B8B6B] mb-6">Verifying your purchase…</p>
+          <p className="text-white/80 mb-6">Verifying your purchase…</p>
         )}
         {!checking && id && (
           <>
             {access ? (
-              <p className="text-[#8B8B6B] mb-6">You're all set. Use the button below to get your file.</p>
+              <p className="text-white/80 mb-6">You're all set. Use the button below to get your file.</p>
             ) : (
-              <p className="text-[#8B8B6B] mb-6">
+              <p className="text-white/80 mb-6">
                 Your purchase may still be confirming. Open your download page below — if the download isn't ready yet, wait a moment and refresh.
               </p>
             )}
             <Link
               href={`/download/${id}`}
-              className="inline-block bg-[#D4A843] hover:bg-[#c49a3d] text-[#1a1a12] font-bold px-6 py-3 rounded-lg mb-6"
+              className="inline-block bg-m2p-orange hover:bg-m2p-orange-hover text-white font-bold px-6 py-3 rounded-lg mb-6"
             >
               Open download page
             </Link>
@@ -59,7 +59,7 @@ export default function SuccessPage() {
         )}
         <Link
           href="/"
-          className="mt-6 inline-block text-[#8B8B6B] hover:text-[#F5F0E8]"
+          className="mt-6 inline-block text-white/80 hover:text-white"
         >
           Back to home
         </Link>
