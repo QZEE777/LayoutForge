@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 import { markDownloadPaid } from "@/lib/storage";
+import { sendDownloadLinkEmail } from "@/lib/resend";
 
 export async function POST(req: Request) {
   const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
@@ -115,6 +116,14 @@ export async function POST(req: Request) {
       await markDownloadPaid(downloadId);
     } catch (err) {
       console.error("[webhooks/lemonsqueezy] markDownloadPaid failed:", err);
+    }
+    if (email) {
+      try {
+        const downloadUrl = `${process.env.NEXT_PUBLIC_APP_URL}/download/${downloadId}`;
+        await sendDownloadLinkEmail(email, downloadUrl);
+      } catch (err) {
+        console.error("[webhooks/lemonsqueezy] sendDownloadLinkEmail failed:", err);
+      }
     }
   }
 
