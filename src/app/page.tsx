@@ -69,10 +69,10 @@ export default function Home() {
           </span>
         </div>
         <div className="max-w-6xl mx-auto px-6 w-full flex-1 min-h-0 flex flex-col justify-center">
-          <div className="flex flex-col lg:flex-row items-start gap-6 lg:gap-10">
-            {/* LEFT COLUMN — headline larger, centered above body; aligned no higher than graphic */}
+          <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-10">
+            {/* LEFT COLUMN — vertically centered with PDF graphic; less gap between headline lines */}
             <div className="flex-[1.1] w-full lg:w-auto order-2 lg:order-1 text-center">
-              <h1 className="text-[#1A1208] leading-tight tracking-wide mt-0 mb-2 text-center" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2.25rem, 4.8vw, 4.25rem)" }}>
+              <h1 className="text-[#1A1208] leading-none tracking-wide mt-0 mb-2 text-center" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(2.25rem, 4.8vw, 4.25rem)" }}>
                 KDP KILLED YOUR PDF?
                 <br />
                 <span className="text-[#F05A28]">WE FIX IT</span>
