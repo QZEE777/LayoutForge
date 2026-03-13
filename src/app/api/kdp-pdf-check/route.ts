@@ -9,7 +9,7 @@ import { enrichCheckerReport, cleanFilenameForDisplay } from "@/lib/kdpReportEnh
 import { supabase } from "@/lib/supabase";
 
 const PT_PER_INCH = 72;
-const TOLERANCE_INCH = 0.05; // allow 0.05" variance
+const TOLERANCE_INCH = 0.15; // allow 0.15" variance on each dimension
 const PREFLIGHT_POLL_MS = 2000;
 const PREFLIGHT_MAX_WAIT_MS = 55000;
 
