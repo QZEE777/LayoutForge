@@ -3,11 +3,11 @@ import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 
 interface VerifyPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default async function VerifyPage({ params }: VerifyPageProps) {
-  const verificationId = params.id;
+  const { id: verificationId } = await params;
 
   const { data, error } = await supabase
     .from("verification_results")
