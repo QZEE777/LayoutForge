@@ -7,7 +7,8 @@ import Link from "next/link";
 import Image from "next/image";
 import PaymentGate from "@/components/PaymentGate";
 import CheckerPdfViewer from "@/components/CheckerPdfViewer";
-import { difficultyLabel } from "@/lib/kdpReportEnhance";
+import { difficultyLabel, cleanFilenameForDisplay } from "@/lib/kdpReportEnhance";
+import { generateCheckerReportPdf } from "@/lib/checkerReportPdf";
 
 interface ProcessingReport {
   pagesGenerated?: number;
@@ -251,7 +252,7 @@ export default function DownloadPage() {
                   <p className="text-sm text-m2p-muted mb-3">
                     {report.scanDate && <>Scan: {new Date(report.scanDate).toLocaleString()}</>}
                     {report.scanDate && report.fileNameScanned && " · "}
-                    {report.fileNameScanned && report.fileNameScanned}
+                    {report.fileNameScanned && cleanFilenameForDisplay(report.fileNameScanned)}
                   </p>
                 )}
                 {(report.kdpPassProbability != null && report.riskLevel) && (
@@ -265,9 +266,9 @@ export default function DownloadPage() {
                     <ul className="text-sm text-m2p-muted space-y-1">
                       {report.uploadChecklist.map((item, i) => (
                         <li key={i}>
-                          {item.status === "pass" && "✓ "}
-                          {item.status === "warning" && "⚠ "}
-                          {item.status === "fail" && "✗ "}
+                          {item.status === "pass" && "✅ "}
+                          {item.status === "warning" && "⚠️ "}
+                          {item.status === "fail" && "❌ "}
                           {item.check}
                         </li>
                       ))}
@@ -292,7 +293,7 @@ export default function DownloadPage() {
                             <td className="p-2">{row.requirement}</td>
                             <td className="p-2">{row.yourFile}</td>
                             <td className="p-2">{row.kdpRequired}</td>
-                            <td className="p-2">{row.status === "pass" ? "✓" : row.status === "warning" ? "⚠" : "✗"}</td>
+                            <td className="p-2">{row.status === "pass" ? "✅" : row.status === "warning" ? "⚠️" : "❌"}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -335,40 +336,26 @@ export default function DownloadPage() {
                 <div className="mt-4 pt-4 border-t border-m2p-border">
                   <button
                     type="button"
-                    onClick={() => {
-                      const lines: string[] = [
-                        "KDP PDF Check Report",
-                        "manu2print.com",
-                        "",
-                        report.scanDate ? `Scan: ${new Date(report.scanDate).toLocaleString()}` : "",
-                        report.fileNameScanned ? `File: ${report.fileNameScanned}` : "",
-                        report.kdpPassProbability != null ? `KDP Approval Likelihood: ${report.kdpPassProbability}% — Risk Level: ${report.riskLevel}` : "",
-                        (report.kdpPassProbability != null || report.scanDate) ? "" : "",
-                        `KDP Ready: ${(report.issues?.length ?? 0) === 0 ? "Yes" : `No — ${report.issues?.length ?? 0} issue(s)`}`,
-                        "",
-                        `Trim detected: ${report.trimDetected ?? "—"}`,
-                        `Matches KDP trim: ${report.trimMatchKDP ? "Yes" : "No"}${report.kdpTrimName ? ` (${report.kdpTrimName})` : ""}`,
-                        `Page count: ${report.pageCount ?? "—"}`,
-                        ...(report.fileSizeMB != null ? [`File size: ${report.fileSizeMB} MB`] : []),
-                        ...(report.recommendedGutterInches != null ? [`Recommended gutter (inner margin): ${report.recommendedGutterInches}" (${Math.round(report.recommendedGutterInches * 2.54 * 10) / 10} cm / ${Math.round(report.recommendedGutterInches * 25.4 * 10) / 10} mm)`] : []),
-                        "",
-                        ...(report.issuesEnriched?.length ? ["Issues (plain English):", ...report.issuesEnriched.map((i) => `  • ${i.humanMessage}`), ""] : report.issues?.length ? ["Issues:", ...report.issues.map((i) => `  • ${i}`), ""] : []),
-                        ...(report.recommendations?.length ? ["Recommendations:", ...report.recommendations.map((r) => `  • ${r}`)] : []),
-                        "",
-                        "© manu2print.com — Built for indie authors",
-                        ...(report.upsellBridge ? ["", report.upsellBridge] : []),
-                      ].filter(Boolean);
-                      const blob = new Blob([lines.join("\n")], { type: "text/plain" });
-                      const url = URL.createObjectURL(blob);
-                      const a = document.createElement("a");
-                      a.href = url;
-                      a.download = "kdp-check-report.txt";
-                      a.click();
-                      URL.revokeObjectURL(url);
+                    onClick={async () => {
+                      try {
+                        const res = await fetch("/MANNY AVATAR.png");
+                        const imageBytes = new Uint8Array(await res.arrayBuffer());
+                        const cleanedFilename = cleanFilenameForDisplay(report.fileNameScanned ?? "");
+                        const pdfBytes = await generateCheckerReportPdf(report, cleanedFilename, imageBytes);
+                        const blob = new Blob([pdfBytes], { type: "application/pdf" });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = "kdp-check-report.pdf";
+                        a.click();
+                        URL.revokeObjectURL(url);
+                      } catch (e) {
+                        console.error("PDF download failed:", e);
+                      }
                     }}
-                    className="text-sm font-medium text-m2p-orange hover:text-white transition-colors"
+                    className="bg-m2p-orange text-white px-6 py-3 rounded-lg font-bold hover:bg-m2p-orange-hover transition-colors"
                   >
-                    Download report (.txt)
+                    Download Full Report (PDF)
                   </button>
                 </div>
               </>

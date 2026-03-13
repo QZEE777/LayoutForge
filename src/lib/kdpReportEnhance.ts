@@ -60,6 +60,16 @@ function toHumanMessage(message: string, _ruleId?: string): string {
   return `${message} This may cause KDP to reject or delay your file. Fix before uploading.`;
 }
 
+/** Clean filename for display: underscores → spaces, title case, remove .pdf, add " — PDF". */
+export function cleanFilenameForDisplay(filename: string): string {
+  if (!filename || typeof filename !== "string") return "— PDF";
+  let base = filename.replace(/_/g, " ").trim();
+  const ext = base.toLowerCase().endsWith(".pdf") ? base.slice(-4) : "";
+  if (ext) base = base.slice(0, -4).trim();
+  const titleCase = base.replace(/\w\S*/g, (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+  return titleCase ? `${titleCase} — PDF` : "— PDF";
+}
+
 export function enrichIssue(
   message: string,
   page: number | undefined,
