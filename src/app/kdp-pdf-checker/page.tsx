@@ -200,7 +200,7 @@ export default function KdpPdfCheckerPage() {
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          style={{ position: "relative" }}
+          style={{ position: "relative", overflow: "hidden" }}
           className={`mt-8 rounded-2xl border-2 border-dashed p-14 text-center transition-all ${
             isDragging ? "border-m2p-orange bg-m2p-orange-soft" : "border-m2p-border bg-white hover:border-m2p-orange/50"
           }`}
@@ -212,18 +212,24 @@ export default function KdpPdfCheckerPage() {
             className="hidden"
             id="checker-file"
           />
-          <label htmlFor="checker-file" className="cursor-pointer block relative">
+          <label htmlFor="checker-file" className="cursor-pointer block">
             {file ? (
-              <div className="relative min-h-[60px]">
+              <div style={{ position: "relative", overflow: "hidden" }} className="min-h-[60px]">
                 <p className="text-m2p-ink font-medium">{cleanFilenameForDisplay(file.name)}</p>
                 <p className="text-sm text-m2p-muted mt-1">{formatFileSize(file.size)} — ready to check</p>
                 <Image
                   src="/MANNY AVATAR.png"
                   alt=""
-                  width={80}
-                  height={80}
-                  className="rounded-full object-cover"
-                  style={{ position: "absolute", bottom: 8, right: 12, opacity: 0.15, pointerEvents: "none" }}
+                  width={90}
+                  height={90}
+                  style={{
+                    position: "absolute",
+                    bottom: "0px",
+                    right: "0px",
+                    opacity: 0.15,
+                    pointerEvents: "none",
+                    borderRadius: "50%",
+                  }}
                 />
               </div>
             ) : (
@@ -232,10 +238,16 @@ export default function KdpPdfCheckerPage() {
                 <Image
                   src="/MANNY AVATAR.png"
                   alt=""
-                  width={80}
-                  height={80}
-                  className="rounded-full object-cover"
-                  style={{ position: "absolute", bottom: 8, right: 12, opacity: 0.12, pointerEvents: "none" }}
+                  width={90}
+                  height={90}
+                  style={{
+                    position: "absolute",
+                    bottom: "0px",
+                    right: "0px",
+                    opacity: 0.15,
+                    pointerEvents: "none",
+                    borderRadius: "50%",
+                  }}
                 />
               </>
             )}
