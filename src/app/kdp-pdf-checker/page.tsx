@@ -219,10 +219,10 @@ export default function KdpPdfCheckerPage() {
                 <Image
                   src="/MANNY AVATAR.png"
                   alt=""
-                  width={64}
-                  height={64}
+                  width={100}
+                  height={100}
                   className="rounded-full object-cover"
-                  style={{ position: "absolute", bottom: 12, right: 16, opacity: 0.08, pointerEvents: "none" }}
+                  style={{ position: "absolute", bottom: 8, right: 8, opacity: 0.08, pointerEvents: "none" }}
                 />
               </div>
             ) : (

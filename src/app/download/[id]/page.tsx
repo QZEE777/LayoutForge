@@ -8,7 +8,6 @@ import Image from "next/image";
 import PaymentGate from "@/components/PaymentGate";
 import CheckerPdfViewer from "@/components/CheckerPdfViewer";
 import { difficultyLabel, cleanFilenameForDisplay } from "@/lib/kdpReportEnhance";
-import { generateCheckerReportPdf } from "@/lib/checkerReportPdf";
 
 interface ProcessingReport {
   pagesGenerated?: number;
@@ -247,149 +246,142 @@ export default function DownloadPage() {
           <div className={`mb-8 rounded-lg p-6 border ${report.outputType === "format-review" ? "bg-m2p-ivory border-m2p-border text-m2p-ink" : "bg-white border-m2p-border text-m2p-ink"}`}>
             {report.outputType === "checker" && (
               <>
-                <p className="mb-1">
-                  <span style={{ color: "#F05A28", fontWeight: "bold", fontSize: "1.5rem" }}>manu</span>
-                  <span style={{ color: "#4cd964", fontWeight: "bold", fontSize: "1.5rem" }}>2print</span>
-                </p>
-                {(report.scanDate || report.fileNameScanned) && (
-                  <p className="text-sm text-m2p-muted mb-3">
-                    {report.scanDate && <>Scan: {new Date(report.scanDate).toLocaleString()}</>}
-                    {report.scanDate && report.fileNameScanned && " · "}
-                    {report.fileNameScanned && cleanFilenameForDisplay(report.fileNameScanned)}
+                <div id="report-content">
+                  <p className="mb-1">
+                    <span style={{ color: "#F05A28", fontWeight: "bold", fontSize: "1.5rem" }}>manu</span>
+                    <span style={{ color: "#4cd964", fontWeight: "bold", fontSize: "1.5rem" }}>2print</span>
                   </p>
-                )}
-                {(report.kdpPassProbability != null && report.riskLevel) && (
-                  <p className="mb-4 text-base font-semibold text-m2p-ink">
-                    KDP Approval Likelihood: {report.kdpPassProbability}% — Risk Level: {report.riskLevel}
-                  </p>
-                )}
-                {report.uploadChecklist && report.uploadChecklist.length > 0 && (
-                  <div className="mb-4">
-                    <p className="text-xs font-medium text-m2p-ink mb-2">Upload readiness checklist</p>
-                    <ul className="text-sm text-m2p-muted space-y-1">
-                      {report.uploadChecklist.map((item, i) => (
-                        <li key={i}>
-                          {item.status === "pass" && "✅ "}
-                          {item.status === "warning" && "⚠️ "}
-                          {item.status === "fail" && "❌ "}
-                          {item.check}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {report.specTable && report.specTable.length > 0 && (
-                  <div className="mb-4 overflow-x-auto">
-                    <p className="text-xs font-medium text-m2p-ink mb-2">KDP spec comparison</p>
-                    <table className="w-full text-sm border border-m2p-border rounded-lg border-collapse">
-                      <thead>
-                        <tr className="bg-m2p-border/30">
-                          <th className="text-left p-2 border-b border-m2p-border">Requirement</th>
-                          <th className="text-left p-2 border-b border-m2p-border">Your file</th>
-                          <th className="text-left p-2 border-b border-m2p-border">KDP required</th>
-                          <th className="text-left p-2 border-b border-m2p-border">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {report.specTable.map((row, i) => (
-                          <tr key={i} className="border-b border-m2p-border/50">
-                            <td className="p-2">{row.requirement}</td>
-                            <td className="p-2">{row.yourFile}</td>
-                            <td className="p-2">{row.kdpRequired}</td>
-                            <td className="p-2">{row.status === "pass" ? "✅" : row.status === "warning" ? "⚠️" : "❌"}</td>
-                          </tr>
+                  {(report.scanDate || report.fileNameScanned) && (
+                    <p className="text-sm text-m2p-muted mb-3">
+                      {report.scanDate && <>Scan: {new Date(report.scanDate).toLocaleString()}</>}
+                      {report.scanDate && report.fileNameScanned && " · "}
+                      {report.fileNameScanned && cleanFilenameForDisplay(report.fileNameScanned)}
+                    </p>
+                  )}
+                  {(report.kdpPassProbability != null && report.riskLevel) && (
+                    <p className="mb-4 text-base font-semibold text-m2p-ink">
+                      KDP Approval Likelihood: {report.kdpPassProbability}% — Risk Level: {report.riskLevel}
+                    </p>
+                  )}
+                  {report.uploadChecklist && report.uploadChecklist.length > 0 && (
+                    <div className="mb-4">
+                      <p className="text-xs font-medium text-m2p-ink mb-2">Upload readiness checklist</p>
+                      <ul className="text-sm text-m2p-muted space-y-1">
+                        {report.uploadChecklist.map((item, i) => (
+                          <li key={i}>
+                            {item.status === "pass" && "✅ "}
+                            {item.status === "warning" && "⚠️ "}
+                            {item.status === "fail" && "❌ "}
+                            {item.check}
+                          </li>
                         ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-                {((report.issuesEnriched?.length ?? 0) > 0 || (report.issues?.length ?? 0) > 0) ? (
-                  <div className="mt-4 pt-4 border-t border-m2p-border">
-                    <p className="text-xs font-medium text-m2p-orange mb-2">Issues</p>
-                    <ul className="text-sm text-m2p-muted space-y-2">
-                      {report.issuesEnriched?.length
-                        ? report.issuesEnriched.map((item, i) => (
-                            <li key={i}>
-                              <span className="text-m2p-ink">{difficultyLabel(item.fixDifficulty as "easy" | "moderate" | "advanced")}</span>
-                              {item.page != null && ` [p.${item.page}]`}
-                              {" "}
-                              {item.humanMessage}
-                            </li>
-                          ))
-                        : report.issues!.map((issue, i) => (
-                            <li key={i}>{issue}</li>
+                      </ul>
+                    </div>
+                  )}
+                  {report.specTable && report.specTable.length > 0 && (
+                    <div className="mb-4 overflow-x-auto">
+                      <p className="text-xs font-medium text-m2p-ink mb-2">KDP spec comparison</p>
+                      <table className="w-full text-sm border border-m2p-border rounded-lg border-collapse">
+                        <thead>
+                          <tr className="bg-m2p-border/30">
+                            <th className="text-left p-2 border-b border-m2p-border">Requirement</th>
+                            <th className="text-left p-2 border-b border-m2p-border">Your file</th>
+                            <th className="text-left p-2 border-b border-m2p-border">KDP required</th>
+                            <th className="text-left p-2 border-b border-m2p-border">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {report.specTable.map((row, i) => (
+                            <tr key={i} className="border-b border-m2p-border/50">
+                              <td className="p-2">{row.requirement}</td>
+                              <td className="p-2">{row.yourFile}</td>
+                              <td className="p-2">{row.kdpRequired}</td>
+                              <td className="p-2">{row.status === "pass" ? "✅" : row.status === "warning" ? "⚠️" : "❌"}</td>
+                            </tr>
                           ))}
-                    </ul>
-                  </div>
-                ) : null}
-                {report.recommendations && report.recommendations.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-m2p-border">
-                    <p className="text-xs font-medium text-m2p-live mb-2">Recommendations</p>
-                    <ul className="text-xs text-m2p-muted list-disc list-inside space-y-1">
-                      {report.recommendations.map((rec, i) => (
-                        <li key={i}>{rec}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                <p className="mt-4 pt-4 border-t border-m2p-border text-center text-xs text-m2p-muted">© manu2print.com — Built for indie authors</p>
-                {report.upsellBridge && (
-                  <p className="mt-3 text-sm text-m2p-muted text-center">{report.upsellBridge}</p>
-                )}
-                <div className="mt-4 pt-4 border-t border-m2p-border">
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                  {((report.issuesEnriched?.length ?? 0) > 0 || (report.issues?.length ?? 0) > 0) ? (
+                    <div className="mt-4 pt-4 border-t border-m2p-border">
+                      <p className="text-xs font-medium text-m2p-orange mb-2">Issues</p>
+                      <ul className="text-sm text-m2p-muted space-y-2">
+                        {report.issuesEnriched?.length
+                          ? report.issuesEnriched.map((item, i) => (
+                              <li key={i}>
+                                <span className="text-m2p-ink">{difficultyLabel(item.fixDifficulty as "easy" | "moderate" | "advanced")}</span>
+                                {item.page != null && ` [p.${item.page}]`}
+                                {" "}
+                                {item.humanMessage}
+                              </li>
+                            ))
+                          : report.issues!.map((issue, i) => (
+                              <li key={i}>{issue}</li>
+                            ))}
+                      </ul>
+                    </div>
+                  ) : null}
+                  {report.recommendations && report.recommendations.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-m2p-border">
+                      <p className="text-xs font-medium text-m2p-live mb-2">Recommendations</p>
+                      <ul className="text-xs text-m2p-muted list-disc list-inside space-y-1">
+                        {report.recommendations.map((rec, i) => (
+                          <li key={i}>{rec}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  <p className="mt-4 pt-4 border-t border-m2p-border text-center text-xs text-m2p-muted">© manu2print.com — Built for indie authors</p>
+                  {report.upsellBridge && (
+                    <p className="mt-3 text-sm text-m2p-muted text-center">{report.upsellBridge}</p>
+                  )}
+                </div>
+                <div className="mt-4 pt-4 border-t border-m2p-border no-print">
                   <button
                     type="button"
-                    onClick={async () => {
-                      const cleanedFilename = cleanFilenameForDisplay(report.fileNameScanned ?? "");
-                      const fallbackTxt = () => {
-                        const lines: string[] = [
-                          "KDP PDF Check Report",
-                          "manu2print.com",
-                          "",
-                          report.scanDate ? `Scan: ${new Date(report.scanDate).toLocaleString()}` : "",
-                          report.fileNameScanned ? `File: ${cleanedFilename}` : "",
-                          report.kdpPassProbability != null ? `KDP Approval Likelihood: ${report.kdpPassProbability}% — Risk Level: ${report.riskLevel}` : "",
-                          "",
-                          `KDP Ready: ${(report.issues?.length ?? 0) === 0 ? "Yes" : `No — ${report.issues?.length ?? 0} issue(s)`}`,
-                          "",
-                          `Trim detected: ${report.trimDetected ?? "—"}`,
-                          `Matches KDP trim: ${report.trimMatchKDP ? "Yes" : "No"}${report.kdpTrimName ? ` (${report.kdpTrimName})` : ""}`,
-                          `Page count: ${report.pageCount ?? "—"}`,
-                          ...(report.fileSizeMB != null ? [`File size: ${report.fileSizeMB} MB`] : []),
-                          ...(report.recommendedGutterInches != null ? [`Recommended gutter: ${report.recommendedGutterInches}"`] : []),
-                          "",
-                          ...(report.issuesEnriched?.length ? ["Issues:", ...report.issuesEnriched.map((i) => `  • ${i.humanMessage}`), ""] : report.issues?.length ? ["Issues:", ...report.issues!.map((i) => `  • ${i}`), ""] : []),
-                          ...(report.recommendations?.length ? ["Recommendations:", ...report.recommendations.map((r) => `  • ${r}`)] : []),
-                          "",
-                          "© manu2print.com — Built for indie authors",
-                          ...(report.upsellBridge ? ["", report.upsellBridge] : []),
-                        ].filter(Boolean);
-                        const blob = new Blob([lines.join("\n")], { type: "text/plain" });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement("a");
-                        a.href = url;
-                        a.download = "kdp-check-report.txt";
-                        a.click();
-                        URL.revokeObjectURL(url);
-                      };
-                      try {
-                        const res = await fetch("/MANNY%20AVATAR.png");
-                        if (!res.ok) throw new Error(`Image fetch ${res.status}`);
-                        const imageBytes = new Uint8Array(await res.arrayBuffer());
-                        const pdfBytes = await generateCheckerReportPdf(report, cleanedFilename, imageBytes);
-                        const blob = new Blob([pdfBytes], { type: "application/pdf" });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement("a");
-                        a.href = url;
-                        a.download = "kdp-check-report.pdf";
-                        a.click();
-                        URL.revokeObjectURL(url);
-                      } catch (e) {
-                        console.error("PDF download failed:", e);
-                        fallbackTxt();
-                      }
+                    onClick={() => {
+                      const content = document.getElementById("report-content");
+                      if (!content) return;
+                      const printWindow = window.open("", "_blank");
+                      if (!printWindow) return;
+                      const origin = typeof window !== "undefined" ? window.location.origin : "";
+                      printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>KDP Compliance Report — manu2print</title>
+      <style>
+        body { font-family: Inter, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+        .header { margin-bottom: 24px; }
+        .logo-manu { color: #F05A28; font-weight: bold; font-size: 24px; }
+        .logo-print { color: #4cd964; font-weight: bold; font-size: 24px; }
+        .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.06; width: 300px; pointer-events: none; z-index: -1; }
+        table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+        th { background: #FAF7EE; padding: 8px; text-align: left; border: 1px solid #E0D8C4; }
+        td { padding: 8px; border: 1px solid #E0D8C4; }
+        .footer { margin-top: 40px; text-align: center; color: #6B6151; font-size: 12px; border-top: 1px solid #E0D8C4; padding-top: 16px; }
+        @media print { .no-print { display: none; } }
+      </style>
+    </head>
+    <body>
+      <img src="${origin}/MANNY%20AVATAR.png" class="watermark" alt="" />
+      <div class="header">
+        <span class="logo-manu">manu</span><span class="logo-print">2print</span>
+      </div>
+      ${content.innerHTML}
+      <div class="footer">© manu2print.com — Built for indie authors</div>
+    </body>
+    </html>
+  `);
+                      printWindow.document.close();
+                      printWindow.focus();
+                      setTimeout(() => {
+                        printWindow.print();
+                        printWindow.close();
+                      }, 500);
                     }}
-                    className="bg-m2p-orange text-white px-6 py-3 rounded-lg font-bold hover:bg-m2p-orange-hover transition-colors"
+                    className="bg-m2p-orange text-white px-6 py-3 rounded-lg font-bold hover:bg-m2p-orange-hover cursor-pointer transition-colors"
                   >
                     Download Full Report (PDF)
                   </button>
