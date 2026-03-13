@@ -332,7 +332,7 @@ export default function DownloadPage() {
                       </ul>
                     </div>
                   )}
-                  <p className="mt-4 pt-4 border-t border-m2p-border text-center text-xs text-m2p-muted">© manu2print.com — Built for indie authors</p>
+                  <p className="mt-4 pt-4 border-t border-m2p-border text-center text-xs text-m2p-muted">© manu2print — Built for indie authors</p>
                   {report.upsellBridge && (
                     <p className="mt-3 text-sm text-m2p-muted text-center">{report.upsellBridge}</p>
                   )}
@@ -343,6 +343,9 @@ export default function DownloadPage() {
                     onClick={() => {
                       const content = document.getElementById("report-content");
                       if (!content) return;
+                      const clone = content.cloneNode(true) as HTMLElement;
+                      if (clone.firstElementChild) clone.firstElementChild.remove();
+                      const bodyContent = clone.innerHTML;
                       const printWindow = window.open("", "_blank");
                       if (!printWindow) return;
                       const origin = typeof window !== "undefined" ? window.location.origin : "";
@@ -369,8 +372,14 @@ export default function DownloadPage() {
       <div class="header">
         <span class="logo-manu">manu</span><span class="logo-print">2print</span>
       </div>
-      ${content.innerHTML}
-      <div class="footer">© manu2print.com — Built for indie authors</div>
+      ${bodyContent}
+      <div style="margin-top:32px; padding:24px; background:#FEF0EB; border-radius:12px; text-align:center; border:1px solid #F05A28;">
+        <p style="font-size:18px; font-weight:bold; color:#1A1208; margin-bottom:8px;">Want to fix these issues automatically?</p>
+        <p style="color:#6B6151; margin-bottom:16px;">KDP PDF Formatter is coming soon — upload once, get a print-ready PDF instantly.</p>
+        <p style="margin-bottom:16px;"><a href="https://manu2print.com" style="background:#F05A28; color:white; padding:12px 24px; border-radius:8px; text-decoration:none; font-weight:bold;">Join the Waitlist → manu2print.com</a></p>
+        <p style="color:#6B6151; font-size:13px;">💰 Earn 30% commission — <a href="https://manu2print.com" style="color:#F05A28;">become an affiliate</a></p>
+      </div>
+      <div class="footer">© manu2print — Built for indie authors</div>
     </body>
     </html>
   `);
