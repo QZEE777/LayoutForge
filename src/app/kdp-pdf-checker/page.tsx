@@ -200,6 +200,7 @@ export default function KdpPdfCheckerPage() {
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
+          style={{ position: "relative" }}
           className={`mt-8 rounded-2xl border-2 border-dashed p-14 text-center transition-all ${
             isDragging ? "border-m2p-orange bg-m2p-orange-soft" : "border-m2p-border bg-white hover:border-m2p-orange/50"
           }`}
@@ -211,7 +212,7 @@ export default function KdpPdfCheckerPage() {
             className="hidden"
             id="checker-file"
           />
-          <label htmlFor="checker-file" className="cursor-pointer block">
+          <label htmlFor="checker-file" className="cursor-pointer block relative">
             {file ? (
               <div className="relative min-h-[60px]">
                 <p className="text-m2p-ink font-medium">{cleanFilenameForDisplay(file.name)}</p>
@@ -219,14 +220,24 @@ export default function KdpPdfCheckerPage() {
                 <Image
                   src="/MANNY AVATAR.png"
                   alt=""
-                  width={100}
-                  height={100}
+                  width={80}
+                  height={80}
                   className="rounded-full object-cover"
-                  style={{ position: "absolute", bottom: 8, right: 8, opacity: 0.08, pointerEvents: "none" }}
+                  style={{ position: "absolute", bottom: 8, right: 12, opacity: 0.15, pointerEvents: "none" }}
                 />
               </div>
             ) : (
-              <p className="text-m2p-muted">Drop your PDF here or click to choose</p>
+              <>
+                <p className="text-m2p-muted">Drop your PDF here or click to choose</p>
+                <Image
+                  src="/MANNY AVATAR.png"
+                  alt=""
+                  width={80}
+                  height={80}
+                  className="rounded-full object-cover"
+                  style={{ position: "absolute", bottom: 8, right: 12, opacity: 0.12, pointerEvents: "none" }}
+                />
+              </>
             )}
           </label>
         </div>
