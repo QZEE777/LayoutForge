@@ -14,17 +14,21 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 const DEFAULT_SIGNED_URL_EXPIRES = 172800; // 48 hours
 
 function getClient(): S3Client {
-  const accountId = process.env.R2_ACCOUNT_ID;
+  const endpoint =
+    process.env.R2_ENDPOINT ||
+    (process.env.R2_ACCOUNT_ID
+      ? `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`
+      : "");
   const accessKeyId = process.env.R2_ACCESS_KEY_ID;
   const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
-  if (!accountId || !accessKeyId || !secretAccessKey) {
+  if (!endpoint || !accessKeyId || !secretAccessKey) {
     throw new Error(
-      "R2 storage requires R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, and R2_SECRET_ACCESS_KEY environment variables."
+      "R2 storage requires R2_ENDPOINT (or R2_ACCOUNT_ID), R2_ACCESS_KEY_ID, and R2_SECRET_ACCESS_KEY environment variables."
     );
   }
   return new S3Client({
     region: "auto",
-    endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+    endpoint,
     credentials: {
       accessKeyId,
       secretAccessKey,
@@ -76,6 +80,32 @@ export async function uploadFile(
 }
 
 /**
+ * Download a file from R2 by full key (e.g. "uploads/abc-123.pdf").
+ */
+export async function getFileByKey(fullKey: string): Promise<Buffer> {
+  try {
+    const client = getClient();
+    const res = await client.send(
+      new GetObjectCommand({
+        Bucket: getBucket(),
+        Key: fullKey,
+      })
+    );
+    if (!res.Body) {
+      throw new Error(`R2 get returned no body for ${fullKey}`);
+    }
+    const chunks: Uint8Array[] = [];
+    for await (const chunk of res.Body as AsyncIterable<Uint8Array>) {
+      chunks.push(chunk);
+    }
+    return Buffer.concat(chunks);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    throw new Error(`R2 getFileByKey failed for ${fullKey}: ${msg}`);
+  }
+}
+
+/**
  * Download a file from R2.
  * @param id - Job/document id
  * @param filename - Filename (e.g. "abc123.pdf")
@@ -86,26 +116,7 @@ export async function downloadFile(
   filename: string
 ): Promise<Buffer> {
   const k = key(id, filename);
-  try {
-    const client = getClient();
-    const res = await client.send(
-      new GetObjectCommand({
-        Bucket: getBucket(),
-        Key: k,
-      })
-    );
-    if (!res.Body) {
-      throw new Error(`R2 get returned no body for ${k}`);
-    }
-    const chunks: Uint8Array[] = [];
-    for await (const chunk of res.Body as AsyncIterable<Uint8Array>) {
-      chunks.push(chunk);
-    }
-    return Buffer.concat(chunks);
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    throw new Error(`R2 download failed for ${k}: ${msg}`);
-  }
+  return getFileByKey(k);
 }
 
 /**

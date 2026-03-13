@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -11,15 +11,10 @@ import { ErrorRecovery } from "@/components/ErrorRecovery";
 import { ToolBreadcrumb } from "@/components/ToolBreadcrumb";
 import SiteShell from "@/components/SiteShell";
 
-/** Host body limit (e.g. Vercel 4.5 MB). Files larger than this use direct preflight upload when available. */
-const SERVER_MAX_MB = 4;
-/** Max PDF size we accept (direct upload to preflight or fallback message). */
+/** Files at or below this size go through /api/kdp-pdf-check (Vercel). Over this use R2 presigned upload. */
+const SERVER_MAX_MB = 1;
+/** Max PDF size we accept. */
 const MAX_SELECT_MB = 100;
-
-const PREFLIGHT_POLL_MS = 2500;
-const PREFLIGHT_MAX_WAIT_MS = 120000;
-/** Timeout for direct upload to checker (cold start can take 50–60s on free tier; 15MB+ upload adds time). */
-const DIRECT_UPLOAD_TIMEOUT_MS = 150000;
 
 export default function KdpPdfCheckerPage() {
   const router = useRouter();
@@ -27,10 +22,6 @@ export default function KdpPdfCheckerPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const preflightUrl = typeof process.env.NEXT_PUBLIC_KDP_PREFLIGHT_API_URL === "string"
-    ? process.env.NEXT_PUBLIC_KDP_PREFLIGHT_API_URL.trim()
-    : "";
 
   const validateFile = useCallback((f: File): string | null => {
     const ext = f.name.toLowerCase().slice(f.name.lastIndexOf("."));
@@ -41,17 +32,8 @@ export default function KdpPdfCheckerPage() {
   }, []);
 
   const fileSizeMB = file ? file.size / (1024 * 1024) : 0;
-  const useDirectUpload = preflightUrl && file && fileSizeMB > SERVER_MAX_MB && fileSizeMB <= MAX_SELECT_MB;
-  const fileTooBigForServer = file
-    ? fileSizeMB > SERVER_MAX_MB && !preflightUrl
-    : false;
-
-  // Pre-warm the checker when user selects a large file so Render has time to wake before they click Check
-  useEffect(() => {
-    if (!file || !useDirectUpload || !preflightUrl) return;
-    const url = preflightUrl.replace(/\/$/, "");
-    fetch(`${url}/health`).catch(() => {});
-  }, [file, useDirectUpload, preflightUrl]);
+  const useR2Upload = file && fileSizeMB > SERVER_MAX_MB && fileSizeMB <= MAX_SELECT_MB;
+  const fileTooBigForServer = file ? fileSizeMB > MAX_SELECT_MB : false;
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -102,51 +84,38 @@ export default function KdpPdfCheckerPage() {
     setUploading(true);
     setError(null);
     const fileSizeMB = file.size / (1024 * 1024);
-    let wasDirectUpload = false;
+    let wasR2Upload = false;
     try {
-      if (useDirectUpload && preflightUrl) {
-        wasDirectUpload = true;
-        const url = preflightUrl.replace(/\/$/, "");
-        const form = new FormData();
-        form.append("file", file, file.name.toLowerCase().endsWith(".pdf") ? file.name : "document.pdf");
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), DIRECT_UPLOAD_TIMEOUT_MS);
-        let res: Response;
-        try {
-          res = await fetch(`${url}/upload`, { method: "POST", body: form, signal: controller.signal });
-        } finally {
-          clearTimeout(timeoutId);
+      if (useR2Upload) {
+        wasR2Upload = true;
+        const createRes = await fetch("/api/create-upload-url", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fileSize: file.size }),
+        });
+        if (!createRes.ok) {
+          const errData = (await createRes.json()) as { error?: string };
+          throw new Error(errData.error || "Failed to create upload URL");
         }
-        const responseText = await res.text();
-        console.log("Render /upload response status:", res.status);
-        console.log("Render /upload response body:", responseText);
-        if (!res.ok) {
-          let errMsg = `Upload failed (${res.status}).`;
-          try {
-            const parsed = responseText ? JSON.parse(responseText) : null;
-            if (parsed && typeof parsed.error === "string") errMsg = parsed.error;
-          } catch {
-            if (responseText) errMsg = responseText.slice(0, 200);
-          }
-          throw new Error(errMsg);
-        }
-        const { job_id } = (JSON.parse(responseText) || { job_id: "" }) as { job_id: string };
-        const deadline = Date.now() + PREFLIGHT_MAX_WAIT_MS;
-        while (Date.now() < deadline) {
-          await new Promise((r) => setTimeout(r, PREFLIGHT_POLL_MS));
-          res = await fetch(`${url}/status/${job_id}`);
-          const statusText = await res.text();
-          console.log("Render /status response status:", res.status);
-          console.log("Render /status response body:", statusText);
-          if (!res.ok) continue;
-          const statusData = (statusText ? JSON.parse(statusText) : { status: "" }) as { status: string; report?: unknown };
-          if (statusData.status === "completed") break;
-          if (statusData.status === "failed") throw new Error("Check failed. Try again.");
-        }
+        const { uploadUrl, fileKey, jobId } = (await createRes.json()) as {
+          uploadUrl: string;
+          fileKey: string;
+          jobId: string;
+        };
+        const uploadRes = await fetch(uploadUrl, {
+          method: "PUT",
+          body: file,
+          headers: { "Content-Type": "application/pdf" },
+        });
+        if (!uploadRes.ok) throw new Error("R2 upload failed");
         const saveRes = await fetch("/api/kdp-pdf-check-from-preflight", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ jobId: job_id, fileSizeMB: Math.round(fileSizeMB * 100) / 100 }),
+          body: JSON.stringify({
+            jobId,
+            fileKey,
+            fileSizeMB: Math.round(fileSizeMB * 100) / 100,
+          }),
         });
         const saveData = (await saveRes.json()) as { id?: string; message?: string };
         if (!saveRes.ok) throw new Error(saveData.message || "Could not save report.");
@@ -178,11 +147,11 @@ export default function KdpPdfCheckerPage() {
       const isFailedFetch = msg === "Failed to fetch";
       const isAbort = err instanceof Error && err.name === "AbortError";
       const fileOverLimit = file && file.size > SERVER_MAX_MB * 1024 * 1024;
-      if (wasDirectUpload && (isFailedFetch || isAbort || msg.includes("Upload to checker"))) {
+      if (wasR2Upload && (isFailedFetch || isAbort || msg.includes("R2 upload") || msg.includes("upload URL"))) {
         setError(
-          "The checker didn’t respond in time. Try again in a moment, or use our PDF Compressor and check a smaller file."
+          "Upload failed. Try again in a moment, or use our PDF Compressor and check a smaller file."
         );
-      } else if (!wasDirectUpload && isFailedFetch && fileOverLimit) {
+      } else if (!wasR2Upload && isFailedFetch && fileOverLimit) {
         setError(
           `Upload failed — files over ${SERVER_MAX_MB} MB can't be sent through this page. Use our PDF Compressor to shrink the file first, then try again.`
         );
@@ -192,7 +161,7 @@ export default function KdpPdfCheckerPage() {
     } finally {
       setUploading(false);
     }
-  }, [file, router, useDirectUpload, preflightUrl]);
+  }, [file, router, useR2Upload]);
 
   return (
     <SiteShell>
@@ -269,14 +238,14 @@ export default function KdpPdfCheckerPage() {
           </label>
         </div>
 
-        {file && useDirectUpload && (
+        {file && useR2Upload && (
           <div className="mt-4 rounded-lg bg-m2p-orange-soft/50 border border-m2p-border p-3 text-sm text-m2p-muted">
-            Large file: sent directly to the checker. You’ll get the full report and a visual preview on the results page.
+            Large file: uploaded via secure link, then checked. You’ll get the full report on the results page.
           </div>
         )}
         {file && fileTooBigForServer && (
           <div className="mt-4 rounded-lg bg-m2p-orange-soft border border-m2p-orange/30 p-3 text-sm text-m2p-orange">
-            Your file is <strong>{formatFileSize(file.size)}</strong>. For files over {SERVER_MAX_MB} MB, use our free{" "}
+            Your file is <strong>{formatFileSize(file.size)}</strong>. Max size is {MAX_SELECT_MB} MB. Use our free{" "}
             <Link href="/pdf-compress" className="underline font-medium text-m2p-orange hover:opacity-90">
               PDF Compressor
             </Link>{" "}

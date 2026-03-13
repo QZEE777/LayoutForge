@@ -1,13 +1,13 @@
 /**
- * POST { jobId, fileSizeMB? } — fetch report from preflight API and save as checker result.
- * Used when the client uploaded directly to preflight (files > 4 MB) to avoid Vercel body limit.
+ * POST { jobId, fileSizeMB? } or { jobId, fileKey, fileSizeMB? } — fetch report from preflight API and save as checker result.
+ * With fileKey: fetch PDF from R2, send to Render /upload, poll, then fetch report. Without: jobId is Render job id, fetch report directly.
  */
 import { NextRequest, NextResponse } from "next/server";
 
 export const maxDuration = 60;
 import { PDFDocument } from "pdf-lib";
 import { saveUpload, updateMeta, type StoredManuscript } from "@/lib/storage";
-import { getSignedDownloadUrl } from "@/lib/r2Storage";
+import { getSignedDownloadUrl, getFileByKey } from "@/lib/r2Storage";
 import { getGutterInches } from "@/lib/kdpConfig";
 import { supabase } from "@/lib/supabase";
 import { enrichCheckerReport } from "@/lib/kdpReportEnhance";
@@ -77,12 +77,12 @@ export async function POST(request: NextRequest) {
         { status: 503 }
       );
     }
-    let body: { jobId?: string; fileSizeMB?: number };
+    let body: { jobId?: string; fileKey?: string; fileSizeMB?: number };
     try {
       body = await request.json();
     } catch {
       return NextResponse.json(
-        { error: "Invalid body", message: "Send JSON with jobId (preflight job id)." },
+        { error: "Invalid body", message: "Send JSON with jobId (and optionally fileKey for R2 flow)." },
         { status: 400 }
       );
     }
@@ -102,11 +102,54 @@ export async function POST(request: NextRequest) {
     }
     const fileSizeMB = typeof body.fileSizeMB === "number" ? body.fileSizeMB : undefined;
     const url = baseUrl.replace(/\/$/, "");
+
+    let renderJobId: string;
+
+    if (typeof body.fileKey === "string" && /^uploads\/[0-9a-fA-F-]+\.pdf$/.test(body.fileKey.trim())) {
+      // R2 flow: fetch PDF from R2, POST to Render /upload, poll until done
+      const fileKey = body.fileKey.trim();
+      const pdfBuffer = await getFileByKey(fileKey);
+      const form = new FormData();
+      form.append("file", new Blob([pdfBuffer], { type: "application/pdf" }), "document.pdf");
+      const uploadRes = await fetch(`${url}/upload`, { method: "POST", body: form });
+      if (!uploadRes.ok) {
+        const text = await uploadRes.text();
+        return NextResponse.json(
+          { error: "Preflight upload failed", message: text || `Upload failed (${uploadRes.status}).` },
+          { status: 502 }
+        );
+      }
+      const uploadData = (await uploadRes.json()) as { job_id?: string };
+      renderJobId = typeof uploadData.job_id === "string" ? uploadData.job_id : "";
+      if (!renderJobId) {
+        return NextResponse.json(
+          { error: "Preflight upload failed", message: "No job_id from preflight." },
+          { status: 502 }
+        );
+      }
+      const deadline = Date.now() + 120000;
+      while (Date.now() < deadline) {
+        await new Promise((r) => setTimeout(r, 2500));
+        const statusRes = await fetch(`${url}/status/${encodeURIComponent(renderJobId)}`);
+        if (!statusRes.ok) continue;
+        const statusData = (await statusRes.json()) as { status?: string };
+        if (statusData.status === "completed") break;
+        if (statusData.status === "failed") {
+          return NextResponse.json(
+            { error: "Check failed", message: "Preflight validation failed. Try again." },
+            { status: 502 }
+          );
+        }
+      }
+    } else {
+      renderJobId = jobId;
+    }
+
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 60000);
     let res: Response;
     try {
-      res = await fetch(`${url}/report/${encodeURIComponent(jobId)}`, { signal: controller.signal });
+      res = await fetch(`${url}/report/${encodeURIComponent(renderJobId)}`, { signal: controller.signal });
     } finally {
       clearTimeout(timeout);
     }
@@ -119,7 +162,7 @@ export async function POST(request: NextRequest) {
     const preflight = (await res.json()) as PreflightReport;
     const report: CheckerReport = buildReportFromPreflightOnly(preflight, fileSizeMB);
     report.hasPdfPreview = true;
-    report.pdfSourceUrl = `${url}/file/${encodeURIComponent(jobId)}`;
+    report.pdfSourceUrl = `${url}/file/${encodeURIComponent(renderJobId)}`;
     const enrichedReport = enrichCheckerReport(report, "Uploaded PDF", preflight);
     const doc = await PDFDocument.create();
     doc.addPage([612, 792]);
@@ -145,9 +188,9 @@ export async function POST(request: NextRequest) {
       console.error("[kdp-pdf-check-from-preflight] verification_results upsert failed:", e);
     }
 
-    fetch(`${url}/annotate/${jobId}`, { method: "POST" }).catch(() => {});
+    fetch(`${url}/annotate/${renderJobId}`, { method: "POST" }).catch(() => {});
     await updateMeta(stored.id, {
-      annotatedPdfUrl: `${url}/file/${jobId}/annotated`,
+      annotatedPdfUrl: `${url}/file/${renderJobId}/annotated`,
       annotatedPdfStatus: "processing",
     });
 
