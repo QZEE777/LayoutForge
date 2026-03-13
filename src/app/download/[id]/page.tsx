@@ -431,9 +431,10 @@ export default function DownloadPage() {
                   <p className="text-center text-sm text-m2p-muted mb-4">
                     ⏳ Report expires in 7 days — download now to keep a copy.
                   </p>
-                  <button
-                    type="button"
-                    onClick={() => {
+                  <div className="flex justify-center">
+                    <button
+                      type="button"
+                      onClick={() => {
                       const content = document.getElementById("report-content");
                       if (!content) return;
                       const clone = content.cloneNode(true) as HTMLElement;
@@ -483,27 +484,30 @@ export default function DownloadPage() {
                         printWindow.close();
                       }, 500);
                     }}
-                    className="bg-m2p-orange text-white px-6 py-3 rounded-lg font-bold hover:bg-m2p-orange-hover cursor-pointer transition-colors"
-                  >
-                    Download Full Report (PDF)
-                  </button>
+                      className="bg-m2p-orange text-white px-6 py-3 rounded-lg font-bold hover:bg-m2p-orange-hover cursor-pointer transition-colors"
+                    >
+                      Download Full Report (PDF)
+                    </button>
+                  </div>
                   {/* Share + formatter CTA */}
                   <div className="mt-4 bg-m2p-orange-soft border border-m2p-border rounded-lg p-4">
                     <p className="font-semibold text-m2p-ink mb-1">Share your readiness score</p>
                     <p className="text-sm text-m2p-muted mb-3">
                       Share in your writing community — help other authors discover manu2print
                     </p>
-                    <button
-                      type="button"
-                      onClick={handleCopyVerificationLink}
-                      className="inline-flex items-center rounded-lg bg-m2p-orange text-white px-4 py-2 text-sm font-semibold hover:bg-m2p-orange-hover"
-                    >
+                    <div className="flex justify-center">
+                      <button
+                        type="button"
+                        onClick={handleCopyVerificationLink}
+                        className="inline-flex items-center rounded-lg bg-m2p-orange text-white px-4 py-2 text-sm font-semibold hover:bg-m2p-orange-hover"
+                      >
                       {copyShareStatus === "ok"
                         ? "Link copied!"
                         : copyShareStatus === "fail"
                         ? "Copy failed"
                         : "Copy verification link"}
-                    </button>
+                      </button>
+                    </div>
                   </div>
                   {/* Formatter CTA block */}
                   <div className="bg-m2p-ink text-white rounded-xl p-8 my-8 text-center">
