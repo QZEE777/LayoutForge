@@ -126,7 +126,13 @@ function buildBasicReport(
     } else {
       issues.push(`Page size ${widthIn}" × ${heightIn}" is not a standard KDP trim size.`);
     }
-    recommendations.push("Re-export your file with a KDP trim size: 5×8, 5.5×8.5, 6×9, 8.5×11, etc. See KDP help for full list.");
+    if (isA4) {
+      recommendations.push(
+        "Your file is A4 size (8.27×11.69). KDP does not accept A4. To fix: open your manuscript in your design tool (Word, Canva, InDesign) and change the page size to a KDP standard trim. Most common choices: 6×9 for novels and non-fiction, 5×8 for shorter books, 8.5×11 for workbooks and journals. Re-export as PDF at the new size and re-upload here."
+      );
+    } else {
+      recommendations.push("Re-export your file with a KDP trim size: 5×8, 5.5×8.5, 6×9, 8.5×11, etc. See KDP help for full list.");
+    }
   } else {
     recommendations.push(`Trim size matches KDP: ${kdpTrim.name}.`);
   }
