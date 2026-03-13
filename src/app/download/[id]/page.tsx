@@ -429,7 +429,7 @@ export default function DownloadPage() {
                   </div>
                   {/* Report expiry urgency */}
                   <p className="text-center text-sm text-m2p-muted mb-4">
-                    ⏳ Report expires in 7 days — download now to keep a copy.
+                    ⏳ Report expires in 24 hours — download now to keep a copy.
                   </p>
                   <div className="flex justify-center">
                     <button
@@ -952,12 +952,46 @@ export default function DownloadPage() {
         </div>
 
         {/* Public verification link */}
-        <p className="text-center text-sm text-m2p-muted mb-6">
+        <p className="text-center text-sm text-m2p-muted mb-2">
           Share your results:{" "}
-          <span className="text-m2p-orange font-medium">
+          <span className="text-m2p-orange font-bold">
             manu2print.com/verify/{id}
           </span>
         </p>
+        <div className="flex gap-3 justify-center flex-wrap mt-3 mb-6">
+          <a
+            href={`https://www.facebook.com/sharer/sharer.php?u=https://manu2print.com/verify/${id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-[#1877F2] text-white px-4 py-2 rounded-lg text-sm font-bold hover:opacity-90"
+          >
+            Share on Facebook
+          </a>
+          <a
+            href={`https://www.linkedin.com/sharing/share-offsite/?url=https://manu2print.com/verify/${id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-[#0A66C2] text-white px-4 py-2 rounded-lg text-sm font-bold hover:opacity-90"
+          >
+            Share on LinkedIn
+          </a>
+          <a
+            href={`https://www.instagram.com`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-[#E1306C] text-white px-4 py-2 rounded-lg text-sm font-bold hover:opacity-90"
+          >
+            Share on Instagram
+          </a>
+          <a
+            href={`https://twitter.com/intent/tweet?url=https://manu2print.com/verify/${id}&text=Just%20checked%20my%20manuscript%20on%20Manu2Print%20-%20KDP%20Readiness%20Score%3A%20${report?.readinessScore100 ?? ""}%2F100`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-[#1DA1F2] text-white px-4 py-2 rounded-lg text-sm font-bold hover:opacity-90"
+          >
+            Share on X
+          </a>
+        </div>
 
         {/* Micro FAQ */}
         <div className="border border-m2p-border rounded-lg divide-y divide-m2p-border mb-6">
@@ -1000,6 +1034,16 @@ export default function DownloadPage() {
           </p>
         </div>
 
+        {/* Bottom storage notice (emphasis) */}
+        <div className="text-center mt-8 p-4 border border-m2p-border rounded-lg">
+          <p className="font-bold text-[#4cd964] text-lg mb-1">
+            Your report is stored temporarily for 24 hours.
+          </p>
+          <p className="font-bold text-[#4cd964]">
+            Save this link: Bookmark this page or copy the URL to return to your download within 24 hours.
+          </p>
+        </div>
+
         {/* Bottom CTA */}
         <div className="text-center mt-8">
           <a
@@ -1010,7 +1054,9 @@ export default function DownloadPage() {
           </a>
         </div>
 
-        <p className="text-center text-m2p-muted text-xs mt-6">© manu2print.com — Built for indie authors</p>
+        <p className="text-center text-m2p-muted text-xs mt-6">
+          © manu2print.com — Built for indie authors
+        </p>
       </main>
     </div>
   );

@@ -148,7 +148,7 @@ export function estimateFixHours(issues: EnrichedIssue[]): number {
 
 export function buildUpsellBridge(issueCount: number, estimatedFixHours: number): string {
   const hrs = estimatedFixHours === 0 ? "under an hour" : estimatedFixHours === 1 ? "1 hour" : `${estimatedFixHours} hours`;
-  return `${issueCount} issue${issueCount === 1 ? "" : "s"} detected. Estimated fix time: ${hrs}. Fix automatically with KDP PDF Formatter — coming soon at manu2print.com`;
+  return `${issueCount} issue${issueCount === 1 ? "" : "s"} detected. Estimated manual fix time: ${hrs}. Fix automatically with KDP PDF Formatter — coming soon at manu2print.com`;
 }
 
 export interface ChecklistSpecInput {
