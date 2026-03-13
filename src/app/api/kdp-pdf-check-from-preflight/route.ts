@@ -3,6 +3,8 @@
  * Used when the client uploaded directly to preflight (files > 4 MB) to avoid Vercel body limit.
  */
 import { NextRequest, NextResponse } from "next/server";
+
+export const maxDuration = 60;
 import { PDFDocument } from "pdf-lib";
 import { saveUpload, updateMeta, type StoredManuscript } from "@/lib/storage";
 import { getSignedDownloadUrl } from "@/lib/r2Storage";
@@ -98,7 +100,14 @@ export async function POST(request: NextRequest) {
     }
     const fileSizeMB = typeof body.fileSizeMB === "number" ? body.fileSizeMB : undefined;
     const url = baseUrl.replace(/\/$/, "");
-    const res = await fetch(`${url}/report/${encodeURIComponent(jobId)}`);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 60000);
+    let res: Response;
+    try {
+      res = await fetch(`${url}/report/${encodeURIComponent(jobId)}`, { signal: controller.signal });
+    } finally {
+      clearTimeout(timeout);
+    }
     if (!res.ok) {
       return NextResponse.json(
         { error: "Preflight report failed", message: `Could not get report (${res.status}).` },

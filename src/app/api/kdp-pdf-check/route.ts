@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PDFDocument } from "pdf-lib";
+
+export const maxDuration = 60;
 import { saveUpload, updateMeta, type StoredManuscript } from "@/lib/storage";
 import { getSignedDownloadUrl } from "@/lib/r2Storage";
 import { TRIM_SIZES, getGutterInches } from "@/lib/kdpConfig";
@@ -39,7 +41,14 @@ async function runPreflightCheck(
   const url = baseUrl.replace(/\/$/, "");
   const form = new FormData();
   form.append("file", new Blob([buffer], { type: "application/pdf" }), fileName || "document.pdf");
-  let res = await fetch(`${url}/upload`, { method: "POST", body: form });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 60000);
+  let res: Response;
+  try {
+    res = await fetch(`${url}/upload`, { method: "POST", body: form, signal: controller.signal });
+  } finally {
+    clearTimeout(timeout);
+  }
   if (!res.ok) return null;
   const { job_id } = (await res.json()) as { job_id: string };
   const deadline = Date.now() + PREFLIGHT_MAX_WAIT_MS;
