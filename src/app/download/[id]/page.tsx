@@ -354,7 +354,6 @@ export default function DownloadPage() {
                       <p className="text-sm font-medium text-green-800">This file meets KDP print specifications.</p>
                     </div>
                   )}
-                  <p className="mt-4 pt-4 border-t border-m2p-border text-center text-xs text-m2p-muted">© manu2print — Built for indie authors</p>
                   {report.upsellBridge && (
                     <p className="mt-3 text-sm text-m2p-muted text-center">{report.upsellBridge}</p>
                   )}
@@ -381,7 +380,7 @@ export default function DownloadPage() {
         .header { margin-bottom: 24px; }
         .logo-manu { color: #F05A28; font-weight: bold; font-size: 24px; }
         .logo-print { color: #4cd964; font-weight: bold; font-size: 24px; }
-        .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.06; width: 300px; pointer-events: none; z-index: -1; }
+        .watermark { position: fixed; bottom: 20px; right: 20px; width: 100px; height: 100px; opacity: 0.08; pointer-events: none; z-index: -1; }
         table { width: 100%; border-collapse: collapse; margin: 16px 0; }
         th { background: #FAF7EE; padding: 8px; text-align: left; border: 1px solid #E0D8C4; }
         td { padding: 8px; border: 1px solid #E0D8C4; }

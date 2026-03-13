@@ -117,8 +117,15 @@ function buildBasicReport(
   if (pageCount < 24) issues.push(`Page count (${pageCount}) is below KDP minimum of 24.`);
   else if (pageCount > 828) issues.push(`Page count (${pageCount}) exceeds KDP maximum of 828.`);
   if (!kdpTrim) {
-    issues.push(`Page size ${widthIn}" × ${heightIn}" is not a standard KDP trim size.`);
-    recommendations.push("Re-export your file with a KDP trim size: 5×8, 5.5×8.5, 6×9, etc. See KDP help for full list.");
+    const isA4 =
+      (Math.abs(widthIn - 8.27) <= 0.1 && Math.abs(heightIn - 11.69) <= 0.1) ||
+      (Math.abs(widthIn - 11.69) <= 0.1 && Math.abs(heightIn - 8.27) <= 0.1);
+    if (isA4) {
+      issues.push("This appears to be A4 size. KDP does not accept A4. Use 8.5×11 (US Letter) or another KDP trim size instead.");
+    } else {
+      issues.push(`Page size ${widthIn}" × ${heightIn}" is not a standard KDP trim size.`);
+    }
+    recommendations.push("Re-export your file with a KDP trim size: 5×8, 5.5×8.5, 6×9, 8.5×11, etc. See KDP help for full list.");
   } else {
     recommendations.push(`Trim size matches KDP: ${kdpTrim.name}.`);
   }

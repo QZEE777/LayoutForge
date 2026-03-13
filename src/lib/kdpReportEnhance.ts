@@ -185,7 +185,7 @@ export function buildUploadChecklist(input: ChecklistSpecInput): ChecklistItem[]
     status: input.hasFontIssues ? "fail" : "pass",
   });
   items.push({
-    check: "No critical errors",
+    check: input.errorCount === 0 ? "No critical errors" : "Critical errors found",
     status: input.errorCount === 0 ? "pass" : "fail",
   });
   items.push({
