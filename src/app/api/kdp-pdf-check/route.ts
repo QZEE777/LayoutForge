@@ -5,7 +5,8 @@ export const maxDuration = 60;
 import { saveUpload, updateMeta, type StoredManuscript } from "@/lib/storage";
 import { getSignedDownloadUrl } from "@/lib/r2Storage";
 import { TRIM_SIZES, getGutterInches } from "@/lib/kdpConfig";
-import { enrichCheckerReport } from "@/lib/kdpReportEnhance";
+import { enrichCheckerReport, cleanFilenameForDisplay } from "@/lib/kdpReportEnhance";
+import { supabase } from "@/lib/supabase";
 
 const PT_PER_INCH = 72;
 const TOLERANCE_INCH = 0.05; // allow 0.05" variance
@@ -205,6 +206,24 @@ export async function POST(request: NextRequest) {
     const enrichedReport = enrichCheckerReport(report, fileNameScanned, preflightReport ?? undefined);
     const stored = await saveUpload(buffer, fileNameScanned, "application/pdf");
     await updateMeta(stored.id, { processingReport: enrichedReport as StoredManuscript["processingReport"] });
+
+    // Store public verification summary
+    try {
+      const issuesCount = enrichedReport.issuesEnriched?.length ?? report.issues.length;
+      await supabase.from("verification_results").upsert(
+        {
+          verification_id: stored.id,
+          filename_clean: cleanFilenameForDisplay(enrichedReport.fileNameScanned),
+          readiness_score: enrichedReport.readinessScore100,
+          kdp_ready: enrichedReport.kdpReady,
+          scan_date: enrichedReport.scanDate,
+          issues_count: issuesCount,
+        },
+        { onConflict: "verification_id" }
+      );
+    } catch (e) {
+      console.error("[kdp-pdf-check] verification_results upsert failed:", e);
+    }
 
     // Trigger annotation — for preflight path use existing job_id,
     // for local path upload to preflight engine just to get annotations

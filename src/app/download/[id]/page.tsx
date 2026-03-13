@@ -134,6 +134,20 @@ export default function DownloadPage() {
     }
   }, [report]);
 
+  const handleCopyVerificationLink = useCallback(async () => {
+    if (!id) return;
+    const url = `https://manu2print.com/verify/${id}`;
+    setCopyShareStatus("idle");
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopyShareStatus("ok");
+      setTimeout(() => setCopyShareStatus("idle"), 3000);
+    } catch {
+      setCopyShareStatus("fail");
+      setTimeout(() => setCopyShareStatus("idle"), 3000);
+    }
+  }, [id]);
+
   useEffect(() => {
     if (!id) return;
     fetch(`/api/format-report?id=${encodeURIComponent(id)}`)
@@ -415,6 +429,23 @@ export default function DownloadPage() {
                   >
                     Download Full Report (PDF)
                   </button>
+                  <div className="mt-4 bg-m2p-orange-soft border border-m2p-border rounded-lg p-4">
+                    <p className="font-semibold text-m2p-ink mb-1">Share your readiness score</p>
+                    <p className="text-sm text-m2p-muted mb-3">
+                      Share in your writing community — help other authors discover manu2print
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleCopyVerificationLink}
+                      className="inline-flex items-center rounded-lg bg-m2p-orange text-white px-4 py-2 text-sm font-semibold hover:bg-m2p-orange-hover"
+                    >
+                      {copyShareStatus === "ok"
+                        ? "Link copied!"
+                        : copyShareStatus === "fail"
+                        ? "Copy failed"
+                        : "Copy verification link"}
+                    </button>
+                  </div>
                 </div>
               </>
             )}

@@ -9,6 +9,7 @@ import { PDFDocument } from "pdf-lib";
 import { saveUpload, updateMeta, type StoredManuscript } from "@/lib/storage";
 import { getSignedDownloadUrl } from "@/lib/r2Storage";
 import { getGutterInches } from "@/lib/kdpConfig";
+import { supabase } from "@/lib/supabase";
 import { enrichCheckerReport } from "@/lib/kdpReportEnhance";
 
 interface PreflightReport {
@@ -125,6 +126,24 @@ export async function POST(request: NextRequest) {
     const minimalPdf = Buffer.from(await doc.save());
     const stored = await saveUpload(minimalPdf, "preflight-report.pdf", "application/pdf");
     await updateMeta(stored.id, { processingReport: enrichedReport as StoredManuscript["processingReport"] });
+
+    // Store public verification summary
+    try {
+      const issuesCount = enrichedReport.issuesEnriched?.length ?? report.issues.length;
+      await supabase.from("verification_results").upsert(
+        {
+          verification_id: stored.id,
+          filename_clean: "Uploaded PDF — PDF",
+          readiness_score: enrichedReport.readinessScore100,
+          kdp_ready: enrichedReport.kdpReady,
+          scan_date: enrichedReport.scanDate,
+          issues_count: issuesCount,
+        },
+        { onConflict: "verification_id" }
+      );
+    } catch (e) {
+      console.error("[kdp-pdf-check-from-preflight] verification_results upsert failed:", e);
+    }
 
     fetch(`${url}/annotate/${jobId}`, { method: "POST" }).catch(() => {});
     await updateMeta(stored.id, {
