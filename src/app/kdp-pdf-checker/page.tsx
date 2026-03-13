@@ -113,7 +113,7 @@ export default function KdpPdfCheckerPage() {
         const timeoutId = setTimeout(() => controller.abort(), DIRECT_UPLOAD_TIMEOUT_MS);
         let res: Response;
         try {
-          res = await fetch(`${url}/upload`, { method: "POST", body: form, signal: controller.signal });
+          res = await fetch(`/api/upload-proxy`, { method: "POST", body: form, signal: controller.signal });
         } finally {
           clearTimeout(timeoutId);
         }
