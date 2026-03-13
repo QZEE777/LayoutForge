@@ -16,7 +16,7 @@ This document describes the current hosting, upload pipeline, storage, and viewe
 
 **Env / wiring**
 
-- **Vercel:** `KDP_PREFLIGHT_API_URL` (server-side, for `/api/kdp-pdf-check` and `/api/kdp-pdf-check-from-preflight`). `NEXT_PUBLIC_KDP_PREFLIGHT_API_URL` (same URL, for browser direct upload when file > 4 MB).
+- **Vercel:** `KDP_PREFLIGHT_API_URL` (server-side; also used by `/api/upload-proxy` for large-file uploads). `NEXT_PUBLIC_KDP_PREFLIGHT_API_URL` (same URL, for polling status/report when file > 4 MB).
 - **Render:** `REDIS_URL` (Upstash), `LOCAL_UPLOAD_DIR=/app/data/uploads`. Disk mounted at `/app/data` (persistent).
 
 ---
@@ -47,15 +47,16 @@ This document describes the current hosting, upload pipeline, storage, and viewe
 | Step | Who | What |
 |------|-----|------|
 | 1 | Browser | User selects PDF, clicks “Check PDF”. |
-| 2 | Browser | **Does not** call `/api/kdp-pdf-check` (would exceed Vercel body limit). Instead calls `POST {NEXT_PUBLIC_KDP_PREFLIGHT_API_URL}/upload` with `FormData` (direct to Render). |
-| 3 | **Preflight engine (Render)** | Receives file at `POST /upload`, stores to `/app/data/uploads/{job_id}.pdf`, enqueues Celery task, returns `{ job_id }`. |
-| 4 | **Celery (Render)** | Same as (A): validation, Redis status + report. PDF remains on disk. |
-| 5 | Browser | Polls `GET engine/status/{job_id}` until completed. |
-| 6 | Browser | Calls **Vercel** `POST /api/kdp-pdf-check-from-preflight` with `{ jobId, fileSizeMB }` (no file). |
-| 7 | **Vercel** | Fetches `GET engine/report/{job_id}` to get report JSON. Builds `processingReport` **without** `hasPdfPreview`. Creates a **minimal placeholder PDF** (one empty page via pdf-lib), `saveUpload(minimalPdf, "preflight-report.pdf", ...)`, gets `stored.id`. `updateMeta(stored.id, { processingReport })`. Returns `{ id: stored.id }`. |
-| 8 | Browser | Redirects to `/download/{id}`. |
+| 2 | Browser | Does not call `/api/kdp-pdf-check` (would exceed Vercel body limit). Calls `POST /api/upload-proxy` with `FormData` (same-origin; proxy forwards to Render). |
+| 3 | **Vercel** (`/api/upload-proxy`) | If `Content-Length` > 4.5 MB returns 413. Else forwards POST to Render `/upload`. |
+| 4 | **Preflight engine (Render)** | Receives file at `POST /upload`, stores to `/app/data/uploads/{job_id}.pdf`, enqueues Celery task, returns `{ job_id }`. |
+| 5 | **Celery (Render)** | Same as (A): validation, Redis status + report. PDF remains on disk. |
+| 6 | Browser | Polls `GET engine/status/{job_id}` until completed. |
+| 7 | Browser | Calls **Vercel** `POST /api/kdp-pdf-check-from-preflight` with `{ jobId, fileSizeMB }` (no file). |
+| 8 | **Vercel** | Fetches `GET engine/report/{job_id}`, builds `processingReport`, creates minimal placeholder PDF, returns `{ id: stored.id }`. |
+| 9 | Browser | Redirects to `/download/{id}`. |
 
-**Summary (>4 MB):** Browser → **Render** (receives + stores file; validation same as (A)) → Browser polls Render, then asks Vercel to “save” the report; Vercel **does not** receive or store the user’s PDF, only a placeholder PDF and the report JSON. So the frontend has no URL to the real PDF.
+**Summary (>4 MB):** Browser → **Vercel (upload-proxy)** → **Render**. Files over 4.5 MB are rejected by the proxy (Vercel body limit). For larger files, Render CORS must be fixed and direct upload re-enabled (see `kdp-preflight-engine` CORS and DEPLOY-LIVE).
 
 ---
 

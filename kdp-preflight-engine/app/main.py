@@ -40,7 +40,7 @@ app.add_middleware(SlowAPIMiddleware)
 @app.middleware("http")
 async def cors_middleware(request: Request, call_next):
     if request.method == "OPTIONS":
-        response = Response()
+        response = Response(status_code=204)
         response.headers["Access-Control-Allow-Origin"] = "*"
         response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
         response.headers["Access-Control-Allow-Headers"] = "*"
@@ -51,6 +51,22 @@ async def cors_middleware(request: Request, call_next):
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
     response.headers["Access-Control-Allow-Headers"] = "*"
     return response
+
+
+@app.options("/upload")
+def upload_options():
+    """Explicit CORS preflight for POST /upload so browsers always get headers."""
+    return Response(
+        status_code=204,
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
+            "Access-Control-Max-Age": "86400",
+        },
+    )
+
+
 app.include_router(upload.router, tags=["upload"])
 app.include_router(status.router, tags=["status"])
 app.include_router(report.router, tags=["report"])

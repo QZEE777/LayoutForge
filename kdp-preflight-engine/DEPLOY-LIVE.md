@@ -25,6 +25,8 @@ You use **Upstash** (e.g. `rediss://default:...@....upstash.io:6379?ssl_cert_req
 
 After that, **KDP PDF Checker** on layout-forge.vercel.app will use the full preflight engine when users upload a PDF. If the preflight API is down or times out, the site falls back to the basic (trim + page count) check.
 
+**CORS:** The engine sends `Access-Control-Allow-Origin: *` (and OPTIONS handling for `/upload`). If you change CORS in `app/main.py`, **redeploy the Render service** so the live URL returns these headers; otherwise direct browser→Render uploads can fail with a CORS error. The site currently uses the Vercel **upload-proxy** for large files (4–4.5 MB) to avoid CORS; files over 4.5 MB are rejected by the proxy until/unless direct upload to Render is re-enabled.
+
 ## Optional: Railway
 
 - New Web Service, connect repo, **Root Directory** = `kdp-preflight-engine`, **Dockerfile path** = `Dockerfile.live`.

@@ -113,7 +113,7 @@ export default function KdpPdfCheckerPage() {
         const timeoutId = setTimeout(() => controller.abort(), DIRECT_UPLOAD_TIMEOUT_MS);
         let res: Response;
         try {
-          res = await fetch(`${url}/upload`, { method: "POST", body: form, signal: controller.signal });
+          res = await fetch(`/api/upload-proxy`, { method: "POST", body: form, signal: controller.signal });
         } finally {
           clearTimeout(timeoutId);
         }
@@ -121,7 +121,14 @@ export default function KdpPdfCheckerPage() {
         console.log("Render /upload response status:", res.status);
         console.log("Render /upload response body:", responseText);
         if (!res.ok) {
-          throw new Error(`Render error ${res.status}: ${responseText}`);
+          let errMsg = `Upload failed (${res.status}).`;
+          try {
+            const parsed = responseText ? JSON.parse(responseText) : null;
+            if (parsed && typeof parsed.error === "string") errMsg = parsed.error;
+          } catch {
+            if (responseText) errMsg = responseText.slice(0, 200);
+          }
+          throw new Error(errMsg);
         }
         const { job_id } = (JSON.parse(responseText) || { job_id: "" }) as { job_id: string };
         const deadline = Date.now() + PREFLIGHT_MAX_WAIT_MS;
