@@ -94,6 +94,38 @@ export function computeKdpPassProbability(errorCount: number, warningCount: numb
   return Math.max(5, Math.min(95, score));
 }
 
+/** Readiness score out of 100: start 100, -20 per critical, -8 per warning, min 5. */
+export function computeReadinessScore100(errorCount: number, warningCount: number): number {
+  let score = 100;
+  score -= errorCount * 20;
+  score -= warningCount * 8;
+  return Math.max(5, Math.min(100, score));
+}
+
+/** Top 3–5 page numbers with most issues (errors count more). Empty if none identified. */
+export function getHighRiskPageNumbers(
+  pageIssues: Array<{ page: number; severity?: string }> | undefined
+): number[] {
+  if (!pageIssues?.length) return [];
+  const byPage = new Map<number, { errors: number; warnings: number }>();
+  for (const i of pageIssues) {
+    const p = i.page;
+    const isError = i.severity === "error" || !i.severity;
+    if (!byPage.has(p)) byPage.set(p, { errors: 0, warnings: 0 });
+    const cur = byPage.get(p)!;
+    if (isError) cur.errors += 1;
+    else cur.warnings += 1;
+  }
+  const sorted = [...byPage.entries()]
+    .map(([page, counts]) => ({ page, weight: counts.errors * 10 + counts.warnings }))
+    .filter((x) => x.weight > 0)
+    .sort((a, b) => b.weight - a.weight)
+    .slice(0, 5)
+    .map((x) => x.page)
+    .sort((a, b) => a - b);
+  return sorted;
+}
+
 export function getRiskLevel(score: number): "Low" | "Medium" | "High" {
   if (score >= 80) return "Low";
   if (score >= 50) return "Medium";
@@ -255,6 +287,12 @@ export interface EnrichedCheckerReport extends CheckerReportBase {
   fileNameScanned: string;
   kdpPassProbability: number;
   riskLevel: "Low" | "Medium" | "High";
+  /** Readiness score out of 100 (viral feature). */
+  readinessScore100: number;
+  /** Top 3–5 pages most likely to cause print problems. */
+  highRiskPageNumbers: number[];
+  /** True when no critical issues (scan passed). */
+  kdpReady: boolean;
   issuesEnriched: EnrichedIssue[];
   uploadChecklist: ChecklistItem[];
   specTable: SpecRow[];
@@ -296,6 +334,9 @@ export function enrichCheckerReport(
 
   const score = computeKdpPassProbability(errorCount, warningCount);
   const riskLevel = getRiskLevel(score);
+  const readinessScore100 = computeReadinessScore100(errorCount, warningCount);
+  const highRiskPageNumbers = getHighRiskPageNumbers(report.page_issues);
+  const kdpReady = errorCount === 0;
   const uploadChecklist = buildUploadChecklist({
     trimMatchKDP: report.trimMatchKDP,
     trimDetected: report.trimDetected,
@@ -325,6 +366,9 @@ export function enrichCheckerReport(
     fileNameScanned: fileNameScanned || "document.pdf",
     kdpPassProbability: score,
     riskLevel,
+    readinessScore100,
+    highRiskPageNumbers,
+    kdpReady,
     issuesEnriched,
     uploadChecklist,
     specTable,

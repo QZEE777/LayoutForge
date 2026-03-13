@@ -5,11 +5,13 @@
 
 export const TRIM_SIZES = [
   { id: "5x8", name: '5" x 8" — Popular fiction', widthInches: 5, heightInches: 8 },
+  { id: "5.06x7.81", name: '5.06" x 7.81" — Digest', widthInches: 5.06, heightInches: 7.81 },
   { id: "5.25x8", name: '5.25" x 8" — Fiction/memoir', widthInches: 5.25, heightInches: 8 },
   { id: "5.5x8.5", name: '5.5" x 8.5" — Most popular nonfiction', widthInches: 5.5, heightInches: 8.5 },
   { id: "6x9", name: '6" x 9" — Standard nonfiction', widthInches: 6, heightInches: 9 },
   { id: "6.14x9.21", name: '6.14" x 9.21" — Trade paperback', widthInches: 6.14, heightInches: 9.21 },
   { id: "7x10", name: '7" x 10" — Textbooks/workbooks', widthInches: 7, heightInches: 10 },
+  { id: "7.44x9.69", name: '7.44" x 9.69" — Crown quarto', widthInches: 7.44, heightInches: 9.69 },
   { id: "8x10", name: '8" x 10" — Large format nonfiction', widthInches: 8, heightInches: 10 },
   { id: "8.5x11", name: '8.5" x 11" — Workbooks/journals', widthInches: 8.5, heightInches: 11 },
 ] as const;

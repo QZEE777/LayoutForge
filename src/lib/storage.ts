@@ -66,6 +66,9 @@ export interface StoredManuscript {
     fileNameScanned?: string;
     kdpPassProbability?: number;
     riskLevel?: "Low" | "Medium" | "High";
+    readinessScore100?: number;
+    highRiskPageNumbers?: number[];
+    kdpReady?: boolean;
     issuesEnriched?: Array<{ originalMessage: string; humanMessage: string; fixDifficulty: string; page?: number; rule_id?: string; severity?: string }>;
     uploadChecklist?: Array<{ check: string; status: "pass" | "warning" | "fail" }>;
     specTable?: Array<{ requirement: string; yourFile: string; kdpRequired: string; status: "pass" | "warning" | "fail" }>;

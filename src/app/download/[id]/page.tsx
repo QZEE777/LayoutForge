@@ -47,6 +47,9 @@ interface ProcessingReport {
   fileNameScanned?: string;
   kdpPassProbability?: number;
   riskLevel?: "Low" | "Medium" | "High";
+  readinessScore100?: number;
+  highRiskPageNumbers?: number[];
+  kdpReady?: boolean;
   issuesEnriched?: Array<{ originalMessage: string; humanMessage: string; fixDifficulty: string; page?: number }>;
   uploadChecklist?: Array<{ check: string; status: "pass" | "warning" | "fail" }>;
   specTable?: Array<{ requirement: string; yourFile: string; kdpRequired: string; status: "pass" | "warning" | "fail" }>;
@@ -258,9 +261,19 @@ export default function DownloadPage() {
                       {report.fileNameScanned && cleanFilenameForDisplay(report.fileNameScanned)}
                     </p>
                   )}
+                  {(report.readinessScore100 != null) && (
+                    <p className="mb-4 text-2xl font-bold text-m2p-ink">
+                      Readiness: {report.readinessScore100}/100
+                    </p>
+                  )}
                   {(report.kdpPassProbability != null && report.riskLevel) && (
                     <p className="mb-4 text-base font-semibold text-m2p-ink">
                       KDP Approval Likelihood: {report.kdpPassProbability}% — Risk Level: {report.riskLevel}
+                    </p>
+                  )}
+                  {report.highRiskPageNumbers && report.highRiskPageNumbers.length > 0 && (
+                    <p className="mb-4 text-sm text-m2p-orange font-medium">
+                      Pages most likely to cause print problems: {report.highRiskPageNumbers.join(", ")}
                     </p>
                   )}
                   {report.uploadChecklist && report.uploadChecklist.length > 0 && (
@@ -330,6 +343,15 @@ export default function DownloadPage() {
                           <li key={i}>{rec}</li>
                         ))}
                       </ul>
+                    </div>
+                  )}
+                  {report.kdpReady && (
+                    <div className="mt-6 p-5 rounded-lg border-2 border-green-500 bg-green-50/80 text-m2p-ink">
+                      <p className="font-bold text-green-800 mb-2">✅ Verified by Manu2Print</p>
+                      <p className="font-semibold text-green-800 mb-1">KDP Compliance Scan: PASSED</p>
+                      <p className="text-sm mb-1">File: {cleanFilenameForDisplay(report.fileNameScanned ?? "")}</p>
+                      <p className="text-sm mb-1">Date: {report.scanDate ? new Date(report.scanDate).toLocaleString() : "—"}</p>
+                      <p className="text-sm font-medium text-green-800">This file meets KDP print specifications.</p>
                     </div>
                   )}
                   <p className="mt-4 pt-4 border-t border-m2p-border text-center text-xs text-m2p-muted">© manu2print — Built for indie authors</p>
