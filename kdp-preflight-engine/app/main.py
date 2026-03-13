@@ -26,19 +26,9 @@ app = FastAPI(
     description="Deterministic PDF validation for Amazon KDP paperback requirements",
     version="0.1.0",
 )
-app.state.limiter = limiter
-app.add_exception_handler(
-    RateLimitExceeded,
-    lambda request, exc: JSONResponse(
-        status_code=429,
-        content={"error": "Upload rate limit exceeded. Please try again later."},
-    ),
-)
-app.add_middleware(SlowAPIMiddleware)
-
 
 @app.middleware("http")
-async def cors_middleware(request: Request, call_next):
+async def cors_handler(request: Request, call_next):
     if request.method == "OPTIONS":
         response = Response(status_code=204)
         response.headers["Access-Control-Allow-Origin"] = "*"
@@ -52,20 +42,15 @@ async def cors_middleware(request: Request, call_next):
     response.headers["Access-Control-Allow-Headers"] = "*"
     return response
 
-
-@app.options("/upload")
-def upload_options():
-    """Explicit CORS preflight for POST /upload so browsers always get headers."""
-    return Response(
-        status_code=204,
-        headers={
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-            "Access-Control-Allow-Headers": "*",
-            "Access-Control-Max-Age": "86400",
-        },
-    )
-
+app.state.limiter = limiter
+app.add_exception_handler(
+    RateLimitExceeded,
+    lambda request, exc: JSONResponse(
+        status_code=429,
+        content={"error": "Upload rate limit exceeded. Please try again later."},
+    ),
+)
+app.add_middleware(SlowAPIMiddleware)
 
 app.include_router(upload.router, tags=["upload"])
 app.include_router(status.router, tags=["status"])
