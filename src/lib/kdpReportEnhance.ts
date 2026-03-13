@@ -41,15 +41,15 @@ function toFixDifficulty(ruleId: string, message: string): FixDifficulty {
 }
 
 const HUMAN_MAP: Array<{ pattern: RegExp | string; human: string }> = [
-  [/margin.*violation|inner margin|outer margin|margin.*insufficient/i, "Text may be cut during printing — KDP will likely reject this file. Increase margins to at least 0.5\" inner (plus gutter for page count) and 0.25\" other sides."],
-  [/bleed|trim.*outside|crop/i, "Content extends too close to the cut edge. KDP requires 0.125\" bleed; extend backgrounds and critical content into the bleed area."],
-  [/trim.*size|page size|dimension/i, "Page dimensions don't match a KDP trim size. Re-export using a standard trim (e.g. 5×8, 6×9) in your layout tool."],
-  [/font.*embed|embedded font|subset/i, "Fonts may not print correctly. Embed or subset all fonts in your PDF before uploading."],
-  [/resolution|dpi|raster|image.*low/i, "Images may appear blurry in print. Use at least 300 DPI for all images."],
-  [/transparency|overprint/i, "Transparency can cause print issues. Flatten or remove transparency before uploading."],
-  [/page count|minimum.*24|maximum.*828/i, "Page count is outside KDP limits (24–828 pages). Add or remove pages to meet the requirement."],
-  [/file size|650.*MB/i, "File exceeds KDP's 650 MB limit. Reduce image resolution or compress the PDF."],
-  [/metadata|document info/i, "Document metadata may need updating for KDP. Set title and author in your PDF or in KDP's form."],
+  { pattern: /margin.*violation|inner margin|outer margin|margin.*insufficient/i, human: "Text may be cut during printing — KDP will likely reject this file. Increase margins to at least 0.5\" inner (plus gutter for page count) and 0.25\" other sides." },
+  { pattern: /bleed|trim.*outside|crop/i, human: "Content extends too close to the cut edge. KDP requires 0.125\" bleed; extend backgrounds and critical content into the bleed area." },
+  { pattern: /trim.*size|page size|dimension/i, human: "Page dimensions don't match a KDP trim size. Re-export using a standard trim (e.g. 5×8, 6×9) in your layout tool." },
+  { pattern: /font.*embed|embedded font|subset/i, human: "Fonts may not print correctly. Embed or subset all fonts in your PDF before uploading." },
+  { pattern: /resolution|dpi|raster|image.*low/i, human: "Images may appear blurry in print. Use at least 300 DPI for all images." },
+  { pattern: /transparency|overprint/i, human: "Transparency can cause print issues. Flatten or remove transparency before uploading." },
+  { pattern: /page count|minimum.*24|maximum.*828/i, human: "Page count is outside KDP limits (24–828 pages). Add or remove pages to meet the requirement." },
+  { pattern: /file size|650.*MB/i, human: "File exceeds KDP's 650 MB limit. Reduce image resolution or compress the PDF." },
+  { pattern: /metadata|document info/i, human: "Document metadata may need updating for KDP. Set title and author in your PDF or in KDP's form." },
 ];
 
 function toHumanMessage(message: string, _ruleId?: string): string {
