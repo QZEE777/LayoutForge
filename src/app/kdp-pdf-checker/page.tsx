@@ -117,14 +117,22 @@ export default function KdpPdfCheckerPage() {
         } finally {
           clearTimeout(timeoutId);
         }
-        if (!res.ok) throw new Error("Upload to checker failed. Try again.");
-        const { job_id } = (await res.json()) as { job_id: string };
+        const responseText = await res.text();
+        console.log("Render /upload response status:", res.status);
+        console.log("Render /upload response body:", responseText);
+        if (!res.ok) {
+          throw new Error(`Render error ${res.status}: ${responseText}`);
+        }
+        const { job_id } = (JSON.parse(responseText) || { job_id: "" }) as { job_id: string };
         const deadline = Date.now() + PREFLIGHT_MAX_WAIT_MS;
         while (Date.now() < deadline) {
           await new Promise((r) => setTimeout(r, PREFLIGHT_POLL_MS));
           res = await fetch(`${url}/status/${job_id}`);
+          const statusText = await res.text();
+          console.log("Render /status response status:", res.status);
+          console.log("Render /status response body:", statusText);
           if (!res.ok) continue;
-          const statusData = (await res.json()) as { status: string; report?: unknown };
+          const statusData = (statusText ? JSON.parse(statusText) : { status: "" }) as { status: string; report?: unknown };
           if (statusData.status === "completed") break;
           if (statusData.status === "failed") throw new Error("Check failed. Try again.");
         }
