@@ -9,6 +9,7 @@ import { PDFDocument } from "pdf-lib";
 import { saveUpload, updateMeta, type StoredManuscript } from "@/lib/storage";
 import { getSignedDownloadUrl } from "@/lib/r2Storage";
 import { getGutterInches } from "@/lib/kdpConfig";
+import { enrichCheckerReport } from "@/lib/kdpReportEnhance";
 
 interface PreflightReport {
   status: string;
@@ -118,11 +119,12 @@ export async function POST(request: NextRequest) {
     const report: CheckerReport = buildReportFromPreflightOnly(preflight, fileSizeMB);
     report.hasPdfPreview = true;
     report.pdfSourceUrl = `${url}/file/${encodeURIComponent(jobId)}`;
+    const enrichedReport = enrichCheckerReport(report, "Uploaded PDF", preflight);
     const doc = await PDFDocument.create();
     doc.addPage([612, 792]);
     const minimalPdf = Buffer.from(await doc.save());
     const stored = await saveUpload(minimalPdf, "preflight-report.pdf", "application/pdf");
-    await updateMeta(stored.id, { processingReport: report as StoredManuscript["processingReport"] });
+    await updateMeta(stored.id, { processingReport: enrichedReport as StoredManuscript["processingReport"] });
 
     fetch(`${url}/annotate/${jobId}`, { method: "POST" }).catch(() => {});
     await updateMeta(stored.id, {

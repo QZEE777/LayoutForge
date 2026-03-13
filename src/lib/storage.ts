@@ -61,6 +61,16 @@ export interface StoredManuscript {
     recommendedGutterInches?: number;
     /** Preflight page-level issues with bbox for visual overlay [x, y, width, height] in PDF points */
     page_issues?: Array<{ page: number; rule_id: string; severity: string; message: string; bbox: number[] | null }>;
+    /** Enhanced checker report (score, human text, difficulty, checklist, spec table, upsell, branding) */
+    scanDate?: string;
+    fileNameScanned?: string;
+    kdpPassProbability?: number;
+    riskLevel?: "Low" | "Medium" | "High";
+    issuesEnriched?: Array<{ originalMessage: string; humanMessage: string; fixDifficulty: string; page?: number; rule_id?: string; severity?: string }>;
+    uploadChecklist?: Array<{ check: string; status: "pass" | "warning" | "fail" }>;
+    specTable?: Array<{ requirement: string; yourFile: string; kdpRequired: string; status: "pass" | "warning" | "fail" }>;
+    estimatedFixHours?: number;
+    upsellBridge?: string;
     /** True when the stored file is the user's PDF (server-side check); false when from preflight (placeholder PDF). */
     hasPdfPreview?: boolean;
     /** When set, viewer should load PDF from this URL (e.g. engine GET /file/{job_id}) instead of /api/view-pdf/{id}. */

@@ -5,6 +5,7 @@ export const maxDuration = 60;
 import { saveUpload, updateMeta, type StoredManuscript } from "@/lib/storage";
 import { getSignedDownloadUrl } from "@/lib/r2Storage";
 import { TRIM_SIZES, getGutterInches } from "@/lib/kdpConfig";
+import { enrichCheckerReport } from "@/lib/kdpReportEnhance";
 
 const PT_PER_INCH = 72;
 const TOLERANCE_INCH = 0.05; // allow 0.05" variance
@@ -170,13 +171,16 @@ export async function POST(request: NextRequest) {
     const kdpTrim = findKdpTrim(widthIn, heightIn);
 
     const preflightUrl = process.env.KDP_PREFLIGHT_API_URL;
+    const fileNameScanned = f.name || "document.pdf";
     let report: ReturnType<typeof buildBasicReport>;
     let preflightJobId: string | null = null;
+    let preflightReport: PreflightReport | null = null;
     if (preflightUrl?.trim()) {
-      const preflight = await runPreflightCheck(preflightUrl, buffer, f.name || "document.pdf");
+      const preflight = await runPreflightCheck(preflightUrl, buffer, fileNameScanned);
       if (preflight) {
         report = buildReportFromPreflight(preflight.report, buffer, widthIn, heightIn, kdpTrim);
         preflightJobId = preflight.job_id;
+        preflightReport = preflight.report;
       } else {
         report = buildBasicReport(doc, buffer);
       }
@@ -184,8 +188,9 @@ export async function POST(request: NextRequest) {
       report = buildBasicReport(doc, buffer);
     }
 
-    const stored = await saveUpload(buffer, f.name || "document.pdf", "application/pdf");
-    await updateMeta(stored.id, { processingReport: report as StoredManuscript["processingReport"] });
+    const enrichedReport = enrichCheckerReport(report, fileNameScanned, preflightReport ?? undefined);
+    const stored = await saveUpload(buffer, fileNameScanned, "application/pdf");
+    await updateMeta(stored.id, { processingReport: enrichedReport as StoredManuscript["processingReport"] });
 
     // Trigger annotation — for preflight path use existing job_id,
     // for local path upload to preflight engine just to get annotations

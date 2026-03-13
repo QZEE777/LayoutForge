@@ -7,6 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import PaymentGate from "@/components/PaymentGate";
 import CheckerPdfViewer from "@/components/CheckerPdfViewer";
+import { difficultyLabel } from "@/lib/kdpReportEnhance";
 
 interface ProcessingReport {
   pagesGenerated?: number;
@@ -41,6 +42,16 @@ interface ProcessingReport {
   topActions?: string[];
   kdpReadiness?: string;
   wordCount?: number;
+  /** Enhanced checker report */
+  scanDate?: string;
+  fileNameScanned?: string;
+  kdpPassProbability?: number;
+  riskLevel?: "Low" | "Medium" | "High";
+  issuesEnriched?: Array<{ originalMessage: string; humanMessage: string; fixDifficulty: string; page?: number }>;
+  uploadChecklist?: Array<{ check: string; status: "pass" | "warning" | "fail" }>;
+  specTable?: Array<{ requirement: string; yourFile: string; kdpRequired: string; status: "pass" | "warning" | "fail" }>;
+  estimatedFixHours?: number;
+  upsellBridge?: string;
 }
 
 export default function DownloadPage() {
@@ -234,32 +245,158 @@ export default function DownloadPage() {
         {report && (
           <div className={`mb-8 rounded-lg p-6 border ${report.outputType === "format-review" ? "bg-m2p-ivory border-m2p-border text-m2p-ink" : "bg-white border-m2p-border text-m2p-ink"}`}>
             {report.outputType === "checker" && (
-              <div className="mb-4 flex flex-wrap items-center gap-3">
-                <span className={`inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-semibold ${(report.issues?.length ?? 0) === 0 ? "bg-m2p-live/20 text-m2p-live border border-m2p-live/40" : "bg-m2p-orange/20 text-m2p-orange border border-m2p-orange/40"}`}>
-                  KDP Ready: {(report.issues?.length ?? 0) === 0 ? "Yes" : `No — ${report.issues?.length ?? 0} issue${(report.issues?.length ?? 0) === 1 ? "" : "s"}`}
-                </span>
-              </div>
+              <>
+                <p className="text-lg font-bold text-m2p-ink mb-1">manu2print.com</p>
+                {(report.scanDate || report.fileNameScanned) && (
+                  <p className="text-sm text-m2p-muted mb-3">
+                    {report.scanDate && <>Scan: {new Date(report.scanDate).toLocaleString()}</>}
+                    {report.scanDate && report.fileNameScanned && " · "}
+                    {report.fileNameScanned && report.fileNameScanned}
+                  </p>
+                )}
+                {(report.kdpPassProbability != null && report.riskLevel) && (
+                  <p className="mb-4 text-base font-semibold text-m2p-ink">
+                    KDP Approval Likelihood: {report.kdpPassProbability}% — Risk Level: {report.riskLevel}
+                  </p>
+                )}
+                {report.uploadChecklist && report.uploadChecklist.length > 0 && (
+                  <div className="mb-4">
+                    <p className="text-xs font-medium text-m2p-ink mb-2">Upload readiness checklist</p>
+                    <ul className="text-sm text-m2p-muted space-y-1">
+                      {report.uploadChecklist.map((item, i) => (
+                        <li key={i}>
+                          {item.status === "pass" && "✓ "}
+                          {item.status === "warning" && "⚠ "}
+                          {item.status === "fail" && "✗ "}
+                          {item.check}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {report.specTable && report.specTable.length > 0 && (
+                  <div className="mb-4 overflow-x-auto">
+                    <p className="text-xs font-medium text-m2p-ink mb-2">KDP spec comparison</p>
+                    <table className="w-full text-sm border border-m2p-border rounded-lg border-collapse">
+                      <thead>
+                        <tr className="bg-m2p-border/30">
+                          <th className="text-left p-2 border-b border-m2p-border">Requirement</th>
+                          <th className="text-left p-2 border-b border-m2p-border">Your file</th>
+                          <th className="text-left p-2 border-b border-m2p-border">KDP required</th>
+                          <th className="text-left p-2 border-b border-m2p-border">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {report.specTable.map((row, i) => (
+                          <tr key={i} className="border-b border-m2p-border/50">
+                            <td className="p-2">{row.requirement}</td>
+                            <td className="p-2">{row.yourFile}</td>
+                            <td className="p-2">{row.kdpRequired}</td>
+                            <td className="p-2">{row.status === "pass" ? "✓" : row.status === "warning" ? "⚠" : "✗"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+                {((report.issuesEnriched?.length ?? 0) > 0 || (report.issues?.length ?? 0) > 0) ? (
+                  <div className="mt-4 pt-4 border-t border-m2p-border">
+                    <p className="text-xs font-medium text-m2p-orange mb-2">Issues</p>
+                    <ul className="text-sm text-m2p-muted space-y-2">
+                      {report.issuesEnriched?.length
+                        ? report.issuesEnriched.map((item, i) => (
+                            <li key={i}>
+                              <span className="text-m2p-ink">{difficultyLabel(item.fixDifficulty as "easy" | "moderate" | "advanced")}</span>
+                              {item.page != null && ` [p.${item.page}]`}
+                              {" "}
+                              {item.humanMessage}
+                            </li>
+                          ))
+                        : report.issues!.map((issue, i) => (
+                            <li key={i}>{issue}</li>
+                          ))}
+                    </ul>
+                  </div>
+                ) : null}
+                {report.recommendations && report.recommendations.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-m2p-border">
+                    <p className="text-xs font-medium text-m2p-live mb-2">Recommendations</p>
+                    <ul className="text-xs text-m2p-muted list-disc list-inside space-y-1">
+                      {report.recommendations.map((rec, i) => (
+                        <li key={i}>{rec}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                <p className="mt-4 pt-4 border-t border-m2p-border text-center text-xs text-m2p-muted">© manu2print.com — Built for indie authors</p>
+                {report.upsellBridge && (
+                  <p className="mt-3 text-sm text-m2p-muted text-center">{report.upsellBridge}</p>
+                )}
+                <div className="mt-4 pt-4 border-t border-m2p-border">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const lines: string[] = [
+                        "KDP PDF Check Report",
+                        "manu2print.com",
+                        "",
+                        report.scanDate ? `Scan: ${new Date(report.scanDate).toLocaleString()}` : "",
+                        report.fileNameScanned ? `File: ${report.fileNameScanned}` : "",
+                        report.kdpPassProbability != null ? `KDP Approval Likelihood: ${report.kdpPassProbability}% — Risk Level: ${report.riskLevel}` : "",
+                        (report.kdpPassProbability != null || report.scanDate) ? "" : "",
+                        `KDP Ready: ${(report.issues?.length ?? 0) === 0 ? "Yes" : `No — ${report.issues?.length ?? 0} issue(s)`}`,
+                        "",
+                        `Trim detected: ${report.trimDetected ?? "—"}`,
+                        `Matches KDP trim: ${report.trimMatchKDP ? "Yes" : "No"}${report.kdpTrimName ? ` (${report.kdpTrimName})` : ""}`,
+                        `Page count: ${report.pageCount ?? "—"}`,
+                        ...(report.fileSizeMB != null ? [`File size: ${report.fileSizeMB} MB`] : []),
+                        ...(report.recommendedGutterInches != null ? [`Recommended gutter (inner margin): ${report.recommendedGutterInches}" (${Math.round(report.recommendedGutterInches * 2.54 * 10) / 10} cm / ${Math.round(report.recommendedGutterInches * 25.4 * 10) / 10} mm)`] : []),
+                        "",
+                        ...(report.issuesEnriched?.length ? ["Issues (plain English):", ...report.issuesEnriched.map((i) => `  • ${i.humanMessage}`), ""] : report.issues?.length ? ["Issues:", ...report.issues.map((i) => `  • ${i}`), ""] : []),
+                        ...(report.recommendations?.length ? ["Recommendations:", ...report.recommendations.map((r) => `  • ${r}`)] : []),
+                        "",
+                        "© manu2print.com — Built for indie authors",
+                        ...(report.upsellBridge ? ["", report.upsellBridge] : []),
+                      ].filter(Boolean);
+                      const blob = new Blob([lines.join("\n")], { type: "text/plain" });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement("a");
+                      a.href = url;
+                      a.download = "kdp-check-report.txt";
+                      a.click();
+                      URL.revokeObjectURL(url);
+                    }}
+                    className="text-sm font-medium text-m2p-orange hover:text-white transition-colors"
+                  >
+                    Download report (.txt)
+                  </button>
+                </div>
+              </>
             )}
-            <h2 className={`font-semibold mb-4 ${report.outputType === "format-review" ? "text-xl text-m2p-ink" : "text-m2p-ink"}`}>{report.outputType === "format-review" ? "Format review" : "Processing report"}</h2>
+            {!(report.outputType === "checker" && report.uploadChecklist) && (
+            <h2 className={`font-semibold mb-4 ${report.outputType === "format-review" ? "text-xl text-m2p-ink" : "text-m2p-ink"} ${report.outputType === "checker" ? "mt-6" : ""}`}>{report.outputType === "format-review" ? "Format review" : "Processing report"}</h2>
+            )}
             <ul className="text-sm text-m2p-muted space-y-1">
               {report.outputType === "format-review" ? null : report.outputType === "checker" ? (
-                <>
-                  <li>Trim detected: <span className="text-m2p-ink">{report.trimDetected ?? "—"}</span></li>
-                  <li>Matches KDP trim: <span className="text-m2p-ink">{report.trimMatchKDP ? "Yes" : "No"}{report.kdpTrimName ? ` (${report.kdpTrimName})` : ""}</span></li>
-                  <li>Page count: <span className="text-m2p-ink">{report.pageCount ?? "—"}</span></li>
-                  {report.fileSizeMB != null && (
-                    <li>File size: <span className="text-m2p-ink">{report.fileSizeMB} MB</span></li>
-                  )}
-                  {report.recommendedGutterInches != null && (
-                    <li>
-                      Recommended gutter (inner margin) for your page count:{" "}
-                      <span className="text-m2p-ink">
-                        {report.recommendedGutterInches}&quot; ({Math.round(report.recommendedGutterInches * 2.54 * 10) / 10} cm / {Math.round(report.recommendedGutterInches * 25.4 * 10) / 10} mm)
-                      </span>
-                      . We can&apos;t measure margins from the PDF; set inner margin ≥ 0.5&quot; + gutter in your layout app.
-                    </li>
-                  )}
-                </>
+                !report.uploadChecklist && (
+                  <>
+                    <li>Trim detected: <span className="text-m2p-ink">{report.trimDetected ?? "—"}</span></li>
+                    <li>Matches KDP trim: <span className="text-m2p-ink">{report.trimMatchKDP ? "Yes" : "No"}{report.kdpTrimName ? ` (${report.kdpTrimName})` : ""}</span></li>
+                    <li>Page count: <span className="text-m2p-ink">{report.pageCount ?? "—"}</span></li>
+                    {report.fileSizeMB != null && (
+                      <li>File size: <span className="text-m2p-ink">{report.fileSizeMB} MB</span></li>
+                    )}
+                    {report.recommendedGutterInches != null && (
+                      <li>
+                        Recommended gutter (inner margin) for your page count:{" "}
+                        <span className="text-m2p-ink">
+                          {report.recommendedGutterInches}&quot; ({Math.round(report.recommendedGutterInches * 2.54 * 10) / 10} cm / {Math.round(report.recommendedGutterInches * 25.4 * 10) / 10} mm)
+                        </span>
+                        . We can&apos;t measure margins from the PDF; set inner margin ≥ 0.5&quot; + gutter in your layout app.
+                      </li>
+                    )}
+                  </>
+                )
               ) : report.outputType === "epub" ? (
                 <>
                   <li>Format: <span className="text-m2p-ink">Kindle-ready EPUB</span></li>
@@ -288,7 +425,7 @@ export default function DownloadPage() {
                 </>
               )}
             </ul>
-            {report.outputType !== "format-review" && report.issues && report.issues.length > 0 && (
+            {report.outputType !== "format-review" && report.outputType !== "checker" && report.issues && report.issues.length > 0 && (
               <div className="mt-4 pt-4 border-t border-m2p-border">
                 <p className="text-xs font-medium text-m2p-orange mb-2">Issues</p>
                 <ul className="text-xs text-m2p-muted list-disc list-inside space-y-1">
@@ -298,7 +435,7 @@ export default function DownloadPage() {
                 </ul>
               </div>
             )}
-            {report.outputType === "checker" && report.recommendations && report.recommendations.length > 0 && (
+            {report.outputType === "checker" && !report.uploadChecklist && report.recommendations && report.recommendations.length > 0 && (
               <div className="mt-4 pt-4 border-t border-m2p-border">
                 <p className="text-xs font-medium text-m2p-live mb-2">Recommendations</p>
                 <ul className="text-xs text-m2p-muted list-disc list-inside space-y-1">
@@ -306,40 +443,6 @@ export default function DownloadPage() {
                     <li key={i}>{rec}</li>
                   ))}
                 </ul>
-              </div>
-            )}
-            {report.outputType === "checker" && (
-              <div className="mt-4 pt-4 border-t border-m2p-border">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const lines: string[] = [
-                      "KDP PDF Check Report",
-                      "manu2print.com",
-                      "",
-                      `KDP Ready: ${(report.issues?.length ?? 0) === 0 ? "Yes" : `No — ${report.issues?.length ?? 0} issue(s)`}`,
-                      "",
-                      `Trim detected: ${report.trimDetected ?? "—"}`,
-                      `Matches KDP trim: ${report.trimMatchKDP ? "Yes" : "No"}${report.kdpTrimName ? ` (${report.kdpTrimName})` : ""}`,
-                      `Page count: ${report.pageCount ?? "—"}`,
-                      ...(report.fileSizeMB != null ? [`File size: ${report.fileSizeMB} MB`] : []),
-                      ...(report.recommendedGutterInches != null ? [`Recommended gutter (inner margin): ${report.recommendedGutterInches}" (${Math.round(report.recommendedGutterInches * 2.54 * 10) / 10} cm / ${Math.round(report.recommendedGutterInches * 25.4 * 10) / 10} mm)`] : []),
-                      "",
-                      ...(report.issues && report.issues.length > 0 ? ["Issues:", ...report.issues.map((i) => `  • ${i}`), ""] : []),
-                      ...(report.recommendations && report.recommendations.length > 0 ? ["Recommendations:", ...report.recommendations.map((r) => `  • ${r}`)] : []),
-                    ];
-                    const blob = new Blob([lines.join("\n")], { type: "text/plain" });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement("a");
-                    a.href = url;
-                    a.download = "kdp-check-report.txt";
-                    a.click();
-                    URL.revokeObjectURL(url);
-                  }}
-                  className="text-sm font-medium text-m2p-orange hover:text-white transition-colors"
-                >
-                  Download report (.txt)
-                </button>
               </div>
             )}
             {report.outputType === "format-review" && (
