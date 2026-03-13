@@ -39,6 +39,7 @@ async def bypass_options(request: Request, call_next):
         return response
     return await call_next(request)
 
+
 app.state.limiter = limiter
 app.add_exception_handler(
     RateLimitExceeded,
