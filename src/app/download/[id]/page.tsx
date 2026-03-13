@@ -264,9 +264,9 @@ export default function DownloadPage() {
             {report.outputType === "checker" && (
               <>
                 <div id="report-content">
-                  <p className="mb-1">
-                    <span style={{ color: "#F05A28", fontWeight: "bold", fontSize: "1.5rem" }}>manu</span>
-                    <span style={{ color: "#4cd964", fontWeight: "bold", fontSize: "1.5rem" }}>2print</span>
+                  <p className="mb-2 text-center text-3xl font-bold">
+                    <span style={{ color: "#F05A28" }}>manu</span>
+                    <span style={{ color: "#4cd964" }}>2print</span>
                   </p>
                   {(report.scanDate || report.fileNameScanned) && (
                     <p className="text-sm text-m2p-muted mb-3">
@@ -299,7 +299,11 @@ export default function DownloadPage() {
                             {item.status === "pass" && "✅ "}
                             {item.status === "warning" && "⚠️ "}
                             {item.status === "fail" && "❌ "}
-                            {item.check}
+                            {item.check === "No critical errors" || item.check === "Critical errors found"
+                              ? item.status === "pass"
+                                ? "Passed — no critical errors"
+                                : "Failed — critical errors found"
+                              : item.check}
                           </li>
                         ))}
                       </ul>
