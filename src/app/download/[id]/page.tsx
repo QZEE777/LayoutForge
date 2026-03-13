@@ -80,6 +80,19 @@ export default function DownloadPage() {
     report?.outputFilename ||
     (isDocx ? "kdp-review.docx" : isEpub ? "book.epub" : "kdp-print.pdf");
 
+  const issuesCount =
+    report?.issuesEnriched?.length ?? report?.issues?.length ?? 0;
+  const highestRiskMessage =
+    report?.issuesEnriched?.[0]?.humanMessage ?? report?.issues?.[0] ?? null;
+  const readinessScore = report?.readinessScore100 ?? null;
+  const approvalLikelihood = report?.kdpPassProbability ?? null;
+  let readinessColor = "text-m2p-ink";
+  if (readinessScore != null) {
+    if (readinessScore >= 90) readinessColor = "text-green-700";
+    else if (readinessScore >= 70) readinessColor = "text-amber-700";
+    else readinessColor = "text-red-700";
+  }
+
   const handleDownload = useCallback(async () => {
     setDownloadError(null);
     const url = `/api/download/${id}/${encodeURIComponent(downloadFilename)}`;
@@ -236,10 +249,17 @@ export default function DownloadPage() {
 
       {/* Main content */}
       <main className="max-w-2xl mx-auto px-6 py-12">
-        <div className="flex items-center justify-center gap-1 mb-6 w-full">
+        <div className="flex items-center justify-center gap-1 mb-4 w-full">
           <Image src="/MANNY AVATAR.png" alt="Manny" width={120} height={120} style={{ borderRadius: "50%" }} />
           <span><span style={{ color: "#F05A28", fontWeight: "bold" }}>manu</span><span style={{ color: "#4cd964", fontWeight: "bold" }}>2print</span></span>
         </div>
+        {/* Header section */}
+        <h1 className="text-3xl font-bebas text-m2p-ink text-center mb-2">
+          Your KDP Compliance Report Is Ready
+        </h1>
+        <p className="text-m2p-muted text-center mb-6">
+          We analyzed your manuscript against Amazon KDP print formatting requirements. Download the full report below to review detected issues and recommended fixes before uploading your book.
+        </p>
         <PaymentGate tool={isFormatReview ? "kdp-format-review" : isChecker ? "kdp-pdf-checker" : isEpub ? "epub-maker" : isPdfFlow ? "kdp-formatter-pdf" : "kdp-formatter"} downloadId={id}>
         {/* Checker: PDF viewer with issue overlays (when we have the user's PDF + page_issues) */}
         {report?.outputType === "checker" && report.hasPdfPreview && report.page_issues && report.page_issues.length > 0 && (
@@ -377,6 +397,40 @@ export default function DownloadPage() {
                   )}
                 </div>
                 <div className="mt-4 pt-4 border-t border-m2p-border no-print">
+                  {/* Scan summary block */}
+                  <div className="bg-m2p-orange-soft border border-m2p-border rounded-xl p-6 mb-4 text-left">
+                    <p className="text-sm font-semibold text-m2p-ink mb-2">Scan summary</p>
+                    <p className="text-sm text-m2p-muted">
+                      KDP Approval Likelihood:{" "}
+                      <span className="text-m2p-ink font-semibold">
+                        {approvalLikelihood != null ? `${approvalLikelihood}%` : "—"}
+                      </span>
+                    </p>
+                    <p className="mt-1 text-sm text-m2p-muted">
+                      Readiness Score:{" "}
+                      <span className={`text-lg font-bold ${readinessColor}`}>
+                        {readinessScore != null ? `${readinessScore}/100` : "—"}
+                      </span>
+                    </p>
+                    <p className="mt-1 text-sm text-m2p-muted">
+                      Issues Detected:{" "}
+                      <span className="text-m2p-ink font-semibold">
+                        {issuesCount}
+                      </span>
+                    </p>
+                    {highestRiskMessage && (
+                      <p className="mt-1 text-sm text-m2p-muted">
+                        Highest Risk Area:{" "}
+                        <span className="text-m2p-ink">
+                          {highestRiskMessage}
+                        </span>
+                      </p>
+                    )}
+                  </div>
+                  {/* Report expiry urgency */}
+                  <p className="text-center text-sm text-m2p-muted mb-4">
+                    ⏳ Report expires in 7 days — download now to keep a copy.
+                  </p>
                   <button
                     type="button"
                     onClick={() => {
@@ -433,6 +487,7 @@ export default function DownloadPage() {
                   >
                     Download Full Report (PDF)
                   </button>
+                  {/* Share + formatter CTA */}
                   <div className="mt-4 bg-m2p-orange-soft border border-m2p-border rounded-lg p-4">
                     <p className="font-semibold text-m2p-ink mb-1">Share your readiness score</p>
                     <p className="text-sm text-m2p-muted mb-3">
@@ -449,6 +504,24 @@ export default function DownloadPage() {
                         ? "Copy failed"
                         : "Copy verification link"}
                     </button>
+                  </div>
+                  {/* Formatter CTA block */}
+                  <div className="bg-m2p-ink text-white rounded-xl p-8 my-8 text-center">
+                    <h2 style={{ fontFamily: "Bebas Neue", fontSize: "1.8rem", marginBottom: "8px" }}>
+                      Fix These Issues Automatically
+                    </h2>
+                    <p style={{ color: "#E0D8C4", marginBottom: "8px" }}>
+                      Estimated manual repair time: 2–4 hours.
+                    </p>
+                    <p style={{ color: "#E0D8C4", marginBottom: "24px" }}>
+                      The KDP PDF Formatter automatically repairs formatting problems and generates a fully KDP-ready manuscript.
+                    </p>
+                    <button className="bg-m2p-orange text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-m2p-orange-hover">
+                      Fix My Manuscript Automatically →
+                    </button>
+                    <p style={{ color: "#6B6151", fontSize: "13px", marginTop: "12px" }}>
+                      Automatically correct margins, trim size, bleed settings, and layout inconsistencies.
+                    </p>
                   </div>
                 </div>
               </>
@@ -866,8 +939,52 @@ export default function DownloadPage() {
         </div>
         </PaymentGate>
 
+        {/* Trust block */}
+        <div className="text-center border border-m2p-border rounded-lg p-4 mb-6">
+          <p className="text-m2p-ink font-bold">✅ Verified by Manu2Print</p>
+          <p className="text-m2p-muted text-sm">
+            This report checks your manuscript against known Amazon KDP print formatting requirements.
+          </p>
+        </div>
+
+        {/* Public verification link */}
+        <p className="text-center text-sm text-m2p-muted mb-6">
+          Share your results:{" "}
+          <span className="text-m2p-orange font-medium">
+            manu2print.com/verify/{id}
+          </span>
+        </p>
+
+        {/* Micro FAQ */}
+        <div className="border border-m2p-border rounded-lg divide-y divide-m2p-border mb-6">
+          <div className="p-4">
+            <p className="font-semibold text-m2p-ink mb-1">
+              Q: What does this report check?
+            </p>
+            <p className="text-m2p-muted text-sm">
+              A: The scan checks margins, trim size, bleed settings, font embedding, and other formatting rules required for Amazon KDP print publishing.
+            </p>
+          </div>
+          <div className="p-4">
+            <p className="font-semibold text-m2p-ink mb-1">
+              Q: Will fixing these issues guarantee KDP approval?
+            </p>
+            <p className="text-m2p-muted text-sm">
+              A: The report identifies common formatting problems, but final validation occurs during the Amazon KDP upload process.
+            </p>
+          </div>
+          <div className="p-4">
+            <p className="font-semibold text-m2p-ink mb-1">
+              Q: Can Manu2Print fix these issues automatically?
+            </p>
+            <p className="text-m2p-muted text-sm">
+              A: Yes. The KDP PDF Formatter repairs formatting errors and produces a print-ready PDF for KDP upload. Coming soon.
+            </p>
+          </div>
+        </div>
+
         {/* Storage notice + Save this link */}
-        <div className="mt-8 bg-m2p-orange-soft/50 border border-white/10 rounded-lg p-4 space-y-2">
+        <div className="mt-4 bg-m2p-orange-soft/50 border border-white/10 rounded-lg p-4 space-y-2">
           <p>
             <span className="text-white font-medium">Storage:</span>{" "}
             <span className="text-xs text-m2p-muted">
@@ -878,7 +995,18 @@ export default function DownloadPage() {
             <span className="text-white font-medium">Save this link:</span> Bookmark this page or copy the URL to return to your download within 24 hours.
           </p>
         </div>
-        <p className="text-center text-m2p-muted text-xs mt-8">© manu2print.com — Built for indie authors</p>
+
+        {/* Bottom CTA */}
+        <div className="text-center mt-8">
+          <a
+            href="/check-pdf"
+            className="bg-m2p-orange-soft text-m2p-orange border border-m2p-orange px-6 py-3 rounded-lg font-bold hover:bg-m2p-orange hover:text-white"
+          >
+            Run Another Manuscript Check →
+          </a>
+        </div>
+
+        <p className="text-center text-m2p-muted text-xs mt-6">© manu2print.com — Built for indie authors</p>
       </main>
     </div>
   );
