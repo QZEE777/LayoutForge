@@ -43,7 +43,7 @@ async function runPreflightCheck(
   const form = new FormData();
   form.append("file", new Blob([buffer], { type: "application/pdf" }), fileName || "document.pdf");
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 60000);
+  const timeout = setTimeout(() => controller.abort(), 55000);
   let res: Response;
   try {
     res = await fetch(`${url}/upload`, { method: "POST", body: form, signal: controller.signal });
@@ -151,6 +151,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unsupported format", message: "This tool accepts PDF files only." }, { status: 400 });
     }
     const buffer = Buffer.from(await f.arrayBuffer());
+    const SIZE_10_MB = 10 * 1024 * 1024;
+    if (buffer.length > SIZE_10_MB) {
+      return NextResponse.json({
+        error: "File too large",
+        message: "This file is too large to scan. Please compress it first using our free PDF Compressor, then try again.",
+      }, { status: 400 });
+    }
     const MAX_MB = 50;
     if (buffer.length > MAX_MB * 1024 * 1024) {
       return NextResponse.json({ error: "File too large", message: `File must be smaller than ${MAX_MB}MB.` }, { status: 400 });

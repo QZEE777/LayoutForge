@@ -247,7 +247,10 @@ export default function DownloadPage() {
           <div className={`mb-8 rounded-lg p-6 border ${report.outputType === "format-review" ? "bg-m2p-ivory border-m2p-border text-m2p-ink" : "bg-white border-m2p-border text-m2p-ink"}`}>
             {report.outputType === "checker" && (
               <>
-                <p className="text-lg font-bold text-m2p-ink mb-1">manu2print.com</p>
+                <p className="mb-1">
+                  <span style={{ color: "#F05A28", fontWeight: "bold", fontSize: "1.5rem" }}>manu</span>
+                  <span style={{ color: "#4cd964", fontWeight: "bold", fontSize: "1.5rem" }}>2print</span>
+                </p>
                 {(report.scanDate || report.fileNameScanned) && (
                   <p className="text-sm text-m2p-muted mb-3">
                     {report.scanDate && <>Scan: {new Date(report.scanDate).toLocaleString()}</>}
@@ -337,10 +340,42 @@ export default function DownloadPage() {
                   <button
                     type="button"
                     onClick={async () => {
+                      const cleanedFilename = cleanFilenameForDisplay(report.fileNameScanned ?? "");
+                      const fallbackTxt = () => {
+                        const lines: string[] = [
+                          "KDP PDF Check Report",
+                          "manu2print.com",
+                          "",
+                          report.scanDate ? `Scan: ${new Date(report.scanDate).toLocaleString()}` : "",
+                          report.fileNameScanned ? `File: ${cleanedFilename}` : "",
+                          report.kdpPassProbability != null ? `KDP Approval Likelihood: ${report.kdpPassProbability}% — Risk Level: ${report.riskLevel}` : "",
+                          "",
+                          `KDP Ready: ${(report.issues?.length ?? 0) === 0 ? "Yes" : `No — ${report.issues?.length ?? 0} issue(s)`}`,
+                          "",
+                          `Trim detected: ${report.trimDetected ?? "—"}`,
+                          `Matches KDP trim: ${report.trimMatchKDP ? "Yes" : "No"}${report.kdpTrimName ? ` (${report.kdpTrimName})` : ""}`,
+                          `Page count: ${report.pageCount ?? "—"}`,
+                          ...(report.fileSizeMB != null ? [`File size: ${report.fileSizeMB} MB`] : []),
+                          ...(report.recommendedGutterInches != null ? [`Recommended gutter: ${report.recommendedGutterInches}"`] : []),
+                          "",
+                          ...(report.issuesEnriched?.length ? ["Issues:", ...report.issuesEnriched.map((i) => `  • ${i.humanMessage}`), ""] : report.issues?.length ? ["Issues:", ...report.issues!.map((i) => `  • ${i}`), ""] : []),
+                          ...(report.recommendations?.length ? ["Recommendations:", ...report.recommendations.map((r) => `  • ${r}`)] : []),
+                          "",
+                          "© manu2print.com — Built for indie authors",
+                          ...(report.upsellBridge ? ["", report.upsellBridge] : []),
+                        ].filter(Boolean);
+                        const blob = new Blob([lines.join("\n")], { type: "text/plain" });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = "kdp-check-report.txt";
+                        a.click();
+                        URL.revokeObjectURL(url);
+                      };
                       try {
-                        const res = await fetch("/MANNY AVATAR.png");
+                        const res = await fetch("/MANNY%20AVATAR.png");
+                        if (!res.ok) throw new Error(`Image fetch ${res.status}`);
                         const imageBytes = new Uint8Array(await res.arrayBuffer());
-                        const cleanedFilename = cleanFilenameForDisplay(report.fileNameScanned ?? "");
                         const pdfBytes = await generateCheckerReportPdf(report, cleanedFilename, imageBytes);
                         const blob = new Blob([pdfBytes], { type: "application/pdf" });
                         const url = URL.createObjectURL(blob);
@@ -351,6 +386,7 @@ export default function DownloadPage() {
                         URL.revokeObjectURL(url);
                       } catch (e) {
                         console.error("PDF download failed:", e);
+                        fallbackTxt();
                       }
                     }}
                     className="bg-m2p-orange text-white px-6 py-3 rounded-lg font-bold hover:bg-m2p-orange-hover transition-colors"

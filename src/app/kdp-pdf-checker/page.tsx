@@ -3,7 +3,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { formatFileSize } from "@/lib/formatFileName";
+import { cleanFilenameForDisplay } from "@/lib/kdpReportEnhance";
 import { WhatHappensNext } from "@/components/WhatHappensNext";
 import { ErrorRecovery } from "@/components/ErrorRecovery";
 import { ToolBreadcrumb } from "@/components/ToolBreadcrumb";
@@ -211,9 +213,17 @@ export default function KdpPdfCheckerPage() {
           />
           <label htmlFor="checker-file" className="cursor-pointer block">
             {file ? (
-              <div>
-                <p className="text-m2p-ink font-medium">{file.name}</p>
+              <div className="relative min-h-[60px]">
+                <p className="text-m2p-ink font-medium">{cleanFilenameForDisplay(file.name)}</p>
                 <p className="text-sm text-m2p-muted mt-1">{formatFileSize(file.size)} — ready to check</p>
+                <Image
+                  src="/MANNY AVATAR.png"
+                  alt=""
+                  width={64}
+                  height={64}
+                  className="rounded-full object-cover"
+                  style={{ position: "absolute", bottom: 12, right: 16, opacity: 0.08, pointerEvents: "none" }}
+                />
               </div>
             ) : (
               <p className="text-m2p-muted">Drop your PDF here or click to choose</p>
