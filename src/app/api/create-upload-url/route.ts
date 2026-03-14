@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ uploadUrl, fileKey, jobId });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to create upload URL' }, { status: 500 });
+    console.error('create-upload-url error:', error);
+    return NextResponse.json({ error: 'Failed to create upload URL', detail: String(error) }, { status: 500 });
   }
 }
