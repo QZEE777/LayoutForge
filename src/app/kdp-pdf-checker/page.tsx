@@ -117,11 +117,41 @@ export default function KdpPdfCheckerPage() {
             fileSizeMB: Math.round(fileSizeMB * 100) / 100,
           }),
         });
-        const saveData = (await saveRes.json()) as { id?: string; message?: string };
-        if (!saveRes.ok) throw new Error(saveData.message || "Could not save report.");
-        if (saveData.id) router.push(`/download/${saveData.id}?source=checker`);
-        else throw new Error("No report ID returned.");
-        return;
+        let saveData: { success?: boolean; checkId?: string; id?: string; error?: string; message?: string };
+        try {
+          saveData = (await saveRes.json()) as typeof saveData;
+        } catch {
+          throw new Error("Could not start check. Try again.");
+        }
+        if (!saveRes.ok) throw new Error(saveData.message || saveData.error || "Could not save report.");
+        if (saveData.id) {
+          router.push(`/download/${saveData.id}?source=checker`);
+          return;
+        }
+        if (saveData.checkId) {
+          const checkId = saveData.checkId;
+          const pollIntervalMs = 2500;
+          const deadline = Date.now() + 5 * 60 * 1000;
+          while (Date.now() < deadline) {
+            await new Promise((r) => setTimeout(r, pollIntervalMs));
+            const statusRes = await fetch(`/api/print-ready-check-status?checkId=${encodeURIComponent(checkId)}`);
+            let statusData: { status?: string; downloadId?: string; error?: string };
+            try {
+              statusData = (await statusRes.json()) as typeof statusData;
+            } catch {
+              continue;
+            }
+            if (statusData.status === "done" && statusData.downloadId) {
+              router.push(`/download/${statusData.downloadId}?source=checker`);
+              return;
+            }
+            if (statusData.status === "failed") {
+              throw new Error(statusData.error || "Check failed.");
+            }
+          }
+          throw new Error("Check is taking longer than expected. Please try again or use a smaller file.");
+        }
+        throw new Error("No report ID returned.");
       }
       const formData = new FormData();
       formData.append("file", file, file.name.toLowerCase().endsWith(".pdf") ? file.name : "document.pdf");

@@ -1,6 +1,7 @@
 /**
- * POST { jobId, fileSizeMB? } or { jobId, fileKey, fileSizeMB? } — fetch report from preflight API and save as checker result.
- * With fileKey: fetch PDF from R2, send to Render /upload, poll, then fetch report. Without: jobId is Render job id, fetch report directly.
+ * POST { jobId, fileSizeMB? } or { jobId, fileKey, fileSizeMB? }.
+ * - With fileKey (R2 flow): enqueue job and return checkId immediately. Worker processes it; frontend polls GET /api/print-ready-check-status.
+ * - Without fileKey: sync flow (jobId is preflight engine job id), fetch report and return id (legacy).
  */
 import { NextRequest, NextResponse } from "next/server";
 
@@ -93,7 +94,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    // Restrict to UUID-like id to prevent path traversal / injection into report URL
     if (!/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(jobId)) {
       return NextResponse.json(
         { error: "Invalid jobId", message: "jobId must be a valid UUID." },
@@ -101,50 +101,34 @@ export async function POST(request: NextRequest) {
       );
     }
     const fileSizeMB = typeof body.fileSizeMB === "number" ? body.fileSizeMB : undefined;
-    const url = baseUrl.replace(/\/$/, "");
 
-    let renderJobId: string;
-
+    // R2 flow: enqueue and return checkId. Worker will process.
     if (typeof body.fileKey === "string" && /^uploads\/[0-9a-fA-F-]+\.pdf$/.test(body.fileKey.trim())) {
-      // R2 flow: fetch PDF from R2, POST to Render /upload, poll until done
       const fileKey = body.fileKey.trim();
-      const pdfBuffer = await getFileByKey(fileKey);
-      const form = new FormData();
-      form.append("file", new Blob([pdfBuffer], { type: "application/pdf" }), "document.pdf");
-      const uploadRes = await fetch(`${url}/upload`, { method: "POST", body: form });
-      if (!uploadRes.ok) {
-        const text = await uploadRes.text();
+      const { data: row, error: insertError } = await supabase
+        .from("print_ready_checks")
+        .insert({
+          file_key: fileKey,
+          our_job_id: jobId,
+          file_size_mb: fileSizeMB ?? null,
+          status: "pending",
+        })
+        .select("id")
+        .single();
+
+      if (insertError) {
+        console.error("[kdp-pdf-check-from-preflight] insert print_ready_checks failed:", insertError);
         return NextResponse.json(
-          { error: "Preflight upload failed", message: text || `Upload failed (${uploadRes.status}).` },
-          { status: 502 }
+          { error: "Enqueue failed", message: "Could not start check. Try again." },
+          { status: 500 }
         );
       }
-      const uploadData = (await uploadRes.json()) as { job_id?: string };
-      renderJobId = typeof uploadData.job_id === "string" ? uploadData.job_id : "";
-      if (!renderJobId) {
-        return NextResponse.json(
-          { error: "Preflight upload failed", message: "No job_id from preflight." },
-          { status: 502 }
-        );
-      }
-      const deadline = Date.now() + 120000;
-      while (Date.now() < deadline) {
-        await new Promise((r) => setTimeout(r, 2500));
-        const statusRes = await fetch(`${url}/status/${encodeURIComponent(renderJobId)}`);
-        if (!statusRes.ok) continue;
-        const statusData = (await statusRes.json()) as { status?: string };
-        if (statusData.status === "completed") break;
-        if (statusData.status === "failed") {
-          return NextResponse.json(
-            { error: "Check failed", message: "Preflight validation failed. Try again." },
-            { status: 502 }
-          );
-        }
-      }
-    } else {
-      renderJobId = jobId;
+      return NextResponse.json({ success: true, checkId: row.id });
     }
 
+    // Sync flow: jobId is preflight engine job id, fetch report directly (legacy / small flows).
+    const url = baseUrl.replace(/\/$/, "");
+    const renderJobId = jobId;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 60000);
     let res: Response;
@@ -170,7 +154,6 @@ export async function POST(request: NextRequest) {
     const stored = await saveUpload(minimalPdf, "preflight-report.pdf", "application/pdf");
     await updateMeta(stored.id, { processingReport: enrichedReport as StoredManuscript["processingReport"] });
 
-    // Store public verification summary
     try {
       const issuesCount = enrichedReport.issuesEnriched?.length ?? report.issues.length;
       await supabase.from("verification_results").upsert(

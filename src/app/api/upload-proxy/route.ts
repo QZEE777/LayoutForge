@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
   const renderUrl = process.env.KDP_PREFLIGHT_API_URL || process.env.NEXT_PUBLIC_KDP_PREFLIGHT_API_URL;
 
   if (!renderUrl) {
-    return NextResponse.json({ error: "Render URL not configured" }, { status: 500 });
+    return NextResponse.json({ error: "Preflight API URL not configured" }, { status: 500 });
   }
 
   const contentLength = request.headers.get("content-length");
