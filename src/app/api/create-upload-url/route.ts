@@ -26,8 +26,12 @@ export async function POST(request: NextRequest) {
     });
 
     const uploadUrl = await getSignedUrl(r2, command, { expiresIn: 3600 });
+    const cleanUploadUrl = uploadUrl
+      .split('&')
+      .filter(param => !param.startsWith('x-amz-checksum') && !param.startsWith('x-amz-sdk-checksum'))
+      .join('&');
 
-    return NextResponse.json({ uploadUrl, fileKey, jobId });
+    return NextResponse.json({ uploadUrl: cleanUploadUrl, fileKey, jobId });
   } catch (error) {
     console.error('create-upload-url error:', error);
     return NextResponse.json({ error: 'Failed to create upload URL', detail: String(error) }, { status: 500 });
