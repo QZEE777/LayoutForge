@@ -105,6 +105,12 @@ export async function POST(request: NextRequest) {
     // R2 flow: enqueue and return checkId. Worker will process.
     if (typeof body.fileKey === "string" && /^uploads\/[0-9a-fA-F-]+\.pdf$/.test(body.fileKey.trim())) {
       const fileKey = body.fileKey.trim();
+      if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        return NextResponse.json(
+          { error: "Server not configured", message: "Supabase is not configured." },
+          { status: 503 }
+        );
+      }
       const { data: row, error: insertError } = await supabase
         .from("print_ready_checks")
         .insert({
@@ -117,7 +123,14 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (insertError) {
-        console.error("[kdp-pdf-check-from-preflight] insert print_ready_checks failed:", insertError);
+        console.error("[kdp-pdf-check-from-preflight] insert print_ready_checks failed:", insertError.message, insertError.code);
+        return NextResponse.json(
+          { error: "Enqueue failed", message: "Could not start check. Try again." },
+          { status: 500 }
+        );
+      }
+      if (!row?.id) {
+        console.error("[kdp-pdf-check-from-preflight] insert succeeded but no row id returned");
         return NextResponse.json(
           { error: "Enqueue failed", message: "Could not start check. Try again." },
           { status: 500 }

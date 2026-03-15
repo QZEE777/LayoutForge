@@ -47,9 +47,8 @@ The project uses **Railway** for the Print Ready Check worker (and optionally th
 
 2. **Railway — new service for the worker**:
    - In your Railway project, add a **new service** (same repo as LayoutForge, or link this repo).
-   - **Root directory**: repo root (where `package.json` and `workers/` live).
-   - **Build**: `npm install` (no separate build; worker runs with `tsx`).
-   - **Start command**: `npm run worker:print-ready-check` (or `npx tsx workers/print-ready-check/run.ts`).
+   - **Root directory**: repo root (where `package.json`, `workers/`, and `railway.toml` live).
+   - The repo includes **`railway.toml`**: build = `npm ci`, start = `npm run worker:print-ready-check`. If Railway picks it up, you don’t need to set a custom start command. Otherwise set **Start command** to `npm run worker:print-ready-check` (do **not** use `next start` — that’s for the Vercel app).
    - **Environment**: Add the same env vars as the Next app (see list above): `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `KDP_PREFLIGHT_API_URL`, `R2_*`, `USE_R2`. Use Railway’s “Variables” for the service.
    - Deploy. The worker runs in a loop; one instance is enough (polls every 12s when idle, processes one job at a time).
 
