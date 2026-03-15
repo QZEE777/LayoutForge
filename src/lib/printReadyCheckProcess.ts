@@ -39,6 +39,10 @@ interface CheckerReport {
 function buildReportFromPreflightOnly(preflight: PreflightReport, fileSizeMB?: number): CheckerReport {
   const errors = Array.isArray(preflight.errors) ? preflight.errors : [];
   const warnings = Array.isArray(preflight.warnings) ? preflight.warnings : [];
+  const totalPages =
+    preflight.summary && typeof preflight.summary.total_pages === "number"
+      ? preflight.summary.total_pages
+      : 0;
   const issues = [
     ...errors.map((e) => `[p.${e.page}] ${e.message}`),
     ...warnings.map((w) => `[p.${w.page}] ${w.message}`),
@@ -57,13 +61,13 @@ function buildReportFromPreflightOnly(preflight: PreflightReport, fileSizeMB?: n
     issues,
     fontUsed: "",
     trimSize: "",
-    pageCount: preflight.summary.total_pages,
+    pageCount: totalPages,
     trimDetected: "—",
     trimMatchKDP: false,
     kdpTrimName: null as string | null,
     recommendations,
     fileSizeMB: fileSizeMB ?? undefined,
-    recommendedGutterInches: getGutterInches(preflight.summary.total_pages),
+    recommendedGutterInches: getGutterInches(totalPages),
     page_issues,
   };
 }
