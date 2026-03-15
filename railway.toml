@@ -2,7 +2,6 @@
 # Vercel hosts the Next app; this repo on Railway runs only the worker.
 [build]
 builder = "nixpacks"
-buildCommand = "npm ci"
 
 [deploy]
 startCommand = "npm run worker:print-ready-check"
