@@ -37,17 +37,19 @@ interface CheckerReport {
 }
 
 function buildReportFromPreflightOnly(preflight: PreflightReport, fileSizeMB?: number): CheckerReport {
+  const errors = Array.isArray(preflight.errors) ? preflight.errors : [];
+  const warnings = Array.isArray(preflight.warnings) ? preflight.warnings : [];
   const issues = [
-    ...preflight.errors.map((e) => `[p.${e.page}] ${e.message}`),
-    ...preflight.warnings.map((w) => `[p.${w.page}] ${w.message}`),
+    ...errors.map((e) => `[p.${e.page}] ${e.message}`),
+    ...warnings.map((w) => `[p.${w.page}] ${w.message}`),
   ];
   const recommendations =
     preflight.status === "PASS"
       ? ["Full KDP preflight (26 rules) passed. No errors found."]
       : ["Fix the issues above before uploading to KDP."];
   const page_issues = preflight.page_issues ?? [
-    ...preflight.errors.map((e) => ({ page: e.page, rule_id: e.rule_id, severity: e.severity, message: e.message, bbox: e.bbox ?? null })),
-    ...preflight.warnings.map((w) => ({ page: w.page, rule_id: w.rule_id, severity: w.severity, message: w.message, bbox: w.bbox ?? null })),
+    ...errors.map((e) => ({ page: e.page, rule_id: e.rule_id, severity: e.severity, message: e.message, bbox: e.bbox ?? null })),
+    ...warnings.map((w) => ({ page: w.page, rule_id: w.rule_id, severity: w.severity, message: w.message, bbox: w.bbox ?? null })),
   ];
   return {
     outputType: "checker" as const,
