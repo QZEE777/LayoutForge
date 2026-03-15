@@ -32,34 +32,32 @@ function getPreflightUrl(): string {
 }
 
 async function processOne(supabase: ReturnType<typeof createClient>): Promise<boolean> {
-  const { data } = await supabase
-    .from("print_ready_checks")
-    .select("id, file_key, our_job_id, file_size_mb")
-    .eq("status", "pending")
-    .order("created_at", { ascending: true })
-    .limit(1);
+  const { data, error } = await supabase.rpc("claim_print_ready_check");
+
+  if (error) {
+    console.error("[worker] claim_print_ready_check RPC failed:", error.message);
+    throw error;
+  }
 
   const rows = data as PrintReadyCheckRow[] | null;
   if (!rows?.length) return false;
+
   const row = rows[0];
   const checkId = row.id;
   const fileKey = row.file_key;
   const ourJobId = row.our_job_id;
   const fileSizeMB = row.file_size_mb != null ? Number(row.file_size_mb) : undefined;
 
-  await supabase
-    .from("print_ready_checks")
-    .update({ status: "processing", updated_at: new Date().toISOString() })
-    .eq("id", checkId);
-
   try {
     const baseUrl = getPreflightUrl();
+
     const { downloadId } = await runPrintReadyCheck({
       fileKey,
       ourJobId,
       fileSizeMB,
       baseUrl,
     });
+
     await supabase
       .from("print_ready_checks")
       .update({
@@ -69,10 +67,14 @@ async function processOne(supabase: ReturnType<typeof createClient>): Promise<bo
         updated_at: new Date().toISOString(),
       })
       .eq("id", checkId);
+
     console.log(`[worker] check ${checkId} done → downloadId ${downloadId}`);
+
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
+
     console.error(`[worker] check ${checkId} failed:`, msg);
+
     await supabase
       .from("print_ready_checks")
       .update({
@@ -82,6 +84,7 @@ async function processOne(supabase: ReturnType<typeof createClient>): Promise<bo
       })
       .eq("id", checkId);
   }
+
   return true;
 }
 
