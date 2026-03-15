@@ -11,8 +11,8 @@ import { ErrorRecovery } from "@/components/ErrorRecovery";
 import { ToolBreadcrumb } from "@/components/ToolBreadcrumb";
 import SiteShell from "@/components/SiteShell";
 
-/** Files at or below this size go through /api/kdp-pdf-check (Vercel). Over this use R2 presigned upload. */
-const SERVER_MAX_MB = 1;
+/** All files use R2 + async worker (Railway) to avoid Vercel 60s timeout. No sync path. */
+const SERVER_MAX_MB = 0;
 /** Max PDF size we accept. */
 const MAX_SELECT_MB = 100;
 
@@ -166,7 +166,7 @@ export default function KdpPdfCheckerPage() {
       if (!res.ok) {
         const msg =
           res.status === 413 && file
-            ? `Your file is ${formatFileSize(file.size)}. This tool accepts up to ${SERVER_MAX_MB} MB per upload. Use our free PDF Compressor to shrink it first, then return here.`
+            ? `Your file is ${formatFileSize(file.size)}. Use our free PDF Compressor to shrink it first, then return here.`
             : data?.message || `Check failed (${res.status}). Try a smaller file or try again.`;
         throw new Error(msg);
       }
@@ -270,7 +270,7 @@ export default function KdpPdfCheckerPage() {
 
         {file && useR2Upload && (
           <div className="mt-4 rounded-lg bg-m2p-orange-soft/50 border border-m2p-border p-3 text-sm text-m2p-muted">
-            Large file: uploaded via secure link, then checked. You’ll get the full report on the results page.
+            File will be uploaded securely and checked. You’ll get the full report on the results page.
           </div>
         )}
         {file && fileTooBigForServer && (
