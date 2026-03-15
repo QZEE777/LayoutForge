@@ -11,8 +11,8 @@ import { ErrorRecovery } from "@/components/ErrorRecovery";
 import { ToolBreadcrumb } from "@/components/ToolBreadcrumb";
 import SiteShell from "@/components/SiteShell";
 
-/** All files use R2 + async worker (Railway) to avoid Vercel 60s timeout. No sync path. */
-const SERVER_MAX_MB = 0;
+/** Files ≤ this size use sync path (Vercel). Larger files use R2 + worker. */
+const SERVER_MAX_MB = 1;
 /** Max PDF size we accept. */
 const MAX_SELECT_MB = 100;
 
