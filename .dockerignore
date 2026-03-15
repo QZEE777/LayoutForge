@@ -1,0 +1,10 @@
+# Worker Docker build: avoid copying local caches and deps (we run npm ci in image)
+node_modules
+.next
+.git
+.env
+.env.*
+!.env.example
+*.log
+.cursor
+kdp-preflight-engine

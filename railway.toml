@@ -1,8 +1,9 @@
 # Print Ready Check worker — run this on Railway (not Next.js).
 # Vercel hosts the Next app; this repo on Railway runs only the worker.
+# Using Dockerfile.worker so we never run next build; install deps only, then run worker.
 [build]
-builder = "nixpacks"
-buildCommand = "npm ci"
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile.worker"
 
 [deploy]
 startCommand = "npm run worker:print-ready-check"

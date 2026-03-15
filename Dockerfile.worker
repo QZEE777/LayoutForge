@@ -1,0 +1,12 @@
+# Print Ready Check worker only. No Next.js build.
+# Railway: set Dockerfile path to Dockerfile.worker (or use this file as Dockerfile for worker service).
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci
+
+COPY . .
+
+CMD ["npm", "run", "worker:print-ready-check"]
