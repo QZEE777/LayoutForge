@@ -11,6 +11,13 @@ import { runPrintReadyCheck } from "../../src/lib/printReadyCheckProcess";
 
 const POLL_INTERVAL_MS = 12_000;
 
+interface PrintReadyCheckRow {
+  id: string;
+  file_key: string;
+  our_job_id: string;
+  file_size_mb: number | null;
+}
+
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -25,18 +32,19 @@ function getPreflightUrl(): string {
 }
 
 async function processOne(supabase: ReturnType<typeof createClient>): Promise<boolean> {
-  const { data: rows } = await supabase
+  const { data } = await supabase
     .from("print_ready_checks")
     .select("id, file_key, our_job_id, file_size_mb")
     .eq("status", "pending")
     .order("created_at", { ascending: true })
     .limit(1);
 
+  const rows = data as PrintReadyCheckRow[] | null;
   if (!rows?.length) return false;
   const row = rows[0];
   const checkId = row.id;
-  const fileKey = row.file_key as string;
-  const ourJobId = row.our_job_id as string;
+  const fileKey = row.file_key;
+  const ourJobId = row.our_job_id;
   const fileSizeMB = row.file_size_mb != null ? Number(row.file_size_mb) : undefined;
 
   await supabase
