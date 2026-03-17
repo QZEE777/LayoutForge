@@ -81,12 +81,14 @@ export default function PaymentGate({ tool, children, isProcessing = false, down
     return (
       <div className="relative">
         {children}
-        <p className="mb-6 flex items-center gap-2 text-sm text-m2p-orange">
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-          Access granted
-        </p>
+        <div className="mt-4 mb-6 flex justify-start">
+          <span className="inline-flex items-center gap-2 rounded-full bg-m2p-orange-soft px-3 py-1 text-xs font-medium text-m2p-orange">
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            Access granted
+          </span>
+        </div>
       </div>
     );
   }

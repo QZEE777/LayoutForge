@@ -336,6 +336,20 @@ export default function DownloadPage() {
               pageIssues={report.page_issues}
               totalPages={report.pageCount ?? 0}
             />
+            {/* Annotated preview status sits directly under the viewer for checker reports */}
+            {isChecker && report.annotatedPdfUrl && (
+              <>
+                {annotatedError ? (
+                  <p className="mt-4 text-sm italic text-center" style={{ color: "#F05A28" }}>
+                    Annotated preview not available for this file.
+                  </p>
+                ) : !annotatedReady ? (
+                  <p className="mt-4 text-sm italic text-center" style={{ color: "#F05A28" }}>
+                    Annotated preview preparing…
+                  </p>
+                ) : null}
+              </>
+            )}
           </div>
         )}
         {report?.outputType === "checker" && report.page_issues && report.page_issues.length > 0 && !report.hasPdfPreview && (
@@ -822,18 +836,8 @@ export default function DownloadPage() {
           </div>
         )}
 
-        {/* Checker: annotated PDF status and download */}
-        {isChecker && report?.annotatedPdfUrl && (
-          <>
-            {annotatedError ? (
-              <p className="mb-6 text-sm italic text-center" style={{ color: "#F05A28" }}>
-                Annotated preview not available for this file.
-              </p>
-            ) : !annotatedReady ? (
-              <p className="mb-6 text-sm italic text-center" style={{ color: "#F05A28" }}>
-                Annotated preview preparing…
-              </p>
-            ) : (
+        {/* Checker: annotated PDF download (status text now lives under viewer) */}
+        {isChecker && report?.annotatedPdfUrl && annotatedReady && !annotatedError && (
               <div className="mb-8 rounded-lg p-6 border bg-m2p-ink border-white/10">
                 <button
                   type="button"
@@ -855,8 +859,6 @@ export default function DownloadPage() {
                   </div>
                 </button>
               </div>
-            )}
-          </>
         )}
 
         {/* Success message */}
