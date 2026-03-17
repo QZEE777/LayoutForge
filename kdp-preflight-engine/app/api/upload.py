@@ -34,18 +34,17 @@ async def upload_pdf(request: Request, file: UploadFile = File(...)) -> UploadRe
     except ValueError as e:
         path.unlink(missing_ok=True)
         raise HTTPException(400, str(e))
-    set_status(job_id, "pending", "Job queued")
-    logger.info("upload_received", job_id=job_id, size=len(raw))
-    validate_pdf_task.delay(job_id, str(path))
 
-    # Safety valve: if Celery isn't consuming jobs (misconfig / process not running),
-    # small PDFs would otherwise remain "pending" forever. For uploads up to 4 MB
-    # (matches app convention: Vercel/upload-proxy boundary), run validation inline.
-    if len(raw) <= 4 * 1024 * 1024:
-        try:
-            logger.info("sync_fallback_start", job_id=job_id, size=len(raw))
-            validate_pdf_task.apply(args=(job_id, str(path)), throw=False)
-            logger.info("sync_fallback_done", job_id=job_id)
-        except Exception as e:
-            logger.exception("sync_fallback_failed", job_id=job_id, error=str(e))
+    # For manu2print usage, run validation inline for all accepted files (up to
+    # settings.max_upload_bytes). This removes the dependency on a separate
+    # Celery worker for Print Ready Check.
+    set_status(job_id, "pending", "Job running inline")
+    logger.info("upload_received_inline", job_id=job_id, size=len(raw))
+    try:
+        logger.info("inline_validation_start", job_id=job_id, size=len(raw))
+        validate_pdf_task.apply(args=(job_id, str(path)), throw=False)
+        logger.info("inline_validation_done", job_id=job_id)
+    except Exception as e:
+        logger.exception("inline_validation_failed", job_id=job_id, error=str(e))
+
     return UploadResponse(job_id=job_id)
