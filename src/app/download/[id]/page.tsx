@@ -132,6 +132,8 @@ export default function DownloadPage() {
   const isCheckerFlow = searchParams.get("source") === "checker";
   const isFormatReviewFlow = searchParams.get("source") === "format-review";
   const [report, setReport] = useState<ProcessingReport | null>(null);
+  const [reportLoading, setReportLoading] = useState(true);
+  const [reportError, setReportError] = useState<string | null>(null);
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [copyReviewStatus, setCopyReviewStatus] = useState<"idle" | "ok" | "fail">("idle");
   const [copyShareStatus, setCopyShareStatus] = useState<"idle" | "ok" | "fail">("idle");
@@ -227,14 +229,17 @@ export default function DownloadPage() {
     }
   }, [id]);
 
-  useEffect(() => {
+  const loadReport = useCallback(() => {
     if (!id) return;
+    setReportError(null);
+    setReportLoading(true);
     fetch(`/api/format-report?id=${encodeURIComponent(id)}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.success && data.report) {
+      .then((r) => r.json().then((data: { success?: boolean; report?: ProcessingReport; message?: string }) => ({ ok: r.ok, data })))
+      .then(({ ok, data }) => {
+        if (ok && data.success && data.report) {
           const r = data.report as ProcessingReport;
           setReport(r);
+          setReportError(null);
           if (r.annotatedPdfStatus === "ready") setAnnotatedReady(true);
           if (r.annotatedPdfUrl && searchParams.get("source") === "checker") {
             const match = r.annotatedPdfUrl.match(/\/file\/([^/]+)\/annotated\/?$/);
@@ -248,10 +253,17 @@ export default function DownloadPage() {
                 .catch(() => {});
             }
           }
+        } else {
+          setReportError(data?.message ?? "Report not available.");
         }
       })
-      .catch(() => {});
+      .catch(() => setReportError("Could not load report. Try again or refresh."))
+      .finally(() => setReportLoading(false));
   }, [id, searchParams]);
+
+  useEffect(() => {
+    loadReport();
+  }, [loadReport]);
 
   useEffect(() => {
     if (!report?.annotatedPdfUrl || !isCheckerFlow) return;
@@ -326,6 +338,28 @@ export default function DownloadPage() {
         <p className="text-m2p-muted text-center mb-6">
           We analyzed your manuscript against Amazon KDP print formatting requirements. Download the full report below to review detected issues and recommended fixes before uploading your book.
         </p>
+
+        {reportLoading && !report && (
+          <div className="mb-8 rounded-lg p-8 border border-m2p-border bg-white/80 text-center">
+            <p className="text-m2p-ink font-medium">Loading your report…</p>
+            <p className="text-sm text-m2p-muted mt-2">If you just uploaded, this may take a moment.</p>
+          </div>
+        )}
+        {reportError && !report && (
+          <div className="mb-8 rounded-lg p-6 border border-amber-500/50 bg-amber-50/80">
+            <p className="text-m2p-ink font-medium">{reportError}</p>
+            <p className="text-sm text-m2p-muted mt-2">If you just ran a check, wait a few seconds and try again.</p>
+            <button
+              type="button"
+              onClick={loadReport}
+              className="mt-4 rounded-lg bg-m2p-orange text-white px-4 py-2 text-sm font-medium hover:bg-m2p-orange-hover"
+            >
+              Try again
+            </button>
+          </div>
+        )}
+
+        {report && (
         <PaymentGate tool={isFormatReview ? "kdp-format-review" : isChecker ? "kdp-pdf-checker" : isEpub ? "epub-maker" : isPdfFlow ? "kdp-formatter-pdf" : "kdp-formatter"} downloadId={id}>
         {/* Checker: PDF viewer with issue overlays (when we have the user's PDF + page_issues) */}
         {report?.outputType === "checker" && report.hasPdfPreview && report.page_issues && report.page_issues.length > 0 && (
@@ -1061,6 +1095,7 @@ export default function DownloadPage() {
           </Link>
         </div>
         </PaymentGate>
+        )}
 
         {/* Trust block */}
         <div className="text-center border border-m2p-border rounded-lg p-4 mb-6">
