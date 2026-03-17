@@ -37,10 +37,10 @@ interface CheckerReport {
 }
 
 function buildReportFromPreflightOnly(preflight: PreflightReport, fileSizeMB?: number): CheckerReport {
-  const errors = Array.isArray(preflight.errors) ? preflight.errors : [];
-  const warnings = Array.isArray(preflight.warnings) ? preflight.warnings : [];
+  const errors = (preflight != null && Array.isArray(preflight.errors)) ? preflight.errors : [];
+  const warnings = (preflight != null && Array.isArray(preflight.warnings)) ? preflight.warnings : [];
   const totalPages =
-    preflight.summary && typeof preflight.summary.total_pages === "number"
+    preflight?.summary != null && typeof preflight.summary.total_pages === "number"
       ? preflight.summary.total_pages
       : 0;
   const issues = [
@@ -48,10 +48,10 @@ function buildReportFromPreflightOnly(preflight: PreflightReport, fileSizeMB?: n
     ...warnings.map((w) => `[p.${w.page}] ${w.message}`),
   ];
   const recommendations =
-    preflight.status === "PASS"
+    preflight?.status === "PASS"
       ? ["Full KDP preflight (26 rules) passed. No errors found."]
       : ["Fix the issues above before uploading to KDP."];
-  const page_issues = preflight.page_issues ?? [
+  const page_issues = preflight?.page_issues ?? [
     ...errors.map((e) => ({ page: e.page, rule_id: e.rule_id, severity: e.severity, message: e.message, bbox: e.bbox ?? null })),
     ...warnings.map((w) => ({ page: w.page, rule_id: w.rule_id, severity: w.severity, message: w.message, bbox: w.bbox ?? null })),
   ];
@@ -83,11 +83,22 @@ export interface RunPrintReadyCheckParams {
  * Run preflight for the PDF at fileKey, save report and meta, return the download id.
  * Throws on failure (caller should set job status to failed with message).
  */
+const PREFLIGHT_STATUS_DEADLINE_MS = 300000; // 5 min for large PDFs
+
 export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Promise<{ downloadId: string }> {
   const { fileKey, ourJobId, fileSizeMB, baseUrl } = params;
   const url = baseUrl.replace(/\/$/, "");
 
-  const pdfBuffer = await getFileByKey(fileKey);
+  let pdfBuffer: Buffer;
+  try {
+    pdfBuffer = await getFileByKey(fileKey);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    if (msg.includes("getFileByKey") || msg.includes("R2")) {
+      throw new Error("File not found in storage. The upload may not have completed — please try again.");
+    }
+    throw e;
+  }
   const form = new FormData();
   form.append("file", new Blob([pdfBuffer], { type: "application/pdf" }), "document.pdf");
   const uploadRes = await fetch(`${url}/upload`, { method: "POST", body: form });
@@ -95,22 +106,29 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
     const text = await uploadRes.text();
     throw new Error(text || `Preflight upload failed (${uploadRes.status}).`);
   }
-  const uploadData = (await uploadRes.json()) as { job_id?: string };
-  const renderJobId = typeof uploadData.job_id === "string" ? uploadData.job_id : "";
+  const uploadData = (await uploadRes.json()) as { job_id?: string } | null;
+  const renderJobId = (uploadData != null && typeof uploadData.job_id === "string") ? uploadData.job_id : "";
   if (!renderJobId) {
     throw new Error("No job_id from preflight.");
   }
 
-  const deadline = Date.now() + 120000;
+  const deadline = Date.now() + PREFLIGHT_STATUS_DEADLINE_MS;
+  let completed = false;
   while (Date.now() < deadline) {
     await new Promise((r) => setTimeout(r, 2500));
     const statusRes = await fetch(`${url}/status/${encodeURIComponent(renderJobId)}`);
     if (!statusRes.ok) continue;
-    const statusData = (await statusRes.json()) as { status?: string };
-    if (statusData.status === "completed") break;
-    if (statusData.status === "failed") {
+    const statusData = (await statusRes.json()) as { status?: string } | null;
+    if (statusData?.status === "completed") {
+      completed = true;
+      break;
+    }
+    if (statusData?.status === "failed") {
       throw new Error("Preflight validation failed.");
     }
+  }
+  if (!completed) {
+    throw new Error("Preflight is taking longer than expected. Try a smaller file, use our free PDF Compressor to shrink it, or try again later.");
   }
 
   const controller = new AbortController();
@@ -137,14 +155,14 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
   await updateMeta(stored.id, { processingReport: enrichedReport as StoredManuscript["processingReport"] });
 
   try {
-    const issuesCount = enrichedReport.issuesEnriched?.length ?? report.issues.length;
+    const issuesCount = enrichedReport?.issuesEnriched?.length ?? report?.issues?.length ?? 0;
     await supabase.from("verification_results").upsert(
       {
         verification_id: stored.id,
         filename_clean: "Uploaded PDF — PDF",
-        readiness_score: enrichedReport.readinessScore100,
-        kdp_ready: enrichedReport.kdpReady,
-        scan_date: enrichedReport.scanDate,
+        readiness_score: enrichedReport?.readinessScore100,
+        kdp_ready: enrichedReport?.kdpReady,
+        scan_date: enrichedReport?.scanDate,
         issues_count: issuesCount,
       },
       { onConflict: "verification_id" }
@@ -159,7 +177,7 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
     annotatedPdfStatus: "processing",
   });
 
-  if (process.env.USE_R2 === "true" && stored.storedPath) {
+  if (process.env.USE_R2 === "true" && stored?.storedPath) {
     const filename = stored.storedPath.split("/").pop();
     if (filename) {
       try {
