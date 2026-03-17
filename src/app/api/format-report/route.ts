@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStored } from "@/lib/storage";
 
+export const maxDuration = 60;
+
 export async function GET(request: NextRequest) {
   try {
     const id = request.nextUrl.searchParams.get("id");

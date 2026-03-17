@@ -568,7 +568,7 @@ export default function DownloadPage() {
                     <p className="text-sm text-m2p-muted mb-3">
                       Share in your writing community — help other authors discover manu2print
                     </p>
-                    <div className="flex justify-center">
+                    <div className="flex justify-center gap-2 flex-wrap mb-3">
                       <button
                         type="button"
                         onClick={handleCopyVerificationLink}
@@ -580,6 +580,40 @@ export default function DownloadPage() {
                         ? "Copy failed"
                         : "Copy verification link"}
                       </button>
+                    </div>
+                    <div className="flex gap-3 justify-center flex-wrap">
+                      <a
+                        href={`https://www.facebook.com/sharer/sharer.php?u=https://manu2print.com/verify/${id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-[#1877F2] text-white px-4 py-2 rounded-lg text-sm font-bold hover:opacity-90"
+                      >
+                        Share on Facebook
+                      </a>
+                      <a
+                        href={`https://www.linkedin.com/sharing/share-offsite/?url=https://manu2print.com/verify/${id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-[#0A66C2] text-white px-4 py-2 rounded-lg text-sm font-bold hover:opacity-90"
+                      >
+                        Share on LinkedIn
+                      </a>
+                      <a
+                        href="https://www.instagram.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-[#E1306C] text-white px-4 py-2 rounded-lg text-sm font-bold hover:opacity-90"
+                      >
+                        Share on Instagram
+                      </a>
+                      <a
+                        href={`https://twitter.com/intent/tweet?url=https://manu2print.com/verify/${id}&text=Just%20checked%20my%20manuscript%20on%20Manu2Print%20-%20KDP%20Readiness%20Score%3A%20${report?.readinessScore100 ?? ""}%2F100`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-[#1DA1F2] text-white px-4 py-2 rounded-lg text-sm font-bold hover:opacity-90"
+                      >
+                        Share on X
+                      </a>
                     </div>
                   </div>
                   {/* Formatter CTA block */}
