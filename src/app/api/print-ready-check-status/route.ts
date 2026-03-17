@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
       downloadId?: string;
       error?: string;
     } = {
-      status: row.status,
+      status: row.status ?? "pending",
     };
     if (row.status === "done" && row.result_download_id) {
       payload.downloadId = row.result_download_id;

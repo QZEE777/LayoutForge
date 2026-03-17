@@ -10,7 +10,7 @@ This document describes the current hosting, upload pipeline, storage, and viewe
 |-----------|----------------|--------|
 | **Frontend** | **Vercel** | Next.js app (manu2print.com). Serves the checker page, download page, and all UI. |
 | **API layer (site)** | **Vercel** | Next.js API routes: `/api/kdp-pdf-check`, `/api/kdp-pdf-check-from-preflight`, `/api/view-pdf/[id]`. Same process as the frontend. |
-| **Preflight engine** | **Render** | Single Docker container (API + Celery worker). Service URL e.g. `https://layoutforge.onrender.com`. Uses `Dockerfile.live`; listens on `PORT` (Render sets 10000). |
+| **Preflight engine** | **Railway** | Single Docker container (API + Celery worker). Service URL: `https://kdp-preflight-engine-production.up.railway.app`. Uses `Dockerfile.live`; listens on `PORT`. |
 | **Redis** | **Upstash** | Managed Redis (TLS). Used by the preflight engine for job status and report JSON. Not used by the frontend. |
 | **Celery** | **Render (same container)** | Runs in the same container as the FastAPI app. Broker and result backend = Upstash Redis. Worker runs `validate_pdf` task. |
 

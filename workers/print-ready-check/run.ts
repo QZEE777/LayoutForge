@@ -73,9 +73,10 @@ async function processOne(supabase: ReturnType<typeof createClient>): Promise<bo
     console.log(`[worker] check ${checkId} done → downloadId ${downloadId}`);
 
   } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
+    const err = e;
+    const msg = err instanceof Error ? err.message : String(err);
 
-    console.error(`[worker] check ${checkId} failed:`, msg);
+    console.error("[worker] check", checkId, "failed:", err instanceof Error ? err.stack : err);
 
     await supabase
       .from("print_ready_checks")

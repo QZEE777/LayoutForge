@@ -10,6 +10,8 @@ import { getGutterInches } from "./kdpConfig";
 import { supabase } from "./supabase";
 import { enrichCheckerReport } from "./kdpReportEnhance";
 
+const DEFAULT_PREFLIGHT_BASE_URL = "https://kdp-preflight-engine-production.up.railway.app";
+
 export interface PreflightReport {
   status: string;
   errors: Array<{ page: number; rule_id: string; severity: string; message: string; bbox?: number[] | null }>;
@@ -36,7 +38,7 @@ interface CheckerReport {
   pdfSourceUrl?: string;
 }
 
-function buildReportFromPreflightOnly(preflight: PreflightReport, fileSizeMB?: number): CheckerReport {
+function buildReportFromPreflightOnly(preflight: PreflightReport | null | undefined, fileSizeMB?: number): CheckerReport {
   const errors = (preflight != null && Array.isArray(preflight.errors)) ? preflight.errors : [];
   const warnings = (preflight != null && Array.isArray(preflight.warnings)) ? preflight.warnings : [];
   const totalPages =
@@ -76,7 +78,8 @@ export interface RunPrintReadyCheckParams {
   fileKey: string;
   ourJobId: string;
   fileSizeMB?: number;
-  baseUrl: string;
+  /** Optional override. If omitted, uses process.env.KDP_PREFLIGHT_API_URL with fallback to DEFAULT_PREFLIGHT_BASE_URL. */
+  baseUrl?: string;
 }
 
 /**
@@ -87,7 +90,8 @@ const PREFLIGHT_STATUS_DEADLINE_MS = 300000; // 5 min for large PDFs
 
 export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Promise<{ downloadId: string }> {
   const { fileKey, ourJobId, fileSizeMB, baseUrl } = params;
-  const url = baseUrl.replace(/\/$/, "");
+  const envUrl = process.env.KDP_PREFLIGHT_API_URL?.trim();
+  const url = (envUrl || baseUrl || DEFAULT_PREFLIGHT_BASE_URL).replace(/\/$/, "");
 
   let pdfBuffer: Buffer;
   try {
@@ -142,7 +146,7 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
   if (!res.ok) {
     throw new Error(`Preflight report failed (${res.status}).`);
   }
-  const preflight = (await res.json()) as PreflightReport;
+  const preflight = (await res.json()) as PreflightReport | null;
   const report: CheckerReport = buildReportFromPreflightOnly(preflight, fileSizeMB);
   report.hasPdfPreview = true;
   report.pdfSourceUrl = `${url}/file/${encodeURIComponent(renderJobId)}`;

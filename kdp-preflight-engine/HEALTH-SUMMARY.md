@@ -75,7 +75,7 @@ if settings.broker_url.strip().lower().startswith("rediss://"):
 - **Symptom:** Checker always does basic (trim + page count) only, or API returns “KDP_PREFLIGHT_API_URL is not set.”
 - **Cause:** Env vars not set in Vercel.
 - **Fix (Vercel → Settings → Environment Variables):**
-  - **KDP_PREFLIGHT_API_URL** = Render service URL (e.g. `https://kdp-preflight-api.onrender.com`) — no trailing slash. Used by `/api/kdp-pdf-check` and `/api/kdp-pdf-check-from-preflight`.
+  - **KDP_PREFLIGHT_API_URL** = Preflight service URL (e.g. `https://kdp-preflight-engine-production.up.railway.app`) — no trailing slash. Used by `/api/kdp-pdf-check` and `/api/kdp-pdf-check-from-preflight`.
   - **NEXT_PUBLIC_KDP_PREFLIGHT_API_URL** = same URL. Used by the browser for **direct upload** when file > 4 MB (avoids Vercel body limit). If missing, large files get “Failed to fetch.”
 
 ### 2. **“Failed to fetch” on upload (file &lt; 100 MB)**

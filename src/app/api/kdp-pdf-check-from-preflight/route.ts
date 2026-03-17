@@ -13,6 +13,8 @@ import { getGutterInches } from "@/lib/kdpConfig";
 import { supabase } from "@/lib/supabase";
 import { enrichCheckerReport } from "@/lib/kdpReportEnhance";
 
+const DEFAULT_PREFLIGHT_BASE_URL = "https://kdp-preflight-engine-production.up.railway.app";
+
 interface PreflightReport {
   status: string;
   errors: Array<{ page: number; rule_id: string; severity: string; message: string; bbox?: number[] | null }>;
@@ -39,18 +41,24 @@ interface CheckerReport {
   pdfSourceUrl?: string;
 }
 
-function buildReportFromPreflightOnly(preflight: PreflightReport, fileSizeMB?: number): CheckerReport {
+function buildReportFromPreflightOnly(preflight: PreflightReport | null | undefined, fileSizeMB?: number): CheckerReport {
+  const errors = (preflight != null && Array.isArray(preflight.errors)) ? preflight.errors : [];
+  const warnings = (preflight != null && Array.isArray(preflight.warnings)) ? preflight.warnings : [];
+  const totalPages =
+    preflight?.summary != null && typeof preflight.summary.total_pages === "number"
+      ? preflight.summary.total_pages
+      : 0;
   const issues = [
-    ...preflight.errors.map((e) => `[p.${e.page}] ${e.message}`),
-    ...preflight.warnings.map((w) => `[p.${w.page}] ${w.message}`),
+    ...errors.map((e) => `[p.${e.page}] ${e.message}`),
+    ...warnings.map((w) => `[p.${w.page}] ${w.message}`),
   ];
   const recommendations =
-    preflight.status === "PASS"
+    preflight?.status === "PASS"
       ? ["Full KDP preflight (26 rules) passed. No errors found."]
       : ["Fix the issues above before uploading to KDP."];
-  const page_issues = preflight.page_issues ?? [
-    ...preflight.errors.map((e) => ({ page: e.page, rule_id: e.rule_id, severity: e.severity, message: e.message, bbox: e.bbox ?? null })),
-    ...preflight.warnings.map((w) => ({ page: w.page, rule_id: w.rule_id, severity: w.severity, message: w.message, bbox: w.bbox ?? null })),
+  const page_issues = preflight?.page_issues ?? [
+    ...errors.map((e) => ({ page: e.page, rule_id: e.rule_id, severity: e.severity, message: e.message, bbox: e.bbox ?? null })),
+    ...warnings.map((w) => ({ page: w.page, rule_id: w.rule_id, severity: w.severity, message: w.message, bbox: w.bbox ?? null })),
   ];
   return {
     outputType: "checker" as const,
@@ -58,26 +66,20 @@ function buildReportFromPreflightOnly(preflight: PreflightReport, fileSizeMB?: n
     issues,
     fontUsed: "",
     trimSize: "",
-    pageCount: preflight.summary.total_pages,
+    pageCount: totalPages,
     trimDetected: "—",
     trimMatchKDP: false,
     kdpTrimName: null as string | null,
     recommendations,
     fileSizeMB: fileSizeMB ?? undefined,
-    recommendedGutterInches: getGutterInches(preflight.summary.total_pages),
+    recommendedGutterInches: getGutterInches(totalPages),
     page_issues,
   };
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const baseUrl = process.env.KDP_PREFLIGHT_API_URL?.trim();
-    if (!baseUrl) {
-      return NextResponse.json(
-        { error: "Preflight not configured", message: "KDP_PREFLIGHT_API_URL is not set." },
-        { status: 503 }
-      );
-    }
+    const baseUrl = (process.env.KDP_PREFLIGHT_API_URL?.trim() || DEFAULT_PREFLIGHT_BASE_URL).replace(/\/$/, "");
     let body: { jobId?: string; fileKey?: string; fileSizeMB?: number };
     try {
       body = await request.json();
@@ -140,7 +142,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Sync flow: jobId is preflight engine job id, fetch report directly (legacy / small flows).
-    const url = baseUrl.replace(/\/$/, "");
+    const url = baseUrl;
     const renderJobId = jobId;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 60000);
@@ -156,7 +158,7 @@ export async function POST(request: NextRequest) {
         { status: 502 }
       );
     }
-    const preflight = (await res.json()) as PreflightReport;
+    const preflight = (await res.json()) as PreflightReport | null;
     const report: CheckerReport = buildReportFromPreflightOnly(preflight, fileSizeMB);
     report.hasPdfPreview = true;
     report.pdfSourceUrl = `${url}/file/${encodeURIComponent(renderJobId)}`;
@@ -168,14 +170,14 @@ export async function POST(request: NextRequest) {
     await updateMeta(stored.id, { processingReport: enrichedReport as StoredManuscript["processingReport"] });
 
     try {
-      const issuesCount = enrichedReport.issuesEnriched?.length ?? report.issues.length;
+      const issuesCount = enrichedReport?.issuesEnriched?.length ?? report?.issues?.length ?? 0;
       await supabase.from("verification_results").upsert(
         {
           verification_id: stored.id,
           filename_clean: "Uploaded PDF — PDF",
-          readiness_score: enrichedReport.readinessScore100,
-          kdp_ready: enrichedReport.kdpReady,
-          scan_date: enrichedReport.scanDate,
+          readiness_score: enrichedReport?.readinessScore100,
+          kdp_ready: enrichedReport?.kdpReady,
+          scan_date: enrichedReport?.scanDate,
           issues_count: issuesCount,
         },
         { onConflict: "verification_id" }
@@ -190,7 +192,7 @@ export async function POST(request: NextRequest) {
       annotatedPdfStatus: "processing",
     });
 
-    if (process.env.USE_R2 === "true" && stored.storedPath) {
+    if (process.env.USE_R2 === "true" && stored?.storedPath) {
       const filename = stored.storedPath.split("/").pop();
       if (filename) {
         try {

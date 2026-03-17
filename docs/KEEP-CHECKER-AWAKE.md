@@ -22,7 +22,7 @@ You only need to set this up **once**. No code changes. No paying users to wait.
    - **Friendly Name:** e.g. `Print Ready Checker`.
    - **URL:** your checker’s “are you there?” address.  
      Use the same address you put in Vercel for the checker, and add `/health` at the end.  
-     Example: `https://layoutforge.onrender.com/health`  
+     Example: `https://kdp-preflight-engine-production.up.railway.app/health`
      (Replace with your real checker URL if it’s different.)
    - **Monitoring Interval:** choose **5 minutes** (or the smallest option they allow).
    - Leave the rest as default and click **“Create Monitor”**.
