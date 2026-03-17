@@ -37,4 +37,15 @@ async def upload_pdf(request: Request, file: UploadFile = File(...)) -> UploadRe
     set_status(job_id, "pending", "Job queued")
     logger.info("upload_received", job_id=job_id, size=len(raw))
     validate_pdf_task.delay(job_id, str(path))
+
+    # Safety valve: if Celery isn't consuming jobs (misconfig / process not running),
+    # small PDFs would otherwise remain "pending" forever. For small uploads, run the
+    # same validation task inline as a fallback to ensure a report is produced.
+    if len(raw) <= 2 * 1024 * 1024:
+        try:
+            logger.info("sync_fallback_start", job_id=job_id, size=len(raw))
+            validate_pdf_task.apply(args=(job_id, str(path)), throw=False)
+            logger.info("sync_fallback_done", job_id=job_id)
+        except Exception as e:
+            logger.exception("sync_fallback_failed", job_id=job_id, error=str(e))
     return UploadResponse(job_id=job_id)
