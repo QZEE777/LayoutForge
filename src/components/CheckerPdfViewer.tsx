@@ -1,12 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import * as pdfjs from "pdfjs-dist";
 
 const BASE_WIDTH = 560;
-
-// Configure PDF.js worker using the bundled file so Next.js can resolve it correctly.
-pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
 
 interface PageIssue {
   page: number;
@@ -42,8 +38,9 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
     setLoading(true);
     setError(null);
     const load = async () => {
-      const loadingTask = pdfjs.getDocument({ url: pdfUrl });
-      return loadingTask.promise;
+      const pdfjs = await import("pdfjs-dist");
+      (pdfjs.GlobalWorkerOptions as { workerSrc?: string }).workerSrc = "/pdf.worker.min.js";
+      return pdfjs.getDocument({ url: pdfUrl }).promise;
     };
     load()
       .then((pdf: { numPages: number }) => {
@@ -66,8 +63,9 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
     if (!pdfUrl || !canvasRef.current || numPages < 1 || pageNumber < 1) return;
     let cancelled = false;
     const run = async () => {
-      const loadingTask = pdfjs.getDocument({ url: pdfUrl });
-      const pdf = await loadingTask.promise;
+      const pdfjs = await import("pdfjs-dist");
+      (pdfjs.GlobalWorkerOptions as { workerSrc?: string }).workerSrc = "/pdf.worker.min.js";
+      const pdf = await pdfjs.getDocument({ url: pdfUrl }).promise;
       const page = await pdf.getPage(pageNumber);
       if (cancelled || !canvasRef.current) return;
       const viewport = page.getViewport({ scale });
