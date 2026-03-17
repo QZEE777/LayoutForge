@@ -39,8 +39,8 @@ async function processOne(supabase: ReturnType<typeof createClient>): Promise<bo
     throw error;
   }
 
-  const rows = data as PrintReadyCheckRow[] | null;
-  if (!rows?.length) return false;
+  const rows = (data as PrintReadyCheckRow[] | null | undefined) ?? [];
+  if (!rows.length) return false;
 
   const row = rows[0];
   const checkId = row.id;
