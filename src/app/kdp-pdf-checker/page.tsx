@@ -11,8 +11,8 @@ import { ErrorRecovery } from "@/components/ErrorRecovery";
 import { ToolBreadcrumb } from "@/components/ToolBreadcrumb";
 import SiteShell from "@/components/SiteShell";
 
-/** Files ≤ this size use sync path (Vercel). Larger files use R2 + worker. */
-const SERVER_MAX_MB = 1;
+/** All checker uploads use R2 + worker (async). Set to 0 to avoid Vercel sync timeout/504. */
+const SERVER_MAX_MB = 0;
 /** Max PDF size we accept. */
 const MAX_SELECT_MB = 100;
 

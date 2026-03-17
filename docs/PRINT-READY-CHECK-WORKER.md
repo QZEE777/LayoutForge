@@ -2,6 +2,8 @@
 
 Large-file Print Ready Check (R2 upload flow) uses an **async job + worker** so Vercel never times out. The API enqueues a row in Supabase and returns immediately; a long-running worker processes jobs and updates the row.
 
+**When things are broken or stuck in a fix loop:** See **[PRINT-READY-CHECK-OPERATIONAL.md](./PRINT-READY-CHECK-OPERATIONAL.md)** for the ordered checklist (preflight → migrations → worker → async-only).
+
 ## Flow
 
 1. User uploads PDF to R2 (presigned URL), then calls `POST /api/kdp-pdf-check-from-preflight` with `{ jobId, fileKey, fileSizeMB }`.
@@ -43,7 +45,7 @@ Load via `.env` in the repo root (worker uses `dotenv/config`).
 
 The project uses **Railway** for the Print Ready Check worker (and optionally the preflight engine). The Next app stays on Vercel.
 
-1. **Supabase**: Run migration `supabase/migrations/009_print_ready_checks.sql` in the Supabase SQL Editor so the `print_ready_checks` table exists.
+1. **Supabase**: Run migrations in order: `009_print_ready_checks.sql` (table), then `010_claim_print_ready_check.sql` (RPC the worker uses to claim jobs). Both are required.
 
 2. **Railway — new service for the worker**:
    - In your Railway project, add a **new service** (same repo as LayoutForge, or link this repo).
@@ -63,3 +65,13 @@ Table: `print_ready_checks` (see `supabase/migrations/009_print_ready_checks.sql
 - `status`: `pending` | `processing` | `done` | `failed`.
 - `result_download_id`: Set when `status = 'done'`; frontend redirects to `/download/{result_download_id}`.
 - `error_message`: Set when `status = 'failed'`.
+
+## Large-file launch checklist
+
+Before relying on large-file uploads for launch, verify:
+
+1. **Supabase**: Migration `010_claim_print_ready_check.sql` applied (RPC `claim_print_ready_check` exists). Table `print_ready_checks` exists (009).
+2. **Railway worker**: Service builds and runs (logs show `[worker] Print Ready Check worker started`). No `claim_print_ready_check RPC failed`.
+3. **R2**: Same bucket and credentials on **Vercel** (create-upload-url) and **Railway** (worker). If the worker can’t find the file, check `file_key` in the failed row (should be `uploads/<uuid>.pdf`) and that the object exists in the bucket.
+4. **Preflight API**: Preflight engine must be running and `KDP_PREFLIGHT_API_URL` set on Vercel and worker. If preflight is down, the checker fails regardless of other fixes. See [PRINT-READY-CHECK-OPERATIONAL.md](./PRINT-READY-CHECK-OPERATIONAL.md). For large PDFs the worker waits up to 5 minutes for preflight to complete; if the preflight service is slow or underpowered, consider running it on adequate resources or document a recommended max size (e.g. 20 MB for “fast” results).
+5. **One end-to-end test**: Upload a PDF (e.g. 2–5 MB), wait for “Checking…” then redirect to download. If it fails, check `print_ready_checks.error_message` for that row and Railway logs for the exact error.
