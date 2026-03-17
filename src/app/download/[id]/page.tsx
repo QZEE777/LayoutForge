@@ -823,11 +823,14 @@ export default function DownloadPage() {
         )}
 
         {/* Checker: annotated PDF status and download */}
-        {isChecker && report?.annotatedPdfUrl && (
+        {isChecker && report?.annotatedPdfUrl && annotatedError && (
+          <p className="mb-6 text-sm italic text-center" style={{ color: "#F05A28" }}>
+            Annotated preview not available for this file.
+          </p>
+        )}
+        {isChecker && report?.annotatedPdfUrl && !annotatedError && (
           <div className="mb-8 rounded-lg p-6 border bg-m2p-ink border-white/10">
-            {annotatedError ? (
-              <p className="text-sm text-m2p-muted">Annotated preview unavailable.</p>
-            ) : annotatedReady ? (
+            {annotatedReady ? (
               <button
                 type="button"
                 onClick={() => {
