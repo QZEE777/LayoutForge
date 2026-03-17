@@ -132,23 +132,32 @@ export function getRiskLevel(score: number): "Low" | "Medium" | "High" {
   return "High";
 }
 
-/** Estimate fix time: easy ≈2 min, moderate ≈15 min, advanced ≈45 min. Return hours (0.5 step). */
-export function estimateFixHours(issues: EnrichedIssue[]): number {
+/** Estimate fix time in minutes: easy 2 min, moderate 10 min, advanced 20 min. Capped at 4 hours (240 min). */
+export function estimateFixMinutes(issues: EnrichedIssue[]): number {
   let totalMin = 0;
   for (const i of issues) {
     if (i.fixDifficulty === "easy") totalMin += 2;
-    else if (i.fixDifficulty === "moderate") totalMin += 15;
-    else totalMin += 45;
+    else if (i.fixDifficulty === "moderate") totalMin += 10;
+    else totalMin += 20;
   }
-  const hours = totalMin / 60;
-  if (hours <= 0) return 0;
-  const step = 0.5;
-  return Math.ceil(hours / step) * step;
+  return Math.min(totalMin, 240);
 }
 
-export function buildUpsellBridge(issueCount: number, estimatedFixHours: number): string {
-  const hrs = estimatedFixHours === 0 ? "under an hour" : estimatedFixHours === 1 ? "1 hour" : `${estimatedFixHours} hours`;
-  return `${issueCount} issue${issueCount === 1 ? "" : "s"} detected. Estimated manual fix time: ${hrs}. Fix automatically with KDP PDF Formatter — coming soon at manu2print.com`;
+/** Hours equivalent for backward compat (report.estimatedFixHours). */
+export function estimateFixHours(issues: EnrichedIssue[]): number {
+  return estimateFixMinutes(issues) / 60;
+}
+
+export function buildUpsellBridge(issueCount: number, estimatedFixMinutes: number): string {
+  const timeStr =
+    estimatedFixMinutes > 240
+      ? "Significant rework needed"
+      : estimatedFixMinutes <= 60
+        ? `${Math.round(estimatedFixMinutes)} minutes`
+        : estimatedFixMinutes <= 90
+          ? "1 hour"
+          : `${Math.round(estimatedFixMinutes / 60)} hours`;
+  return `${issueCount} issue${issueCount === 1 ? "" : "s"} detected. Estimated manual fix time: ${timeStr}. Fix automatically with KDP PDF Formatter — coming soon at manu2print.com`;
 }
 
 export interface ChecklistSpecInput {
@@ -356,9 +365,10 @@ export function enrichCheckerReport(
     warningCount,
     ...categories,
   });
-  const estimatedFixHours = estimateFixHours(issuesEnriched);
+  const estimatedFixMinutes = estimateFixMinutes(issuesEnriched);
+  const estimatedFixHours = estimatedFixMinutes / 60;
   const issueCount = issuesEnriched.length;
-  const upsellBridge = buildUpsellBridge(issueCount, estimatedFixHours);
+  const upsellBridge = buildUpsellBridge(issueCount, estimatedFixMinutes);
 
   return {
     ...report,

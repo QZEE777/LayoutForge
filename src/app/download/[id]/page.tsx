@@ -71,8 +71,8 @@ function getGroupedIssues(report: ProcessingReport | null): {
 
 function formatPages(pages: number[]): string {
   if (pages.length === 0) return "";
-  if (pages.length <= 10) return ` — affects pages ${pages.join(", ")}`;
-  return ` — affects pages ${pages.slice(0, 3).join(", ")}, … ${pages[pages.length - 1]} (${pages.length} pages)`;
+  if (pages.length <= 10) return ` — pages ${pages.join(", ")}`;
+  return ` — pages ${pages.slice(0, 3).join(", ")}, … ${pages[pages.length - 1]} (${pages.length} pages)`;
 }
 
 interface ProcessingReport {

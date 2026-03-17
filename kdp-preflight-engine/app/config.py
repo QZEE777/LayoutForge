@@ -10,8 +10,8 @@ class Settings(BaseSettings):
     debug: bool = False
 
     # Security
-    # Max upload size for PDFs. Capped at 50 MB to match manu2print Print Ready Check.
-    max_upload_bytes: int = 50 * 1024 * 1024  # 50 MB
+    # Max upload size for PDFs (100 MB).
+    max_upload_bytes: int = 104857600  # 100 MB
     allowed_mime_types: tuple[str, ...] = ("application/pdf",)
     clamav_host: str | None = None  # e.g. "clamav:3310" for Docker
     clamav_timeout_seconds: float = 10.0

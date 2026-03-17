@@ -36,8 +36,8 @@ async def upload_pdf(request: Request, file: UploadFile = File(...)) -> UploadRe
         raise HTTPException(400, str(e))
 
     # For manu2print usage, run validation inline for all accepted files (up to
-    # settings.max_upload_bytes). This removes the dependency on a separate
-    # Celery worker for Print Ready Check.
+    # settings.max_upload_bytes, 100 MB). No size threshold — all files run
+    # validate_pdf_task.apply() inline. Celery worker not required.
     set_status(job_id, "pending", "Job running inline")
     logger.info("upload_received_inline", job_id=job_id, size=len(raw))
     try:
