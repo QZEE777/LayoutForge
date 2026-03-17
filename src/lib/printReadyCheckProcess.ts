@@ -190,7 +190,7 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
   report.hasPdfPreview = true;
   report.pdfSourceUrl = `${url}/file/${encodeURIComponent(renderJobId)}`;
   console.log("[printReadyCheckProcess] about to enrichCheckerReport; report issues length:", report?.issues?.length ?? 0);
-  const enrichedReport = enrichCheckerReport(report, "Uploaded PDF", preflight);
+  const enrichedReport = enrichCheckerReport(report, "Uploaded PDF", preflight ?? undefined);
   console.log("[printReadyCheckProcess] enrichCheckerReport ok. issuesEnriched length:", enrichedReport?.issuesEnriched?.length ?? 0);
 
   const doc = await PDFDocument.create();

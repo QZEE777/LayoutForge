@@ -175,7 +175,7 @@ export async function POST(request: NextRequest) {
     const report: CheckerReport = buildReportFromPreflightOnly(preflight, fileSizeMB);
     report.hasPdfPreview = true;
     report.pdfSourceUrl = `${url}/file/${encodeURIComponent(renderJobId)}`;
-    const enrichedReport = enrichCheckerReport(report, "Uploaded PDF", preflight);
+    const enrichedReport = enrichCheckerReport(report, "Uploaded PDF", preflight ?? undefined);
     const doc = await PDFDocument.create();
     doc.addPage([612, 792]);
     const minimalPdf = Buffer.from(await doc.save());
