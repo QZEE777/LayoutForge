@@ -62,7 +62,7 @@ export default function PaymentGate({ tool, children, isProcessing = false, down
     return (
       <div className="relative">
         <div className="select-none pointer-events-none blur-sm">{children}</div>
-        <div className="absolute inset-0 flex items-center justify-center p-6 bg-black/70 rounded-lg min-h-[200px]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/70">
           <div className="max-w-md w-full text-center space-y-4">
             <h2 className="text-xl font-bold text-white">Confirming your purchase…</h2>
             <p className="text-sm text-white/90">
@@ -137,11 +137,11 @@ export default function PaymentGate({ tool, children, isProcessing = false, down
   };
 
   return (
-    <div className="relative">
+      <div className="relative">
       <div className="select-none pointer-events-none blur-sm">
         {children}
       </div>
-      <div className="absolute inset-0 flex items-center justify-center p-6 bg-black/70 rounded-lg min-h-[280px]">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/70">
         <div className="max-w-md w-full text-center space-y-5">
           <h2 className="text-xl font-bold text-white">Your file is ready.</h2>
           <p className="text-sm text-white/90">Choose how you&apos;d like to access it.</p>
