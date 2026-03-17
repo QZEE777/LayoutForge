@@ -39,7 +39,9 @@ async function processOne(supabase: ReturnType<typeof createClient>): Promise<bo
     throw error;
   }
 
-  const rows = (data as PrintReadyCheckRow[] | null | undefined) ?? [];
+  // Supabase RPC RETURNS TABLE: single row comes back as object, not array. Normalize to array.
+  const raw = data as PrintReadyCheckRow | PrintReadyCheckRow[] | null | undefined;
+  const rows = Array.isArray(raw) ? raw : raw != null && typeof raw === "object" && "id" in raw ? [raw] : [];
   if (!rows.length) return false;
 
   const row = rows[0];
