@@ -64,6 +64,7 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
     let cancelled = false;
     const run = async () => {
       const pdfjs = await import("pdfjs-dist");
+      (pdfjs.GlobalWorkerOptions as { workerSrc?: string }).workerSrc ??= `https://unpkg.com/pdfjs-dist@${(pdfjs as { version?: string }).version || "4.10.38"}/build/pdf.worker.min.mjs`;
       const pdf = await pdfjs.getDocument({ url: pdfUrl }).promise;
       const page = await pdf.getPage(pageNumber);
       if (cancelled || !canvasRef.current) return;
