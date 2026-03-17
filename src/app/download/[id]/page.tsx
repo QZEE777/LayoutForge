@@ -7,7 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import PaymentGate from "@/components/PaymentGate";
 import CheckerPdfViewer from "@/components/CheckerPdfViewer";
-import { difficultyLabel, cleanFilenameForDisplay } from "@/lib/kdpReportEnhance";
+import { difficultyLabel, cleanFilenameForDisplay, type FixDifficulty } from "@/lib/kdpReportEnhance";
 
 const MAX_ISSUES_GROUP_DISPLAY = 10;
 
@@ -22,14 +22,14 @@ function getGroupedIssues(report: ProcessingReport | null): {
   const enriched = report.issuesEnriched ?? [];
 
   if (enriched.length > 0) {
-    const byMessage = new Map<string, { difficulty: string; pages: number[] }>();
+    const byMessage = new Map<string, { difficulty: FixDifficulty; pages: number[] }>();
     for (const item of enriched) {
       const msg = item.humanMessage;
       const existing = byMessage.get(msg);
       const pages = existing?.pages ?? [];
       if (item.page != null && !pages.includes(item.page)) pages.push(item.page);
       pages.sort((a, b) => a - b);
-      const difficulty = item.fixDifficulty as "easy" | "moderate" | "advanced";
+      const difficulty: FixDifficulty = item.fixDifficulty as FixDifficulty;
       if (!existing) byMessage.set(msg, { difficulty, pages });
       else existing.pages = pages;
     }
