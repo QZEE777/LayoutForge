@@ -80,6 +80,7 @@ function buildReportFromPreflightOnly(preflight: PreflightReport | null | undefi
 export async function POST(request: NextRequest) {
   try {
     const baseUrl = (process.env.KDP_PREFLIGHT_API_URL?.trim() || DEFAULT_PREFLIGHT_BASE_URL).replace(/\/$/, "");
+    console.log("[kdp-pdf-check-from-preflight] start; baseUrl:", baseUrl);
     let body: { jobId?: string; fileKey?: string; fileSizeMB?: number };
     try {
       body = await request.json();
@@ -96,6 +97,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+    console.log("[kdp-pdf-check-from-preflight] parsed body:", body);
     if (!/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(jobId)) {
       return NextResponse.json(
         { error: "Invalid jobId", message: "jobId must be a valid UUID." },
@@ -107,6 +109,7 @@ export async function POST(request: NextRequest) {
     // R2 flow: enqueue and return checkId. Worker will process.
     if (typeof body.fileKey === "string" && /^uploads\/[0-9a-fA-F-]+\.pdf$/.test(body.fileKey.trim())) {
       const fileKey = body.fileKey.trim();
+      console.log("[kdp-pdf-check-from-preflight] enqueueing print_ready_checks:", { fileKey, jobId, fileSizeMB });
       if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
         return NextResponse.json(
           { error: "Server not configured", message: "Supabase is not configured." },
@@ -138,12 +141,14 @@ export async function POST(request: NextRequest) {
           { status: 500 }
         );
       }
+      console.log("[kdp-pdf-check-from-preflight] enqueue ok; checkId:", row.id);
       return NextResponse.json({ success: true, checkId: row.id });
     }
 
     // Sync flow: jobId is preflight engine job id, fetch report directly (legacy / small flows).
     const url = baseUrl;
     const renderJobId = jobId;
+    console.log("[kdp-pdf-check-from-preflight] legacy sync flow; report GET", `${url}/report/${encodeURIComponent(renderJobId)}`);
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 60000);
     let res: Response;
@@ -158,7 +163,15 @@ export async function POST(request: NextRequest) {
         { status: 502 }
       );
     }
-    const preflight = (await res.json()) as PreflightReport | null;
+    const reportText = await res.clone().text().catch((e) => `<<failed to read body: ${String(e)}>>`);
+    console.log("[kdp-pdf-check-from-preflight] legacy report response:", { ok: res.ok, status: res.status, body: reportText });
+    let preflight: PreflightReport | null = null;
+    try {
+      preflight = (reportText ? (JSON.parse(reportText) as PreflightReport) : null) ?? null;
+    } catch (e) {
+      console.error("[kdp-pdf-check-from-preflight] legacy report JSON parse failed:", e instanceof Error ? e.stack : e);
+      preflight = null;
+    }
     const report: CheckerReport = buildReportFromPreflightOnly(preflight, fileSizeMB);
     report.hasPdfPreview = true;
     report.pdfSourceUrl = `${url}/file/${encodeURIComponent(renderJobId)}`;
@@ -167,10 +180,13 @@ export async function POST(request: NextRequest) {
     doc.addPage([612, 792]);
     const minimalPdf = Buffer.from(await doc.save());
     const stored = await saveUpload(minimalPdf, "preflight-report.pdf", "application/pdf");
+    console.log("[kdp-pdf-check-from-preflight] legacy saveUpload ok:", { storedId: stored?.id, storedPath: stored?.storedPath });
     await updateMeta(stored.id, { processingReport: enrichedReport as StoredManuscript["processingReport"] });
 
     try {
+      console.log("[kdp-pdf-check-from-preflight] legacy about to compute issuesCount; before .length access");
       const issuesCount = enrichedReport?.issuesEnriched?.length ?? report?.issues?.length ?? 0;
+      console.log("[kdp-pdf-check-from-preflight] legacy issuesCount:", issuesCount);
       await supabase.from("verification_results").upsert(
         {
           verification_id: stored.id,
@@ -193,6 +209,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (process.env.USE_R2 === "true" && stored?.storedPath) {
+      console.log("[kdp-pdf-check-from-preflight] legacy USE_R2=true; storedPath:", stored?.storedPath);
       const filename = stored.storedPath.split("/").pop();
       if (filename) {
         try {

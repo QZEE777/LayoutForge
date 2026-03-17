@@ -32,6 +32,7 @@ function getPreflightUrl(): string {
 }
 
 async function processOne(supabase: ReturnType<typeof createClient>): Promise<boolean> {
+  console.log("[worker] poll: calling claim_print_ready_check RPC");
   const { data, error } = await supabase.rpc("claim_print_ready_check");
 
   if (error) {
@@ -39,9 +40,12 @@ async function processOne(supabase: ReturnType<typeof createClient>): Promise<bo
     throw error;
   }
 
+  console.log("[worker] poll: claim_print_ready_check raw data type:", Array.isArray(data) ? "array" : typeof data, "value:", data);
+
   // Supabase RPC RETURNS TABLE: single row comes back as object, not array. Normalize to array.
   const raw = data as PrintReadyCheckRow | PrintReadyCheckRow[] | null | undefined;
   const rows = Array.isArray(raw) ? raw : raw != null && typeof raw === "object" && "id" in raw ? [raw] : [];
+  console.log("[worker] poll: normalized rows length:", rows.length, "rows:", rows);
   if (!rows.length) return false;
 
   const row = rows[0];
@@ -49,9 +53,11 @@ async function processOne(supabase: ReturnType<typeof createClient>): Promise<bo
   const fileKey = row.file_key;
   const ourJobId = row.our_job_id;
   const fileSizeMB = row.file_size_mb != null ? Number(row.file_size_mb) : undefined;
+  console.log("[worker] claimed job:", { checkId, fileKey, ourJobId, fileSizeMB });
 
   try {
     const baseUrl = getPreflightUrl();
+    console.log("[worker] starting runPrintReadyCheck with baseUrl:", baseUrl);
 
     const { downloadId } = await runPrintReadyCheck({
       fileKey,
@@ -60,6 +66,7 @@ async function processOne(supabase: ReturnType<typeof createClient>): Promise<bo
       baseUrl,
     });
 
+    console.log("[worker] runPrintReadyCheck returned:", { downloadId });
     await supabase
       .from("print_ready_checks")
       .update({
@@ -78,6 +85,7 @@ async function processOne(supabase: ReturnType<typeof createClient>): Promise<bo
 
     console.error("[worker] check", checkId, "failed:", err instanceof Error ? err.stack : err);
 
+    console.log("[worker] updating job to failed:", { checkId, error_message: msg });
     await supabase
       .from("print_ready_checks")
       .update({

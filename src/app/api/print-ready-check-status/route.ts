@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
         { status: 400 }
       );
     }
+    console.log("[print-ready-check-status] lookup:", { checkId });
 
     const { data: row, error } = await supabase
       .from("print_ready_checks")
@@ -22,11 +23,13 @@ export async function GET(request: NextRequest) {
       .single();
 
     if (error || !row) {
+      console.log("[print-ready-check-status] not found:", { checkId, error: error?.message });
       return NextResponse.json(
         { error: "Not found", message: "Check job not found or invalid checkId." },
         { status: 404 }
       );
     }
+    console.log("[print-ready-check-status] row:", row);
 
     const payload: {
       status: string;
@@ -44,7 +47,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(payload);
   } catch (e) {
-    console.error("[print-ready-check-status]", e);
+    console.error("[print-ready-check-status]", e instanceof Error ? e.stack : e);
     return NextResponse.json(
       { error: "Internal error", message: e instanceof Error ? e.message : "Status check failed." },
       { status: 500 }
