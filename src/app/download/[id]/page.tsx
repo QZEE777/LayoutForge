@@ -9,6 +9,72 @@ import PaymentGate from "@/components/PaymentGate";
 import CheckerPdfViewer from "@/components/CheckerPdfViewer";
 import { difficultyLabel, cleanFilenameForDisplay } from "@/lib/kdpReportEnhance";
 
+const MAX_ISSUES_GROUP_DISPLAY = 10;
+
+/** Group issues by message type and cap for display. Returns { grouped, totalGroups, totalCount }. */
+function getGroupedIssues(report: ProcessingReport | null): {
+  grouped: Array<{ label: string; message: string; pages: number[] }>;
+  totalGroups: number;
+  totalCount: number;
+} {
+  if (!report) return { grouped: [], totalGroups: 0, totalCount: 0 };
+  const rawIssues = report.issues ?? [];
+  const enriched = report.issuesEnriched ?? [];
+
+  if (enriched.length > 0) {
+    const byMessage = new Map<string, { difficulty: string; pages: number[] }>();
+    for (const item of enriched) {
+      const msg = item.humanMessage;
+      const existing = byMessage.get(msg);
+      const pages = existing?.pages ?? [];
+      if (item.page != null && !pages.includes(item.page)) pages.push(item.page);
+      pages.sort((a, b) => a - b);
+      const difficulty = item.fixDifficulty as "easy" | "moderate" | "advanced";
+      if (!existing) byMessage.set(msg, { difficulty, pages });
+      else existing.pages = pages;
+    }
+    const grouped = Array.from(byMessage.entries()).map(([message, { difficulty, pages }]) => ({
+      label: difficultyLabel(difficulty),
+      message,
+      pages,
+    }));
+    return {
+      grouped,
+      totalGroups: grouped.length,
+      totalCount: enriched.length,
+    };
+  }
+
+  if (rawIssues.length === 0) return { grouped: [], totalGroups: 0, totalCount: 0 };
+  const byMessage = new Map<string, number[]>();
+  const pageMsgRe = /^\s*\[p\.(\d+)\]\s*(.+)$/;
+  for (const raw of rawIssues) {
+    const match = typeof raw === "string" ? raw.match(pageMsgRe) : null;
+    const page = match ? parseInt(match[1], 10) : null;
+    const message = match ? match[2].trim() : (typeof raw === "string" ? raw : String(raw));
+    const pages = byMessage.get(message) ?? [];
+    if (page != null && !pages.includes(page)) pages.push(page);
+    pages.sort((a, b) => a - b);
+    byMessage.set(message, pages);
+  }
+  const grouped = Array.from(byMessage.entries()).map(([message, pages]) => ({
+    label: "",
+    message,
+    pages,
+  }));
+  return {
+    grouped,
+    totalGroups: grouped.length,
+    totalCount: rawIssues.length,
+  };
+}
+
+function formatPages(pages: number[]): string {
+  if (pages.length === 0) return "";
+  if (pages.length <= 10) return ` — affects pages ${pages.join(", ")}`;
+  return ` — affects pages ${pages.slice(0, 3).join(", ")}, … ${pages[pages.length - 1]} (${pages.length} pages)`;
+}
+
 interface ProcessingReport {
   pagesGenerated?: number;
   chaptersDetected: number;
@@ -354,25 +420,32 @@ export default function DownloadPage() {
                       </table>
                     </div>
                   )}
-                  {((report.issuesEnriched?.length ?? 0) > 0 || (report.issues?.length ?? 0) > 0) ? (
-                    <div className="mt-4 pt-4 border-t border-m2p-border">
-                      <p className="text-xs font-medium text-m2p-orange mb-2">Issues</p>
-                      <ul className="text-sm text-m2p-muted space-y-2">
-                        {report.issuesEnriched?.length
-                          ? report.issuesEnriched.map((item, i) => (
-                              <li key={i}>
-                                <span className="text-m2p-ink">{difficultyLabel(item.fixDifficulty as "easy" | "moderate" | "advanced")}</span>
-                                {item.page != null && ` [p.${item.page}]`}
-                                {" "}
-                                {item.humanMessage}
-                              </li>
-                            ))
-                          : report.issues!.map((issue, i) => (
-                              <li key={i}>{issue}</li>
-                            ))}
-                      </ul>
-                    </div>
-                  ) : null}
+                  {(() => {
+                    const { grouped, totalGroups, totalCount } = getGroupedIssues(report);
+                    if (grouped.length === 0) return null;
+                    const show = grouped.slice(0, MAX_ISSUES_GROUP_DISPLAY);
+                    const remaining = totalGroups - show.length;
+                    return (
+                      <div className="mt-4 pt-4 border-t border-m2p-border">
+                        <p className="text-xs font-medium text-m2p-orange mb-2">Issues</p>
+                        <ul className="text-sm text-m2p-muted space-y-2">
+                          {show.map((item, i) => (
+                            <li key={i}>
+                              {item.label ? <span className="text-m2p-ink">{item.label}</span> : null}
+                              {item.label ? " " : null}
+                              {item.message}
+                              {item.pages.length > 0 ? formatPages(item.pages) : ""}
+                            </li>
+                          ))}
+                          {remaining > 0 ? (
+                            <li className="text-m2p-muted italic">
+                              …and {remaining} more {remaining === 1 ? "issue" : "issues"}. Download the full report for details.
+                            </li>
+                          ) : null}
+                        </ul>
+                      </div>
+                    );
+                  })()}
                   {report.recommendations && report.recommendations.length > 0 && (
                     <div className="mt-4 pt-4 border-t border-m2p-border">
                       <p className="text-xs font-medium text-m2p-live mb-2">Recommendations</p>
