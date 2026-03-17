@@ -823,43 +823,40 @@ export default function DownloadPage() {
         )}
 
         {/* Checker: annotated PDF status and download */}
-        {isChecker && report?.annotatedPdfUrl && annotatedError && (
-          <p className="mb-6 text-sm italic text-center" style={{ color: "#F05A28" }}>
-            Annotated preview not available for this file.
-          </p>
-        )}
-        {isChecker && report?.annotatedPdfUrl && !annotatedError && (
-          <div className="mb-8 rounded-lg p-6 border bg-m2p-ink border-white/10">
-            {annotatedReady ? (
-              <button
-                type="button"
-                onClick={() => {
-                  const match = report.annotatedPdfUrl?.match(/\/file\/([^/]+)\/annotated\/?$/);
-                  const jobId = match?.[1];
-                  if (jobId) window.open(`/api/kdp-annotated-pdf?job_id=${encodeURIComponent(jobId)}`, "_blank");
-                }}
-                className="flex items-center gap-3 border border-m2p-orange rounded-lg p-4 bg-m2p-ivory/50 hover:bg-m2p-ivory/70 transition-colors cursor-pointer text-left w-full"
-              >
-                <div className="w-10 h-10 border border-m2p-orange/30 rounded flex items-center justify-center text-m2p-orange flex-shrink-0">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </div>
-                <div>
-                  <span className="font-medium text-white">Download Annotated PDF (issues highlighted)</span>
-                  <p className="text-sm text-m2p-muted mt-0.5">Opens in a new tab</p>
-                </div>
-              </button>
+        {isChecker && report?.annotatedPdfUrl && (
+          <>
+            {annotatedError ? (
+              <p className="mb-6 text-sm italic text-center" style={{ color: "#F05A28" }}>
+                Annotated preview not available for this file.
+              </p>
+            ) : !annotatedReady ? (
+              <p className="mb-6 text-sm italic text-center" style={{ color: "#F05A28" }}>
+                Annotated preview preparing…
+              </p>
             ) : (
-              <div className="flex items-center gap-3 text-sm text-m2p-muted">
-                <svg className="animate-spin h-5 w-5 text-m2p-orange flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden>
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12 0s12 5.373 12 12-5.373 12-12 12v-2a8 8 0 01-8-8z" />
-                </svg>
-                <span>Annotated PDF preparing…</span>
+              <div className="mb-8 rounded-lg p-6 border bg-m2p-ink border-white/10">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const match = report.annotatedPdfUrl?.match(/\/file\/([^/]+)\/annotated\/?$/);
+                    const jobId = match?.[1];
+                    if (jobId) window.open(`/api/kdp-annotated-pdf?job_id=${encodeURIComponent(jobId)}`, "_blank");
+                  }}
+                  className="flex items-center gap-3 border border-m2p-orange rounded-lg p-4 bg-m2p-ivory/50 hover:bg-m2p-ivory/70 transition-colors cursor-pointer text-left w-full"
+                >
+                  <div className="w-10 h-10 border border-m2p-orange/30 rounded flex items-center justify-center text-m2p-orange flex-shrink-0">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <span className="font-medium text-white">Download Annotated PDF (issues highlighted)</span>
+                    <p className="text-sm text-m2p-muted mt-0.5">Opens in a new tab</p>
+                  </div>
+                </button>
               </div>
             )}
-          </div>
+          </>
         )}
 
         {/* Success message */}
@@ -1071,13 +1068,7 @@ export default function DownloadPage() {
           </p>
         </div>
 
-        {/* Public verification link */}
-        <p className="text-center text-sm text-m2p-muted mb-6">
-          Share your results:{" "}
-          <span className="text-m2p-orange font-bold">
-            manu2print.com/verify/{id}
-          </span>
-        </p>
+        {/* Public verification link (text removed per UX update) */}
 
         {/* Micro FAQ */}
         <div className="border border-m2p-border rounded-lg divide-y divide-m2p-border mb-6">

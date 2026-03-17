@@ -173,7 +173,7 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
           )}
         </div>
       </div>
-      <p className="px-4 pb-3 text-xs text-[#8B8B6B]">
+      <p className="px-4 pb-3 text-xs text-center" style={{ color: "#F05A28" }}>
         Red = error, yellow = warning. Hover over highlights for details.
       </p>
     </div>
