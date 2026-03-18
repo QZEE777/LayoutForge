@@ -31,6 +31,8 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const issuesForPage = pageIssues.filter((i) => i.page === pageNumber);
+  const hasHighlights =
+    issuesForPage.some((i) => Array.isArray(i.bbox) && i.bbox.length >= 4);
   const renderWidth = Math.round(BASE_WIDTH * scale);
   const scaleX = pageSize ? renderWidth / pageSize.width : 1;
   const scaleY = scaleX;
@@ -174,9 +176,15 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
           )}
         </div>
       </div>
-      <p className="px-4 pb-3 text-xs text-center" style={{ color: "#F05A28" }}>
-        Red = error, yellow = warning. Hover over highlights for details.
-      </p>
+      {hasHighlights ? (
+        <p className="px-4 pb-3 text-xs text-center" style={{ color: "#F05A28" }}>
+          Red = error, yellow = warning. Hover over highlights for details.
+        </p>
+      ) : (
+        <p className="px-4 pb-3 text-xs text-center" style={{ color: "#6B6151" }}>
+          No on-page highlights for this page.
+        </p>
+      )}
     </div>
   );
 }

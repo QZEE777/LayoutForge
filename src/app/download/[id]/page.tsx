@@ -139,6 +139,7 @@ export default function DownloadPage() {
   const [copyShareStatus, setCopyShareStatus] = useState<"idle" | "ok" | "fail">("idle");
   const [annotatedReady, setAnnotatedReady] = useState(false);
   const [annotatedError, setAnnotatedError] = useState(false);
+  const [annotatedWaitStartedAt, setAnnotatedWaitStartedAt] = useState<number | null>(null);
 
   const isDocx = report?.outputType === "docx";
   const isEpub = isEpubFlow || report?.outputType === "epub";
@@ -241,6 +242,9 @@ export default function DownloadPage() {
           setReport(r);
           setReportError(null);
           if (r.annotatedPdfStatus === "ready") setAnnotatedReady(true);
+          if (r.annotatedPdfUrl) {
+            setAnnotatedWaitStartedAt((prev) => prev ?? Date.now());
+          }
           if (r.annotatedPdfUrl && searchParams.get("source") === "checker") {
             const match = r.annotatedPdfUrl.match(/\/file\/([^/]+)\/annotated\/?$/);
             const jobId = match?.[1];
@@ -299,6 +303,14 @@ export default function DownloadPage() {
     intervalId = setInterval(poll, 3000);
     return () => { if (intervalId) clearInterval(intervalId); };
   }, [report?.annotatedPdfUrl, isCheckerFlow, annotatedReady, annotatedError]);
+
+  const annotatedWaitMs = annotatedWaitStartedAt ? Date.now() - annotatedWaitStartedAt : 0;
+  const annotatedTakingLong =
+    !!report?.annotatedPdfUrl &&
+    isCheckerFlow &&
+    !annotatedReady &&
+    !annotatedError &&
+    annotatedWaitMs > 90_000;
 
   if (!id) {
     return (
@@ -361,13 +373,13 @@ export default function DownloadPage() {
 
         {report && (
         <PaymentGate tool={isFormatReview ? "kdp-format-review" : isChecker ? "kdp-pdf-checker" : isEpub ? "epub-maker" : isPdfFlow ? "kdp-formatter-pdf" : "kdp-formatter"} downloadId={id}>
-        {/* Checker: PDF viewer with issue overlays (when we have the user's PDF + page_issues) */}
-        {report?.outputType === "checker" && report.hasPdfPreview && report.page_issues && report.page_issues.length > 0 && (
+        {/* Checker: PDF viewer (always show when we have a preview PDF) */}
+        {report?.outputType === "checker" && report.hasPdfPreview && (
           <div className="mb-8">
             <h2 className="text-lg font-semibold text-m2p-ink mb-3">View issues on your PDF</h2>
             <CheckerPdfViewer
               pdfUrl={report.pdfSourceUrl ?? `/api/view-pdf/${id}`}
-              pageIssues={report.page_issues}
+              pageIssues={report.page_issues ?? []}
               totalPages={report.pageCount ?? 0}
             />
             {/* Annotated preview status sits directly under the viewer for checker reports */}
@@ -377,16 +389,20 @@ export default function DownloadPage() {
                   <p className="mt-4 text-sm italic text-center" style={{ color: "#F05A28" }}>
                     Annotated preview not available for this file.
                   </p>
-                ) : !annotatedReady ? (
+                ) : !annotatedReady && !annotatedTakingLong ? (
                   <p className="mt-4 text-sm italic text-center" style={{ color: "#F05A28" }}>
                     Annotated preview preparing…
+                  </p>
+                ) : !annotatedReady && annotatedTakingLong ? (
+                  <p className="mt-4 text-sm italic text-center" style={{ color: "#6B6151" }}>
+                    Annotated preview is taking longer than expected. You can still review the normal preview above — we’ll keep trying in the background.
                   </p>
                 ) : null}
               </>
             )}
           </div>
         )}
-        {report?.outputType === "checker" && report.page_issues && report.page_issues.length > 0 && !report.hasPdfPreview && (
+        {report?.outputType === "checker" && !report.hasPdfPreview && (
           <p className="mb-6 text-sm text-center" style={{ color: "#F05A28" }}>
             Annotated preview not available for this file.
           </p>
