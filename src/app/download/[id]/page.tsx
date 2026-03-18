@@ -140,6 +140,7 @@ export default function DownloadPage() {
   const [annotatedReady, setAnnotatedReady] = useState(false);
   const [annotatedError, setAnnotatedError] = useState(false);
   const [annotatedWaitStartedAt, setAnnotatedWaitStartedAt] = useState<number | null>(null);
+  const [annotatedTakingLong, setAnnotatedTakingLong] = useState(false);
 
   const isDocx = report?.outputType === "docx";
   const isEpub = isEpubFlow || report?.outputType === "epub";
@@ -304,13 +305,13 @@ export default function DownloadPage() {
     return () => { if (intervalId) clearInterval(intervalId); };
   }, [report?.annotatedPdfUrl, isCheckerFlow, annotatedReady, annotatedError]);
 
-  const annotatedWaitMs = annotatedWaitStartedAt ? Date.now() - annotatedWaitStartedAt : 0;
-  const annotatedTakingLong =
-    !!report?.annotatedPdfUrl &&
-    isCheckerFlow &&
-    !annotatedReady &&
-    !annotatedError &&
-    annotatedWaitMs > 90_000;
+  useEffect(() => {
+    if (!report?.annotatedPdfUrl || !isCheckerFlow) return;
+    if (annotatedReady || annotatedError) return;
+    setAnnotatedTakingLong(false);
+    const t = setTimeout(() => setAnnotatedTakingLong(true), 90_000);
+    return () => clearTimeout(t);
+  }, [report?.annotatedPdfUrl, isCheckerFlow, annotatedReady, annotatedError]);
 
   if (!id) {
     return (

@@ -26,6 +26,7 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
   const [numPages, setNumPages] = useState(totalPagesProp || 0);
   const [scale, setScale] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [rendering, setRendering] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pageSize, setPageSize] = useState<{ width: number; height: number } | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -68,6 +69,7 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
     if (!pdfUrl || !canvasRef.current || numPages < 1 || pageNumber < 1) return;
     let cancelled = false;
     const run = async () => {
+      setRendering(true);
       const pdfjs = await import("pdfjs-dist");
       (pdfjs.GlobalWorkerOptions as { workerSrc?: string }).workerSrc = PDF_WORKER_SRC;
       const pdf = await pdfjs.getDocument({ url: pdfUrl }).promise;
@@ -83,9 +85,16 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
       canvas.style.width = `${renderWidth}px`;
       canvas.style.height = `${(viewport.height / viewport.width) * renderWidth}px`;
       const renderContext = { canvasContext: ctx, viewport };
-      page.render(renderContext);
+      const task = page.render(renderContext);
+      await task.promise;
+      if (!cancelled) setRendering(false);
     };
-    run().catch(() => {});
+    run().catch((e: unknown) => {
+      if (!cancelled) {
+        setError(e instanceof Error ? e.message : "Failed to render page");
+        setRendering(false);
+      }
+    });
     return () => {
       cancelled = true;
     };
@@ -145,6 +154,16 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
       </div>
       <div className="p-4 flex justify-center" style={{ minHeight: 400 }}>
         <div style={{ position: "relative", width: renderWidth }}>
+          {rendering ? (
+            <div
+              style={{ width: renderWidth, height: displayHeight }}
+              className="absolute inset-0 flex items-center justify-center text-sm"
+            >
+              <span className="rounded-md bg-black/40 border border-white/10 px-3 py-1.5 text-[#8B8B6B]">
+                Rendering page…
+              </span>
+            </div>
+          ) : null}
           <canvas ref={canvasRef} className="block max-w-full h-auto" style={{ width: renderWidth }} />
           {displayHeight > 0 && issuesForPage.length > 0 && (
             <svg
