@@ -46,7 +46,12 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
     const load = async () => {
       const pdfjs = await import("pdfjs-dist");
       (pdfjs.GlobalWorkerOptions as { workerSrc?: string }).workerSrc = PDF_WORKER_SRC;
-      return pdfjs.getDocument({ url: pdfUrl }).promise;
+      return pdfjs.getDocument({
+        url: pdfUrl,
+        rangeChunkSize: 65536,
+        disableStream: false,
+        disableRange: false,
+      }).promise;
     };
     load()
       .then((pdf: { numPages: number }) => {
@@ -72,7 +77,12 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
       setRendering(true);
       const pdfjs = await import("pdfjs-dist");
       (pdfjs.GlobalWorkerOptions as { workerSrc?: string }).workerSrc = PDF_WORKER_SRC;
-      const pdf = await pdfjs.getDocument({ url: pdfUrl }).promise;
+      const pdf = await pdfjs.getDocument({
+        url: pdfUrl,
+        rangeChunkSize: 65536,
+        disableStream: false,
+        disableRange: false,
+      }).promise;
       const page = await pdf.getPage(pageNumber);
       if (cancelled || !canvasRef.current) return;
       const viewport = page.getViewport({ scale });
