@@ -188,7 +188,7 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
   console.log("[printReadyCheckProcess] report JSON parsed keys:", preflight ? Object.keys(preflight as unknown as object) : null);
   const report: CheckerReport = buildReportFromPreflightOnly(preflight, fileSizeMB);
   report.hasPdfPreview = true;
-  report.pdfSourceUrl = `/api/preflight-file/${encodeURIComponent(renderJobId)}`;
+  report.pdfSourceUrl = `/api/r2-file?key=${encodeURIComponent(fileKey)}`;
   console.log("[printReadyCheckProcess] about to enrichCheckerReport; report issues length:", report?.issues?.length ?? 0);
   const enrichedReport = enrichCheckerReport(report, "Uploaded PDF", preflight ?? undefined);
   console.log("[printReadyCheckProcess] enrichCheckerReport ok. issuesEnriched length:", enrichedReport?.issuesEnriched?.length ?? 0);
