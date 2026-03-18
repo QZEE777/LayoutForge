@@ -1,36 +1,39 @@
-# Security & safety checklist
+# Security & safety (manu2print / LayoutForge)
 
-This document summarizes how we keep the source and product safe.
+Decisions and checks for deployment and operations.
 
-## Secrets and configuration
+## Principles
 
-- **No hardcoded secrets.** All API keys, passwords, and tokens are read from environment variables (e.g. `process.env.ANTHROPIC_API_KEY`, `ADMIN_PASSWORD_MANU2`, `ADMIN_SECRET`).
-- **Env files ignored.** `.env`, `.env.local`, and similar are in `.gitignore`; never commit them.
-- **Public vs server.** Only non-sensitive config is exposed via `NEXT_PUBLIC_*`; secrets stay server-side.
+- **No secrets in code.** All API keys, passwords, and tokens come from `process.env` (Vercel / `.env.local`). Never commit them.
+- **Production requires explicit secrets.** In production, missing `ENCRYPTION_KEY` or Supabase config causes a clear error or 503, not a fallback key or silent failure.
+- **Admin and webhooks are explicitly gated.** Admin APIs and webhook handlers validate credentials before doing anything.
 
-## Admin authentication
+## Auth & access
 
-- **Admin routes** (`/api/admin/*`) require either:
-  - Header `x-admin-password` equal to `ADMIN_PASSWORD_MANU2`, or (where supported) `x-admin-key` / Bearer / `?secret=` equal to `ADMIN_SECRET`.
-- **Timing-safe comparison.** Admin password and secret checks use constant-time comparison (`timingSafeEqualStrings` in `src/lib/security.ts`) to reduce timing-attack risk.
-- **Rate limiting.** Admin endpoints are rate-limited via `src/lib/rateLimitAdmin.ts`.
+| Area | Mechanism | Notes |
+|------|-----------|--------|
+| **Admin APIs** (`/api/admin/*`) | `x-admin-password` header = `ADMIN_PASSWORD_MANU2`, or (where supported) `ADMIN_SECRET` (Bearer / query). | Timing-safe compare; 503 if password not configured. |
+| **Lemon Squeezy webhook** | `x-signature` HMAC-SHA256 with `LEMONSQUEEZY_WEBHOOK_SECRET`. | Reject if missing or invalid. |
+| **Download / report by ID** | Unguessable UUID in path. | No auth on API; access control is “who has the link” + PaymentGate on front. |
+| **User session** | Supabase Auth (magic link); middleware refreshes session. | Service role used only server-side for DB. |
 
-## Input validation and injection
+## Env & secrets
 
-- **Preflight `jobId`.** In `kdp-pdf-check-from-preflight`, the request `jobId` is validated as a UUID before being used in report/file URLs to prevent path traversal or injection.
-- **Sanitization.** Use `sanitizeInput` and schema validation where user input is reflected or used in queries.
+- **Required in production:** `ENCRYPTION_KEY` (64 hex chars), `ADMIN_PASSWORD_MANU2`, Supabase URL + anon key (and service role for backend). R2 vars if using R2 uploads.
+- **Never in client bundle:** `SUPABASE_SERVICE_ROLE_KEY`, `LEMONSQUEEZY_WEBHOOK_SECRET`, `ADMIN_PASSWORD_MANU2`, `ENCRYPTION_KEY`, R2 keys, CloudConvert/Anthropic keys. Only `NEXT_PUBLIC_*` and anon key are safe in the browser.
+- **Diagnostic endpoints:** `/api/cc-test` returns 404 in production.
 
-## Logging and information leakage
+## Validation
 
-- **No logging of secrets.** We do not log API key values, lengths, or any credential material.
-- **Audit.** Security-relevant events can be logged via `logAuditEvent` without including sensitive data.
+- **Admin password/secret:** Constant-time comparison (`timingSafeEqualStrings`) to prevent timing attacks.
+- **File types:** Download API allows only `.pdf`, `.docx`, `.epub`.
+- **Input:** Request bodies and query params validated and trimmed; no raw injection into DB or storage.
 
-## Security headers
+## Before each deploy
 
-- **Response headers.** `setSecurityHeaders` in `src/lib/security.ts` sets hardening headers (e.g. X-Content-Type-Options, X-Frame-Options, Referrer-Policy).
+- [ ] All secrets set in Vercel (no placeholders in production).
+- [ ] `ENCRYPTION_KEY` is 64 hex characters.
+- [ ] `ADMIN_PASSWORD_MANU2` is set if you use `/admin`.
+- [ ] Run `npm run build`; fix any type or lint errors.
 
-## Operational reminders
-
-1. Rotate `ADMIN_PASSWORD_MANU2` and `ADMIN_SECRET` if they may have been exposed.
-2. Keep dependencies updated and run `npm audit` periodically.
-3. If adding new admin or authenticated routes, use the same timing-safe auth and rate limiting patterns.
+See also: `.cursor/rules/layoutforge-stack-and-security.mdc`, `docs/SHIP-LIVE-CHECKLIST.md`.

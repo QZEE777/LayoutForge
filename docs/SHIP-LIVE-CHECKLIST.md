@@ -19,6 +19,8 @@ Use this before and after deploying to Vercel.
 - [ ] Auth (sign in / sign out) works.
 - [ ] If Sentry DSN is set: trigger a test error and confirm it appears in Sentry.
 
+- [ ] **Security:** No secrets in code; production uses explicit env (see `docs/SECURITY.md`).
+
 ## Note: nested folder
 
 If you have a copy of the repo inside the repo (e.g. `LayoutForge-main/LayoutForge-main/`), it’s excluded in `tsconfig.json` so the build uses a single Next.js. You can delete the inner copy to avoid confusion.

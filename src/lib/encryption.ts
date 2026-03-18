@@ -48,7 +48,13 @@ export function generateEncryptionKey(): string {
 
 function getKey(): Buffer {
   const key = process.env.ENCRYPTION_KEY;
-  if (key) return Buffer.from(key, 'hex').slice(0, 32);
+  if (key && /^[0-9a-fA-F]+$/.test(key)) {
+    const buf = Buffer.from(key, 'hex');
+    if (buf.length >= 32) return buf.slice(0, 32);
+  }
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('ENCRYPTION_KEY is required in production (64 hex chars for AES-256). Set in Vercel env.');
+  }
   // Fallback key for local development only
   return crypto.createHash('sha256').update('layoutforge-dev-key').digest();
 }
