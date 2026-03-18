@@ -2,6 +2,12 @@
   "plugins": {
     "vercel": {
       "enabled": true
+    },
+    "supabase": {
+      "enabled": true
+    },
+    "sentry": {
+      "enabled": true
     }
   }
 }
