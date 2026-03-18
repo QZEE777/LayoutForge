@@ -15,6 +15,7 @@ export default function SiteFooter() {
         <Link href="/terms" className="text-m2p-muted hover:text-m2p-orange transition-colors">Terms &amp; Conditions</Link>
         <Link href="/privacy" className="text-m2p-muted hover:text-m2p-orange transition-colors">Privacy Policy</Link>
         <Link href="/about" className="text-m2p-muted hover:text-m2p-orange transition-colors">About</Link>
+        <Link href="/blog" className="text-m2p-muted hover:text-m2p-orange transition-colors">Blog</Link>
         <Link href="/founders" className="text-m2p-muted hover:text-m2p-orange transition-colors">Founders</Link>
         <Link href="/affiliate" className="text-m2p-muted hover:text-m2p-orange transition-colors">Affiliate</Link>
         <Link href="/faq" className="text-m2p-muted hover:text-m2p-orange transition-colors">FAQ</Link>
