@@ -186,7 +186,9 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
       })
       .catch((e: unknown) => {
         if (!cancelled) {
-          setError(e instanceof Error ? e.message : "Failed to load PDF");
+          // If PDF.js cannot load (e.g., range request failures/timeouts),
+          // switch to compatibility view instead of showing a hard error.
+          requestFallback("timeout");
           setLoading(false);
         }
       });
