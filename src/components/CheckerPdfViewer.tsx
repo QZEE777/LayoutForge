@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { pdfjs } from "react-pdf";
 
 const BASE_WIDTH = 560;
 
-pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
+// Worker from public folder — do not change. import.meta.url resolution breaks in Next.js production.
+const PDF_WORKER_SRC = "/pdf.worker.min.js";
 
 interface PageIssue {
   page: number;
@@ -44,8 +44,9 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
     setLoading(true);
     setError(null);
     const load = async () => {
-      const pdfjs = await import("pdfjs-dist");
-      return pdfjs.getDocument({
+      const pdfjsLib = await import("pdfjs-dist");
+      (pdfjsLib.GlobalWorkerOptions as { workerSrc?: string }).workerSrc = "/pdf.worker.min.js";
+      return pdfjsLib.getDocument({
         url: pdfUrl,
         rangeChunkSize: 65536,
         disableStream: false,
@@ -74,8 +75,9 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
     let cancelled = false;
     const run = async () => {
       setRendering(true);
-      const pdfjs = await import("pdfjs-dist");
-      const pdf = await pdfjs.getDocument({
+      const pdfjsLib = await import("pdfjs-dist");
+      (pdfjsLib.GlobalWorkerOptions as { workerSrc?: string }).workerSrc = "/pdf.worker.min.js";
+      const pdf = await pdfjsLib.getDocument({
         url: pdfUrl,
         rangeChunkSize: 65536,
         disableStream: false,
