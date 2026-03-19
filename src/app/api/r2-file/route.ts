@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { S3Client, GetObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
+import { Readable } from "stream";
 
 export const runtime = "nodejs";
 
 export const maxDuration = 60;
+
+export const dynamic = "force-dynamic";
 
 function isAllowedR2Key(key: string) {
   // Checker uploads use: uploads/<uuid>.pdf (from /api/create-upload-url)
@@ -56,6 +59,14 @@ export async function GET(request: NextRequest) {
       const rangeHeader = request.headers.get("range");
       const filename = key.split("/").pop() ?? "document.pdf";
 
+      const toWebStream = (body: unknown) => {
+        const anyBody = body as any;
+        if (!anyBody) return anyBody;
+        if (typeof anyBody.transformToWebStream === "function") return anyBody.transformToWebStream();
+        if (typeof Readable.toWeb === "function" && typeof anyBody.pipe === "function") return Readable.toWeb(anyBody);
+        return anyBody;
+      };
+
       // PDF.js can sometimes send multiple ranges in one header.
       // For our use case, serve the first range to avoid 416 loops.
       const normalizedRangeHeader =
@@ -80,13 +91,14 @@ export async function GET(request: NextRequest) {
           return NextResponse.json({ error: "Empty upstream body" }, { status: 500 });
         }
 
+        const bodyStream = toWebStream(obj.Body);
         const contentRange = obj.ContentRange;
         const contentLength = obj.ContentLength;
         if (!contentRange || contentLength == null) {
           return NextResponse.json({ error: "Missing range metadata from storage" }, { status: 500 });
         }
 
-        return new NextResponse(obj.Body as any, {
+        return new NextResponse(bodyStream as any, {
           status: 206,
           headers: {
             "Content-Type": "application/pdf",
@@ -108,6 +120,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: "Empty upstream body" }, { status: 500 });
       }
 
+      const bodyStream = toWebStream(obj.Body);
       const totalSize = obj.ContentLength;
       if (totalSize == null || Number.isNaN(totalSize)) {
         const head = await s3.send(
@@ -117,7 +130,7 @@ export async function GET(request: NextRequest) {
         if (head.ContentLength == null || Number.isNaN(head.ContentLength)) {
           return NextResponse.json({ error: "Failed to read file size" }, { status: 500 });
         }
-        return new NextResponse(obj.Body as any, {
+        return new NextResponse(bodyStream as any, {
           status: 200,
           headers: {
             "Content-Type": "application/pdf",
@@ -129,7 +142,7 @@ export async function GET(request: NextRequest) {
         });
       }
 
-      return new NextResponse(obj.Body as any, {
+      return new NextResponse(bodyStream as any, {
         status: 200,
         headers: {
           "Content-Type": "application/pdf",
