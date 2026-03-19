@@ -373,7 +373,11 @@ export default function DownloadPage() {
         )}
 
         {report && (
-        <PaymentGate tool={isFormatReview ? "kdp-format-review" : isChecker ? "kdp-pdf-checker" : isEpub ? "epub-maker" : isPdfFlow ? "kdp-formatter-pdf" : "kdp-formatter"} downloadId={id}>
+        <PaymentGate
+          tool={isFormatReview ? "kdp-format-review" : isChecker ? "kdp-pdf-checker" : isEpub ? "epub-maker" : isPdfFlow ? "kdp-formatter-pdf" : "kdp-formatter"}
+          downloadId={id}
+          hideChildrenUntilUnlocked
+        >
         {/* Checker: PDF viewer (always show when we have a preview PDF) */}
         {report?.outputType === "checker" && report.hasPdfPreview && (
           <div className="mb-8">

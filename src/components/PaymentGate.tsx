@@ -17,9 +17,23 @@ interface PaymentGateProps {
   isProcessing?: boolean;
   /** When provided, used for checkout and verify-access; enables real checkout buttons. */
   downloadId?: string;
+  /**
+   * When true, we do NOT mount `children` while the user is locked/verifying.
+   * This prevents expensive previews (e.g. PDF.js) from rendering before payment.
+   */
+  hideChildrenUntilUnlocked?: boolean;
+  /** Safety timeout for verify-access. */
+  verifyTimeoutMs?: number;
 }
 
-export default function PaymentGate({ tool, children, isProcessing = false, downloadId }: PaymentGateProps) {
+export default function PaymentGate({
+  tool,
+  children,
+  isProcessing = false,
+  downloadId,
+  hideChildrenUntilUnlocked = false,
+  verifyTimeoutMs = 20_000,
+}: PaymentGateProps) {
   const [state, setState] = useState<GateState>(downloadId && !isProcessing ? "verifying" : isProcessing ? "processing" : "preview");
   const [showBetaInput, setShowBetaInput] = useState(false);
   const [betaCode, setBetaCode] = useState("");
@@ -27,6 +41,7 @@ export default function PaymentGate({ tool, children, isProcessing = false, down
   const [betaLoading, setBetaLoading] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [verifyTimedOut, setVerifyTimedOut] = useState(false);
 
   useEffect(() => {
     setUserEmail((prev) => (prev ? prev : getStoredEmail()));
@@ -40,17 +55,30 @@ export default function PaymentGate({ tool, children, isProcessing = false, down
   useEffect(() => {
     if (!downloadId) return;
     const emailToSend = (userEmail || getStoredEmail()) || undefined;
+    setVerifyTimedOut(false);
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), verifyTimeoutMs);
     fetch("/api/verify-access", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ downloadId, email: emailToSend, tool }),
+      signal: controller.signal,
     })
       .then((r) => r.json())
       .then((data) => {
         if (data?.access) setState("unlocked");
         else setState("preview");
       })
-      .catch(() => setState("preview"));
+      .catch((err) => {
+        if (err instanceof Error && err.name === "AbortError") {
+          setVerifyTimedOut(true);
+          setState("preview");
+        } else {
+          setState("preview");
+        }
+      })
+      .finally(() => clearTimeout(timer));
     // Omit userEmail to avoid re-running on every keystroke
   }, [downloadId, tool]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -61,12 +89,12 @@ export default function PaymentGate({ tool, children, isProcessing = false, down
   if (state === "verifying") {
     return (
       <div className="relative">
-        <div className="select-none pointer-events-none blur-sm">{children}</div>
+        {!hideChildrenUntilUnlocked && <div className="select-none pointer-events-none blur-sm">{children}</div>}
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/70">
           <div className="max-w-md w-full text-center space-y-4">
             <h2 className="text-xl font-bold text-white">Confirming your purchase…</h2>
             <p className="text-sm text-white/90">
-              We’re checking your payment. This usually takes a few seconds.
+              {verifyTimedOut ? "Still verifying. If you already paid, refresh in ~1 minute. Otherwise, continue below." : "We’re checking your payment. This usually takes a few seconds."}
             </p>
             <p className="text-xs text-white/70">
               If this takes longer than a minute, refresh the page or open this link again in a new tab.
@@ -140,9 +168,11 @@ export default function PaymentGate({ tool, children, isProcessing = false, down
 
   return (
       <div className="relative">
-      <div className="select-none pointer-events-none blur-sm">
-        {children}
-      </div>
+      {!hideChildrenUntilUnlocked && (
+        <div className="select-none pointer-events-none blur-sm">
+          {children}
+        </div>
+      )}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/70">
         <div className="max-w-md w-full text-center space-y-5">
           <h2 className="text-xl font-bold text-white">Your file is ready.</h2>
