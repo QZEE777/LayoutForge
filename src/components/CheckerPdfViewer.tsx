@@ -142,12 +142,26 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
       let length: number | undefined;
       try {
         const controller = new AbortController();
-        const timeoutId = window.setTimeout(() => controller.abort(), 3000);
-        const res = await fetch(pdfUrl, { method: "HEAD", signal: controller.signal, cache: "no-store" });
+        const timeoutId = window.setTimeout(() => controller.abort(), 5000);
+        // Some environments treat HEAD unreliably; a 1-byte Range GET is cheap and
+        // still returns total size via Content-Range.
+        const res = await fetch(pdfUrl, {
+          method: "GET",
+          headers: { Range: "bytes=0-0" },
+          signal: controller.signal,
+          cache: "no-store",
+        });
         window.clearTimeout(timeoutId);
+        const contentRange = res.headers.get("content-range");
         const contentLength = res.headers.get("content-length");
-        const parsed = contentLength ? Number(contentLength) : NaN;
-        if (Number.isFinite(parsed) && parsed > 0) length = parsed;
+        if (contentRange && contentRange.includes("/")) {
+          const totalStr = contentRange.split("/")[1];
+          const total = totalStr ? Number(totalStr) : NaN;
+          if (Number.isFinite(total) && total > 0) length = total;
+        } else if (contentLength) {
+          const parsed = Number(contentLength);
+          if (Number.isFinite(parsed) && parsed > 0) length = parsed;
+        }
       } catch {
         // If HEAD fails, we still try PDF.js with rangeChunkSize + default behavior.
       }
