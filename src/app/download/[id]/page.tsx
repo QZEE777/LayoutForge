@@ -379,11 +379,11 @@ export default function DownloadPage() {
           hideChildrenUntilUnlocked
         >
         {/* Checker: PDF viewer (always show when we have a preview PDF) */}
-        {report?.outputType === "checker" && report.hasPdfPreview && (
+        {report?.outputType === "checker" && report.hasPdfPreview && report.pdfSourceUrl && (
           <div className="mb-8">
             <h2 className="text-lg font-semibold text-m2p-ink mb-3">View issues on your PDF</h2>
             <CheckerPdfViewer
-              pdfUrl={report.pdfSourceUrl ?? `/api/view-pdf/${id}`}
+              pdfUrl={report.pdfSourceUrl}
               pageIssues={report.page_issues ?? []}
               totalPages={report.pageCount ?? 0}
             />
@@ -410,6 +410,11 @@ export default function DownloadPage() {
         {report?.outputType === "checker" && !report.hasPdfPreview && (
           <p className="mb-6 text-sm text-center" style={{ color: "#F05A28" }}>
             Annotated preview not available for this file.
+          </p>
+        )}
+        {report?.outputType === "checker" && report.hasPdfPreview && !report.pdfSourceUrl && (
+          <p className="mb-6 text-sm text-center" style={{ color: "#F05A28" }}>
+            Preview unavailable.
           </p>
         )}
 

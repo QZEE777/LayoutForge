@@ -1,92 +1,21 @@
 /**
- * POST { jobId, fileSizeMB? } or { jobId, fileKey, fileSizeMB? }.
- * - With fileKey (R2 flow): enqueue job and return checkId immediately. Worker processes it; frontend polls GET /api/print-ready-check-status.
- * - Without fileKey: sync flow (jobId is preflight engine job id), fetch report and return id (legacy).
+ * POST { jobId, fileKey, fileSizeMB? }.
+ * Enqueue async checker job and return checkId immediately.
  */
 import { NextRequest, NextResponse } from "next/server";
 
 export const maxDuration = 60;
-import { PDFDocument } from "pdf-lib";
-import { saveUpload, updateMeta, type StoredManuscript } from "@/lib/storage";
-import { getSignedDownloadUrl, getFileByKey } from "@/lib/r2Storage";
-import { getGutterInches } from "@/lib/kdpConfig";
 import { supabase } from "@/lib/supabase";
-import { enrichCheckerReport } from "@/lib/kdpReportEnhance";
-
-const DEFAULT_PREFLIGHT_BASE_URL = "https://kdp-preflight-engine-production.up.railway.app";
-
-interface PreflightReport {
-  status: string;
-  errors: Array<{ page: number; rule_id: string; severity: string; message: string; bbox?: number[] | null }>;
-  warnings: Array<{ page: number; rule_id: string; severity: string; message: string; bbox?: number[] | null }>;
-  summary: { total_pages: number; error_count: number; warning_count: number; rules_checked: number };
-  page_issues?: Array<{ page: number; rule_id: string; severity: string; message: string; bbox: number[] | null }>;
-}
-
-interface CheckerReport {
-  outputType: "checker";
-  chaptersDetected: number;
-  issues: string[];
-  fontUsed: string;
-  trimSize: string;
-  pageCount: number;
-  trimDetected: string;
-  trimMatchKDP: boolean;
-  kdpTrimName: string | null;
-  recommendations: string[];
-  fileSizeMB?: number;
-  recommendedGutterInches: number;
-  page_issues: Array<{ page: number; rule_id: string; severity: string; message: string; bbox: number[] | null }>;
-  hasPdfPreview?: boolean;
-  pdfSourceUrl?: string;
-}
-
-function buildReportFromPreflightOnly(preflight: PreflightReport | null | undefined, fileSizeMB?: number): CheckerReport {
-  const errors = (preflight != null && Array.isArray(preflight.errors)) ? preflight.errors : [];
-  const warnings = (preflight != null && Array.isArray(preflight.warnings)) ? preflight.warnings : [];
-  const totalPages =
-    preflight?.summary != null && typeof preflight.summary.total_pages === "number"
-      ? preflight.summary.total_pages
-      : 0;
-  const issues = [
-    ...errors.map((e) => `[p.${e.page}] ${e.message}`),
-    ...warnings.map((w) => `[p.${w.page}] ${w.message}`),
-  ];
-  const recommendations =
-    preflight?.status === "PASS"
-      ? ["Full KDP preflight (26 rules) passed. No errors found."]
-      : ["Fix the issues above before uploading to KDP."];
-  const page_issues = preflight?.page_issues ?? [
-    ...errors.map((e) => ({ page: e.page, rule_id: e.rule_id, severity: e.severity, message: e.message, bbox: e.bbox ?? null })),
-    ...warnings.map((w) => ({ page: w.page, rule_id: w.rule_id, severity: w.severity, message: w.message, bbox: w.bbox ?? null })),
-  ];
-  return {
-    outputType: "checker" as const,
-    chaptersDetected: 0,
-    issues,
-    fontUsed: "",
-    trimSize: "",
-    pageCount: totalPages,
-    trimDetected: "—",
-    trimMatchKDP: false,
-    kdpTrimName: null as string | null,
-    recommendations,
-    fileSizeMB: fileSizeMB ?? undefined,
-    recommendedGutterInches: getGutterInches(totalPages),
-    page_issues,
-  };
-}
 
 export async function POST(request: NextRequest) {
   try {
-    const baseUrl = (process.env.KDP_PREFLIGHT_API_URL?.trim() || DEFAULT_PREFLIGHT_BASE_URL).replace(/\/$/, "");
-    console.log("[kdp-pdf-check-from-preflight] start; baseUrl:", baseUrl);
+    console.log("[kdp-pdf-check-from-preflight] start");
     let body: { jobId?: string; fileKey?: string; fileSizeMB?: number };
     try {
       body = await request.json();
     } catch {
       return NextResponse.json(
-        { error: "Invalid body", message: "Send JSON with jobId (and optionally fileKey for R2 flow)." },
+        { error: "Invalid body", message: "Send JSON with jobId and fileKey." },
         { status: 400 }
       );
     }
@@ -106,122 +35,47 @@ export async function POST(request: NextRequest) {
     }
     const fileSizeMB = typeof body.fileSizeMB === "number" ? body.fileSizeMB : undefined;
 
-    // R2 flow: enqueue and return checkId. Worker will process.
-    if (typeof body.fileKey === "string" && /^uploads\/[0-9a-fA-F-]+\.pdf$/.test(body.fileKey.trim())) {
-      const fileKey = body.fileKey.trim();
-      console.log("[kdp-pdf-check-from-preflight] enqueueing print_ready_checks:", { fileKey, jobId, fileSizeMB });
-      if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-        return NextResponse.json(
-          { error: "Server not configured", message: "Supabase is not configured." },
-          { status: 503 }
-        );
-      }
-      const { data: row, error: insertError } = await supabase
-        .from("print_ready_checks")
-        .insert({
-          file_key: fileKey,
-          our_job_id: jobId,
-          file_size_mb: fileSizeMB ?? null,
-          status: "pending",
-        })
-        .select("id")
-        .single();
-
-      if (insertError) {
-        console.error("[kdp-pdf-check-from-preflight] insert print_ready_checks failed:", insertError.message, insertError.code);
-        return NextResponse.json(
-          { error: "Enqueue failed", message: "Could not start check. Try again." },
-          { status: 500 }
-        );
-      }
-      if (!row?.id) {
-        console.error("[kdp-pdf-check-from-preflight] insert succeeded but no row id returned");
-        return NextResponse.json(
-          { error: "Enqueue failed", message: "Could not start check. Try again." },
-          { status: 500 }
-        );
-      }
-      console.log("[kdp-pdf-check-from-preflight] enqueue ok; checkId:", row.id);
-      return NextResponse.json({ success: true, checkId: row.id });
-    }
-
-    // Sync flow: jobId is preflight engine job id, fetch report directly (legacy / small flows).
-    const url = baseUrl;
-    const renderJobId = jobId;
-    console.log("[kdp-pdf-check-from-preflight] legacy sync flow; report GET", `${url}/report/${encodeURIComponent(renderJobId)}`);
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 60000);
-    let res: Response;
-    try {
-      res = await fetch(`${url}/report/${encodeURIComponent(renderJobId)}`, { signal: controller.signal });
-    } finally {
-      clearTimeout(timeout);
-    }
-    if (!res.ok) {
+    if (typeof body.fileKey !== "string" || !/^uploads\/[0-9a-fA-F-]+\.pdf$/.test(body.fileKey.trim())) {
       return NextResponse.json(
-        { error: "Preflight report failed", message: `Could not get report (${res.status}).` },
-        { status: 502 }
+        { error: "Invalid fileKey", message: "fileKey must be a valid R2 PDF key." },
+        { status: 400 }
       );
     }
-    const reportText = await res.clone().text().catch((e) => `<<failed to read body: ${String(e)}>>`);
-    console.log("[kdp-pdf-check-from-preflight] legacy report response:", { ok: res.ok, status: res.status, body: reportText });
-    let preflight: PreflightReport | null = null;
-    try {
-      preflight = (reportText ? (JSON.parse(reportText) as PreflightReport) : null) ?? null;
-    } catch (e) {
-      console.error("[kdp-pdf-check-from-preflight] legacy report JSON parse failed:", e instanceof Error ? e.stack : e);
-      preflight = null;
-    }
-    const report: CheckerReport = buildReportFromPreflightOnly(preflight, fileSizeMB);
-    report.hasPdfPreview = true;
-    report.pdfSourceUrl = `/api/preflight-file/${encodeURIComponent(renderJobId)}`;
-    const enrichedReport = enrichCheckerReport(report, "Uploaded PDF", preflight ?? undefined);
-    const doc = await PDFDocument.create();
-    doc.addPage([612, 792]);
-    const minimalPdf = Buffer.from(await doc.save());
-    const stored = await saveUpload(minimalPdf, "preflight-report.pdf", "application/pdf");
-    console.log("[kdp-pdf-check-from-preflight] legacy saveUpload ok:", { storedId: stored?.id, storedPath: stored?.storedPath });
-    await updateMeta(stored.id, { processingReport: enrichedReport as StoredManuscript["processingReport"] });
-
-    try {
-      console.log("[kdp-pdf-check-from-preflight] legacy about to compute issuesCount; before .length access");
-      const issuesCount = enrichedReport?.issuesEnriched?.length ?? report?.issues?.length ?? 0;
-      console.log("[kdp-pdf-check-from-preflight] legacy issuesCount:", issuesCount);
-      await supabase.from("verification_results").upsert(
-        {
-          verification_id: stored.id,
-          filename_clean: "Uploaded PDF — PDF",
-          readiness_score: enrichedReport?.readinessScore100,
-          kdp_ready: enrichedReport?.kdpReady,
-          scan_date: enrichedReport?.scanDate,
-          issues_count: issuesCount,
-        },
-        { onConflict: "verification_id" }
+    const fileKey = body.fileKey.trim();
+    console.log("[kdp-pdf-check-from-preflight] enqueueing print_ready_checks:", { fileKey, jobId, fileSizeMB });
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      return NextResponse.json(
+        { error: "Server not configured", message: "Supabase is not configured." },
+        { status: 503 }
       );
-    } catch (e) {
-      console.error("[kdp-pdf-check-from-preflight] verification_results upsert failed:", e);
     }
+    const { data: row, error: insertError } = await supabase
+      .from("print_ready_checks")
+      .insert({
+        file_key: fileKey,
+        our_job_id: jobId,
+        file_size_mb: fileSizeMB ?? null,
+        status: "pending",
+      })
+      .select("id")
+      .single();
 
-    fetch(`${url}/annotate/${renderJobId}`, { method: "POST" }).catch(() => {});
-    await updateMeta(stored.id, {
-      annotatedPdfUrl: `/api/preflight-file/${encodeURIComponent(renderJobId)}?type=annotated`,
-      annotatedPdfStatus: "processing",
-    });
-
-    if (process.env.USE_R2 === "true" && stored?.storedPath) {
-      console.log("[kdp-pdf-check-from-preflight] legacy USE_R2=true; storedPath:", stored?.storedPath);
-      const filename = stored.storedPath.split("/").pop();
-      if (filename) {
-        try {
-          const reportDownloadUrl = await getSignedDownloadUrl(stored.id, filename);
-          await updateMeta(stored.id, { reportDownloadUrl });
-        } catch {
-          // non-fatal
-        }
-      }
+    if (insertError) {
+      console.error("[kdp-pdf-check-from-preflight] insert print_ready_checks failed:", insertError.message, insertError.code);
+      return NextResponse.json(
+        { error: "Enqueue failed", message: "Could not start check. Try again." },
+        { status: 500 }
+      );
     }
-
-    return NextResponse.json({ success: true, id: stored.id });
+    if (!row?.id) {
+      console.error("[kdp-pdf-check-from-preflight] insert succeeded but no row id returned");
+      return NextResponse.json(
+        { error: "Enqueue failed", message: "Could not start check. Try again." },
+        { status: 500 }
+      );
+    }
+    console.log("[kdp-pdf-check-from-preflight] enqueue ok; checkId:", row.id);
+    return NextResponse.json({ success: true, checkId: row.id });
   } catch (e) {
     console.error("[kdp-pdf-check-from-preflight]", e);
     return NextResponse.json(
