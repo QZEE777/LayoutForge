@@ -53,15 +53,6 @@ export async function GET(request: NextRequest) {
     });
 
     try {
-      const head = await s3.send(
-        new HeadObjectCommand({ Bucket: bucket, Key: key }),
-        { abortSignal: requestAbort.signal }
-      );
-      const totalSize = head.ContentLength;
-      if (totalSize == null || Number.isNaN(totalSize)) {
-        return NextResponse.json({ error: "Failed to read file size" }, { status: 500 });
-      }
-
       const rangeHeader = request.headers.get("range");
       const filename = key.split("/").pop() ?? "document.pdf";
 
@@ -76,40 +67,11 @@ export async function GET(request: NextRequest) {
           return NextResponse.json({ error: "Invalid Range header" }, { status: 416 });
         }
 
-        const startStr = m[1];
-        const endStr = m[2];
-
-        let start: number;
-        let end: number;
-
-        if (startStr === "") {
-          // suffix range: bytes=-N
-          const suffixLen = Number.parseInt(endStr, 10);
-          if (!Number.isFinite(suffixLen) || suffixLen <= 0) {
-            return NextResponse.json({ error: "Invalid suffix range" }, { status: 416 });
-          }
-          start = Math.max(0, totalSize - suffixLen);
-          end = totalSize - 1;
-        } else {
-          start = Number.parseInt(startStr, 10);
-          end = endStr === "" ? totalSize - 1 : Number.parseInt(endStr, 10);
-        }
-
-        if (!Number.isFinite(start) || !Number.isFinite(end) || start < 0 || end < start || start >= totalSize) {
-          return NextResponse.json(
-            { error: "Requested range not satisfiable" },
-            { status: 416, headers: { "Content-Range": `bytes */${totalSize}` } }
-          );
-        }
-
-        const chunkLen = end - start + 1;
-        const rangeValue = `bytes=${start}-${end}`;
-
         const obj = await s3.send(
           new GetObjectCommand({
             Bucket: bucket,
             Key: key,
-            Range: rangeValue,
+            Range: normalizedRangeHeader,
           }),
           { abortSignal: requestAbort.signal }
         );
@@ -118,13 +80,19 @@ export async function GET(request: NextRequest) {
           return NextResponse.json({ error: "Empty upstream body" }, { status: 500 });
         }
 
+        const contentRange = obj.ContentRange;
+        const contentLength = obj.ContentLength;
+        if (!contentRange || contentLength == null) {
+          return NextResponse.json({ error: "Missing range metadata from storage" }, { status: 500 });
+        }
+
         return new NextResponse(obj.Body as any, {
           status: 206,
           headers: {
             "Content-Type": "application/pdf",
             "Accept-Ranges": "bytes",
-            "Content-Range": `bytes ${start}-${end}/${totalSize}`,
-            "Content-Length": chunkLen.toString(),
+            "Content-Range": contentRange,
+            "Content-Length": String(contentLength),
             "Content-Disposition": `inline; filename="${filename}"`,
             "Cache-Control": "no-store, must-revalidate",
           },
@@ -138,6 +106,27 @@ export async function GET(request: NextRequest) {
       );
       if (!obj.Body) {
         return NextResponse.json({ error: "Empty upstream body" }, { status: 500 });
+      }
+
+      const totalSize = obj.ContentLength;
+      if (totalSize == null || Number.isNaN(totalSize)) {
+        const head = await s3.send(
+          new HeadObjectCommand({ Bucket: bucket, Key: key }),
+          { abortSignal: requestAbort.signal }
+        );
+        if (head.ContentLength == null || Number.isNaN(head.ContentLength)) {
+          return NextResponse.json({ error: "Failed to read file size" }, { status: 500 });
+        }
+        return new NextResponse(obj.Body as any, {
+          status: 200,
+          headers: {
+            "Content-Type": "application/pdf",
+            "Accept-Ranges": "bytes",
+            "Content-Length": head.ContentLength.toString(),
+            "Content-Disposition": `inline; filename="${filename}"`,
+            "Cache-Control": "no-store, must-revalidate",
+          },
+        });
       }
 
       return new NextResponse(obj.Body as any, {

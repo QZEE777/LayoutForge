@@ -30,6 +30,7 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
   const [error, setError] = useState<string | null>(null);
   const [pageSize, setPageSize] = useState<{ width: number; height: number } | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const pdfDocRef = useRef<any>(null);
 
   const issuesForPage = pageIssues.filter((i) => i.page === pageNumber);
   const hasHighlights =
@@ -43,20 +44,26 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
     let cancelled = false;
     setLoading(true);
     setError(null);
+    setRendering(false);
+    pdfDocRef.current = null;
     const load = async () => {
       const pdfjsLib = await import("pdfjs-dist");
-      (pdfjsLib.GlobalWorkerOptions as { workerSrc?: string }).workerSrc = "/pdf.worker.min.js";
-      return pdfjsLib.getDocument({
+      pdfjsLib.GlobalWorkerOptions.workerSrc = PDF_WORKER_SRC;
+      const loadingTask = pdfjsLib.getDocument({
         url: pdfUrl,
         rangeChunkSize: 65536,
         disableStream: false,
         disableRange: false,
-      }).promise;
+      });
+      const pdf = await loadingTask.promise;
+      return { pdf };
     };
     load()
-      .then((pdf: { numPages: number }) => {
+      .then(({ pdf }: { pdf: { numPages: number } }) => {
         if (cancelled) return;
+        pdfDocRef.current = pdf;
         setNumPages(pdf.numPages);
+        setPageNumber(1);
         setLoading(false);
       })
       .catch((e: unknown) => {
@@ -67,22 +74,17 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
       });
     return () => {
       cancelled = true;
+      pdfDocRef.current = null;
     };
   }, [pdfUrl]);
 
   useEffect(() => {
     if (!pdfUrl || !canvasRef.current || numPages < 1 || pageNumber < 1) return;
+    if (!pdfDocRef.current) return;
     let cancelled = false;
     const run = async () => {
       setRendering(true);
-      const pdfjsLib = await import("pdfjs-dist");
-      (pdfjsLib.GlobalWorkerOptions as { workerSrc?: string }).workerSrc = "/pdf.worker.min.js";
-      const pdf = await pdfjsLib.getDocument({
-        url: pdfUrl,
-        rangeChunkSize: 65536,
-        disableStream: false,
-        disableRange: false,
-      }).promise;
+      const pdf = pdfDocRef.current;
       const page = await pdf.getPage(pageNumber);
       if (cancelled || !canvasRef.current) return;
       const viewport = page.getViewport({ scale });
@@ -94,6 +96,7 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
       canvas.height = viewport.height;
       canvas.style.width = `${renderWidth}px`;
       canvas.style.height = `${(viewport.height / viewport.width) * renderWidth}px`;
+      canvas.style.backgroundColor = "#ffffff";
       ctx.save();
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
