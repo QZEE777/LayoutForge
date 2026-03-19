@@ -86,7 +86,11 @@ export interface RunPrintReadyCheckParams {
  * Run preflight for the PDF at fileKey, save report and meta, return the download id.
  * Throws on failure (caller should set job status to failed with message).
  */
-const PREFLIGHT_STATUS_DEADLINE_MS = 300000; // 5 min for large PDFs
+// Keep below the DB reclaim window in `claim_print_ready_check` (15m),
+// otherwise a second worker could pick the same job while we still run.
+const PREFLIGHT_STATUS_DEADLINE_MS = 840000; // 14 min for large PDFs
+
+const STATUS_POLL_TIMEOUT_MS = 10_000;
 
 export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Promise<{ downloadId: string }> {
   const { fileKey, ourJobId, fileSizeMB, baseUrl } = params;
@@ -137,7 +141,20 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
     await new Promise((r) => setTimeout(r, 2500));
     const statusUrl = `${url}/status/${encodeURIComponent(renderJobId)}`;
     console.log("[printReadyCheckProcess] preflight status GET", statusUrl);
-    const statusRes = await fetch(statusUrl);
+    const statusController = new AbortController();
+    const statusTimeout = setTimeout(() => statusController.abort(), STATUS_POLL_TIMEOUT_MS);
+    let statusRes: Response;
+    try {
+      statusRes = await fetch(statusUrl, { signal: statusController.signal });
+    } catch (e) {
+      if (e instanceof Error && e.name === "AbortError") {
+        console.warn("[printReadyCheckProcess] preflight status poll timed out; continuing", { statusUrl });
+        continue;
+      }
+      throw e;
+    } finally {
+      clearTimeout(statusTimeout);
+    }
     if (!statusRes.ok) continue;
     const statusText = await statusRes.clone().text().catch((e) => `<<failed to read body: ${String(e)}>>`);
     console.log("[printReadyCheckProcess] preflight status response:", { ok: statusRes.ok, status: statusRes.status, body: statusText });
@@ -221,7 +238,12 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
   }
 
   console.log("[printReadyCheckProcess] triggering annotate POST", `${url}/annotate/${renderJobId}`);
-  fetch(`${url}/annotate/${renderJobId}`, { method: "POST" }).catch(() => {});
+  {
+    const annotateController = new AbortController();
+    const annotateTimeout = setTimeout(() => annotateController.abort(), 30_000);
+    fetch(`${url}/annotate/${renderJobId}`, { method: "POST", signal: annotateController.signal }).catch(() => {});
+    clearTimeout(annotateTimeout);
+  }
   await updateMeta(stored.id, {
     annotatedPdfUrl: `/api/preflight-file/${encodeURIComponent(renderJobId)}?type=annotated`,
     annotatedPdfStatus: "processing",

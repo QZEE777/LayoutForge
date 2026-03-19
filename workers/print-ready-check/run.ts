@@ -66,6 +66,10 @@ async function processOne(supabase: ReturnType<typeof createClient>): Promise<bo
       baseUrl,
     });
 
+    if (!downloadId) {
+      throw new Error("runPrintReadyCheck returned an empty downloadId.");
+    }
+
     console.log("[worker] runPrintReadyCheck returned:", { downloadId });
     await supabase
       .from("print_ready_checks")
