@@ -136,8 +136,25 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
     const load = async () => {
       const pdfjsLib = await import("pdfjs-dist");
       pdfjsLib.GlobalWorkerOptions.workerSrc = PDF_WORKER_SRC;
+
+      // Help PDF.js go straight to Range mode by providing file length.
+      // Without `length`, PDF.js may fetch the whole file once (200) before 206 ranges.
+      let length: number | undefined;
+      try {
+        const controller = new AbortController();
+        const timeoutId = window.setTimeout(() => controller.abort(), 3000);
+        const res = await fetch(pdfUrl, { method: "HEAD", signal: controller.signal, cache: "no-store" });
+        window.clearTimeout(timeoutId);
+        const contentLength = res.headers.get("content-length");
+        const parsed = contentLength ? Number(contentLength) : NaN;
+        if (Number.isFinite(parsed) && parsed > 0) length = parsed;
+      } catch {
+        // If HEAD fails, we still try PDF.js with rangeChunkSize + default behavior.
+      }
+
       const loadingTask = pdfjsLib.getDocument({
         url: pdfUrl,
+        length,
         rangeChunkSize: 65536,
         disableStream: false,
         disableRange: false,
