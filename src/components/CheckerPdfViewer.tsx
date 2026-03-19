@@ -31,6 +31,86 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
   const [pageSize, setPageSize] = useState<{ width: number; height: number } | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const pdfDocRef = useRef<any>(null);
+  const [fallbackMode, setFallbackMode] = useState(false);
+  const fallbackReasonRef = useRef<"timeout" | "blank" | null>(null);
+  const outcomeLabelRef = useRef<string | null>(null);
+  const iframeLoadTimeoutRef = useRef<number | null>(null);
+
+  const logOutcomeOnce = (label: string) => {
+    if (outcomeLabelRef.current) return;
+    outcomeLabelRef.current = label;
+    // One final outcome label per preview session.
+    console.log(`[CheckerPdfViewer] ${label}`);
+    try {
+      const sentry = (globalThis as any).Sentry;
+      if (sentry?.captureMessage) {
+        sentry.captureMessage(`CheckerPdfViewer outcome: ${label}`, "info");
+      }
+    } catch {
+      // Never block render.
+    }
+  };
+
+  const requestFallback = (reason: "timeout" | "blank") => {
+    if (fallbackReasonRef.current) return;
+    fallbackReasonRef.current = reason;
+    setRendering(false);
+    setFallbackMode(true);
+  };
+
+  const detectBlankCanvasAndMaybeFallback = async () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const w = canvas.width;
+    const h = canvas.height;
+    if (w <= 0 || h <= 0) return;
+
+    // Sample variance across many random points.
+    const sampleCount = 25;
+    const data = canvas.getContext("2d")?.getImageData(0, 0, w, h)?.data;
+    if (!data) return;
+
+    const samples: number[] = [];
+    const meaningfulPaintThreshold = 20; // brightness delta from white
+    let meaningfulPaintCount = 0;
+
+    // Helper: brightness as luminance.
+    const luminance = (r: number, g: number, b: number) => 0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+    for (let i = 0; i < sampleCount; i++) {
+      const x = Math.floor(Math.random() * w);
+      const y = Math.floor(Math.random() * h);
+      const idx = (y * w + x) * 4;
+      const r = data[idx];
+      const g = data[idx + 1];
+      const b = data[idx + 2];
+      const a = data[idx + 3];
+
+      // Ignore fully transparent samples (shouldn't happen since we prefill).
+      if (a === 0) continue;
+
+      const bright = luminance(r, g, b);
+      samples.push(bright);
+
+      if (255 - bright > meaningfulPaintThreshold) {
+        meaningfulPaintCount += 1;
+      }
+    }
+
+    if (samples.length < 10) return;
+
+    const mean = samples.reduce((acc, v) => acc + v, 0) / samples.length;
+    const variance = samples.reduce((acc, v) => acc + (v - mean) * (v - mean), 0) / samples.length;
+    const stdDev = Math.sqrt(variance);
+
+    // Conservative "near zero" variance check (uniform ~single color).
+    const varianceNearZero = stdDev < 2.5;
+    const noMeaningfulPaint = meaningfulPaintCount === 0;
+
+    if (varianceNearZero && noMeaningfulPaint) {
+      requestFallback("blank");
+    }
+  };
 
   const issuesForPage = pageIssues.filter((i) => i.page === pageNumber);
   const hasHighlights =
@@ -46,6 +126,13 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
     setError(null);
     setRendering(false);
     pdfDocRef.current = null;
+    setFallbackMode(false);
+    fallbackReasonRef.current = null;
+    outcomeLabelRef.current = null;
+    if (iframeLoadTimeoutRef.current) {
+      window.clearTimeout(iframeLoadTimeoutRef.current);
+      iframeLoadTimeoutRef.current = null;
+    }
     const load = async () => {
       const pdfjsLib = await import("pdfjs-dist");
       pdfjsLib.GlobalWorkerOptions.workerSrc = PDF_WORKER_SRC;
@@ -82,9 +169,25 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
     if (!pdfUrl || !canvasRef.current || numPages < 1 || pageNumber < 1) return;
     if (!pdfDocRef.current) return;
     let cancelled = false;
+    const isFirstPage = pageNumber === 1;
     const run = async () => {
+      if (fallbackMode) return;
       setRendering(true);
       const pdf = pdfDocRef.current;
+
+      // Hard timeout for first-page primary render.
+      const hardTimeoutMs = 9000; // within your 8-10s window
+      let timeoutId: number | null = null;
+      if (isFirstPage) {
+        timeoutId = window.setTimeout(() => {
+          if (cancelled) return;
+          if (outcomeLabelRef.current) return;
+          if (fallbackReasonRef.current) return; // timeout must not override blank fallback
+          requestFallback("timeout");
+          logOutcomeOnce("pdfjs_timeout_fallback_success");
+        }, hardTimeoutMs);
+      }
+
       const page = await pdf.getPage(pageNumber);
       if (cancelled || !canvasRef.current) return;
       const viewport = page.getViewport({ scale });
@@ -104,12 +207,36 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
       const renderContext = { canvasContext: ctx, viewport };
       const task = page.render(renderContext);
       await task.promise;
-      if (!cancelled) setRendering(false);
+
+      if (timeoutId != null) window.clearTimeout(timeoutId);
+      if (cancelled) return;
+
+      // After render-complete event: only do blank detection on first page.
+      if (isFirstPage && !fallbackMode) {
+        const beforeFallback = fallbackReasonRef.current;
+        await detectBlankCanvasAndMaybeFallback();
+        if (fallbackReasonRef.current && beforeFallback !== fallbackReasonRef.current) {
+          // Fallback will be logged upon iframe load.
+          setRendering(false);
+          return;
+        }
+      }
+
+      // Primary success outcome.
+      if (!fallbackMode && !outcomeLabelRef.current) {
+        logOutcomeOnce("pdfjs_success");
+      }
+      setRendering(false);
     };
     run().catch((e: unknown) => {
       if (!cancelled) {
-        setError(e instanceof Error ? e.message : "Failed to render page");
-        setRendering(false);
+        if (!fallbackMode) {
+          if (outcomeLabelRef.current == null) {
+            logOutcomeOnce("pdfjs_failed_no_fallback");
+          }
+          setError(e instanceof Error ? e.message : "Failed to render page");
+          setRendering(false);
+        }
       }
     });
     return () => {
@@ -117,10 +244,56 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
     };
   }, [pdfUrl, pageNumber, scale, numPages, renderWidth]);
 
+  useEffect(() => {
+    if (!fallbackMode) return;
+    if (iframeLoadTimeoutRef.current) return;
+
+    // If iframe never loads, treat it as "no fallback".
+    iframeLoadTimeoutRef.current = window.setTimeout(() => {
+      iframeLoadTimeoutRef.current = null;
+      if (!outcomeLabelRef.current) {
+        logOutcomeOnce("pdfjs_failed_no_fallback");
+      }
+    }, 6000);
+  }, [fallbackMode, pdfUrl]);
+
   if (error) {
     return (
       <div className="rounded-lg bg-red-500/10 border border-red-500/30 p-4 text-red-400 text-sm">
         {error}
+      </div>
+    );
+  }
+
+  if (fallbackMode) {
+    const msg = fallbackReasonRef.current === "timeout" ? "Showing compatibility view" : "Showing compatibility view";
+    return (
+      <div className="rounded-lg bg-[#24241a] border border-white/10 overflow-hidden">
+        <div className="p-3 border-b border-white/10 bg-black/20 text-sm text-[#8B8B6B]">
+          {msg}
+        </div>
+        <div className="p-2">
+          <iframe
+            src={pdfUrl}
+            title="Compatibility PDF view"
+            className="w-full"
+            style={{ width: "100%", height: 700, border: 0, background: "#ffffff" }}
+            onLoad={() => {
+              if (outcomeLabelRef.current) return;
+              if (iframeLoadTimeoutRef.current) {
+                window.clearTimeout(iframeLoadTimeoutRef.current);
+                iframeLoadTimeoutRef.current = null;
+              }
+              if (fallbackReasonRef.current === "timeout") {
+                logOutcomeOnce("pdfjs_timeout_fallback_success");
+              } else if (fallbackReasonRef.current === "blank") {
+                logOutcomeOnce("pdfjs_blank_fallback_success");
+              } else {
+                logOutcomeOnce("pdfjs_failed_no_fallback");
+              }
+            }}
+          />
+        </div>
       </div>
     );
   }
