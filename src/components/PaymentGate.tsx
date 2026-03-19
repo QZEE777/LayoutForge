@@ -3,6 +3,11 @@
 import { useState, useEffect } from "react";
 
 const STORED_EMAIL_KEY = "manu2print_email";
+const STORED_CHECKOUT_PENDING_PREFIX = "manu2print_checkout_pending_";
+
+function getCheckoutPendingKey(downloadId: string) {
+  return `${STORED_CHECKOUT_PENDING_PREFIX}${downloadId}`;
+}
 
 function getStoredEmail(): string {
   if (typeof window === "undefined") return "";
@@ -34,7 +39,14 @@ export default function PaymentGate({
   hideChildrenUntilUnlocked = false,
   verifyTimeoutMs = 20_000,
 }: PaymentGateProps) {
-  const [state, setState] = useState<GateState>(downloadId && !isProcessing ? "verifying" : isProcessing ? "processing" : "preview");
+  const [state, setState] = useState<GateState>(() => {
+    if (isProcessing) return "processing";
+    if (!downloadId) return "preview";
+    // Only show "Confirming your purchase" if we know the user already initiated checkout.
+    if (typeof window === "undefined") return "preview";
+    const pending = localStorage.getItem(getCheckoutPendingKey(downloadId)) === "1";
+    return pending ? "verifying" : "preview";
+  });
   const [showBetaInput, setShowBetaInput] = useState(false);
   const [betaCode, setBetaCode] = useState("");
   const [betaError, setBetaError] = useState("");
@@ -67,13 +79,32 @@ export default function PaymentGate({
     })
       .then((r) => r.json())
       .then((data) => {
-        if (data?.access) setState("unlocked");
-        else setState("preview");
+        if (data?.access) {
+          // If they paid, clear the checkout-pending flag so we don't re-show "verifying".
+          if (typeof window !== "undefined") {
+            localStorage.removeItem(getCheckoutPendingKey(downloadId));
+          }
+          setState("unlocked");
+        } else {
+          // If checkout was initiated but webhook hasn't confirmed yet, keep the verifying overlay.
+          if (typeof window !== "undefined") {
+            const pending = localStorage.getItem(getCheckoutPendingKey(downloadId)) === "1";
+            setState(pending ? "verifying" : "preview");
+          } else {
+            setState("preview");
+          }
+        }
       })
       .catch((err) => {
         if (err instanceof Error && err.name === "AbortError") {
           setVerifyTimedOut(true);
-          setState("preview");
+          // Keep showing verifying if user is mid-checkout; otherwise drop to preview.
+          if (typeof window !== "undefined") {
+            const pending = localStorage.getItem(getCheckoutPendingKey(downloadId)) === "1";
+            setState(pending ? "verifying" : "preview");
+          } else {
+            setState("preview");
+          }
         } else {
           setState("preview");
         }
@@ -147,6 +178,12 @@ export default function PaymentGate({
   const handleSingleUse = async () => {
     const email = userEmail.trim();
     saveEmailForNextTime(email);
+    // Mark as "checkout initiated" so if the user returns to the download page
+    // before the webhook confirms payment, we show the verifying overlay instead
+    // of letting them pay again.
+    if (downloadId && typeof window !== "undefined") {
+      localStorage.setItem(getCheckoutPendingKey(downloadId), "1");
+    }
     setCheckoutLoading(true);
     try {
       const res = await fetch("/api/create-checkout-session", {
