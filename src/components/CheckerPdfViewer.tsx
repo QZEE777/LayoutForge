@@ -94,6 +94,10 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
       canvas.height = viewport.height;
       canvas.style.width = `${renderWidth}px`;
       canvas.style.height = `${(viewport.height / viewport.width) * renderWidth}px`;
+      ctx.save();
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.restore();
       const renderContext = { canvasContext: ctx, viewport };
       const task = page.render(renderContext);
       await task.promise;
