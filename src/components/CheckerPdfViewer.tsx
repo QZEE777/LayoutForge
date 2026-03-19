@@ -71,9 +71,6 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
     if (!data) return;
 
     const samples: number[] = [];
-    const meaningfulPaintThreshold = 20; // brightness delta from white
-    let meaningfulPaintCount = 0;
-
     // Helper: brightness as luminance.
     const luminance = (r: number, g: number, b: number) => 0.2126 * r + 0.7152 * g + 0.0722 * b;
 
@@ -91,10 +88,6 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
 
       const bright = luminance(r, g, b);
       samples.push(bright);
-
-      if (255 - bright > meaningfulPaintThreshold) {
-        meaningfulPaintCount += 1;
-      }
     }
 
     if (samples.length < 10) return;
@@ -105,9 +98,16 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
 
     // Conservative "near zero" variance check (uniform ~single color).
     const varianceNearZero = stdDev < 2.5;
+    const nearWhite = mean > 235;
+    const nearBlack = mean < 20;
+
+    // "Meaningful paint" here means any sampled pixel that deviates
+    // noticeably from the dominant brightness of the canvas.
+    const meaningfulPaintThresholdFromMean = 8;
+    const meaningfulPaintCount = samples.reduce((acc, v) => acc + (Math.abs(v - mean) > meaningfulPaintThresholdFromMean ? 1 : 0), 0);
     const noMeaningfulPaint = meaningfulPaintCount === 0;
 
-    if (varianceNearZero && noMeaningfulPaint) {
+    if (varianceNearZero && noMeaningfulPaint && (nearWhite || nearBlack)) {
       requestFallback("blank");
     }
   };
