@@ -411,7 +411,15 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
               {issuesForPage.map((issue, idx) => {
                 if (!issue.bbox || issue.bbox.length < 4) return null;
                 const [x, y, w, h] = issue.bbox;
-                const isError = issue.severity === "ERROR";
+                const sev = issue.severity?.toUpperCase?.() ?? issue.severity;
+                const stroke =
+                  sev === "CRITICAL" || sev === "ADVANCED" || sev === "ERROR"
+                    ? "rgb(255, 0, 0)"
+                    : sev === "MODERATE" || sev === "WARNING"
+                      ? "rgb(255, 204, 0)"
+                      : sev === "EASY" || sev === "MINOR"
+                        ? "rgb(51, 179, 51)"
+                        : "rgb(255, 204, 0)";
                 return (
                   <rect
                     key={`${issue.page}-${issue.rule_id}-${idx}`}
@@ -420,7 +428,7 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
                     width={w * scaleX}
                     height={h * scaleY}
                     fill="none"
-                    stroke={isError ? "#dc2626" : "#ca8a04"}
+                    stroke={stroke}
                     strokeWidth={2}
                   >
                     <title>{issue.message}</title>
@@ -432,9 +440,7 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
         </div>
       </div>
       {hasHighlights ? (
-        <p className="px-4 pb-3 text-xs text-center" style={{ color: "#F05A28" }}>
-          Red = error, yellow = warning. Hover over highlights for details.
-        </p>
+        null
       ) : (
         <p className="px-4 pb-3 text-xs text-center" style={{ color: "#6B6151" }}>
           No on-page highlights for this page.
