@@ -258,6 +258,27 @@ async function listKeysUnderPrefix(prefix: string): Promise<string[]> {
 }
 
 /**
+ * Get a pre-signed URL for any R2 object by its full key (e.g. "annotated/abc_annotated.pdf").
+ * Use this when the key does not follow the uploads/{id}/{filename} pattern.
+ */
+export async function getSignedUrlForKey(
+  fullKey: string,
+  expiresInSeconds: number = DEFAULT_SIGNED_URL_EXPIRES
+): Promise<string> {
+  try {
+    const client = getClient();
+    const cmd = new GetObjectCommand({
+      Bucket: getBucket(),
+      Key: fullKey,
+    });
+    return await getSignedUrl(client, cmd, { expiresIn: expiresInSeconds });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    throw new Error(`R2 getSignedUrlForKey failed for ${fullKey}: ${msg}`);
+  }
+}
+
+/**
  * Delete all files under uploads/{id}/ (main file, meta.json, out/*).
  * Used by deleteStored.
  */

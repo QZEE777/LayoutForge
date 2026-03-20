@@ -3,7 +3,7 @@ import { PDFDocument } from "pdf-lib";
 
 export const maxDuration = 120;
 import { saveUpload, updateMeta, type StoredManuscript } from "@/lib/storage";
-import { getSignedDownloadUrl } from "@/lib/r2Storage";
+import { getSignedDownloadUrl, getSignedUrlForKey } from "@/lib/r2Storage";
 import { TRIM_SIZES, getGutterInches } from "@/lib/kdpConfig";
 import { enrichCheckerReport, cleanFilenameForDisplay } from "@/lib/kdpReportEnhance";
 import { supabase } from "@/lib/supabase";
@@ -263,11 +263,29 @@ export async function POST(request: NextRequest) {
     }
 
     if (engineBaseUrl && annotateJobId) {
-      fetch(`${engineBaseUrl}/annotate/${annotateJobId}`, { method: "POST" }).catch((e) => console.error("[annotate trigger]", e));
-      await updateMeta(stored.id, {
-        annotatedPdfUrl: `${engineBaseUrl}/file/${annotateJobId}/annotated`,
-        annotatedPdfStatus: "processing",
-      });
+      try {
+        const annotateRes = await fetch(`${engineBaseUrl}/annotate/${annotateJobId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(preflightReport ?? { page_issues: [] }),
+          signal: AbortSignal.timeout(120000),
+        });
+        if (annotateRes.ok) {
+          const annotateData = (await annotateRes.json()) as { r2_key?: string; status?: string };
+          if (annotateData.r2_key && process.env.USE_R2 === "true") {
+            try {
+              const annotatedPdfDownloadUrl = await getSignedUrlForKey(annotateData.r2_key);
+              await updateMeta(stored.id, { annotatedPdfDownloadUrl, annotatedPdfStatus: "ready" });
+            } catch (e) {
+              console.error("[annotate signed url]", e);
+            }
+          }
+        } else {
+          console.error("[annotate trigger] engine returned", annotateRes.status);
+        }
+      } catch (e) {
+        console.error("[annotate trigger]", e);
+      }
     }
 
     if (process.env.USE_R2 === "true" && stored.storedPath) {

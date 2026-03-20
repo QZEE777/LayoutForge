@@ -102,6 +102,7 @@ interface ProcessingReport {
   pdfSourceUrl?: string;
   annotatedPdfUrl?: string;
   annotatedPdfStatus?: string;
+  annotatedPdfDownloadUrl?: string;
   /** Format review report */
   formatReviewSections?: Array<{ title: string; issues?: string[]; recommendations?: string[]; content?: string }>;
   summary?: string;
@@ -578,6 +579,18 @@ export default function DownloadPage() {
                   <p className="text-center text-sm text-m2p-muted mb-4">
                     ⏳ Report expires in 24 hours — download now to keep a copy.
                   </p>
+                  {report.annotatedPdfDownloadUrl && (
+                    <div className="flex justify-center mb-3">
+                      <a
+                        href={report.annotatedPdfDownloadUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-m2p-orange text-white px-6 py-3 rounded-lg font-bold hover:bg-m2p-orange-hover cursor-pointer transition-colors inline-block"
+                      >
+                        Download Annotated PDF (with highlights)
+                      </a>
+                    </div>
+                  )}
                   <div className="flex justify-center">
                     <button
                       type="button"

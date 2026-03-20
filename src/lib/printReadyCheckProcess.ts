@@ -5,7 +5,7 @@
  */
 import { PDFDocument } from "pdf-lib";
 import { saveUpload, updateMeta, type StoredManuscript } from "./storage";
-import { getSignedDownloadUrl, getFileByKey } from "./r2Storage";
+import { getSignedDownloadUrl, getFileByKey, getSignedUrlForKey } from "./r2Storage";
 import { getGutterInches } from "./kdpConfig";
 import { supabase } from "./supabase";
 import { enrichCheckerReport } from "./kdpReportEnhance";
@@ -238,16 +238,29 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
   }
 
   console.log("[printReadyCheckProcess] triggering annotate POST", `${url}/annotate/${renderJobId}`);
-  {
-    const annotateController = new AbortController();
-    const annotateTimeout = setTimeout(() => annotateController.abort(), 30_000);
-    fetch(`${url}/annotate/${renderJobId}`, { method: "POST", signal: annotateController.signal }).catch(() => {});
-    clearTimeout(annotateTimeout);
+  try {
+    const annotateRes = await fetch(`${url}/annotate/${renderJobId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(preflight ?? { page_issues: [] }),
+      signal: AbortSignal.timeout(120000),
+    });
+    if (annotateRes.ok) {
+      const annotateData = (await annotateRes.json()) as { r2_key?: string; status?: string };
+      if (annotateData.r2_key && process.env.USE_R2 === "true") {
+        try {
+          const annotatedPdfDownloadUrl = await getSignedUrlForKey(annotateData.r2_key);
+          await updateMeta(stored.id, { annotatedPdfDownloadUrl, annotatedPdfStatus: "ready" });
+        } catch (e) {
+          console.error("[printReadyCheckProcess] annotate signed url error:", e);
+        }
+      }
+    } else {
+      console.error("[printReadyCheckProcess] annotate engine returned", annotateRes.status);
+    }
+  } catch (e) {
+    console.error("[printReadyCheckProcess] annotate trigger error:", e);
   }
-  await updateMeta(stored.id, {
-    annotatedPdfUrl: `/api/preflight-file/${encodeURIComponent(renderJobId)}?type=annotated`,
-    annotatedPdfStatus: "processing",
-  });
 
   if (process.env.USE_R2 === "true" && stored?.storedPath) {
     console.log("[printReadyCheckProcess] USE_R2=true; about to compute signed download url from storedPath:", stored?.storedPath);

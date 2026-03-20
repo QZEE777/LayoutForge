@@ -1,68 +1,90 @@
 """
-Celery task: generate annotated PDF with validation issue rectangles and labels.
+Inline annotation: generate annotated PDF with severity-coded rectangles, upload to R2.
+No Celery, no Redis — runs synchronously and returns the R2 key.
 """
 from __future__ import annotations
 
+import io
 from pathlib import Path
+from typing import Any
 
+import boto3
 import fitz
 import structlog
 
-from app.job_store import get_report, set_annotated_path, set_annotated_status
-from app.storage import get_local_path
-from app.tasks.validate_pdf import celery_app
+from app.config import settings
 
 logger = structlog.get_logger(__name__)
 
+# Severity → RGB color (values 0.0–1.0 for PyMuPDF)
+_SEVERITY_COLORS: dict[str, tuple[float, float, float]] = {
+    "critical": (1.0, 0.0, 0.0),
+    "error":    (1.0, 0.0, 0.0),
+    "advanced": (1.0, 0.0, 0.0),
+    "moderate": (1.0, 0.8, 0.0),
+    "warning":  (1.0, 0.8, 0.0),
+    "easy":     (0.2, 0.7, 0.2),
+    "minor":    (0.2, 0.7, 0.2),
+}
+_DEFAULT_COLOR: tuple[float, float, float] = (1.0, 0.8, 0.0)  # yellow fallback
 
-@celery_app.task(bind=True, name="annotate_pdf")
-def annotate_pdf(self, job_id: str) -> None:
+
+def _color_for_severity(severity: str | None) -> tuple[float, float, float]:
+    if not severity:
+        return _DEFAULT_COLOR
+    return _SEVERITY_COLORS.get(severity.lower().strip(), _DEFAULT_COLOR)
+
+
+def annotate_pdf_inline(report: dict[str, Any], path_in: Path) -> str:
     """
-    Load report from Redis, open PDF at get_local_path(job_id), draw red rects + labels
-    for each page_issue with bbox, save as {job_id}_annotated.pdf, store path and status in Redis.
+    Draw severity-coded bounding-box rectangles on every page_issue that has a bbox.
+    Save the annotated PDF to an in-memory buffer, upload to R2 via boto3,
+    and return the R2 key.
+
+    Args:
+        report: dict with a 'page_issues' list (same shape as the preflight engine report).
+        path_in: Path to the original PDF on local disk.
+
+    Returns:
+        R2 key of the uploaded annotated PDF, e.g. 'annotated/<job_id>_annotated.pdf'.
     """
+    job_id = path_in.stem  # e.g. "abc-uuid-123" from "abc-uuid-123.pdf"
+
+    buf = io.BytesIO()
+    doc = fitz.open(str(path_in))
     try:
-        report = get_report(job_id)
-        if not report or "page_issues" not in report:
-            set_annotated_status(job_id, "error")
-            raise ValueError("Report not found or missing page_issues")
+        for issue in report.get("page_issues", []):
+            page_index = issue.get("page", 1) - 1
+            if page_index < 0 or page_index >= len(doc):
+                continue
+            bbox = issue.get("bbox")
+            if not bbox or len(bbox) < 4:
+                continue
+            x, y, w, h = float(bbox[0]), float(bbox[1]), float(bbox[2]), float(bbox[3])
+            color = _color_for_severity(issue.get("severity"))
+            page = doc[page_index]
+            rect = fitz.Rect(x, y, x + w, y + h)
+            page.draw_rect(rect, color=color, width=1.5)
+        doc.save(buf)
+    finally:
+        doc.close()
 
-        path_in = get_local_path(job_id)
-        if not path_in or not path_in.exists():
-            set_annotated_status(job_id, "error")
-            raise FileNotFoundError(f"Original PDF not found for job {job_id}")
+    buf.seek(0)
+    r2_key = f"annotated/{job_id}_annotated.pdf"
 
-        out_dir = path_in.parent
-        annotated_path = out_dir / f"{job_id}_annotated.pdf"
+    s3 = boto3.client(
+        "s3",
+        endpoint_url=settings.s3_endpoint_url,
+        aws_access_key_id=settings.s3_access_key_id,
+        aws_secret_access_key=settings.s3_secret_access_key,
+        region_name=settings.s3_region,
+    )
+    s3.put_object(
+        Bucket=settings.s3_bucket,
+        Key=r2_key,
+        Body=buf.getvalue(),
+        ContentType="application/pdf",
+    )
 
-        doc = fitz.open(path_in)
-        try:
-            for issue in report.get("page_issues", []):
-                page_index = issue.get("page", 1) - 1
-                if page_index < 0 or page_index >= len(doc):
-                    continue
-                bbox = issue.get("bbox")
-                if not bbox or len(bbox) != 4:
-                    continue
-                x, y, w, h = float(bbox[0]), float(bbox[1]), float(bbox[2]), float(bbox[3])
-                page = doc[page_index]
-                rect = fitz.Rect(x, y, x + w, y + h)
-                page.draw_rect(rect, color=(1, 0, 0), width=1.5)
-                label = f"{issue.get('rule_id', '')}: {(issue.get('message') or '')[:60]}"
-                page.insert_text(
-                    fitz.Point(x, max(y - 2, 10)),
-                    label,
-                    fontsize=7,
-                    color=(1, 0, 0),
-                )
-            doc.save(str(annotated_path))
-        finally:
-            doc.close()
-
-        path_str = str(annotated_path.resolve())
-        set_annotated_path(job_id, path_str)
-        set_annotated_status(job_id, "ready")
-        logger.info("annotate_pdf_done", job_id=job_id, path=path_str)
-    except Exception:
-        set_annotated_status(job_id, "error")
-        raise
+    logger.info("annotate_pdf_inline_done", job_id=job_id, r2_key=r2_key)
+    return r2_key
