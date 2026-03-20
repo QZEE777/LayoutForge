@@ -32,6 +32,7 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const pdfDocRef = useRef<any>(null);
   const [signedPdfUrl, setSignedPdfUrl] = useState<string | null>(null);
+  const signedPdfUrlRef = useRef<string | null>(null);
   const [fallbackMode, setFallbackMode] = useState(false);
   const fallbackReasonRef = useRef<"timeout" | "blank" | null>(null);
   const outcomeLabelRef = useRef<string | null>(null);
@@ -128,6 +129,7 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
     setRendering(false);
     pdfDocRef.current = null;
     setSignedPdfUrl(null);
+    signedPdfUrlRef.current = null;
     setFallbackMode(false);
     fallbackReasonRef.current = null;
     outcomeLabelRef.current = null;
@@ -148,7 +150,10 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
       if (!data?.url) {
         throw new Error("Signed PDF URL missing from response");
       }
-      if (!cancelled) setSignedPdfUrl(data.url);
+      if (!cancelled) {
+        signedPdfUrlRef.current = data.url;
+        setSignedPdfUrl(data.url);
+      }
 
       const loadingTask = pdfjsLib.getDocument({
         url: data.url,
@@ -283,7 +288,7 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
 
   if (fallbackMode) {
     const msg = fallbackReasonRef.current === "timeout" ? "Showing compatibility view" : "Showing compatibility view";
-    const iframeSrc = signedPdfUrl ?? pdfUrl;
+    const iframeSrc = signedPdfUrlRef.current ?? signedPdfUrl ?? pdfUrl;
     return (
       <div className="rounded-lg bg-[#24241a] border border-white/10 overflow-hidden">
         <div className="p-3 border-b border-white/10 bg-black/20 text-sm text-[#8B8B6B]">
