@@ -247,14 +247,21 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
     });
     if (annotateRes.ok) {
       const annotateData = (await annotateRes.json()) as { r2_key?: string; status?: string };
+      console.log("[printReadyCheckProcess] annotate response body:", annotateData);
+      console.log("[printReadyCheckProcess] annotate extracted r2_key:", annotateData.r2_key, "USE_R2:", process.env.USE_R2);
+      let didUpdateAnnotatedMeta = false;
       if (annotateData.r2_key && process.env.USE_R2 === "true") {
         try {
           const annotatedPdfDownloadUrl = await getSignedUrlForKey(annotateData.r2_key);
+          console.log("[printReadyCheckProcess] annotate signed url generated:", annotatedPdfDownloadUrl);
           await updateMeta(stored.id, { annotatedPdfDownloadUrl, annotatedPdfStatus: "ready" });
+          didUpdateAnnotatedMeta = true;
+          console.log("[printReadyCheckProcess] annotate updateMeta called with annotatedPdfDownloadUrl (annotatedPdfStatus=ready)");
         } catch (e) {
           console.error("[printReadyCheckProcess] annotate signed url error:", e);
         }
       }
+      console.log("[printReadyCheckProcess] annotate meta update called?", didUpdateAnnotatedMeta);
     } else {
       console.error("[printReadyCheckProcess] annotate engine returned", annotateRes.status);
     }
