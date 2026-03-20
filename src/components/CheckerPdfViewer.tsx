@@ -31,6 +31,7 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
   const [pageSize, setPageSize] = useState<{ width: number; height: number } | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const pdfDocRef = useRef<any>(null);
+  const [signedPdfUrl, setSignedPdfUrl] = useState<string | null>(null);
   const [fallbackMode, setFallbackMode] = useState(false);
   const fallbackReasonRef = useRef<"timeout" | "blank" | null>(null);
   const outcomeLabelRef = useRef<string | null>(null);
@@ -126,6 +127,7 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
     setError(null);
     setRendering(false);
     pdfDocRef.current = null;
+    setSignedPdfUrl(null);
     setFallbackMode(false);
     fallbackReasonRef.current = null;
     outcomeLabelRef.current = null;
@@ -137,38 +139,19 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
       const pdfjsLib = await import("pdfjs-dist");
       pdfjsLib.GlobalWorkerOptions.workerSrc = PDF_WORKER_SRC;
 
-      // Help PDF.js go straight to Range mode by providing file length.
-      // Without `length`, PDF.js may fetch the whole file once (200) before 206 ranges.
-      let length: number | undefined;
-      try {
-        const controller = new AbortController();
-        const timeoutId = window.setTimeout(() => controller.abort(), 5000);
-        // Some environments treat HEAD unreliably; a 1-byte Range GET is cheap and
-        // still returns total size via Content-Range.
-        const res = await fetch(pdfUrl, {
-          method: "GET",
-          headers: { Range: "bytes=0-0" },
-          signal: controller.signal,
-          cache: "no-store",
-        });
-        window.clearTimeout(timeoutId);
-        const contentRange = res.headers.get("content-range");
-        const contentLength = res.headers.get("content-length");
-        if (contentRange && contentRange.includes("/")) {
-          const totalStr = contentRange.split("/")[1];
-          const total = totalStr ? Number(totalStr) : NaN;
-          if (Number.isFinite(total) && total > 0) length = total;
-        } else if (contentLength) {
-          const parsed = Number(contentLength);
-          if (Number.isFinite(parsed) && parsed > 0) length = parsed;
-        }
-      } catch {
-        // If HEAD fails, we still try PDF.js with rangeChunkSize + default behavior.
+      // `/api/r2-file?key=...` now returns JSON: { url: presignedR2GetUrl }
+      const res = await fetch(pdfUrl, { cache: "no-store" });
+      if (!res.ok) {
+        throw new Error(`Failed to get signed PDF URL (${res.status})`);
       }
+      const data = (await res.json()) as { url?: string };
+      if (!data?.url) {
+        throw new Error("Signed PDF URL missing from response");
+      }
+      if (!cancelled) setSignedPdfUrl(data.url);
 
       const loadingTask = pdfjsLib.getDocument({
-        url: pdfUrl,
-        length,
+        url: data.url,
         rangeChunkSize: 65536,
         disableStream: false,
         disableRange: false,
@@ -300,6 +283,7 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
 
   if (fallbackMode) {
     const msg = fallbackReasonRef.current === "timeout" ? "Showing compatibility view" : "Showing compatibility view";
+    const iframeSrc = signedPdfUrl ?? pdfUrl;
     return (
       <div className="rounded-lg bg-[#24241a] border border-white/10 overflow-hidden">
         <div className="p-3 border-b border-white/10 bg-black/20 text-sm text-[#8B8B6B]">
@@ -307,7 +291,7 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
         </div>
         <div className="p-2">
           <iframe
-            src={pdfUrl}
+            src={iframeSrc}
             title="Compatibility PDF view"
             className="w-full"
             style={{ width: "100%", height: 700, border: 0, background: "#ffffff" }}

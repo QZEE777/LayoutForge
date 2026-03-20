@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { S3Client, GetObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
-import { Readable } from "stream";
+import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 export const runtime = "nodejs";
 
@@ -15,7 +15,7 @@ function isAllowedR2Key(key: string) {
 
 /**
  * GET /api/r2-file?key=uploads/<uuid>.pdf
- * Serves the raw uploaded PDF from R2 for same-origin preview.
+ * Returns a presigned GET URL for the uploaded PDF.
  */
 export async function GET(request: NextRequest) {
   try {
@@ -56,102 +56,16 @@ export async function GET(request: NextRequest) {
     });
 
     try {
-      const rangeHeader = request.headers.get("range");
-      const filename = key.split("/").pop() ?? "document.pdf";
-
-      const toWebStream = (body: unknown) => {
-        const anyBody = body as any;
-        if (!anyBody) return anyBody;
-        if (typeof anyBody.transformToWebStream === "function") return anyBody.transformToWebStream();
-        if (typeof Readable.toWeb === "function" && typeof anyBody.pipe === "function") return Readable.toWeb(anyBody);
-        return anyBody;
-      };
-
-      // PDF.js can sometimes send multiple ranges in one header.
-      // For our use case, serve the first range to avoid 416 loops.
-      const normalizedRangeHeader =
-        rangeHeader && rangeHeader.includes(",") ? rangeHeader.split(",")[0]?.trim() ?? rangeHeader : rangeHeader;
-
-      if (normalizedRangeHeader) {
-        const m = normalizedRangeHeader.match(/bytes=(\d*)-(\d*)/i);
-        if (!m) {
-          return NextResponse.json({ error: "Invalid Range header" }, { status: 416 });
-        }
-
-        const obj = await s3.send(
-          new GetObjectCommand({
-            Bucket: bucket,
-            Key: key,
-            Range: normalizedRangeHeader,
-          }),
-          { abortSignal: requestAbort.signal }
-        );
-
-        if (!obj.Body) {
-          return NextResponse.json({ error: "Empty upstream body" }, { status: 500 });
-        }
-
-        const bodyStream = toWebStream(obj.Body);
-        const contentRange = obj.ContentRange;
-        const contentLength = obj.ContentLength;
-        if (!contentRange || contentLength == null) {
-          return NextResponse.json({ error: "Missing range metadata from storage" }, { status: 500 });
-        }
-
-        return new NextResponse(bodyStream as any, {
-          status: 206,
-          headers: {
-            "Content-Type": "application/pdf",
-            "Accept-Ranges": "bytes",
-            "Content-Range": contentRange,
-            "Content-Length": String(contentLength),
-            "Content-Disposition": `inline; filename="${filename}"`,
-            "Cache-Control": "no-store, must-revalidate",
-          },
-        });
-      }
-
-      // No Range header: return full file but advertise range support.
-      const obj = await s3.send(
-        new GetObjectCommand({ Bucket: bucket, Key: key }),
-        { abortSignal: requestAbort.signal }
+      const signedUrl = await getSignedUrl(
+        s3,
+        new GetObjectCommand({
+          Bucket: bucket,
+          Key: key,
+        }),
+        { expiresIn: 3600 }
       );
-      if (!obj.Body) {
-        return NextResponse.json({ error: "Empty upstream body" }, { status: 500 });
-      }
 
-      const bodyStream = toWebStream(obj.Body);
-      const totalSize = obj.ContentLength;
-      if (totalSize == null || Number.isNaN(totalSize)) {
-        const head = await s3.send(
-          new HeadObjectCommand({ Bucket: bucket, Key: key }),
-          { abortSignal: requestAbort.signal }
-        );
-        if (head.ContentLength == null || Number.isNaN(head.ContentLength)) {
-          return NextResponse.json({ error: "Failed to read file size" }, { status: 500 });
-        }
-        return new NextResponse(bodyStream as any, {
-          status: 200,
-          headers: {
-            "Content-Type": "application/pdf",
-            "Accept-Ranges": "bytes",
-            "Content-Length": head.ContentLength.toString(),
-            "Content-Disposition": `inline; filename="${filename}"`,
-            "Cache-Control": "no-store, must-revalidate",
-          },
-        });
-      }
-
-      return new NextResponse(bodyStream as any, {
-        status: 200,
-        headers: {
-          "Content-Type": "application/pdf",
-          "Accept-Ranges": "bytes",
-          "Content-Length": totalSize.toString(),
-          "Content-Disposition": `inline; filename="${filename}"`,
-          "Cache-Control": "no-store, must-revalidate",
-        },
-      });
+      return NextResponse.json({ url: signedUrl });
     } finally {
       clearTimeout(requestTimeout);
     }
