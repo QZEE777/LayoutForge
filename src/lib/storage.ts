@@ -36,6 +36,8 @@ export interface StoredManuscript {
   reportDownloadUrl?: string;
   /** Annotated PDF from preflight engine (checker flow). */
   annotatedPdfUrl?: string;
+  /** Pre-signed download URL for annotated PDF (when USE_R2). */
+  annotatedPdfDownloadUrl?: string;
   annotatedPdfStatus?: string;
   // KDP format processing report (pages, chapters, issues, etc.)
   processingReport?: {
