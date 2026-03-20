@@ -9,7 +9,7 @@ async function buildReportFromStored(meta: Awaited<ReturnType<typeof getStored>>
     ? {
         ...meta.processingReport,
         outputFilename: meta.outputFilename,
-        ...(meta.annotatedPdfUrl != null && { annotatedPdfUrl: meta.annotatedPdfUrl }),
+        ...(meta.annotatedPdfDownloadUrl != null && { annotatedPdfDownloadUrl: meta.annotatedPdfDownloadUrl }),
         ...(meta.annotatedPdfStatus != null && { annotatedPdfStatus: meta.annotatedPdfStatus }),
       }
     : meta.outputFilename
