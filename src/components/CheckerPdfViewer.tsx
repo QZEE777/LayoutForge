@@ -199,55 +199,60 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
       // Hard timeout for first-page primary render.
       const hardTimeoutMs = 9000; // within your 8-10s window
       let timeoutId: number | null = null;
-      if (isFirstPage) {
-        timeoutId = window.setTimeout(() => {
-          if (cancelled) return;
-          if (outcomeLabelRef.current) return;
-          if (fallbackReasonRef.current) return; // timeout must not override blank fallback
-          requestFallback("timeout");
-          logOutcomeOnce("pdfjs_timeout_fallback_success");
-        }, hardTimeoutMs);
-      }
-
-      const page = await pdf.getPage(pageNumber);
-      if (cancelled || !canvasRef.current) return;
-      const viewport = page.getViewport({ scale });
-      setPageSize({ width: viewport.width / scale, height: viewport.height / scale });
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
-      canvas.style.width = `${renderWidth}px`;
-      canvas.style.height = `${(viewport.height / viewport.width) * renderWidth}px`;
-      canvas.style.backgroundColor = "#ffffff";
-      ctx.save();
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.restore();
-      const renderContext = { canvasContext: ctx, viewport };
-      const task = page.render(renderContext);
-      await task.promise;
-
-      if (timeoutId != null) window.clearTimeout(timeoutId);
-      if (cancelled) return;
-
-      // After render-complete event: only do blank detection on first page.
-      if (isFirstPage && !fallbackMode) {
-        const beforeFallback = fallbackReasonRef.current;
-        await detectBlankCanvasAndMaybeFallback();
-        if (fallbackReasonRef.current && beforeFallback !== fallbackReasonRef.current) {
-          // Fallback will be logged upon iframe load.
-          setRendering(false);
-          return;
+      try {
+        if (isFirstPage) {
+          timeoutId = window.setTimeout(() => {
+            if (cancelled) return;
+            if (outcomeLabelRef.current) return;
+            if (fallbackReasonRef.current) return; // timeout must not override blank fallback
+            requestFallback("timeout");
+            logOutcomeOnce("pdfjs_timeout_fallback_success");
+          }, hardTimeoutMs);
         }
-      }
 
-      // Primary success outcome.
-      if (!fallbackMode && !outcomeLabelRef.current) {
-        logOutcomeOnce("pdfjs_success");
+        const page = await pdf.getPage(pageNumber);
+        if (cancelled || !canvasRef.current) return;
+        const viewport = page.getViewport({ scale });
+        setPageSize({ width: viewport.width / scale, height: viewport.height / scale });
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        canvas.style.width = `${renderWidth}px`;
+        canvas.style.height = `${(viewport.height / viewport.width) * renderWidth}px`;
+        canvas.style.backgroundColor = "#ffffff";
+        ctx.save();
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.restore();
+        const renderContext = { canvasContext: ctx, viewport };
+        const task = page.render(renderContext);
+        await task.promise;
+
+        if (timeoutId != null) window.clearTimeout(timeoutId);
+        if (cancelled) return;
+
+        // After render-complete event: only do blank detection on first page.
+        if (isFirstPage && !fallbackMode) {
+          const beforeFallback = fallbackReasonRef.current;
+          await detectBlankCanvasAndMaybeFallback();
+          if (fallbackReasonRef.current && beforeFallback !== fallbackReasonRef.current) {
+            // Fallback will be logged upon iframe load.
+            setRendering(false);
+            return;
+          }
+        }
+
+        // Primary success outcome.
+        if (!fallbackMode && !outcomeLabelRef.current) {
+          logOutcomeOnce("pdfjs_success");
+        }
+      } finally {
+        // Always clear the "Rendering page..." overlay after page.render completes,
+        // even if the effect was cancelled mid-flight.
+        setRendering(false);
       }
-      setRendering(false);
     };
     run().catch((e: unknown) => {
       if (!cancelled) {
