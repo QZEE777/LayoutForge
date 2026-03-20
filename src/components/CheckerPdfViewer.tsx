@@ -414,12 +414,12 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
                 const sev = issue.severity?.toUpperCase?.() ?? issue.severity;
                 const stroke =
                   sev === "CRITICAL" || sev === "ADVANCED" || sev === "ERROR"
-                    ? "rgb(255, 0, 0)"
+                    ? "#FF0000"
                     : sev === "MODERATE" || sev === "WARNING"
-                      ? "rgb(255, 204, 0)"
+                      ? "#FFB800"
                       : sev === "EASY" || sev === "MINOR"
-                        ? "rgb(51, 179, 51)"
-                        : "rgb(255, 204, 0)";
+                        ? "#33B233"
+                        : "#FFB800";
                 return (
                   <rect
                     key={`${issue.page}-${issue.rule_id}-${idx}`}
