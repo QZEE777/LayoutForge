@@ -239,7 +239,7 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
 
   console.log("[printReadyCheckProcess] triggering annotate POST", `${url}/annotate/${renderJobId}`);
   try {
-    const annotateRes = await fetch(`${url}/annotate/${renderJobId}`, {
+    const annotateRes = await fetch(`${baseUrl}/annotate/${renderJobId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(preflight ?? { page_issues: [] }),
