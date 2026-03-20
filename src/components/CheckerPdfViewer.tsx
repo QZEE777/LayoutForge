@@ -31,6 +31,7 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
   const [pageSize, setPageSize] = useState<{ width: number; height: number } | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const pdfDocRef = useRef<any>(null);
+  const [pdfLoaded, setPdfLoaded] = useState(false);
   const [signedPdfUrl, setSignedPdfUrl] = useState<string | null>(null);
   const signedPdfUrlRef = useRef<string | null>(null);
   const [fallbackMode, setFallbackMode] = useState(false);
@@ -128,6 +129,7 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
     setError(null);
     setRendering(false);
     pdfDocRef.current = null;
+    setPdfLoaded(false);
     setSignedPdfUrl(null);
     signedPdfUrlRef.current = null;
     setFallbackMode(false);
@@ -168,6 +170,7 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
       .then(({ pdf }: { pdf: { numPages: number } }) => {
         if (cancelled) return;
         pdfDocRef.current = pdf;
+        setPdfLoaded(true);
         setNumPages(pdf.numPages);
         setPageNumber(1);
         setLoading(false);
@@ -284,7 +287,7 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
     return () => {
       cancelled = true;
     };
-  }, [pdfUrl, pageNumber, scale, numPages, renderWidth]);
+  }, [pdfUrl, pdfLoaded, pageNumber, scale, numPages, renderWidth]);
 
   useEffect(() => {
     if (!fallbackMode) return;
