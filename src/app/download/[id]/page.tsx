@@ -246,7 +246,6 @@ export default function DownloadPage() {
             reportKeys: Object.keys(data?.report || {}),
             hasProcessingReport: !!data?.report?.processingReport,
             issuesEnrichedPath1: data?.report?.processingReport?.issuesEnriched?.length,
-            issuesEnrichedPath2: data?.issuesEnriched?.length,
             issuesEnrichedPath3: data?.report?.issuesEnriched?.length,
           })
         );
