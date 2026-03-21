@@ -238,6 +238,17 @@ export default function DownloadPage() {
     fetch(`/api/format-report?id=${encodeURIComponent(id)}`)
       .then((r) => r.json().then((data: { success?: boolean; report?: ProcessingReport; message?: string }) => ({ ok: r.ok, data })))
       .then(({ ok, data }) => {
+        console.log(
+          "[RAW_REPORT]",
+          JSON.stringify({
+            topKeys: Object.keys(data || {}),
+            reportKeys: Object.keys(data?.report || {}),
+            hasProcessingReport: !!data?.report?.processingReport,
+            issuesEnrichedPath1: data?.report?.processingReport?.issuesEnriched?.length,
+            issuesEnrichedPath2: data?.issuesEnriched?.length,
+            issuesEnrichedPath3: data?.report?.issuesEnriched?.length,
+          })
+        );
         if (ok && data.success && data.report) {
           const raw = data.report as ProcessingReport;
           if (raw.outputType === "checker") {
