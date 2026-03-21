@@ -119,7 +119,15 @@ interface ProcessingReport {
   readiness_score?: number;
   highRiskPageNumbers?: number[];
   kdpReady?: boolean;
-  issuesEnriched?: Array<{ originalMessage: string; humanMessage: string; fixDifficulty: string; page?: number }>;
+  issuesEnriched?: Array<{
+    originalMessage: string;
+    humanMessage: string;
+    fixDifficulty: string;
+    page?: number;
+    severity?: string;
+  }>;
+  /** Rare: nested shape; format-report usually flattens processingReport onto report */
+  processingReport?: { issuesEnriched?: ProcessingReport["issuesEnriched"] };
   uploadChecklist?: Array<{ check: string; status: "pass" | "warning" | "fail" }>;
   specTable?: Array<{ requirement: string; yourFile: string; kdpRequired: string; status: "pass" | "warning" | "fail" }>;
   estimatedFixHours?: number;
@@ -144,6 +152,8 @@ export default function DownloadPage() {
   const [annotatedError, setAnnotatedError] = useState(false);
   const [annotatedWaitStartedAt, setAnnotatedWaitStartedAt] = useState<number | null>(null);
   const [annotatedTakingLong, setAnnotatedTakingLong] = useState(false);
+  /** Checker UI: readiness / approval % from issues only (not engine-stored scores). */
+  const [calculatedScore, setCalculatedScore] = useState<number | null>(null);
 
   const isDocx = report?.outputType === "docx";
   const isEpub = isEpubFlow || report?.outputType === "epub";
@@ -228,35 +238,38 @@ export default function DownloadPage() {
     fetch(`/api/format-report?id=${encodeURIComponent(id)}`)
       .then((r) => r.json().then((data: { success?: boolean; report?: ProcessingReport; message?: string }) => ({ ok: r.ok, data })))
       .then(({ ok, data }) => {
-        console.log('[SCORE DEBUG]', {
-          readiness_score: data?.report?.readiness_score,
-          approval_likelihood: data?.report?.approval_likelihood,
-          readinessScore100: data?.report?.readinessScore100,
-          kdpPassProbability: data?.report?.kdpPassProbability,
-        });
         if (ok && data.success && data.report) {
           const raw = data.report as ProcessingReport;
-          const hasEngineReadiness =
-            typeof raw.readiness_score === "number" &&
-            Number.isFinite(raw.readiness_score) &&
-            raw.readiness_score > 0;
-          const hasEngineApprovalLikelihood =
-            typeof raw.approval_likelihood === "number" &&
-            Number.isFinite(raw.approval_likelihood) &&
-            raw.approval_likelihood > 0;
-          const r: ProcessingReport = {
-            ...raw,
-            readinessScore100: hasEngineReadiness ? Math.round(raw.readiness_score as number) : raw.readinessScore100,
-            kdpPassProbability: hasEngineApprovalLikelihood ? Math.round(raw.approval_likelihood as number) : raw.kdpPassProbability,
-          };
-          setReport(r);
+          if (raw.outputType === "checker") {
+            const issues =
+              raw.processingReport?.issuesEnriched ??
+              raw.issuesEnriched ??
+              [];
+            const criticalCount = issues.filter(
+              (i: { fixDifficulty?: string; severity?: string }) =>
+                i.fixDifficulty === "advanced" ||
+                i.severity === "critical" ||
+                i.severity === "error"
+            ).length;
+            const moderateCount = issues.filter((i: { fixDifficulty?: string }) => i.fixDifficulty === "moderate")
+              .length;
+            const easyCount = issues.length - criticalCount - moderateCount;
+            const nextCalculatedScore =
+              issues.length === 0
+                ? 95
+                : Math.max(5, Math.min(100, 100 - criticalCount * 15 - moderateCount * 5 - easyCount * 2));
+            setCalculatedScore(nextCalculatedScore);
+          } else {
+            setCalculatedScore(null);
+          }
+          setReport(raw);
           setReportError(null);
-          if (r.annotatedPdfStatus === "ready") setAnnotatedReady(true);
-          if (r.annotatedPdfUrl) {
+          if (raw.annotatedPdfStatus === "ready") setAnnotatedReady(true);
+          if (raw.annotatedPdfUrl) {
             setAnnotatedWaitStartedAt((prev) => prev ?? Date.now());
           }
-          if (r.annotatedPdfUrl && searchParams.get("source") === "checker") {
-            const match = r.annotatedPdfUrl.match(/\/file\/([^/]+)\/annotated\/?$/);
+          if (raw.annotatedPdfUrl && searchParams.get("source") === "checker") {
+            const match = raw.annotatedPdfUrl.match(/\/file\/([^/]+)\/annotated\/?$/);
             const jobId = match?.[1];
             if (jobId) {
               fetch(`/api/kdp-annotated-status?job_id=${encodeURIComponent(jobId)}`)
@@ -268,10 +281,14 @@ export default function DownloadPage() {
             }
           }
         } else {
+          setCalculatedScore(null);
           setReportError(data?.message ?? "Report not available.");
         }
       })
-      .catch(() => setReportError("Could not load report. Try again or refresh."))
+      .catch(() => {
+        setCalculatedScore(null);
+        setReportError("Could not load report. Try again or refresh.");
+      })
       .finally(() => setReportLoading(false));
   }, [id, searchParams]);
 
@@ -444,14 +461,14 @@ export default function DownloadPage() {
                       {report.fileNameScanned && cleanFilenameForDisplay(report.fileNameScanned)}
                     </p>
                   )}
-                  {(report.readinessScore100 != null) && (
+                  {calculatedScore != null && (
                     <p className="mb-4 text-2xl font-bold text-m2p-ink">
-                      Readiness: {report.readinessScore100}/100
+                      Readiness: {calculatedScore}/100
                     </p>
                   )}
-                  {(report.kdpPassProbability != null && report.riskLevel) && (
+                  {(calculatedScore != null && report.riskLevel) && (
                     <p className="mb-4 text-base font-semibold text-m2p-ink">
-                      KDP Approval Likelihood: {report.kdpPassProbability}% — Risk Level: {report.riskLevel}
+                      KDP Approval Likelihood: {calculatedScore}% — Risk Level: {report.riskLevel}
                     </p>
                   )}
                   {report.highRiskPageNumbers && report.highRiskPageNumbers.length > 0 && (
@@ -694,7 +711,7 @@ export default function DownloadPage() {
                         </svg>
                       </a>
                       <a
-                        href={`https://twitter.com/intent/tweet?url=https://manu2print.com/verify/${id}&text=Just%20checked%20my%20manuscript%20on%20Manu2Print%20-%20KDP%20Readiness%20Score%3A%20${report?.readinessScore100 ?? ""}%2F100`}
+                        href={`https://twitter.com/intent/tweet?url=https://manu2print.com/verify/${id}&text=Just%20checked%20my%20manuscript%20on%20Manu2Print%20-%20KDP%20Readiness%20Score%3A%20${calculatedScore ?? ""}%2F100`}
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label="Share on X"
