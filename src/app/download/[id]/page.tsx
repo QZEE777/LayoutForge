@@ -75,6 +75,14 @@ function formatPages(pages: number[]): string {
   return ` — pages ${pages.slice(0, 3).join(", ")}, … ${pages[pages.length - 1]} (${pages.length} pages)`;
 }
 
+/** Same thresholds as main report header — driven only by live readinessScore100. */
+function readinessScoreColor(score: number | null | undefined): string {
+  if (score == null) return "text-m2p-ink";
+  if (score >= 90) return "text-green-700";
+  if (score >= 70) return "text-amber-700";
+  return "text-red-700";
+}
+
 interface ProcessingReport {
   pagesGenerated?: number;
   chaptersDetected: number;
@@ -150,19 +158,6 @@ export default function DownloadPage() {
   const downloadFilename =
     report?.outputFilename ||
     (isDocx ? "kdp-review.docx" : isEpub ? "book.epub" : "kdp-print.pdf");
-
-  const issuesCount =
-    report?.issuesEnriched?.length ?? report?.issues?.length ?? 0;
-  const highestRiskMessage =
-    report?.issuesEnriched?.[0]?.humanMessage ?? report?.issues?.[0] ?? null;
-  const readinessScore = report?.readinessScore100 ?? null;
-  const approvalLikelihood = report?.kdpPassProbability ?? null;
-  let readinessColor = "text-m2p-ink";
-  if (readinessScore != null) {
-    if (readinessScore >= 90) readinessColor = "text-green-700";
-    else if (readinessScore >= 70) readinessColor = "text-amber-700";
-    else readinessColor = "text-red-700";
-  }
 
   const handleDownload = useCallback(async () => {
     setDownloadError(null);
@@ -551,29 +546,42 @@ export default function DownloadPage() {
                     <p className="text-sm text-m2p-muted">
                       KDP Approval Likelihood:{" "}
                       <span className="text-m2p-ink font-semibold">
-                        {approvalLikelihood != null ? `${approvalLikelihood}%` : "—"}
+                        {report.kdpPassProbability != null ? `${report.kdpPassProbability}%` : "—"}
                       </span>
                     </p>
+                    {report.riskLevel != null && (
+                      <p className="mt-1 text-sm text-m2p-muted">
+                        Risk level:{" "}
+                        <span className="text-m2p-ink font-semibold">{report.riskLevel}</span>
+                      </p>
+                    )}
                     <p className="mt-1 text-sm text-m2p-muted">
                       Readiness Score:{" "}
-                      <span className={`text-lg font-bold ${readinessColor}`}>
-                        {readinessScore != null ? `${readinessScore}/100` : "—"}
+                      <span className={`text-lg font-bold ${readinessScoreColor(report.readinessScore100)}`}>
+                        {report.readinessScore100 != null ? `${report.readinessScore100}/100` : "—"}
                       </span>
                     </p>
                     <p className="mt-1 text-sm text-m2p-muted">
                       Issues Detected:{" "}
                       <span className="text-m2p-ink font-semibold">
-                        {issuesCount}
+                        {report.issuesEnriched?.length ?? report.issues?.length ?? 0}
                       </span>
                     </p>
-                    {highestRiskMessage && (
-                      <p className="mt-1 text-sm text-m2p-muted">
-                        Highest Risk Area:{" "}
-                        <span className="text-m2p-ink">
-                          {highestRiskMessage}
-                        </span>
-                      </p>
-                    )}
+                    {(() => {
+                      const { grouped } = getGroupedIssues(report);
+                      const top =
+                        grouped[0]?.message ??
+                        report.issuesEnriched?.[0]?.humanMessage ??
+                        report.issues?.[0] ??
+                        null;
+                      if (!top) return null;
+                      return (
+                        <p className="mt-1 text-sm text-m2p-muted">
+                          Highest Risk Area:{" "}
+                          <span className="text-m2p-ink">{top}</span>
+                        </p>
+                      );
+                    })()}
                   </div>
                   {/* Report expiry urgency */}
                   <p className="text-center text-sm text-m2p-muted mb-4">
