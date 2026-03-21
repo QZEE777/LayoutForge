@@ -396,13 +396,13 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
               {issuesForPage.map((issue, idx) => {
                 if (!issue.bbox || issue.bbox.length < 4) return null;
                 const [x, y, w, h] = issue.bbox;
-                const sev = issue.severity?.toUpperCase?.() ?? issue.severity;
+                const sev = (issue.severity ?? "").toLowerCase();
                 const stroke =
-                  sev === "CRITICAL" || sev === "ADVANCED" || sev === "ERROR"
+                  sev === "critical" || sev === "error" || sev === "advanced"
                     ? "#FF0000"
-                    : sev === "MODERATE" || sev === "WARNING"
+                    : sev === "moderate" || sev === "warning"
                       ? "#FFB800"
-                      : sev === "EASY" || sev === "MINOR"
+                      : sev === "easy" || sev === "minor"
                         ? "#33B233"
                         : "#FFB800";
                 return (
@@ -412,7 +412,8 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
                     y={y * scaleY}
                     width={w * scaleX}
                     height={h * scaleY}
-                    fill="none"
+                    fill={stroke}
+                    fillOpacity={0.1}
                     stroke={stroke}
                     strokeWidth={2}
                   >
