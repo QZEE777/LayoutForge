@@ -111,7 +111,6 @@ export async function saveUpload(
   const storedPath = getUploadPath(id, ext);
   if (USE_R2) {
     const metaKey = `uploads/${id}/meta.json`;
-    console.log("[storage.saveUpload] R2 mode start", { id, metaKey });
     await r2.uploadFile(id, filename, buffer);
     const meta: StoredManuscript = {
       id,
@@ -120,10 +119,8 @@ export async function saveUpload(
       storedPath: `uploads/${id}/${filename}`,
       createdAt: Date.now(),
     };
-    console.log("[storage.saveUpload] writing metadata", { id, metaKey, meta });
     try {
       await r2.saveMetadata(id, meta);
-      console.log("[storage.saveUpload] metadata write succeeded", { id, metaKey });
     } catch (e) {
       console.error("[storage.saveUpload] metadata write failed", {
         id,
@@ -150,10 +147,8 @@ export async function saveUpload(
 export async function getStored(id: string): Promise<StoredManuscript | null> {
   if (USE_R2) {
     const metaKey = `uploads/${id}/meta.json`;
-    console.log("[storage.getStored] R2 lookup start", { id, metaKey });
     try {
       const meta = await r2.getMetadata(id);
-      console.log("[storage.getStored] R2 lookup succeeded", { id, metaKey, meta });
       return meta as StoredManuscript;
     } catch (e) {
       console.error("[storage.getStored] R2 lookup failed", {
@@ -161,7 +156,6 @@ export async function getStored(id: string): Promise<StoredManuscript | null> {
         metaKey,
         error: e instanceof Error ? e.stack ?? e.message : String(e),
       });
-      console.log("[storage.getStored] returning null", { id, metaKey });
       return null;
     }
   }

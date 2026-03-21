@@ -43,7 +43,6 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
     if (outcomeLabelRef.current) return;
     outcomeLabelRef.current = label;
     // One final outcome label per preview session.
-    console.log(`[CheckerPdfViewer] ${label}`);
     try {
       const sentry = (globalThis as any).Sentry;
       if (sentry?.captureMessage) {
@@ -190,16 +189,6 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
   }, [pdfUrl]);
 
   useEffect(() => {
-    console.log(
-      "[render effect] triggered, pageNumber:",
-      pageNumber,
-      "fallbackMode:",
-      fallbackMode,
-      "pdfDocRef:",
-      !!pdfDocRef.current,
-      "canvasRef:",
-      !!canvasRef.current
-    );
     if (!pdfUrl || !canvasRef.current || numPages < 1 || pageNumber < 1) return;
     if (!pdfDocRef.current) return;
     let cancelled = false;
@@ -224,7 +213,6 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
         }
 
         const page = await pdf.getPage(pageNumber);
-        console.log("[render] got page, viewport about to be calculated");
         if (cancelled || !canvasRef.current) return;
         const viewport = page.getViewport({ scale });
         setPageSize({ width: viewport.width / scale, height: viewport.height / scale });
@@ -233,7 +221,6 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
         if (!ctx) return;
         canvas.width = viewport.width;
         canvas.height = viewport.height;
-        console.log("[render] canvas sized:", canvas.width, canvas.height);
         canvas.style.width = `${renderWidth}px`;
         canvas.style.height = `${(viewport.height / viewport.width) * renderWidth}px`;
         canvas.style.backgroundColor = "#ffffff";
@@ -244,7 +231,6 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
         const renderContext = { canvasContext: ctx, viewport };
         const task = page.render(renderContext);
         await task.promise;
-        console.log("[render] page.render() completed");
 
         if (timeoutId != null) window.clearTimeout(timeoutId);
         if (cancelled) return;
@@ -265,7 +251,6 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
           logOutcomeOnce("pdfjs_success");
         }
       } catch (err) {
-        console.error("[render] FAILED:", err);
         throw err;
       } finally {
         // Always clear the "Rendering page..." overlay after page.render completes,
