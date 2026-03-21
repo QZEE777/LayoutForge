@@ -535,13 +535,10 @@ export default function DownloadPage() {
                       <p className="text-sm font-medium text-green-800">This file meets KDP print specifications.</p>
                     </div>
                   )}
-                  {report.upsellBridge && (
-                    <p className="mt-3 text-sm text-m2p-muted text-center">{report.upsellBridge}</p>
-                  )}
                 </div>
                 <div className="mt-4 pt-4 border-t border-m2p-border no-print">
-                  {/* Scan summary block */}
-                  <div className="bg-m2p-orange-soft border border-m2p-border rounded-xl p-6 mb-4 text-left">
+                  {/* Scan summary block — high contrast vs page ivory */}
+                  <div className="rounded-xl border-2 border-m2p-orange/35 bg-orange-50 p-6 mb-4 text-left shadow-sm ring-1 ring-m2p-orange/15">
                     <p className="text-sm font-semibold text-m2p-ink mb-2">Scan summary</p>
                     <p className="text-sm text-m2p-muted">
                       KDP Approval Likelihood:{" "}

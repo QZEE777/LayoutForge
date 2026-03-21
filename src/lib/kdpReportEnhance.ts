@@ -162,18 +162,6 @@ export function estimateFixHours(issues: EnrichedIssue[]): number {
   return estimateFixMinutes(issues) / 60;
 }
 
-export function buildUpsellBridge(issueCount: number, estimatedFixMinutes: number): string {
-  const timeStr =
-    estimatedFixMinutes > 240
-      ? "Significant rework needed"
-      : estimatedFixMinutes <= 60
-        ? `${Math.round(estimatedFixMinutes)} minutes`
-        : estimatedFixMinutes <= 90
-          ? "1 hour"
-          : `${Math.round(estimatedFixMinutes / 60)} hours`;
-  return `${issueCount} issue${issueCount === 1 ? "" : "s"} detected. Estimated manual fix time: ${timeStr}. Fix automatically with KDP PDF Formatter — coming soon at manu2print.com`;
-}
-
 export interface ChecklistSpecInput {
   trimMatchKDP?: boolean;
   trimDetected?: string;
@@ -328,7 +316,6 @@ export interface EnrichedCheckerReport extends CheckerReportBase {
   uploadChecklist: ChecklistItem[];
   specTable: SpecRow[];
   estimatedFixHours: number;
-  upsellBridge: string;
 }
 
 /** For margin/font/bleed detection when the engine only populated page_issues. */
@@ -463,9 +450,6 @@ export function enrichCheckerReport(
   });
   const estimatedFixMinutes = estimateFixMinutes(issuesEnriched);
   const estimatedFixHours = estimatedFixMinutes / 60;
-  const issueCount = issuesEnriched.length;
-  const upsellBridge = buildUpsellBridge(issueCount, estimatedFixMinutes);
-
   return {
     ...report,
     scanDate: new Date().toISOString(),
@@ -479,6 +463,5 @@ export function enrichCheckerReport(
     uploadChecklist,
     specTable,
     estimatedFixHours,
-    upsellBridge,
   };
 }

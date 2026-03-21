@@ -1,0 +1,5 @@
+# Check before execute — 100% agreement
+
+- **Before running or recommending any command, migration, deploy, destructive action, or irreversible change:** confirm the plan matches what the user asked for (**100% agreement**). If anything is ambiguous or only partially aligned, **stop and ask** — do not execute on assumption.
+- **Before editing:** verify file paths, tokens, and behavior match the request; do not “fix” unrelated code in the same pass unless the user asked for it.
+- Applies to terminal commands (`git`, `npm`, DB, cloud), config changes, and mass refactors.

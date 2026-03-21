@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -11,12 +11,31 @@ import { ErrorRecovery } from "@/components/ErrorRecovery";
 import { ToolBreadcrumb } from "@/components/ToolBreadcrumb";
 import SiteShell from "@/components/SiteShell";
 
+function formatElapsedSeconds(totalSec: number): string {
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
 export default function KdpPdfCheckerPage() {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [checkElapsedSec, setCheckElapsedSec] = useState(0);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!uploading) {
+      setCheckElapsedSec(0);
+      return;
+    }
+    setCheckElapsedSec(0);
+    const id = window.setInterval(() => {
+      setCheckElapsedSec((n) => n + 1);
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, [uploading]);
 
   const validateFile = useCallback((f: File): string | null => {
     const ext = f.name.toLowerCase().slice(f.name.lastIndexOf("."));
@@ -256,7 +275,7 @@ export default function KdpPdfCheckerPage() {
             disabled={!file || uploading}
             className="flex-1 rounded-xl bg-m2p-orange hover:bg-m2p-orange-hover disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 transition-colors"
           >
-            {uploading ? "Checking…" : "Check PDF"}
+            {uploading ? "Checking…" : "Check My PDF"}
           </button>
           {file && (
             <button
@@ -268,6 +287,13 @@ export default function KdpPdfCheckerPage() {
             </button>
           )}
         </div>
+
+        {uploading && (
+          <p className="mt-3 text-center text-sm font-medium text-m2p-ink" aria-live="polite">
+            Checking your manuscript…{" "}
+            <span className="tabular-nums font-semibold text-m2p-orange">{formatElapsedSeconds(checkElapsedSec)}</span>
+          </p>
+        )}
 
         <WhatHappensNext
           className="mt-8 bg-m2p-orange-soft/50 border border-m2p-border text-m2p-muted [&_p]:text-m2p-muted [&_.font-medium]:text-m2p-ink"
