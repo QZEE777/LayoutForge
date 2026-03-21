@@ -15,6 +15,8 @@ const DEFAULT_PREFLIGHT_BASE_URL = "https://kdp-preflight-engine-production.up.r
 
 export interface PreflightReport {
   status: string;
+  readiness_score?: number;
+  approval_likelihood?: number;
   errors: Array<{ page: number; rule_id: string; severity: string; message: string; bbox?: number[] | null }>;
   warnings: Array<{ page: number; rule_id: string; severity: string; message: string; bbox?: number[] | null }>;
   summary: { total_pages: number; error_count: number; warning_count: number; rules_checked: number };
@@ -194,6 +196,8 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
     console.error("[printReadyCheckProcess] report JSON parse failed:", e instanceof Error ? e.stack : e);
     preflight = null;
   }
+  const readiness_score = preflight?.readiness_score ?? null;
+  const approval_likelihood = preflight?.approval_likelihood ?? null;
   const report: CheckerReport = buildReportFromPreflightOnly(preflight, fileSizeMB);
   if (inspect) {
     const fromPreflight = report.pageCount;
@@ -220,7 +224,8 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
       {
         verification_id: stored.id,
         filename_clean: "Uploaded PDF — PDF",
-        readiness_score: enrichedReport?.readinessScore100,
+        readiness_score: readiness_score ?? enrichedReport?.readinessScore100,
+        approval_likelihood: approval_likelihood,
         kdp_ready: enrichedReport?.kdpReady,
         scan_date: enrichedReport?.scanDate,
         issues_count: issuesCount,
