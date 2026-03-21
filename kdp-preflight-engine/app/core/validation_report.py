@@ -5,6 +5,66 @@ from __future__ import annotations
 
 from app.schemas import PageIssue, ValidationReport, ValidationSummary
 
+SEVERITY_DEDUCTIONS: dict[str, int] = {
+    "critical": 15,
+    "high": 8,
+    "major": 8,
+    "moderate": 3,
+    "medium": 3,
+    "minor": 1,
+    "low": 1,
+}
+
+
+def _normalize_severity(issue: dict) -> str:
+    """
+    Normalize incoming severity labels from rules output to weighted buckets.
+    Falls back by message/rule hints and finally by lane (error/warning defaulting in caller).
+    """
+    raw = str(issue.get("severity", "")).strip().lower()
+    if raw in SEVERITY_DEDUCTIONS:
+        return raw
+    if raw == "error":
+        return "high"
+    if raw == "warning":
+        return "minor"
+
+    msg = str(issue.get("message", "")).lower()
+    rule_id = str(issue.get("rule_id", "")).lower()
+    text = f"{rule_id} {msg}"
+    if "critical" in text:
+        return "critical"
+    if "major" in text or "high" in text:
+        return "high"
+    if "moderate" in text or "medium" in text:
+        return "moderate"
+    if "minor" in text or "low" in text:
+        return "minor"
+    return "high"
+
+
+def calculate_readiness_score(errors: list[dict], warnings: list[dict]) -> int:
+    """
+    Weighted readiness score:
+    - Base 100
+    - Critical: -15, High/Major: -8, Moderate/Medium: -3, Minor/Low: -1
+    - Zero issues => 95
+    - Clamp to [0, 100]
+    """
+    total_issues = len(errors) + len(warnings)
+    if total_issues == 0:
+        return 95
+
+    deduction = 0
+    for issue in errors:
+        sev = _normalize_severity(issue)
+        deduction += SEVERITY_DEDUCTIONS.get(sev, 8)
+    for issue in warnings:
+        sev = _normalize_severity(issue)
+        deduction += SEVERITY_DEDUCTIONS.get(sev, 1)
+
+    return max(0, min(100, 100 - deduction))
+
 
 def bbox_to_xywh(bbox: list[float] | None) -> list[float] | None:
     """Convert [x0,y0,x1,y1] to [x, y, width, height] for frontend."""
@@ -25,6 +85,8 @@ def build_report(
 ) -> ValidationReport:
     """Build ValidationReport from rule outputs."""
     status = "FAIL" if errors else "PASS"
+    readiness_score = calculate_readiness_score(errors, warnings)
+    approval_likelihood = readiness_score
     all_issues: list[PageIssue] = []
     for e in errors:
         all_issues.append(PageIssue(
@@ -55,6 +117,8 @@ def build_report(
         file_size=file_size,
         ruleset_version=ruleset_version,
         status=status,
+        readiness_score=readiness_score,
+        approval_likelihood=approval_likelihood,
         errors=err_issues,
         warnings=warn_issues,
         summary=summary,

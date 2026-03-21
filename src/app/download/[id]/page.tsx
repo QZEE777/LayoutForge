@@ -75,14 +75,6 @@ function formatPages(pages: number[]): string {
   return ` — pages ${pages.slice(0, 3).join(", ")}, … ${pages[pages.length - 1]} (${pages.length} pages)`;
 }
 
-/** Same thresholds as main report header — driven only by live readinessScore100. */
-function readinessScoreColor(score: number | null | undefined): string {
-  if (score == null) return "text-m2p-ink";
-  if (score >= 90) return "text-green-700";
-  if (score >= 70) return "text-amber-700";
-  return "text-red-700";
-}
-
 interface ProcessingReport {
   pagesGenerated?: number;
   chaptersDetected: number;
@@ -121,8 +113,10 @@ interface ProcessingReport {
   scanDate?: string;
   fileNameScanned?: string;
   kdpPassProbability?: number;
+  approval_likelihood?: number;
   riskLevel?: "Low" | "Medium" | "High";
   readinessScore100?: number;
+  readiness_score?: number;
   highRiskPageNumbers?: number[];
   kdpReady?: boolean;
   issuesEnriched?: Array<{ originalMessage: string; humanMessage: string; fixDifficulty: string; page?: number }>;
@@ -235,7 +229,20 @@ export default function DownloadPage() {
       .then((r) => r.json().then((data: { success?: boolean; report?: ProcessingReport; message?: string }) => ({ ok: r.ok, data })))
       .then(({ ok, data }) => {
         if (ok && data.success && data.report) {
-          const r = data.report as ProcessingReport;
+          const raw = data.report as ProcessingReport;
+          const hasEngineReadiness =
+            typeof raw.readiness_score === "number" &&
+            Number.isFinite(raw.readiness_score) &&
+            raw.readiness_score > 0;
+          const hasEngineApprovalLikelihood =
+            typeof raw.approval_likelihood === "number" &&
+            Number.isFinite(raw.approval_likelihood) &&
+            raw.approval_likelihood > 0;
+          const r: ProcessingReport = {
+            ...raw,
+            readinessScore100: hasEngineReadiness ? Math.round(raw.readiness_score as number) : raw.readinessScore100,
+            kdpPassProbability: hasEngineApprovalLikelihood ? Math.round(raw.approval_likelihood as number) : raw.kdpPassProbability,
+          };
           setReport(r);
           setReportError(null);
           if (r.annotatedPdfStatus === "ready") setAnnotatedReady(true);
@@ -537,49 +544,6 @@ export default function DownloadPage() {
                   )}
                 </div>
                 <div className="mt-4 pt-4 border-t border-m2p-border no-print">
-                  {/* Scan summary block — high contrast vs page ivory */}
-                  <div className="rounded-xl border-2 border-m2p-orange/35 bg-orange-50 p-6 mb-4 text-left shadow-sm ring-1 ring-m2p-orange/15">
-                    <p className="text-sm font-semibold text-m2p-ink mb-2">Scan summary</p>
-                    <p className="text-sm text-m2p-muted">
-                      KDP Approval Likelihood:{" "}
-                      <span className="text-m2p-ink font-semibold">
-                        {report.kdpPassProbability != null ? `${report.kdpPassProbability}%` : "—"}
-                      </span>
-                    </p>
-                    {report.riskLevel != null && (
-                      <p className="mt-1 text-sm text-m2p-muted">
-                        Risk level:{" "}
-                        <span className="text-m2p-ink font-semibold">{report.riskLevel}</span>
-                      </p>
-                    )}
-                    <p className="mt-1 text-sm text-m2p-muted">
-                      Readiness Score:{" "}
-                      <span className={`text-lg font-bold ${readinessScoreColor(report.readinessScore100)}`}>
-                        {report.readinessScore100 != null ? `${report.readinessScore100}/100` : "—"}
-                      </span>
-                    </p>
-                    <p className="mt-1 text-sm text-m2p-muted">
-                      Issues Detected:{" "}
-                      <span className="text-m2p-ink font-semibold">
-                        {report.issuesEnriched?.length ?? report.issues?.length ?? 0}
-                      </span>
-                    </p>
-                    {(() => {
-                      const { grouped } = getGroupedIssues(report);
-                      const top =
-                        grouped[0]?.message ??
-                        report.issuesEnriched?.[0]?.humanMessage ??
-                        report.issues?.[0] ??
-                        null;
-                      if (!top) return null;
-                      return (
-                        <p className="mt-1 text-sm text-m2p-muted">
-                          Highest Risk Area:{" "}
-                          <span className="text-m2p-ink">{top}</span>
-                        </p>
-                      );
-                    })()}
-                  </div>
                   {/* Report expiry urgency */}
                   <p className="text-center text-sm text-m2p-muted mb-4">
                     ⏳ Report expires in 24 hours — download now to keep a copy.

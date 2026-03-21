@@ -369,7 +369,9 @@ export function enrichCheckerReport(
     errors: Array<{ page: number; rule_id: string; severity: string; message: string }>;
     warnings: Array<{ page: number; rule_id: string; severity: string; message: string }>;
     page_issues?: Array<{ page: number; rule_id: string; severity: string; message: string; bbox: number[] | null }>;
-  }
+  },
+  engineReadinessScore?: number,
+  engineApprovalLikelihood?: number
 ): EnrichedCheckerReport {
   let errorCount: number;
   let warningCount: number;
@@ -424,9 +426,22 @@ export function enrichCheckerReport(
     }));
   }
 
-  const score = computeKdpPassProbability(errorCount, warningCount);
+  const hasEngineApprovalLikelihood =
+    typeof engineApprovalLikelihood === "number" &&
+    Number.isFinite(engineApprovalLikelihood) &&
+    engineApprovalLikelihood > 0;
+  const hasEngineReadinessScore =
+    typeof engineReadinessScore === "number" &&
+    Number.isFinite(engineReadinessScore) &&
+    engineReadinessScore > 0;
+
+  const score = hasEngineApprovalLikelihood
+    ? Math.round(engineApprovalLikelihood)
+    : computeKdpPassProbability(errorCount, warningCount);
   const riskLevel = getRiskLevel(score);
-  const readinessScore100 = computeReadinessScore100(errorCount, warningCount);
+  const readinessScore100 = hasEngineReadinessScore
+    ? Math.round(engineReadinessScore)
+    : computeReadinessScore100(errorCount, warningCount);
   const highRiskPageNumbers = getHighRiskPageNumbers(report.page_issues);
   const kdpReady = errorCount === 0;
   const uploadChecklist = buildUploadChecklist({

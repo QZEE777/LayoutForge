@@ -25,6 +25,8 @@ class ValidationReport(BaseModel):
     file_size: int = 0
     ruleset_version: str = "kdp_preflight_v1.0.0"
     status: str  # "PASS" | "FAIL"
+    readiness_score: int = 0
+    approval_likelihood: int = 0
     errors: list[PageIssue] = Field(default_factory=list)
     warnings: list[PageIssue] = Field(default_factory=list)
     summary: ValidationSummary = Field(default_factory=ValidationSummary)
