@@ -196,7 +196,6 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
     console.error("[printReadyCheckProcess] report JSON parse failed:", e instanceof Error ? e.stack : e);
     preflight = null;
   }
-  const readiness_score = preflight?.readiness_score ?? null;
   const approval_likelihood = preflight?.approval_likelihood ?? null;
   const report: CheckerReport = buildReportFromPreflightOnly(preflight, fileSizeMB);
   if (inspect) {
@@ -212,6 +211,17 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
   report.pdfSourceUrl = `/api/r2-file?key=${encodeURIComponent(fileKey)}`;
   const enrichedReport = enrichCheckerReport(report, "Uploaded PDF", preflight ?? undefined);
 
+  const issues = enrichedReport.issuesEnriched ?? [];
+  const criticalCount = issues.filter((i: { fixDifficulty?: string }) => i.fixDifficulty === "advanced").length;
+  const moderateCount = issues.filter((i: { fixDifficulty?: string }) => i.fixDifficulty === "moderate").length;
+  const easyCount = issues.length - criticalCount - moderateCount;
+  const calculatedScore =
+    issues.length === 0
+      ? 95
+      : Math.max(5, Math.min(100, 100 - criticalCount * 15 - moderateCount * 5 - easyCount * 2));
+  enrichedReport.readinessScore100 = calculatedScore;
+  enrichedReport.kdpPassProbability = calculatedScore;
+
   const doc = await PDFDocument.create();
   doc.addPage([612, 792]);
   const minimalPdf = Buffer.from(await doc.save());
@@ -224,7 +234,7 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
       {
         verification_id: stored.id,
         filename_clean: "Uploaded PDF — PDF",
-        readiness_score: readiness_score ?? enrichedReport?.readinessScore100,
+        readiness_score: calculatedScore,
         approval_likelihood: approval_likelihood,
         kdp_ready: enrichedReport?.kdpReady,
         scan_date: enrichedReport?.scanDate,
