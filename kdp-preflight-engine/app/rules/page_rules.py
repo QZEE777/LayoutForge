@@ -136,22 +136,30 @@ def rule_orientation_consistency(doc: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def rule_empty_page_detection(doc: dict[str, Any]) -> list[dict[str, Any]]:
-    """Rule 19: Detect unintended blank pages in body (no text, no images)."""
-    issues = []
+    """Rule 19: Blank pages — 0–2 allowed (chapter openers, versos); 3+ → single warning only."""
     pages = doc.get("analysis", {}).get("pages") or doc.get("parsed", {}).get("pages") or []
+    blank_pages: list[int] = []
     for p in pages:
         texts = p.get("text_blocks") or []
         imgs = p.get("images") or []
         has_text = any((t.get("text") or "").strip() for t in texts)
         if not has_text and not imgs:
-            issues.append(_issue(
-                p.get("page_number", 0),
-                "EMPTY_PAGE",
-                "WARNING",
-                "Page appears to be blank (no text or images).",
-                None,
-            ))
-    return issues
+            pn = int(p.get("page_number") or 0)
+            blank_pages.append(pn)
+    n = len(blank_pages)
+    if n <= 2:
+        return []
+    sorted_pages = sorted(set(blank_pages))
+    shown = sorted_pages[:30]
+    pages_part = ", ".join(str(x) for x in shown)
+    if len(sorted_pages) > 30:
+        pages_part += f", … (+{len(sorted_pages) - 30} more)"
+    msg = (
+        f"{n} pages appear blank (no text or images): {pages_part}. "
+        "One or two blank pages are normal in print books; many blanks may indicate an export issue."
+    )
+    # One document-level warning; never ERROR/CRITICAL (see also TS enrich: EMPTY_PAGE → easy).
+    return [_issue(sorted_pages[0] if sorted_pages else 1, "EMPTY_PAGE", "WARNING", msg, None)]
 
 
 def rule_rotated_pages(doc: dict[str, Any]) -> list[dict[str, Any]]:

@@ -32,6 +32,8 @@ const ADVANCED_KEYWORDS = ["font", "embed", "layout", "color", "resolution", "im
 
 function toFixDifficulty(ruleId: string, message: string): FixDifficulty {
   const r = ruleId.toLowerCase();
+  // Blank pages must never be "advanced" (message mentions "images" and would match ADVANCED_KEYWORDS).
+  if (r === "empty_page") return "easy";
   const m = message.toLowerCase();
   const combined = `${r} ${m}`;
   if (ADVANCED_KEYWORDS.some((k) => combined.includes(k))) return "advanced";

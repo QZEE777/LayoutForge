@@ -461,14 +461,15 @@ export default function DownloadPage() {
                       {report.fileNameScanned && cleanFilenameForDisplay(report.fileNameScanned)}
                     </p>
                   )}
-                  {calculatedScore != null && (
+                  {(calculatedScore ?? report.readinessScore100) != null && (
                     <p className="mb-4 text-2xl font-bold text-m2p-ink">
-                      Readiness: {calculatedScore}/100
+                      Readiness: {calculatedScore ?? report.readinessScore100}/100
                     </p>
                   )}
-                  {(calculatedScore != null && report.riskLevel) && (
+                  {((calculatedScore ?? report.readinessScore100) != null && report.riskLevel) && (
                     <p className="mb-4 text-base font-semibold text-m2p-ink">
-                      KDP Approval Likelihood: {calculatedScore}% — Risk Level: {report.riskLevel}
+                      KDP Approval Likelihood: {calculatedScore ?? report.readinessScore100}% — Risk Level:{" "}
+                      {report.riskLevel}
                     </p>
                   )}
                   {report.highRiskPageNumbers && report.highRiskPageNumbers.length > 0 && (
@@ -711,7 +712,7 @@ export default function DownloadPage() {
                         </svg>
                       </a>
                       <a
-                        href={`https://twitter.com/intent/tweet?url=https://manu2print.com/verify/${id}&text=Just%20checked%20my%20manuscript%20on%20Manu2Print%20-%20KDP%20Readiness%20Score%3A%20${calculatedScore ?? ""}%2F100`}
+                        href={`https://twitter.com/intent/tweet?url=https://manu2print.com/verify/${id}&text=Just%20checked%20my%20manuscript%20on%20Manu2Print%20-%20KDP%20Readiness%20Score%3A%20${calculatedScore ?? report.readinessScore100 ?? ""}%2F100`}
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label="Share on X"
