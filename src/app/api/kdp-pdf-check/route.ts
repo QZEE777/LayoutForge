@@ -206,8 +206,8 @@ export async function POST(request: NextRequest) {
         report = buildReportFromPreflight(preflight.report, buffer, widthIn, heightIn, kdpTrim);
         preflightJobId = preflight.job_id;
         preflightReport = preflight.report;
-        engineReadinessScore = typeof preflight.report.readiness_score === "number" ? preflight.report.readiness_score : undefined;
-        engineApprovalLikelihood = typeof preflight.report.approval_likelihood === "number" ? preflight.report.approval_likelihood : undefined;
+        engineReadinessScore = typeof preflight.report.readiness_score === "number" && preflight.report.readiness_score > 0 ? preflight.report.readiness_score : undefined;
+        engineApprovalLikelihood = typeof preflight.report.approval_likelihood === "number" && preflight.report.approval_likelihood > 0 ? preflight.report.approval_likelihood : undefined;
       } else {
         report = buildBasicReport(doc, buffer);
       }
