@@ -42,6 +42,17 @@ export async function POST(request: NextRequest) {
       );
     }
     const fileKey = body.fileKey.trim();
+    const expectedKey = `uploads/${jobId}.pdf`;
+    if (fileKey !== expectedKey) {
+      return NextResponse.json(
+        {
+          error: "fileKey mismatch",
+          message:
+            "fileKey must be uploads/{jobId}.pdf for the same jobId returned by create-upload-url (prevents wrong R2 object per job).",
+        },
+        { status: 400 }
+      );
+    }
     console.log("[kdp-pdf-check-from-preflight] enqueueing print_ready_checks:", { fileKey, jobId, fileSizeMB });
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
       return NextResponse.json(

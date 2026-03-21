@@ -1,4 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+
+export const dynamic = 'force-dynamic';
+
+const NO_STORE_HEADERS = {
+  'Cache-Control': 'private, no-store, max-age=0, must-revalidate',
+};
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { v4 as uuidv4 } from 'uuid';
@@ -29,7 +35,7 @@ export async function POST(request: NextRequest) {
     if (!r2) {
       return NextResponse.json(
         { error: 'Storage not configured', message: 'R2 env vars (R2_ENDPOINT, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME) are required.' },
-        { status: 503 }
+        { status: 503, headers: NO_STORE_HEADERS }
       );
     }
 
@@ -50,9 +56,15 @@ export async function POST(request: NextRequest) {
       .filter(param => !param.startsWith('x-amz-checksum') && !param.startsWith('x-amz-sdk-checksum'))
       .join('&');
 
-    return NextResponse.json({ uploadUrl: cleanUploadUrl, fileKey, jobId });
+    return NextResponse.json(
+      { uploadUrl: cleanUploadUrl, fileKey, jobId },
+      { headers: NO_STORE_HEADERS }
+    );
   } catch (error) {
     console.error('create-upload-url error:', error);
-    return NextResponse.json({ error: 'Failed to create upload URL', detail: String(error) }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to create upload URL', detail: String(error) },
+      { status: 500, headers: NO_STORE_HEADERS }
+    );
   }
 }

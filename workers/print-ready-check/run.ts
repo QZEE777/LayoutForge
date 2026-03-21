@@ -13,9 +13,39 @@ const POLL_INTERVAL_MS = 12_000;
 
 interface PrintReadyCheckRow {
   id: string;
-  file_key: string;
+  /** DB column; some clients may expose camelCase — see resolveCheckerPdfR2Key */
+  file_key?: string | null;
+  fileKey?: string | null;
   our_job_id: string;
   file_size_mb: number | null;
+}
+
+const UUID_RE =
+  /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+
+/**
+ * Checker uploads always land at uploads/{our_job_id}.pdf (see /api/create-upload-url).
+ * Use that as the single source of truth so we never GET a stale/wrong key from a mismatched row.
+ */
+function resolveCheckerPdfR2Key(row: PrintReadyCheckRow): string {
+  const jobId = String(row.our_job_id ?? "").trim();
+  if (!UUID_RE.test(jobId)) {
+    throw new Error(`Invalid our_job_id for checker R2 key: ${jobId}`);
+  }
+  const canonical = `uploads/${jobId}.pdf`;
+  const fromDb =
+    (typeof row.file_key === "string" && row.file_key.trim()) ||
+    (typeof row.fileKey === "string" && row.fileKey.trim()) ||
+    "";
+  const norm = (s: string) => s.replace(/\\/g, "/").toLowerCase();
+  if (fromDb && norm(fromDb) !== norm(canonical)) {
+    console.warn("[worker] file_key does not match uploads/{our_job_id}.pdf; using canonical R2 key", {
+      checkId: row.id,
+      file_key: fromDb,
+      canonical,
+    });
+  }
+  return canonical;
 }
 
 function getSupabase() {
@@ -46,7 +76,7 @@ async function processOne(supabase: ReturnType<typeof createClient>): Promise<bo
 
   const row = rows[0];
   const checkId = row.id;
-  const fileKey = row.file_key;
+  const fileKey = resolveCheckerPdfR2Key(row);
   const ourJobId = row.our_job_id;
   const fileSizeMB = row.file_size_mb != null ? Number(row.file_size_mb) : undefined;
 

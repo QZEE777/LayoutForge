@@ -83,16 +83,20 @@ export async function uploadFile(
  * Download a file from R2 by full key (e.g. "uploads/abc-123.pdf").
  */
 export async function getFileByKey(fullKey: string): Promise<Buffer> {
+  const key = typeof fullKey === "string" ? fullKey.trim() : "";
+  if (!key) {
+    throw new Error("R2 getFileByKey: empty or invalid key");
+  }
   try {
     const client = getClient();
     const res = await client.send(
       new GetObjectCommand({
         Bucket: getBucket(),
-        Key: fullKey,
+        Key: key,
       })
     );
     if (!res.Body) {
-      throw new Error(`R2 get returned no body for ${fullKey}`);
+      throw new Error(`R2 get returned no body for ${key}`);
     }
     const chunks: Uint8Array[] = [];
     for await (const chunk of res.Body as AsyncIterable<Uint8Array>) {
@@ -101,7 +105,7 @@ export async function getFileByKey(fullKey: string): Promise<Buffer> {
     return Buffer.concat(chunks);
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    throw new Error(`R2 getFileByKey failed for ${fullKey}: ${msg}`);
+    throw new Error(`R2 getFileByKey failed for ${key}: ${msg}`);
   }
 }
 
