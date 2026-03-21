@@ -102,6 +102,17 @@ export function computeReadinessScore100(errorCount: number, warningCount: numbe
   return Math.max(5, Math.min(100, score));
 }
 
+/** True when we have a real measured trim string (not placeholder "—"). */
+function isMeaningfulTrimDetected(trimDetected?: string | null): boolean {
+  if (trimDetected == null) return false;
+  const t = trimDetected.trim();
+  if (!t) return false;
+  // Placeholders from legacy reports / missing inspection
+  if (t === "—" || t === "-" || t === "–" || /^n\/?a$/i.test(t)) return false;
+  // Expect something like 6" × 9" from pdf-lib inspection
+  return /\d/.test(t);
+}
+
 /** Top 3–5 page numbers with most issues (errors count more). Empty if none identified. */
 export function getHighRiskPageNumbers(
   pageIssues: Array<{ page: number; severity?: string }> | undefined
@@ -110,7 +121,10 @@ export function getHighRiskPageNumbers(
   const byPage = new Map<number, { errors: number; warnings: number }>();
   for (const i of pageIssues) {
     const p = i.page;
-    const isError = i.severity === "error" || !i.severity;
+    const rawSev = i.severity;
+    const sev = (rawSev != null && rawSev !== "" ? rawSev : "error").toLowerCase();
+    const isError =
+      sev === "error" || sev === "critical" || sev === "advanced";
     if (!byPage.has(p)) byPage.set(p, { errors: 0, warnings: 0 });
     const cur = byPage.get(p)!;
     if (isError) cur.errors += 1;
@@ -175,7 +189,11 @@ export function buildUploadChecklist(input: ChecklistSpecInput): ChecklistItem[]
   const items: ChecklistItem[] = [];
   items.push({
     check: "Trim size (KDP standard)",
-    status: input.trimMatchKDP ? "pass" : (input.trimDetected ? "fail" : "warning"),
+    status: input.trimMatchKDP
+      ? "pass"
+      : isMeaningfulTrimDetected(input.trimDetected)
+        ? "fail"
+        : "warning",
   });
   items.push({
     check: "Page count (24–828)",
@@ -224,7 +242,11 @@ export function buildSpecTable(input: SpecTableInput): SpecRow[] {
     requirement: "Trim size",
     yourFile: input.trimDetected ?? "—",
     kdpRequired: "Standard (e.g. 5×8, 6×9)",
-    status: input.trimMatchKDP ? "pass" : (input.trimDetected ? "fail" : "warning"),
+    status: input.trimMatchKDP
+      ? "pass"
+      : isMeaningfulTrimDetected(input.trimDetected)
+        ? "fail"
+        : "warning",
   });
   rows.push({
     requirement: "Page count",
@@ -309,6 +331,49 @@ export interface EnrichedCheckerReport extends CheckerReportBase {
   upsellBridge: string;
 }
 
+/** For margin/font/bleed detection when the engine only populated page_issues. */
+function messagesForCategoryDetection(preflight: {
+  errors: Array<{ rule_id: string; message: string }>;
+  warnings: Array<{ rule_id: string; message: string }>;
+  page_issues?: Array<{ rule_id: string; message: string; severity?: string }>;
+}): { errors: Array<{ rule_id: string; message: string }>; warnings: Array<{ rule_id: string; message: string }> } {
+  if (preflight.errors.length + preflight.warnings.length > 0) {
+    return { errors: preflight.errors, warnings: preflight.warnings };
+  }
+  const errors: Array<{ rule_id: string; message: string }> = [];
+  const warnings: Array<{ rule_id: string; message: string }> = [];
+  for (const p of preflight.page_issues ?? []) {
+    const s = (p.severity ?? "").toLowerCase();
+    const row = { rule_id: p.rule_id, message: p.message };
+    if (s === "warning" || s === "moderate" || s === "easy" || s === "minor") warnings.push(row);
+    else errors.push(row);
+  }
+  return { errors, warnings };
+}
+
+function derivePreflightErrorWarningCounts(preflight: {
+  errors?: Array<unknown>;
+  warnings?: Array<unknown>;
+  page_issues?: Array<{ severity?: string }>;
+}): { errorCount: number; warningCount: number } {
+  const e = preflight.errors?.length ?? 0;
+  const w = preflight.warnings?.length ?? 0;
+  if (e + w > 0) return { errorCount: e, warningCount: w };
+  const issues = preflight.page_issues;
+  if (!issues?.length) return { errorCount: 0, warningCount: 0 };
+  let errorCount = 0;
+  let warningCount = 0;
+  for (const pi of issues) {
+    const s = (pi.severity ?? "").toLowerCase();
+    if (s === "warning" || s === "moderate" || s === "easy" || s === "minor") {
+      warningCount += 1;
+    } else {
+      errorCount += 1;
+    }
+  }
+  return { errorCount, warningCount };
+}
+
 /** Enrich a checker report with score, human text, difficulty, checklist, spec table, upsell. */
 export function enrichCheckerReport(
   report: CheckerReportBase,
@@ -316,20 +381,51 @@ export function enrichCheckerReport(
   preflight?: {
     errors: Array<{ page: number; rule_id: string; severity: string; message: string }>;
     warnings: Array<{ page: number; rule_id: string; severity: string; message: string }>;
+    page_issues?: Array<{ page: number; rule_id: string; severity: string; message: string; bbox: number[] | null }>;
   }
 ): EnrichedCheckerReport {
-  const errorCount = preflight ? preflight.errors.length : report.issues.length;
-  const warningCount = preflight ? preflight.warnings.length : 0;
-  const categories = preflight
-    ? detectIssueCategories(preflight.errors, preflight.warnings)
+  let errorCount: number;
+  let warningCount: number;
+  if (preflight) {
+    const derived = derivePreflightErrorWarningCounts(preflight);
+    errorCount = derived.errorCount;
+    warningCount = derived.warningCount;
+    if (errorCount === 0 && warningCount === 0 && report.issues.length > 0) {
+      errorCount = report.issues.length;
+    }
+  } else {
+    errorCount = report.issues.length;
+    warningCount = 0;
+  }
+  const categoryMessages = preflight ? messagesForCategoryDetection(preflight) : null;
+  const categories = categoryMessages
+    ? detectIssueCategories(categoryMessages.errors, categoryMessages.warnings)
     : { hasMarginIssues: false, hasBleedIssues: false, hasFontIssues: false };
 
   let issuesEnriched: EnrichedIssue[];
   if (preflight) {
-    issuesEnriched = [
+    const fromArrays = [
       ...preflight.errors.map((e) => enrichIssue(e.message, e.page, e.rule_id, e.severity)),
       ...preflight.warnings.map((w) => enrichIssue(w.message, w.page, w.rule_id, w.severity)),
     ];
+    if (fromArrays.length > 0) {
+      issuesEnriched = fromArrays;
+    } else if (preflight.page_issues?.length) {
+      issuesEnriched = preflight.page_issues.map((p) =>
+        enrichIssue(p.message, p.page, p.rule_id, p.severity ?? "error")
+      );
+    } else if (report.issues.length > 0) {
+      issuesEnriched = report.issues.map((msg) => ({
+        originalMessage: msg,
+        humanMessage: toHumanMessage(msg),
+        fixDifficulty: toFixDifficulty("", msg),
+        page: undefined,
+        rule_id: "",
+        severity: "error",
+      }));
+    } else {
+      issuesEnriched = [];
+    }
   } else {
     issuesEnriched = report.issues.map((msg) => ({
       originalMessage: msg,

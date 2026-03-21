@@ -7,6 +7,7 @@ import { PDFDocument } from "pdf-lib";
 import { saveUpload, updateMeta, type StoredManuscript } from "./storage";
 import { getSignedDownloadUrl, getFileByKey, getSignedUrlForKey } from "./r2Storage";
 import { getGutterInches } from "./kdpConfig";
+import { inspectPdfBufferForChecker } from "./kdpPdfInspect";
 import { supabase } from "./supabase";
 import { enrichCheckerReport } from "./kdpReportEnhance";
 
@@ -108,9 +109,15 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
     }
     throw e;
   }
+  const inspect = await inspectPdfBufferForChecker(pdfBuffer);
+
   const form = new FormData();
   form.append("file", new Blob([pdfBuffer], { type: "application/pdf" }), "document.pdf");
-  const uploadRes = await fetch(`${url}/upload`, { method: "POST", body: form });
+  const uploadRes = await fetch(`${url}/upload`, {
+    method: "POST",
+    body: form,
+    signal: AbortSignal.timeout(180000),
+  });
   const uploadResText = await uploadRes.clone().text().catch((e) => `<<failed to read body: ${String(e)}>>`);
   if (!uploadRes.ok) {
     throw new Error(uploadResText || `Preflight upload failed (${uploadRes.status}).`);
@@ -188,6 +195,15 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
     preflight = null;
   }
   const report: CheckerReport = buildReportFromPreflightOnly(preflight, fileSizeMB);
+  if (inspect) {
+    const fromPreflight = report.pageCount;
+    report.pageCount = Math.max(fromPreflight, inspect.pageCount);
+    report.trimDetected = inspect.trimDetected;
+    report.trimMatchKDP = inspect.trimMatchKDP;
+    report.kdpTrimName = inspect.kdpTrimName;
+    report.trimSize = inspect.trimSize;
+    report.recommendedGutterInches = getGutterInches(report.pageCount);
+  }
   report.hasPdfPreview = true;
   report.pdfSourceUrl = `/api/r2-file?key=${encodeURIComponent(fileKey)}`;
   const enrichedReport = enrichCheckerReport(report, "Uploaded PDF", preflight ?? undefined);
@@ -216,7 +232,7 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
   }
 
   try {
-    const annotateRes = await fetch(`${baseUrl}/annotate/${renderJobId}`, {
+    const annotateRes = await fetch(`${url}/annotate/${encodeURIComponent(renderJobId)}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(preflight ?? { page_issues: [] }),
