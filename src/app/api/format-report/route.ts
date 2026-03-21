@@ -42,14 +42,14 @@ export async function GET(request: NextRequest) {
     let meta = await getStored(id);
     let report = await buildReportFromStored(meta);
 
-    // Defensive fallback: if `id` is actually a `print_ready_checks.id` (check id),
-    // then follow result_download_id to find the real stored metadata.
+    // Defensive fallback: `id` may be print_ready_checks.id (check row) or result_download_id (stored report id).
+    // Resolve to result_download_id, then load metadata.
     if (!report) {
       try {
         const { data: prcRow } = await supabase
           .from("print_ready_checks")
           .select("result_download_id")
-          .eq("id", id)
+          .or(`id.eq.${id},result_download_id.eq.${id}`)
           .maybeSingle();
 
         const resultDownloadId = prcRow?.result_download_id;
