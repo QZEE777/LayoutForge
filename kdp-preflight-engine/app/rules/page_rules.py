@@ -135,15 +135,37 @@ def rule_orientation_consistency(doc: dict[str, Any]) -> list[dict[str, Any]]:
     return issues
 
 
+def _page_is_truly_blank(p: dict[str, Any]) -> bool:
+    """
+    Blank only if no text, no embedded images (PyMuPDF get_images), and no vector paths.
+    Image-only pages (illustrations, chapter art) must not be flagged; rely on
+    embedded_image_count from page.get_images(), not only extract_images() bbox list.
+    """
+    raw = p.get("raw_text_stripped")
+    if raw is not None:
+        has_text = bool(str(raw).strip())
+    else:
+        texts = p.get("text_blocks") or []
+        has_text = any((t.get("text") or "").strip() for t in texts)
+
+    em = p.get("embedded_image_count")
+    if em is not None:
+        has_images = int(em) > 0
+    else:
+        has_images = len(p.get("images") or []) > 0
+
+    dc = p.get("drawing_count")
+    has_vectors = int(dc) > 0 if dc is not None else False
+
+    return not has_text and not has_images and not has_vectors
+
+
 def rule_empty_page_detection(doc: dict[str, Any]) -> list[dict[str, Any]]:
     """Rule 19: Blank pages — 0–2 allowed (chapter openers, versos); 3+ → single warning only."""
     pages = doc.get("analysis", {}).get("pages") or doc.get("parsed", {}).get("pages") or []
     blank_pages: list[int] = []
     for p in pages:
-        texts = p.get("text_blocks") or []
-        imgs = p.get("images") or []
-        has_text = any((t.get("text") or "").strip() for t in texts)
-        if not has_text and not imgs:
+        if _page_is_truly_blank(p):
             pn = int(p.get("page_number") or 0)
             blank_pages.append(pn)
     n = len(blank_pages)
@@ -155,7 +177,7 @@ def rule_empty_page_detection(doc: dict[str, Any]) -> list[dict[str, Any]]:
     if len(sorted_pages) > 30:
         pages_part += f", … (+{len(sorted_pages) - 30} more)"
     msg = (
-        f"{n} pages appear blank (no text or images): {pages_part}. "
+        f"{n} pages appear truly blank (no text, images, or vector graphics): {pages_part}. "
         "One or two blank pages are normal in print books; many blanks may indicate an export issue."
     )
     # One document-level warning; never ERROR/CRITICAL (see also TS enrich: EMPTY_PAGE → easy).

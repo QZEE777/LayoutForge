@@ -243,6 +243,15 @@ def parse_pdf(path: Path) -> dict[str, Any]:
             images = extract_images(page)
             fonts = get_fonts_used(page)
             rotation = get_page_rotation(page)
+            # Blank-page rule: use PyMuPDF primitives so image-only pages are not missed when
+            # extract_images() skips placements (no bbox / xref mismatch in get_image_info).
+            raw_text_stripped = (page.get_text() or "").strip()
+            embedded_image_count = len(page.get_images())
+            try:
+                dw = page.get_drawings()
+                drawing_count = len(dw) if dw is not None else 0
+            except Exception:
+                drawing_count = 0
 
             pages_data.append({
                 "page_number": pno + 1,
@@ -254,6 +263,9 @@ def parse_pdf(path: Path) -> dict[str, Any]:
                 "images": images,
                 "fonts": fonts,
                 "rotation": rotation,
+                "raw_text_stripped": raw_text_stripped,
+                "embedded_image_count": embedded_image_count,
+                "drawing_count": drawing_count,
             })
 
         return {
