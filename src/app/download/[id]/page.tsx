@@ -228,6 +228,12 @@ export default function DownloadPage() {
     fetch(`/api/format-report?id=${encodeURIComponent(id)}`)
       .then((r) => r.json().then((data: { success?: boolean; report?: ProcessingReport; message?: string }) => ({ ok: r.ok, data })))
       .then(({ ok, data }) => {
+        console.log('[SCORE DEBUG]', {
+          readiness_score: data?.report?.readiness_score,
+          approval_likelihood: data?.report?.approval_likelihood,
+          readinessScore100: data?.report?.readinessScore100,
+          kdpPassProbability: data?.report?.kdpPassProbability,
+        });
         if (ok && data.success && data.report) {
           const raw = data.report as ProcessingReport;
           const hasEngineReadiness =
