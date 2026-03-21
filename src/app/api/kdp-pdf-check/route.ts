@@ -29,6 +29,8 @@ function findKdpTrim(widthIn: number, heightIn: number): { id: string; name: str
 /** Preflight API report shape (GET /report/{job_id}). */
 interface PreflightReport {
   status: string;
+  readiness_score?: number;
+  approval_likelihood?: number;
   errors: Array<{ page: number; rule_id: string; severity: string; message: string; bbox?: number[] | null }>;
   warnings: Array<{ page: number; rule_id: string; severity: string; message: string; bbox?: number[] | null }>;
   summary: { total_pages: number; error_count: number; warning_count: number; rules_checked: number };
@@ -196,12 +198,16 @@ export async function POST(request: NextRequest) {
     let report: ReturnType<typeof buildBasicReport>;
     let preflightJobId: string | null = null;
     let preflightReport: PreflightReport | null = null;
+    let engineReadinessScore: number | undefined;
+    let engineApprovalLikelihood: number | undefined;
     if (preflightUrl?.trim()) {
       const preflight = await runPreflightCheck(preflightUrl, buffer, fileNameScanned);
       if (preflight) {
         report = buildReportFromPreflight(preflight.report, buffer, widthIn, heightIn, kdpTrim);
         preflightJobId = preflight.job_id;
         preflightReport = preflight.report;
+        engineReadinessScore = typeof preflight.report.readiness_score === "number" ? preflight.report.readiness_score : undefined;
+        engineApprovalLikelihood = typeof preflight.report.approval_likelihood === "number" ? preflight.report.approval_likelihood : undefined;
       } else {
         report = buildBasicReport(doc, buffer);
       }
@@ -209,7 +215,13 @@ export async function POST(request: NextRequest) {
       report = buildBasicReport(doc, buffer);
     }
 
-    const enrichedReport = enrichCheckerReport(report, fileNameScanned, preflightReport ?? undefined);
+    const enrichedReport = enrichCheckerReport(
+      report,
+      fileNameScanned,
+      preflightReport ?? undefined,
+      engineReadinessScore,
+      engineApprovalLikelihood
+    );
     const stored = await saveUpload(buffer, fileNameScanned, "application/pdf");
     await updateMeta(stored.id, { processingReport: enrichedReport as StoredManuscript["processingReport"] });
 
