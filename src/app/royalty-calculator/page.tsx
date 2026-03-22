@@ -49,12 +49,13 @@ export default function RoyaltyCalculatorPage() {
             Estimate Your Earnings Per Sale
           </span>
         </h1>
-        <p className="text-m2p-muted mb-3 text-center">
-          Calculate your royalty per sale based on trim size, page count, list price, and royalty rate.
+        <p className="text-m2p-muted mb-3 text-center text-sm leading-relaxed">
+          Estimate your earnings per sale based on trim size, page count,
+          list price, and royalty rate. Uses US paperback B&amp;W print costs.
         </p>
         <p className="text-m2p-muted text-sm mt-2 mb-5 leading-relaxed text-center">
-          Uses US paperback B&amp;W print costs. Actual KDP costs may vary by marketplace and paper type.
-          This estimate does not replace checking your PDF for compliance before upload.
+          This estimates royalty based on print cost. It does not check
+          whether your PDF meets KDP formatting requirements.
         </p>
 
         <div className="rounded-xl border-2 bg-white p-6 mb-5" style={{ borderColor: "#2D6A2D" }}>
@@ -145,15 +146,42 @@ export default function RoyaltyCalculatorPage() {
           This is an estimate. Amazon KDP sets actual print costs by marketplace and paper type. Check KDP&apos;s pricing page for your territory.
         </p>
 
+        <div className="mt-5">
+          <p className="text-xs text-m2p-muted font-semibold mb-2 uppercase tracking-wide">
+            Related free tools
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/spine-calculator"
+              className="inline-flex items-center rounded-full bg-[#2D6A2D] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#1A3A2A] transition-colors"
+            >
+              Spine Width Calculator →
+            </Link>
+            <Link
+              href="/trim-size-comparison"
+              className="inline-flex items-center rounded-full bg-[#2D6A2D] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#1A3A2A] transition-colors"
+            >
+              Trim Size Comparison →
+            </Link>
+            <Link
+              href="/page-count-estimator"
+              className="inline-flex items-center rounded-full bg-[#2D6A2D] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#1A3A2A] transition-colors"
+            >
+              Page Count Estimator →
+            </Link>
+          </div>
+        </div>
+
         {hasInteracted && <KdpConversionBridge />}
 
         <div className="mt-6 rounded-xl bg-m2p-orange-soft border border-m2p-orange/20 p-5 text-center">
           <p className="font-bebas text-m2p-ink text-lg mb-1">
-            Before you set your price — check your PDF first
+            Ready for the next step?
           </p>
           <p className="text-m2p-muted text-sm mb-4 leading-relaxed">
-            A rejected PDF means delayed sales. Check margins, trim size, bleed,
-            and fonts before you submit to KDP.
+            You have your royalty estimate. Now check whether your interior
+            PDF will pass KDP review before you upload — margins, bleed,
+            trim size, and fonts can still trigger rejection.
           </p>
           <Link
             href="/kdp-pdf-checker"
