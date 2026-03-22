@@ -1,9 +1,7 @@
 "use client";
 
-// TODO: Manny watermark to be added to generated PDF output
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import {
   KDP_TRIM_SIZES,
   getTrimSize,
@@ -12,6 +10,8 @@ import {
   type TrimSizeId,
 } from "@/lib/kdpSpecs";
 import { createInteriorTemplatePdf } from "@/lib/interiorTemplatePdf";
+import ToolPageShell from "@/components/ToolPageShell";
+import KdpConversionBridge from "@/components/KdpConversionBridge";
 
 const { minPages, maxPages } = KDP_PAGE_LIMITS;
 
@@ -25,6 +25,9 @@ export default function InteriorTemplatePage() {
   const [pageCount, setPageCount] = useState(300);
   const [withBleed, setWithBleed] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
+
+  const markInteracted = useCallback(() => setHasInteracted(true), []);
 
   const pages = useMemo(() => clampPages(pageCount), [pageCount]);
   const trim = useMemo(() => getTrimSize(trimId), [trimId]);
@@ -33,6 +36,7 @@ export default function InteriorTemplatePage() {
   const handleDownload = async () => {
     if (!trim) return;
     setDownloading(true);
+    markInteracted();
     try {
       const bytes = await createInteriorTemplatePdf({
         trimSizeId: trimId,
@@ -52,41 +56,35 @@ export default function InteriorTemplatePage() {
   };
 
   return (
-    <div className="min-h-screen bg-m2p-ivory">
-      <nav className="sticky top-0 z-20 border-b border-white/5 bg-m2p-ivory/80 backdrop-blur-sm">
-        <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <span className="text-lg font-bold tracking-tight text-brand-cream">
-              <span className="font-serif">manu</span>
-              <span className="font-sans">2print</span>
-            </span>
-          </Link>
-          <Link href="/platform/kdp" className="text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors">
-            All KDP tools
-          </Link>
-        </div>
-      </nav>
+    <ToolPageShell>
+      <div className="mx-auto max-w-2xl px-6 py-8">
 
-      <main className="mx-auto max-w-2xl px-6 py-12">
-        <div className="flex items-center justify-center gap-1 mb-6 w-full">
-          <Image src="/MANNY AVATAR.png" alt="Manny" width={120} height={120} style={{ borderRadius: "50%" }} />
-          <span><span style={{ color: "#F05A28", fontWeight: "bold" }}>manu</span><span style={{ color: "#4cd964", fontWeight: "bold" }}>2print</span></span>
-        </div>
-        <h1 className="font-bebas text-3xl sm:text-4xl tracking-wide text-brand-cream mb-2">
-          KDP interior margin template
+        {/* H1 — two-line split */}
+        <h1 className="font-bebas tracking-wide text-m2p-ink mb-2 text-center">
+          <span className="block text-3xl sm:text-4xl">KDP Interior Template Generator</span>
+          <span className="block text-xl sm:text-2xl text-m2p-muted mt-1">
+            Format Your Book Correctly Before You Publish
+          </span>
         </h1>
-        <p className="font-sans text-brand-muted mb-8">
-          Download a one-page PDF with your book&apos;s exact trim size and <strong className="text-brand-cream">safe zone</strong> (gutter + margins per Amazon KDP). Use it in Canva as a guide: keep all content inside the green rectangle. Gutter is based on your page count so it matches KDP requirements.
+
+        <p className="text-m2p-muted mb-3 text-center text-sm leading-relaxed">
+          <span className="block">Download a ready-to-use interior layout template</span>
+          <span className="block">with correct margins, trim size, and safe zones.</span>
+        </p>
+        <p className="text-m2p-muted text-sm mt-2 mb-5 leading-relaxed text-center">
+          Use this template in Canva or your design tool to align your content
+          correctly for KDP paperback publishing.
         </p>
 
-        <div className="rounded-xl border border-brand-cardHover bg-brand-card p-6 mb-8">
+        {/* Input card */}
+        <div className="rounded-xl border-2 bg-white p-6 mb-5" style={{ borderColor: "#2D6A2D" }}>
           <div className="space-y-5">
             <div>
-              <label className="block font-sans text-sm font-medium text-brand-cream mb-2">Trim size</label>
+              <label className="block text-sm font-medium text-m2p-ink mb-2">Trim size</label>
               <select
                 value={trimId}
-                onChange={(e) => setTrimId(e.target.value as TrimSizeId)}
-                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-m2p-ivory font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold"
+                onChange={(e) => { setTrimId(e.target.value as TrimSizeId); markInteracted(); }}
+                className="w-full rounded-lg border border-m2p-border px-4 py-2.5 bg-m2p-ivory text-sm text-m2p-ink focus:outline-none focus:ring-2 focus:ring-m2p-orange"
               >
                 {KDP_TRIM_SIZES.map((t) => (
                   <option key={t.id} value={t.id}>{t.name}</option>
@@ -94,79 +92,101 @@ export default function InteriorTemplatePage() {
               </select>
             </div>
             <div>
-              <label className="block font-sans text-sm font-medium text-brand-cream mb-2">Interior page count</label>
+              <label className="block text-sm font-medium text-m2p-ink mb-2">Interior page count</label>
               <input
                 type="number"
                 min={minPages}
                 max={maxPages}
                 value={pageCount}
-                onChange={(e) => setPageCount(e.target.valueAsNumber ?? minPages)}
-                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-m2p-ivory font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold"
+                onChange={(e) => { setPageCount(e.target.valueAsNumber ?? minPages); markInteracted(); }}
+                className="w-full rounded-lg border border-m2p-border px-4 py-2.5 bg-m2p-ivory text-sm text-m2p-ink focus:outline-none focus:ring-2 focus:ring-m2p-orange"
               />
-              <p className="font-sans text-xs text-brand-muted mt-1">KDP range: {minPages}–{maxPages} pages. Gutter for {pages} pages: <strong className="text-brand-cream">{gutterInches}&quot;</strong></p>
+              <p className="text-xs text-m2p-muted mt-1">
+                KDP range: {minPages}–{maxPages} pages. Gutter for {pages} pages:{" "}
+                <strong className="text-m2p-ink">{gutterInches}&quot;</strong>
+              </p>
             </div>
             <div className="flex items-center gap-3">
               <input
                 id="bleed"
                 type="checkbox"
                 checked={withBleed}
-                onChange={(e) => setWithBleed(e.target.checked)}
-                className="rounded border-brand-cardHover bg-m2p-ivory text-brand-gold focus:ring-brand-gold"
+                onChange={(e) => { setWithBleed(e.target.checked); markInteracted(); }}
+                className="rounded border-m2p-border bg-m2p-ivory text-m2p-orange focus:ring-m2p-orange"
               />
-              <label htmlFor="bleed" className="font-sans text-sm text-brand-cream">
+              <label htmlFor="bleed" className="text-sm text-m2p-ink">
                 Include bleed (0.125&quot;) and show trim line — for full-bleed interiors
               </label>
             </div>
           </div>
         </div>
 
-        <div className="rounded-xl border-l-4 border-brand-gold border border-brand-cardHover bg-brand-card p-6">
-          <h2 className="font-bebas text-xl tracking-wide text-brand-cream mb-4">Your template</h2>
+        {/* Results card */}
+        <div className="rounded-xl border-l-4 border-m2p-orange border border-m2p-border bg-white p-6 mb-5">
+          <h2 className="font-bebas text-xl tracking-wide text-m2p-ink mb-4">Your template</h2>
           {trim && (
             <>
-              <dl className="font-sans text-sm space-y-3">
+              <dl className="text-sm space-y-3 mb-5">
                 <div>
-                  <dt className="text-brand-muted">Trim</dt>
-                  <dd className="text-brand-cream font-semibold">{trim.name}</dd>
+                  <dt className="text-m2p-muted">Trim</dt>
+                  <dd className="text-m2p-ink font-semibold">{trim.name}</dd>
                 </div>
                 <div>
-                  <dt className="text-brand-muted">Gutter (inside margin) for {pages} pages</dt>
-                  <dd className="text-brand-cream font-semibold">{gutterInches}&quot;</dd>
+                  <dt className="text-m2p-muted">Gutter (inside margin) for {pages} pages</dt>
+                  <dd className="text-m2p-ink font-semibold">{gutterInches}&quot;</dd>
                 </div>
                 <div>
-                  <dt className="text-brand-muted">Outside margins</dt>
-                  <dd className="text-brand-cream">0.25&quot; (top, bottom, outside edge) — KDP minimum</dd>
+                  <dt className="text-m2p-muted">Outside margins</dt>
+                  <dd className="text-m2p-ink">0.25&quot; top, bottom, outside edge — KDP minimum</dd>
                 </div>
               </dl>
-              <div className="pt-4">
-                <button
-                  type="button"
-                  onClick={handleDownload}
-                  disabled={downloading}
-                  className="inline-flex items-center gap-2 rounded-lg bg-brand-gold px-4 py-2.5 text-sm font-semibold text-brand-bg hover:opacity-90 disabled:opacity-50"
-                >
-                  {downloading ? "Generating…" : "Download template PDF"}
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </button>
-                <p className="font-sans text-xs text-brand-muted mt-1.5">
-                  One page with safe-zone rectangle. Upload to Canva as a background or reference — keep content inside the green box.
-                </p>
-              </div>
+              <button
+                type="button"
+                onClick={handleDownload}
+                disabled={downloading}
+                className="inline-flex items-center gap-2 rounded-lg bg-m2p-orange px-4 py-2.5 text-sm font-semibold text-white hover:bg-m2p-orange-hover disabled:opacity-50 transition-colors"
+              >
+                {downloading ? "Generating…" : "Download Interior Template PDF"}
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </button>
+              <p className="text-xs text-m2p-muted mt-2">
+                Includes trim lines, safe zones, and margin guides for accurate layout.
+              </p>
             </>
           )}
         </div>
 
-        <p className="mt-6 font-sans text-xs text-brand-muted">
+        {/* Reality hook */}
+        <div className="rounded-xl bg-white border border-m2p-border px-5 py-4 mb-5">
+          <p className="font-semibold text-m2p-ink text-sm mb-1">A template does not guarantee approval</p>
+          <p className="text-m2p-muted text-sm leading-relaxed">
+            Even if your layout looks correct, KDP can still reject your file for margin issues,
+            page size mismatches, or font problems that only appear in the final PDF.
+          </p>
+        </div>
+
+        <p className="text-xs text-m2p-muted mb-5 text-center">
           Based on Amazon KDP interior margin requirements. Gutter increases with page count. No data sent to the server.
         </p>
 
-        <p className="mt-4 font-sans text-sm text-brand-muted">
-          <Link href="/cover-calculator" className="text-brand-gold hover:underline">Cover calculator</Link> for full-wrap dimensions and cover template. <Link href="/kdp-formatter" className="text-brand-gold hover:underline">KDP Formatter</Link> for Word → print-ready PDF.
-        </p>
-        <p className="text-center text-m2p-muted text-xs mt-8">© manu2print.com — Built for indie authors</p>
-      </main>
-    </div>
+        {/* Related tools */}
+        <div className="mt-5 text-center">
+          <p className="text-xs text-m2p-muted font-semibold mb-2 uppercase tracking-wide">
+            Related free tools
+          </p>
+          <div className="flex flex-wrap gap-2 justify-center">
+            <Link href="/trim-size-comparison" className="inline-flex items-center rounded-full bg-[#2D6A2D] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#1A3A2A] transition-colors">Trim Size Comparison →</Link>
+            <Link href="/cover-calculator" className="inline-flex items-center rounded-full bg-[#2D6A2D] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#1A3A2A] transition-colors">Cover Size Calculator →</Link>
+            <Link href="/spine-calculator" className="inline-flex items-center rounded-full bg-[#2D6A2D] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#1A3A2A] transition-colors">Spine Width Calculator →</Link>
+          </div>
+        </div>
+
+        {/* Conversion bridge */}
+        {hasInteracted && <KdpConversionBridge />}
+
+      </div>
+    </ToolPageShell>
   );
 }
