@@ -22,6 +22,7 @@ export default function PageCountEstimatorPage() {
   const [wordCountInput, setWordCountInput] = useState("50000");
   const [trimId, setTrimId] = useState<TrimSizeId>("6x9");
   const [fontSize, setFontSize] = useState<10 | 11 | 12>(11);
+  const [hasInteracted, setHasInteracted] = useState(false);
 
   const wordCount = useMemo(
     () => sanitizeWordCount(wordCountInput === "" ? 0 : Number(wordCountInput.replace(/\D/g, ""))),
@@ -56,7 +57,7 @@ export default function PageCountEstimatorPage() {
                 inputMode="numeric"
                 placeholder="50000"
                 value={wordCountInput}
-                onChange={(e) => setWordCountInput(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                onChange={(e) => { setWordCountInput(e.target.value.replace(/\D/g, "").slice(0, 10)); setHasInteracted(true); }}
                 className="w-full rounded-lg border border-m2p-border px-4 py-2.5 bg-m2p-ivory text-sm text-m2p-ink focus:outline-none focus:ring-2 focus:ring-m2p-orange"
               />
               <p className="text-xs text-m2p-muted mt-1">Numbers only, max {MAX_WORDS.toLocaleString()} words.</p>
@@ -65,7 +66,7 @@ export default function PageCountEstimatorPage() {
               <label className="block text-sm font-medium text-m2p-ink mb-2">Trim size</label>
               <select
                 value={safeTrimId}
-                onChange={(e) => setTrimId(e.target.value as TrimSizeId)}
+                onChange={(e) => { setTrimId(e.target.value as TrimSizeId); setHasInteracted(true); }}
                 className="w-full rounded-lg border border-m2p-border px-4 py-2.5 bg-m2p-ivory text-sm text-m2p-ink focus:outline-none focus:ring-2 focus:ring-m2p-orange"
               >
                 {KDP_TRIM_SIZES.map((t) => (
@@ -83,7 +84,7 @@ export default function PageCountEstimatorPage() {
                       name="fontSize"
                       value={f}
                       checked={fontSize === f}
-                      onChange={() => setFontSize(f)}
+                      onChange={() => { setFontSize(f); setHasInteracted(true); }}
                       className="text-m2p-orange focus:ring-m2p-orange"
                     />
                     <span className="text-sm text-m2p-ink">{f}pt</span>
@@ -109,9 +110,7 @@ export default function PageCountEstimatorPage() {
           Estimate only. Actual page count depends on layout, headings, and images. No data sent to the server.
         </p>
 
-        <KdpConversionBridge />
-
-        <KdpConversionBridge />
+        {hasInteracted && <KdpConversionBridge />}
       </div>
     </ToolPageShell>
   );
