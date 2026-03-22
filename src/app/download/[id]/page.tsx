@@ -494,20 +494,36 @@ export default function DownloadPage() {
                   {report.uploadChecklist && report.uploadChecklist.length > 0 && (
                     <div className="mb-4">
                       <p className="text-xs font-medium text-m2p-ink mb-2">Upload readiness checklist</p>
-                      <ul className="text-sm text-m2p-muted space-y-1">
-                        {report.uploadChecklist.map((item, i) => (
-                          <li key={i}>
-                            {item.status === "pass" && "✅ "}
-                            {item.status === "warning" && "⚠️ "}
-                            {item.status === "fail" && "❌ "}
-                            {item.check === "No critical errors" || item.check === "Critical errors found"
+                      <div className="space-y-2">
+                        {report.uploadChecklist.map((item, i) => {
+                          const statusStyles = {
+                            pass: "bg-green-50 border-green-200 text-green-800",
+                            warning: "bg-amber-50 border-amber-200 text-amber-800",
+                            fail: "bg-red-50 border-red-200 text-red-800",
+                          } as const;
+                          const statusIcon = {
+                            pass: "✅",
+                            warning: "⚠️",
+                            fail: "❌",
+                          } as const;
+                          const checkLabel =
+                            item.check === "No critical errors" || item.check === "Critical errors found"
                               ? item.status === "pass"
                                 ? "Passed — no critical errors"
                                 : "Failed — critical errors found"
-                              : item.check}
-                          </li>
-                        ))}
-                      </ul>
+                              : item.check;
+                          return (
+                            <div
+                              key={i}
+                              className={`flex items-center gap-3 rounded-lg border px-4 py-2.5 text-sm font-medium ${statusStyles[item.status]}`}
+                            >
+                              <span>{statusIcon[item.status]}</span>
+                              <span className="flex-1">{checkLabel}</span>
+                              <span className="text-xs uppercase tracking-wide opacity-70">{item.status}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
                   {report.specTable && report.specTable.length > 0 && (

@@ -162,9 +162,7 @@ export default function KdpPdfCheckerPage() {
       const msg = err instanceof Error ? err.message : "Check failed";
       const isFailedFetch = msg === "Failed to fetch" || msg.includes("R2 upload") || msg.includes("upload URL");
       if (isFailedFetch) {
-        setError(
-          "Upload failed. Try again in a moment."
-        );
+        setError("Upload failed. Try again in a moment.");
       } else {
         setError(msg);
       }
@@ -175,135 +173,178 @@ export default function KdpPdfCheckerPage() {
 
   return (
     <SiteShell>
+      {/* Top bar */}
       <div className="border-b border-m2p-border bg-m2p-orange-soft">
         <div className="mx-auto max-w-4xl px-6 py-3 flex items-center gap-3">
           <span className="inline-flex items-center rounded-full bg-m2p-orange/20 border border-m2p-orange/30 px-2.5 py-0.5 text-xs font-medium text-m2p-orange">Paid</span>
-          <span className="text-sm font-semibold text-m2p-ink">Print Ready Check</span>
+          <span className="text-sm font-semibold text-m2p-ink">KDP PDF Checker</span>
           <span className="mx-2 text-m2p-muted">|</span>
-          <span className="text-sm text-m2p-muted">Full PDF validation: 26 KDP rules, trim, margins, bleed — pass/fail before you upload</span>
+          <span className="text-sm text-m2p-muted">$9 per scan · no subscription</span>
         </div>
       </div>
 
-      <main className="mx-auto max-w-2xl px-6 py-12">
-        <ToolBreadcrumb backHref="/" backLabel="All Tools" currentLabel="Print Ready Check" className="mb-6 text-m2p-muted [&_a]:text-m2p-muted [&_a:hover]:text-m2p-orange [&_span]:text-m2p-muted" />
-        <h1 className="font-bebas text-3xl tracking-wide text-m2p-ink">Print Ready Check</h1>
-        <p className="mt-2 text-m2p-muted">Upload your interior PDF. We’ll report trim size, page count, and any issues so you can fix before uploading to KDP. $7 per use or $27 for 6 months.</p>
-        <p className="mt-2 text-m2p-muted text-sm">Many indies design in Canva (or similar) and upload the PDF they export — we'll check that PDF against KDP specs. If you format from Word, use <Link href="/kdp-formatter" className="text-m2p-orange hover:underline">KDP Formatter (DOCX)</Link> for your print PDF.</p>
+      {/* Section A — Hero / upload area */}
+      <section className="bg-m2p-ivory py-12">
+        <div className="mx-auto max-w-2xl px-6">
+          <ToolBreadcrumb backHref="/" backLabel="All Tools" currentLabel="KDP PDF Checker" className="mb-6 text-m2p-muted [&_a]:text-m2p-muted [&_a:hover]:text-m2p-orange [&_span]:text-m2p-muted" />
 
-        <div
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          style={{ position: "relative", overflow: "hidden" }}
-          className={`mt-8 rounded-2xl border-2 border-dashed p-14 text-center transition-all ${
-            isDragging ? "border-m2p-orange bg-m2p-orange-soft" : "border-m2p-border bg-white hover:border-m2p-orange/50"
-          }`}
-        >
-          <input
-            type="file"
-            accept=".pdf,application/pdf"
-            onChange={handleFileSelect}
-            className="hidden"
-            id="checker-file"
-          />
-          <label htmlFor="checker-file" className="cursor-pointer block">
-            {file ? (
-              <div style={{ position: "relative", overflow: "hidden" }} className="min-h-[60px]">
-                <p className="text-m2p-ink font-medium">{cleanFilenameForDisplay(file.name)}</p>
-                <p className="text-sm text-m2p-muted mt-1">{formatFileSize(file.size)} — ready to check</p>
-                <Image
-                  src="/MANNY AVATAR.png"
-                  alt=""
-                  width={80}
-                  height={80}
-                  style={{
-                    position: "absolute",
-                    bottom: "0px",
-                    right: "0px",
-                    opacity: 0.12,
-                    pointerEvents: "none",
-                    borderRadius: "50%",
-                  }}
-                />
-              </div>
-            ) : (
-              <>
-                <p className="text-m2p-muted">Drop your PDF here or click to choose</p>
-                <Image
-                  src="/MANNY AVATAR.png"
-                  alt=""
-                  width={90}
-                  height={90}
-                  style={{
-                    position: "absolute",
-                    bottom: "0px",
-                    right: "0px",
-                    opacity: 0.15,
-                    pointerEvents: "none",
-                    borderRadius: "50%",
-                  }}
-                />
-              </>
-            )}
-          </label>
-        </div>
+          <h1 className="font-bebas text-3xl tracking-wide text-m2p-ink">KDP PDF Checker</h1>
 
-        {file && (
-          <div className="mt-4 rounded-lg bg-m2p-orange-soft/50 border border-m2p-border p-3 text-sm text-m2p-muted">
-            File will be uploaded securely and checked. You’ll get the full report on the results page.
+          <p className="mt-2 text-m2p-muted text-base leading-relaxed">
+            Upload your interior PDF and get a full KDP compliance report — trim size, margins,
+            bleed, fonts, and page count checked against all 26 KDP rules. Every issue flagged
+            with exact page numbers before you upload to Amazon.
+          </p>
+          <p className="mt-3 text-m2p-muted text-sm">
+            Designed in Canva, InDesign, or exported from Word? We check the final PDF —
+            exactly what KDP will see.
+          </p>
+
+          {/* Free tools reference */}
+          <div className="mt-4 rounded-xl bg-m2p-orange-soft border border-m2p-orange/20 p-4 text-sm text-m2p-muted">
+            <span className="font-semibold text-m2p-ink">Free tools that may help first: </span>
+            <Link href="/pdf-compress" className="text-m2p-orange hover:underline">PDF Compressor</Link>
+            {" · "}
+            <Link href="/spine-calculator" className="text-m2p-orange hover:underline">Spine Width Calculator</Link>
+            {" · "}
+            <Link href="/trim-size-comparison" className="text-m2p-orange hover:underline">Trim Size Comparison</Link>
+            {" · "}
+            <Link href="/page-count-estimator" className="text-m2p-orange hover:underline">Page Count Estimator</Link>
           </div>
-        )}
 
-        {error && (
-          <div className="mt-4 rounded-lg bg-red-500/10 border border-red-500/30 p-3 text-sm text-red-600">
-            {error}
-            {file && (
-              <p className="mt-2">
-                <Link href="/pdf-compress" className="text-m2p-orange hover:underline">
-                  Use our free PDF Compressor →
-                </Link>
-              </p>
-            )}
-            <ErrorRecovery />
-          </div>
-        )}
-
-        <div className="mt-6 flex gap-3">
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={!file || uploading}
-            className="flex-1 rounded-xl bg-m2p-orange hover:bg-m2p-orange-hover disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 transition-colors"
+          {/* Dropzone */}
+          <div
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            style={{ position: "relative", overflow: "hidden" }}
+            className={`mt-8 rounded-2xl border-2 border-dashed p-14 text-center transition-all ${
+              isDragging ? "border-m2p-orange bg-m2p-orange-soft" : "border-m2p-border bg-white hover:border-m2p-orange/50"
+            }`}
           >
-            {uploading ? "Checking…" : "Check My PDF"}
-          </button>
+            <input
+              type="file"
+              accept=".pdf,application/pdf"
+              onChange={handleFileSelect}
+              className="hidden"
+              id="checker-file"
+            />
+            <label htmlFor="checker-file" className="cursor-pointer block">
+              {file ? (
+                <div style={{ position: "relative", overflow: "hidden" }} className="min-h-[60px]">
+                  <p className="text-m2p-ink font-medium">{cleanFilenameForDisplay(file.name)}</p>
+                  <p className="text-sm text-m2p-muted mt-1">{formatFileSize(file.size)} — ready to check</p>
+                  <Image
+                    src="/MANNY AVATAR.png"
+                    alt=""
+                    width={80}
+                    height={80}
+                    style={{
+                      position: "absolute",
+                      bottom: "0px",
+                      right: "0px",
+                      opacity: 0.12,
+                      pointerEvents: "none",
+                      borderRadius: "50%",
+                    }}
+                  />
+                </div>
+              ) : (
+                <>
+                  <p className="text-m2p-muted">Drop your PDF here or click to choose</p>
+                  <Image
+                    src="/MANNY AVATAR.png"
+                    alt=""
+                    width={90}
+                    height={90}
+                    style={{
+                      position: "absolute",
+                      bottom: "0px",
+                      right: "0px",
+                      opacity: 0.15,
+                      pointerEvents: "none",
+                      borderRadius: "50%",
+                    }}
+                  />
+                </>
+              )}
+            </label>
+          </div>
+
           {file && (
+            <div className="mt-4 rounded-lg bg-m2p-orange-soft/50 border border-m2p-border p-3 text-sm text-m2p-muted">
+              File will be uploaded securely and checked. You&apos;ll get the full report on the results page.
+            </div>
+          )}
+
+          {error && (
+            <div className="mt-4 rounded-lg bg-red-500/10 border border-red-500/30 p-3 text-sm text-red-600">
+              {error}
+              {file && (
+                <p className="mt-2">
+                  <Link href="/pdf-compress" className="text-m2p-orange hover:underline">
+                    Use our free PDF Compressor →
+                  </Link>
+                </p>
+              )}
+              <ErrorRecovery />
+            </div>
+          )}
+
+          <div className="mt-6 flex gap-3">
             <button
               type="button"
-              onClick={() => { setFile(null); setError(null); }}
-              className="rounded-xl border border-m2p-border text-m2p-muted hover:bg-m2p-orange-soft/50 py-3 px-6 transition-colors"
+              onClick={handleSubmit}
+              disabled={!file || uploading}
+              className="flex-1 rounded-xl bg-m2p-orange hover:bg-m2p-orange-hover disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 transition-colors"
             >
-              Clear
+              {uploading ? "Checking…" : "Check My PDF"}
             </button>
+            {file && (
+              <button
+                type="button"
+                onClick={() => { setFile(null); setError(null); }}
+                className="rounded-xl border border-m2p-border text-m2p-muted hover:bg-m2p-orange-soft/50 py-3 px-6 transition-colors"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+
+          {/* Animated timer */}
+          {uploading && (
+            <div className="mt-6 rounded-2xl bg-m2p-ink border border-m2p-orange/20 p-6 text-center">
+              <div className="mx-auto mb-4 w-16 h-16 rounded-full border-4 border-m2p-orange/20 border-t-m2p-orange animate-spin" />
+              <p className="font-bebas text-m2p-ivory text-2xl tracking-wide mb-1">
+                Scanning Your Manuscript
+              </p>
+              <p className="text-m2p-ivory/60 text-sm mb-3">
+                Checking 26 KDP compliance rules…
+              </p>
+              <div className="font-bebas text-m2p-orange text-4xl tabular-nums">
+                {formatElapsedSeconds(checkElapsedSec)}
+              </div>
+              <p className="text-m2p-ivory/40 text-xs mt-2">
+                Most scans complete in under 90 seconds
+              </p>
+            </div>
           )}
         </div>
+      </section>
 
-        {uploading && (
-          <p className="mt-3 text-center text-sm font-medium text-m2p-ink" aria-live="polite">
-            Checking your manuscript…{" "}
-            <span className="tabular-nums font-semibold text-m2p-orange">{formatElapsedSeconds(checkElapsedSec)}</span>
-          </p>
-        )}
-
-        <WhatHappensNext
-          className="mt-8 bg-m2p-orange-soft/50 border border-m2p-border text-m2p-muted [&_p]:text-m2p-muted [&_.font-medium]:text-m2p-ink"
-          steps={[
-            "We check your PDF: trim size, page count (24–828), and file size.",
-            "You're redirected to the download page with your report (issues and what to fix).",
-            "Complete payment and download your KDP format report.",
-          ]}
-        />
-      </main>
+      {/* Section B — What happens next */}
+      <section className="bg-m2p-ink py-10">
+        <div className="mx-auto max-w-2xl px-6">
+          <WhatHappensNext
+            className="bg-white/5 border border-white/10 text-m2p-ivory/80 [&_p]:text-m2p-ivory/70 [&_.font-medium]:text-m2p-ivory"
+            steps={[
+              "Upload your PDF — any browser, any OS. No software needed.",
+              "We scan 26 KDP rules — trim size, margins, bleed, fonts, page count. Every issue flagged with exact page numbers.",
+              "Pay $9 and download your annotated PDF report. Fix issues. Upload to KDP with confidence.",
+            ]}
+          />
+        </div>
+      </section>
     </SiteShell>
   );
 }
