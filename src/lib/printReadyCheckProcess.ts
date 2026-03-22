@@ -7,6 +7,7 @@ import { PDFDocument } from "pdf-lib";
 import { saveUpload, updateMeta, type StoredManuscript } from "./storage";
 import { getSignedDownloadUrl, getFileByKey, getSignedUrlForKey } from "./r2Storage";
 import { getGutterInches } from "./kdpConfig";
+import { toFixDifficulty } from "./kdpReportEnhance";
 import { inspectPdfBufferForChecker } from "./kdpPdfInspect";
 import { supabase } from "./supabase";
 import { enrichCheckerReport } from "./kdpReportEnhance";
@@ -250,7 +251,12 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
     const annotateRes = await fetch(`${url}/annotate/${encodeURIComponent(renderJobId)}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(preflight ?? { page_issues: [] }),
+      body: JSON.stringify({
+        page_issues: (preflight?.page_issues ?? report.page_issues ?? []).map((issue) => ({
+          ...issue,
+          fixDifficulty: toFixDifficulty(issue.rule_id, issue.message),
+        })),
+      }),
       signal: AbortSignal.timeout(120000),
     });
     if (annotateRes.ok) {

@@ -30,7 +30,7 @@ const EASY_KEYWORDS = ["margin", "metadata", "gutter", "inner margin", "outer ma
 const MODERATE_KEYWORDS = ["bleed", "crop", "safe area", "trim box"];
 const ADVANCED_KEYWORDS = ["font", "embed", "layout", "color", "resolution", "image", "raster", "transparency"];
 
-function toFixDifficulty(ruleId: string, message: string): FixDifficulty {
+export function toFixDifficulty(ruleId: string, message: string): FixDifficulty {
   const r = ruleId.toLowerCase();
   // Blank pages must never be "advanced" (message mentions "images" and would match ADVANCED_KEYWORDS).
   if (r === "empty_page") return "easy";

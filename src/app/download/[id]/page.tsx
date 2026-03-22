@@ -8,7 +8,7 @@ import Link from "next/link";
 import Image from "next/image";
 import PaymentGate from "@/components/PaymentGate";
 import CheckerPdfViewer from "@/components/CheckerPdfViewer";
-import { difficultyLabel, cleanFilenameForDisplay, type FixDifficulty } from "@/lib/kdpReportEnhance";
+import { difficultyLabel, cleanFilenameForDisplay, toFixDifficulty, type FixDifficulty } from "@/lib/kdpReportEnhance";
 
 const MAX_ISSUES_GROUP_DISPLAY = 10;
 
@@ -98,7 +98,7 @@ interface ProcessingReport {
   recommendations?: string[];
   fileSizeMB?: number;
   recommendedGutterInches?: number;
-  page_issues?: Array<{ page: number; rule_id: string; severity: string; message: string; bbox: number[] | null }>;
+  page_issues?: Array<{ page: number; rule_id: string; severity: string; message: string; bbox: number[] | null; fixDifficulty?: string }>;
   hasPdfPreview?: boolean;
   pdfSourceUrl?: string;
   annotatedPdfUrl?: string;
@@ -421,7 +421,10 @@ export default function DownloadPage() {
             <h2 className="text-lg font-semibold text-m2p-ink mb-3">View issues on your PDF</h2>
             <CheckerPdfViewer
               pdfUrl={report.pdfSourceUrl}
-              pageIssues={report.page_issues ?? []}
+              pageIssues={(report.page_issues ?? []).map((issue) => ({
+                ...issue,
+                fixDifficulty: issue.fixDifficulty ?? toFixDifficulty(issue.rule_id, issue.message),
+              }))}
               totalPages={report.pageCount ?? 0}
             />
             {/* Annotated preview status sits directly under the viewer for checker reports */}

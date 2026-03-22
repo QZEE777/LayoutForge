@@ -13,6 +13,7 @@ interface PageIssue {
   severity: string;
   message: string;
   bbox: number[] | null;
+  fixDifficulty?: string;
 }
 
 interface CheckerPdfViewerProps {
@@ -396,15 +397,15 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
               {issuesForPage.map((issue, idx) => {
                 if (!issue.bbox || issue.bbox.length < 4) return null;
                 const [x, y, w, h] = issue.bbox;
+                const fixDiff = (issue.fixDifficulty ?? "").toLowerCase();
                 const sev = (issue.severity ?? "").toLowerCase();
-                const stroke =
-                  sev === "critical" || sev === "error" || sev === "advanced"
-                    ? "#FF0000"
-                    : sev === "moderate" || sev === "warning"
-                      ? "#FFB800"
-                      : sev === "easy" || sev === "minor"
-                        ? "#33B233"
-                        : "#FFB800";
+                const isRed =
+                  fixDiff === "advanced" ||
+                  (!fixDiff && (sev === "critical" || sev === "error" || sev === "advanced"));
+                const isGreen =
+                  fixDiff === "easy" ||
+                  (!fixDiff && (sev === "easy" || sev === "minor"));
+                const stroke = isRed ? "#FF0000" : isGreen ? "#33B233" : "#FFB800";
                 return (
                   <rect
                     key={`${issue.page}-${issue.rule_id}-${idx}`}

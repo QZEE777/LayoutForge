@@ -5,7 +5,7 @@ export const maxDuration = 120;
 import { saveUpload, updateMeta, type StoredManuscript } from "@/lib/storage";
 import { getSignedDownloadUrl, getSignedUrlForKey } from "@/lib/r2Storage";
 import { TRIM_SIZES, getGutterInches } from "@/lib/kdpConfig";
-import { enrichCheckerReport, cleanFilenameForDisplay } from "@/lib/kdpReportEnhance";
+import { enrichCheckerReport, cleanFilenameForDisplay, toFixDifficulty } from "@/lib/kdpReportEnhance";
 import { supabase } from "@/lib/supabase";
 
 const PT_PER_INCH = 72;
@@ -279,7 +279,12 @@ export async function POST(request: NextRequest) {
         const annotateRes = await fetch(`${engineBaseUrl}/annotate/${annotateJobId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(preflightReport ?? { page_issues: [] }),
+          body: JSON.stringify({
+            page_issues: (preflightReport?.page_issues ?? []).map((issue) => ({
+              ...issue,
+              fixDifficulty: toFixDifficulty(issue.rule_id, issue.message),
+            })),
+          }),
           signal: AbortSignal.timeout(120000),
         });
         if (annotateRes.ok) {

@@ -26,6 +26,12 @@ _SEVERITY_COLORS: dict[str, tuple[float, float, float]] = {
     "easy":     (0.2, 0.7, 0.2),
     "minor":    (0.2, 0.7, 0.2),
 }
+# fixDifficulty (from TypeScript enrichment) → RGB color — takes priority over severity
+_FIX_DIFFICULTY_COLORS: dict[str, tuple[float, float, float]] = {
+    "advanced": (1.0, 0.0, 0.0),
+    "moderate": (1.0, 0.8, 0.0),
+    "easy":     (0.2, 0.7, 0.2),
+}
 _DEFAULT_COLOR: tuple[float, float, float] = (1.0, 0.8, 0.0)  # yellow fallback
 
 
@@ -33,6 +39,14 @@ def _color_for_severity(severity: str | None) -> tuple[float, float, float]:
     if not severity:
         return _DEFAULT_COLOR
     return _SEVERITY_COLORS.get(severity.lower().strip(), _DEFAULT_COLOR)
+
+
+def _color_for_issue(issue: dict[str, Any]) -> tuple[float, float, float]:
+    """Prefer fixDifficulty (TS-enriched) over raw severity for color selection."""
+    fix_diff = str(issue.get("fixDifficulty") or "").lower().strip()
+    if fix_diff in _FIX_DIFFICULTY_COLORS:
+        return _FIX_DIFFICULTY_COLORS[fix_diff]
+    return _color_for_severity(issue.get("severity"))
 
 
 def annotate_pdf_inline(report: dict[str, Any], path_in: Path) -> str:
@@ -61,7 +75,7 @@ def annotate_pdf_inline(report: dict[str, Any], path_in: Path) -> str:
             if not bbox or len(bbox) < 4:
                 continue
             x, y, w, h = float(bbox[0]), float(bbox[1]), float(bbox[2]), float(bbox[3])
-            color = _color_for_severity(issue.get("severity"))
+            color = _color_for_issue(issue)
             page = doc[page_index]
             rect = fitz.Rect(x, y, x + w, y + h)
             page.draw_rect(rect, color=color, width=1.5)
