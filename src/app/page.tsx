@@ -5,6 +5,7 @@ import SiteFooter from "@/components/SiteFooter";
 import ToolBadge from "@/components/ToolBadge";
 import PlatformWaitlistForm from "@/components/PlatformWaitlistForm";
 import TargetGraphic from "@/components/TargetGraphic";
+import TestimonialsCarousel from "@/components/TestimonialsCarousel";
 
 export const metadata = {
   title: "KDP PDF Checker — Find Formatting Errors Before Amazon Rejects Your Book | manu2print",
@@ -164,6 +165,23 @@ export default function Home() {
               </li>
             ))}
           </ul>
+        </div>
+      </section>
+
+      {/* ─── SECTION 4B — TESTIMONIALS ─────────────────────────────────── */}
+      {/* Background: ivory #FAF7EE */}
+      <section className="bg-m2p-ivory py-20 text-center">
+        <div className="max-w-4xl mx-auto px-6">
+          <p className="font-bebas text-m2p-orange mb-2 uppercase tracking-[0.1em] text-sm">
+            WHAT AUTHORS SAY
+          </p>
+          <h2 className="font-bebas text-m2p-ink leading-tight mb-12" style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
+            <span className="block">Real Authors.</span>
+            <span className="block text-m2p-orange" style={{ fontSize: "clamp(1.25rem, 2.5vw, 2rem)", marginTop: "0.2rem" }}>
+              Real Results.
+            </span>
+          </h2>
+          <TestimonialsCarousel />
         </div>
       </section>
 
