@@ -4,6 +4,7 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import ToolBadge from "@/components/ToolBadge";
 import PlatformWaitlistForm from "@/components/PlatformWaitlistForm";
+import TargetGraphic from "@/components/TargetGraphic";
 
 export const metadata = {
   title: "KDP PDF Checker — Find Formatting Errors Before Amazon Rejects Your Book | manu2print",
@@ -28,31 +29,50 @@ export default function Home() {
 
       {/* ─── SECTION 1 — HERO ─────────────────────────────────────────── */}
       {/* Background: near-black #1A1208 */}
-      <section className="bg-m2p-ink py-16 md:py-24 text-center">
-        <div className="max-w-4xl mx-auto px-6">
-          <h1
-            className="font-bebas text-m2p-ivory leading-none tracking-wide mb-5"
-            style={{ fontSize: "clamp(2.5rem, 6vw, 5rem)" }}
-          >
-            KDP PDF Checker — Find Formatting Errors Before Amazon Rejects Your Book
-          </h1>
-          <p className="text-m2p-ivory/90 text-lg max-w-2xl mx-auto mb-4 leading-relaxed">
-            Upload your manuscript and get a clear, page-by-page KDP compliance report in minutes — before you submit.
-          </p>
-          <p className="text-m2p-ivory/55 text-sm italic mb-8">
-            KDP rejected your PDF? We show you exactly why.
-          </p>
-          <div className="flex justify-center mb-5">
-            <Link
-              href="/kdp-pdf-checker"
-              className="bg-m2p-orange hover:bg-m2p-orange-hover text-white font-bold text-base px-8 py-4 rounded-xl shadow-[0_4px_24px_rgba(240,90,40,0.45)] hover:-translate-y-0.5 transition-all uppercase tracking-wide"
-            >
-              Check My PDF for KDP Errors — $9
-            </Link>
+      <section className="bg-m2p-ink py-16 md:py-20">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+            {/* LEFT — text content */}
+            <div className="flex-[1.1] w-full lg:w-auto order-2 lg:order-1 text-center lg:text-left">
+              <h1 className="font-bebas text-m2p-ivory leading-none tracking-wide mb-5">
+                <span
+                  className="block"
+                  style={{ fontSize: "clamp(3rem, 7vw, 6rem)" }}
+                >
+                  KDP PDF Checker
+                </span>
+                <span
+                  className="block text-m2p-ivory/80"
+                  style={{ fontSize: "clamp(1.5rem, 3.5vw, 2.75rem)", marginTop: "0.4rem" }}
+                >
+                  Find Formatting Errors Before Amazon Rejects Your Book
+                </span>
+              </h1>
+              <p className="text-m2p-ivory/90 text-lg max-w-2xl mx-auto lg:mx-0 mb-4 leading-relaxed">
+                Upload your manuscript and get a clear, page-by-page KDP compliance report in minutes — before you submit.
+              </p>
+              <p className="text-m2p-ivory/55 text-sm italic mb-8">
+                KDP rejected your PDF? We show you exactly why.
+              </p>
+              <div className="flex justify-center lg:justify-start mb-5">
+                <Link
+                  href="/kdp-pdf-checker"
+                  className="bg-m2p-orange hover:bg-m2p-orange-hover text-white font-bold text-base px-8 py-4 rounded-xl shadow-[0_4px_24px_rgba(240,90,40,0.45)] hover:-translate-y-0.5 transition-all uppercase tracking-wide"
+                >
+                  Check My PDF for KDP Errors — $9
+                </Link>
+              </div>
+              <p className="text-m2p-ivory/40 text-xs italic text-center lg:text-left">
+                Built for indie authors publishing on Amazon KDP — covering margins, bleed, trim size, and full PDF compliance.
+              </p>
+            </div>
+            {/* RIGHT — target graphic */}
+            <div className="flex-[0.9] flex flex-col items-center w-full lg:w-auto order-1 lg:order-2">
+              <div className="max-w-sm mx-auto w-full flex flex-col items-center">
+                <TargetGraphic size={340} />
+              </div>
+            </div>
           </div>
-          <p className="text-m2p-ivory/40 text-xs italic">
-            Built for indie authors publishing on Amazon KDP — covering margins, bleed, trim size, and full PDF compliance.
-          </p>
         </div>
       </section>
 
@@ -269,7 +289,7 @@ export default function Home() {
 
       {/* ─── SECTION 6 — PRICING / SCAN PACKS ─────────────────────────── */}
       {/* Background: near-black #1A1208 */}
-      <section id="pricing" className="bg-m2p-ink py-20 text-center">
+      <section id="pricing" className="py-20 text-center" style={{ backgroundColor: "#1A3A2A" }}>
         <div className="max-w-6xl mx-auto px-6">
           <p className="font-bebas text-m2p-orange mb-2 uppercase tracking-[0.1em] text-sm">
             PRICING
@@ -287,7 +307,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 max-w-5xl mx-auto">
 
             {/* Card 1 — Single Scan (LIVE) */}
-            <div className="bg-white/5 border-2 border-m2p-orange rounded-2xl p-6 text-center flex flex-col relative">
+            <div className="border-2 border-m2p-orange rounded-2xl p-6 text-center flex flex-col relative" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
               <div className="mb-3">
                 <span className="inline-block bg-m2p-orange text-white text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full">
                   LIVE
@@ -311,7 +331,7 @@ export default function Home() {
             </div>
 
             {/* Card 2 — Author Pack (COMING SOON / MOST POPULAR) */}
-            <div className="bg-white/5 border-2 border-m2p-orange/40 rounded-2xl p-6 text-center flex flex-col relative opacity-90">
+            <div className="border-2 border-m2p-orange/40 rounded-2xl p-6 text-center flex flex-col relative opacity-90" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
               <div className="mb-3 flex flex-wrap gap-2 justify-center">
                 <span className="inline-block bg-white/10 text-m2p-ivory/70 text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full border border-white/10">
                   COMING SOON
@@ -340,7 +360,7 @@ export default function Home() {
             </div>
 
             {/* Card 3 — Indie Publisher (COMING SOON) */}
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-center flex flex-col relative opacity-90">
+            <div className="border border-white/10 rounded-2xl p-6 text-center flex flex-col relative opacity-90" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
               <div className="mb-3">
                 <span className="inline-block bg-white/10 text-m2p-ivory/70 text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full border border-white/10">
                   COMING SOON
@@ -366,7 +386,7 @@ export default function Home() {
             </div>
 
             {/* Card 4 — Pro / Studio (COMING SOON) */}
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-center flex flex-col relative opacity-90">
+            <div className="border border-white/10 rounded-2xl p-6 text-center flex flex-col relative opacity-90" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
               <div className="mb-3">
                 <span className="inline-block bg-white/10 text-m2p-ivory/70 text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full border border-white/10">
                   COMING SOON
