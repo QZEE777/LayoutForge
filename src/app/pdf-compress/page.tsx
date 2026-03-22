@@ -302,7 +302,6 @@ export default function PdfCompressPage() {
           </div>
         )}
 
-        <KdpConversionBridge />
       </div>
     </ToolPageShell>
   );

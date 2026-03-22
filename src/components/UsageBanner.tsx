@@ -50,25 +50,25 @@ export default function UsageBanner() {
       <div className="mx-auto max-w-6xl flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
         {usage.is_founder ? (
           /* Founder state — promo bar, not status label */
-          <span className="text-sm font-medium text-center text-white/90 group-hover:text-white transition-colors">
+          <span className="text-sm font-medium text-center transition-colors" style={{ color: "#a8d5a2" }}>
             {PROMO_MESSAGE}
-            <span className="ml-2 text-m2p-orange font-bold group-hover:translate-x-0.5 inline-block transition-transform">
+            <span className="ml-2 font-bold group-hover:translate-x-0.5 inline-block transition-all" style={{ color: "#F05A28" }}>
               →
             </span>
           </span>
         ) : atLimit ? (
           /* At limit state */
-          <span className="text-sm font-medium text-center text-white/90 group-hover:text-white transition-colors">
+          <span className="text-sm font-medium text-center transition-colors" style={{ color: "#a8d5a2" }}>
             {PROMO_MESSAGE}
-            <span className="ml-2 text-m2p-orange font-bold group-hover:translate-x-0.5 inline-block transition-transform">
+            <span className="ml-2 font-bold group-hover:translate-x-0.5 inline-block transition-all" style={{ color: "#F05A28" }}>
               →
             </span>
           </span>
         ) : (
           /* Free uses remaining state */
-          <span className="text-sm font-medium text-center text-white/90 group-hover:text-white transition-colors">
+          <span className="text-sm font-medium text-center transition-colors" style={{ color: "#a8d5a2" }}>
             {PROMO_MESSAGE}
-            <span className="ml-2 text-m2p-orange font-bold group-hover:translate-x-0.5 inline-block transition-transform">
+            <span className="ml-2 font-bold group-hover:translate-x-0.5 inline-block transition-all" style={{ color: "#F05A28" }}>
               →
             </span>
           </span>
