@@ -198,23 +198,6 @@ export default function RoyaltyCalculatorPage() {
         </div>
 
         {hasInteracted && <KdpConversionBridge />}
-
-        <div className="mt-6 rounded-xl bg-m2p-orange-soft border border-m2p-orange/20 p-5 text-center">
-          <p className="font-bebas text-m2p-ink text-lg mb-1">
-            Ready for the next step?
-          </p>
-          <p className="text-m2p-muted text-sm mb-4 leading-relaxed">
-            You have your royalty estimate. Now check whether your interior
-            PDF will pass KDP review before you upload — margins, bleed,
-            trim size, and fonts can still trigger rejection.
-          </p>
-          <Link
-            href="/kdp-pdf-checker"
-            className="inline-block bg-m2p-orange hover:bg-m2p-orange-hover text-white font-bold px-6 py-3 rounded-xl text-sm transition-colors"
-          >
-            Check My PDF — $9
-          </Link>
-        </div>
       </div>
     </ToolPageShell>
   );
