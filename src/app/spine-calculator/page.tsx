@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import {
   getSpineWidthInches,
   getFullWrapDimensions,
@@ -26,6 +26,9 @@ export default function SpineCalculatorPage() {
   const [pageCount, setPageCount] = useState(300);
   const [paperType, setPaperType] = useState<PaperType>("bw-cream");
   const [trimId, setTrimId] = useState<TrimSizeId>("6x9");
+  const [hasInteracted, setHasInteracted] = useState(false);
+
+  const markInteracted = useCallback(() => setHasInteracted(true), []);
 
   const pages = useMemo(() => clampPages(pageCount), [pageCount]);
   const spineInches = useMemo(() => getSpineWidthInches(pages, paperType), [pages, paperType]);
@@ -60,7 +63,7 @@ export default function SpineCalculatorPage() {
                 min={MIN_PAGES}
                 max={MAX_PAGES}
                 value={pageCount}
-                onChange={(e) => setPageCount(e.target.valueAsNumber ?? MIN_PAGES)}
+                onChange={(e) => { setPageCount(e.target.valueAsNumber ?? MIN_PAGES); markInteracted(); }}
                 className="w-full rounded-lg border border-m2p-border px-4 py-2.5 bg-m2p-ivory text-sm text-m2p-ink focus:outline-none focus:ring-2 focus:ring-m2p-orange"
               />
               <p className="text-xs text-m2p-muted mt-1">KDP range: {MIN_PAGES}–{MAX_PAGES} pages.</p>
@@ -69,7 +72,7 @@ export default function SpineCalculatorPage() {
               <label className="block text-sm font-medium text-m2p-ink mb-2">Paper type</label>
               <select
                 value={paperType}
-                onChange={(e) => setPaperType(e.target.value as PaperType)}
+                onChange={(e) => { setPaperType(e.target.value as PaperType); markInteracted(); }}
                 className="w-full rounded-lg border border-m2p-border px-4 py-2.5 bg-m2p-ivory text-sm text-m2p-ink focus:outline-none focus:ring-2 focus:ring-m2p-orange"
               >
                 {PAPER_OPTIONS.map((o) => (
@@ -81,7 +84,7 @@ export default function SpineCalculatorPage() {
               <label className="block text-sm font-medium text-m2p-ink mb-2">Trim size (for full-wrap)</label>
               <select
                 value={trimId}
-                onChange={(e) => setTrimId(e.target.value as TrimSizeId)}
+                onChange={(e) => { setTrimId(e.target.value as TrimSizeId); markInteracted(); }}
                 className="w-full rounded-lg border border-m2p-border px-4 py-2.5 bg-m2p-ivory text-sm text-m2p-ink focus:outline-none focus:ring-2 focus:ring-m2p-orange"
               >
                 {KDP_TRIM_SIZES.map((t) => (
@@ -119,9 +122,7 @@ export default function SpineCalculatorPage() {
           Based on KDP paperback paper thickness. Actual spine may vary slightly by marketplace. No data sent to the server.
         </p>
 
-        <KdpConversionBridge />
-
-        <KdpConversionBridge />
+        {hasInteracted && <KdpConversionBridge />}
       </div>
     </ToolPageShell>
   );
