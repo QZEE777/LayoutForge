@@ -32,8 +32,8 @@ export default function BannedKeywordCheckerPage() {
           </span>
         </h1>
         <p className="text-m2p-muted mb-3 text-center text-sm leading-relaxed">
-          Paste your title, subtitle, or description to flag words and phrases
-          that often cause KDP listing issues.
+          <span className="block">Paste your title, subtitle, or description</span>
+          <span className="block">to flag words and phrases that often cause KDP listing issues.</span>
         </p>
         <p className="text-m2p-muted text-sm mt-2 mb-5 leading-relaxed text-center">
           This is a quick metadata sanity check — not a complete list.
