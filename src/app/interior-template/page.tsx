@@ -72,8 +72,8 @@ export default function InteriorTemplatePage() {
           <span className="block">with correct margins, trim size, and safe zones.</span>
         </p>
         <p className="text-m2p-muted text-sm mt-2 mb-5 leading-relaxed text-center">
-          Use this template in Canva or your design tool to align your content
-          correctly for KDP paperback publishing.
+          <span className="block">Use this template in Canva or your design tool</span>
+          <span className="block">to align your content correctly for KDP paperback publishing.</span>
         </p>
 
         {/* Input card */}
