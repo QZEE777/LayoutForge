@@ -5,17 +5,20 @@ import Link from "next/link";
 import {
   ROYALTY_TRIM_SIZES,
   ROYALTY_RATES,
+  PAPER_COLOR_OPTIONS,
   getPrintCostUsd,
   getRoyaltyUsd,
   MIN_PAGES,
   MAX_PAGES,
   type RoyaltyTrimId,
+  type PaperColorId,
 } from "@/lib/royaltyCalc";
 import ToolPageShell from "@/components/ToolPageShell";
 import KdpConversionBridge from "@/components/KdpConversionBridge";
 
 export default function RoyaltyCalculatorPage() {
   const [trimId, setTrimId] = useState<RoyaltyTrimId>("6x9");
+  const [paperColorId, setPaperColorId] = useState<PaperColorId>("bw-white");
   const [pageCount, setPageCount] = useState(300);
   const [listPrice, setListPrice] = useState("9.99");
   const [rateId, setRateId] = useState<"60" | "35">("60");
@@ -34,7 +37,7 @@ export default function RoyaltyCalculatorPage() {
   }, [pageCount]);
 
   const rate = useMemo(() => ROYALTY_RATES.find((r) => r.id === rateId)?.value ?? 0.6, [rateId]);
-  const printCost = useMemo(() => getPrintCostUsd(trimId, pages), [trimId, pages]);
+  const printCost = useMemo(() => getPrintCostUsd(trimId, pages, paperColorId), [trimId, pages, paperColorId]);
   const royalty = useMemo(
     () => getRoyaltyUsd(listPriceNum, printCost, rate),
     [listPriceNum, printCost, rate]
@@ -73,6 +76,28 @@ export default function RoyaltyCalculatorPage() {
                   </option>
                 ))}
               </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-m2p-ink mb-2">Interior ink &amp; paper</label>
+              <select
+                value={paperColorId}
+                onChange={(e) => { setPaperColorId(e.target.value as PaperColorId); markInteracted(); }}
+                className="w-full rounded-lg border border-m2p-border px-4 py-2.5 bg-m2p-ivory text-sm text-m2p-ink focus:outline-none focus:ring-2 focus:ring-m2p-orange"
+              >
+                {PAPER_COLOR_OPTIONS.map((p) => (
+                  <option key={p.id} value={p.id}>{p.label}</option>
+                ))}
+              </select>
+              {paperColorId === "color" && (
+                <p className="text-xs text-amber-600 mt-1">
+                  Color printing costs ~$0.07/page vs $0.012/page for B&amp;W — price your book accordingly.
+                </p>
+              )}
+              {(paperColorId === "bw-white" || paperColorId === "bw-cream") && (
+                <p className="text-xs text-m2p-muted mt-1">
+                  White and cream paper cost the same per page on KDP US.
+                </p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-m2p-ink mb-2">
@@ -143,7 +168,7 @@ export default function RoyaltyCalculatorPage() {
         </div>
 
         <p className="text-xs text-m2p-muted mb-5">
-          This is an estimate. Amazon KDP sets actual print costs by marketplace and paper type. Check KDP&apos;s pricing page for your territory.
+          Estimates based on KDP US marketplace rates. Actual costs vary by marketplace, paper availability, and KDP pricing updates. Always verify on KDP&apos;s pricing page before publishing.
         </p>
 
         <div className="mt-5">
