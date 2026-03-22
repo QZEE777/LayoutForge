@@ -18,8 +18,8 @@ export default function ToolPageShell({ children }: ToolPageShellProps) {
             <Image
               src="/MANNY AVATAR.png"
               alt="Manny"
-              width={36}
-              height={36}
+              width={120}
+              height={120}
               className="rounded-full"
             />
             <span>

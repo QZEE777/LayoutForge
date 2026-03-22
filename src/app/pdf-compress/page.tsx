@@ -135,14 +135,14 @@ export default function PdfCompressPage() {
   return (
     <ToolPageShell>
       <div className="mx-auto max-w-xl w-full px-6 py-8">
-        <h1 className="font-bebas text-3xl font-bold text-m2p-ink mb-2">
+        <h1 className="font-bebas text-3xl font-bold text-m2p-ink mb-2 text-center">
           Free PDF Compressor for KDP Authors
         </h1>
-        <p className="text-m2p-muted text-sm leading-relaxed mb-3">
+        <p className="text-m2p-muted text-sm leading-relaxed mb-3 text-center">
           Compress your PDF directly in your browser — your file never leaves your device.
           Reduce file size for faster uploads and sharing.
         </p>
-        <p className="text-m2p-muted text-sm mb-5">
+        <p className="text-m2p-muted text-sm mb-5 text-center">
           Designed in Canva, InDesign, or Word? Compress your working file here —
           then check your final PDF before publishing.
         </p>
@@ -206,7 +206,7 @@ export default function PdfCompressPage() {
             <KdpConversionBridge />
           </>
         ) : (
-          <div className="rounded-2xl bg-white border border-m2p-border p-6 mb-5 space-y-5">
+          <div className="rounded-2xl bg-white border-2 p-6 mb-5 space-y-5" style={{ borderColor: "#2D6A2D" }}>
             <div>
               <label className="block text-sm font-medium text-m2p-ink mb-2">PDF file</label>
               <input

@@ -45,18 +45,18 @@ export default function TrimSizeComparisonPage() {
   return (
     <ToolPageShell>
       <div className="mx-auto max-w-4xl px-6 py-8">
-        <h1 className="font-bebas text-3xl sm:text-4xl tracking-wide text-m2p-ink mb-2">
+        <h1 className="font-bebas text-3xl sm:text-4xl tracking-wide text-m2p-ink mb-2 text-center">
           KDP Trim Size Comparison — Compare Print Sizes for Amazon KDP
         </h1>
-        <p className="text-m2p-muted mb-3">
+        <p className="text-m2p-muted mb-3 text-center">
           Compare print cost and royalty across KDP trim sizes. Same page count and list price.
         </p>
-        <p className="text-m2p-muted text-sm mt-2 mb-5 leading-relaxed">
+        <p className="text-m2p-muted text-sm mt-2 mb-5 leading-relaxed text-center">
           Choosing the correct trim size is only one part of KDP compliance.
           Your interior layout must match it exactly — margins, bleed, and fonts are checked separately.
         </p>
 
-        <div className="rounded-xl border border-m2p-border bg-white p-6 mb-5">
+        <div className="rounded-xl border-2 bg-white p-6 mb-5" style={{ borderColor: "#2D6A2D" }}>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-m2p-ink mb-2">Page count</label>

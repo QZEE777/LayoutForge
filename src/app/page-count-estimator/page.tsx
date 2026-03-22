@@ -36,18 +36,18 @@ export default function PageCountEstimatorPage() {
   return (
     <ToolPageShell>
       <div className="mx-auto max-w-2xl px-6 py-8">
-        <h1 className="font-bebas text-3xl sm:text-4xl tracking-wide text-m2p-ink mb-2">
+        <h1 className="font-bebas text-3xl sm:text-4xl tracking-wide text-m2p-ink mb-2 text-center">
           KDP Page Count Estimator — Estimate Pages Before Formatting
         </h1>
-        <p className="text-m2p-muted mb-3">
+        <p className="text-m2p-muted mb-3 text-center">
           Estimate interior page count from word count and trim size. Uses KDP-style words-per-page. Client-side only.
         </p>
-        <p className="text-m2p-muted text-sm mt-2 mb-5 leading-relaxed">
+        <p className="text-m2p-muted text-sm mt-2 mb-5 leading-relaxed text-center">
           Estimated page count helps with planning and cost calculation.
           It does not reflect your final PDF layout or KDP validation.
         </p>
 
-        <div className="rounded-xl border border-m2p-border bg-white p-6 mb-5">
+        <div className="rounded-xl border-2 bg-white p-6 mb-5" style={{ borderColor: "#2D6A2D" }}>
           <div className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-m2p-ink mb-2">Word count</label>

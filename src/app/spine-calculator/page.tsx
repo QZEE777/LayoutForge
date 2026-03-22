@@ -39,19 +39,19 @@ export default function SpineCalculatorPage() {
   return (
     <ToolPageShell>
       <div className="mx-auto max-w-2xl px-6 py-8">
-        <h1 className="font-bebas text-3xl sm:text-4xl tracking-wide text-m2p-ink mb-2">
+        <h1 className="font-bebas text-3xl sm:text-4xl tracking-wide text-m2p-ink mb-2 text-center">
           KDP Spine Width Calculator — Calculate Book Spine for Print
         </h1>
-        <p className="text-m2p-muted mb-3">
+        <p className="text-m2p-muted mb-3 text-center">
           Get spine width and full-wrap cover dimensions for KDP paperbacks. Use these when designing your cover in Canva or other tools.
         </p>
-        <p className="text-m2p-muted text-sm mt-2 mb-5 leading-relaxed">
+        <p className="text-m2p-muted text-sm mt-2 mb-5 leading-relaxed text-center">
           This calculates spine width based on page count and paper type.
           It does not verify your full book layout or KDP compliance —
           margins, trim, and fonts must still be checked.
         </p>
 
-        <div className="rounded-xl border border-m2p-border bg-white p-6 mb-5">
+        <div className="rounded-xl border-2 bg-white p-6 mb-5" style={{ borderColor: "#2D6A2D" }}>
           <div className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-m2p-ink mb-2">Interior page count</label>
