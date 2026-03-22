@@ -4,7 +4,8 @@ import { useCallback, useState, useEffect } from "react";
 import Link from "next/link";
 import { truncateFilenameMiddle, formatFileSize } from "@/lib/formatFileName";
 import { compressPdfInBrowser, type PdfProfile } from "@/lib/clientPdfCompress";
-import { KdpUploadWarning } from "@/components/KdpUploadWarning";
+import ToolPageShell from "@/components/ToolPageShell";
+import KdpConversionBridge from "@/components/KdpConversionBridge";
 
 const MAX_MB = 50;
 const STORAGE_LEAD_CAPTURED = "pdf_compress_lead_captured";
@@ -132,84 +133,80 @@ export default function PdfCompressPage() {
   }, [doneBlobUrl, leadCaptured]);
 
   return (
-    <div className="min-h-screen bg-m2p-ivory flex flex-col">
-      <header className="border-b border-m2p-border bg-m2p-ivory backdrop-blur-sm">
-        <div className="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <span><span style={{color:'#F05A28', fontWeight:'bold', fontSize:'1.25rem'}}>manu</span><span style={{color:'#4cd964', fontWeight:'bold', fontSize:'1.25rem'}}>2print</span></span>
-          </Link>
-          <Link href="/platform/kdp" className="text-sm text-m2p-muted hover:text-m2p-orange transition-colors flex items-center gap-1">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            All Tools
-          </Link>
-        </div>
-      </header>
-
-      <div className="border-b border-m2p-border bg-m2p-orange-soft">
-        <div className="mx-auto max-w-4xl px-6 py-3 flex items-center gap-3">
-          <span className="inline-flex items-center rounded-full bg-m2p-live/20 border border-m2p-live/40 px-2.5 py-0.5 text-xs font-medium text-m2p-live">FREE</span>
-          <span className="text-sm font-semibold text-m2p-ink">PDF Compressor</span>
-          <span className="mx-2 text-m2p-muted">|</span>
-          <span className="text-sm text-m2p-muted">Shrink PDFs in your browser. No upload to our servers. {leadCaptured ? "Pick a file to compress." : "Email required first time."}</span>
-        </div>
-      </div>
-
-      <main className="flex-1 mx-auto max-w-xl w-full px-6 py-10">
-        <h1 className="font-bebas text-3xl font-bold text-m2p-ink mb-2">FREE PDF Compressor</h1>
-        <p className="text-m2p-muted mb-8">
-          Compress your PDF in your browser—your file never leaves your device. Use the result in our Keyword Research and Amazon Description Generator. {leadCaptured ? "Pick a PDF below to compress another." : "Enter your email to continue."}
+    <ToolPageShell>
+      <div className="mx-auto max-w-xl w-full px-6 py-8">
+        <h1 className="font-bebas text-3xl font-bold text-m2p-ink mb-2">
+          Free PDF Compressor for KDP Authors
+        </h1>
+        <p className="text-m2p-muted text-sm leading-relaxed mb-3">
+          Compress your PDF directly in your browser — your file never leaves your device.
+          Reduce file size for faster uploads and sharing.
+        </p>
+        <p className="text-m2p-muted text-sm mb-5">
+          Designed in Canva, InDesign, or Word? Compress your working file here —
+          then check your final PDF before publishing.
         </p>
 
         {doneBlobUrl ? (
-          <div className="rounded-2xl bg-white border border-m2p-border p-8">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-m2p-live/20 border border-m2p-live/40 flex items-center justify-center">
-                <svg className="w-6 h-6 text-m2p-live" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
+          <>
+            <div className="rounded-2xl bg-white border border-m2p-border p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-xl bg-m2p-live/20 border border-m2p-live/40 flex items-center justify-center">
+                  <svg className="w-6 h-6 text-m2p-live" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h2 className="font-bebas text-xl font-bold text-m2p-ink">Your PDF is ready</h2>
               </div>
-              <h2 className="font-bebas text-xl font-bold text-m2p-ink">Your PDF is ready</h2>
+              <p className="text-m2p-muted text-sm mb-4">Download your compressed PDF.</p>
+              <div className="rounded-xl bg-m2p-orange-soft border border-m2p-orange/20 p-4 text-sm text-m2p-muted mb-4">
+                <p className="font-semibold text-m2p-ink mb-1">KDP Upload Note</p>
+                <p>This creates a smaller version for sharing and preview only.</p>
+                <p className="mt-1">For KDP upload, always use your original high-resolution file.</p>
+                <p className="mt-1">
+                  <Link href="/kdp-pdf-checker" className="text-m2p-orange hover:underline font-medium">
+                    Run a compliance check before submitting →
+                  </Link>
+                </p>
+              </div>
+              {originalSize != null && compressedSize != null && (
+                <p className="text-m2p-muted text-sm mb-4">
+                  Your file was <strong className="text-m2p-ink">{formatFileSize(originalSize)}</strong> and is now <strong className="text-m2p-ink">{formatFileSize(compressedSize)}</strong>
+                  {originalSize > 0 && (
+                    <span className="text-m2p-muted">
+                      {" "}({Math.round((1 - compressedSize / originalSize) * 100)}% smaller)
+                    </span>
+                  )}
+                  .
+                </p>
+              )}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <a
+                  href={doneBlobUrl}
+                  download={outputName}
+                  className="rounded-xl bg-m2p-orange px-6 py-3.5 font-semibold text-white hover:bg-m2p-orange-hover transition-colors text-center"
+                >
+                  Download compressed PDF
+                </a>
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  className="rounded-xl border border-m2p-border px-6 py-3.5 font-medium text-m2p-muted hover:bg-m2p-orange-soft/50 transition-colors"
+                >
+                  Compress another
+                </button>
+              </div>
+              <div className="mt-5 rounded-xl bg-m2p-orange-soft/50 border border-m2p-border p-4 text-sm text-m2p-muted space-y-2">
+                <p className="font-medium text-m2p-ink">What happens next</p>
+                <p>1. Use this smaller PDF for sharing, review, or preview purposes.</p>
+                <p>2. For KDP print upload, use your <strong className="text-m2p-ink">original</strong> high-resolution interior file, not this copy.</p>
+                <p>3. Before your KDP upload, check your original file for compliance issues that cause rejection.</p>
+              </div>
             </div>
-            <p className="text-m2p-muted text-sm mb-4">Download your compressed PDF. Use it in our Keyword Research or Description Generator.</p>
-            <KdpUploadWarning variant="compressor" className="mb-4" />
-            {originalSize != null && compressedSize != null && (
-              <p className="text-m2p-muted text-sm mb-4">
-                Your file was <strong className="text-m2p-ink">{formatFileSize(originalSize)}</strong> and is now <strong className="text-m2p-ink">{formatFileSize(compressedSize)}</strong>
-                {originalSize > 0 && (
-                  <span className="text-m2p-muted">
-                    {" "}({Math.round((1 - compressedSize / originalSize) * 100)}% smaller)
-                  </span>
-                )}
-                .
-              </p>
-            )}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <a
-                href={doneBlobUrl}
-                download={outputName}
-                className="rounded-xl bg-m2p-orange px-6 py-3.5 font-semibold text-white hover:bg-m2p-orange-hover transition-colors text-center"
-              >
-                Download compressed PDF
-              </a>
-              <button
-                type="button"
-                onClick={handleReset}
-                className="rounded-xl border border-m2p-border px-6 py-3.5 font-medium text-m2p-muted hover:bg-m2p-orange-soft/50 transition-colors"
-              >
-                Compress another
-              </button>
-            </div>
-            <div className="mt-6 rounded-xl bg-m2p-orange-soft/50 border border-m2p-border p-4 text-sm text-m2p-muted space-y-2">
-              <p className="font-medium text-m2p-ink">What happens next</p>
-              <p>1. Use this smaller PDF in <Link href="/keyword-research-pdf" className="text-m2p-orange hover:underline">7 Keyword Research</Link> or <Link href="/description-generator-pdf" className="text-m2p-orange hover:underline">Amazon Description Generator</Link> (both have file size limits).</p>
-              <p>2. For KDP print upload, use your <strong className="text-m2p-ink">original</strong> high-resolution interior file, not this copy.</p>
-              <p>3. Need a proper print-ready PDF? Use our <Link href="/kdp-formatter" className="text-m2p-orange hover:underline">KDP Formatter (DOCX)</Link> to generate one from your manuscript.</p>
-            </div>
-          </div>
+            <KdpConversionBridge />
+          </>
         ) : (
-          <div className="rounded-2xl bg-white border border-m2p-border p-6 mb-6 space-y-5">
+          <div className="rounded-2xl bg-white border border-m2p-border p-6 mb-5 space-y-5">
             <div>
               <label className="block text-sm font-medium text-m2p-ink mb-2">PDF file</label>
               <input
@@ -305,12 +302,8 @@ export default function PdfCompressPage() {
           </div>
         )}
 
-        <p className="text-m2p-muted text-sm mt-6">
-          After compressing, use your PDF in <Link href="/keyword-research-pdf" className="text-m2p-orange hover:underline">7 Keyword Research</Link> or{" "}
-          <Link href="/description-generator-pdf" className="text-m2p-orange hover:underline">Amazon Description Generator</Link> (both accept PDFs up to 50MB).
-        </p>
-        <KdpUploadWarning variant="compressor" className="mt-4" />
-      </main>
-    </div>
+        <KdpConversionBridge />
+      </div>
+    </ToolPageShell>
   );
 }

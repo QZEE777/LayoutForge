@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import FreeToolCta from "@/components/FreeToolCta";
 import { KDP_TRIM_SIZES, estimatePageCount, KDP_PAGE_LIMITS, type TrimSizeId } from "@/lib/kdpSpecs";
+import ToolPageShell from "@/components/ToolPageShell";
+import KdpConversionBridge from "@/components/KdpConversionBridge";
 
 const MAX_WORDS = 5_000_000;
 const FONT_OPTIONS = [10, 11, 12] as const;
@@ -35,58 +34,39 @@ export default function PageCountEstimatorPage() {
   );
 
   return (
-    <div className="min-h-screen bg-m2p-ivory">
-      <nav className="sticky top-0 z-20 border-b border-white/5 bg-m2p-ivory/80 backdrop-blur-sm">
-        <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <span className="text-lg font-bold tracking-tight text-brand-cream">
-              <span className="font-serif">manu</span>
-              <span className="font-sans">2print</span>
-            </span>
-          </Link>
-          <div className="flex items-center gap-6">
-            <Link href="/platform/kdp" className="text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors">
-              Tools
-            </Link>
-            <Link href="/platform/kdp" className="text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors">
-              Amazon KDP
-            </Link>
-          </div>
-        </div>
-      </nav>
-
-      <main className="mx-auto max-w-2xl px-6 py-12">
-        <div className="flex items-center justify-center gap-1 mb-6 w-full">
-          <Image src="/MANNY AVATAR.png" alt="Manny" width={120} height={120} style={{ borderRadius: "50%" }} />
-          <span><span style={{ color: "#F05A28", fontWeight: "bold" }}>manu</span><span style={{ color: "#4cd964", fontWeight: "bold" }}>2print</span></span>
-        </div>
-        <h1 className="font-bebas text-3xl sm:text-4xl tracking-wide text-brand-cream mb-2">
-          Page Count Estimator
+    <ToolPageShell>
+      <div className="mx-auto max-w-2xl px-6 py-8">
+        <h1 className="font-bebas text-3xl sm:text-4xl tracking-wide text-m2p-ink mb-2">
+          KDP Page Count Estimator — Estimate Pages Before Formatting
         </h1>
-        <p className="font-sans text-brand-muted mb-8">
+        <p className="text-m2p-muted mb-3">
           Estimate interior page count from word count and trim size. Uses KDP-style words-per-page. Client-side only.
         </p>
+        <p className="text-m2p-muted text-sm mt-2 mb-5 leading-relaxed">
+          Estimated page count helps with planning and cost calculation.
+          It does not reflect your final PDF layout or KDP validation.
+        </p>
 
-        <div className="rounded-xl border border-brand-cardHover bg-brand-card p-6 mb-8">
+        <div className="rounded-xl border border-m2p-border bg-white p-6 mb-5">
           <div className="space-y-5">
             <div>
-              <label className="block font-sans text-sm font-medium text-brand-cream mb-2">Word count</label>
+              <label className="block text-sm font-medium text-m2p-ink mb-2">Word count</label>
               <input
                 type="text"
                 inputMode="numeric"
                 placeholder="50000"
                 value={wordCountInput}
                 onChange={(e) => setWordCountInput(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-m2p-ivory font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold"
+                className="w-full rounded-lg border border-m2p-border px-4 py-2.5 bg-m2p-ivory text-sm text-m2p-ink focus:outline-none focus:ring-2 focus:ring-m2p-orange"
               />
-              <p className="font-sans text-xs text-brand-muted mt-1">Numbers only, max {MAX_WORDS.toLocaleString()} words.</p>
+              <p className="text-xs text-m2p-muted mt-1">Numbers only, max {MAX_WORDS.toLocaleString()} words.</p>
             </div>
             <div>
-              <label className="block font-sans text-sm font-medium text-brand-cream mb-2">Trim size</label>
+              <label className="block text-sm font-medium text-m2p-ink mb-2">Trim size</label>
               <select
                 value={safeTrimId}
                 onChange={(e) => setTrimId(e.target.value as TrimSizeId)}
-                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-m2p-ivory font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold"
+                className="w-full rounded-lg border border-m2p-border px-4 py-2.5 bg-m2p-ivory text-sm text-m2p-ink focus:outline-none focus:ring-2 focus:ring-m2p-orange"
               >
                 {KDP_TRIM_SIZES.map((t) => (
                   <option key={t.id} value={t.id}>{t.name}</option>
@@ -94,7 +74,7 @@ export default function PageCountEstimatorPage() {
               </select>
             </div>
             <div>
-              <label className="block font-sans text-sm font-medium text-brand-cream mb-2">Font size (affects words per page)</label>
+              <label className="block text-sm font-medium text-m2p-ink mb-2">Font size (affects words per page)</label>
               <div className="flex gap-4">
                 {FONT_OPTIONS.map((f) => (
                   <label key={f} className="flex items-center gap-2 cursor-pointer">
@@ -104,9 +84,9 @@ export default function PageCountEstimatorPage() {
                       value={f}
                       checked={fontSize === f}
                       onChange={() => setFontSize(f)}
-                      className="text-brand-gold focus:ring-brand-gold"
+                      className="text-m2p-orange focus:ring-m2p-orange"
                     />
-                    <span className="font-sans text-sm text-brand-cream">{f}pt</span>
+                    <span className="text-sm text-m2p-ink">{f}pt</span>
                   </label>
                 ))}
               </div>
@@ -114,27 +94,25 @@ export default function PageCountEstimatorPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border-l-4 border-brand-gold border border-brand-cardHover bg-brand-card p-6">
-          <h2 className="font-bebas text-xl tracking-wide text-brand-cream mb-4">Result</h2>
-          <p className="font-sans text-brand-muted">
-            Estimated interior pages: <span className="text-brand-gold font-bold text-lg">{estimatedPages}</span>
+        <div className="rounded-xl border-l-4 border-m2p-orange border border-m2p-border bg-white p-6 mb-5">
+          <h2 className="font-bebas text-xl tracking-wide text-m2p-ink mb-4">Result</h2>
+          <p className="text-m2p-muted">
+            Estimated interior pages:{" "}
+            <span className="text-m2p-orange font-bold text-lg">{estimatedPages}</span>
             {estimatedPages >= KDP_PAGE_LIMITS.minPages && estimatedPages <= KDP_PAGE_LIMITS.maxPages && (
               <span className="block mt-1 text-xs">Within KDP range ({KDP_PAGE_LIMITS.minPages}–{KDP_PAGE_LIMITS.maxPages} pages).</span>
             )}
           </p>
         </div>
 
-        <p className="mt-6 font-sans text-xs text-brand-muted">
+        <p className="text-xs text-m2p-muted mb-2">
           Estimate only. Actual page count depends on layout, headings, and images. No data sent to the server.
         </p>
 
-        <FreeToolCta
-          description="Format your manuscript for KDP print. Trim size, bleed, print-ready PDF."
-          href="/kdp-formatter"
-          buttonText="Try KDP Formatter"
-        />
-        <p className="text-center text-m2p-muted text-xs mt-8">© manu2print.com — Built for indie authors</p>
-      </main>
-    </div>
+        <KdpConversionBridge />
+
+        <KdpConversionBridge />
+      </div>
+    </ToolPageShell>
   );
 }

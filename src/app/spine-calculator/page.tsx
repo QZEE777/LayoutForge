@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import Link from "next/link";
-import Image from "next/image";
 import {
   getSpineWidthInches,
   getFullWrapDimensions,
@@ -14,7 +12,8 @@ import {
   type PaperType,
   type TrimSizeId,
 } from "@/lib/spineCalc";
-import FreeToolCta from "@/components/FreeToolCta";
+import ToolPageShell from "@/components/ToolPageShell";
+import KdpConversionBridge from "@/components/KdpConversionBridge";
 
 function clampPages(n: number): number {
   const v = Math.round(Number(n));
@@ -38,58 +37,40 @@ export default function SpineCalculatorPage() {
   );
 
   return (
-    <div className="min-h-screen bg-m2p-ivory">
-      <nav className="sticky top-0 z-20 border-b border-white/5 bg-m2p-ivory/80 backdrop-blur-sm">
-        <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <span className="text-lg font-bold tracking-tight text-brand-cream">
-              <span className="font-serif">manu</span>
-              <span className="font-sans">2print</span>
-            </span>
-          </Link>
-          <div className="flex items-center gap-6">
-            <Link href="/platform/kdp" className="text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors">
-              Tools
-            </Link>
-            <Link href="/platform/kdp" className="text-sm font-medium text-brand-cream hover:text-brand-gold transition-colors">
-              Amazon KDP
-            </Link>
-          </div>
-        </div>
-      </nav>
-
-      <main className="mx-auto max-w-2xl px-6 py-12">
-        <div className="flex items-center justify-center gap-1 mb-6 w-full">
-          <Image src="/MANNY AVATAR.png" alt="Manny" width={120} height={120} style={{ borderRadius: "50%" }} />
-          <span><span style={{ color: "#F05A28", fontWeight: "bold" }}>manu</span><span style={{ color: "#4cd964", fontWeight: "bold" }}>2print</span></span>
-        </div>
-        <h1 className="font-bebas text-3xl sm:text-4xl tracking-wide text-brand-cream mb-2">
-          Spine width calculator
+    <ToolPageShell>
+      <div className="mx-auto max-w-2xl px-6 py-8">
+        <h1 className="font-bebas text-3xl sm:text-4xl tracking-wide text-m2p-ink mb-2">
+          KDP Spine Width Calculator — Calculate Book Spine for Print
         </h1>
-        <p className="font-sans text-brand-muted mb-8">
+        <p className="text-m2p-muted mb-3">
           Get spine width and full-wrap cover dimensions for KDP paperbacks. Use these when designing your cover in Canva or other tools.
         </p>
+        <p className="text-m2p-muted text-sm mt-2 mb-5 leading-relaxed">
+          This calculates spine width based on page count and paper type.
+          It does not verify your full book layout or KDP compliance —
+          margins, trim, and fonts must still be checked.
+        </p>
 
-        <div className="rounded-xl border border-brand-cardHover bg-brand-card p-6 mb-8">
+        <div className="rounded-xl border border-m2p-border bg-white p-6 mb-5">
           <div className="space-y-5">
             <div>
-              <label className="block font-sans text-sm font-medium text-brand-cream mb-2">Interior page count</label>
+              <label className="block text-sm font-medium text-m2p-ink mb-2">Interior page count</label>
               <input
                 type="number"
                 min={MIN_PAGES}
                 max={MAX_PAGES}
                 value={pageCount}
                 onChange={(e) => setPageCount(e.target.valueAsNumber ?? MIN_PAGES)}
-                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-m2p-ivory font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold"
+                className="w-full rounded-lg border border-m2p-border px-4 py-2.5 bg-m2p-ivory text-sm text-m2p-ink focus:outline-none focus:ring-2 focus:ring-m2p-orange"
               />
-              <p className="font-sans text-xs text-brand-muted mt-1">KDP range: {MIN_PAGES}–{MAX_PAGES} pages.</p>
+              <p className="text-xs text-m2p-muted mt-1">KDP range: {MIN_PAGES}–{MAX_PAGES} pages.</p>
             </div>
             <div>
-              <label className="block font-sans text-sm font-medium text-brand-cream mb-2">Paper type</label>
+              <label className="block text-sm font-medium text-m2p-ink mb-2">Paper type</label>
               <select
                 value={paperType}
                 onChange={(e) => setPaperType(e.target.value as PaperType)}
-                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-m2p-ivory font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold"
+                className="w-full rounded-lg border border-m2p-border px-4 py-2.5 bg-m2p-ivory text-sm text-m2p-ink focus:outline-none focus:ring-2 focus:ring-m2p-orange"
               >
                 {PAPER_OPTIONS.map((o) => (
                   <option key={o.id} value={o.id}>{o.label}</option>
@@ -97,11 +78,11 @@ export default function SpineCalculatorPage() {
               </select>
             </div>
             <div>
-              <label className="block font-sans text-sm font-medium text-brand-cream mb-2">Trim size (for full-wrap)</label>
+              <label className="block text-sm font-medium text-m2p-ink mb-2">Trim size (for full-wrap)</label>
               <select
                 value={trimId}
                 onChange={(e) => setTrimId(e.target.value as TrimSizeId)}
-                className="w-full rounded-lg border border-brand-cardHover px-4 py-2.5 bg-m2p-ivory font-sans text-sm text-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-gold"
+                className="w-full rounded-lg border border-m2p-border px-4 py-2.5 bg-m2p-ivory text-sm text-m2p-ink focus:outline-none focus:ring-2 focus:ring-m2p-orange"
               >
                 {KDP_TRIM_SIZES.map((t) => (
                   <option key={t.id} value={t.id}>{t.name}</option>
@@ -111,22 +92,22 @@ export default function SpineCalculatorPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border-l-4 border-brand-gold border border-brand-cardHover bg-brand-card p-6">
-          <h2 className="font-bebas text-xl tracking-wide text-brand-cream mb-4">Results</h2>
-          <dl className="font-sans text-sm space-y-3">
+        <div className="rounded-xl border-l-4 border-m2p-orange border border-m2p-border bg-white p-6 mb-5">
+          <h2 className="font-bebas text-xl tracking-wide text-m2p-ink mb-4">Results</h2>
+          <dl className="text-sm space-y-3">
             <div>
-              <dt className="text-brand-muted">Spine width</dt>
-              <dd className="text-brand-cream font-semibold">
+              <dt className="text-m2p-muted">Spine width</dt>
+              <dd className="text-m2p-ink font-semibold">
                 {spineInches.toFixed(3)} in ({spineMm.toFixed(2)} mm)
               </dd>
             </div>
             {fullWrap && (
               <div>
-                <dt className="text-brand-muted">Full-wrap cover size (with 0.125&quot; bleed)</dt>
-                <dd className="text-brand-cream font-semibold">
+                <dt className="text-m2p-muted">Full-wrap cover size (with 0.125&quot; bleed)</dt>
+                <dd className="text-m2p-ink font-semibold">
                   {fullWrap.widthInches.toFixed(3)} &times; {fullWrap.heightInches.toFixed(3)} in
                 </dd>
-                <dd className="text-brand-muted text-xs mt-0.5">
+                <dd className="text-m2p-muted text-xs mt-0.5">
                   Use this for front + spine + back in one canvas. Minimum 300 DPI for print.
                 </dd>
               </div>
@@ -134,17 +115,14 @@ export default function SpineCalculatorPage() {
           </dl>
         </div>
 
-        <p className="mt-6 font-sans text-xs text-brand-muted">
+        <p className="text-xs text-m2p-muted mb-2">
           Based on KDP paperback paper thickness. Actual spine may vary slightly by marketplace. No data sent to the server.
         </p>
 
-        <FreeToolCta
-          description="Format your manuscript for KDP print. Trim size, bleed, print-ready PDF."
-          href="/kdp-formatter"
-          buttonText="Try KDP Formatter"
-        />
-        <p className="text-center text-m2p-muted text-xs mt-8">© manu2print.com — Built for indie authors</p>
-      </main>
-    </div>
+        <KdpConversionBridge />
+
+        <KdpConversionBridge />
+      </div>
+    </ToolPageShell>
   );
 }
