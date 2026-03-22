@@ -25,8 +25,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Manu2Print — Scan Your Book PDF for Amazon KDP Formatting Errors",
-  description: "Check your manuscript PDF for KDP formatting issues before uploading. Detect margin errors, trim size problems, and print formatting mistakes instantly.",
+  title: "KDP PDF Checker — Find Formatting Errors Before Amazon Rejects Your Book | manu2print",
+  description:
+    "Upload your PDF manuscript and get a full KDP compliance report in minutes. Check margins, trim size, bleed, and fonts before Amazon rejects your self-publishing PDF. $9, no subscription.",
 };
 
 export default function RootLayout({
