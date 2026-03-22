@@ -301,6 +301,19 @@ export default function Home() {
                 </Link>
               </div>
             ))}
+
+            {/* Coming soon card — no link, no interaction */}
+            <div className="bg-m2p-ivory rounded-2xl p-7 text-center relative shadow-sm border-2 opacity-60 cursor-default select-none" style={{ borderColor: "#B0A898" }}>
+              <div className="absolute top-4 right-4">
+                <ToolBadge status="coming-soon" />
+              </div>
+              <div className="text-4xl mb-3">🔢</div>
+              <h3 className="font-bebas text-xl text-m2p-ink mb-2">Page Number Formatter</h3>
+              <p className="text-sm text-m2p-muted">
+                Add correct KDP-style odd/even page numbers to your interior PDF.
+                Built for Canva and Word exports.
+              </p>
+            </div>
           </div>
         </div>
       </section>

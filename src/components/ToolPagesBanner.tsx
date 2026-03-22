@@ -22,6 +22,7 @@ const TOOL_PATHS = [
   "/cover-calculator",
   "/banned-keyword-checker",
   "/interior-template",
+  "/page-number-formatter",
   "/kids-trim-guide",
   "/journals-coloring-puzzle-guide",
   "/market-analysis",
