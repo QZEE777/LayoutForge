@@ -151,7 +151,7 @@ export default function BannedKeywordCheckerPage() {
           </div>
         )}
 
-        <p className="text-xs text-m2p-muted mb-5">
+        <p className="text-xs text-m2p-muted mb-5 text-center">
           We check against a curated list of terms that often cause metadata issues on KDP.
           Amazon&apos;s full guidelines are in{" "}
           <a
@@ -166,11 +166,11 @@ export default function BannedKeywordCheckerPage() {
         </p>
 
         {/* Related tools */}
-        <div className="mt-5">
+        <div className="mt-5 text-center">
           <p className="text-xs text-m2p-muted font-semibold mb-2 uppercase tracking-wide">
             Related free tools
           </p>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 justify-center">
             <Link
               href="/royalty-calculator"
               className="inline-flex items-center rounded-full bg-[#2D6A2D] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#1A3A2A] transition-colors"

@@ -131,16 +131,16 @@ export default function TrimSizeComparisonPage() {
           </div>
         </div>
 
-        <p className="text-xs text-m2p-muted mb-5">
+        <p className="text-xs text-m2p-muted mb-5 text-center">
           B&amp;W white paper, US marketplace estimates. Actual KDP costs may vary. No data sent to server.
         </p>
 
         {/* Related tools */}
-        <div className="mt-5">
+        <div className="mt-5 text-center">
           <p className="text-xs text-m2p-muted font-semibold mb-2 uppercase tracking-wide">
             Related free tools
           </p>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 justify-center">
             <Link
               href="/royalty-calculator"
               className="inline-flex items-center rounded-full bg-[#2D6A2D] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#1A3A2A] transition-colors"

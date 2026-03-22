@@ -302,6 +302,21 @@ export default function PdfCompressPage() {
           </div>
         )}
 
+        <p className="text-xs text-m2p-muted mb-5 text-center">
+          Compression runs entirely in your browser. Your file never leaves your device. No data sent to the server.
+        </p>
+
+        <div className="mt-5 text-center">
+          <p className="text-xs text-m2p-muted font-semibold mb-2 uppercase tracking-wide">
+            Related free tools
+          </p>
+          <div className="flex flex-wrap gap-2 justify-center">
+            <Link href="/royalty-calculator" className="inline-flex items-center rounded-full bg-[#2D6A2D] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#1A3A2A] transition-colors">Royalty Calculator →</Link>
+            <Link href="/page-count-estimator" className="inline-flex items-center rounded-full bg-[#2D6A2D] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#1A3A2A] transition-colors">Page Count Estimator →</Link>
+            <Link href="/trim-size-comparison" className="inline-flex items-center rounded-full bg-[#2D6A2D] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#1A3A2A] transition-colors">Trim Size Comparison →</Link>
+          </div>
+        </div>
+
       </div>
     </ToolPageShell>
   );

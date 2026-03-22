@@ -167,15 +167,15 @@ export default function RoyaltyCalculatorPage() {
           )}
         </div>
 
-        <p className="text-xs text-m2p-muted mb-5">
+        <p className="text-xs text-m2p-muted mb-5 text-center">
           Estimates based on KDP US marketplace rates. Actual costs vary by marketplace, paper availability, and KDP pricing updates. Always verify on KDP&apos;s pricing page before publishing.
         </p>
 
-        <div className="mt-5">
+        <div className="mt-5 text-center">
           <p className="text-xs text-m2p-muted font-semibold mb-2 uppercase tracking-wide">
             Related free tools
           </p>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 justify-center">
             <Link
               href="/spine-calculator"
               className="inline-flex items-center rounded-full bg-[#2D6A2D] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#1A3A2A] transition-colors"
