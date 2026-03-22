@@ -141,15 +141,15 @@ export default function Home() {
 
       {/* ─── SECTION 4 — FEATURE OUTCOMES ─────────────────────────────── */}
       {/* Background: ivory #FAF7EE */}
-      <section className="bg-m2p-ivory py-20 text-center">
+      <section className="bg-m2p-ivory py-10 text-center">
         <div className="max-w-3xl mx-auto px-6">
-          <h2 className="font-bebas text-m2p-ink leading-tight mb-12" style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
+          <h2 className="font-bebas text-m2p-ink leading-tight mb-6" style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
             <span className="block">Everything Amazon KDP Checks</span>
             <span className="block text-m2p-orange" style={{ fontSize: "clamp(1.25rem, 2.5vw, 2rem)", marginTop: "0.2rem" }}>
               Before You Upload
             </span>
           </h2>
-          <ul className="space-y-5 text-left max-w-xl mx-auto">
+          <ul className="space-y-3 text-left max-w-xl mx-auto">
             {[
               "Know your trim size is KDP-approved before you submit",
               "Catch margin violations that trigger instant KDP rejection",
@@ -285,7 +285,7 @@ export default function Home() {
             ].map((tool) => (
               <div
                 key={tool.title}
-                className="bg-m2p-ivory border border-m2p-border rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all"
+                className="bg-m2p-ivory rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all border-2" style={{ borderColor: "#2D6A2D" }}
               >
                 <div className="absolute top-4 right-4">
                   <ToolBadge status="free" />
