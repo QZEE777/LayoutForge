@@ -243,19 +243,24 @@ export default function DownloadPage() {
           const raw = data.report as ProcessingReport;
           if (raw.outputType === "checker") {
             const issues = data.report?.issuesEnriched ?? [];
-            const criticalCount = issues.filter(
-              (i: { fixDifficulty?: string; severity?: string }) =>
-                i.fixDifficulty === "advanced" ||
-                i.severity === "critical" ||
-                i.severity === "error"
+            // Deduplicate by humanMessage so that the same issue type on many pages
+            // counts as ONE issue (prevents score always bottoming out at 5).
+            const uniqueByMessage = new Map<string, { fixDifficulty?: string; severity?: string }>();
+            for (const i of issues) {
+              if (!uniqueByMessage.has(i.humanMessage)) {
+                uniqueByMessage.set(i.humanMessage, { fixDifficulty: i.fixDifficulty, severity: i.severity });
+              }
+            }
+            const unique = Array.from(uniqueByMessage.values());
+            const criticalCount = unique.filter(
+              (i) => i.fixDifficulty === "advanced" || i.severity === "critical" || i.severity === "error"
             ).length;
-            const moderateCount = issues.filter((i: { fixDifficulty?: string }) => i.fixDifficulty === "moderate")
-              .length;
-            const easyCount = issues.length - criticalCount - moderateCount;
+            const moderateCount = unique.filter((i) => i.fixDifficulty === "moderate").length;
+            const easyCount = unique.length - criticalCount - moderateCount;
             const nextCalculatedScore =
-              issues.length === 0
+              unique.length === 0
                 ? 95
-                : Math.max(5, Math.min(100, 100 - criticalCount * 15 - moderateCount * 5 - easyCount * 2));
+                : Math.max(5, Math.min(100, 100 - criticalCount * 15 - moderateCount * 8 - easyCount * 3));
             setCalculatedScore(nextCalculatedScore);
           } else {
             setCalculatedScore(null);
@@ -395,6 +400,14 @@ export default function DownloadPage() {
             </button>
           </div>
         )}
+
+        {/* Trust block — always visible, above payment gate so it is never covered by overlay */}
+        <div className="text-center border border-m2p-border rounded-lg p-4 mb-6">
+          <p className="text-m2p-ink font-bold">✅ Verified by Manu2Print</p>
+          <p className="text-m2p-muted text-sm">
+            This report checks your manuscript against known Amazon KDP print formatting requirements.
+          </p>
+        </div>
 
         {report && (
         <PaymentGate
@@ -1126,14 +1139,6 @@ export default function DownloadPage() {
         </div>
         </PaymentGate>
         )}
-
-        {/* Trust block */}
-        <div className="text-center border border-m2p-border rounded-lg p-4 mb-6">
-          <p className="text-m2p-ink font-bold">✅ Verified by Manu2Print</p>
-          <p className="text-m2p-muted text-sm">
-            This report checks your manuscript against known Amazon KDP print formatting requirements.
-          </p>
-        </div>
 
         {/* Public verification link (text removed per UX update) */}
 

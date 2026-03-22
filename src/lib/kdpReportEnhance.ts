@@ -341,26 +341,37 @@ function messagesForCategoryDetection(preflight: {
 }
 
 function derivePreflightErrorWarningCounts(preflight: {
-  errors?: Array<unknown>;
-  warnings?: Array<unknown>;
-  page_issues?: Array<{ severity?: string }>;
+  errors?: Array<{ rule_id?: string; message?: string }>;
+  warnings?: Array<{ rule_id?: string; message?: string }>;
+  page_issues?: Array<{ severity?: string; rule_id?: string; message?: string }>;
 }): { errorCount: number; warningCount: number } {
-  const e = preflight.errors?.length ?? 0;
-  const w = preflight.warnings?.length ?? 0;
+  // Deduplicate by rule_id so that the same rule firing on many pages counts as ONE issue.
+  // Falling back to message text ensures issues without a rule_id are still deduplicated.
+  const errorKeys = new Set<string>();
+  for (const e of preflight.errors ?? []) {
+    errorKeys.add(e.rule_id || e.message || `_e${errorKeys.size}`);
+  }
+  const warningKeys = new Set<string>();
+  for (const w of preflight.warnings ?? []) {
+    warningKeys.add(w.rule_id || w.message || `_w${warningKeys.size}`);
+  }
+  const e = errorKeys.size;
+  const w = warningKeys.size;
   if (e + w > 0) return { errorCount: e, warningCount: w };
   const issues = preflight.page_issues;
   if (!issues?.length) return { errorCount: 0, warningCount: 0 };
-  let errorCount = 0;
-  let warningCount = 0;
+  const pageErrorKeys = new Set<string>();
+  const pageWarningKeys = new Set<string>();
   for (const pi of issues) {
     const s = (pi.severity ?? "").toLowerCase();
+    const key = pi.rule_id || pi.message || "_";
     if (s === "warning" || s === "moderate" || s === "easy" || s === "minor") {
-      warningCount += 1;
+      pageWarningKeys.add(key);
     } else {
-      errorCount += 1;
+      pageErrorKeys.add(key);
     }
   }
-  return { errorCount, warningCount };
+  return { errorCount: pageErrorKeys.size, warningCount: pageWarningKeys.size };
 }
 
 /** Enrich a checker report with score, human text, difficulty, checklist, spec table, upsell. */
