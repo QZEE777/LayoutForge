@@ -1,9 +1,16 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Link from "next/link";
 import { KDP_TRIM_SIZES, estimatePageCount, KDP_PAGE_LIMITS, type TrimSizeId } from "@/lib/kdpSpecs";
 import ToolPageShell from "@/components/ToolPageShell";
 import KdpConversionBridge from "@/components/KdpConversionBridge";
+
+export const metadata = {
+  title: "KDP Page Count Estimator — Convert Word Count to Book Pages | manu2print",
+  description:
+    "Estimate your KDP paperback page count from word count, trim size, and font size. Plan your book layout, pricing, and spine width before publishing.",
+};
 
 const MAX_WORDS = 5_000_000;
 const FONT_OPTIONS = [10, 11, 12] as const;
@@ -34,20 +41,32 @@ export default function PageCountEstimatorPage() {
     [wordCount, safeTrimId, fontSize]
   );
 
+  const inRange =
+    estimatedPages >= KDP_PAGE_LIMITS.minPages &&
+    estimatedPages <= KDP_PAGE_LIMITS.maxPages;
+
   return (
     <ToolPageShell>
       <div className="mx-auto max-w-2xl px-6 py-8">
-        <h1 className="font-bebas text-3xl sm:text-4xl tracking-wide text-m2p-ink mb-2 text-center">
-          KDP Page Count Estimator — Estimate Pages Before Formatting
+
+        {/* H1 — two-line split, no dash */}
+        <h1 className="font-bebas tracking-wide text-m2p-ink mb-2 text-center">
+          <span className="block text-3xl sm:text-4xl">KDP Page Count Estimator</span>
+          <span className="block text-xl sm:text-2xl text-m2p-muted mt-1">
+            Estimate Pages Before Formatting
+          </span>
         </h1>
-        <p className="text-m2p-muted mb-3 text-center">
-          Estimate interior page count from word count and trim size. Uses KDP-style words-per-page. Client-side only.
+
+        <p className="text-m2p-muted mb-3 text-center text-sm leading-relaxed">
+          <span className="block">Estimate how many pages your book will have —</span>
+          <span className="block">before you design your cover, set your price, or upload to Amazon.</span>
         </p>
         <p className="text-m2p-muted text-sm mt-2 mb-5 leading-relaxed text-center">
-          Estimated page count helps with planning and cost calculation.
-          It does not reflect your final PDF layout or KDP validation.
+          Calculate page count based on word count, trim size, and font size
+          using KDP-style layout assumptions.
         </p>
 
+        {/* Input card */}
         <div className="rounded-xl border-2 bg-white p-6 mb-5" style={{ borderColor: "#2D6A2D" }}>
           <div className="space-y-5">
             <div>
@@ -95,22 +114,80 @@ export default function PageCountEstimatorPage() {
           </div>
         </div>
 
+        {/* Result card */}
         <div className="rounded-xl border-l-4 border-m2p-orange border border-m2p-border bg-white p-6 mb-5">
-          <h2 className="font-bebas text-xl tracking-wide text-m2p-ink mb-4">Result</h2>
-          <p className="text-m2p-muted">
-            Estimated interior pages:{" "}
-            <span className="text-m2p-orange font-bold text-lg">{estimatedPages}</span>
-            {estimatedPages >= KDP_PAGE_LIMITS.minPages && estimatedPages <= KDP_PAGE_LIMITS.maxPages && (
-              <span className="block mt-1 text-xs">Within KDP range ({KDP_PAGE_LIMITS.minPages}–{KDP_PAGE_LIMITS.maxPages} pages).</span>
-            )}
+          <h2 className="font-bebas text-xl tracking-wide text-m2p-ink mb-3">Your Estimated Page Count</h2>
+          <div className="flex items-baseline gap-3 mb-2">
+            <span className="font-bebas text-5xl text-m2p-orange leading-none">{estimatedPages}</span>
+            <span className="text-m2p-muted text-sm">pages</span>
+          </div>
+          {inRange ? (
+            <p className="text-xs text-green-700 mb-2">
+              Within KDP range ({KDP_PAGE_LIMITS.minPages}–{KDP_PAGE_LIMITS.maxPages} pages).
+            </p>
+          ) : (
+            <p className="text-xs text-amber-600 mb-2">
+              Outside KDP range ({KDP_PAGE_LIMITS.minPages}–{KDP_PAGE_LIMITS.maxPages} pages) — adjust word count or trim size.
+            </p>
+          )}
+          <p className="text-xs text-m2p-muted">
+            This is an estimate. Final page count depends on layout, spacing, images, and chapter formatting.
           </p>
         </div>
 
-        <p className="text-xs text-m2p-muted mb-2">
+        {/* Insight block */}
+        <div className="rounded-xl bg-white border border-m2p-border px-5 py-4 mb-5">
+          <p className="font-semibold text-m2p-ink text-sm mb-2">What this means</p>
+          <p className="text-m2p-muted text-sm mb-3">Your page count affects:</p>
+          <ul className="space-y-1.5">
+            {[
+              "Print cost — more pages = higher cost per unit",
+              "Royalty per sale — print cost reduces your margin",
+              "Spine width — drives your cover template dimensions",
+              "Final book price — thinner books are harder to price high",
+            ].map((item) => (
+              <li key={item} className="flex items-start gap-2 text-sm text-m2p-muted">
+                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-m2p-orange flex-shrink-0" />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <p className="text-xs text-m2p-muted mb-5">
           Estimate only. Actual page count depends on layout, headings, and images. No data sent to the server.
         </p>
 
+        {/* Related tools */}
+        <div className="mt-5">
+          <p className="text-xs text-m2p-muted font-semibold mb-2 uppercase tracking-wide">
+            Related free tools
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/royalty-calculator"
+              className="inline-flex items-center rounded-full bg-[#2D6A2D] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#1A3A2A] transition-colors"
+            >
+              Royalty Calculator →
+            </Link>
+            <Link
+              href="/cover-calculator"
+              className="inline-flex items-center rounded-full bg-[#2D6A2D] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#1A3A2A] transition-colors"
+            >
+              Cover Size Calculator →
+            </Link>
+            <Link
+              href="/spine-calculator"
+              className="inline-flex items-center rounded-full bg-[#2D6A2D] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#1A3A2A] transition-colors"
+            >
+              Spine Width Calculator →
+            </Link>
+          </div>
+        </div>
+
+        {/* Conversion bridge — fires after first interaction */}
         {hasInteracted && <KdpConversionBridge />}
+
       </div>
     </ToolPageShell>
   );
