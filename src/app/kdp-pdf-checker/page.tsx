@@ -191,25 +191,38 @@ export default function KdpPdfCheckerPage() {
           <h1 className="font-bebas text-3xl tracking-wide text-m2p-ink">KDP PDF Checker</h1>
 
           <p className="mt-2 text-m2p-muted text-base leading-relaxed">
-            Upload your interior PDF and get a full KDP compliance report — trim size, margins,
-            bleed, fonts, and page count checked against all 26 KDP rules. Every issue flagged
-            with exact page numbers before you upload to Amazon.
+            Upload your interior PDF and get a full KDP compliance report — margins, trim size,
+            bleed, fonts, and page count — checked against all 26 KDP rules.
+            Every issue is flagged with exact page numbers before you upload to Amazon.
           </p>
           <p className="mt-3 text-m2p-muted text-sm">
-            Designed in Canva, InDesign, or exported from Word? We check the final PDF —
-            exactly what KDP will see.
+            Designed in Canva, InDesign, or Word? We analyze the final PDF —
+            exactly what Amazon reviews.
           </p>
 
-          {/* Free tools reference */}
-          <div className="mt-4 rounded-xl bg-m2p-orange-soft border border-m2p-orange/20 p-4 text-sm text-m2p-muted">
-            <span className="font-semibold text-m2p-ink">Free tools that may help first: </span>
-            <Link href="/pdf-compress" className="text-m2p-orange hover:underline">PDF Compressor</Link>
-            {" · "}
-            <Link href="/spine-calculator" className="text-m2p-orange hover:underline">Spine Width Calculator</Link>
-            {" · "}
-            <Link href="/trim-size-comparison" className="text-m2p-orange hover:underline">Trim Size Comparison</Link>
-            {" · "}
-            <Link href="/page-count-estimator" className="text-m2p-orange hover:underline">Page Count Estimator</Link>
+          {/* Tool chips — prepare before scanning */}
+          <div className="mt-6">
+            <p className="text-sm text-m2p-muted mb-3">
+              <span className="font-semibold text-m2p-ink">Before you scan</span>
+              {" — fix common issues first "}
+              <span className="text-m2p-muted/60">(optional)</span>
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { label: "Compress PDF", href: "/pdf-compress" },
+                { label: "Spine Width Calculator", href: "/spine-calculator" },
+                { label: "Trim Size Comparison", href: "/trim-size-comparison" },
+                { label: "Estimate Page Count", href: "/page-count-estimator" },
+              ].map((tool) => (
+                <Link
+                  key={tool.href}
+                  href={tool.href}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-m2p-orange/30 bg-m2p-orange-soft px-4 py-1.5 text-sm font-medium text-m2p-orange hover:bg-m2p-orange hover:text-white transition-colors"
+                >
+                  {tool.label} →
+                </Link>
+              ))}
+            </div>
           </div>
 
           {/* Dropzone */}
