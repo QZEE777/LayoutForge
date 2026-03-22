@@ -264,14 +264,14 @@ export default function Home() {
               {
                 icon: "📄",
                 title: "Page Count Estimator",
-                desc: "Estimate your final page count from word count and trim size — before you format. Helps plan spine width, print costs, and royalty calculations.",
+                desc: "Estimate how many pages your book will have from word count, trim size, and font size. Plan spine width, print cost, and royalty before you format.",
                 href: "/page-count-estimator",
                 cta: "→ Estimate Pages",
               },
               {
                 icon: "📐",
                 title: "Trim Size Comparison",
-                desc: "Compare KDP trim sizes side by side — dimensions, print cost impact, and royalty differences. Choose the right size before you start formatting.",
+                desc: "Compare print cost and royalty across all KDP trim sizes side by side. Same page count and list price — see the difference before you commit.",
                 href: "/trim-size-comparison",
                 cta: "→ Compare Trims",
               },
