@@ -225,53 +225,53 @@ export default function Home() {
 
           {/* Free tools grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl mx-auto">
-            {[
+            [
               {
                 icon: "🗜️",
                 title: "PDF Compressor",
-                desc: "Shrink PDFs in your browser. No upload to our servers — runs locally. Free, no account required.",
+                desc: "Shrink your PDF directly in the browser — your file never leaves your device. Compress working files from Canva, InDesign, or Word before sharing.",
                 href: "/pdf-compress",
                 cta: "→ Compress PDF",
               },
               {
                 icon: "📐",
                 title: "Spine Width Calculator",
-                desc: "Spine width and full-wrap cover dimensions for KDP paperbacks. Essential for cover design.",
+                desc: "Get spine width and full-wrap cover dimensions for KDP paperbacks — in inches and mm. Essential before designing your cover.",
                 href: "/spine-calculator",
                 cta: "→ Calculate Spine",
               },
               {
                 icon: "🎨",
                 title: "Cover Size Calculator",
-                desc: "Full-wrap cover dimensions in inches and 300 DPI pixels for Canva and other design tools.",
+                desc: "Full-wrap cover dimensions — front, spine, and back — in inches and 300 DPI pixels. Includes a downloadable template PDF with trim lines, spine guides, and safe zones.",
                 href: "/cover-calculator",
                 cta: "→ Cover Dimensions",
               },
               {
                 icon: "📊",
                 title: "Royalty Calculator",
-                desc: "Page count, trim size, and price → KDP print cost, royalty per sale, and breakeven.",
+                desc: "Estimate royalty per sale for B&W white, B&W cream, or color interior printing. Enter trim size, page count, and list price.",
                 href: "/royalty-calculator",
-                cta: "→ Royalty Calculator",
+                cta: "→ Calculate Royalty",
               },
               {
                 icon: "🚫",
-                title: "Banned Keyword Checker",
-                desc: "Spot risky words in title, subtitle, or description before publishing on KDP.",
+                title: "Metadata Risk Checker",
+                desc: "Paste your title, subtitle, or description to flag words and phrases that often cause KDP listing issues. Quick metadata sanity check — not a complete list.",
                 href: "/banned-keyword-checker",
-                cta: "→ Check Keywords",
+                cta: "→ Check Metadata",
               },
               {
                 icon: "📄",
                 title: "Page Count Estimator",
-                desc: "Estimate interior pages from word count and trim size.",
+                desc: "Estimate your final page count from word count and trim size — before you format. Helps plan spine width, print costs, and royalty calculations.",
                 href: "/page-count-estimator",
                 cta: "→ Estimate Pages",
               },
               {
                 icon: "📐",
                 title: "Trim Size Comparison",
-                desc: "Compare print cost and royalty across trim sizes.",
+                desc: "Compare KDP trim sizes side by side — dimensions, print cost impact, and royalty differences. Choose the right size before you start formatting.",
                 href: "/trim-size-comparison",
                 cta: "→ Compare Trims",
               },
