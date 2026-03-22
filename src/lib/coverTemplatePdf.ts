@@ -279,5 +279,50 @@ export async function createCoverTemplatePdf(input: CoverTemplateInput): Promise
     opacity: 0.6,
   });
 
+  // 9. Manny avatar — bottom-right of front panel safe zone
+  try {
+    const mannyRes = await fetch("/MANNY AVATAR.png");
+    const mannyBytes = await mannyRes.arrayBuffer();
+    const mannyImage = await doc.embedPng(new Uint8Array(mannyBytes));
+    const mannySize = 36; // pts = 0.5 inch
+    const mannyX = xFrontTrimRight - safeZoneInset - mannySize;
+    const mannyY = yBottomTrim + safeZoneInset;
+    page.drawImage(mannyImage, {
+      x: mannyX,
+      y: mannyY,
+      width: mannySize,
+      height: mannySize,
+      opacity: 0.7,
+    });
+  } catch {
+    // Manny image not available — skip silently
+  }
+
+  // 10. manu2print.com branding — bottom-right of front panel
+  const brandText = "manu2print.com";
+  const brandSize = 7;
+  const brandW = font.widthOfTextAtSize(brandText, brandSize);
+  page.drawText(brandText, {
+    x: xFrontTrimRight - safeZoneInset - brandW,
+    y: yBottomTrim + safeZoneInset + 40,
+    size: brandSize,
+    font,
+    color: leafGreen,
+    opacity: 0.8,
+  });
+
+  // 11. Lead generator CTA — footer line across full wrap
+  const ctaText = "Check your interior PDF before Amazon rejects it — manu2print.com/kdp-pdf-checker";
+  const ctaSize = 6;
+  const ctaW = font.widthOfTextAtSize(ctaText, ctaSize);
+  page.drawText(ctaText, {
+    x: (w - ctaW) / 2,
+    y: 4,
+    size: ctaSize,
+    font,
+    color: gray,
+    opacity: 0.5,
+  });
+
   return doc.save();
 }

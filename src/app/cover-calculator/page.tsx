@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import {
   getSpineWidthInches,
@@ -14,7 +14,8 @@ import {
   type TrimSizeId,
 } from "@/lib/spineCalc";
 import { createCoverTemplatePdf } from "@/lib/coverTemplatePdf";
-import FreeToolCta from "@/components/FreeToolCta";
+import ToolPageShell from "@/components/ToolPageShell";
+import KdpConversionBridge from "@/components/KdpConversionBridge";
 
 function clampPages(n: number): number {
   const v = Math.round(Number(n));
@@ -31,6 +32,9 @@ export default function CoverCalculatorPage() {
   const [pageCount, setPageCount] = useState(300);
   const [paperType, setPaperType] = useState<PaperType>("bw-cream");
   const [trimId, setTrimId] = useState<TrimSizeId>("6x9");
+  const [hasInteracted, setHasInteracted] = useState(false);
+
+  const markInteracted = useCallback(() => setHasInteracted(true), []);
 
   const pages = useMemo(() => clampPages(pageCount), [pageCount]);
   const spineInches = useMemo(() => getSpineWidthInches(pages, paperType), [pages, paperType]);
@@ -46,7 +50,6 @@ export default function CoverCalculatorPage() {
 
   const [downloading, setDownloading] = useState(false);
   const handleDownloadTemplate = async () => {
-    // Read current values at call time to avoid stale closure
     const currentPages = clampPages(pageCount);
     const currentSpineInches = getSpineWidthInches(currentPages, paperType);
     const currentTrim = getTrimSize(trimId);
@@ -78,51 +81,44 @@ export default function CoverCalculatorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-m2p-ivory">
-      <nav className="sticky top-0 z-20 border-b border-white/5 bg-m2p-ivory/80 backdrop-blur-sm">
-        <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <span><span style={{color:'#F05A28', fontWeight:'bold', fontSize:'1.25rem'}}>manu</span><span style={{color:'#4cd964', fontWeight:'bold', fontSize:'1.25rem'}}>2print</span></span>
-          </Link>
-          <div className="flex items-center gap-6">
-            <Link href="/platform/kdp" className="text-sm font-medium text-m2p-ink hover:text-m2p-orange transition-colors">
-              Tools
-            </Link>
-            <Link href="/platform/kdp" className="text-sm font-medium text-m2p-ink hover:text-m2p-orange transition-colors">
-              Amazon KDP
-            </Link>
-          </div>
-        </div>
-      </nav>
-
-      <main className="mx-auto max-w-2xl px-6 py-12">
-        <h1 className="font-bebas text-3xl sm:text-4xl tracking-wide text-m2p-ink mb-2">
-          Full-wrap cover calculator
+    <ToolPageShell>
+      <div className="mx-auto max-w-2xl px-6 py-8">
+        <h1 className="font-bebas tracking-wide text-m2p-ink mb-2 text-center">
+          <span className="block text-3xl sm:text-4xl">KDP Cover Size Calculator</span>
+          <span className="block text-xl sm:text-2xl text-m2p-muted mt-1">
+            Full-Wrap Paperback Cover Dimensions
+          </span>
         </h1>
-        <p className="font-sans text-m2p-muted mb-8">
-          Get the exact canvas size for your KDP cover (front + spine + back). Use the pixel dimensions in Canva, Photoshop, or other design tools at 300 DPI.
+        <p className="text-m2p-muted mb-3 text-center">
+          Calculate the exact full-wrap cover dimensions for your paperback —
+          front, spine, and back — with bleed included.
+        </p>
+        <p className="text-m2p-muted text-sm mt-2 mb-5 leading-relaxed text-center">
+          Designed in Canva, InDesign, or Photoshop? Get exact pixel dimensions
+          at 300 DPI, inch dimensions with bleed, and a downloadable cover
+          template PDF with KDP-exact guides.
         </p>
 
-        <div className="rounded-xl border border-m2p-border bg-white p-6 mb-8">
+        <div className="rounded-xl border-2 bg-white p-6 mb-5" style={{ borderColor: "#2D6A2D" }}>
           <div className="space-y-5">
             <div>
-              <label className="block font-sans text-sm font-medium text-m2p-ink mb-2">Interior page count</label>
+              <label className="block text-sm font-medium text-m2p-ink mb-2">Interior page count</label>
               <input
                 type="number"
                 min={MIN_PAGES}
                 max={MAX_PAGES}
                 value={pageCount}
-                onChange={(e) => setPageCount(e.target.valueAsNumber ?? MIN_PAGES)}
-                className="w-full rounded-lg border border-m2p-border px-4 py-2.5 bg-m2p-ivory font-sans text-sm text-m2p-ink focus:outline-none focus:ring-2 focus:ring-m2p-orange"
+                onChange={(e) => { setPageCount(e.target.valueAsNumber ?? MIN_PAGES); markInteracted(); }}
+                className="w-full rounded-lg border border-m2p-border px-4 py-2.5 bg-m2p-ivory text-sm text-m2p-ink focus:outline-none focus:ring-2 focus:ring-m2p-orange"
               />
-              <p className="font-sans text-xs text-m2p-muted mt-1">KDP range: {MIN_PAGES}–{MAX_PAGES} pages.</p>
+              <p className="text-xs text-m2p-muted mt-1">KDP range: {MIN_PAGES}–{MAX_PAGES} pages.</p>
             </div>
             <div>
-              <label className="block font-sans text-sm font-medium text-m2p-ink mb-2">Paper type</label>
+              <label className="block text-sm font-medium text-m2p-ink mb-2">Paper type</label>
               <select
                 value={paperType}
-                onChange={(e) => setPaperType(e.target.value as PaperType)}
-                className="w-full rounded-lg border border-m2p-border px-4 py-2.5 bg-m2p-ivory font-sans text-sm text-m2p-ink focus:outline-none focus:ring-2 focus:ring-m2p-orange"
+                onChange={(e) => { setPaperType(e.target.value as PaperType); markInteracted(); }}
+                className="w-full rounded-lg border border-m2p-border px-4 py-2.5 bg-m2p-ivory text-sm text-m2p-ink focus:outline-none focus:ring-2 focus:ring-m2p-orange"
               >
                 {PAPER_OPTIONS.map((o) => (
                   <option key={o.id} value={o.id}>{o.label}</option>
@@ -130,11 +126,11 @@ export default function CoverCalculatorPage() {
               </select>
             </div>
             <div>
-              <label className="block font-sans text-sm font-medium text-m2p-ink mb-2">Trim size</label>
+              <label className="block text-sm font-medium text-m2p-ink mb-2">Trim size</label>
               <select
                 value={trimId}
-                onChange={(e) => setTrimId(e.target.value as TrimSizeId)}
-                className="w-full rounded-lg border border-m2p-border px-4 py-2.5 bg-m2p-ivory font-sans text-sm text-m2p-ink focus:outline-none focus:ring-2 focus:ring-m2p-orange"
+                onChange={(e) => { setTrimId(e.target.value as TrimSizeId); markInteracted(); }}
+                className="w-full rounded-lg border border-m2p-border px-4 py-2.5 bg-m2p-ivory text-sm text-m2p-ink focus:outline-none focus:ring-2 focus:ring-m2p-orange"
               >
                 {KDP_TRIM_SIZES.map((t) => (
                   <option key={t.id} value={t.id}>{t.name}</option>
@@ -144,9 +140,9 @@ export default function CoverCalculatorPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border-l-4 border-m2p-orange border border-m2p-border bg-white p-6">
+        <div className="rounded-xl border-l-4 border-m2p-orange border border-m2p-border bg-white p-6 mb-5">
           <h2 className="font-bebas text-xl tracking-wide text-m2p-ink mb-4">Your cover canvas size</h2>
-          <dl className="font-sans text-sm space-y-4">
+          <dl className="text-sm space-y-4">
             {pixels && fullWrap && (
               <>
                 <div>
@@ -175,7 +171,7 @@ export default function CoverCalculatorPage() {
                     type="button"
                     onClick={handleDownloadTemplate}
                     disabled={downloading}
-                    className="inline-flex items-center gap-2 rounded-lg bg-m2p-orange px-4 py-2.5 text-sm font-semibold text-brand-bg hover:opacity-90 disabled:opacity-50"
+                    className="inline-flex items-center gap-2 rounded-lg bg-m2p-orange px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
                   >
                     {downloading ? "Generating…" : "Download template PDF"}
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -183,7 +179,7 @@ export default function CoverCalculatorPage() {
                     </svg>
                   </button>
                   <dd className="text-m2p-muted text-xs mt-1.5">
-                    Template includes trim lines, spine guides (green), safe zone borders (green), bleed zone, and barcode area.
+                    Template includes KDP-exact trim lines, spine guides, safe zones, bleed zone, barcode area, and manu2print branding.
                   </dd>
                 </div>
               </>
@@ -191,20 +187,49 @@ export default function CoverCalculatorPage() {
           </dl>
         </div>
 
-        <p className="mt-6 font-sans text-xs text-m2p-muted">
+        <p className="text-xs text-m2p-muted mb-4">
           Based on KDP paperback paper thickness. Keep text and key art inside the safe zone (away from trim). No data sent to the server.
         </p>
 
-        <p className="mt-4 font-sans text-sm text-m2p-muted">
-          <Link href="/interior-template" className="text-brave hover:underline">Interior margin template</Link> for Canva (trim + safe zone). <Link href="/spine-calculator" className="text-brave hover:underline">Spine width calculator</Link> for spine-only and full-wrap in mm.
-        </p>
+        <div className="mt-5">
+          <p className="text-xs text-m2p-muted font-semibold mb-2 uppercase tracking-wide">
+            Related free tools
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/interior-template"
+              className="inline-flex items-center rounded-full bg-[#2D6A2D] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#1A3A2A] transition-colors"
+            >
+              Interior Margin Template →
+            </Link>
+            <Link
+              href="/spine-calculator"
+              className="inline-flex items-center rounded-full bg-[#2D6A2D] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#1A3A2A] transition-colors"
+            >
+              Spine Width Calculator →
+            </Link>
+          </div>
+        </div>
 
-        <FreeToolCta
-          description="Format your manuscript for KDP print. Trim size, bleed, print-ready PDF."
-          href="/kdp-formatter"
-          buttonText="Try KDP Formatter"
-        />
-      </main>
-    </div>
+        {hasInteracted && <KdpConversionBridge />}
+
+        <div className="mt-6 rounded-xl bg-m2p-orange-soft border border-m2p-orange/20 p-5 text-center">
+          <p className="font-bebas text-m2p-ink text-lg mb-1">
+            Ready for the next step?
+          </p>
+          <p className="text-m2p-muted text-sm mb-4 leading-relaxed">
+            You have the correct cover dimensions. Now check whether your
+            interior PDF will pass KDP review — margins, bleed, trim size,
+            and fonts can still trigger rejection.
+          </p>
+          <Link
+            href="/kdp-pdf-checker"
+            className="inline-block bg-m2p-orange hover:bg-m2p-orange-hover text-white font-bold px-6 py-3 rounded-xl text-sm transition-colors"
+          >
+            Check My PDF — $9
+          </Link>
+        </div>
+      </div>
+    </ToolPageShell>
   );
 }
