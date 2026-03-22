@@ -41,6 +41,8 @@ export async function createCoverTemplatePdf(input: CoverTemplateInput): Promise
 
   const gray = rgb(0.5, 0.5, 0.5);
   const lightGray = rgb(0.88, 0.88, 0.88);
+  const leafGreen = rgb(0.176, 0.416, 0.176); // #2D6A2D
+  const safeZoneInset = 0.25 * PT_PER_INCH; // 0.25" safe zone inset from trim lines
   const thin = 0.5;
   const labelSize = 7;
 
@@ -98,18 +100,18 @@ export async function createCoverTemplatePdf(input: CoverTemplateInput): Promise
     opacity: 0.08,
   });
 
-  // 5. All trim lines: solid gray
-  const drawVLine = (x: number) => {
+  // 5. All trim lines: solid gray; spine barriers: leaf green
+  const drawVLine = (x: number, color = gray, thickness = thin) => {
     page.drawLine({
       start: { x, y: 0 },
       end: { x, y: h },
-      color: gray,
-      thickness: thin,
+      color,
+      thickness,
     });
   };
   drawVLine(xBackTrimLeft);
-  drawVLine(xSpineLeft);
-  drawVLine(xSpineRight);
+  drawVLine(xSpineLeft, leafGreen, 1.0);   // spine barrier — leaf green
+  drawVLine(xSpineRight, leafGreen, 1.0);  // spine barrier — leaf green
   drawVLine(xFrontTrimRight);
 
   page.drawLine({
@@ -123,6 +125,73 @@ export async function createCoverTemplatePdf(input: CoverTemplateInput): Promise
     end: { x: w, y: yTopTrim },
     color: gray,
     thickness: thin,
+  });
+
+  // 5b. Safe zone rectangles — back and front panels, inset 0.25" from trim lines
+  page.drawRectangle({
+    x: xBackTrimLeft + safeZoneInset,
+    y: yBottomTrim + safeZoneInset,
+    width: trimW - safeZoneInset * 2,
+    height: trimH - safeZoneInset * 2,
+    borderColor: leafGreen,
+    borderWidth: 0.75,
+    opacity: 0,
+  });
+
+  page.drawRectangle({
+    x: xSpineRight + safeZoneInset,
+    y: yBottomTrim + safeZoneInset,
+    width: trimW - safeZoneInset * 2,
+    height: trimH - safeZoneInset * 2,
+    borderColor: leafGreen,
+    borderWidth: 0.75,
+    opacity: 0,
+  });
+
+  // 5c. SAFE ZONE labels inside each panel
+  const safeZoneLabel = "SAFE ZONE";
+  const safeZoneLabelSize = 6;
+  const safeZoneLabelW = font.widthOfTextAtSize(safeZoneLabel, safeZoneLabelSize);
+  void safeZoneLabelW; // used for centering reference
+
+  // Back panel — top-left
+  page.drawText(safeZoneLabel, {
+    x: xBackTrimLeft + safeZoneInset + 4,
+    y: yTopTrim - safeZoneInset - safeZoneLabelSize - 2,
+    size: safeZoneLabelSize,
+    font,
+    color: leafGreen,
+    opacity: 0.7,
+  });
+
+  // Front panel — top-left
+  page.drawText(safeZoneLabel, {
+    x: xSpineRight + safeZoneInset + 4,
+    y: yTopTrim - safeZoneInset - safeZoneLabelSize - 2,
+    size: safeZoneLabelSize,
+    font,
+    color: leafGreen,
+    opacity: 0.7,
+  });
+
+  // Back panel — bottom-left
+  page.drawText(safeZoneLabel, {
+    x: xBackTrimLeft + safeZoneInset + 4,
+    y: yBottomTrim + safeZoneInset + 3,
+    size: safeZoneLabelSize,
+    font,
+    color: leafGreen,
+    opacity: 0.7,
+  });
+
+  // Front panel — bottom-left
+  page.drawText(safeZoneLabel, {
+    x: xSpineRight + safeZoneInset + 4,
+    y: yBottomTrim + safeZoneInset + 3,
+    size: safeZoneLabelSize,
+    font,
+    color: leafGreen,
+    opacity: 0.7,
   });
 
   // 6. Labels: Back, SPINE (centered, clear), Front

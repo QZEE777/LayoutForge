@@ -183,7 +183,7 @@ export default function CoverCalculatorPage() {
                     </svg>
                   </button>
                   <dd className="text-m2p-muted text-xs mt-1.5">
-                    Exact size with trim and spine guide lines. Use as template in design software or print to measure.
+                    Template includes trim lines, spine guides (green), safe zone borders (green), bleed zone, and barcode area.
                   </dd>
                 </div>
               </>
