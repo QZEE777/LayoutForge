@@ -3,7 +3,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-const BRAVE = "#FB542B";
+// Promo bar message — swap this for future campaigns without touching the component
+const PROMO_MESSAGE = "KDP rejected your PDF? Check it before you upload — $9";
+const PROMO_LINK = "/kdp-pdf-checker";
+
 const FREE_LIMIT = 10;
 
 type Usage = {
@@ -40,42 +43,37 @@ export default function UsageBanner() {
     usage.usage_count >= FREE_LIMIT;
 
   return (
-    <div
-      className="border-b border-m2p-orange/30 px-4 py-2 text-sm bg-m2p-ink text-white"
+    <Link
+      href={PROMO_LINK}
+      className="block w-full bg-m2p-ink border-b border-m2p-orange/20 px-4 py-2.5 cursor-pointer group transition-colors hover:bg-[#1f1a0f]"
     >
-      <div className="mx-auto max-w-6xl flex flex-wrap items-center justify-between gap-2">
+      <div className="mx-auto max-w-6xl flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
         {usage.is_founder ? (
-          <span
-            className="font-medium text-m2p-live"
-          >
-            Founder — FREE Access
+          /* Founder state — promo bar, not status label */
+          <span className="text-sm font-medium text-center text-white/90 group-hover:text-white transition-colors">
+            {PROMO_MESSAGE}
+            <span className="ml-2 text-m2p-orange font-bold group-hover:translate-x-0.5 inline-block transition-transform">
+              →
+            </span>
           </span>
         ) : atLimit ? (
-          <>
-            <span className="text-m2p-live">FREE limit reached.</span>
-            <Link
-              href="/dashboard"
-              className="rounded px-3 py-1 font-medium bg-m2p-orange text-white hover:bg-m2p-orange-hover transition-colors"
-            >
-              Upgrade
-            </Link>
-          </>
-        ) : (
-          <>
-            <span className="text-white/80">
-              {(usage.uses_remaining ?? FREE_LIMIT - usage.usage_count)} of {FREE_LIMIT} free uses remaining
+          /* At limit state */
+          <span className="text-sm font-medium text-center text-white/90 group-hover:text-white transition-colors">
+            {PROMO_MESSAGE}
+            <span className="ml-2 text-m2p-orange font-bold group-hover:translate-x-0.5 inline-block transition-transform">
+              →
             </span>
-            <div className="w-32 h-1.5 rounded-full bg-white/20 overflow-hidden">
-              <div
-                className="h-full rounded-full transition-all bg-m2p-orange"
-                style={{
-                  width: `${Math.min(100, (usage.usage_count / FREE_LIMIT) * 100)}%`,
-                }}
-              />
-            </div>
-          </>
+          </span>
+        ) : (
+          /* Free uses remaining state */
+          <span className="text-sm font-medium text-center text-white/90 group-hover:text-white transition-colors">
+            {PROMO_MESSAGE}
+            <span className="ml-2 text-m2p-orange font-bold group-hover:translate-x-0.5 inline-block transition-transform">
+              →
+            </span>
+          </span>
         )}
       </div>
-    </div>
+    </Link>
   );
 }
