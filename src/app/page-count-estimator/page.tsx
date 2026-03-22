@@ -6,12 +6,6 @@ import { KDP_TRIM_SIZES, estimatePageCount, KDP_PAGE_LIMITS, type TrimSizeId } f
 import ToolPageShell from "@/components/ToolPageShell";
 import KdpConversionBridge from "@/components/KdpConversionBridge";
 
-export const metadata = {
-  title: "KDP Page Count Estimator — Convert Word Count to Book Pages | manu2print",
-  description:
-    "Estimate your KDP paperback page count from word count, trim size, and font size. Plan your book layout, pricing, and spine width before publishing.",
-};
-
 const MAX_WORDS = 5_000_000;
 const FONT_OPTIONS = [10, 11, 12] as const;
 
