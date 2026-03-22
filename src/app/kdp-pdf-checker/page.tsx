@@ -202,12 +202,10 @@ export default function KdpPdfCheckerPage() {
 
           {/* Tool chips — prepare before scanning */}
           <div className="mt-6">
-            <p className="text-sm text-m2p-muted mb-3">
-              <span className="font-semibold text-m2p-ink">Before you scan</span>
-              {" — fix common issues first "}
-              <span className="text-m2p-muted/60">(optional)</span>
+            <p className="text-sm font-bold mb-3 text-center" style={{ color: "#2D6A2D" }}>
+              Before you scan — fix common issues first (optional)
             </p>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 justify-center">
               {[
                 { label: "Compress PDF", href: "/pdf-compress" },
                 { label: "Spine Width Calculator", href: "/spine-calculator" },
@@ -217,7 +215,7 @@ export default function KdpPdfCheckerPage() {
                 <Link
                   key={tool.href}
                   href={tool.href}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-m2p-orange/30 bg-m2p-orange-soft px-4 py-1.5 text-sm font-medium text-m2p-orange hover:bg-m2p-orange hover:text-white transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[#2D6A2D]/40 bg-[#2D6A2D] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#1A3A2A] transition-colors"
                 >
                   {tool.label} →
                 </Link>
@@ -346,7 +344,7 @@ export default function KdpPdfCheckerPage() {
       </section>
 
       {/* Section B — What happens next */}
-      <section className="bg-m2p-ink py-10">
+      <section className="py-6" style={{ backgroundColor: "rgba(45, 106, 45, 0.12)" }}>
         <div className="mx-auto max-w-2xl px-6">
           <WhatHappensNext
             className="bg-white/5 border border-white/10 text-m2p-ivory/80 [&_p]:text-m2p-ivory/70 [&_.font-medium]:text-m2p-ivory"

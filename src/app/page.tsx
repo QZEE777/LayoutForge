@@ -72,14 +72,14 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <p className="text-m2p-ivory/35 text-xs italic text-center mt-8 px-6">
+        <p className="text-white text-xs italic text-center mt-8 px-6">
           Built for indie authors publishing on Amazon KDP — covering margins, bleed, trim size, and full PDF compliance.
         </p>
       </section>
 
       {/* ─── SECTION 2 — PAIN BLOCK ────────────────────────────────────── */}
       {/* Background: ivory #FAF7EE */}
-      <section className="bg-m2p-ivory py-20 text-center">
+      <section className="bg-m2p-ivory py-10 text-center">
         <div className="max-w-3xl mx-auto px-6">
           <p className="text-m2p-ink text-xl md:text-2xl leading-relaxed mb-3">
             Stop guessing if your PDF will pass.
@@ -95,13 +95,13 @@ export default function Home() {
 
       {/* ─── SECTION 3 — HOW IT WORKS ──────────────────────────────────── */}
       {/* Background: near-black #1A1208 */}
-      <section id="how-it-works" className="bg-m2p-ink py-20 text-center">
+      <section id="how-it-works" className="bg-m2p-ink py-12 text-center">
         <div className="max-w-4xl mx-auto px-6">
           <p className="font-bebas text-m2p-orange mb-2 uppercase tracking-[0.1em] text-sm">
             THE PROCESS
           </p>
           <h2
-            className="font-bebas text-m2p-ivory leading-tight mb-14"
+            className="font-bebas text-m2p-ivory leading-tight mb-8"
             style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}
           >
             HOW IT WORKS
