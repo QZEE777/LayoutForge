@@ -62,18 +62,18 @@ export default function Home() {
                   Check My PDF for KDP Errors — $9
                 </Link>
               </div>
-              <p className="text-m2p-ivory/40 text-xs italic text-center lg:text-left">
-                Built for indie authors publishing on Amazon KDP — covering margins, bleed, trim size, and full PDF compliance.
-              </p>
             </div>
             {/* RIGHT — target graphic */}
             <div className="flex-[0.9] flex flex-col items-center w-full lg:w-auto order-1 lg:order-2">
               <div className="max-w-sm mx-auto w-full flex flex-col items-center">
-                <TargetGraphic size={340} />
+                <TargetGraphic size={480} />
               </div>
             </div>
           </div>
         </div>
+        <p className="text-m2p-ivory/35 text-xs italic text-center mt-8 px-6">
+          Built for indie authors publishing on Amazon KDP — covering margins, bleed, trim size, and full PDF compliance.
+        </p>
       </section>
 
       {/* ─── SECTION 2 — PAIN BLOCK ────────────────────────────────────── */}
@@ -142,11 +142,11 @@ export default function Home() {
       {/* Background: ivory #FAF7EE */}
       <section className="bg-m2p-ivory py-20 text-center">
         <div className="max-w-3xl mx-auto px-6">
-          <h2
-            className="font-bebas text-m2p-ink leading-tight mb-12"
-            style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}
-          >
-            Everything Amazon KDP Checks — Before You Upload
+          <h2 className="font-bebas text-m2p-ink leading-tight mb-12" style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
+            <span className="block">Everything Amazon KDP Checks</span>
+            <span className="block text-m2p-orange" style={{ fontSize: "clamp(1.25rem, 2.5vw, 2rem)", marginTop: "0.2rem" }}>
+              Before You Upload
+            </span>
           </h2>
           <ul className="space-y-5 text-left max-w-xl mx-auto">
             {[
@@ -450,11 +450,11 @@ export default function Home() {
           >
             KDP is just the beginning.
           </p>
-          <h2
-            className="font-bebas leading-tight mb-4"
-            style={{ color: "#1A1208", fontSize: "clamp(2rem, 4vw, 3rem)" }}
-          >
-            Publishing Beyond Amazon — Tools for Every Platform
+          <h2 className="font-bebas leading-tight mb-4" style={{ color: "#1A1208", fontSize: "clamp(2rem, 4vw, 3rem)" }}>
+            <span className="block">Publishing Beyond Amazon</span>
+            <span className="block" style={{ fontSize: "clamp(1.25rem, 2.5vw, 2rem)", opacity: 0.75, marginTop: "0.2rem" }}>
+              Tools for Every Platform
+            </span>
           </h2>
           <p className="text-[#1A1208]/70 text-base max-w-2xl mx-auto mb-8">
             Working on IngramSpark formatting, print-ready PDF checks, and platform-specific compliance
