@@ -21,9 +21,7 @@ export default function SuccessPage() {
       body: JSON.stringify({ downloadId: id }),
     })
       .then((r) => r.json())
-      .then((data) => {
-        setAccess(!!data?.access);
-      })
+      .then((data) => setAccess(!!data?.access))
       .catch(() => setAccess(false))
       .finally(() => setChecking(false));
   }, [id]);
@@ -31,37 +29,60 @@ export default function SuccessPage() {
   return (
     <div className="min-h-screen bg-m2p-ink flex items-center justify-center px-4">
       <div className="text-center max-w-md">
-        <h1 className="font-bebas text-4xl text-white mb-4">
-          Payment successful! 🎉
-        </h1>
-        <p className="text-white/80 mb-8">
-          Your manuscript is ready to download.
-        </p>
+
+        {/* Header */}
+        <div className="mb-6">
+          <div className="text-5xl mb-4">✅</div>
+          <h1 className="font-bebas text-4xl text-white mb-2">
+            Payment confirmed!
+          </h1>
+          <p className="text-white/70 text-base">
+            Your KDP PDF Check is ready.
+          </p>
+        </div>
+
+        {/* Email notice */}
+        <div className="bg-white/10 rounded-xl px-5 py-4 mb-6 text-left">
+          <p className="text-white font-semibold text-sm mb-1">📧 Check your email</p>
+          <p className="text-white/70 text-sm leading-relaxed">
+            We&apos;ve sent your download link to your email address.
+            <span className="block mt-1 text-white/50 text-xs">
+              ⚠ Your file is available for <strong className="text-white/70">24 hours</strong> — save the link or bookmark the download page.
+            </span>
+          </p>
+        </div>
+
+        {/* Access check */}
         {checking && (
-          <p className="text-white/80 mb-6">Verifying your purchase…</p>
+          <p className="text-white/60 text-sm mb-6">Verifying your purchase…</p>
         )}
+
         {!checking && id && (
           <>
-            {access ? (
-              <p className="text-white/80 mb-6">You're all set. Use the button below to get your file.</p>
-            ) : (
-              <p className="text-white/80 mb-6">
-                Your purchase may still be confirming. Open your download page below — if the download isn't ready yet, wait a moment and refresh.
+            {!access && (
+              <p className="text-white/60 text-sm mb-4">
+                Payment still confirming — if the download page isn&apos;t ready yet, wait a moment and refresh.
               </p>
             )}
             <Link
               href={`/download/${id}`}
-              className="inline-block bg-m2p-orange hover:bg-m2p-orange-hover text-white font-bold px-6 py-3 rounded-lg mb-6"
+              className="inline-block bg-m2p-orange hover:opacity-90 text-white font-bold px-8 py-3 rounded-lg mb-4 transition-opacity"
             >
-              Open download page
+              Open download page →
             </Link>
           </>
         )}
-        <Link
-          href="/"
-          className="mt-6 inline-block text-white/80 hover:text-white"
-        >
-          Back to home
+
+        {/* Lost link help */}
+        <p className="text-white/40 text-xs mt-4">
+          Lost your link later?{" "}
+          <Link href="/resend-link" className="text-white/60 underline hover:text-white">
+            Get it resent
+          </Link>
+        </p>
+
+        <Link href="/" className="mt-6 inline-block text-white/40 hover:text-white/70 text-sm">
+          ← Back to home
         </Link>
       </div>
     </div>
