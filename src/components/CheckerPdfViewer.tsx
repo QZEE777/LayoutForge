@@ -273,6 +273,7 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
     return () => {
       cancelled = true;
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pdfUrl, pdfLoaded, pageNumber, scale, numPages, renderWidth]);
 
   useEffect(() => {

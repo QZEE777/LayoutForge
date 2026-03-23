@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
 const STORED_EMAIL_KEY = "manu2print_email";
 const STORED_CHECKOUT_PENDING_PREFIX = "manu2print_checkout_pending_";
@@ -333,7 +334,7 @@ export default function PaymentGate({
                 <div className="space-y-2">
                   <p className="text-sm text-red-400">{creditError}</p>
                   {creditError.includes("No scan credits") && (
-                    <a href="/#pricing" className="text-xs text-m2p-orange hover:underline">Buy a pack →</a>
+                    <Link href="/#pricing" className="text-xs text-m2p-orange hover:underline">Buy a pack →</Link>
                   )}
                   <button type="button" onClick={resetCredit} className="block mx-auto text-xs text-white/40 hover:text-white underline">Try again</button>
                 </div>
