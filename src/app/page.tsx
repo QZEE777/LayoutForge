@@ -31,19 +31,19 @@ export default function Home() {
 
       {/* ─── SECTION 1 — HERO ─────────────────────────────────────────── */}
       {/* Background: near-black #1A1208 */}
-      <section className="bg-m2p-ink py-16 md:py-20">
+      <section className="bg-m2p-ink pt-6 pb-10 md:pt-8 md:pb-14">
         <div className="max-w-6xl mx-auto px-6">
           {/* Manny logo — top-left of hero */}
-          <div className="flex items-center gap-3 mb-8">
+          <div className="flex items-center gap-2 mb-5">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/manny-avatar.png"
               alt="Manny"
-              width={64}
-              height={64}
+              width={44}
+              height={44}
               style={{ borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
             />
-            <span className="font-bold text-2xl">
+            <span className="font-bold text-lg">
               <span className="text-m2p-orange">manu</span>
               <span className="text-m2p-ivory">2print</span>
             </span>
