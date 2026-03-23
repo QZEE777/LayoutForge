@@ -24,7 +24,8 @@ export async function POST(req: Request) {
       );
     }
 
-    if (priceType !== "single_use") {
+    const VALID_TYPES = ["single_use", "author_pack", "indie_pack", "pro_pack"];
+    if (!VALID_TYPES.includes(priceType ?? "")) {
       return NextResponse.json(
         { error: "Invalid priceType" },
         { status: 400 }
@@ -33,19 +34,29 @@ export async function POST(req: Request) {
 
     lemonSqueezySetup({ apiKey });
 
-    const variantId = process.env.LEMONSQUEEZY_SINGLE_USE_VARIANT_ID ?? "1346943";
+    const VARIANT_MAP: Record<string, string | undefined> = {
+      single_use: process.env.LEMONSQUEEZY_SINGLE_USE_VARIANT_ID ?? "1346943",
+      author_pack: process.env.LEMONSQUEEZY_AUTHOR_PACK_VARIANT_ID,
+      indie_pack: process.env.LEMONSQUEEZY_INDIE_PACK_VARIANT_ID,
+      pro_pack: process.env.LEMONSQUEEZY_PRO_PACK_VARIANT_ID,
+    };
+
+    const variantId = VARIANT_MAP[priceType ?? "single_use"];
 
     if (!variantId) {
       return NextResponse.json(
-        { error: "Variant not configured for this price type" },
+        { error: "This pack is not yet available. Check back soon." },
         { status: 503 }
       );
     }
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (req.headers.get("origin") ?? "");
-    const redirectUrl = downloadId
-      ? `${baseUrl}/success?id=${encodeURIComponent(downloadId)}`
-      : `${baseUrl}/success`;
+    const isPack = priceType !== "single_use";
+    const redirectUrl = isPack
+      ? `${baseUrl}/success?pack=${encodeURIComponent(priceType ?? "")}`
+      : downloadId
+        ? `${baseUrl}/success?id=${encodeURIComponent(downloadId)}`
+        : `${baseUrl}/success`;
 
     const checkout = await createCheckout(storeId, variantId, {
       checkoutData: {
@@ -64,9 +75,10 @@ export async function POST(req: Request) {
       },
       productOptions: {
         redirectUrl,
-        receiptButtonText: "Download Your Manuscript",
-        receiptThankYouNote:
-          "Thank you! Click the button above to download your formatted manuscript.",
+        receiptButtonText: isPack ? "View My Credits" : "Download Your Manuscript",
+        receiptThankYouNote: isPack
+          ? "Thank you! Your scan credits have been added to your account."
+          : "Thank you! Click the button above to download your formatted manuscript.",
       },
     });
 

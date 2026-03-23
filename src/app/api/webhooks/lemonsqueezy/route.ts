@@ -99,6 +99,25 @@ export async function POST(req: Request) {
         gateway: "lemonsqueezy",
         gateway_order_id: orderId,
       });
+      // Add scan credits for pack purchases
+      const PACK_CREDITS: Record<string, number> = {
+        author_pack: 3,
+        indie_pack: 10,
+        pro_pack: 25,
+      };
+      if (priceType in PACK_CREDITS && email) {
+        try {
+          await supabase.from("scan_credits").insert({
+            email: email.toLowerCase(),
+            credits: PACK_CREDITS[priceType],
+            source: priceType,
+            order_id: orderId,
+          });
+        } catch (err) {
+          console.error("[webhooks/lemonsqueezy] scan_credits insert failed:", err);
+        }
+      }
+
       if (priceType === "subscription") {
         const sixMonthsFromNow = new Date();
         sixMonthsFromNow.setMonth(sixMonthsFromNow.getMonth() + 6);

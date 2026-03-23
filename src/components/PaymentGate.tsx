@@ -15,6 +15,7 @@ function getStoredEmail(): string {
 }
 
 type GateState = "processing" | "verifying" | "preview" | "unlocked";
+type CreditStep = "idle" | "sending" | "code" | "redeeming" | "error";
 
 interface PaymentGateProps {
   tool: string;
@@ -54,6 +55,13 @@ export default function PaymentGate({
   const [userEmail, setUserEmail] = useState("");
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [verifyTimedOut, setVerifyTimedOut] = useState(false);
+
+  // Credit redemption state
+  const [creditStep, setCreditStep] = useState<CreditStep>("idle");
+  const [creditCode, setCreditCode] = useState("");
+  const [creditToken, setCreditToken] = useState("");
+  const [creditExpiresAt, setCreditExpiresAt] = useState(0);
+  const [creditError, setCreditError] = useState("");
 
   useEffect(() => {
     setUserEmail((prev) => (prev ? prev : getStoredEmail()));
@@ -191,6 +199,68 @@ export default function PaymentGate({
     }
   };
 
+  const handleCreditSendCode = async () => {
+    const email = userEmail.trim();
+    if (!email) { setCreditError("Enter your email first."); return; }
+    saveEmailForNextTime(email);
+    setCreditError("");
+    setCreditStep("sending");
+    try {
+      const res = await fetch("/api/credits/send-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setCreditError(data.error ?? "Failed to send code."); setCreditStep("error"); return; }
+      if (!data.token) {
+        // No credits on that email — don't reveal, just show no-credits message
+        setCreditError("No scan credits found for that email. Buy a pack to get credits.");
+        setCreditStep("error");
+        return;
+      }
+      setCreditToken(data.token);
+      setCreditExpiresAt(data.expiresAt);
+      setCreditStep("code");
+    } catch {
+      setCreditError("Network error. Try again.");
+      setCreditStep("error");
+    }
+  };
+
+  const handleCreditRedeem = async () => {
+    if (creditCode.length !== 6) return;
+    setCreditStep("redeeming");
+    setCreditError("");
+    try {
+      const res = await fetch("/api/credits/use", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: userEmail.trim(),
+          code: creditCode,
+          token: creditToken,
+          expiresAt: creditExpiresAt,
+          downloadId: downloadId ?? "",
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setCreditError(data.error ?? "Redemption failed."); setCreditStep("error"); return; }
+      setState("unlocked");
+    } catch {
+      setCreditError("Network error. Try again.");
+      setCreditStep("error");
+    }
+  };
+
+  const resetCredit = () => {
+    setCreditStep("idle");
+    setCreditCode("");
+    setCreditToken("");
+    setCreditExpiresAt(0);
+    setCreditError("");
+  };
+
   return (
       <div className="relative">
       {!hideChildrenUntilUnlocked && (
@@ -204,57 +274,108 @@ export default function PaymentGate({
           <p className="text-sm text-white/90">Choose how you&apos;d like to access it.</p>
           <input
             type="email"
-            placeholder="Your email (for receipt)"
+            placeholder="Your email (for receipt / credits)"
             value={userEmail}
-            onChange={(e) => setUserEmail(e.target.value)}
+            onChange={(e) => { setUserEmail(e.target.value); resetCredit(); }}
             className="w-full rounded-lg border border-white/20 bg-m2p-ink/95 px-4 py-2 text-sm text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-m2p-orange"
           />
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <button
-              type="button"
-              onClick={handleSingleUse}
-              disabled={checkoutLoading}
-              className="rounded-lg px-5 py-3 text-sm font-semibold bg-m2p-orange text-white border border-m2p-orange-hover hover:bg-m2p-orange-hover disabled:opacity-60"
-            >
-              {checkoutLoading ? "Redirecting…" : "$9 — One-Time Use"}
-            </button>
-          </div>
-          <p className="text-white/70 text-sm">or</p>
-          {!showBetaInput ? (
-            <button
-              type="button"
-              onClick={() => setShowBetaInput(true)}
-              className="text-sm text-m2p-orange hover:underline"
-            >
-              Have a beta access code?
-            </button>
-          ) : (
-            <form onSubmit={handleBetaSubmit} className="space-y-2">
+
+          {/* Credit redemption flow */}
+          {creditStep === "code" ? (
+            <div className="space-y-3">
+              <p className="text-sm text-white/80">6-digit code sent — enter it to redeem your credit:</p>
               <input
                 type="text"
-                placeholder="Enter beta code"
-                value={betaCode}
-                onChange={(e) => { setBetaCode(e.target.value); setBetaError(""); }}
-                className="w-full rounded-lg border border-white/20 bg-m2p-ink/95 px-4 py-2 text-sm text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-m2p-orange"
+                value={creditCode}
+                onChange={(e) => setCreditCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                placeholder="000000"
+                maxLength={6}
+                className="w-full rounded-lg border border-white/20 bg-m2p-ink/95 px-4 py-2 text-center text-2xl font-bold tracking-widest text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-m2p-green"
               />
+              {creditError && <p className="text-sm text-red-400">{creditError}</p>}
               <div className="flex gap-2 justify-center">
                 <button
-                  type="submit"
-                  disabled={betaLoading}
-                  className="rounded-lg px-4 py-2 text-sm font-medium bg-m2p-orange text-white hover:bg-m2p-orange-hover disabled:opacity-60"
+                  type="button"
+                  onClick={handleCreditRedeem}
+                  disabled={creditCode.length !== 6}
+                  className="rounded-lg px-5 py-2.5 text-sm font-semibold bg-m2p-green text-white hover:opacity-90 disabled:opacity-50"
                 >
-                  {betaLoading ? "Checking…" : "Unlock"}
+                  Redeem credit →
+                </button>
+                <button type="button" onClick={resetCredit} className="rounded-lg px-4 py-2.5 text-sm text-white/60 hover:text-white">Cancel</button>
+              </div>
+            </div>
+          ) : creditStep === "redeeming" ? (
+            <p className="text-sm text-white/70">Redeeming your credit…</p>
+          ) : creditStep === "sending" ? (
+            <p className="text-sm text-white/70">Sending verification code…</p>
+          ) : (
+            <>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <button
+                  type="button"
+                  onClick={handleSingleUse}
+                  disabled={checkoutLoading}
+                  className="rounded-lg px-5 py-3 text-sm font-semibold bg-m2p-orange text-white border border-m2p-orange-hover hover:bg-m2p-orange-hover disabled:opacity-60"
+                >
+                  {checkoutLoading ? "Redirecting…" : "$9 — Pay Now"}
                 </button>
                 <button
                   type="button"
-                  onClick={() => { setShowBetaInput(false); setBetaCode(""); setBetaError(""); }}
-                  className="rounded-lg px-4 py-2 text-sm text-white/80 hover:text-white"
+                  onClick={handleCreditSendCode}
+                  disabled={checkoutLoading}
+                  className="rounded-lg px-5 py-3 text-sm font-semibold bg-m2p-green text-white hover:opacity-90 disabled:opacity-60"
                 >
-                  Cancel
+                  Use a Scan Credit →
                 </button>
               </div>
-              {betaError && <p className="text-sm text-red-400">{betaError}</p>}
-            </form>
+              {creditStep === "error" && creditError && (
+                <div className="space-y-2">
+                  <p className="text-sm text-red-400">{creditError}</p>
+                  {creditError.includes("No scan credits") && (
+                    <a href="/#pricing" className="text-xs text-m2p-orange hover:underline">Buy a pack →</a>
+                  )}
+                  <button type="button" onClick={resetCredit} className="block mx-auto text-xs text-white/40 hover:text-white underline">Try again</button>
+                </div>
+              )}
+              <p className="text-white/70 text-sm">or</p>
+              {!showBetaInput ? (
+                <button
+                  type="button"
+                  onClick={() => setShowBetaInput(true)}
+                  className="text-sm text-m2p-orange hover:underline"
+                >
+                  Have a beta access code?
+                </button>
+              ) : (
+                <form onSubmit={handleBetaSubmit} className="space-y-2">
+                  <input
+                    type="text"
+                    placeholder="Enter beta code"
+                    value={betaCode}
+                    onChange={(e) => { setBetaCode(e.target.value); setBetaError(""); }}
+                    className="w-full rounded-lg border border-white/20 bg-m2p-ink/95 px-4 py-2 text-sm text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-m2p-orange"
+                  />
+                  <div className="flex gap-2 justify-center">
+                    <button
+                      type="submit"
+                      disabled={betaLoading}
+                      className="rounded-lg px-4 py-2 text-sm font-medium bg-m2p-orange text-white hover:bg-m2p-orange-hover disabled:opacity-60"
+                    >
+                      {betaLoading ? "Checking…" : "Unlock"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setShowBetaInput(false); setBetaCode(""); setBetaError(""); }}
+                      className="rounded-lg px-4 py-2 text-sm text-white/80 hover:text-white"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                  {betaError && <p className="text-sm text-red-400">{betaError}</p>}
+                </form>
+              )}
+            </>
           )}
         </div>
       </div>

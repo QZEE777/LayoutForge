@@ -6,6 +6,7 @@ import ToolBadge from "@/components/ToolBadge";
 import PlatformWaitlistForm from "@/components/PlatformWaitlistForm";
 import TargetGraphic from "@/components/TargetGraphic";
 import TestimonialsCarousel from "@/components/TestimonialsCarousel";
+import PackBuyButton from "@/components/PackBuyButton";
 
 export const metadata = {
   title: "KDP PDF Checker — Find Formatting Errors Before Amazon Rejects Your Book | manu2print",
@@ -361,85 +362,76 @@ export default function Home() {
               </Link>
             </div>
 
-            {/* Card 2 — Author Pack (COMING SOON / MOST POPULAR) */}
-            <div className="border-2 border-m2p-orange/40 rounded-2xl p-6 text-center flex flex-col relative opacity-90" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
+            {/* Card 2 — Author Pack */}
+            <div className="border-2 border-m2p-orange/40 rounded-2xl p-6 text-center flex flex-col relative" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
               <div className="mb-3 flex flex-wrap gap-2 justify-center">
-                <span className="inline-block bg-white/10 text-m2p-ivory/70 text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full border border-white/10">
-                  COMING SOON
+                <span className="inline-block bg-m2p-green/80 text-white text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full">
+                  LIVE
                 </span>
                 <span className="inline-block bg-m2p-orange/20 text-m2p-orange text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full border border-m2p-orange/30">
                   MOST POPULAR
                 </span>
               </div>
               <h3 className="font-bebas text-m2p-ivory text-2xl mb-1">Author Pack</h3>
-              <div className="font-bebas text-5xl text-m2p-ivory/80 leading-none mb-1">$19</div>
+              <div className="font-bebas text-5xl text-m2p-orange leading-none mb-1">$19</div>
               <p className="text-m2p-orange/80 text-xs mb-1">~$6.33 per scan</p>
               <p className="text-m2p-ivory/60 text-sm mb-5">3 scans — for revisions and versions</p>
-              <ul className="text-left space-y-2 text-sm text-m2p-ivory/70 mb-6 flex-1">
+              <ul className="text-left space-y-2 text-sm text-m2p-ivory/80 mb-6 flex-1">
                 <li>✓ Everything in Single</li>
                 <li>✓ 3 scan credits</li>
+                <li>✓ Credits never expire</li>
               </ul>
-              <button
-                disabled
-                className="block w-full bg-white/10 text-m2p-ivory/50 font-bold px-5 py-3 rounded-xl text-sm cursor-not-allowed border border-white/10"
-              >
-                Launching Soon
-              </button>
-              <p className="text-m2p-ivory/40 text-xs mt-3">
-                Packs launching soon — join early access below ↓
-              </p>
+              <PackBuyButton
+                priceType="author_pack"
+                label="Buy Author Pack — $19"
+                className="block w-full bg-m2p-orange hover:opacity-90 text-white font-bold px-5 py-3 rounded-xl text-sm transition-opacity shadow-[0_4px_16px_rgba(240,90,40,0.35)] disabled:opacity-60"
+              />
             </div>
 
-            {/* Card 3 — Indie Publisher (COMING SOON) */}
-            <div className="border border-white/10 rounded-2xl p-6 text-center flex flex-col relative opacity-90" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
+            {/* Card 3 — Indie Publisher */}
+            <div className="border border-white/10 rounded-2xl p-6 text-center flex flex-col relative" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
               <div className="mb-3">
-                <span className="inline-block bg-white/10 text-m2p-ivory/70 text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full border border-white/10">
-                  COMING SOON
+                <span className="inline-block bg-m2p-green/80 text-white text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full">
+                  LIVE
                 </span>
               </div>
               <h3 className="font-bebas text-m2p-ivory text-2xl mb-1">Indie Publisher</h3>
-              <div className="font-bebas text-5xl text-m2p-ivory/80 leading-none mb-1">$39</div>
+              <div className="font-bebas text-5xl text-m2p-orange leading-none mb-1">$39</div>
               <p className="text-m2p-orange/80 text-xs mb-1">~$3.90 per scan</p>
               <p className="text-m2p-ivory/60 text-sm mb-5">10 scans — for multiple books or client work</p>
-              <ul className="text-left space-y-2 text-sm text-m2p-ivory/70 mb-6 flex-1">
+              <ul className="text-left space-y-2 text-sm text-m2p-ivory/80 mb-6 flex-1">
                 <li>✓ Everything in Author</li>
                 <li>✓ 10 scan credits</li>
+                <li>✓ Credits never expire</li>
               </ul>
-              <button
-                disabled
-                className="block w-full bg-white/10 text-m2p-ivory/50 font-bold px-5 py-3 rounded-xl text-sm cursor-not-allowed border border-white/10"
-              >
-                Launching Soon
-              </button>
-              <p className="text-m2p-ivory/40 text-xs mt-3">
-                Packs launching soon — join early access below ↓
-              </p>
+              <PackBuyButton
+                priceType="indie_pack"
+                label="Buy Indie Pack — $39"
+                className="block w-full bg-m2p-orange hover:opacity-90 text-white font-bold px-5 py-3 rounded-xl text-sm transition-opacity disabled:opacity-60"
+              />
             </div>
 
-            {/* Card 4 — Pro / Studio (COMING SOON) */}
-            <div className="border border-white/10 rounded-2xl p-6 text-center flex flex-col relative opacity-90" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
+            {/* Card 4 — Pro / Studio */}
+            <div className="border border-white/10 rounded-2xl p-6 text-center flex flex-col relative" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
               <div className="mb-3">
-                <span className="inline-block bg-white/10 text-m2p-ivory/70 text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full border border-white/10">
-                  COMING SOON
+                <span className="inline-block bg-m2p-green/80 text-white text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full">
+                  LIVE
                 </span>
               </div>
               <h3 className="font-bebas text-m2p-ivory text-2xl mb-1">Pro / Studio</h3>
-              <div className="font-bebas text-5xl text-m2p-ivory/80 leading-none mb-1">$79</div>
+              <div className="font-bebas text-5xl text-m2p-orange leading-none mb-1">$79</div>
               <p className="text-m2p-orange/80 text-xs mb-1">~$3.16 per scan</p>
               <p className="text-m2p-ivory/60 text-sm mb-5">High-volume publishing workflows</p>
-              <ul className="text-left space-y-2 text-sm text-m2p-ivory/70 mb-6 flex-1">
+              <ul className="text-left space-y-2 text-sm text-m2p-ivory/80 mb-6 flex-1">
                 <li>✓ Everything in Indie</li>
                 <li>✓ 25 scan credits</li>
+                <li>✓ Credits never expire</li>
               </ul>
-              <button
-                disabled
-                className="block w-full bg-white/10 text-m2p-ivory/50 font-bold px-5 py-3 rounded-xl text-sm cursor-not-allowed border border-white/10"
-              >
-                Launching Soon
-              </button>
-              <p className="text-m2p-ivory/40 text-xs mt-3">
-                Packs launching soon — join early access below ↓
-              </p>
+              <PackBuyButton
+                priceType="pro_pack"
+                label="Buy Pro Pack — $79"
+                className="block w-full bg-m2p-orange hover:opacity-90 text-white font-bold px-5 py-3 rounded-xl text-sm transition-opacity disabled:opacity-60"
+              />
             </div>
           </div>
 
