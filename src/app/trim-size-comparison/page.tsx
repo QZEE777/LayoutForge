@@ -63,8 +63,9 @@ export default function TrimSizeComparisonPage() {
           <span className="block">using the same page count and list price.</span>
         </p>
         <p className="text-m2p-muted text-sm mt-2 mb-5 leading-relaxed text-center">
-          Choosing the correct trim size is only one part of KDP compliance.
-          Your interior layout must match it exactly — margins, bleed, and fonts are checked separately.
+          <span className="block">Choosing the correct trim size is only one part of KDP compliance.</span>
+          <span className="block">Your interior layout must match it exactly —</span>
+          <span className="block">margins, bleed, and fonts are checked separately.</span>
         </p>
 
         {/* Input card */}

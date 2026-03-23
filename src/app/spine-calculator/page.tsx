@@ -48,12 +48,13 @@ export default function SpineCalculatorPage() {
           <span className="block text-xl sm:text-2xl text-m2p-muted mt-1">Calculate Book Spine for Print</span>
         </h1>
         <p className="text-m2p-muted mb-3 text-center">
-          Get spine width and full-wrap cover dimensions for KDP paperbacks. Use these when designing your cover in Canva or other tools.
+          <span className="block">Get spine width and full-wrap cover dimensions</span>
+          <span className="block">for KDP paperbacks, in inches and mm.</span>
         </p>
         <p className="text-m2p-muted text-sm mt-2 mb-5 leading-relaxed text-center">
-          This calculates spine width based on page count and paper type.
-          It does not verify your full book layout or KDP compliance —
-          margins, trim, and fonts must still be checked.
+          <span className="block">Calculates spine width based on page count and paper type.</span>
+          <span className="block">Does not verify your full book layout or KDP compliance —</span>
+          <span className="block">margins, trim, and fonts must still be checked.</span>
         </p>
 
         <div className="rounded-xl border-2 bg-white p-6 mb-5" style={{ borderColor: "#2D6A2D" }}>
@@ -113,7 +114,10 @@ export default function SpineCalculatorPage() {
                   {fullWrap.widthInches.toFixed(3)} &times; {fullWrap.heightInches.toFixed(3)} in
                 </dd>
                 <dd className="text-m2p-muted text-xs mt-0.5">
-                  Use this for front + spine + back in one canvas. Minimum 300 DPI for print.
+                  {(fullWrap.widthInches * INCH_TO_MM).toFixed(1)} &times; {(fullWrap.heightInches * INCH_TO_MM).toFixed(1)} mm
+                </dd>
+                <dd className="text-m2p-muted text-xs mt-0.5">
+                  Front + spine + back in one canvas. Minimum 300 DPI for print.
                 </dd>
               </div>
             )}

@@ -29,6 +29,8 @@ export default function InteriorTemplatePage() {
 
   const markInteracted = useCallback(() => setHasInteracted(true), []);
 
+  const INCH_TO_MM = 25.4;
+
   const pages = useMemo(() => clampPages(pageCount), [pageCount]);
   const trim = useMemo(() => getTrimSize(trimId), [trimId]);
   const gutterInches = useMemo(() => getGutterMargin(pages), [pages]);
@@ -103,7 +105,7 @@ export default function InteriorTemplatePage() {
               />
               <p className="text-xs text-m2p-muted mt-1">
                 KDP range: {minPages}–{maxPages} pages. Gutter for {pages} pages:{" "}
-                <strong className="text-m2p-ink">{gutterInches}&quot;</strong>
+                <strong className="text-m2p-ink">{gutterInches}&quot; ({(gutterInches * INCH_TO_MM).toFixed(1)} mm)</strong>
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -133,11 +135,11 @@ export default function InteriorTemplatePage() {
                 </div>
                 <div>
                   <dt className="text-m2p-muted">Gutter (inside margin) for {pages} pages</dt>
-                  <dd className="text-m2p-ink font-semibold">{gutterInches}&quot;</dd>
+                  <dd className="text-m2p-ink font-semibold">{gutterInches}&quot; ({(gutterInches * INCH_TO_MM).toFixed(1)} mm)</dd>
                 </div>
                 <div>
                   <dt className="text-m2p-muted">Outside margins</dt>
-                  <dd className="text-m2p-ink">0.25&quot; top, bottom, outside edge — KDP minimum</dd>
+                  <dd className="text-m2p-ink">0.25&quot; (6.4 mm) top, bottom, outside edge — KDP minimum</dd>
                 </div>
               </dl>
               <button

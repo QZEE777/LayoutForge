@@ -53,12 +53,12 @@ export default function RoyaltyCalculatorPage() {
           </span>
         </h1>
         <p className="text-m2p-muted mb-3 text-center text-sm leading-relaxed">
-          Estimate your earnings per sale based on trim size, page count,
-          list price, and royalty rate. Uses US paperback B&amp;W print costs.
+          <span className="block">Estimate your earnings per sale based on trim size,</span>
+          <span className="block">page count, list price, royalty rate, and paper color.</span>
         </p>
         <p className="text-m2p-muted text-sm mt-2 mb-5 leading-relaxed text-center">
-          This estimates royalty based on print cost. It does not check
-          whether your PDF meets KDP formatting requirements.
+          <span className="block">Estimates royalty based on print cost.</span>
+          <span className="block">Does not check whether your PDF meets KDP formatting requirements.</span>
         </p>
 
         <div className="rounded-xl border-2 bg-white p-6 mb-5" style={{ borderColor: "#2D6A2D" }}>
@@ -168,7 +168,9 @@ export default function RoyaltyCalculatorPage() {
         </div>
 
         <p className="text-xs text-m2p-muted mb-5 text-center">
-          Estimates based on KDP US marketplace rates. Actual costs vary by marketplace, paper availability, and KDP pricing updates. Always verify on KDP&apos;s pricing page before publishing.
+          <span className="block">Estimates based on KDP US marketplace rates.</span>
+          <span className="block">Actual costs vary by marketplace and KDP pricing updates.</span>
+          <span className="block">Always verify on KDP&apos;s pricing page before publishing.</span>
         </p>
 
         <div className="mt-5 text-center">

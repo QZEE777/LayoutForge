@@ -56,8 +56,8 @@ export default function PageCountEstimatorPage() {
           <span className="block">before you design your cover, set your price, or upload to Amazon.</span>
         </p>
         <p className="text-m2p-muted text-sm mt-2 mb-5 leading-relaxed text-center">
-          Calculate page count based on word count, trim size, and font size
-          using KDP-style layout assumptions.
+          <span className="block">Calculate page count based on word count, trim size,</span>
+          <span className="block">and font size using KDP-style layout assumptions.</span>
         </p>
 
         {/* Input card */}

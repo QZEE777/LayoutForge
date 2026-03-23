@@ -23,6 +23,7 @@ function clampPages(n: number): number {
 }
 
 const DPI = 300;
+const INCH_TO_MM = 25.4;
 
 function inchesToPx(inches: number): number {
   return Math.round(inches * DPI);
@@ -90,13 +91,12 @@ export default function CoverCalculatorPage() {
           </span>
         </h1>
         <p className="text-m2p-muted mb-3 text-center">
-          Calculate the exact full-wrap cover dimensions for your paperback —
-          front, spine, and back — with bleed included.
+          <span className="block">Calculate the exact full-wrap cover dimensions for your paperback —</span>
+          <span className="block">front, spine, and back — with bleed included.</span>
         </p>
         <p className="text-m2p-muted text-sm mt-2 mb-5 leading-relaxed text-center">
-          Designed in Canva, InDesign, or Photoshop? Get exact pixel dimensions
-          at 300 DPI, inch dimensions with bleed, and a downloadable cover
-          template PDF with KDP-exact guides.
+          <span className="block">Designed in Canva, InDesign, or Photoshop? Get exact pixel dimensions</span>
+          <span className="block">at 300 DPI, inches, and mm — plus a downloadable cover template PDF.</span>
         </p>
 
         <div className="rounded-xl border-2 bg-white p-6 mb-5" style={{ borderColor: "#2D6A2D" }}>
@@ -155,15 +155,18 @@ export default function CoverCalculatorPage() {
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-m2p-muted">Exact size (inches, with 0.125&quot; bleed)</dt>
+                  <dt className="text-m2p-muted">Exact size (with 0.125&quot; bleed)</dt>
                   <dd className="text-m2p-ink font-semibold">
                     {fullWrap.widthInches.toFixed(3)} × {fullWrap.heightInches.toFixed(3)} in
+                  </dd>
+                  <dd className="text-m2p-muted text-xs mt-0.5">
+                    {(fullWrap.widthInches * INCH_TO_MM).toFixed(1)} × {(fullWrap.heightInches * INCH_TO_MM).toFixed(1)} mm
                   </dd>
                 </div>
                 <div>
                   <dt className="text-m2p-muted">Spine width</dt>
                   <dd className="text-m2p-ink font-semibold">
-                    {spineInches.toFixed(3)} in
+                    {spineInches.toFixed(3)} in ({(spineInches * INCH_TO_MM).toFixed(2)} mm)
                   </dd>
                 </div>
                 <div className="pt-2">
