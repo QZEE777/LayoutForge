@@ -79,7 +79,7 @@ export async function POST(req: Request) {
     website: website || null,
     reason: reason || null,
     status: "pending",
-    commission_rate: 0.30,
+    commission_rate: 0.40,
   });
 
   return NextResponse.json({ ok: true, existing: false });
