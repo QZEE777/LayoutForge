@@ -7,9 +7,7 @@ export default function SiteNav() {
   return (
     <nav className="sticky top-0 z-50 overflow-visible border-b border-m2p-border bg-m2p-ivory/98 backdrop-blur-sm" style={{ overflow: "visible" }}>
       <div className="mx-auto max-w-6xl px-6 py-3 flex flex-wrap items-center justify-between gap-3">
-        <Link href="/" className="flex items-center gap-2 overflow-visible">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/manny-avatar.png" alt="Manny" width={60} height={60} style={{ flexShrink: 0, display: "block", borderRadius: "50%", objectFit: "cover" }} />
+        <Link href="/" className="flex items-center overflow-visible">
           <span className="font-bold text-xl">
             <span className="text-m2p-orange">manu</span>
             <span className="text-m2p-live">2print</span>
