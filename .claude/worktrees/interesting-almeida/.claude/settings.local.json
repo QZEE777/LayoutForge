@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc:*)",
+      "Bash(node_modules/.bin/tsc --noEmit)",
+      "Bash(npm run:*)",
+      "Skill(claude-api)",
+      "Skill(claude-api:*)",
+      "Read(//c/Dev/Dev-projects/projects/LayoutForge-main/src/**)",
+      "Read(//mnt/c/Dev/Dev-projects/projects/LayoutForge-main/src/**)",
+      "Bash(find /home -name resend.ts)"
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+---
+description: Cursor Composer (IDE) vs product AI — no app integration; optional IDE benefit
+alwaysApply: true
+---
+
+# Cursor Composer vs product AI (retained preference)
+
+- **Cursor Composer 2** (and the fast default) is the **IDE assistant** model in Cursor (Chat / Agent). Using it can improve coding assistance on **any** repo opened in Cursor. It is **not** something integrated into application source code.
+- **Product / app AI** (e.g. LayoutForge server features) uses **env-based providers** (e.g. `ANTHROPIC_API_KEY`) per project stack. **Do not** suggest wiring “Composer 2” into the Next.js/Vercel app as if it were an API — that pattern does not apply.
+- **LayoutForge:** no Composer integration in the codebase; optional **Cursor-side** model choice only.
+
+When the user asks about “integrating Composer” for a web app, clarify **IDE model choice** vs **server AI keys** and default to the stack’s documented provider.

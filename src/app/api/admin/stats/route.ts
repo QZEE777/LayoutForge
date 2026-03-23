@@ -29,12 +29,13 @@ export async function GET(request: NextRequest) {
   const supabase = createClient(supabaseUrl, supabaseKey);
 
   try {
-    const [paymentsRes, subscriptionsRes, betaRes, formatterLeadsRes, emailCapturesRes] = await Promise.all([
+    const [paymentsRes, subscriptionsRes, betaRes, formatterLeadsRes, emailCapturesRes, affiliatesRes] = await Promise.all([
       supabase.from("payments").select("*").order("created_at", { ascending: false }).limit(50),
       supabase.from("subscriptions").select("*").order("created_at", { ascending: false }),
       supabase.from("beta_access").select("*").order("created_at", { ascending: false }).limit(50),
       supabase.from("formatter_leads").select("*").order("created_at", { ascending: false }).limit(200),
       supabase.from("email_captures").select("*").order("created_at", { ascending: false }).limit(200),
+      supabase.from("affiliates").select("id, status").order("created_at", { ascending: false }),
     ]);
 
     const recentPayments = paymentsRes.data || [];
@@ -42,6 +43,9 @@ export async function GET(request: NextRequest) {
     const betaUsage = betaRes.data || [];
     const formatterLeads = formatterLeadsRes.data || [];
     const emailCaptures = emailCapturesRes.data || [];
+    const affiliates = affiliatesRes.data || [];
+    const pendingAffiliates = affiliates.filter((a: { status: string }) => a.status === "pending").length;
+    const activeAffiliates = affiliates.filter((a: { status: string }) => a.status === "active").length;
 
     const completed = recentPayments.filter((p: { status: string }) => p.status === "complete");
     const totalRevenue = completed.reduce((sum: number, p: { amount: number | null }) => sum + (p.amount || 0), 0);
@@ -58,6 +62,8 @@ export async function GET(request: NextRequest) {
       totalPayingCustomers,
       activeSubscriptions,
       betaUsers,
+      pendingAffiliates,
+      activeAffiliates,
       recentPayments,
       subscriptions,
       betaUsage,

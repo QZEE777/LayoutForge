@@ -66,6 +66,7 @@ export async function POST(req: Request) {
   const downloadId = typeof customData?.download_id === "string" ? customData.download_id : "";
   const priceType = typeof customData?.price_type === "string" ? customData.price_type : "single_use";
   const tool = typeof customData?.tool === "string" ? customData.tool : "";
+  const refCode = typeof customData?.ref_code === "string" ? customData.ref_code : "";
   const email = payload.data?.attributes?.user_email ?? "";
   const orderId = payload.data?.id != null ? String(payload.data.id) : "";
   const amount = payload.data?.attributes?.total ?? 0;
@@ -107,6 +108,33 @@ export async function POST(req: Request) {
           plan: "6_months",
           current_period_end: sixMonthsFromNow.toISOString(),
         });
+      }
+
+      // Record affiliate referral conversion if a ref code was present
+      if (refCode) {
+        try {
+          const { data: affiliate } = await supabase
+            .from("affiliates")
+            .select("id, commission_rate")
+            .eq("code", refCode)
+            .eq("status", "active")
+            .maybeSingle();
+
+          if (affiliate) {
+            const commissionAmount = Math.round(amount * (affiliate.commission_rate ?? 0.30));
+            await supabase.from("referrals").insert({
+              affiliate_code: refCode,
+              converted: true,
+              converted_at: new Date().toISOString(),
+              order_id: orderId,
+              sale_amount: amount,
+              commission_amount: commissionAmount,
+              paid_out: false,
+            });
+          }
+        } catch (err) {
+          console.error("[webhooks/lemonsqueezy] referral insert failed:", err);
+        }
       }
     }
   }

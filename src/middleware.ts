@@ -6,6 +6,17 @@ import { updateSession } from "@/lib/supabase/middleware";
 export async function middleware(request: NextRequest) {
   const response = await updateSession(request);
 
+  // Affiliate referral tracking — ?ref=CODE sets a 30-day cookie
+  const refCode = request.nextUrl.searchParams.get("ref");
+  if (refCode && /^[a-zA-Z0-9_-]{3,32}$/.test(refCode)) {
+    response.cookies.set("m2p_ref", refCode.toLowerCase(), {
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+      path: "/",
+      httpOnly: true,
+      sameSite: "lax",
+    });
+  }
+
   const pathname = request.nextUrl.pathname;
   const isApiOrAuth = pathname.startsWith("/api") || pathname.startsWith("/auth");
   if (isApiOrAuth) {
