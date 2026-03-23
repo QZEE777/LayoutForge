@@ -471,6 +471,39 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ─── SECTION 7B — AFFILIATE CTA ─────────────────────────────────── */}
+      {/* Background: dark green #1A3A2A */}
+      <section className="py-14 text-center" style={{ backgroundColor: "#1A3A2A" }}>
+        <div className="max-w-3xl mx-auto px-6">
+          <p className="font-bebas text-m2p-green mb-2 uppercase tracking-[0.1em] text-sm">
+            EARN WITH US
+          </p>
+          <h2
+            className="font-bebas text-m2p-ivory leading-tight mb-3"
+            style={{ fontSize: "clamp(1.75rem, 3.5vw, 2.75rem)" }}
+          >
+            Refer Authors. Earn 30% Commission.
+          </h2>
+          <p className="text-m2p-ivory/65 text-base max-w-lg mx-auto mb-8">
+            Share your link. Earn $2.70 for every $9 scan you send our way — with a 30-day attribution cookie and monthly PayPal payouts.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/affiliates/apply"
+              className="inline-block bg-m2p-green hover:opacity-90 text-white font-bold px-8 py-3 rounded-xl text-sm transition-opacity"
+            >
+              Become an Affiliate →
+            </Link>
+            <Link
+              href="/affiliates"
+              className="inline-block border border-m2p-ivory/30 text-m2p-ivory/70 hover:text-m2p-ivory hover:border-m2p-ivory/60 font-bold px-8 py-3 rounded-xl text-sm transition-colors"
+            >
+              My Dashboard
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* ─── SECTION 8 — PUBLISHING BEYOND AMAZON ──────────────────────── */}
       {/* Background: sage #E8F0E8 */}
       <section className="py-20 text-center" style={{ backgroundColor: "#E8F0E8" }}>

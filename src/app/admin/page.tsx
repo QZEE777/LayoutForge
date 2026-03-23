@@ -17,6 +17,8 @@ export default function AdminPage() {
     totalPayingCustomers: number;
     activeSubscriptions: number;
     betaUsers: number;
+    pendingAffiliates: number;
+    activeAffiliates: number;
   } | null>(null);
   const [payments, setPayments] = useState<Array<{
     id: string;
@@ -44,6 +46,27 @@ export default function AdminPage() {
   const [formatterLeads, setFormatterLeads] = useState<Array<{ id?: string; email?: string | null; name?: string | null; created_at?: string }>>([]);
   const [emailCaptures, setEmailCaptures] = useState<Array<{ id?: string; email?: string | null; tool?: string | null; created_at?: string }>>([]);
   const [leadsFromStorage, setLeadsFromStorage] = useState<Array<{ id: string; email: string; source: string; createdAt: number }>>([]);
+  const [affiliates, setAffiliates] = useState<Array<{
+    id: string;
+    name: string;
+    email: string;
+    code: string;
+    status: string;
+    commission_rate: number;
+    website?: string | null;
+    reason?: string | null;
+    created_at: string;
+  }>>([]);
+  const [referrals, setReferrals] = useState<Array<{
+    id: string;
+    affiliate_code: string;
+    converted: boolean;
+    sale_amount: number | null;
+    commission_amount: number | null;
+    paid_out: boolean;
+    created_at: string;
+  }>>([]);
+  const [affiliateLoading, setAffiliateLoading] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -78,6 +101,8 @@ export default function AdminPage() {
         totalPayingCustomers: data.totalPayingCustomers ?? 0,
         activeSubscriptions: data.activeSubscriptions ?? 0,
         betaUsers: data.betaUsers ?? 0,
+        pendingAffiliates: data.pendingAffiliates ?? 0,
+        activeAffiliates: data.activeAffiliates ?? 0,
       });
       setPayments(data.recentPayments || []);
       setSubscriptions(data.subscriptions || []);
@@ -90,6 +115,16 @@ export default function AdminPage() {
         if (leadsRes.ok) {
           const leadsData = await leadsRes.json();
           setLeadsFromStorage(leadsData.leads || []);
+        }
+      } catch {
+        /* ignore */
+      }
+      try {
+        const affRes = await fetch("/api/admin/affiliates", { headers: { "x-admin-password": pwd } });
+        if (affRes.ok) {
+          const affData = await affRes.json();
+          setAffiliates(affData.affiliates || []);
+          setReferrals(affData.referrals || []);
         }
       } catch {
         /* ignore */
@@ -131,6 +166,8 @@ export default function AdminPage() {
     setFormatterLeads([]);
     setEmailCaptures([]);
     setLeadsFromStorage([]);
+    setAffiliates([]);
+    setReferrals([]);
   };
 
   const handleRefresh = () => {
@@ -227,6 +264,28 @@ export default function AdminPage() {
     downloadCsv("email-captures.csv", [headers, ...rows]);
   };
 
+  const affiliateAction = async (action: string, id: string) => {
+    const pwd = typeof window !== "undefined" ? sessionStorage.getItem(ADMIN_PWD_KEY) : null;
+    if (!pwd) return;
+    setAffiliateLoading(true);
+    try {
+      await fetch("/api/admin/affiliates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-admin-password": pwd },
+        body: JSON.stringify({ action, id }),
+      });
+      // Refresh affiliates list
+      const res = await fetch("/api/admin/affiliates", { headers: { "x-admin-password": pwd } });
+      if (res.ok) {
+        const data = await res.json();
+        setAffiliates(data.affiliates || []);
+        setReferrals(data.referrals || []);
+      }
+    } finally {
+      setAffiliateLoading(false);
+    }
+  };
+
   const exportLeadsFromStorageCsv = () => {
     const headers = ["Date", "Email", "Source"];
     const rows = leadsFromStorage.map((l) => [
@@ -308,7 +367,7 @@ export default function AdminPage() {
 
         {stats && (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-4">
               <div className="rounded-xl border border-m2p-border bg-m2p-ivory p-4">
                 <p className="text-xs text-soft-muted mb-1">Total revenue</p>
                 <p className="text-2xl font-bold text-brave">
@@ -327,6 +386,14 @@ export default function AdminPage() {
               <div className="rounded-xl border border-m2p-border bg-m2p-ivory p-4">
                 <p className="text-xs text-soft-muted mb-1">Beta users</p>
                 <p className="text-2xl font-bold">{stats.betaUsers}</p>
+              </div>
+              <div className={`rounded-xl border p-4 ${stats.pendingAffiliates > 0 ? "border-amber-300 bg-amber-50" : "border-m2p-border bg-m2p-ivory"}`}>
+                <p className="text-xs text-soft-muted mb-1">Affiliates pending</p>
+                <p className={`text-2xl font-bold ${stats.pendingAffiliates > 0 ? "text-amber-600" : ""}`}>{stats.pendingAffiliates}</p>
+              </div>
+              <div className="rounded-xl border border-m2p-border bg-m2p-ivory p-4">
+                <p className="text-xs text-soft-muted mb-1">Active affiliates</p>
+                <p className="text-2xl font-bold text-green-600">{stats.activeAffiliates}</p>
               </div>
             </div>
             {latestPaymentAt && (
@@ -537,6 +604,93 @@ export default function AdminPage() {
                 </table>
                 {emailCaptures.length === 0 && (
                   <div className="px-4 py-8 text-center text-soft-muted">No email captures.</div>
+                )}
+              </div>
+            </section>
+
+            <section className="mb-10">
+              <div className="flex items-center justify-between gap-4 mb-2">
+                <h2 className="text-lg font-bold">Affiliates</h2>
+                <span className="text-xs text-soft-muted">{affiliateLoading ? "Saving…" : ""}</span>
+              </div>
+              <p className="text-xs text-soft-muted mb-4">Approve applications, suspend bad actors, mark commissions paid.</p>
+              <div className="overflow-x-auto rounded-xl border border-m2p-border bg-m2p-ivory">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-m2p-border text-left text-soft-muted">
+                      <th className="px-4 py-3 font-medium">Date</th>
+                      <th className="px-4 py-3 font-medium">Name / Email</th>
+                      <th className="px-4 py-3 font-medium">Code</th>
+                      <th className="px-4 py-3 font-medium">Status</th>
+                      <th className="px-4 py-3 font-medium">Conversions</th>
+                      <th className="px-4 py-3 font-medium">Earned</th>
+                      <th className="px-4 py-3 font-medium">Unpaid</th>
+                      <th className="px-4 py-3 font-medium">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {affiliates.map((a) => {
+                      const aRefs = referrals.filter((r) => r.affiliate_code === a.code);
+                      const converted = aRefs.filter((r) => r.converted);
+                      const totalEarned = converted.reduce((s, r) => s + (r.commission_amount ?? 0), 0);
+                      const unpaid = converted.filter((r) => !r.paid_out).reduce((s, r) => s + (r.commission_amount ?? 0), 0);
+                      return (
+                        <tr key={a.id} className="border-b border-m2p-border/80">
+                          <td className="px-4 py-3 whitespace-nowrap">{formatDate(a.created_at)}</td>
+                          <td className="px-4 py-3">
+                            <p className="font-medium">{a.name}</p>
+                            <p className="text-soft-muted text-xs">{a.email}</p>
+                            {a.website && <p className="text-m2p-orange text-xs truncate max-w-[140px]">{a.website}</p>}
+                          </td>
+                          <td className="px-4 py-3 font-mono text-xs">{a.code}</td>
+                          <td className="px-4 py-3">
+                            <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                              a.status === "active" ? "bg-green-100 text-green-700" :
+                              a.status === "pending" ? "bg-amber-100 text-amber-700" :
+                              "bg-red-100 text-red-600"
+                            }`}>{a.status}</span>
+                          </td>
+                          <td className="px-4 py-3">{converted.length}</td>
+                          <td className="px-4 py-3">{formatAmount(totalEarned)}</td>
+                          <td className="px-4 py-3 font-semibold">{unpaid > 0 ? formatAmount(unpaid) : "—"}</td>
+                          <td className="px-4 py-3">
+                            <div className="flex flex-wrap gap-2">
+                              {a.status !== "active" && (
+                                <button
+                                  onClick={() => affiliateAction("approve", a.id)}
+                                  disabled={affiliateLoading}
+                                  className="text-xs bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded disabled:opacity-50"
+                                >
+                                  Approve
+                                </button>
+                              )}
+                              {a.status !== "suspended" && (
+                                <button
+                                  onClick={() => affiliateAction("suspend", a.id)}
+                                  disabled={affiliateLoading}
+                                  className="text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded disabled:opacity-50"
+                                >
+                                  Suspend
+                                </button>
+                              )}
+                              {unpaid > 0 && (
+                                <button
+                                  onClick={() => affiliateAction("mark-paid", a.code)}
+                                  disabled={affiliateLoading}
+                                  className="text-xs bg-m2p-orange hover:opacity-90 text-white px-2 py-1 rounded disabled:opacity-50"
+                                >
+                                  Mark Paid
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+                {affiliates.length === 0 && (
+                  <div className="px-4 py-8 text-center text-soft-muted">No affiliate applications yet.</div>
                 )}
               </div>
             </section>
