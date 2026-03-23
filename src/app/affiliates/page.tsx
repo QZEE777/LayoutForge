@@ -210,7 +210,7 @@ function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => 
           </button>
         </div>
         <p className="text-white/30 text-xs mt-3">
-          30-day attribution cookie · 30% commission ({Math.round((affiliate.commission_rate ?? 0.3) * 100)}%) per sale
+          12-month attribution cookie · 40% commission on pack sales · monthly PayPal payout
         </p>
       </div>
 

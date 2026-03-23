@@ -482,10 +482,10 @@ export default function Home() {
             className="font-bebas text-m2p-ivory leading-tight mb-3"
             style={{ fontSize: "clamp(1.75rem, 3.5vw, 2.75rem)" }}
           >
-            Refer Authors. Earn 30% Commission.
+            Refer Authors. Earn 40% on Every Pack Sale.
           </h2>
           <p className="text-m2p-ivory/65 text-base max-w-lg mx-auto mb-8">
-            Share your link. Earn $2.70 for every $9 scan you send our way — with a 30-day attribution cookie and monthly PayPal payouts.
+            Share your link. Earn up to $31.60 per pack sale — with a 12-month attribution cookie and monthly PayPal payouts. The best affiliate deal in the KDP space.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link

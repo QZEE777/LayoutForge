@@ -110,8 +110,8 @@ export async function POST(req: Request) {
         });
       }
 
-      // Record affiliate referral conversion if a ref code was present
-      if (refCode) {
+      // Record affiliate referral conversion — packs only (not single_use $9 scans)
+      if (refCode && priceType !== "single_use") {
         try {
           const { data: affiliate } = await supabase
             .from("affiliates")
@@ -121,7 +121,8 @@ export async function POST(req: Request) {
             .maybeSingle();
 
           if (affiliate) {
-            const commissionAmount = Math.round(amount * (affiliate.commission_rate ?? 0.30));
+            // Packs always earn 40% regardless of stored commission_rate
+            const commissionAmount = Math.round(amount * 0.40);
             await supabase.from("referrals").insert({
               affiliate_code: refCode,
               converted: true,

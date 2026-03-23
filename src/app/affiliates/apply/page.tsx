@@ -97,19 +97,19 @@ export default function AffiliateApplyPage() {
                 <div className="inline-block bg-m2p-green/20 text-m2p-green text-xs font-bold px-3 py-1 rounded-full mb-4 tracking-wide uppercase">
                   Affiliate Program
                 </div>
-                <h1 className="font-bebas text-5xl text-white mb-3 tracking-wide">Earn 30%</h1>
+                <h1 className="font-bebas text-5xl text-white mb-3 tracking-wide">Earn 40%</h1>
                 <p className="text-white/60 text-sm leading-relaxed">
-                  Refer KDP authors to manu2print and earn 30% commission on every sale.
-                  <span className="block mt-1 text-white/40">$9 check = $2.70 per referral. No cap.</span>
+                  Refer KDP authors to manu2print and earn 40% on every pack sale.
+                  <span className="block mt-1 text-white/40">Up to $31.60 per sale. 12-month cookie. No cap.</span>
                 </p>
               </div>
 
               {/* Stats strip */}
               <div className="grid grid-cols-3 gap-3 mb-8">
                 {[
-                  { label: "Commission", value: "30%" },
-                  { label: "Per check", value: "$2.70" },
-                  { label: "Cookie", value: "30 days" },
+                  { label: "Commission", value: "40%" },
+                  { label: "Top pack", value: "$31.60" },
+                  { label: "Cookie", value: "12 months" },
                 ].map((s) => (
                   <div key={s.label} className="bg-white/5 border border-white/10 rounded-xl p-3 text-center">
                     <p className="font-bebas text-2xl text-white">{s.value}</p>
