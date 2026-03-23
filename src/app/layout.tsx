@@ -44,13 +44,13 @@ export default function RootLayout({
       <body className="antialiased bg-ivory text-amazon-navy font-sans">
         <ToolPagesBanner />
         {children}
-        {/* Crisp chat widget — Manny */}
-        <script
+        {/* Crisp chat widget — disabled until Manny AI backend is ready */}
+        {/* <script
           type="text/javascript"
           dangerouslySetInnerHTML={{
             __html: `window.$crisp=[];window.CRISP_WEBSITE_ID="bf52e45d-8fda-489e-92da-395a9d08ae72";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();`,
           }}
-        />
+        /> */}
       </body>
     </html>
   );
