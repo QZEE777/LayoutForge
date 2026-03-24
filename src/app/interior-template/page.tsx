@@ -316,10 +316,6 @@ export default function InteriorTemplatePage() {
           </p>
         </div>
 
-        <p className="text-xs text-m2p-muted mb-5 text-center">
-          Based on Amazon KDP interior margin requirements. Gutter increases with page count. No data sent to any server.
-        </p>
-
         {/* Related tools */}
         <div className="mt-5 text-center">
           <p className="text-xs text-m2p-muted font-semibold mb-2 uppercase tracking-wide">
