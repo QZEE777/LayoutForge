@@ -63,6 +63,7 @@ def validate_pdf_task(self, job_id: str, file_path: str) -> dict:
 
         doc = analyze_document(path)
         page_count = doc["analysis"]["page_count"]
+        creation_tool = doc["analysis"].get("creation_tool", "unknown")
         errors, warnings, rules_checked = run_validation(doc)
         report = build_report(
             page_count,
@@ -72,6 +73,7 @@ def validate_pdf_task(self, job_id: str, file_path: str) -> dict:
             ruleset_version=RULESET_VERSION,
             file_hash=file_hash,
             file_size=file_size,
+            creation_tool=creation_tool,
         )
         set_report(job_id, report)
         set_status(job_id, "completed", None)

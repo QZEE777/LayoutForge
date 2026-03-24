@@ -10,7 +10,7 @@ from typing import Any
 
 from app.rules import ALL_RULES
 
-RULESET_VERSION = "kdp_preflight_v1.0.0"
+RULESET_VERSION = "kdp_preflight_v2.0.0"
 
 logger = structlog.get_logger(__name__)
 

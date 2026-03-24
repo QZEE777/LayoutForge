@@ -19,14 +19,23 @@ class ValidationSummary(BaseModel):
     rules_checked: int = 0
 
 
+class ScoreGrade(BaseModel):
+    """KDP Rejection Risk Score grade metadata."""
+    grade: str = "F"           # A+, A, B, C, D, F
+    label: str = ""            # e.g. "KDP Ready"
+    description: str = ""      # one-line explanation
+
+
 class ValidationReport(BaseModel):
     """Full validation report returned by GET /report/{job_id}."""
     file_hash: str = ""
     file_size: int = 0
-    ruleset_version: str = "kdp_preflight_v1.0.0"
-    status: str  # "PASS" | "FAIL"
-    readiness_score: int = 0
+    ruleset_version: str = "kdp_preflight_v2.0.0"
+    status: str                # "PASS" | "FAIL"
+    readiness_score: int = 0   # 0–100
     approval_likelihood: int = 0
+    score_grade: ScoreGrade = Field(default_factory=ScoreGrade)
+    creation_tool: str = "unknown"  # detected from PDF metadata
     errors: list[PageIssue] = Field(default_factory=list)
     warnings: list[PageIssue] = Field(default_factory=list)
     summary: ValidationSummary = Field(default_factory=ValidationSummary)
