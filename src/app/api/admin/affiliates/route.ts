@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { timingSafeEqualStrings } from "@/lib/security";
+import { sendAffiliateApprovalEmail } from "@/lib/resend";
 
 function auth(request: NextRequest): boolean {
   const raw = request.headers.get("x-admin-password") ?? "";
@@ -41,7 +42,25 @@ export async function POST(request: NextRequest) {
   const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
   if (action === "approve") {
+    // Fetch affiliate details before updating so we can send the welcome email
+    const { data: affiliate } = await supabase
+      .from("affiliates")
+      .select("email, name, code, status")
+      .eq("id", id)
+      .maybeSingle();
+
     await supabase.from("affiliates").update({ status: "active" }).eq("id", id);
+
+    // Send approval email only if they weren't already active
+    if (affiliate && affiliate.status !== "active") {
+      try {
+        await sendAffiliateApprovalEmail(affiliate.email, affiliate.name, affiliate.code);
+      } catch (err) {
+        console.error("[admin/affiliates] approval email failed:", err);
+        // Don't fail the request — approval still succeeded
+      }
+    }
+
     return NextResponse.json({ ok: true });
   }
 
