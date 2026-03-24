@@ -18,7 +18,7 @@ const VIDEO_SRC = "/hero-demo.mp4";
 export default function HeroVideo() {
   if (!SHOW_PLACEHOLDER) {
     return (
-      <div className="w-full max-w-[580px] mx-auto rounded-2xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.5)] border border-white/10">
+      <div className="w-full rounded-2xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.5)] border border-white/10">
         <video
           src={VIDEO_SRC}
           autoPlay
@@ -34,31 +34,31 @@ export default function HeroVideo() {
   // ─── PLACEHOLDER ────────────────────────────────────────────────────────────
   return (
     <div
-      className="w-full max-w-[580px] mx-auto rounded-2xl border border-white/10 shadow-[0_8px_40px_rgba(0,0,0,0.5)] flex flex-col items-center justify-center gap-5"
-      style={{ aspectRatio: "16/10", background: "rgba(255,255,255,0.04)" }}
+      className="w-full rounded-2xl border border-white/10 shadow-[0_8px_40px_rgba(0,0,0,0.5)] flex flex-col items-center justify-center gap-6"
+      style={{ minHeight: 380, background: "rgba(255,255,255,0.04)" }}
     >
       {/* Play icon */}
       <div
         className="flex items-center justify-center rounded-full border-2 border-m2p-orange"
-        style={{ width: 72, height: 72, background: "rgba(240,90,40,0.12)" }}
+        style={{ width: 88, height: 88, background: "rgba(240,90,40,0.12)" }}
       >
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
           <polygon points="6,4 20,12 6,20" fill="#F05A28" />
         </svg>
       </div>
       {/* Label */}
-      <div className="text-center px-6">
-        <p className="text-m2p-ivory font-bebas text-2xl tracking-wide">
+      <div className="text-center px-8">
+        <p className="text-m2p-ivory font-bebas text-3xl tracking-wide">
           Demo coming soon
         </p>
-        <p className="text-m2p-ivory/40 text-sm mt-1">
+        <p className="text-m2p-ivory/40 text-sm mt-2">
           Upload → Scan → Grade → Annotated PDF
         </p>
       </div>
-      {/* Mock scan lines — visual interest */}
-      <div className="w-4/5 space-y-2 px-2">
+      {/* Mock scan lines */}
+      <div className="w-4/5 space-y-3 px-2">
         {[85, 60, 75, 45, 90].map((w, i) => (
-          <div key={i} className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+          <div key={i} className="h-2 rounded-full bg-white/10 overflow-hidden">
             <div
               className="h-full rounded-full"
               style={{

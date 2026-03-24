@@ -83,7 +83,7 @@ export default function Home() {
               </div>
             </div>
             {/* RIGHT — hero video / demo loop */}
-            <div className="flex-[0.9] flex flex-col items-center w-full lg:w-auto order-1 lg:order-2">
+            <div className="flex-1 flex flex-col items-center w-full lg:w-auto order-1 lg:order-2">
               <HeroVideo />
             </div>
           </div>
