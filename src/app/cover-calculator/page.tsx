@@ -24,9 +24,21 @@ function clampPages(n: number): number {
 
 const DPI = 300;
 const INCH_TO_MM = 25.4;
+const SPINE_TEXT_MIN = 0.75; // KDP minimum spine width for text
 
 function inchesToPx(inches: number): number {
   return Math.round(inches * DPI);
+}
+
+function Tooltip({ text }: { text: string }) {
+  return (
+    <span className="group relative inline-block ml-1 cursor-help">
+      <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-m2p-border text-m2p-muted text-xs font-bold leading-none">?</span>
+      <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 rounded-lg bg-m2p-ink text-white text-xs px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 text-center leading-relaxed">
+        {text}
+      </span>
+    </span>
+  );
 }
 
 export default function CoverCalculatorPage() {
@@ -34,6 +46,7 @@ export default function CoverCalculatorPage() {
   const [paperType, setPaperType] = useState<PaperType>("bw-cream");
   const [trimId, setTrimId] = useState<TrimSizeId>("6x9");
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [copied, setCopied] = useState<string | null>(null);
 
   const markInteracted = useCallback(() => setHasInteracted(true), []);
 
@@ -49,6 +62,15 @@ export default function CoverCalculatorPage() {
     [fullWrap]
   );
 
+  const spineHasText = spineInches >= SPINE_TEXT_MIN;
+
+  const copyToClipboard = (value: string, key: string) => {
+    navigator.clipboard.writeText(value).then(() => {
+      setCopied(key);
+      setTimeout(() => setCopied(null), 2000);
+    });
+  };
+
   const [downloading, setDownloading] = useState(false);
   const handleDownloadTemplate = async () => {
     const currentPages = clampPages(pageCount);
@@ -58,6 +80,7 @@ export default function CoverCalculatorPage() {
       ? getFullWrapDimensions(currentTrim.widthInches, currentTrim.heightInches, currentSpineInches)
       : null;
     if (!currentFullWrap || !currentTrim) return;
+    const paperLabel = PAPER_OPTIONS.find((o) => o.id === paperType)?.label ?? paperType;
     const params = {
       widthInches: currentFullWrap.widthInches,
       heightInches: currentFullWrap.heightInches,
@@ -65,6 +88,8 @@ export default function CoverCalculatorPage() {
       trimWidthInches: currentTrim.widthInches,
       trimHeightInches: currentTrim.heightInches,
       bleedInches: 0.125,
+      pageCount: currentPages,
+      paperTypeLabel: paperLabel,
     };
     setDownloading(true);
     try {
@@ -95,10 +120,11 @@ export default function CoverCalculatorPage() {
           <span className="block">front, spine, and back — with bleed included.</span>
         </p>
         <p className="text-m2p-muted text-sm mt-2 mb-5 leading-relaxed text-center">
-          <span className="block">Designed in Canva, InDesign, or Photoshop? Get exact pixel dimensions</span>
+          <span className="block">Designing in Canva, InDesign, or Photoshop? Get pixel dimensions</span>
           <span className="block">at 300 DPI, inches, and mm — plus a downloadable cover template PDF.</span>
         </p>
 
+        {/* ── Inputs ── */}
         <div className="rounded-xl border-2 bg-white p-6 mb-5" style={{ borderColor: "#2D6A2D" }}>
           <div className="space-y-5">
             <div>
@@ -113,6 +139,7 @@ export default function CoverCalculatorPage() {
               />
               <p className="text-xs text-m2p-muted mt-1">KDP range: {MIN_PAGES}–{MAX_PAGES} pages.</p>
             </div>
+
             <div>
               <label className="block text-sm font-medium text-m2p-ink mb-2">Paper type</label>
               <select
@@ -124,7 +151,9 @@ export default function CoverCalculatorPage() {
                   <option key={o.id} value={o.id}>{o.label}</option>
                 ))}
               </select>
+              <p className="text-xs text-m2p-muted mt-1">Cream paper is slightly thicker — affects spine width.</p>
             </div>
+
             <div>
               <label className="block text-sm font-medium text-m2p-ink mb-2">Trim size</label>
               <select
@@ -136,64 +165,147 @@ export default function CoverCalculatorPage() {
                   <option key={t.id} value={t.id}>{t.name}</option>
                 ))}
               </select>
+              <p className="text-xs text-m2p-muted mt-1">6&quot; × 9&quot; is the most popular for novels and non-fiction.</p>
             </div>
           </div>
         </div>
 
+        {/* ── Spine text warning ── */}
+        {!spineHasText && fullWrap && (
+          <div className="rounded-xl border border-amber-300 bg-amber-50 px-5 py-4 mb-5 flex gap-3 items-start">
+            <span className="text-amber-500 text-lg leading-none mt-0.5">⚠</span>
+            <div>
+              <p className="text-sm font-semibold text-amber-800">Spine too narrow for text</p>
+              <p className="text-xs text-amber-700 mt-1 leading-relaxed">
+                Your spine is <strong>{spineInches.toFixed(3)}&quot;</strong>. KDP requires a minimum of <strong>0.75&quot;</strong> before spine text (title/author) is allowed.
+                Add more pages or use cream paper to widen the spine.
+              </p>
+            </div>
+          </div>
+        )}
+        {spineHasText && fullWrap && (
+          <div className="rounded-xl border border-m2p-green/40 bg-m2p-green/5 px-5 py-3 mb-5 flex gap-3 items-center">
+            <span className="text-m2p-live text-base leading-none">✓</span>
+            <p className="text-xs text-m2p-ink">
+              Spine is <strong>{spineInches.toFixed(3)}&quot;</strong> — wide enough for title and author text.
+            </p>
+          </div>
+        )}
+
+        {/* ── Results ── */}
         <div className="rounded-xl border-l-4 border-m2p-orange border border-m2p-border bg-white p-6 mb-5">
           <h2 className="font-bebas text-xl tracking-wide text-m2p-ink mb-4">Your cover canvas size</h2>
-          <dl className="text-sm space-y-4">
-            {pixels && fullWrap && (
-              <>
-                <div>
-                  <dt className="text-m2p-muted">For Canva / design tools (300 DPI)</dt>
-                  <dd className="text-m2p-ink font-semibold text-lg mt-0.5">
-                    {pixels.width} × {pixels.height} px
-                  </dd>
-                  <dd className="text-m2p-muted text-xs mt-1">
-                    Create a custom size with these dimensions. Front, spine, and back in one artboard.
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-m2p-muted">Exact size (with 0.125&quot; bleed)</dt>
-                  <dd className="text-m2p-ink font-semibold">
-                    {fullWrap.widthInches.toFixed(3)} × {fullWrap.heightInches.toFixed(3)} in
-                  </dd>
-                  <dd className="text-m2p-muted text-xs mt-0.5">
-                    {(fullWrap.widthInches * INCH_TO_MM).toFixed(1)} × {(fullWrap.heightInches * INCH_TO_MM).toFixed(1)} mm
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-m2p-muted">Spine width</dt>
-                  <dd className="text-m2p-ink font-semibold">
-                    {spineInches.toFixed(3)} in ({(spineInches * INCH_TO_MM).toFixed(2)} mm)
-                  </dd>
-                </div>
-                <div className="pt-2">
+
+          {pixels && fullWrap && trim && (
+            <dl className="text-sm space-y-4">
+
+              {/* Pixel dimensions */}
+              <div>
+                <dt className="text-m2p-muted flex items-center">
+                  For Canva / design tools (300 DPI)
+                  <Tooltip text="Create a custom canvas in Canva or Photoshop with exactly these pixel dimensions. This covers front, spine, and back in one artboard." />
+                </dt>
+                <dd className="flex items-center gap-3 mt-1">
+                  <span className="text-m2p-ink font-semibold text-lg">{pixels.width} × {pixels.height} px</span>
                   <button
-                    type="button"
-                    onClick={handleDownloadTemplate}
-                    disabled={downloading}
-                    className="inline-flex items-center gap-2 rounded-lg bg-m2p-orange px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+                    onClick={() => copyToClipboard(`${pixels.width} x ${pixels.height}`, "px")}
+                    className="text-xs text-m2p-muted hover:text-m2p-orange border border-m2p-border rounded px-2 py-0.5 transition-colors"
                   >
-                    {downloading ? "Generating…" : "Download template PDF"}
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
+                    {copied === "px" ? "✓ Copied" : "Copy"}
                   </button>
-                  <dd className="text-m2p-muted text-xs mt-1.5">
-                    Template includes KDP-exact trim lines, spine guides, safe zones, bleed zone, barcode area, and manu2print branding.
-                  </dd>
-                </div>
-              </>
-            )}
-          </dl>
+                </dd>
+              </div>
+
+              {/* Inch dimensions */}
+              <div>
+                <dt className="text-m2p-muted flex items-center">
+                  Exact size (with 0.125&quot; bleed)
+                  <Tooltip text="Bleed is the extra 0.125 inch on each edge that gets trimmed off during printing. Always include bleed so your cover has no white borders." />
+                </dt>
+                <dd className="flex items-center gap-3 mt-0.5">
+                  <span className="text-m2p-ink font-semibold">
+                    {fullWrap.widthInches.toFixed(3)}&quot; × {fullWrap.heightInches.toFixed(3)}&quot;
+                  </span>
+                  <button
+                    onClick={() => copyToClipboard(`${fullWrap.widthInches.toFixed(3)} x ${fullWrap.heightInches.toFixed(3)}`, "in")}
+                    className="text-xs text-m2p-muted hover:text-m2p-orange border border-m2p-border rounded px-2 py-0.5 transition-colors"
+                  >
+                    {copied === "in" ? "✓ Copied" : "Copy"}
+                  </button>
+                </dd>
+                <dd className="text-m2p-muted text-xs mt-0.5">
+                  {(fullWrap.widthInches * INCH_TO_MM).toFixed(1)} × {(fullWrap.heightInches * INCH_TO_MM).toFixed(1)} mm
+                </dd>
+              </div>
+
+              {/* Spine */}
+              <div>
+                <dt className="text-m2p-muted flex items-center">
+                  Spine width
+                  <Tooltip text="The spine width is calculated from your page count and paper type. Cream paper is thicker, giving a wider spine." />
+                </dt>
+                <dd className="flex items-center gap-3 mt-0.5">
+                  <span className="text-m2p-ink font-semibold">
+                    {spineInches.toFixed(3)}&quot; ({(spineInches * INCH_TO_MM).toFixed(2)} mm)
+                  </span>
+                  <button
+                    onClick={() => copyToClipboard(spineInches.toFixed(3), "spine")}
+                    className="text-xs text-m2p-muted hover:text-m2p-orange border border-m2p-border rounded px-2 py-0.5 transition-colors"
+                  >
+                    {copied === "spine" ? "✓ Copied" : "Copy"}
+                  </button>
+                </dd>
+              </div>
+
+              {/* Panel breakdown */}
+              <div className="pt-1 border-t border-m2p-border">
+                <dt className="text-m2p-muted text-xs mb-2 font-medium uppercase tracking-wide">Panel breakdown</dt>
+                <dd className="grid grid-cols-3 gap-2 text-xs">
+                  <div className="rounded-lg bg-blue-50 border border-blue-100 px-3 py-2 text-center">
+                    <p className="text-m2p-muted font-medium">Back</p>
+                    <p className="text-m2p-ink font-semibold mt-0.5">{trim.widthInches.toFixed(3)}&quot;</p>
+                    <p className="text-m2p-muted">{(trim.widthInches * INCH_TO_MM).toFixed(1)} mm</p>
+                  </div>
+                  <div className="rounded-lg bg-amber-50 border border-amber-100 px-3 py-2 text-center">
+                    <p className="text-m2p-muted font-medium">Spine</p>
+                    <p className="text-m2p-ink font-semibold mt-0.5">{spineInches.toFixed(3)}&quot;</p>
+                    <p className="text-m2p-muted">{(spineInches * INCH_TO_MM).toFixed(1)} mm</p>
+                  </div>
+                  <div className="rounded-lg bg-green-50 border border-green-100 px-3 py-2 text-center">
+                    <p className="text-m2p-muted font-medium">Front</p>
+                    <p className="text-m2p-ink font-semibold mt-0.5">{trim.widthInches.toFixed(3)}&quot;</p>
+                    <p className="text-m2p-muted">{(trim.widthInches * INCH_TO_MM).toFixed(1)} mm</p>
+                  </div>
+                </dd>
+                <p className="text-xs text-m2p-muted mt-2">+ 0.125&quot; bleed on all outer edges (not shown above).</p>
+              </div>
+
+              {/* Download */}
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={handleDownloadTemplate}
+                  disabled={downloading}
+                  className="inline-flex items-center gap-2 rounded-lg bg-m2p-orange px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+                >
+                  {downloading ? "Generating…" : "Download template PDF"}
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </button>
+                <p className="text-m2p-muted text-xs mt-1.5">
+                  Includes trim lines, spine guides, safe zones, bleed zone, barcode area, and dimension annotations — ready to use in Canva or InDesign.
+                </p>
+              </div>
+            </dl>
+          )}
         </div>
 
         <p className="text-xs text-m2p-muted mb-4 text-center">
-          Based on KDP paperback paper thickness. Keep text and key art inside the safe zone (away from trim). No data sent to the server.
+          Based on KDP paperback paper thickness specifications. No data sent to any server.
         </p>
 
+        {/* ── Related tools ── */}
         <div className="mt-5 text-center">
           <p className="text-xs text-m2p-muted font-semibold mb-2 uppercase tracking-wide">
             Related free tools
@@ -216,12 +328,13 @@ export default function CoverCalculatorPage() {
 
         {hasInteracted && <KdpConversionBridge />}
 
+        {/* ── CTA ── */}
         <div className="mt-6 rounded-xl bg-m2p-orange-soft border border-m2p-orange/20 p-5 text-center">
           <p className="font-bebas text-m2p-ink text-lg mb-1">
             Ready for the next step?
           </p>
           <p className="text-m2p-muted text-sm mb-4 leading-relaxed">
-            You have the correct cover dimensions. Now check whether your
+            You have the right cover dimensions. Now check whether your
             interior PDF will pass KDP review — margins, bleed, trim size,
             and fonts can still trigger rejection.
           </p>

@@ -4,10 +4,20 @@
  */
 
 export const KDP_TRIM_SIZES = [
-  { id: "5x8", name: "5\" × 8\"", widthInches: 5, heightInches: 8 },
-  { id: "5.5x8.5", name: "5.5\" × 8.5\"", widthInches: 5.5, heightInches: 8.5 },
-  { id: "6x9", name: "6\" × 9\"", widthInches: 6, heightInches: 9 },
-  { id: "8.5x11", name: "8.5\" × 11\"", widthInches: 8.5, heightInches: 11 },
+  { id: "5x8",       name: "5\" × 8\"",         widthInches: 5,    heightInches: 8    },
+  { id: "5.06x7.81", name: "5.06\" × 7.81\"",   widthInches: 5.06, heightInches: 7.81 },
+  { id: "5.25x8",    name: "5.25\" × 8\"",       widthInches: 5.25, heightInches: 8    },
+  { id: "5.5x8.5",   name: "5.5\" × 8.5\"",      widthInches: 5.5,  heightInches: 8.5  },
+  { id: "6x9",       name: "6\" × 9\"",           widthInches: 6,    heightInches: 9    },
+  { id: "6.14x9.21", name: "6.14\" × 9.21\"",    widthInches: 6.14, heightInches: 9.21 },
+  { id: "6.69x9.61", name: "6.69\" × 9.61\"",    widthInches: 6.69, heightInches: 9.61 },
+  { id: "7x10",      name: "7\" × 10\"",          widthInches: 7,    heightInches: 10   },
+  { id: "7.44x9.69", name: "7.44\" × 9.69\"",    widthInches: 7.44, heightInches: 9.69 },
+  { id: "7.5x9.25",  name: "7.5\" × 9.25\"",     widthInches: 7.5,  heightInches: 9.25 },
+  { id: "8x10",      name: "8\" × 10\"",          widthInches: 8,    heightInches: 10   },
+  { id: "8.25x8.25", name: "8.25\" × 8.25\"",    widthInches: 8.25, heightInches: 8.25 },
+  { id: "8.5x8.5",   name: "8.5\" × 8.5\"",      widthInches: 8.5,  heightInches: 8.5  },
+  { id: "8.5x11",    name: "8.5\" × 11\"",        widthInches: 8.5,  heightInches: 11   },
 ] as const;
 
 export type TrimSizeId = (typeof KDP_TRIM_SIZES)[number]["id"];
@@ -81,10 +91,20 @@ export function estimatePageCount(
   fontSize: number = 11
 ): number {
   const wordsPerPage: Record<TrimSizeId, number> = {
-    "5x8": 250,
-    "5.5x8.5": 280,
-    "6x9": 300,
-    "8.5x11": 400,
+    "5x8":       250,
+    "5.06x7.81": 240,
+    "5.25x8":    255,
+    "5.5x8.5":   280,
+    "6x9":       300,
+    "6.14x9.21": 310,
+    "6.69x9.61": 330,
+    "7x10":      370,
+    "7.44x9.69": 360,
+    "7.5x9.25":  355,
+    "8x10":      380,
+    "8.25x8.25": 340,
+    "8.5x8.5":   350,
+    "8.5x11":    400,
   };
 
   const wpp = wordsPerPage[trimId] || 300;
