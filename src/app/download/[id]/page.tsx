@@ -14,7 +14,7 @@ const MAX_ISSUES_GROUP_DISPLAY = 10;
 
 /** Group issues by message type and cap for display. Returns { grouped, totalGroups, totalCount }. */
 function getGroupedIssues(report: ProcessingReport | null): {
-  grouped: Array<{ label: string; message: string; pages: number[] }>;
+  grouped: Array<{ label: string; message: string; pages: number[]; toolFixInstruction?: string }>;
   totalGroups: number;
   totalCount: number;
 } {
@@ -23,7 +23,7 @@ function getGroupedIssues(report: ProcessingReport | null): {
   const enriched = report.issuesEnriched ?? [];
 
   if (enriched.length > 0) {
-    const byMessage = new Map<string, { difficulty: FixDifficulty; pages: number[] }>();
+    const byMessage = new Map<string, { difficulty: FixDifficulty; pages: number[]; toolFixInstruction?: string }>();
     for (const item of enriched) {
       const msg = item.humanMessage;
       const existing = byMessage.get(msg);
@@ -31,13 +31,14 @@ function getGroupedIssues(report: ProcessingReport | null): {
       if (item.page != null && !pages.includes(item.page)) pages.push(item.page);
       pages.sort((a, b) => a - b);
       const difficulty: FixDifficulty = item.fixDifficulty as FixDifficulty;
-      if (!existing) byMessage.set(msg, { difficulty, pages });
+      if (!existing) byMessage.set(msg, { difficulty, pages, toolFixInstruction: item.toolFixInstruction });
       else existing.pages = pages;
     }
-    const grouped = Array.from(byMessage.entries()).map(([message, { difficulty, pages }]) => ({
+    const grouped = Array.from(byMessage.entries()).map(([message, { difficulty, pages, toolFixInstruction }]) => ({
       label: difficultyLabel(difficulty),
       message,
       pages,
+      toolFixInstruction,
     }));
     return {
       grouped,
@@ -123,10 +124,13 @@ interface ProcessingReport {
   issuesEnriched?: Array<{
     originalMessage: string;
     humanMessage: string;
+    toolFixInstruction?: string;
     fixDifficulty: string;
     page?: number;
     severity?: string;
   }>;
+  scoreGrade?: { grade: string; label: string; description: string };
+  creationTool?: string;
   /** Rare: nested shape; format-report usually flattens processingReport onto report */
   processingReport?: { issuesEnriched?: ProcessingReport["issuesEnriched"] };
   uploadChecklist?: Array<{ check: string; status: "pass" | "warning" | "fail" }>;
@@ -475,15 +479,35 @@ export default function DownloadPage() {
                       {report.fileNameScanned && cleanFilenameForDisplay(report.fileNameScanned)}
                     </p>
                   )}
+                  {report.scoreGrade && (
+                    <div className="mb-4 flex items-center gap-4 rounded-lg border border-m2p-border bg-m2p-ivory px-5 py-4">
+                      <span className="text-5xl font-bebas leading-none" style={{ color: report.scoreGrade.grade === "A+" || report.scoreGrade.grade === "A" ? "#4cd964" : report.scoreGrade.grade === "B" ? "#F05A28" : report.scoreGrade.grade === "C" ? "#f59e0b" : "#ef4444" }}>
+                        {report.scoreGrade.grade}
+                      </span>
+                      <div>
+                        <p className="font-bold text-m2p-ink text-lg leading-tight">{report.scoreGrade.label}</p>
+                        <p className="text-sm text-m2p-muted mt-0.5">{report.scoreGrade.description}</p>
+                      </div>
+                    </div>
+                  )}
                   {(calculatedScore ?? report.readinessScore100) != null && (
-                    <p className="mb-4 text-2xl font-bold text-m2p-ink">
+                    <p className="mb-2 text-2xl font-bold text-m2p-ink">
                       Readiness: {calculatedScore ?? report.readinessScore100}/100
                     </p>
                   )}
                   {((calculatedScore ?? report.readinessScore100) != null && report.riskLevel) && (
-                    <p className="mb-4 text-base font-semibold text-m2p-ink">
+                    <p className="mb-3 text-base font-semibold text-m2p-ink">
                       KDP Approval Likelihood: {calculatedScore ?? report.readinessScore100}% — Risk Level:{" "}
                       {report.riskLevel}
+                    </p>
+                  )}
+                  {report.creationTool && report.creationTool !== "unknown" && (
+                    <p className="mb-4 text-sm text-m2p-muted">
+                      Detected source:{" "}
+                      <span className="font-semibold text-m2p-ink capitalize">
+                        {report.creationTool.replace(/_/g, " ")}
+                      </span>
+                      {" "}— fix instructions below are tailored to your tool.
                     </p>
                   )}
                   {report.highRiskPageNumbers && report.highRiskPageNumbers.length > 0 && (
@@ -559,13 +583,20 @@ export default function DownloadPage() {
                     return (
                       <div className="mt-4 pt-4 border-t border-m2p-border">
                         <p className="text-xs font-medium text-m2p-orange mb-2">Issues</p>
-                        <ul className="text-sm text-m2p-muted space-y-2">
+                        <ul className="text-sm text-m2p-muted space-y-3">
                           {show.map((item, i) => (
-                            <li key={i}>
-                              {item.label ? <span className="text-m2p-ink">{item.label}</span> : null}
-                              {item.label ? " " : null}
-                              {item.message}
-                              {item.pages.length > 0 ? formatPages(item.pages) : ""}
+                            <li key={i} className="rounded-lg border border-m2p-border bg-white/60 px-4 py-3">
+                              <div>
+                                {item.label ? <span className="text-xs font-bold uppercase tracking-wide text-m2p-orange mr-2">{item.label}</span> : null}
+                                <span className="text-m2p-ink font-medium">{item.message}</span>
+                                {item.pages.length > 0 ? <span className="text-m2p-muted">{formatPages(item.pages)}</span> : ""}
+                              </div>
+                              {item.toolFixInstruction && (
+                                <p className="mt-2 text-xs text-m2p-muted border-t border-m2p-border/50 pt-2 leading-relaxed">
+                                  <span className="font-semibold text-m2p-ink">How to fix: </span>
+                                  {item.toolFixInstruction}
+                                </p>
+                              )}
                             </li>
                           ))}
                           {remaining > 0 ? (

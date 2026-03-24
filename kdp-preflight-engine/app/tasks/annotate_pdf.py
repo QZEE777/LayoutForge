@@ -78,7 +78,7 @@ def annotate_pdf_inline(report: dict[str, Any], path_in: Path) -> str:
             color = _color_for_issue(issue)
             page = doc[page_index]
             rect = fitz.Rect(x, y, x + w, y + h)
-            page.draw_rect(rect, color=color, width=1.5)
+            page.draw_rect(rect, color=color, fill=color, fill_opacity=0.15, width=1.5)
         doc.save(buf)
     finally:
         doc.close()
