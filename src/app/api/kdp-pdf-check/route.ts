@@ -9,7 +9,7 @@ import { enrichCheckerReport, cleanFilenameForDisplay, toFixDifficulty } from "@
 import { supabase } from "@/lib/supabase";
 
 const PT_PER_INCH = 72;
-const TOLERANCE_INCH = 0.15; // allow 0.15" variance on each dimension
+const TOLERANCE_INCH = 0.05; // allow 0.05" variance on each dimension (tight — KDP requires exact match)
 const PREFLIGHT_POLL_MS = 2000;
 const PREFLIGHT_MAX_WAIT_MS = 55000;
 
@@ -31,6 +31,8 @@ interface PreflightReport {
   status: string;
   readiness_score?: number;
   approval_likelihood?: number;
+  creation_tool?: string;
+  score_grade?: { grade: string; label: string; description: string };
   errors: Array<{ page: number; rule_id: string; severity: string; message: string; bbox?: number[] | null }>;
   warnings: Array<{ page: number; rule_id: string; severity: string; message: string; bbox?: number[] | null }>;
   summary: { total_pages: number; error_count: number; warning_count: number; rules_checked: number };
@@ -200,6 +202,7 @@ export async function POST(request: NextRequest) {
     let preflightReport: PreflightReport | null = null;
     let engineReadinessScore: number | undefined;
     let engineApprovalLikelihood: number | undefined;
+    let engineCreationTool = "unknown";
     if (preflightUrl?.trim()) {
       const preflight = await runPreflightCheck(preflightUrl, buffer, fileNameScanned);
       if (preflight) {
@@ -208,6 +211,7 @@ export async function POST(request: NextRequest) {
         preflightReport = preflight.report;
         engineReadinessScore = typeof preflight.report.readiness_score === "number" && preflight.report.readiness_score > 0 ? preflight.report.readiness_score : undefined;
         engineApprovalLikelihood = typeof preflight.report.approval_likelihood === "number" && preflight.report.approval_likelihood > 0 ? preflight.report.approval_likelihood : undefined;
+        engineCreationTool = preflight.report.creation_tool ?? "unknown";
       } else {
         report = buildBasicReport(doc, buffer);
       }
@@ -220,7 +224,8 @@ export async function POST(request: NextRequest) {
       fileNameScanned,
       preflightReport ?? undefined,
       engineReadinessScore,
-      engineApprovalLikelihood
+      engineApprovalLikelihood,
+      engineCreationTool,
     );
     const stored = await saveUpload(buffer, fileNameScanned, "application/pdf");
     await updateMeta(stored.id, { processingReport: enrichedReport as StoredManuscript["processingReport"] });

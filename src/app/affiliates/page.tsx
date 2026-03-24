@@ -280,7 +280,7 @@ export default function AffiliatesPage() {
         <div className="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
           <Link href="/">
             <span className="font-bebas text-xl tracking-widest">
-              <span className="text-m2p-orange">manu</span><span className="text-m2p-green">2print</span>
+              <span className="text-m2p-orange">manu</span><span className="text-m2p-live">2print</span>
             </span>
           </Link>
           <Link href="/affiliates/apply" className="text-xs text-m2p-muted hover:text-m2p-orange transition-colors">

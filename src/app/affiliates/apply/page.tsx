@@ -45,7 +45,7 @@ export default function AffiliateApplyPage() {
           <Link href="/">
             <span className="font-bebas text-xl tracking-widest">
               <span className="text-m2p-orange">manu</span>
-              <span className="text-m2p-green">2print</span>
+              <span className="text-m2p-live">2print</span>
             </span>
           </Link>
           <Link href="/affiliates" className="text-xs text-white/50 hover:text-white transition-colors">

@@ -84,12 +84,16 @@ export type LineSpacingId = (typeof LINE_SPACING_OPTIONS)[number]["id"];
 
 export const BLEED_POINTS = 9; // 0.125" = 9pt
 
-/** Gutter (inside margin) in inches by estimated page count */
+/**
+ * Gutter (inside margin) in inches by page count.
+ * Matches KDP's exact published table — including the 701+ bracket at 0.875".
+ */
 export function getGutterInches(pageCount: number): number {
-  if (pageCount < 151) return 0.375;
-  if (pageCount < 301) return 0.5;
-  if (pageCount < 501) return 0.625;
-  return 0.75;
+  if (pageCount <= 150) return 0.375;
+  if (pageCount <= 300) return 0.500;
+  if (pageCount <= 500) return 0.625;
+  if (pageCount <= 700) return 0.750;
+  return 0.875; // 701–828 pages
 }
 
 export function inchesToPoints(inches: number): number {
