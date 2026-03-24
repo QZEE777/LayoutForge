@@ -353,7 +353,7 @@ export default function Home() {
             {/* Card 1 — Single Scan (LIVE) */}
             <div className="border-2 border-m2p-orange rounded-2xl p-6 text-center flex flex-col relative" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
               <div className="mb-3">
-                <span className="inline-block bg-m2p-orange text-white text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full">
+                <span className="inline-block bg-m2p-green/80 text-white text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full">
                   LIVE
                 </span>
               </div>
