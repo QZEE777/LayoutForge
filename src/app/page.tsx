@@ -353,7 +353,7 @@ export default function Home() {
             {/* Card 1 — Single Scan (LIVE) */}
             <div className="border-2 border-m2p-orange rounded-2xl p-6 text-center flex flex-col relative" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
               <div className="mb-3">
-                <span className="inline-block bg-m2p-green/80 text-white text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full">
+                <span className="inline-block bg-m2p-live text-m2p-ink text-xs font-bold tracking-widest uppercase px-3 py-1.5 rounded-full shadow-[0_0_8px_rgba(76,217,100,0.5)]">
                   LIVE
                 </span>
               </div>
@@ -377,7 +377,7 @@ export default function Home() {
             {/* Card 2 — Author Pack */}
             <div className="border-2 border-m2p-orange/40 rounded-2xl p-6 text-center flex flex-col relative" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
               <div className="mb-3 flex flex-wrap gap-2 justify-center">
-                <span className="inline-block bg-m2p-green/80 text-white text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full">
+                <span className="inline-block bg-m2p-live text-m2p-ink text-xs font-bold tracking-widest uppercase px-3 py-1.5 rounded-full shadow-[0_0_8px_rgba(76,217,100,0.5)]">
                   LIVE
                 </span>
                 <span className="inline-block bg-m2p-orange/20 text-m2p-orange text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full border border-m2p-orange/30">
@@ -403,7 +403,7 @@ export default function Home() {
             {/* Card 3 — Indie Publisher */}
             <div className="border border-white/10 rounded-2xl p-6 text-center flex flex-col relative" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
               <div className="mb-3">
-                <span className="inline-block bg-m2p-green/80 text-white text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full">
+                <span className="inline-block bg-m2p-live text-m2p-ink text-xs font-bold tracking-widest uppercase px-3 py-1.5 rounded-full shadow-[0_0_8px_rgba(76,217,100,0.5)]">
                   LIVE
                 </span>
               </div>
@@ -426,7 +426,7 @@ export default function Home() {
             {/* Card 4 — Pro / Studio */}
             <div className="border border-white/10 rounded-2xl p-6 text-center flex flex-col relative" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
               <div className="mb-3">
-                <span className="inline-block bg-m2p-green/80 text-white text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full">
+                <span className="inline-block bg-m2p-live text-m2p-ink text-xs font-bold tracking-widest uppercase px-3 py-1.5 rounded-full shadow-[0_0_8px_rgba(76,217,100,0.5)]">
                   LIVE
                 </span>
               </div>
