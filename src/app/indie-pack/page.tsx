@@ -1,0 +1,265 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import SiteShell from "@/components/SiteShell";
+
+const INCLUDED = [
+  "10 full KDP compliance scans — use across any books",
+  "Full annotated PDF report per scan",
+  "Exact page numbers for every violation",
+  "Margin, trim, bleed, font & image checks",
+  "Plain-English fix instructions per issue",
+  "Credits never expire — use at your own pace",
+  "Share across your entire catalog",
+];
+
+const CHECKS = [
+  { icon: "📐", label: "Trim size validation" },
+  { icon: "📏", label: "Margin compliance" },
+  { icon: "🩸", label: "Bleed zone analysis" },
+  { icon: "🔤", label: "Font embedding check" },
+  { icon: "📄", label: "Page count accuracy" },
+  { icon: "🖼️", label: "Image resolution" },
+  { icon: "📦", label: "File size limits" },
+  { icon: "🎨", label: "Color mode (CMYK/RGB)" },
+  { icon: "🔲", label: "Safe zone compliance" },
+  { icon: "📚", label: "Cover & spine checks" },
+  { icon: "⚠️", label: "Page-level error flags" },
+  { icon: "✅", label: "26 KDP rules total" },
+];
+
+export default function IndiePackPage() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleBuy() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ priceType: "indie_pack" }),
+      });
+      const data = await res.json() as { checkoutUrl?: string; error?: string };
+      if (!res.ok || !data.checkoutUrl) throw new Error(data.error || "Checkout failed");
+      window.location.href = data.checkoutUrl;
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Something went wrong. Try again.");
+      setLoading(false);
+    }
+  }
+
+  return (
+    <SiteShell>
+
+      {/* ── HERO ──────────────────────────────────────────────── */}
+      <section className="bg-m2p-ivory">
+        <div className="mx-auto max-w-6xl px-6 py-12 lg:py-16">
+          <div className="grid lg:grid-cols-2 gap-12 items-start">
+
+            {/* LEFT — copy */}
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full bg-m2p-orange/10 border border-m2p-orange/20 px-3 py-1 mb-5">
+                <span className="w-2 h-2 rounded-full bg-m2p-orange animate-pulse" />
+                <span className="text-xs font-semibold text-m2p-orange uppercase tracking-wide">
+                  10 Scans · $3.90 each · Best Value
+                </span>
+              </div>
+
+              <h1 className="font-bebas text-5xl lg:text-6xl tracking-wide text-m2p-ink leading-none mb-4">
+                Indie<br />
+                <span className="text-m2p-orange">Pack</span>
+              </h1>
+
+              <p className="text-m2p-ink/80 text-lg leading-relaxed mb-3">
+                Built for indie publishers who ship multiple titles a year.
+              </p>
+              <p className="text-m2p-muted text-sm mb-6">
+                Ten scans across your entire catalog — check every book, every draft revision,
+                every reformatted edition. At $3.90 per scan you&apos;re paying less than
+                half the single-scan price.
+              </p>
+              <p className="text-m2p-muted text-sm mb-8">
+                Credits never expire. Buy once, use across any manuscript, any time.
+              </p>
+
+              {/* What's included */}
+              <div className="rounded-2xl border border-m2p-border bg-white p-5 mb-6">
+                <p className="text-xs font-bold uppercase tracking-wider text-m2p-green mb-3">
+                  What&apos;s included in your Indie Pack
+                </p>
+                <ul className="space-y-2">
+                  {INCLUDED.map((item) => (
+                    <li key={item} className="flex items-start gap-2 text-sm text-m2p-ink/80">
+                      <span className="text-m2p-green mt-0.5 shrink-0">✓</span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Trust signals */}
+              <div className="flex flex-wrap gap-4 text-xs text-m2p-muted">
+                {["🔒 Secure checkout", "⚡ Credits added instantly", "🚫 No account needed", "💳 One-time $39"].map((t) => (
+                  <span key={t}>{t}</span>
+                ))}
+              </div>
+            </div>
+
+            {/* RIGHT — buy card */}
+            <div className="lg:sticky lg:top-8">
+              <div className="rounded-2xl border-2 border-m2p-border bg-white shadow-sm overflow-hidden">
+                {/* Card header */}
+                <div className="bg-m2p-ink px-6 py-4 flex items-center justify-between">
+                  <div>
+                    <p className="text-white font-semibold text-sm">Indie Pack</p>
+                    <p className="text-white/50 text-xs">10 KDP PDF scans · use any time</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-m2p-orange font-bebas text-2xl">$39</p>
+                    <p className="text-white/40 text-xs">one-time</p>
+                  </div>
+                </div>
+
+                <div className="p-6">
+                  {/* Value comparison */}
+                  <div className="rounded-xl bg-m2p-ivory border border-m2p-border p-4 mb-5">
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-m2p-muted">10 scans</span>
+                      <span className="text-m2p-ink font-medium">$39.00</span>
+                    </div>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-m2p-muted">Per scan</span>
+                      <span className="text-m2p-green font-medium">$3.90 each</span>
+                    </div>
+                    <div className="mt-2 pt-2 border-t border-m2p-border flex justify-between text-xs text-m2p-muted">
+                      <span>vs. 10 × $9 single scans</span>
+                      <span className="text-m2p-green font-semibold">Save $51</span>
+                    </div>
+                  </div>
+
+                  {/* Scan dots */}
+                  <div className="grid grid-cols-5 gap-2 mb-5">
+                    {Array.from({ length: 10 }).map((_, i) => (
+                      <div key={i} className="rounded-lg border border-m2p-orange/30 bg-m2p-orange/5 p-2 text-center">
+                        <div className="text-lg">📄</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {error && (
+                    <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-600">
+                      {error}
+                    </div>
+                  )}
+
+                  <button
+                    onClick={handleBuy}
+                    disabled={loading}
+                    className="w-full rounded-xl bg-m2p-orange hover:bg-m2p-orange-hover disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3.5 px-6 text-base transition-colors"
+                  >
+                    {loading ? "Redirecting…" : "Get Indie Pack — $39 →"}
+                  </button>
+
+                  <p className="text-center text-xs text-m2p-muted mt-3">
+                    Credits added to your account instantly after purchase
+                  </p>
+                </div>
+              </div>
+
+              {/* Manny note */}
+              <div className="mt-4 rounded-xl border border-m2p-border bg-m2p-ivory p-4 flex items-start gap-3">
+                <Image src="/MANNY AVATAR.png" alt="Manny" width={36} height={36} className="rounded-full shrink-0 mt-0.5" />
+                <p className="text-xs text-m2p-muted leading-relaxed">
+                  <strong className="text-m2p-ink">Indie tip:</strong> Use one scan per book,
+                  keep a few in reserve for cover revisions and reformats.
+                  Ten scans covers a solid year of publishing.
+                </p>
+              </div>
+
+              <div className="flex justify-between text-xs text-m2p-muted mt-4 px-1">
+                <Link href="/author-pack" className="text-m2p-orange hover:underline">← Author Pack (3 scans, $19)</Link>
+                <Link href="/pro-pack" className="text-m2p-orange hover:underline">Pro Pack (25 scans, $79) →</Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── WHAT WE CHECK ─────────────────────────────────────── */}
+      <section className="bg-m2p-ink py-14">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="text-center mb-10">
+            <h2 className="font-bebas text-4xl text-m2p-ivory tracking-wide mb-2">
+              26 KDP Rules. <span className="text-m2p-orange">Every One.</span>
+            </h2>
+            <p className="text-m2p-ivory/60 text-sm max-w-lg mx-auto">
+              Each scan runs your PDF through the same compliance checks Amazon uses.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {CHECKS.map((check) => (
+              <div key={check.label} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 flex items-center gap-3">
+                <span className="text-xl shrink-0">{check.icon}</span>
+                <span className="text-white/80 text-sm">{check.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── HOW IT WORKS ──────────────────────────────────────── */}
+      <section className="bg-m2p-ivory py-14">
+        <div className="mx-auto max-w-4xl px-6">
+          <h2 className="font-bebas text-4xl text-m2p-ink tracking-wide text-center mb-10">How It Works</h2>
+          <div className="grid sm:grid-cols-3 gap-6">
+            {[
+              { step: "01", icon: "💳", title: "Buy the Pack", desc: "One-time $39 payment. 10 scan credits added to your account instantly." },
+              { step: "02", icon: "📤", title: "Upload Your PDF", desc: "Go to the KDP PDF Checker, upload your manuscript. One credit deducted per scan." },
+              { step: "03", icon: "📥", title: "Download & Fix", desc: "Full annotated report in under 90 seconds. Fix, re-upload to KDP, repeat across your catalog." },
+            ].map((s) => (
+              <div key={s.step} className="rounded-2xl border border-m2p-border bg-white p-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="font-bebas text-m2p-orange text-3xl leading-none">{s.step}</span>
+                  <span className="text-2xl">{s.icon}</span>
+                </div>
+                <h3 className="font-semibold text-m2p-ink mb-2">{s.title}</h3>
+                <p className="text-m2p-muted text-sm leading-relaxed">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-8 text-center">
+            <Link href="/kdp-pdf-checker" className="inline-flex items-center gap-2 rounded-xl border border-m2p-border bg-white px-6 py-3 text-sm font-medium text-m2p-ink hover:border-m2p-orange hover:text-m2p-orange transition-colors">
+              Already have credits? Go to KDP PDF Checker →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── COMPARE PACKS ─────────────────────────────────────── */}
+      <section className="bg-m2p-border/30 border-t border-m2p-border py-10">
+        <div className="mx-auto max-w-4xl px-6 text-center">
+          <p className="text-xs font-bold uppercase tracking-wider text-m2p-muted mb-6">Compare all packs</p>
+          <div className="grid sm:grid-cols-3 gap-4">
+            {[
+              { name: "Author Pack", price: "$19", scans: "3 scans", per: "$6.33/scan", href: "/author-pack", active: false },
+              { name: "Indie Pack", price: "$39", scans: "10 scans", per: "$3.90/scan", href: "/indie-pack", active: true },
+              { name: "Pro Pack", price: "$79", scans: "25 scans", per: "$3.16/scan", href: "/pro-pack", active: false },
+            ].map((p) => (
+              <Link key={p.name} href={p.href} className={`rounded-xl border p-4 text-center transition-colors ${p.active ? "border-m2p-orange bg-m2p-orange/5 cursor-default" : "border-m2p-border bg-white hover:border-m2p-orange"}`}>
+                <p className="font-semibold text-m2p-ink text-sm">{p.name}</p>
+                <p className="font-bebas text-m2p-orange text-2xl mt-1">{p.price}</p>
+                <p className="text-xs text-m2p-muted">{p.scans}</p>
+                <p className="text-xs text-m2p-green font-medium mt-1">{p.per}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+    </SiteShell>
+  );
+}
