@@ -579,6 +579,9 @@ function derivePreflightErrorWarningCounts(preflight: {
 export interface CheckerReportBase {
   outputType: "checker";
   issues: string[];
+  chaptersDetected: number;
+  fontUsed: string;
+  trimSize: string;
   pageCount?: number;
   trimDetected?: string;
   trimMatchKDP?: boolean;

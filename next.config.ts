@@ -6,6 +6,19 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [{ source: "/formatter", destination: "/platform/kdp", permanent: true }];
   },
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          {
+            key: "X-Robots-Tag",
+            value: "noai, noimageai",
+          },
+        ],
+      },
+    ];
+  },
   experimental: {
     serverActions: {
       bodySizeLimit: "50mb",

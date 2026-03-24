@@ -40,6 +40,8 @@ export default function RootLayout({
       <head>
         {/* eslint-disable-next-line @next/next/no-page-custom-font -- App Router: layout wraps all pages; next/font vars also used. */}
         <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+        {/* Block AI training crawlers from indexing content for model training */}
+        <meta name="robots" content="noai, noimageai" />
       </head>
       <body className="antialiased bg-ivory text-amazon-navy font-sans">
         <ToolPagesBanner />

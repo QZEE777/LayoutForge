@@ -76,6 +76,8 @@ export interface StoredManuscript {
     specTable?: Array<{ requirement: string; yourFile: string; kdpRequired: string; status: "pass" | "warning" | "fail" }>;
     estimatedFixHours?: number;
     upsellBridge?: string;
+    scoreGrade?: { grade: string; label: string; description: string };
+    creationTool?: string;
     /** True when the stored file is the user's PDF (server-side check); false when from preflight (placeholder PDF). */
     hasPdfPreview?: boolean;
     /** When set, viewer should load PDF from this URL (e.g. engine GET /file/{job_id}) instead of /api/view-pdf/{id}. */

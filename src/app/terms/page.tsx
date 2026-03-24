@@ -12,7 +12,7 @@ export default function TermsPage() {
           <h1 className="font-bebas text-m2p-ink leading-tight mb-2 text-[clamp(2rem,4vw,3rem)]">
             TERMS &amp; CONDITIONS
           </h1>
-          <p className="text-sm text-[#6B6151] mb-10" >Last updated: [DATE — tweak before publish]</p>
+          <p className="text-sm text-[#6B6151] mb-10" >Last updated: March 24, 2025</p>
 
           <div className="prose prose-sm max-w-none space-y-8 [&_h2]:text-m2p-ink [&_p]:text-[#6B6151] [&_a]:text-m2p-orange [&_a]:hover:underline" >
           <section>
@@ -110,6 +110,19 @@ export default function TermsPage() {
             <h2 className="text-lg font-semibold text-m2p-ink mt-6 mb-2">14. Contact</h2>
             <p className="text-[#6B6151]">
               For questions about these Terms, contact us at <Link href="/contact" className="text-m2p-orange hover:underline">Contact</Link> or the email address listed there.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-semibold text-m2p-ink mt-6 mb-2">15. Prohibition on AI training data collection</h2>
+            <p className="text-[#6B6151]">
+              Automated scraping, crawling, spidering, or any form of systematic data collection of any content on this website — including but not limited to tool outputs, KDP compliance reports, interface text, pricing information, methodology, rules, and copy — for the purpose of training, fine-tuning, developing, or improving artificial intelligence systems, machine learning models, or large language models is strictly and expressly prohibited without prior written license from manu2print.
+            </p>
+            <p className="text-[#6B6151] mt-3">
+              This prohibition applies regardless of whether the content is publicly accessible. It applies to all entities including but not limited to AI model developers, dataset aggregators, and their agents or contractors. Our <code className="text-sm bg-m2p-orange/10 px-1 rounded">robots.txt</code> file constitutes a machine-readable opt-out under the EU Copyright Directive (Article 4) and applicable data protection frameworks. Circumventing technical measures including rate limits, CAPTCHAs, or access controls to collect content for AI training may constitute a violation of the Computer Fraud and Abuse Act (CFAA), the Digital Millennium Copyright Act (DMCA) Section 1201, and equivalent laws in other jurisdictions.
+            </p>
+            <p className="text-[#6B6151] mt-3">
+              Any use of our content for AI training without an executed written license agreement is a material breach of these Terms and may expose the infringing party to legal action including claims for copyright infringement, breach of contract, and injunctive relief. To inquire about a data licensing arrangement, contact us at <Link href="/contact" className="text-m2p-orange hover:underline">Contact</Link>.
             </p>
           </section>
           </div>
