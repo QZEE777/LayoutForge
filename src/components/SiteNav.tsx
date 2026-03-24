@@ -20,7 +20,7 @@ export default function SiteNav() {
           <Link href="/#how-it-works" className="font-medium text-m2p-muted hover:text-m2p-orange transition-colors text-sm" style={{ fontFamily: "Inter, sans-serif" }}>
             How It Works
           </Link>
-          <Link href="/pricing" className="font-medium text-m2p-muted hover:text-m2p-orange transition-colors text-sm" style={{ fontFamily: "Inter, sans-serif" }}>
+          <Link href="/#pricing" className="font-medium text-m2p-muted hover:text-m2p-orange transition-colors text-sm" style={{ fontFamily: "Inter, sans-serif" }}>
             Pricing
           </Link>
           <Link href="/about" className="font-medium text-m2p-muted hover:text-m2p-orange transition-colors text-sm" style={{ fontFamily: "Inter, sans-serif" }}>
