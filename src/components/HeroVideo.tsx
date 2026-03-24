@@ -18,7 +18,7 @@ const VIDEO_SRC = "/hero-demo.mp4";
 export default function HeroVideo() {
   if (!SHOW_PLACEHOLDER) {
     return (
-      <div className="w-full max-w-[480px] mx-auto rounded-2xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.5)] border border-white/10">
+      <div className="w-full max-w-[580px] mx-auto rounded-2xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.5)] border border-white/10">
         <video
           src={VIDEO_SRC}
           autoPlay
@@ -34,7 +34,7 @@ export default function HeroVideo() {
   // ─── PLACEHOLDER ────────────────────────────────────────────────────────────
   return (
     <div
-      className="w-full max-w-[480px] mx-auto rounded-2xl border border-white/10 shadow-[0_8px_40px_rgba(0,0,0,0.5)] flex flex-col items-center justify-center gap-4"
+      className="w-full max-w-[580px] mx-auto rounded-2xl border border-white/10 shadow-[0_8px_40px_rgba(0,0,0,0.5)] flex flex-col items-center justify-center gap-5"
       style={{ aspectRatio: "16/10", background: "rgba(255,255,255,0.04)" }}
     >
       {/* Play icon */}

@@ -50,28 +50,29 @@ export default function Home() {
           </div>
           <div className="flex flex-col lg:flex-row items-center gap-4 lg:gap-8">
             {/* LEFT — text content */}
-            <div className="flex-[1.1] w-full lg:w-auto order-2 lg:order-1 text-center lg:text-left">
-              <h1 className="font-bebas text-m2p-ivory leading-none tracking-wide mb-3">
+            <div className="flex-[1.1] w-full lg:w-auto order-2 lg:order-1 text-center">
+              <h1 className="font-bebas text-m2p-ivory leading-none tracking-wide mb-4">
                 <span
                   className="block"
                   style={{ fontSize: "clamp(3rem, 7vw, 6rem)" }}
                 >
-                  KDP PDF Checker
+                  KDP PDF <span className="text-m2p-live">Checker</span>
                 </span>
                 <span
                   className="block text-m2p-ivory/80"
-                  style={{ fontSize: "clamp(1.5rem, 3.5vw, 2.75rem)", marginTop: "0.4rem" }}
+                  style={{ fontSize: "clamp(1.4rem, 3.2vw, 2.5rem)", marginTop: "0.5rem", lineHeight: 1.15 }}
                 >
-                  Find Formatting Errors Before Amazon Rejects Your Book
+                  Find Formatting Errors<br />
+                  Before Amazon Rejects Your Book
                 </span>
               </h1>
-              <p className="text-m2p-ivory/90 text-lg max-w-2xl mx-auto lg:mx-0 mb-2 leading-relaxed">
-                Upload your manuscript and get a clear, page-by-page KDP compliance report in minutes — before you submit.
+              <p className="text-m2p-ivory/90 text-lg max-w-xl mx-auto mb-1 leading-relaxed">
+                Upload your manuscript and get a clear,<br className="hidden sm:block" /> page-by-page KDP compliance report in minutes.
               </p>
-              <p className="text-m2p-ivory/55 text-sm italic mb-4">
+              <p className="text-m2p-ivory/55 text-sm italic mb-5">
                 KDP rejected your PDF? We show you exactly why.
               </p>
-              <div className="flex justify-center lg:justify-start mb-5">
+              <div className="flex justify-center mb-5">
                 <Link
                   href="/kdp-pdf-checker"
                   className="bg-m2p-orange hover:bg-m2p-orange-hover text-white font-bold text-base px-8 py-4 rounded-xl shadow-[0_4px_24px_rgba(240,90,40,0.45)] hover:-translate-y-0.5 transition-all uppercase tracking-wide"
