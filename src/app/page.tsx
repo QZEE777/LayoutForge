@@ -4,7 +4,7 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import ToolBadge from "@/components/ToolBadge";
 import PlatformWaitlistForm from "@/components/PlatformWaitlistForm";
-import TargetGraphic from "@/components/TargetGraphic";
+import HeroVideo from "@/components/HeroVideo";
 import TestimonialsCarousel from "@/components/TestimonialsCarousel";
 import PackBuyButton from "@/components/PackBuyButton";
 
@@ -31,7 +31,7 @@ export default function Home() {
 
       {/* ─── SECTION 1 — HERO ─────────────────────────────────────────── */}
       {/* Background: near-black #1A1208 */}
-      <section className="bg-m2p-ink pt-2 pb-4 md:pt-3 md:pb-6">
+      <section className="bg-m2p-ink pt-2 pb-8 md:pt-3 md:pb-10">
         <div className="max-w-6xl mx-auto px-6">
           {/* Manny logo — top-left of hero */}
           <div className="flex items-center gap-2 mb-2">
@@ -80,17 +80,12 @@ export default function Home() {
                 </Link>
               </div>
             </div>
-            {/* RIGHT — target graphic */}
+            {/* RIGHT — hero video / demo loop */}
             <div className="flex-[0.9] flex flex-col items-center w-full lg:w-auto order-1 lg:order-2">
-              <div className="max-w-sm mx-auto w-full flex flex-col items-center">
-                <TargetGraphic size={480} />
-              </div>
+              <HeroVideo />
             </div>
           </div>
         </div>
-        <p className="text-white text-xs italic text-center mt-8 px-6">
-          Built for indie authors publishing on Amazon KDP — covering margins, bleed, trim size, and full PDF compliance.
-        </p>
       </section>
 
       {/* ─── SECTION 2 — PAIN BLOCK ────────────────────────────────────── */}
