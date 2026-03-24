@@ -8,7 +8,20 @@
       "Skill(claude-api:*)",
       "Read(//c/Dev/Dev-projects/projects/LayoutForge-main/src/**)",
       "Read(//mnt/c/Dev/Dev-projects/projects/LayoutForge-main/src/**)",
-      "Bash(find /home -name resend.ts)"
+      "Bash(find /home -name resend.ts)",
+      "WebFetch(domain:knownagents.com)",
+      "WebFetch(domain:developers.cloudflare.com)",
+      "WebFetch(domain:blog.cloudflare.com)",
+      "WebFetch(domain:stytch.com)",
+      "WebFetch(domain:cloudflare.com)",
+      "WebSearch",
+      "WebFetch(domain:www.falconedits.com)",
+      "WebFetch(domain:kindlepreneur.com)",
+      "Bash(find '/c/Dev/Dev projects/projects/LayoutForge-main/kdp-preflight-engine' -name *.py)",
+      "Bash(xargs grep:*)",
+      "WebFetch(domain:coauthor.ai)",
+      "WebFetch(domain:www.manu2print.com)",
+      "Bash(__NEW_LINE_27384f914264ea37__ echo:*)"
     ]
   }
 }

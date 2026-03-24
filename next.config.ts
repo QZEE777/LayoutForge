@@ -4,7 +4,15 @@ import { withSentryConfig } from "@sentry/nextjs";
 const nextConfig: NextConfig = {
   serverExternalPackages: ["unpdf"],
   async redirects() {
-    return [{ source: "/formatter", destination: "/platform/kdp", permanent: true }];
+    return [
+      { source: "/formatter", destination: "/", permanent: true },
+      { source: "/pricing", destination: "/#pricing", permanent: false },
+      { source: "/description-generator", destination: "/", permanent: true },
+      { source: "/description-generator-pdf", destination: "/", permanent: true },
+      { source: "/keyword-research", destination: "/", permanent: true },
+      { source: "/epub-maker", destination: "/", permanent: true },
+      { source: "/tools/pdf-compress", destination: "/pdf-compress", permanent: true },
+    ];
   },
   async headers() {
     return [
