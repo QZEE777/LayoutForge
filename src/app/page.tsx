@@ -70,7 +70,7 @@ export default function Home() {
                 Check your PDF before you upload to KDP.<br />
                 See every issue — page by page — in minutes.
               </p>
-              <p className="text-m2p-ivory/55 text-sm italic mb-5">
+              <p className="text-m2p-live text-sm italic mb-5">
                 Already rejected? We show you exactly why.
               </p>
               <div className="flex justify-center mb-5">
