@@ -31,10 +31,10 @@ export default function Home() {
 
       {/* ─── SECTION 1 — HERO ─────────────────────────────────────────── */}
       {/* Background: near-black #1A1208 */}
-      <section className="bg-m2p-ink pt-4 pb-8 md:pt-6 md:pb-12">
+      <section className="bg-m2p-ink pt-2 pb-4 md:pt-3 md:pb-6">
         <div className="max-w-6xl mx-auto px-6">
           {/* Manny logo — top-left of hero */}
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/manny-avatar.png"
@@ -45,13 +45,13 @@ export default function Home() {
             />
             <span className="font-bold text-lg">
               <span className="text-m2p-orange">manu</span>
-              <span className="text-m2p-ivory">2print</span>
+              <span className="text-m2p-live">2print</span>
             </span>
           </div>
-          <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+          <div className="flex flex-col lg:flex-row items-center gap-4 lg:gap-8">
             {/* LEFT — text content */}
             <div className="flex-[1.1] w-full lg:w-auto order-2 lg:order-1 text-center lg:text-left">
-              <h1 className="font-bebas text-m2p-ivory leading-none tracking-wide mb-5">
+              <h1 className="font-bebas text-m2p-ivory leading-none tracking-wide mb-3">
                 <span
                   className="block"
                   style={{ fontSize: "clamp(3rem, 7vw, 6rem)" }}
@@ -65,10 +65,10 @@ export default function Home() {
                   Find Formatting Errors Before Amazon Rejects Your Book
                 </span>
               </h1>
-              <p className="text-m2p-ivory/90 text-lg max-w-2xl mx-auto lg:mx-0 mb-4 leading-relaxed">
+              <p className="text-m2p-ivory/90 text-lg max-w-2xl mx-auto lg:mx-0 mb-2 leading-relaxed">
                 Upload your manuscript and get a clear, page-by-page KDP compliance report in minutes — before you submit.
               </p>
-              <p className="text-m2p-ivory/55 text-sm italic mb-8">
+              <p className="text-m2p-ivory/55 text-sm italic mb-4">
                 KDP rejected your PDF? We show you exactly why.
               </p>
               <div className="flex justify-center lg:justify-start mb-5">
