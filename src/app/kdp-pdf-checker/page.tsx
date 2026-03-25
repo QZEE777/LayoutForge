@@ -157,8 +157,7 @@ export default function KdpPdfCheckerPage() {
               </div>
 
               <h1 className="font-bebas text-5xl lg:text-6xl tracking-wide text-m2p-ink leading-none mb-4">
-                KDP PDF<br />
-                <span className="text-m2p-orange">Checker</span>
+                KDP PDF <span className="text-m2p-live">Checker</span>
               </h1>
 
               <p className="text-m2p-ink/80 text-lg leading-relaxed mb-6">
@@ -168,7 +167,7 @@ export default function KdpPdfCheckerPage() {
                 Every issue flagged with exact page numbers <em>before</em> Amazon rejects you.
               </p>
 
-              <p className="text-m2p-muted text-sm mb-8">
+              <p className="text-m2p-live text-sm font-medium mb-8">
                 Designed in Canva, InDesign, or Word? We analyze the final exported PDF
                 — exactly what Amazon&apos;s system reviews.
               </p>
@@ -406,7 +405,7 @@ export default function KdpPdfCheckerPage() {
               <Link
                 key={tool.href}
                 href={tool.href}
-                className="inline-flex items-center gap-1.5 rounded-full border border-m2p-green/40 bg-white px-4 py-2 text-sm font-medium text-m2p-green hover:bg-m2p-green hover:text-white transition-colors"
+                className="inline-flex items-center rounded-full bg-[#2D6A2D] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#1A3A2A] transition-colors"
               >
                 {tool.label} →
               </Link>
