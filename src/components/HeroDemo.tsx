@@ -24,12 +24,12 @@ const ISSUES = [
   { page: "p.5",     label: "Image below 300 DPI",       detail: "187 DPI found — will print blurry"            },
 ];
 
-// Tick map (500ms each):
-// 0-3   → upload phase
-// 4-11  → scanning phase
-// 12-20 → results phase
-// 21    → reset
-const TOTAL_TICKS = 22;
+// Tick map (800ms each = ~21 second loop):
+// 0-4   → upload phase   (3.2s)
+// 5-15  → scanning phase (8.8s)
+// 16-25 → results phase  (8s)
+// 26    → reset
+const TOTAL_TICKS = 27;
 
 export default function HeroDemo() {
   const [tick, setTick] = useState(0);
@@ -37,17 +37,17 @@ export default function HeroDemo() {
   useEffect(() => {
     const id = setInterval(() => {
       setTick((t) => (t + 1) % TOTAL_TICKS);
-    }, 500);
+    }, 800);
     return () => clearInterval(id);
   }, []);
 
   const phase: "upload" | "scanning" | "results" =
-    tick <= 3 ? "upload" : tick <= 11 ? "scanning" : "results";
+    tick <= 4 ? "upload" : tick <= 15 ? "scanning" : "results";
 
-  const uploadStep  = tick;                          // 0=empty,1=hover,2=drop,3=ready
-  const scanVisible = phase === "scanning" ? Math.max(0, tick - 4) : phase === "results" ? 6 : 0;
-  const issueVisible = phase === "results"  ? Math.max(0, tick - 13) : 0;
-  const showCta      = tick >= 18;
+  const uploadStep   = tick;                                        // 0=empty,1=hover,3=drop,4=ready
+  const scanVisible  = phase === "scanning" ? Math.max(0, tick - 5) : phase === "results" ? 6 : 0;
+  const issueVisible = phase === "results"  ? Math.max(0, tick - 17) : 0;
+  const showCta      = tick >= 22;
 
   return (
     <div className="w-full rounded-2xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.45)] border border-white/10"
@@ -84,7 +84,7 @@ export default function HeroDemo() {
                 background:  uploadStep >= 1 ? "rgba(240,90,40,0.06)" : "rgba(255,255,255,0.03)",
               }}
             >
-              {uploadStep < 2 ? (
+              {uploadStep < 3 ? (
                 <>
                   <div className="w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300"
                     style={{ background: uploadStep >= 1 ? "rgba(240,90,40,0.2)" : "rgba(255,255,255,0.06)" }}>
@@ -103,8 +103,8 @@ export default function HeroDemo() {
                   <p className="text-sm font-semibold" style={{ color: "rgba(255,255,255,0.9)" }}>
                     manuscript-final.pdf
                   </p>
-                  <p className="text-xs mt-1" style={{ color: uploadStep >= 3 ? "#4cd964" : "rgba(255,255,255,0.4)" }}>
-                    {uploadStep >= 3 ? "4.2 MB · ready to scan ✓" : "4.2 MB · uploading…"}
+                  <p className="text-xs mt-1" style={{ color: uploadStep >= 4 ? "#4cd964" : "rgba(255,255,255,0.4)" }}>
+                    {uploadStep >= 4 ? "4.2 MB · ready to scan ✓" : "4.2 MB · uploading…"}
                   </p>
                 </div>
               )}
@@ -114,8 +114,8 @@ export default function HeroDemo() {
             <div
               className="w-full rounded-xl py-3 text-center text-sm font-bold transition-all duration-500"
               style={{
-                background: uploadStep >= 3 ? "#f05a28" : "rgba(240,90,40,0.25)",
-                color: uploadStep >= 3 ? "#fff" : "rgba(255,255,255,0.35)",
+                background: uploadStep >= 4 ? "#f05a28" : "rgba(240,90,40,0.25)",
+                color: uploadStep >= 4 ? "#fff" : "rgba(255,255,255,0.35)",
               }}
             >
               {uploadStep >= 3 ? "Check My PDF →" : "Check My PDF →"}
