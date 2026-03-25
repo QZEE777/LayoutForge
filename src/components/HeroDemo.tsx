@@ -177,7 +177,7 @@ export default function HeroDemo() {
               That&apos;s the full flow.
             </p>
             <p className="text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>
-              Upload → Scan → Fix → Publish
+              Upload → Scan → Report → Publish
             </p>
           </div>
           <button
