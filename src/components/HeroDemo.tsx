@@ -182,10 +182,10 @@ export default function HeroDemo() {
           </div>
           <a
             href="/kdp-pdf-checker"
-            className="flex items-center justify-center w-20 h-20 rounded-full font-bebas tracking-wide text-center leading-tight transition-all duration-200 hover:scale-110 hover:shadow-[0_0_32px_rgba(240,90,40,0.5)]"
-            style={{ background: "#f05a28", color: "#fff", fontSize: 13 }}
+            className="flex items-center justify-center w-32 h-32 rounded-full font-bebas tracking-wide text-center leading-tight transition-all duration-200 hover:scale-110 hover:shadow-[0_0_40px_rgba(240,90,40,0.6)]"
+            style={{ background: "#f05a28", color: "#fff", fontSize: 16 }}
           >
-            Check<br />My PDF
+            Check<br />My PDF<br />Now!
           </a>
           <button
             onClick={startSequence}
