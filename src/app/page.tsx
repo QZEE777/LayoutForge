@@ -4,7 +4,7 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import ToolBadge from "@/components/ToolBadge";
 import PlatformWaitlistForm from "@/components/PlatformWaitlistForm";
-import HeroVideo from "@/components/HeroVideo";
+import HeroDemo from "@/components/HeroDemo";
 import TestimonialsCarousel from "@/components/TestimonialsCarousel";
 import PackBuyButton from "@/components/PackBuyButton";
 
@@ -84,7 +84,7 @@ export default function Home() {
             </div>
             {/* RIGHT — hero video / demo loop */}
             <div className="flex-1 flex flex-col items-center w-full lg:w-auto order-1 lg:order-2">
-              <HeroVideo />
+              <HeroDemo />
             </div>
           </div>
         </div>
