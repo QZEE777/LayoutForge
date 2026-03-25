@@ -354,46 +354,6 @@ export default function KdpPdfCheckerPage() {
         </div>
       </section>
 
-      {/* ── HOW IT WORKS ───────────────────────────────────────── */}
-      <section className="bg-m2p-ivory py-14">
-        <div className="mx-auto max-w-4xl px-6">
-          <h2 className="font-bebas text-4xl text-m2p-ink tracking-wide text-center mb-10">
-            How It Works
-          </h2>
-          <div className="grid sm:grid-cols-3 gap-6">
-            {[
-              {
-                step: "01",
-                icon: "📤",
-                title: "Upload Your PDF",
-                desc: "Drag and drop or click to choose. Any browser, any OS. No software needed.",
-              },
-              {
-                step: "02",
-                icon: "🔍",
-                title: "We Scan 26 KDP Rules",
-                desc: "Margins, trim size, bleed, fonts, page count — every issue flagged with exact page numbers in under 90 seconds.",
-              },
-              {
-                step: "03",
-                icon: "📥",
-                title: "Download & Fix",
-                desc: "Pay $9 and download your annotated PDF report. Fix the issues, upload to KDP with confidence.",
-              },
-            ].map((s) => (
-              <div key={s.step} className="rounded-2xl border border-m2p-border bg-white p-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="font-bebas text-m2p-orange text-3xl leading-none">{s.step}</span>
-                  <span className="text-2xl">{s.icon}</span>
-                </div>
-                <h3 className="font-semibold text-m2p-ink mb-2">{s.title}</h3>
-                <p className="text-m2p-muted text-sm leading-relaxed">{s.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ── PREPARE YOUR PDF ───────────────────────────────────── */}
       <section className="bg-m2p-border/30 border-t border-m2p-border py-10">
         <div className="mx-auto max-w-4xl px-6 text-center">

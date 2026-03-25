@@ -382,7 +382,8 @@ export default function DownloadPage() {
           Your KDP Compliance Report Is Ready
         </h1>
         <p className="text-m2p-muted text-center mb-6">
-          We analyzed your manuscript against Amazon KDP print formatting requirements. Download the full report below to review detected issues and recommended fixes before uploading your book.
+          We analyzed your manuscript against all 26 Amazon KDP print formatting requirements.
+          Download the full report to review every issue and recommended fix.
         </p>
 
         {reportLoading && !report && (
@@ -407,7 +408,7 @@ export default function DownloadPage() {
 
         {/* Trust block — always visible, above payment gate so it is never covered by overlay */}
         <div className="text-center border border-m2p-border rounded-lg p-4 mb-6">
-          <p className="text-m2p-ink font-bold">✅ Verified by Manu2Print</p>
+          <p className="text-m2p-ink font-bold">✅ Verified by <span className="text-m2p-live">manu2print</span></p>
           <p className="text-m2p-muted text-sm">
             This report checks your manuscript against known Amazon KDP print formatting requirements.
           </p>
@@ -620,7 +621,7 @@ export default function DownloadPage() {
                   )}
                   {report.kdpReady && (
                     <div className="mt-6 p-5 rounded-lg border-2 border-green-500 bg-green-50/80 text-m2p-ink">
-                      <p className="font-bold text-green-800 mb-2">✅ Verified by Manu2Print</p>
+                      <p className="font-bold text-green-800 mb-2">✅ Verified by <span className="text-m2p-live">manu2print</span></p>
                       <p className="font-semibold text-green-800 mb-1">KDP Compliance Scan: PASSED</p>
                       <p className="text-sm mb-1">File: {cleanFilenameForDisplay(report.fileNameScanned ?? "")}</p>
                       <p className="text-sm mb-1">Date: {report.scanDate ? new Date(report.scanDate).toLocaleString() : "—"}</p>
