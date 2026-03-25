@@ -169,7 +169,7 @@ export default function HeroDemo() {
           pointerEvents: ctaActive ? "auto" : "none",
         }}
       >
-        Check My PDF
+        Check My PDF Now
       </a>
     </div>
   );
@@ -258,7 +258,7 @@ export default function HeroDemo() {
             className="flex items-center justify-center w-full rounded-xl py-3.5 font-bold text-sm transition-all duration-200 hover:scale-[1.02]"
             style={{ background: "#f05a28", color: "#fff", boxShadow: "0 4px 24px rgba(240,90,40,0.4)" }}
           >
-            Check My PDF
+            Check My PDF Now
           </a>
           <button
             onClick={start}
@@ -330,14 +330,6 @@ export default function HeroDemo() {
                   </p>
                 </div>
               )}
-            </div>
-            <div className="w-full rounded-xl py-3 text-center text-sm font-bold"
-              style={{
-                background:  uploadStep >= 4 ? "#f05a28" : "rgba(240,90,40,0.16)",
-                color:       uploadStep >= 4 ? "#fff"    : "rgba(255,255,255,0.26)",
-                transition:  "background 400ms ease-out, color 400ms ease-out",
-              }}>
-              Check My PDF →
             </div>
           </div>
         )}
@@ -521,7 +513,7 @@ export default function HeroDemo() {
             pointerEvents: ctaActive ? "auto" : "none",
           }}
         >
-          Check My PDF
+          Check My PDF Now
         </a>
       </div>
     </div>
