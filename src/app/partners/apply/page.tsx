@@ -48,8 +48,8 @@ export default function AffiliateApplyPage() {
               <span className="font-bold text-xl" style={{ color: "#4cd964" }}>2print</span>
             </span>
           </Link>
-          <Link href="/partners" className="text-xs text-white/50 hover:text-white transition-colors">
-            Already a partner? →
+          <Link href="/partners?signin=1" className="text-xs text-white/50 hover:text-white transition-colors">
+            Already a partner? Sign in →
           </Link>
         </div>
       </header>

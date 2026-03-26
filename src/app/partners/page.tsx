@@ -153,7 +153,7 @@ function Nav({ onSignInClick }: { onSignInClick?: () => void }) {
 
 // ── Marketing Landing ─────────────────────────────────────────────────────────
 
-function MarketingLanding({ onSignIn }: { onSignIn: (email: string, token: string, expiresAt: number) => void }) {
+function MarketingLanding({ onSignIn, onSignInClick }: { onSignIn: (email: string, token: string, expiresAt: number) => void; onSignInClick?: () => void }) {
   const loginRef = useRef<HTMLDivElement>(null);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -456,10 +456,10 @@ function MarketingLanding({ onSignIn }: { onSignIn: (email: string, token: strin
             style={{ background: "#f05a28", color: "#fff", boxShadow: "0 4px 20px rgba(240,90,40,0.3)" }}>
             Join the Partner Program
           </Link>
-          <button onClick={scrollToLogin}
+          <button onClick={onSignInClick ?? scrollToLogin}
             className="text-sm font-medium transition-colors hover:opacity-70 underline underline-offset-2"
             style={{ color: "#6B5E4E" }}>
-            Sign In to Dashboard
+            Already a partner? Sign in →
           </button>
         </div>
         <p className="text-xs mt-6" style={{ color: "#9B8E7E" }}>Simple to start. Easy to share.</p>
@@ -725,18 +725,16 @@ function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => 
             {/* Stats strip */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
-                { label: "Conversions",  value: stats.totalConversions.toString(), hi: false },
-                { label: "Total earned", value: formatCents(stats.totalEarned),    hi: true  },
-                { label: "Paid out",     value: formatCents(stats.totalPaid),      hi: false },
-                { label: "Pending",      value: formatCents(stats.pendingPayout),  hi: stats.pendingPayout > 0 },
+                { label: "Sales",        value: stats.totalConversions.toString(), icon: "🎯", accent: "#2C1810",  bg: "rgba(44,24,16,0.05)" },
+                { label: "Total earned", value: formatCents(stats.totalEarned),    icon: "💰", accent: "#2d8a3e",  bg: "rgba(76,217,100,0.08)" },
+                { label: "Paid out",     value: formatCents(stats.totalPaid),      icon: "✅", accent: "#2C1810",  bg: "rgba(44,24,16,0.05)" },
+                { label: "Pending",      value: formatCents(stats.pendingPayout),  icon: "⏳", accent: stats.pendingPayout > 0 ? "#f05a28" : "#9B8E7E", bg: stats.pendingPayout > 0 ? "rgba(240,90,40,0.07)" : "rgba(44,24,16,0.03)" },
               ].map((s) => (
-                <div key={s.label} className="rounded-2xl border px-5 py-4 text-center"
-                  style={{ background: "#fff", borderColor: "rgba(0,0,0,0.07)" }}>
-                  <p className="text-2xl font-bold leading-none mb-1.5"
-                    style={{ color: s.hi ? (s.label === "Total earned" ? "#2d8a3e" : "#f05a28") : "#2C1810" }}>
-                    {s.value}
-                  </p>
-                  <p className="text-xs" style={{ color: "#9B8E7E" }}>{s.label}</p>
+                <div key={s.label} className="rounded-2xl px-5 py-4"
+                  style={{ background: s.bg, border: `1px solid ${s.accent}18` }}>
+                  <p className="text-lg mb-1">{s.icon}</p>
+                  <p className="text-2xl font-black leading-none mb-1" style={{ color: s.accent }}>{s.value}</p>
+                  <p className="text-xs font-medium" style={{ color: "#9B8E7E" }}>{s.label}</p>
                 </div>
               ))}
             </div>
@@ -905,23 +903,43 @@ function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => 
                 {/* Profile photo */}
                 <div>
                   <label className="block text-xs font-semibold mb-1.5" style={{ color: "#6B5E4E" }}>
-                    Profile photo URL{" "}
+                    Profile photo{" "}
                     <span style={{ fontWeight: "normal", color: "#C4B5A0" }}>(optional)</span>
                   </label>
-                  <div className="flex items-center gap-3">
-                    <InitialsAvatar name={profileName || affiliate.name} imageUrl={profileAvatarUrl} size={44} />
-                    <input
-                      type="url"
-                      value={profileAvatarUrl}
-                      onChange={(e) => setProfileAvatarUrl(e.target.value)}
-                      placeholder="https://example.com/your-photo.jpg"
-                      className="flex-1 border rounded-xl px-4 py-3 text-sm focus:outline-none"
-                      style={{ borderColor: "rgba(0,0,0,0.12)", color: "#2C1810" }}
-                    />
+                  <div className="flex items-center gap-4">
+                    <InitialsAvatar name={profileName || affiliate.name} imageUrl={profileAvatarUrl} size={52} />
+                    <div className="flex-1">
+                      <label className="inline-flex items-center gap-2 cursor-pointer px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all hover:opacity-80"
+                        style={{ borderColor: "rgba(0,0,0,0.12)", color: "#2C1810", background: "#fff" }}>
+                        <span>📷</span>
+                        <span>Upload photo</span>
+                        <input
+                          type="file" accept="image/*" className="hidden"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            if (file.size > 2 * 1024 * 1024) { alert("Max 2MB"); return; }
+                            const form = new FormData();
+                            form.append("file", file);
+                            form.append("email", affiliate.email);
+                            const res = await fetch("/api/affiliates/avatar", { method: "POST", body: form });
+                            const d = await res.json();
+                            if (d.url) setProfileAvatarUrl(d.url);
+                          }}
+                        />
+                      </label>
+                      {profileAvatarUrl && (
+                        <button type="button" onClick={() => setProfileAvatarUrl("")}
+                          className="ml-3 text-xs underline hover:opacity-70"
+                          style={{ color: "#9B8E7E" }}>
+                          Remove
+                        </button>
+                      )}
+                      <p className="text-xs mt-1.5" style={{ color: "#C4B5A0" }}>
+                        JPG or PNG · Max 2MB · Shown in your dashboard header
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-xs mt-1.5" style={{ color: "#C4B5A0" }}>
-                    Paste a direct link to a photo. Shows in your dashboard header.
-                  </p>
                 </div>
 
                 <div className="flex items-center gap-4 pt-1">
@@ -1163,18 +1181,103 @@ function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => 
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 
+// ── Inline Sign-In View (shown when ?signin=1) ────────────────────────────────
+
+function SignInView({ onSignIn }: { onSignIn: (email: string, token: string, expiresAt: number) => void }) {
+  const [email,   setEmail]   = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error,   setError]   = useState("");
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch("/api/affiliates/send-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim().toLowerCase() }),
+      });
+      const d = await res.json();
+      if (res.status === 429) { setError(d.error ?? "Too many attempts."); return; }
+      if (!res.ok) { setError(d.error ?? "Something went wrong."); return; }
+      if (d.token && d.expiresAt) {
+        onSignIn(email.trim().toLowerCase(), d.token, d.expiresAt);
+      } else {
+        // Email not in system — guide them to apply
+        setError("No partner account found. Not a partner yet?");
+      }
+    } catch { setError("Network error. Try again."); }
+    finally { setLoading(false); }
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: "#F5F0E8" }}>
+      <div className="w-full max-w-sm">
+        {/* Logo */}
+        <div className="flex items-center justify-center gap-2 mb-10">
+          <Image src="/MANNY AVATAR.png" alt="manu2print" width={36} height={36} className="rounded-full" />
+          <span>
+            <span style={{ color: "#F05A28", fontWeight: "bold", fontSize: "1.2rem" }}>manu</span>
+            <span style={{ color: "#4cd964", fontWeight: "bold", fontSize: "1.2rem" }}>2print</span>
+          </span>
+        </div>
+
+        <div className="rounded-2xl border p-8" style={{ background: "#fff", borderColor: "rgba(0,0,0,0.07)" }}>
+          <h1 className="text-xl font-bold mb-1" style={{ color: "#2C1810" }}>Partner Dashboard</h1>
+          <p className="text-sm mb-7" style={{ color: "#9B8E7E" }}>Enter your email to receive a sign-in code.</p>
+
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <input
+              type="email" required autoFocus
+              value={email} onChange={(e) => setEmail(e.target.value)}
+              placeholder="your@email.com"
+              className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none"
+              style={{ borderColor: "rgba(0,0,0,0.12)", color: "#2C1810" }}
+            />
+            {error && (
+              <p className="text-xs" style={{ color: "#dc2626" }}>
+                {error}{" "}
+                {error.includes("Not a partner") && (
+                  <Link href="/partners/apply" className="underline font-semibold" style={{ color: "#f05a28" }}>Apply here →</Link>
+                )}
+              </p>
+            )}
+            <button
+              type="submit" disabled={loading || !email.trim()}
+              className="w-full py-3 rounded-xl font-bold text-sm transition-all hover:opacity-90 disabled:opacity-50"
+              style={{ background: "#f05a28", color: "#fff" }}>
+              {loading ? "Sending…" : "Send verification code →"}
+            </button>
+          </form>
+
+          <p className="text-center text-xs mt-6" style={{ color: "#C4B5A0" }}>
+            Not a partner yet?{" "}
+            <Link href="/partners/apply" className="underline hover:opacity-70" style={{ color: "#6B5E4E" }}>Apply here →</Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AffiliatesPage() {
-  const [step,      setStep]      = useState<"landing" | "code" | "dashboard">("landing");
+  const [step,      setStep]      = useState<"landing" | "signin" | "code" | "dashboard">("landing");
   const [email,     setEmail]     = useState("");
   const [token,     setToken]     = useState("");
   const [expiresAt, setExpiresAt] = useState(0);
   const [data,      setData]      = useState<AffiliateData | null>(null);
   const searchParams = useSearchParams();
 
-  // Auto-trigger sign-in when arriving from apply page with ?email=
   useEffect(() => {
+    // ?signin=1 → skip marketing, go straight to email entry
+    if (searchParams.get("signin") === "1") {
+      setStep("signin");
+      return;
+    }
+    // ?email=... → from apply page, auto-trigger code send
     const paramEmail = searchParams.get("email");
-    if (!paramEmail || step !== "landing") return;
+    if (!paramEmail) return;
     const lower = paramEmail.trim().toLowerCase();
     setEmail(lower);
     fetch("/api/affiliates/send-code", {
@@ -1184,24 +1287,29 @@ export default function AffiliatesPage() {
     })
       .then((r) => r.json())
       .then((d) => {
-        if (d.token && d.expiresAt) {
-          setToken(d.token);
-          setExpiresAt(d.expiresAt);
-          setStep("code");
-        }
+        if (d.token && d.expiresAt) { setToken(d.token); setExpiresAt(d.expiresAt); setStep("code"); }
       })
-      .catch(() => {/* fall through to landing */});
+      .catch(() => {});
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (step === "landing") {
     return (
       <div style={{ background: "#F5F0E8" }}>
-        <Nav />
+        <Nav onSignInClick={() => setStep("signin")} />
         <MarketingLanding
           onSignIn={(e, t, exp) => { setEmail(e); setToken(t); setExpiresAt(exp); setStep("code"); }}
+          onSignInClick={() => setStep("signin")}
         />
       </div>
+    );
+  }
+
+  if (step === "signin") {
+    return (
+      <SignInView
+        onSignIn={(e, t, exp) => { setEmail(e); setToken(t); setExpiresAt(exp); setStep("code"); }}
+      />
     );
   }
 
@@ -1210,7 +1318,7 @@ export default function AffiliatesPage() {
       <CodeStep
         email={email} token={token} expiresAt={expiresAt}
         onVerified={(d) => { setData(d); setStep("dashboard"); }}
-        onBack={() => setStep("landing")}
+        onBack={() => setStep("signin")}
       />
     );
   }
