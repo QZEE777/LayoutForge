@@ -13,7 +13,7 @@ function verifySession(email: string, sessionExpiresAt: number, sessionToken: st
 
 export async function PATCH(req: Request) {
   let email: string, sessionToken: string, sessionExpiresAt: number;
-  let name: string, website: string, reason: string;
+  let name: string, website: string, reason: string, avatar_url: string;
   try {
     const body = await req.json();
     email           = typeof body?.email            === "string" ? body.email.trim().toLowerCase()       : "";
@@ -22,6 +22,7 @@ export async function PATCH(req: Request) {
     name            = typeof body?.name             === "string" ? body.name.trim().slice(0, 100)        : "";
     website         = typeof body?.website          === "string" ? body.website.trim().slice(0, 200)     : "";
     reason          = typeof body?.reason           === "string" ? body.reason.trim().slice(0, 500)      : "";
+    avatar_url      = typeof body?.avatar_url       === "string" ? body.avatar_url.trim().slice(0, 500)  : "";
   } catch {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
@@ -43,7 +44,12 @@ export async function PATCH(req: Request) {
 
   const { error } = await supabase
     .from("affiliates")
-    .update({ name, website: website || null, reason: reason || null })
+    .update({
+      name,
+      website: website || null,
+      reason: reason || null,
+      avatar_url: avatar_url || null,
+    })
     .eq("email", email);
 
   if (error) {

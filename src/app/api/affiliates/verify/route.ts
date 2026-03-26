@@ -41,12 +41,12 @@ export async function POST(req: Request) {
 
   const { data: affiliate } = await supabase
     .from("affiliates")
-    .select("id, name, code, status, commission_rate, created_at, website, reason, paypal_email")
+    .select("id, name, code, status, commission_rate, created_at, website, reason, paypal_email, avatar_url")
     .eq("email", email)
     .maybeSingle();
 
   if (!affiliate) {
-    return NextResponse.json({ error: "No affiliate account found." }, { status: 404 });
+    return NextResponse.json({ error: "No partner account found for that email." }, { status: 404 });
   }
 
   // Fetch referral stats

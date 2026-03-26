@@ -49,7 +49,7 @@ export default function AffiliateApplyPage() {
             </span>
           </Link>
           <Link href="/affiliates" className="text-xs text-white/50 hover:text-white transition-colors">
-            Already an affiliate? →
+            Already a partner? →
           </Link>
         </div>
       </header>

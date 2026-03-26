@@ -28,6 +28,7 @@ type AffiliateData = {
     website?: string | null;
     reason?: string | null;
     paypal_email?: string | null;
+    avatar_url?: string | null;
   };
   stats: {
     totalConversions: number;
@@ -49,6 +50,23 @@ function formatCents(c: number) {
   return `$${(c / 100).toFixed(2)}`;
 }
 
+function InitialsAvatar({ name, imageUrl, size = 36 }: { name: string; imageUrl?: string | null; size?: number }) {
+  const initials = name.trim().split(/\s+/).map((n) => n[0] ?? "").join("").slice(0, 2).toUpperCase();
+  if (imageUrl) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={imageUrl} alt={name} className="rounded-full object-cover shrink-0"
+        style={{ width: size, height: size }} />
+    );
+  }
+  return (
+    <div className="rounded-full flex items-center justify-center font-bold text-white shrink-0"
+      style={{ width: size, height: size, background: "#f05a28", fontSize: Math.round(size * 0.38) }}>
+      {initials}
+    </div>
+  );
+}
+
 // ── Commission data ───────────────────────────────────────────────────────────
 
 const COMMISSIONS = [
@@ -67,7 +85,7 @@ const FAQS = [
   { q: "How does the commission work?", a: "30% on Single Scans ($9), 40% on all packs ($19/$39/$79). You earn on every sale traced to your link within a 12-month attribution window." },
   { q: "Do I need a large audience?", a: "No. A small engaged audience converts better than a large disengaged one. If you consistently talk to authors about the publishing process, your referrals will convert." },
   { q: "How do payouts work?", a: "Monthly via PayPal. Minimum payout threshold is $20. Once approved, reply to your welcome email to register your PayPal details." },
-  { q: "How do I track performance?", a: "Your affiliate dashboard shows clicks, conversions, total earned, paid out, and pending balance — all updated in real time." },
+  { q: "How do I track performance?", a: "Your partner dashboard shows clicks, conversions, total earned, paid out, and pending balance — all updated in real time." },
   { q: "What is the cookie duration?", a: "12 months. If someone clicks your link and purchases anytime within 12 months, you earn the commission." },
 ];
 
@@ -174,9 +192,13 @@ function MarketingLanding({ onSignIn }: { onSignIn: (email: string, token: strin
             style={{ background: "rgba(76,217,100,0.12)", color: "#2d8a3e" }}>
             ● Partner Program — Now Open
           </span>
-          <h1 className="font-bebas text-5xl md:text-7xl tracking-wide leading-none mb-6" style={{ color: "#2C1810" }}>
-            Partner With<br />
-            <span style={{ color: "#f05a28" }}>manu</span><span style={{ color: "#4cd964" }}>2print</span>
+          <h1 className="mb-6 leading-none">
+            <span className="font-bebas text-5xl md:text-7xl tracking-wide block" style={{ color: "#2C1810" }}>
+              Partner With
+            </span>
+            <span className="block text-5xl md:text-7xl font-black" style={{ letterSpacing: "-0.02em", lineHeight: 1.05 }}>
+              <span style={{ color: "#f05a28" }}>manu</span><span style={{ color: "#4cd964" }}>2print</span>
+            </span>
           </h1>
           <p className="text-xl leading-relaxed mb-3" style={{ color: "#2C1810", maxWidth: 560 }}>
             Earn by sharing a tool indie authors actually need — before they upload to KDP.
@@ -391,12 +413,12 @@ function MarketingLanding({ onSignIn }: { onSignIn: (email: string, token: strin
                 Already a Partner?
               </h2>
               <p className="text-base mb-2" style={{ color: "rgba(255,255,255,0.55)" }}>
-                Sign in to your affiliate dashboard — view your link, track earnings, and check payouts.
+                Sign in to your partner dashboard — view your link, track earnings, and check payouts.
               </p>
             </div>
             <div className="rounded-2xl p-6" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
               <p className="text-sm font-semibold mb-4" style={{ color: "rgba(255,255,255,0.9)" }}>
-                Enter your affiliate email
+                Enter your partner email
               </p>
               <form onSubmit={handleEmailSubmit} className="space-y-3">
                 <input
@@ -413,7 +435,7 @@ function MarketingLanding({ onSignIn }: { onSignIn: (email: string, token: strin
                 </button>
               </form>
               <p className="text-xs mt-4" style={{ color: "rgba(255,255,255,0.3)" }}>
-                Not an affiliate yet?{" "}
+                Not a partner yet?{" "}
                 <Link href="/affiliates/apply" className="underline hover:opacity-70" style={{ color: "rgba(255,255,255,0.5)" }}>
                   Apply here →
                 </Link>
@@ -534,11 +556,12 @@ function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => 
   const isPending                     = affiliate.status === "pending";
 
   // Profile tab state
-  const [profileName,    setProfileName]    = useState(affiliate.name);
-  const [profileWebsite, setProfileWebsite] = useState(affiliate.website ?? "");
-  const [profileReason,  setProfileReason]  = useState(affiliate.reason ?? "");
-  const [profileSaving,  setProfileSaving]  = useState(false);
-  const [profileMsg,     setProfileMsg]     = useState("");
+  const [profileName,      setProfileName]      = useState(affiliate.name);
+  const [profileWebsite,   setProfileWebsite]   = useState(affiliate.website ?? "");
+  const [profileReason,    setProfileReason]    = useState(affiliate.reason ?? "");
+  const [profileAvatarUrl, setProfileAvatarUrl] = useState(affiliate.avatar_url ?? "");
+  const [profileSaving,    setProfileSaving]    = useState(false);
+  const [profileMsg,       setProfileMsg]       = useState("");
 
   // Payouts tab state
   const [paypalEmail,  setPaypalEmail]  = useState(affiliate.paypal_email ?? "");
@@ -567,6 +590,7 @@ function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => 
           name: profileName,
           website: profileWebsite,
           reason: profileReason,
+          avatar_url: profileAvatarUrl,
         }),
       });
       const d = await res.json();
@@ -645,13 +669,21 @@ function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => 
             ))}
           </div>
 
-          {/* Right */}
-          <div className="flex items-center gap-3 shrink-0">
-            <span className="text-xs hidden md:block truncate max-w-[140px]" style={{ color: "#9B8E7E" }}>
-              {affiliate.email}
-            </span>
+          {/* Right — avatar + name */}
+          <div className="flex items-center gap-2.5 shrink-0">
+            <InitialsAvatar name={affiliate.name} imageUrl={affiliate.avatar_url} size={32} />
+            <div className="hidden sm:block text-right">
+              <p className="text-xs font-semibold leading-none mb-0.5" style={{ color: "#2C1810" }}>
+                {affiliate.name.split(" ")[0]}
+              </p>
+              <button onClick={onSignOut}
+                className="text-xs transition-opacity hover:opacity-60"
+                style={{ color: "#9B8E7E" }}>
+                Sign out
+              </button>
+            </div>
             <button onClick={onSignOut}
-              className="text-xs font-medium underline transition-opacity hover:opacity-60"
+              className="text-xs font-medium underline transition-opacity hover:opacity-60 sm:hidden"
               style={{ color: "#9B8E7E" }}>
               Sign out
             </button>
@@ -665,7 +697,7 @@ function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => 
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: "#C4B5A0" }}>
-              Affiliate Dashboard
+              Partner Dashboard
             </p>
             <h1 className="text-2xl font-bold leading-tight" style={{ color: "#2C1810" }}>
               Hey, {affiliate.name.split(" ")[0]} 👋
@@ -875,6 +907,29 @@ function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => 
                     style={{ borderColor: "rgba(0,0,0,0.12)", color: "#2C1810" }}
                   />
                 </div>
+
+                {/* Profile photo */}
+                <div>
+                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "#6B5E4E" }}>
+                    Profile photo URL{" "}
+                    <span style={{ fontWeight: "normal", color: "#C4B5A0" }}>(optional)</span>
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <InitialsAvatar name={profileName || affiliate.name} imageUrl={profileAvatarUrl} size={44} />
+                    <input
+                      type="url"
+                      value={profileAvatarUrl}
+                      onChange={(e) => setProfileAvatarUrl(e.target.value)}
+                      placeholder="https://example.com/your-photo.jpg"
+                      className="flex-1 border rounded-xl px-4 py-3 text-sm focus:outline-none"
+                      style={{ borderColor: "rgba(0,0,0,0.12)", color: "#2C1810" }}
+                    />
+                  </div>
+                  <p className="text-xs mt-1.5" style={{ color: "#C4B5A0" }}>
+                    Paste a direct link to a photo. Shows in your dashboard header.
+                  </p>
+                </div>
+
                 <div className="flex items-center gap-4 pt-1">
                   <button
                     type="submit"
