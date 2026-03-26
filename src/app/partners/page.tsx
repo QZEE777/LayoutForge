@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -1168,6 +1169,30 @@ export default function AffiliatesPage() {
   const [token,     setToken]     = useState("");
   const [expiresAt, setExpiresAt] = useState(0);
   const [data,      setData]      = useState<AffiliateData | null>(null);
+  const searchParams = useSearchParams();
+
+  // Auto-trigger sign-in when arriving from apply page with ?email=
+  useEffect(() => {
+    const paramEmail = searchParams.get("email");
+    if (!paramEmail || step !== "landing") return;
+    const lower = paramEmail.trim().toLowerCase();
+    setEmail(lower);
+    fetch("/api/affiliates/send-code", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: lower }),
+    })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.token && d.expiresAt) {
+          setToken(d.token);
+          setExpiresAt(d.expiresAt);
+          setStep("code");
+        }
+      })
+      .catch(() => {/* fall through to landing */});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (step === "landing") {
     return (

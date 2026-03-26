@@ -80,7 +80,7 @@ export default function AffiliateApplyPage() {
                 If you&apos;ve been approved, you can view your dashboard below.
               </p>
               <Link
-                href="/partners"
+                href={`/partners?email=${encodeURIComponent(form.email)}`}
                 className="inline-block bg-m2p-orange text-white font-bold px-6 py-3 rounded-xl text-sm hover:opacity-90 transition-opacity mb-4"
               >
                 Go to my dashboard →
