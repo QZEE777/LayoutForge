@@ -459,7 +459,7 @@ export default function Home() {
         <div className="max-w-3xl mx-auto px-6">
           <h2
             className="font-bebas text-white leading-tight mb-4"
-            style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}
+            style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)", textWrap: "balance" } as React.CSSProperties}
           >
             Ready to Stop KDP Rejections Before They Happen?
           </h2>
@@ -479,9 +479,10 @@ export default function Home() {
       {/* Background: dark green #1A3A2A */}
       <section className="py-14 text-center" style={{ backgroundColor: "#1A3A2A" }}>
         <div className="max-w-3xl mx-auto px-6">
-          <p className="font-bebas text-m2p-green mb-2 uppercase tracking-[0.1em] text-sm">
-            EARN WITH US
-          </p>
+          <span className="inline-block mb-4 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest"
+            style={{ background: "rgba(255,255,255,0.12)", color: "#fff" }}>
+            Earn With Us
+          </span>
           <h2
             className="font-bebas text-m2p-ivory leading-tight mb-3"
             style={{ fontSize: "clamp(1.75rem, 3.5vw, 2.75rem)" }}
