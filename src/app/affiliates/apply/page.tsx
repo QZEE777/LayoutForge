@@ -43,9 +43,9 @@ export default function AffiliateApplyPage() {
       <header className="border-b border-white/10">
         <div className="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
           <Link href="/">
-            <span className="font-bebas text-xl tracking-widest">
-              <span className="text-m2p-orange">manu</span>
-              <span className="text-m2p-live">2print</span>
+            <span>
+              <span className="font-bold text-xl" style={{ color: "#F05A28" }}>manu</span>
+              <span className="font-bold text-xl" style={{ color: "#4cd964" }}>2print</span>
             </span>
           </Link>
           <Link href="/affiliates" className="text-xs text-white/50 hover:text-white transition-colors">

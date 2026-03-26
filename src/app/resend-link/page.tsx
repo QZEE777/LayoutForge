@@ -34,7 +34,10 @@ export default function ResendLinkPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
-            <span className="font-bebas text-2xl text-m2p-green tracking-widest">manu2print</span>
+            <span>
+              <span className="font-bold text-2xl" style={{ color: "#F05A28" }}>manu</span>
+              <span className="font-bold text-2xl" style={{ color: "#4cd964" }}>2print</span>
+            </span>
           </Link>
         </div>
 
