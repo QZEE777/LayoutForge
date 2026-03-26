@@ -112,7 +112,7 @@ export default function FoundersPage() {
             KDP &amp; Kindle only: formatting, keywords, listing copy, and Kindle EPUB for indie&nbsp;authors.
           </p>
           <p className="font-sans text-sm leading-relaxed text-brand-muted">
-            We&apos;re opening a limited number of Founder spots to content creators whose audience includes indie authors on Amazon KDP or Kindle. Founders get full lifetime access to manu2print — FREE, forever — plus affiliate commissions on every author they bring in. To qualify, you need an active presence on at least one platform with a minimum of 1,000 subscribers or followers.
+            We&apos;re opening a limited number of Founder spots to content creators whose audience includes indie authors on Amazon KDP or Kindle. Founders get full lifetime access to manu2print — FREE, forever — plus partner commissions on every author they bring in. To qualify, you need an active presence on at least one platform with a minimum of 1,000 subscribers or followers.
           </p>
         </div>
       </section>

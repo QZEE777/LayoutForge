@@ -189,10 +189,9 @@ function MarketingLanding({ onSignIn }: { onSignIn: (email: string, token: strin
             ● Partner Program — Now Open
           </span>
           <h1 className="mb-6 leading-none">
-            <span className="font-bebas text-5xl md:text-7xl tracking-wide block" style={{ color: "#2C1810" }}>
-              Partner With
-            </span>
-            <span className="block text-5xl md:text-7xl font-black" style={{ letterSpacing: "-0.02em", lineHeight: 1.05 }}>
+            <span className="font-bebas text-5xl md:text-7xl tracking-wide" style={{ color: "#2C1810" }}>
+              Partner With{" "}
+            </span><span className="text-5xl md:text-7xl font-black" style={{ letterSpacing: "-0.02em", lineHeight: 1.05 }}>
               <span style={{ color: "#f05a28" }}>manu</span><span style={{ color: "#4cd964" }}>2print</span>
             </span>
           </h1>
@@ -366,7 +365,7 @@ function MarketingLanding({ onSignIn }: { onSignIn: (email: string, token: strin
           ))}
         </div>
         <p className="text-sm mt-8" style={{ color: "#9B8E7E" }}>
-          Track clicks, conversions, and earnings in your affiliate dashboard — updated in real time.
+          Track clicks, conversions, and earnings in your partner dashboard — updated in real time.
         </p>
       </section>
 

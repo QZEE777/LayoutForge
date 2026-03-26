@@ -388,11 +388,11 @@ export default function AdminPage() {
                 <p className="text-2xl font-bold">{stats.betaUsers}</p>
               </div>
               <div className={`rounded-xl border p-4 ${stats.pendingAffiliates > 0 ? "border-amber-300 bg-amber-50" : "border-m2p-border bg-m2p-ivory"}`}>
-                <p className="text-xs text-soft-muted mb-1">Affiliates pending</p>
+                <p className="text-xs text-soft-muted mb-1">Partners pending</p>
                 <p className={`text-2xl font-bold ${stats.pendingAffiliates > 0 ? "text-amber-600" : ""}`}>{stats.pendingAffiliates}</p>
               </div>
               <div className="rounded-xl border border-m2p-border bg-m2p-ivory p-4">
-                <p className="text-xs text-soft-muted mb-1">Active affiliates</p>
+                <p className="text-xs text-soft-muted mb-1">Active partners</p>
                 <p className="text-2xl font-bold text-green-600">{stats.activeAffiliates}</p>
               </div>
             </div>
@@ -610,7 +610,7 @@ export default function AdminPage() {
 
             <section className="mb-10">
               <div className="flex items-center justify-between gap-4 mb-2">
-                <h2 className="text-lg font-bold">Affiliates</h2>
+                <h2 className="text-lg font-bold">Partners</h2>
                 <span className="text-xs text-soft-muted">{affiliateLoading ? "Saving…" : ""}</span>
               </div>
               <p className="text-xs text-soft-muted mb-4">Approve applications, suspend bad actors, mark commissions paid.</p>

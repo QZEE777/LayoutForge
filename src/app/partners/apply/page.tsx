@@ -95,7 +95,7 @@ export default function AffiliateApplyPage() {
               {/* Header */}
               <div className="text-center mb-8">
                 <div className="inline-block bg-m2p-green/20 text-m2p-green text-xs font-bold px-3 py-1 rounded-full mb-4 tracking-wide uppercase">
-                  Affiliate Program
+                  Partner Program
                 </div>
                 <h1 className="font-bebas text-5xl text-white mb-3 tracking-wide">Earn 40%</h1>
                 <p className="text-white/60 text-sm leading-relaxed">

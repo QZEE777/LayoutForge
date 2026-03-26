@@ -407,12 +407,85 @@ export default function DownloadPage() {
         )}
 
         {/* Trust block — always visible, above payment gate so it is never covered by overlay */}
-        <div className="text-center border border-m2p-border rounded-lg p-4 mb-6">
-          <p className="text-m2p-ink font-bold">✅ Verified by <span className="text-m2p-live">manu2print</span></p>
-          <p className="text-m2p-muted text-sm">
-            This report checks your manuscript against known Amazon KDP print formatting requirements.
-          </p>
-        </div>
+        {!isChecker && (
+          <div className="text-center border border-m2p-border rounded-lg p-4 mb-6">
+            <p className="text-m2p-ink font-bold">✅ Verified by <span className="text-m2p-live">manu2print</span></p>
+            <p className="text-m2p-muted text-sm">
+              This report checks your manuscript against known Amazon KDP print formatting requirements.
+            </p>
+          </div>
+        )}
+
+        {/* Checker pre-gate teaser — grade, score, issue count visible before payment */}
+        {report && isChecker && (() => {
+          const score = calculatedScore ?? report.readinessScore100 ?? report.readiness_score ?? null;
+          const gradeInfo =
+            score === null ? null
+            : score >= 90 ? { letter: "A", color: "#4cd964", label: "KDP Ready" }
+            : score >= 75 ? { letter: "B", color: "#6bc94d", label: "Looking Good" }
+            : score >= 60 ? { letter: "C", color: "#f0a028", label: "Needs Work" }
+            : score >= 40 ? { letter: "D", color: "#f05a28", label: "At Risk" }
+            : { letter: "F", color: "#e03d3d", label: "Not Ready" };
+
+          const uniqueIssues = new Map<string, string>();
+          for (const i of (report.issuesEnriched ?? [])) {
+            if (!uniqueIssues.has(i.humanMessage)) uniqueIssues.set(i.humanMessage, i.fixDifficulty ?? "");
+          }
+          const totalIssues = uniqueIssues.size;
+          const criticalCount = Array.from(uniqueIssues.values()).filter((d) => d === "hard" || d === "very-hard").length;
+          const risk = report.riskLevel ?? (score === null ? null : score >= 75 ? "Low" : score >= 50 ? "Medium" : "High");
+          const riskColor = risk === "Low" ? "#4cd964" : risk === "Medium" ? "#f0a028" : "#e03d3d";
+          const riskIcon = risk === "Low" ? "✅" : risk === "Medium" ? "⚠️" : "🔴";
+          const borderColor = gradeInfo?.color ?? "#f05a28";
+
+          return (
+            <div className="rounded-xl border-2 mb-6 overflow-hidden" style={{ borderColor }}>
+              <div className="px-5 py-3 flex items-center justify-between" style={{ background: borderColor }}>
+                <span className="text-white font-bold text-sm tracking-wide">SCAN COMPLETE</span>
+                <span className="text-white text-xs opacity-80">✅ Verified by manu2print</span>
+              </div>
+              <div className="bg-white/95 px-5 py-5">
+                <div className="flex items-center gap-6">
+                  {gradeInfo && (
+                    <div className="shrink-0 w-20 h-20 rounded-full flex flex-col items-center justify-center border-4" style={{ borderColor: gradeInfo.color }}>
+                      <span className="text-3xl font-black leading-none" style={{ color: gradeInfo.color }}>{gradeInfo.letter}</span>
+                      <span className="text-xs font-semibold mt-0.5" style={{ color: gradeInfo.color }}>{gradeInfo.label}</span>
+                    </div>
+                  )}
+                  <div className="flex-1 space-y-2.5">
+                    {score !== null && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-m2p-muted">Readiness score</span>
+                        <span className="font-bold text-m2p-ink">{score}/100</span>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-m2p-muted">Issues found</span>
+                      <span className="font-bold" style={{ color: totalIssues === 0 ? "#4cd964" : "#f05a28" }}>
+                        {totalIssues} issue{totalIssues !== 1 ? "s" : ""}
+                      </span>
+                    </div>
+                    {criticalCount > 0 && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-m2p-muted">Critical (hard to fix)</span>
+                        <span className="font-bold text-red-500">{criticalCount}</span>
+                      </div>
+                    )}
+                    {risk && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-m2p-muted">KDP rejection risk</span>
+                        <span className="font-bold text-sm" style={{ color: riskColor }}>{riskIcon} {risk}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <p className="mt-4 text-xs text-m2p-muted text-center border-t border-m2p-border pt-3 leading-relaxed">
+                  Unlock below to see every issue, which pages are affected, how to fix each one — and your annotated PDF.
+                </p>
+              </div>
+            </div>
+          );
+        })()}
 
         {report && (
         <PaymentGate
@@ -686,7 +759,7 @@ export default function DownloadPage() {
         <p style="font-size:18px; font-weight:bold; color:#1A1208; margin-bottom:8px;">Want to fix these issues automatically?</p>
         <p style="color:#6B6151; margin-bottom:16px;">KDP PDF Formatter is coming soon — upload once, get a print-ready PDF instantly.</p>
         <p style="margin-bottom:16px;"><a href="https://manu2print.com" style="background:#F05A28; color:white; padding:12px 24px; border-radius:8px; text-decoration:none; font-weight:bold;">Join the Waitlist → manu2print.com</a></p>
-        <p style="color:#6B6151; font-size:13px;">💰 Earn 30% commission — <a href="https://manu2print.com" style="color:#F05A28;">become an affiliate</a></p>
+        <p style="color:#6B6151; font-size:13px;">💰 Earn 30% commission — <a href="https://manu2print.com/partners" style="color:#F05A28;">become a partner</a></p>
       </div>
       <div class="footer">© manu2print — Built for indie authors</div>
     </body>
