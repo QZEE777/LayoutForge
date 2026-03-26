@@ -41,11 +41,12 @@ export async function POST(req: Request) {
 
   const { data: affiliate } = await supabase
     .from("affiliates")
-    .select("id, name, code, status, commission_rate, created_at, website, reason, paypal_email, avatar_url")
+    .select("id, name, code, status, commission_rate, created_at, website, reason, paypal_email, wise_email, avatar_url")
     .eq("email", email)
     .maybeSingle();
 
   if (!affiliate) {
+    console.error("[affiliates/verify] lookup failed for:", email);
     return NextResponse.json({ error: "No partner account found for that email." }, { status: 404 });
   }
 
