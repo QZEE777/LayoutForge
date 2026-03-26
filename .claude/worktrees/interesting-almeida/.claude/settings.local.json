@@ -21,7 +21,12 @@
       "Bash(xargs grep:*)",
       "WebFetch(domain:coauthor.ai)",
       "WebFetch(domain:www.manu2print.com)",
-      "Bash(__NEW_LINE_27384f914264ea37__ echo:*)"
+      "Bash(__NEW_LINE_27384f914264ea37__ echo:*)",
+      "Bash(find /c/Dev/Dev-projects/projects/LayoutForge-main/src -name *cover* -o -name *Cover*)",
+      "Bash(find '/c/Dev/Dev projects/projects/LayoutForge-main' -name *.sql -o -name migration* -o -name schema*)",
+      "Bash(grep -l \"verification_results\" \"/c/Dev/Dev projects/projects/LayoutForge-main/supabase/migrations/\"*.sql)",
+      "Bash(sed -i 's|href=\"\"/affiliates/apply\"\"|href=\"\"/partners/apply\"\"|g; s|href=\"\"/affiliates\"\"|href=\"\"/partners\"\"|g' \"C:/Dev/Dev projects/projects/LayoutForge-main/src/app/partners/page.tsx\")",
+      "Bash(sed -i 's|href=\"\"/affiliates/apply\"\"|href=\"\"/partners/apply\"\"|g; s|href=\"\"/affiliates\"\"|href=\"\"/partners\"\"|g' \"C:/Dev/Dev projects/projects/LayoutForge-main/src/app/partners/apply/page.tsx\")"
     ]
   }
 }

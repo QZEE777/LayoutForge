@@ -26,7 +26,7 @@ export default function SiteNav() {
           <Link href="/about" className="font-medium text-m2p-muted hover:text-m2p-orange transition-colors text-sm" style={{ fontFamily: "Inter, sans-serif" }}>
             About
           </Link>
-          <Link href="/affiliates/apply" className="font-medium text-m2p-live hover:opacity-75 transition-opacity text-sm" style={{ fontFamily: "Inter, sans-serif" }}>
+          <Link href="/partners/apply" className="font-medium text-m2p-live hover:opacity-75 transition-opacity text-sm" style={{ fontFamily: "Inter, sans-serif" }}>
             Earn 40%
           </Link>
           <Link

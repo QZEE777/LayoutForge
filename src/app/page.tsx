@@ -489,17 +489,17 @@ export default function Home() {
             Refer Authors. Earn 40% on Every Pack Sale.
           </h2>
           <p className="text-m2p-ivory/65 text-base max-w-lg mx-auto mb-8">
-            Share your link. Earn up to $31.60 per pack sale — with a 12-month attribution cookie and monthly PayPal payouts. The best affiliate deal in the KDP space.
+            Share your link. Earn up to $31.60 per pack sale — with a 12-month attribution cookie and monthly PayPal payouts. The best partner deal in the KDP space.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/affiliates/apply"
+              href="/partners/apply"
               className="inline-block bg-m2p-green hover:opacity-90 text-white font-bold px-8 py-3 rounded-xl text-sm transition-opacity"
             >
-              Become an Affiliate →
+              Become a Partner →
             </Link>
             <Link
-              href="/affiliates"
+              href="/partners"
               className="inline-block border border-m2p-ivory/30 text-m2p-ivory/70 hover:text-m2p-ivory hover:border-m2p-ivory/60 font-bold px-8 py-3 rounded-xl text-sm transition-colors"
             >
               My Dashboard

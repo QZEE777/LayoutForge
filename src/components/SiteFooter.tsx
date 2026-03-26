@@ -36,8 +36,8 @@ export default function SiteFooter() {
         <Link href="/about" className="text-m2p-ivory/70 hover:text-m2p-orange transition-colors">About</Link>
         <Link href="/blog" className="text-m2p-ivory/70 hover:text-m2p-orange transition-colors">Blog</Link>
         <Link href="/founders" className="text-m2p-ivory/70 hover:text-m2p-orange transition-colors">Founders</Link>
-        <Link href="/affiliates/apply" className="text-m2p-orange font-semibold hover:opacity-80 transition-opacity">Affiliate Program</Link>
-        <Link href="/affiliates" className="text-m2p-ivory/70 hover:text-m2p-orange transition-colors">My Affiliate Dashboard</Link>
+        <Link href="/partners/apply" className="text-m2p-orange font-semibold hover:opacity-80 transition-opacity">Partner Program</Link>
+        <Link href="/partners" className="text-m2p-ivory/70 hover:text-m2p-orange transition-colors">My Partner Dashboard</Link>
         <Link href="/faq" className="text-m2p-ivory/70 hover:text-m2p-orange transition-colors">FAQ</Link>
         <Link href="/contact" className="text-m2p-ivory/70 hover:text-m2p-orange transition-colors">Contact</Link>
         <Link href="/refunds" className="text-m2p-ivory/70 hover:text-m2p-orange transition-colors">Refund Policy</Link>
