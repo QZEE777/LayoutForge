@@ -29,6 +29,7 @@ type AffiliateData = {
     website?: string | null;
     reason?: string | null;
     paypal_email?: string | null;
+    wise_email?: string | null;
     avatar_url?: string | null;
   };
   stats: {
@@ -85,7 +86,7 @@ const FAQS = [
   { q: "Is it free to join?", a: "Yes. Applying is free. Once approved, you get a unique referral link and access to your dashboard immediately." },
   { q: "How does the commission work?", a: "30% on Single Scans ($9), 40% on all packs ($19/$39/$79). You earn on every sale traced to your link within a 12-month attribution window." },
   { q: "Do I need a large audience?", a: "No. A small engaged audience converts better than a large disengaged one. If you consistently talk to authors about the publishing process, your referrals will convert." },
-  { q: "How do payouts work?", a: "Monthly via PayPal. Minimum payout threshold is $20. Once approved, reply to your welcome email to register your PayPal details." },
+  { q: "How do payouts work?", a: "Monthly via PayPal or Wise. Minimum payout threshold is $20. Add your payout details in the Payouts tab of your partner dashboard." },
   { q: "How do I track performance?", a: "Your partner dashboard shows clicks, conversions, total earned, paid out, and pending balance — all updated in real time." },
   { q: "What is the cookie duration?", a: "12 months. If someone clicks your link and purchases anytime within 12 months, you earn the commission." },
 ];
@@ -272,7 +273,7 @@ function MarketingLanding({ onSignIn }: { onSignIn: (email: string, token: strin
         </div>
         <div className="flex flex-wrap gap-6 text-sm" style={{ color: "#6B5E4E" }}>
           <span>⏱ 12-month attribution cookie</span>
-          <span>💳 Monthly PayPal payouts</span>
+          <span>💳 Monthly payouts — PayPal or Wise</span>
           <span>📊 Real-time dashboard tracking</span>
           <span>🔓 $20 minimum payout</span>
         </div>
@@ -560,6 +561,7 @@ function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => 
 
   // Payouts tab state
   const [paypalEmail,  setPaypalEmail]  = useState(affiliate.paypal_email ?? "");
+  const [wiseEmail,    setWiseEmail]    = useState(affiliate.wise_email ?? "");
   const [payoutSaving, setPayoutSaving] = useState(false);
   const [payoutMsg,    setPayoutMsg]    = useState("");
 
@@ -595,7 +597,7 @@ function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => 
     finally { setProfileSaving(false); }
   }
 
-  async function savePaypal(e: React.FormEvent) {
+  async function savePayoutDetails(e: React.FormEvent) {
     e.preventDefault();
     setPayoutSaving(true);
     setPayoutMsg("");
@@ -608,11 +610,12 @@ function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => 
           sessionToken,
           sessionExpiresAt,
           paypal_email: paypalEmail,
+          wise_email:   wiseEmail,
         }),
       });
       const d = await res.json();
       if (!res.ok) setPayoutMsg(d.error ?? "Save failed.");
-      else setPayoutMsg("✓ PayPal email saved");
+      else setPayoutMsg("✓ Payout details saved");
     } catch { setPayoutMsg("Network error."); }
     finally { setPayoutSaving(false); }
   }
@@ -770,7 +773,7 @@ function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => 
                     💰 {formatCents(stats.pendingPayout)} ready for payout
                   </p>
                   <p className="text-xs mt-0.5" style={{ color: "#6B5E4E" }}>
-                    Add your PayPal email in the Payouts tab to receive your payment.
+                    Add your PayPal or Wise email in the Payouts tab to receive your payment.
                   </p>
                 </div>
                 <button onClick={() => setTab("payouts")}
@@ -1002,18 +1005,18 @@ function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => 
               ))}
             </div>
 
-            {/* PayPal setup */}
+            {/* Payout methods */}
             <div className="rounded-2xl border p-6" style={{ background: "#fff", borderColor: "rgba(0,0,0,0.07)" }}>
-              <div className="flex items-start justify-between gap-4 mb-4">
+              <div className="flex items-start justify-between gap-4 mb-5">
                 <div>
                   <h2 className="text-base font-bold mb-0.5" style={{ color: "#2C1810" }}>
-                    PayPal Payout Email
+                    Payout Details
                   </h2>
                   <p className="text-xs" style={{ color: "#9B8E7E" }}>
-                    This is where we send your monthly commission payment.
+                    Add at least one payout method. We&apos;ll use whichever you provide.
                   </p>
                 </div>
-                {affiliate.paypal_email && (
+                {(affiliate.paypal_email || affiliate.wise_email) && (
                   <span className="shrink-0 text-xs font-bold px-3 py-1 rounded-full"
                     style={{ background: "rgba(76,217,100,0.1)", color: "#2d8a3e" }}>
                     ✓ Configured
@@ -1021,21 +1024,37 @@ function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => 
                 )}
               </div>
 
-              {affiliate.paypal_email && (
-                <div className="rounded-xl px-4 py-3 mb-5 flex items-center gap-3"
-                  style={{ background: "rgba(76,217,100,0.06)", border: "1px solid rgba(76,217,100,0.15)" }}>
-                  <span style={{ color: "#2d8a3e" }}>💳</span>
-                  <div>
-                    <p className="text-xs font-semibold" style={{ color: "#2d8a3e" }}>Current PayPal email</p>
-                    <p className="text-sm font-bold" style={{ color: "#2C1810" }}>{affiliate.paypal_email}</p>
-                  </div>
+              {/* Current values */}
+              {(affiliate.paypal_email || affiliate.wise_email) && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+                  {affiliate.paypal_email && (
+                    <div className="rounded-xl px-4 py-3 flex items-center gap-3"
+                      style={{ background: "rgba(76,217,100,0.06)", border: "1px solid rgba(76,217,100,0.15)" }}>
+                      <span>💳</span>
+                      <div>
+                        <p className="text-xs font-semibold" style={{ color: "#2d8a3e" }}>PayPal</p>
+                        <p className="text-sm font-bold truncate" style={{ color: "#2C1810" }}>{affiliate.paypal_email}</p>
+                      </div>
+                    </div>
+                  )}
+                  {affiliate.wise_email && (
+                    <div className="rounded-xl px-4 py-3 flex items-center gap-3"
+                      style={{ background: "rgba(76,217,100,0.06)", border: "1px solid rgba(76,217,100,0.15)" }}>
+                      <span>🌍</span>
+                      <div>
+                        <p className="text-xs font-semibold" style={{ color: "#2d8a3e" }}>Wise</p>
+                        <p className="text-sm font-bold truncate" style={{ color: "#2C1810" }}>{affiliate.wise_email}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
-              <form onSubmit={savePaypal} className="space-y-4">
+              <form onSubmit={savePayoutDetails} className="space-y-4">
+                {/* PayPal */}
                 <div>
-                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "#6B5E4E" }}>
-                    {affiliate.paypal_email ? "Update PayPal email" : "Enter your PayPal email"}
+                  <label className="flex items-center gap-2 text-xs font-semibold mb-1.5" style={{ color: "#6B5E4E" }}>
+                    <span>💳</span> PayPal email
                   </label>
                   <input
                     type="email" value={paypalEmail}
@@ -1045,18 +1064,30 @@ function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => 
                     style={{ borderColor: "rgba(0,0,0,0.12)", color: "#2C1810" }}
                   />
                 </div>
+
+                {/* Wise */}
+                <div>
+                  <label className="flex items-center gap-2 text-xs font-semibold mb-1.5" style={{ color: "#6B5E4E" }}>
+                    <span>🌍</span> Wise email
+                    <span className="font-normal" style={{ color: "#9B8E7E" }}>— best for international</span>
+                  </label>
+                  <input
+                    type="email" value={wiseEmail}
+                    onChange={(e) => setWiseEmail(e.target.value)}
+                    placeholder="your-wise@email.com"
+                    className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none"
+                    style={{ borderColor: "rgba(0,0,0,0.12)", color: "#2C1810" }}
+                  />
+                </div>
+
                 <div className="flex items-center gap-4">
                   <button
                     type="submit"
-                    disabled={payoutSaving || !paypalEmail.trim()}
+                    disabled={payoutSaving || (!paypalEmail.trim() && !wiseEmail.trim())}
                     className="px-6 py-2.5 rounded-xl font-bold text-sm transition-all hover:opacity-90 disabled:opacity-50"
                     style={{ background: "#f05a28", color: "#fff" }}
                   >
-                    {payoutSaving
-                      ? "Saving…"
-                      : affiliate.paypal_email
-                        ? "Update email"
-                        : "Save PayPal email"}
+                    {payoutSaving ? "Saving…" : "Save payout details"}
                   </button>
                   {payoutMsg && (
                     <span className="text-sm font-medium"
@@ -1076,7 +1107,7 @@ function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => 
                 {[
                   "Payouts are processed on the 1st of each month",
                   "Minimum payout threshold is $20",
-                  "PayPal is our only payout method at this time",
+                  "Payouts via PayPal or Wise — whichever you configure",
                   "Commissions are earned on confirmed, non-refunded sales only",
                   "Pending balance becomes payout-eligible after 14-day refund window",
                 ].map((item) => (
