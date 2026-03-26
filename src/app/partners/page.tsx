@@ -383,7 +383,7 @@ function MarketingLanding({ onSignIn }: { onSignIn: (email: string, token: strin
             {[
               { icon: "🔗", title: "Unique referral link", body: "Your personalised link with 12-month tracking built in." },
               { icon: "📊", title: "Performance dashboard", body: "Clicks, conversions, earnings, and payout status — all in one place." },
-              { icon: "🎯", title: "Conversion-ready pages", body: "You're linking to pages that are designed to convert." },
+              { icon: "🎯", title: "We do the selling", body: "Your link goes straight to a page with a clear headline, a visible price, and a single action. You share it — the page closes it." },
               { icon: "🛠 ", title: "Real tools to demo", body: "Free tools your audience can use right now — no barrier to entry." },
             ].map((c) => (
               <div key={c.title} className="rounded-2xl border p-5 transition-all hover:shadow-sm"
