@@ -2,7 +2,7 @@
  * Platform hub data: tools and platforms. Used by homepage and /platform/[id] page.
  */
 
-const PAID_PRICING = "$7 per use · $27 for 6 months";
+const PAID_PRICING = "$9 per scan";
 
 export interface Tool {
   id: string;
@@ -24,7 +24,7 @@ export const ALL_TOOLS: Tool[] = [
   { id: "description-generator", title: "Description Generator (DOCX)", description: "DOCX only. Full Amazon listing — book description, author bio, BISAC categories.", href: "/description-generator", available: true, iconPath: "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z", pricing: PAID_PRICING, comingSoon: true },
   { id: "pdf-compress", title: "PDF Compressor", description: "Shrink PDFs up to 50MB. No account needed.", href: "/pdf-compress", available: true, iconPath: "M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4 4m0 0l-4-4m4 4V4", free: true },
   { id: "pdf-optimizer", title: "PDF Print Optimizer", description: "Shrink / print-optimize your PDF.", href: "/kdp-formatter-pdf", available: true, iconPath: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z", free: true, comingSoon: true },
-  { id: "kdp-pdf-checker", title: "Print Ready Check", description: "Check your interior PDF before KDP: 26 rules, trim, margins, bleed. Pass/fail report + on-page highlights. Up to 100 MB.", href: "/kdp-pdf-checker", available: true, iconPath: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4", pricing: PAID_PRICING },
+  { id: "kdp-pdf-checker", title: "KDP PDF Checker", description: "Check your interior PDF before KDP: 26 rules, trim, margins, bleed, fonts. Page-by-page report + annotated PDF. Up to 100 MB.", href: "/kdp-pdf-checker", available: true, iconPath: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4", pricing: PAID_PRICING },
   { id: "kdp-format-review", title: "KDP Format Review", description: "AI format review: KDP Readiness + top fixes. Paste or upload DOCX/PDF.", href: "/kdp-format-review", available: true, iconPath: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z", pricing: PAID_PRICING },
   { id: "keyword-research-pdf", title: "7 Keyword Research (PDF)", description: "Get 7 KDP keyword phrases from your PDF.", href: "/keyword-research-pdf", available: true, iconPath: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7", pricing: PAID_PRICING, comingSoon: true },
   { id: "description-generator-pdf", title: "Description Generator (PDF)", description: "PDF only. Full Amazon listing — book description, author bio, BISAC categories.", href: "/description-generator-pdf", available: true, iconPath: "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z", pricing: PAID_PRICING, comingSoon: true },

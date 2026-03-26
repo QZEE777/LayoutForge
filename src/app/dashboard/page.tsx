@@ -19,10 +19,17 @@ type Usage = {
   uses_remaining: number | null;
 };
 
+type Credits = {
+  total: number;
+  used: number;
+  remaining: number;
+};
+
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [usage, setUsage] = useState<Usage | null>(null);
+  const [credits, setCredits] = useState<Credits | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -33,17 +40,13 @@ export default function DashboardPage() {
         return;
       }
       setUser(user);
-      fetch("/api/track-usage", { method: "GET", credentials: "include" })
-        .then((r) => (r.ok ? r.json() : null))
-        .then((data) => {
-          if (data)
-            setUsage({
-              usage_count: data.usage_count,
-              is_founder: !!data.is_founder,
-              uses_remaining: data.uses_remaining ?? null,
-            });
-        })
-        .finally(() => setLoading(false));
+      Promise.all([
+        fetch("/api/track-usage", { method: "GET", credentials: "include" }).then((r) => r.ok ? r.json() : null),
+        fetch("/api/credits/balance", { method: "GET", credentials: "include" }).then((r) => r.ok ? r.json() : null),
+      ]).then(([usageData, creditsData]) => {
+        if (usageData) setUsage({ usage_count: usageData.usage_count, is_founder: !!usageData.is_founder, uses_remaining: usageData.uses_remaining ?? null });
+        if (creditsData) setCredits({ total: creditsData.total ?? 0, used: creditsData.used ?? 0, remaining: creditsData.remaining ?? 0 });
+      }).finally(() => setLoading(false));
     });
   }, [router]);
 
@@ -106,18 +109,14 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+          {/* Account */}
           <div className="rounded-xl border-l-4 border-l-brave border border-m2p-border bg-white p-6">
-            <h2 className="font-semibold mb-4 text-m2p-ink">
-              Account
-            </h2>
+            <h2 className="font-semibold mb-4 text-m2p-ink">Account</h2>
             <p className="text-sm mb-1 text-m2p-muted">Email</p>
             <p className="font-medium truncate mb-3 text-m2p-ink">{user.email}</p>
-            <Link
-              href="/dashboard/profile"
-              className="text-sm font-medium text-brave hover:underline"
-            >
-              Edit profile (e.g. first name)
+            <Link href="/dashboard/profile" className="text-sm font-medium text-brave hover:underline">
+              Edit profile
             </Link>
             {usage?.is_founder && (
               <span className="inline-flex items-center mt-3 rounded-full px-2.5 py-0.5 text-xs font-medium bg-freeGreen/20 text-freeGreen">
@@ -125,20 +124,50 @@ export default function DashboardPage() {
               </span>
             )}
           </div>
-          <div className="rounded-xl border-l-4 border-l-brave border border-m2p-border bg-white p-6">
-            <h2 className="font-semibold mb-4 text-m2p-ink">
-              Usage
-            </h2>
-            <p className="text-sm mb-1 text-m2p-muted">FREE uses this period</p>
-            <p className="text-2xl font-bold text-m2p-ink">
-              {usage?.usage_count ?? 0}
-              {usage?.is_founder ? "" : " / 10"}
-            </p>
-            {usage && !usage.is_founder && usage.uses_remaining !== null && (
-              <p className="text-sm mt-1 text-m2p-muted">
-                {usage.uses_remaining} remaining
-              </p>
+
+          {/* Scan Credits */}
+          <div className="rounded-xl border-l-4 border-l-m2p-green border border-m2p-border bg-white p-6">
+            <h2 className="font-semibold mb-4 text-m2p-ink">Scan Credits</h2>
+            {credits && credits.total > 0 ? (
+              <>
+                <p className="text-3xl font-bold text-m2p-ink">{credits.remaining}</p>
+                <p className="text-sm text-m2p-muted mt-1">of {credits.total} remaining</p>
+                <div className="mt-3 w-full bg-m2p-border rounded-full h-1.5">
+                  <div className="h-1.5 rounded-full bg-m2p-green transition-all"
+                    style={{ width: `${Math.round((credits.remaining / credits.total) * 100)}%` }} />
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-sm text-m2p-muted mb-3">No pack credits — pay per scan.</p>
+                <Link href="/#pricing" className="text-sm font-medium text-m2p-orange hover:underline">
+                  View packs →
+                </Link>
+              </>
             )}
+          </div>
+
+          {/* Recent Activity */}
+          <div className="rounded-xl border-l-4 border-l-m2p-orange border border-m2p-border bg-white p-6">
+            <h2 className="font-semibold mb-4 text-m2p-ink">Quick Links</h2>
+            <div className="space-y-2">
+              <Link href="/kdp-pdf-checker" className="flex items-center gap-2 text-sm text-m2p-ink hover:text-m2p-orange transition-colors">
+                <span className="w-1.5 h-1.5 rounded-full bg-m2p-orange flex-shrink-0" />
+                Run a new scan
+              </Link>
+              <Link href="/resend-link" className="flex items-center gap-2 text-sm text-m2p-ink hover:text-m2p-orange transition-colors">
+                <span className="w-1.5 h-1.5 rounded-full bg-m2p-orange flex-shrink-0" />
+                Resend download link
+              </Link>
+              <Link href="/affiliates" className="flex items-center gap-2 text-sm text-m2p-ink hover:text-m2p-orange transition-colors">
+                <span className="w-1.5 h-1.5 rounded-full bg-m2p-orange flex-shrink-0" />
+                Affiliate programme
+              </Link>
+              <Link href="/#pricing" className="flex items-center gap-2 text-sm text-m2p-ink hover:text-m2p-orange transition-colors">
+                <span className="w-1.5 h-1.5 rounded-full bg-m2p-orange flex-shrink-0" />
+                Buy a scan pack
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -171,7 +200,7 @@ export default function DashboardPage() {
             Paid tools
           </h2>
           <p className="text-sm mb-4 text-m2p-muted">
-            Pay per use or unlock with a 6‑month pass.
+            Pay per scan or buy a pack for better value.
           </p>
           <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {PAID_TOOLS.map((t) => (
