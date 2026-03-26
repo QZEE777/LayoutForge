@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function AffiliateApplyPage() {
   const [form, setForm] = useState({ name: "", email: "", website: "", reason: "" });
@@ -42,7 +43,8 @@ export default function AffiliateApplyPage() {
       {/* Nav */}
       <header className="border-b border-white/10">
         <div className="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
-          <Link href="/">
+          <Link href="/" className="flex items-center gap-2">
+            <Image src="/MANNY AVATAR.png" alt="manu2print" width={32} height={32} className="rounded-full" />
             <span>
               <span className="font-bold text-xl" style={{ color: "#F05A28" }}>manu</span>
               <span className="font-bold text-xl" style={{ color: "#4cd964" }}>2print</span>
