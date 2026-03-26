@@ -447,9 +447,9 @@ export default function DownloadPage() {
               <div className="bg-white/95 px-5 py-5">
                 <div className="flex items-center gap-6">
                   {gradeInfo && (
-                    <div className="shrink-0 w-20 h-20 rounded-full flex flex-col items-center justify-center border-4" style={{ borderColor: gradeInfo.color }}>
+                    <div className="shrink-0 w-20 h-20 rounded-full flex flex-col items-center justify-center border-4 text-center" style={{ borderColor: gradeInfo.color }}>
                       <span className="text-3xl font-black leading-none" style={{ color: gradeInfo.color }}>{gradeInfo.letter}</span>
-                      <span className="text-xs font-semibold mt-0.5" style={{ color: gradeInfo.color }}>{gradeInfo.label}</span>
+                      <span className="font-semibold leading-tight mt-0.5 px-1" style={{ color: gradeInfo.color, fontSize: "0.6rem" }}>{gradeInfo.label}</span>
                     </div>
                   )}
                   <div className="flex-1 space-y-2.5">
@@ -479,8 +479,8 @@ export default function DownloadPage() {
                     )}
                   </div>
                 </div>
-                <p className="mt-4 text-xs text-m2p-muted text-center border-t border-m2p-border pt-3 leading-relaxed">
-                  Unlock below to see every issue, which pages are affected, how to fix each one — and your annotated PDF.
+                <p className="mt-4 text-xs text-m2p-muted text-center border-t border-m2p-border pt-3 leading-relaxed" style={{ textWrap: "balance" } as React.CSSProperties}>
+                  Unlock below to see every issue, which pages are affected, how to fix each one — and your annotated&nbsp;PDF.
                 </p>
               </div>
             </div>

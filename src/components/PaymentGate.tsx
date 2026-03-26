@@ -262,6 +262,93 @@ export default function PaymentGate({
     setCreditError("");
   };
 
+  // When hideChildrenUntilUnlocked (checker flow), render inline below the teaser — no full-screen overlay
+  if (hideChildrenUntilUnlocked) {
+    return (
+      <div className="rounded-2xl border p-6 text-center space-y-4 mt-4"
+        style={{ background: "#2C1810", borderColor: "rgba(255,255,255,0.08)" }}>
+        <h2 className="text-lg font-bold text-white">Unlock your full report</h2>
+        <p className="text-sm text-white/70">See every issue, which pages are affected, how to fix each one — and your annotated PDF.</p>
+        <input
+          type="email"
+          placeholder="Your email (for receipt / credits)"
+          value={userEmail}
+          onChange={(e) => { setUserEmail(e.target.value); resetCredit(); }}
+          className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-2 text-sm text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-m2p-orange"
+        />
+        {creditStep === "code" ? (
+          <div className="space-y-3">
+            <p className="text-sm text-white/80">6-digit code sent — enter it to redeem your credit:</p>
+            <input
+              type="text"
+              value={creditCode}
+              onChange={(e) => setCreditCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              placeholder="000000"
+              maxLength={6}
+              className="w-full rounded-lg border border-white/20 bg-m2p-ink/95 px-4 py-2 text-center text-2xl font-bold tracking-widest text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-m2p-green"
+            />
+            {creditError && <p className="text-sm text-red-400">{creditError}</p>}
+            <div className="flex gap-2 justify-center">
+              <button type="button" onClick={handleCreditRedeem} disabled={creditCode.length !== 6}
+                className="rounded-lg px-5 py-2.5 text-sm font-semibold bg-m2p-green text-white hover:opacity-90 disabled:opacity-50">
+                Redeem credit →
+              </button>
+              <button type="button" onClick={resetCredit} className="rounded-lg px-4 py-2.5 text-sm text-white/60 hover:text-white">Cancel</button>
+            </div>
+          </div>
+        ) : creditStep === "redeeming" ? (
+          <p className="text-sm text-white/70">Redeeming your credit…</p>
+        ) : creditStep === "sending" ? (
+          <p className="text-sm text-white/70">Sending verification code…</p>
+        ) : (
+          <>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button type="button" onClick={handleSingleUse} disabled={checkoutLoading}
+                className="rounded-lg px-5 py-3 text-sm font-semibold bg-m2p-orange text-white hover:opacity-90 disabled:opacity-60">
+                {checkoutLoading ? "Redirecting…" : "$9 — Pay Now"}
+              </button>
+              <button type="button" onClick={handleCreditSendCode} disabled={checkoutLoading}
+                className="rounded-lg px-5 py-3 text-sm font-semibold bg-m2p-green text-white hover:opacity-90 disabled:opacity-60">
+                Use a Scan Credit →
+              </button>
+            </div>
+            {creditStep === "error" && creditError && (
+              <div className="space-y-2">
+                <p className="text-sm text-red-400">{creditError}</p>
+                {creditError.includes("No scan credits") && (
+                  <Link href="/#pricing" className="text-xs text-m2p-orange hover:underline">Buy a pack →</Link>
+                )}
+                <button type="button" onClick={resetCredit} className="block mx-auto text-xs text-white/40 hover:text-white underline">Try again</button>
+              </div>
+            )}
+            {!showBetaInput ? (
+              <button type="button" onClick={() => setShowBetaInput(true)}
+                className="text-xs text-white/40 hover:text-white/70 underline">
+                Have a beta access code?
+              </button>
+            ) : (
+              <form onSubmit={handleBetaSubmit} className="space-y-2">
+                <input type="text" placeholder="Enter beta code" value={betaCode}
+                  onChange={(e) => { setBetaCode(e.target.value); setBetaError(""); }}
+                  className="w-full rounded-lg border border-white/20 bg-m2p-ink/95 px-4 py-2 text-sm text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-m2p-orange"
+                />
+                {betaError && <p className="text-xs text-red-400">{betaError}</p>}
+                <div className="flex gap-2 justify-center">
+                  <button type="submit" disabled={betaLoading}
+                    className="rounded-lg px-4 py-2 text-sm font-medium bg-m2p-orange text-white hover:opacity-90 disabled:opacity-60">
+                    {betaLoading ? "Checking…" : "Unlock →"}
+                  </button>
+                  <button type="button" onClick={() => setShowBetaInput(false)}
+                    className="rounded-lg px-4 py-2 text-sm text-white/60 hover:text-white">Cancel</button>
+                </div>
+              </form>
+            )}
+          </>
+        )}
+      </div>
+    );
+  }
+
   return (
       <div className="relative">
       {!hideChildrenUntilUnlocked && (
