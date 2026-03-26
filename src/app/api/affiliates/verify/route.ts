@@ -7,6 +7,11 @@ function signToken(email: string, code: string, expiresAt: number): string {
   return crypto.createHmac("sha256", secret).update(`aff|${email}|${code}|${expiresAt}`).digest("hex");
 }
 
+function signSessionToken(email: string, sessionExpiresAt: number): string {
+  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "fallback";
+  return crypto.createHmac("sha256", secret).update(`sess|${email}|${sessionExpiresAt}`).digest("hex");
+}
+
 export async function POST(req: Request) {
   let email: string, code: string, token: string, expiresAt: number;
   try {
@@ -36,7 +41,7 @@ export async function POST(req: Request) {
 
   const { data: affiliate } = await supabase
     .from("affiliates")
-    .select("id, name, code, status, commission_rate, created_at")
+    .select("id, name, code, status, commission_rate, created_at, website, reason, paypal_email")
     .eq("email", email)
     .maybeSingle();
 
@@ -58,6 +63,9 @@ export async function POST(req: Request) {
   const totalPaid = conversions.filter((r) => r.paid_out).reduce((s: number, r: { commission_amount: number }) => s + (r.commission_amount ?? 0), 0);
   const pendingPayout = totalEarned - totalPaid;
 
+  const sessionExpiresAt = Date.now() + 24 * 60 * 60 * 1000; // 24h
+  const sessionToken = signSessionToken(email, sessionExpiresAt);
+
   return NextResponse.json({
     ok: true,
     affiliate: {
@@ -71,5 +79,7 @@ export async function POST(req: Request) {
       pendingPayout,
     },
     referrals: allReferrals,
+    sessionToken,
+    sessionExpiresAt,
   });
 }

@@ -25,6 +25,9 @@ type AffiliateData = {
     commission_rate: number;
     email: string;
     created_at: string;
+    website?: string | null;
+    reason?: string | null;
+    paypal_email?: string | null;
   };
   stats: {
     totalConversions: number;
@@ -33,6 +36,8 @@ type AffiliateData = {
     pendingPayout: number;
   };
   referrals: Referral[];
+  sessionToken: string;
+  sessionExpiresAt: number;
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -519,11 +524,26 @@ function CodeStep({ email, token, expiresAt, onVerified, onBack }: {
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
+type DashTab = "overview" | "profile" | "payouts";
+
 function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => void }) {
-  const { affiliate, stats, referrals } = data;
+  const { affiliate, stats, referrals, sessionToken, sessionExpiresAt } = data;
   const refLink = `${APP_URL}/?ref=${affiliate.code}`;
-  const [copied, setCopied] = useState(false);
-  const isPending = affiliate.status === "pending";
+  const [copied, setCopied]           = useState(false);
+  const [tab, setTab]                 = useState<DashTab>("overview");
+  const isPending                     = affiliate.status === "pending";
+
+  // Profile tab state
+  const [profileName,    setProfileName]    = useState(affiliate.name);
+  const [profileWebsite, setProfileWebsite] = useState(affiliate.website ?? "");
+  const [profileReason,  setProfileReason]  = useState(affiliate.reason ?? "");
+  const [profileSaving,  setProfileSaving]  = useState(false);
+  const [profileMsg,     setProfileMsg]     = useState("");
+
+  // Payouts tab state
+  const [paypalEmail,  setPaypalEmail]  = useState(affiliate.paypal_email ?? "");
+  const [payoutSaving, setPayoutSaving] = useState(false);
+  const [payoutMsg,    setPayoutMsg]    = useState("");
 
   function copyLink() {
     navigator.clipboard.writeText(refLink).then(() => {
@@ -532,12 +552,70 @@ function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => 
     });
   }
 
+  async function saveProfile(e: React.FormEvent) {
+    e.preventDefault();
+    setProfileSaving(true);
+    setProfileMsg("");
+    try {
+      const res = await fetch("/api/affiliates/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: affiliate.email,
+          sessionToken,
+          sessionExpiresAt,
+          name: profileName,
+          website: profileWebsite,
+          reason: profileReason,
+        }),
+      });
+      const d = await res.json();
+      if (!res.ok) setProfileMsg(d.error ?? "Save failed.");
+      else setProfileMsg("✓ Profile saved");
+    } catch { setProfileMsg("Network error."); }
+    finally { setProfileSaving(false); }
+  }
+
+  async function savePaypal(e: React.FormEvent) {
+    e.preventDefault();
+    setPayoutSaving(true);
+    setPayoutMsg("");
+    try {
+      const res = await fetch("/api/affiliates/payout-email", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: affiliate.email,
+          sessionToken,
+          sessionExpiresAt,
+          paypal_email: paypalEmail,
+        }),
+      });
+      const d = await res.json();
+      if (!res.ok) setPayoutMsg(d.error ?? "Save failed.");
+      else setPayoutMsg("✓ PayPal email saved");
+    } catch { setPayoutMsg("Network error."); }
+    finally { setPayoutSaving(false); }
+  }
+
+  const TABS: { id: DashTab; label: string; icon: string }[] = [
+    { id: "overview", label: "Overview", icon: "📊" },
+    { id: "profile",  label: "Profile",  icon: "👤" },
+    { id: "payouts",  label: "Payouts",  icon: "💳" },
+  ];
+
+  const paidReferrals = referrals.filter((r) => r.converted && r.paid_out);
+
   return (
     <div className="min-h-screen" style={{ background: "#F5F0E8" }}>
+
+      {/* ── Header ── */}
       <header className="sticky top-0 z-20 border-b" style={{ background: "#F5F0E8", borderColor: "rgba(0,0,0,0.08)" }}>
-        <div className="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "#f05a28" }}>
+        <div className="mx-auto max-w-4xl px-6 flex items-center justify-between" style={{ minHeight: 56 }}>
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2 shrink-0">
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center"
+              style={{ background: "#f05a28" }}>
               <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                 <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
               </svg>
@@ -547,8 +625,31 @@ function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => 
               <span style={{ color: "#4cd964", fontWeight: "bold" }}>2print</span>
             </span>
           </Link>
-          <div className="flex items-center gap-4">
-            <span className="text-sm" style={{ color: "#9B8E7E" }}>{affiliate.email}</span>
+
+          {/* Tab nav */}
+          <div className="flex items-center gap-1 px-1 py-1 rounded-full" style={{ background: "rgba(44,24,16,0.06)" }}>
+            {TABS.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-semibold transition-all"
+                style={{
+                  background: tab === t.id ? "#2C1810" : "transparent",
+                  color:      tab === t.id ? "#fff"    : "#9B8E7E",
+                  boxShadow:  tab === t.id ? "0 1px 4px rgba(0,0,0,0.15)" : "none",
+                }}
+              >
+                <span className="text-xs">{t.icon}</span>
+                <span className="hidden sm:inline">{t.label}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Right */}
+          <div className="flex items-center gap-3 shrink-0">
+            <span className="text-xs hidden md:block truncate max-w-[140px]" style={{ color: "#9B8E7E" }}>
+              {affiliate.email}
+            </span>
             <button onClick={onSignOut}
               className="text-xs font-medium underline transition-opacity hover:opacity-60"
               style={{ color: "#9B8E7E" }}>
@@ -558,120 +659,419 @@ function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => 
         </div>
       </header>
 
-      <main className="mx-auto max-w-4xl px-6 py-10 space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="font-bebas text-4xl tracking-wide mb-1" style={{ color: "#2C1810" }}>
-            Hey, {affiliate.name.split(" ")[0]} 👋
-          </h1>
-          <p className="text-sm" style={{ color: "#9B8E7E" }}>Affiliate Dashboard</p>
+      <main className="mx-auto max-w-4xl px-6 py-8 space-y-6">
+
+        {/* ── Page title + status badge ── */}
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: "#C4B5A0" }}>
+              Affiliate Dashboard
+            </p>
+            <h1 className="text-2xl font-bold leading-tight" style={{ color: "#2C1810" }}>
+              Hey, {affiliate.name.split(" ")[0]} 👋
+            </h1>
+          </div>
+          <span className="shrink-0 text-xs font-bold uppercase tracking-wide px-3 py-1.5 rounded-full mt-0.5"
+            style={{
+              background: isPending ? "rgba(234,179,8,0.1)" : "rgba(76,217,100,0.12)",
+              color:      isPending ? "#92400e"              : "#2d8a3e",
+            }}>
+            {isPending ? "⏳ Pending" : "✓ Active"}
+          </span>
         </div>
 
-        {/* Pending banner */}
+        {/* Pending review notice */}
         {isPending && (
           <div className="rounded-xl px-5 py-4"
-            style={{ background: "rgba(234,179,8,0.08)", border: "1px solid rgba(234,179,8,0.25)" }}>
-            <p className="font-semibold text-sm" style={{ color: "#92400e" }}>⏳ Application pending review</p>
-            <p className="text-xs mt-1" style={{ color: "#92400e", opacity: 0.8 }}>
-              We&apos;ll email you at <strong>{affiliate.email}</strong> within 48 hours once approved.
+            style={{ background: "rgba(234,179,8,0.06)", border: "1px solid rgba(234,179,8,0.18)" }}>
+            <p className="font-semibold text-sm" style={{ color: "#92400e" }}>Application under review</p>
+            <p className="text-xs mt-1" style={{ color: "#92400e", opacity: 0.75 }}>
+              We&apos;ll email <strong>{affiliate.email}</strong> within 48 hours once you&apos;re approved.
             </p>
           </div>
         )}
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {[
-            { label: "Conversions",   value: stats.totalConversions.toString(), color: "#2C1810" },
-            { label: "Total earned",  value: formatCents(stats.totalEarned),    color: "#4cd964" },
-            { label: "Paid out",      value: formatCents(stats.totalPaid),      color: "#2C1810" },
-            { label: "Pending",       value: formatCents(stats.pendingPayout),  color: stats.pendingPayout > 0 ? "#f05a28" : "#2C1810" },
-          ].map((s) => (
-            <div key={s.label} className="rounded-2xl border p-5 text-center"
-              style={{ background: "#fff", borderColor: "rgba(0,0,0,0.07)" }}>
-              <p className="font-bebas text-3xl leading-none mb-1" style={{ color: s.color }}>{s.value}</p>
-              <p className="text-xs" style={{ color: "#9B8E7E" }}>{s.label}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Referral link */}
-        <div className="rounded-2xl p-6" style={{ background: "#2C1810" }}>
-          <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "rgba(255,255,255,0.35)" }}>
-            Your referral link
-          </p>
-          <div className="flex items-center gap-3 mb-4">
-            <code className="flex-1 text-sm font-mono truncate rounded-xl px-4 py-3"
-              style={{ background: "rgba(255,255,255,0.07)", color: "#4cd964", border: "1px solid rgba(255,255,255,0.08)" }}>
-              {refLink}
-            </code>
-            <button onClick={copyLink}
-              className="shrink-0 font-bold text-xs px-4 py-3 rounded-xl transition-all hover:opacity-90"
-              style={{ background: copied ? "#4cd964" : "#f05a28", color: "#fff", minWidth: 80 }}>
-              {copied ? "Copied!" : "Copy"}
-            </button>
-          </div>
-          <div className="flex flex-wrap gap-4 text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
-            <span>12-month attribution cookie</span>
-            <span>30% on single scans · 40% on packs</span>
-            <span>Monthly PayPal payout</span>
-          </div>
-        </div>
-
-        {/* Payout alert */}
-        {stats.pendingPayout >= 2000 && (
-          <div className="rounded-2xl px-5 py-4"
-            style={{ background: "rgba(76,217,100,0.08)", border: "1px solid rgba(76,217,100,0.2)" }}>
-            <p className="font-semibold text-sm" style={{ color: "#2d8a3e" }}>
-              💰 {formatCents(stats.pendingPayout)} pending payout
-            </p>
-            <p className="text-xs mt-1" style={{ color: "#6B5E4E" }}>
-              Minimum payout is $20. We pay monthly via PayPal. Reply to your welcome email to register your payout details.
-            </p>
-          </div>
-        )}
-
-        {/* Referral history */}
-        <section>
-          <h2 className="font-bebas text-2xl tracking-wide mb-4" style={{ color: "#2C1810" }}>Referral History</h2>
-          {referrals.length === 0 ? (
-            <div className="rounded-2xl border py-10 px-6 text-center"
-              style={{ background: "#fff", borderColor: "rgba(0,0,0,0.07)", borderStyle: "dashed" }}>
-              <p className="font-semibold text-sm mb-1" style={{ color: "#2C1810" }}>No referrals yet</p>
-              <p className="text-xs" style={{ color: "#9B8E7E" }}>Share your link to start earning.</p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {referrals.map((r) => (
-                <div key={r.id}
-                  className="rounded-xl border px-4 py-3 flex items-center justify-between gap-3 transition-all hover:shadow-sm"
+        {/* ═══════════════════════════════════════════ */}
+        {/* ── OVERVIEW TAB ── */}
+        {/* ═══════════════════════════════════════════ */}
+        {tab === "overview" && (
+          <>
+            {/* Stats strip */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {[
+                { label: "Conversions",  value: stats.totalConversions.toString(), hi: false },
+                { label: "Total earned", value: formatCents(stats.totalEarned),    hi: true  },
+                { label: "Paid out",     value: formatCents(stats.totalPaid),      hi: false },
+                { label: "Pending",      value: formatCents(stats.pendingPayout),  hi: stats.pendingPayout > 0 },
+              ].map((s) => (
+                <div key={s.label} className="rounded-2xl border px-5 py-4 text-center"
                   style={{ background: "#fff", borderColor: "rgba(0,0,0,0.07)" }}>
-                  <div>
-                    <p className="text-sm font-medium" style={{ color: "#2C1810" }}>
-                      {r.converted ? "✅ Sale" : "👁 Click"}
-                    </p>
-                    <p className="text-xs" style={{ color: "#9B8E7E" }}>{formatDate(r.created_at)}</p>
-                  </div>
-                  <div className="text-right">
-                    {r.converted && (
-                      <p className="font-bold text-sm mb-0.5" style={{ color: "#2C1810" }}>
-                        {formatCents(r.commission_amount)}
-                      </p>
-                    )}
-                    {r.converted && (
-                      <span className="text-xs px-2 py-0.5 rounded-full font-medium"
-                        style={{
-                          background: r.paid_out ? "rgba(76,217,100,0.12)" : "rgba(234,179,8,0.12)",
-                          color: r.paid_out ? "#2d8a3e" : "#92400e",
-                        }}>
-                        {r.paid_out ? "Paid" : "Pending"}
-                      </span>
-                    )}
-                  </div>
+                  <p className="text-2xl font-bold leading-none mb-1.5"
+                    style={{ color: s.hi ? (s.label === "Total earned" ? "#2d8a3e" : "#f05a28") : "#2C1810" }}>
+                    {s.value}
+                  </p>
+                  <p className="text-xs" style={{ color: "#9B8E7E" }}>{s.label}</p>
                 </div>
               ))}
             </div>
-          )}
-        </section>
+
+            {/* Referral link — dark card */}
+            <div className="rounded-2xl p-6" style={{ background: "#2C1810" }}>
+              <p className="text-xs font-bold uppercase tracking-widest mb-3"
+                style={{ color: "rgba(255,255,255,0.3)" }}>
+                Your referral link
+              </p>
+              <div className="flex items-center gap-3 mb-4">
+                <code className="flex-1 text-sm font-mono truncate rounded-xl px-4 py-3"
+                  style={{ background: "rgba(255,255,255,0.07)", color: "#4cd964", border: "1px solid rgba(255,255,255,0.08)" }}>
+                  {refLink}
+                </code>
+                <button onClick={copyLink}
+                  className="shrink-0 font-bold text-xs px-4 py-3 rounded-xl transition-all hover:opacity-90"
+                  style={{ background: copied ? "#4cd964" : "#f05a28", color: "#fff", minWidth: 90 }}>
+                  {copied ? "✓ Copied" : "Copy link"}
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-5 text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>
+                <span>12-month cookie</span>
+                <span>30% singles · 40% packs</span>
+                <span>Monthly PayPal payout</span>
+              </div>
+            </div>
+
+            {/* Payout-ready nudge */}
+            {stats.pendingPayout >= 2000 && (
+              <div className="rounded-2xl px-5 py-4 flex items-center justify-between gap-4"
+                style={{ background: "rgba(76,217,100,0.07)", border: "1px solid rgba(76,217,100,0.18)" }}>
+                <div>
+                  <p className="font-semibold text-sm" style={{ color: "#2d8a3e" }}>
+                    💰 {formatCents(stats.pendingPayout)} ready for payout
+                  </p>
+                  <p className="text-xs mt-0.5" style={{ color: "#6B5E4E" }}>
+                    Add your PayPal email in the Payouts tab to receive your payment.
+                  </p>
+                </div>
+                <button onClick={() => setTab("payouts")}
+                  className="shrink-0 text-xs font-bold px-4 py-2 rounded-xl transition-all hover:opacity-90"
+                  style={{ background: "#4cd964", color: "#fff" }}>
+                  Set up →
+                </button>
+              </div>
+            )}
+
+            {/* Referral history */}
+            <section>
+              <h2 className="text-sm font-bold uppercase tracking-wide mb-3" style={{ color: "#9B8E7E" }}>
+                Referral History
+              </h2>
+              {referrals.length === 0 ? (
+                <div className="rounded-2xl border py-12 px-6 text-center"
+                  style={{ background: "#fff", borderColor: "rgba(0,0,0,0.07)", borderStyle: "dashed" }}>
+                  <p className="text-3xl mb-3">📭</p>
+                  <p className="font-semibold text-sm mb-1" style={{ color: "#2C1810" }}>No referrals yet</p>
+                  <p className="text-xs" style={{ color: "#9B8E7E" }}>Copy and share your link above to start earning.</p>
+                </div>
+              ) : (
+                <div className="rounded-2xl border overflow-hidden"
+                  style={{ background: "#fff", borderColor: "rgba(0,0,0,0.07)" }}>
+                  {referrals.map((r, i) => (
+                    <div key={r.id}
+                      className="flex items-center justify-between gap-3 px-5 py-4 transition-colors hover:bg-black/[0.015]"
+                      style={{ borderTop: i > 0 ? "1px solid rgba(0,0,0,0.05)" : undefined }}>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl">{r.converted ? "✅" : "👁"}</span>
+                        <div>
+                          <p className="text-sm font-semibold" style={{ color: "#2C1810" }}>
+                            {r.converted ? "Sale" : "Click"}
+                          </p>
+                          <p className="text-xs" style={{ color: "#9B8E7E" }}>{formatDate(r.created_at)}</p>
+                        </div>
+                      </div>
+                      {r.converted && (
+                        <div className="text-right">
+                          <p className="font-bold text-sm mb-0.5" style={{ color: "#2C1810" }}>
+                            {formatCents(r.commission_amount)}
+                          </p>
+                          <span className="text-xs px-2 py-0.5 rounded-full font-semibold"
+                            style={{
+                              background: r.paid_out ? "rgba(76,217,100,0.1)"  : "rgba(234,179,8,0.1)",
+                              color:      r.paid_out ? "#2d8a3e"                : "#92400e",
+                            }}>
+                            {r.paid_out ? "Paid" : "Pending"}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          </>
+        )}
+
+        {/* ═══════════════════════════════════════════ */}
+        {/* ── PROFILE TAB ── */}
+        {/* ═══════════════════════════════════════════ */}
+        {tab === "profile" && (
+          <div className="space-y-5">
+            <div className="rounded-2xl border p-6" style={{ background: "#fff", borderColor: "rgba(0,0,0,0.07)" }}>
+              <h2 className="text-base font-bold mb-1" style={{ color: "#2C1810" }}>Your Profile</h2>
+              <p className="text-xs mb-6" style={{ color: "#9B8E7E" }}>
+                Keep your details current so we can support you better.
+              </p>
+              <form onSubmit={saveProfile} className="space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold mb-1.5" style={{ color: "#6B5E4E" }}>
+                      Full name *
+                    </label>
+                    <input
+                      type="text" value={profileName}
+                      onChange={(e) => setProfileName(e.target.value)}
+                      required
+                      className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none transition-colors"
+                      style={{ borderColor: "rgba(0,0,0,0.12)", color: "#2C1810" }}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold mb-1.5" style={{ color: "#6B5E4E" }}>
+                      Email address
+                    </label>
+                    <input
+                      type="email" value={affiliate.email} readOnly
+                      className="w-full border rounded-xl px-4 py-3 text-sm"
+                      style={{
+                        borderColor: "rgba(0,0,0,0.07)", color: "#9B8E7E",
+                        background: "rgba(0,0,0,0.02)", cursor: "not-allowed",
+                      }}
+                    />
+                    <p className="text-xs mt-1" style={{ color: "#C4B5A0" }}>Email cannot be changed</p>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "#6B5E4E" }}>
+                    Website / Social{" "}
+                    <span style={{ fontWeight: "normal", color: "#C4B5A0" }}>(optional)</span>
+                  </label>
+                  <input
+                    type="text" value={profileWebsite}
+                    onChange={(e) => setProfileWebsite(e.target.value)}
+                    placeholder="https://yourblog.com or @yourhandle"
+                    className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none"
+                    style={{ borderColor: "rgba(0,0,0,0.12)", color: "#2C1810" }}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "#6B5E4E" }}>
+                    How do you promote manu2print?{" "}
+                    <span style={{ fontWeight: "normal", color: "#C4B5A0" }}>(optional)</span>
+                  </label>
+                  <textarea
+                    value={profileReason}
+                    onChange={(e) => setProfileReason(e.target.value)}
+                    rows={3}
+                    placeholder="e.g. I run a KDP author newsletter of 5,000 subscribers..."
+                    className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none resize-none"
+                    style={{ borderColor: "rgba(0,0,0,0.12)", color: "#2C1810" }}
+                  />
+                </div>
+                <div className="flex items-center gap-4 pt-1">
+                  <button
+                    type="submit"
+                    disabled={profileSaving || !profileName.trim()}
+                    className="px-6 py-2.5 rounded-xl font-bold text-sm transition-all hover:opacity-90 disabled:opacity-50"
+                    style={{ background: "#f05a28", color: "#fff" }}
+                  >
+                    {profileSaving ? "Saving…" : "Save changes"}
+                  </button>
+                  {profileMsg && (
+                    <span className="text-sm font-medium"
+                      style={{ color: profileMsg.startsWith("✓") ? "#2d8a3e" : "#dc2626" }}>
+                      {profileMsg}
+                    </span>
+                  )}
+                </div>
+              </form>
+            </div>
+
+            {/* Read-only info strip */}
+            <div className="rounded-2xl border p-5" style={{ background: "#fff", borderColor: "rgba(0,0,0,0.07)" }}>
+              <h3 className="text-xs font-bold uppercase tracking-wide mb-4" style={{ color: "#9B8E7E" }}>
+                Account Info
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {[
+                  { label: "Referral code", value: affiliate.code },
+                  { label: "Status",        value: affiliate.status.charAt(0).toUpperCase() + affiliate.status.slice(1) },
+                  { label: "Member since",  value: formatDate(affiliate.created_at) },
+                ].map((row) => (
+                  <div key={row.label}>
+                    <p className="text-xs mb-0.5" style={{ color: "#9B8E7E" }}>{row.label}</p>
+                    <p className="text-sm font-semibold" style={{ color: "#2C1810" }}>{row.value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ═══════════════════════════════════════════ */}
+        {/* ── PAYOUTS TAB ── */}
+        {/* ═══════════════════════════════════════════ */}
+        {tab === "payouts" && (
+          <div className="space-y-5">
+
+            {/* Balance summary */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {[
+                {
+                  label: "Total earned",
+                  value: formatCents(stats.totalEarned),
+                  note: "All time",
+                  accent: false,
+                },
+                {
+                  label: "Paid out",
+                  value: formatCents(stats.totalPaid),
+                  note: "Processed",
+                  accent: false,
+                },
+                {
+                  label: "Pending balance",
+                  value: formatCents(stats.pendingPayout),
+                  note: stats.pendingPayout >= 2000
+                    ? "✓ Eligible for payout"
+                    : `$${((2000 - stats.pendingPayout) / 100).toFixed(2)} to threshold`,
+                  accent: stats.pendingPayout >= 2000,
+                },
+              ].map((s) => (
+                <div key={s.label} className="rounded-2xl border px-5 py-4"
+                  style={{ background: "#fff", borderColor: "rgba(0,0,0,0.07)" }}>
+                  <p className="text-2xl font-bold mb-0.5"
+                    style={{ color: s.accent ? "#2d8a3e" : "#2C1810" }}>
+                    {s.value}
+                  </p>
+                  <p className="text-xs font-semibold mb-0.5" style={{ color: "#6B5E4E" }}>{s.label}</p>
+                  <p className="text-xs" style={{ color: s.accent ? "#2d8a3e" : "#9B8E7E" }}>{s.note}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* PayPal setup */}
+            <div className="rounded-2xl border p-6" style={{ background: "#fff", borderColor: "rgba(0,0,0,0.07)" }}>
+              <div className="flex items-start justify-between gap-4 mb-4">
+                <div>
+                  <h2 className="text-base font-bold mb-0.5" style={{ color: "#2C1810" }}>
+                    PayPal Payout Email
+                  </h2>
+                  <p className="text-xs" style={{ color: "#9B8E7E" }}>
+                    This is where we send your monthly commission payment.
+                  </p>
+                </div>
+                {affiliate.paypal_email && (
+                  <span className="shrink-0 text-xs font-bold px-3 py-1 rounded-full"
+                    style={{ background: "rgba(76,217,100,0.1)", color: "#2d8a3e" }}>
+                    ✓ Configured
+                  </span>
+                )}
+              </div>
+
+              {affiliate.paypal_email && (
+                <div className="rounded-xl px-4 py-3 mb-5 flex items-center gap-3"
+                  style={{ background: "rgba(76,217,100,0.06)", border: "1px solid rgba(76,217,100,0.15)" }}>
+                  <span style={{ color: "#2d8a3e" }}>💳</span>
+                  <div>
+                    <p className="text-xs font-semibold" style={{ color: "#2d8a3e" }}>Current PayPal email</p>
+                    <p className="text-sm font-bold" style={{ color: "#2C1810" }}>{affiliate.paypal_email}</p>
+                  </div>
+                </div>
+              )}
+
+              <form onSubmit={savePaypal} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "#6B5E4E" }}>
+                    {affiliate.paypal_email ? "Update PayPal email" : "Enter your PayPal email"}
+                  </label>
+                  <input
+                    type="email" value={paypalEmail}
+                    onChange={(e) => setPaypalEmail(e.target.value)}
+                    placeholder="your-paypal@email.com"
+                    className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none"
+                    style={{ borderColor: "rgba(0,0,0,0.12)", color: "#2C1810" }}
+                  />
+                </div>
+                <div className="flex items-center gap-4">
+                  <button
+                    type="submit"
+                    disabled={payoutSaving || !paypalEmail.trim()}
+                    className="px-6 py-2.5 rounded-xl font-bold text-sm transition-all hover:opacity-90 disabled:opacity-50"
+                    style={{ background: "#f05a28", color: "#fff" }}
+                  >
+                    {payoutSaving
+                      ? "Saving…"
+                      : affiliate.paypal_email
+                        ? "Update email"
+                        : "Save PayPal email"}
+                  </button>
+                  {payoutMsg && (
+                    <span className="text-sm font-medium"
+                      style={{ color: payoutMsg.startsWith("✓") ? "#2d8a3e" : "#dc2626" }}>
+                      {payoutMsg}
+                    </span>
+                  )}
+                </div>
+              </form>
+            </div>
+
+            {/* Payout rules */}
+            <div className="rounded-2xl p-5"
+              style={{ background: "rgba(44,24,16,0.03)", border: "1px solid rgba(44,24,16,0.07)" }}>
+              <p className="text-sm font-semibold mb-3" style={{ color: "#2C1810" }}>How payouts work</p>
+              <ul className="space-y-2">
+                {[
+                  "Payouts are processed on the 1st of each month",
+                  "Minimum payout threshold is $20",
+                  "PayPal is our only payout method at this time",
+                  "Commissions are earned on confirmed, non-refunded sales only",
+                  "Pending balance becomes payout-eligible after 14-day refund window",
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2.5 text-xs" style={{ color: "#6B5E4E" }}>
+                    <span className="shrink-0 mt-0.5" style={{ color: "#f05a28" }}>→</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Completed payouts */}
+            {paidReferrals.length > 0 && (
+              <section>
+                <h3 className="text-xs font-bold uppercase tracking-wide mb-3" style={{ color: "#9B8E7E" }}>
+                  Paid History
+                </h3>
+                <div className="rounded-2xl border overflow-hidden"
+                  style={{ background: "#fff", borderColor: "rgba(0,0,0,0.07)" }}>
+                  {paidReferrals.map((r, i) => (
+                    <div key={r.id}
+                      className="flex items-center justify-between px-5 py-3.5"
+                      style={{ borderTop: i > 0 ? "1px solid rgba(0,0,0,0.05)" : undefined }}>
+                      <div>
+                        <p className="text-sm font-semibold" style={{ color: "#2C1810" }}>
+                          {formatCents(r.commission_amount)}
+                        </p>
+                        <p className="text-xs" style={{ color: "#9B8E7E" }}>{formatDate(r.created_at)}</p>
+                      </div>
+                      <span className="text-xs font-semibold px-3 py-1 rounded-full"
+                        style={{ background: "rgba(76,217,100,0.1)", color: "#2d8a3e" }}>
+                        Paid
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
+        )}
 
         <p className="text-center pt-4">
           <Link href="/" className="text-xs underline hover:opacity-70 transition-opacity"
