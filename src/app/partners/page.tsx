@@ -183,210 +183,127 @@ function MarketingLanding({ onSignIn, onSignInClick }: { onSignIn: (email: strin
 
   return (
     <div style={{ background: "#F5F0E8" }}>
-      {/* ── HERO ── */}
-      <section className="mx-auto max-w-6xl px-6 py-20 md:py-28">
-        <div className="max-w-3xl">
-          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide mb-6"
-            style={{ background: "rgba(76,217,100,0.12)", color: "#2d8a3e" }}>
-            ● Partner Program — Now Open
-          </span>
-          <h1 className="mb-6 leading-none">
-            <span className="font-bebas text-5xl md:text-7xl tracking-wide" style={{ color: "#2C1810" }}>
-              Partner With{" "}
-            </span><span className="text-5xl md:text-7xl font-black" style={{ letterSpacing: "-0.02em", lineHeight: 1.05 }}>
-              <span style={{ color: "#f05a28" }}>manu</span><span style={{ color: "#4cd964" }}>2print</span>
-            </span>
-          </h1>
-          <p className="text-xl leading-relaxed mb-3" style={{ color: "#2C1810", maxWidth: 560 }}>
-            Earn by sharing a tool indie authors actually need — before they upload to KDP.
-          </p>
-          <p className="text-base mb-10" style={{ color: "#6B5E4E", maxWidth: 520 }}>
-            Help your audience avoid rejection cycles — and earn from every successful referral.
-          </p>
-          <div className="flex flex-wrap gap-3 items-center">
-            <Link href="/partners/apply"
-              className="inline-flex items-center gap-2 rounded-xl px-6 py-3.5 font-bold text-base transition-all hover:scale-[1.02]"
-              style={{ background: "#f05a28", color: "#fff", boxShadow: "0 4px 20px rgba(240,90,40,0.3)" }}>
-              Join the Partner Program →
-            </Link>
-            <button onClick={scrollToLogin}
-              className="text-sm font-medium transition-colors hover:opacity-70 underline underline-offset-2"
-              style={{ color: "#6B5E4E" }}>
-              Already a partner? Sign in
-            </button>
-          </div>
-          <p className="text-xs mt-6" style={{ color: "#9B8E7E" }}>
-            Clear product. Clear value. Easy to promote.
-          </p>
-        </div>
-      </section>
 
-      {/* ── WHY THIS CONVERTS ── */}
-      <section style={{ background: "#2C1810" }}>
-        <div className="mx-auto max-w-6xl px-6 py-16 md:py-20">
-          <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "rgba(255,255,255,0.35)" }}>
-            Why It Works
-          </p>
-          <h2 className="font-bebas text-4xl tracking-wide mb-10" style={{ color: "#fff" }}>
-            Why manu2print Is Easy to Promote
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[
-              { icon: "📌", title: "Real problem", body: "KDP rejects files for small formatting issues. Authors lose weeks to rejection cycles." },
-              { icon: "✅", title: "Clear solution", body: "Check the PDF before upload. See exactly what will fail — page by page." },
-              { icon: "⚡", title: "Fast value", body: "Results in under 90 seconds. No waiting. No technical setup." },
-              { icon: "🎯", title: "Low friction", body: "Simple $9 entry offer. Easy for your audience to understand and act on." },
-              { icon: "👥", title: "Right audience", body: "Indie authors, Canva users, self-publishers, KDP creators. Massive, growing market." },
-              { icon: "💰", title: "Packs convert", body: "Authors who scan once want to scan again. Pack purchases mean higher commissions." },
-            ].map((c) => (
-              <div key={c.title}
-                className="rounded-2xl p-5 transition-all hover:translate-y-[-2px]"
-                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                <span className="text-2xl block mb-3">{c.icon}</span>
-                <p className="font-semibold text-sm mb-1.5" style={{ color: "rgba(255,255,255,0.9)" }}>{c.title}</p>
-                <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>{c.body}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* ══════════════════════════════════════════════════════
+          HERO — dark, bold, number-led
+      ══════════════════════════════════════════════════════ */}
+      <section style={{ background: "#1A1208" }}>
+        <div className="mx-auto max-w-6xl px-6 pt-16 pb-20 md:pt-20 md:pb-28">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
 
-      {/* ── WHAT YOU EARN ── */}
-      <section className="mx-auto max-w-6xl px-6 py-16 md:py-20">
-        <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#9B8E7E" }}>Earnings</p>
-        <h2 className="font-bebas text-4xl tracking-wide mb-2" style={{ color: "#2C1810" }}>What You Earn</h2>
-        <p className="text-sm mb-10" style={{ color: "#6B5E4E" }}>Transparent tracking. Simple payouts. No surprises.</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {COMMISSIONS.map((c) => (
-            <div key={c.product}
-              className="rounded-2xl border p-5 transition-all hover:shadow-md hover:translate-y-[-2px]"
-              style={{ background: "#fff", borderColor: "rgba(0,0,0,0.07)" }}>
-              <p className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: "#9B8E7E" }}>{c.note}</p>
-              <p className="font-bebas text-xl tracking-wide mb-1" style={{ color: "#2C1810" }}>{c.product}</p>
-              <p className="text-sm mb-3" style={{ color: "#9B8E7E" }}>Sale price: {c.price}</p>
-              <div className="flex items-end gap-2">
-                <span className="font-bebas text-3xl leading-none" style={{ color: "#4cd964" }}>{c.earn}</span>
-                <span className="text-xs font-bold mb-0.5" style={{ color: "#4cd964" }}>{c.rate}</span>
-              </div>
-              <p className="text-xs mt-1.5" style={{ color: "#9B8E7E" }}>per sale</p>
-            </div>
-          ))}
-        </div>
-        <div className="flex flex-wrap gap-6 text-sm" style={{ color: "#6B5E4E" }}>
-          <span>⏱ 12-month attribution cookie</span>
-          <span>💳 Monthly payouts — PayPal or Wise</span>
-          <span>📊 Real-time dashboard tracking</span>
-          <span>🔓 $20 minimum payout</span>
-        </div>
-      </section>
-
-      {/* ── WHAT YOUR AUDIENCE GETS ── */}
-      <section style={{ background: "#2C1810" }}>
-        <div className="mx-auto max-w-6xl px-6 py-16 md:py-20">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            {/* Left — copy */}
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "rgba(255,255,255,0.35)" }}>The Value</p>
-              <h2 className="font-bebas text-4xl tracking-wide mb-6" style={{ color: "#fff" }}>
-                What Your Audience Gets
-              </h2>
-              <p className="text-base mb-8 leading-relaxed" style={{ color: "rgba(255,255,255,0.55)" }}>
-                A practical tool that fits naturally into the publishing process — right before the KDP upload.
+              <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide mb-8"
+                style={{ background: "rgba(76,217,100,0.12)", color: "#4cd964", border: "1px solid rgba(76,217,100,0.2)" }}>
+                <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#4cd964" }} />
+                Partner Program — Now Open
+              </span>
+
+              <h1 className="font-black leading-none mb-6"
+                style={{ color: "#fff", fontSize: "clamp(2.6rem,5vw,4rem)", letterSpacing: "-0.03em" }}>
+                Refer authors.<br />
+                <span style={{ color: "#f05a28" }}>Earn 40%</span> on every<br />
+                pack sale.
+              </h1>
+
+              <p className="text-base leading-relaxed mb-8" style={{ color: "rgba(255,255,255,0.55)", maxWidth: 460 }}>
+                Share your link. Earn up to{" "}
+                <span className="font-bold" style={{ color: "#fff" }}>$31.60 per pack sale</span>{" "}
+                — with a 12-month attribution cookie and monthly payouts.{" "}
+                <span style={{ color: "rgba(255,255,255,0.35)" }}>The best partner deal in the KDP space.</span>
               </p>
-              <div className="space-y-3">
+
+              <div className="flex flex-wrap gap-3 mb-10">
+                <Link href="/partners/apply"
+                  className="inline-flex items-center gap-2 rounded-xl px-6 py-3.5 font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  style={{ background: "#f05a28", color: "#fff", boxShadow: "0 4px 24px rgba(240,90,40,0.4)" }}>
+                  Become a Partner →
+                </Link>
+                <button onClick={scrollToLogin}
+                  className="inline-flex items-center gap-2 rounded-xl px-6 py-3.5 font-bold text-sm transition-all hover:opacity-80"
+                  style={{ background: "rgba(255,255,255,0.07)", color: "#fff", border: "1px solid rgba(255,255,255,0.12)" }}>
+                  My Dashboard
+                </button>
+              </div>
+
+              {/* 3 key numbers */}
+              <div className="flex flex-wrap gap-6">
                 {[
-                  "Page-by-page PDF compliance check",
-                  "Clear issue detection with exact page numbers",
-                  "Annotated PDF download showing problems visually",
-                  "Confidence before uploading to KDP",
-                  "Fewer rejections. Less delay. Faster publishing.",
-                ].map((item) => (
-                  <div key={item} className="flex items-start gap-3">
-                    <span className="mt-0.5 shrink-0" style={{ color: "#4cd964" }}>✓</span>
-                    <span className="text-sm" style={{ color: "rgba(255,255,255,0.75)" }}>{item}</span>
+                  { n: "40%", label: "commission on packs" },
+                  { n: "12mo", label: "attribution cookie" },
+                  { n: "$20", label: "minimum payout" },
+                ].map((s) => (
+                  <div key={s.n}>
+                    <p className="font-black text-xl" style={{ color: "#f05a28", letterSpacing: "-0.02em" }}>{s.n}</p>
+                    <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>{s.label}</p>
                   </div>
                 ))}
               </div>
             </div>
-            {/* Mock report card */}
-            <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
-              <div className="px-5 py-4 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
-                <p className="text-xs font-bold uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.35)" }}>
-                  KDP Compliance Report
+
+            {/* Right — earn table */}
+            <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.08)" }}>
+              <div className="px-5 py-3.5" style={{ background: "rgba(255,255,255,0.05)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+                <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.35)" }}>Your earnings per sale</p>
+              </div>
+              {COMMISSIONS.map((c, i) => (
+                <div key={c.product}
+                  className="flex items-center justify-between px-5 py-4"
+                  style={{
+                    background: i === 3 ? "rgba(76,217,100,0.07)" : "rgba(255,255,255,0.02)",
+                    borderBottom: i < 3 ? "1px solid rgba(255,255,255,0.05)" : undefined,
+                  }}>
+                  <div>
+                    <p className="font-semibold text-sm" style={{ color: i === 3 ? "#4cd964" : "rgba(255,255,255,0.85)" }}>
+                      {c.product}
+                    </p>
+                    <p className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>{c.note} · {c.price}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-black text-xl leading-none" style={{ color: i === 3 ? "#4cd964" : "#fff", letterSpacing: "-0.02em" }}>
+                      {c.earn}
+                    </p>
+                    <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>{c.rate} commission</p>
+                  </div>
+                </div>
+              ))}
+              <div className="px-5 py-3.5" style={{ background: "rgba(255,255,255,0.03)", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                <p className="text-xs" style={{ color: "rgba(255,255,255,0.25)" }}>
+                  Monthly payouts via PayPal or Wise · Real-time dashboard tracking
                 </p>
               </div>
-              <div className="p-5 space-y-3">
-                <div className="flex items-center gap-4 rounded-xl px-4 py-3"
-                  style={{ background: "rgba(240,90,40,0.1)", border: "1px solid rgba(240,90,40,0.2)" }}>
-                  <span className="font-bebas text-4xl leading-none" style={{ color: "#f05a28" }}>C</span>
-                  <div>
-                    <p className="text-sm font-bold" style={{ color: "rgba(255,255,255,0.9)" }}>Issues Found</p>
-                    <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>3 problems — fix before uploading</p>
-                  </div>
-                  <span className="ml-auto font-bebas text-xl" style={{ color: "#f05a28" }}>58<span className="text-xs">/100</span></span>
-                </div>
-                {[
-                  { page: "p.3", issue: "Gutter margin too narrow", detail: "0.31\" found — 0.50\" required" },
-                  { page: "p.1", issue: "Trim size mismatch", detail: "8.5×11 detected — 6×9 expected" },
-                  { page: "p.5", issue: "Image below 300 DPI", detail: "187 DPI — will print blurry" },
-                ].map((item) => (
-                  <div key={item.issue} className="flex items-start gap-3 px-3 py-2 rounded-lg"
-                    style={{ background: "rgba(255,255,255,0.04)", borderLeft: "2px solid rgba(240,90,40,0.5)" }}>
-                    <span className="text-xs font-mono font-bold shrink-0 px-1.5 py-0.5 rounded mt-0.5"
-                      style={{ background: "rgba(240,90,40,0.15)", color: "#f05a28" }}>
-                      {item.page}
-                    </span>
-                    <div>
-                      <p className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.85)" }}>{item.issue}</p>
-                      <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>{item.detail}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
+
           </div>
         </div>
       </section>
 
-      {/* ── HOW IT WORKS ── */}
-      <section className="mx-auto max-w-6xl px-6 py-16 md:py-20">
-        <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#9B8E7E" }}>Process</p>
-        <h2 className="font-bebas text-4xl tracking-wide mb-10" style={{ color: "#2C1810" }}>How It Works</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {[
-            { step: "01", title: "Join the program", body: "Apply and get approved. Receive your unique referral link." },
-            { step: "02", title: "Share your link", body: "Add it to content, newsletters, YouTube, or social posts." },
-            { step: "03", title: "Audience converts", body: "Your audience clicks, tries the tool, and purchases." },
-            { step: "04", title: "You earn", body: "Commission recorded. Paid monthly via PayPal." },
-          ].map((s) => (
-            <div key={s.step} className="rounded-2xl border p-5"
-              style={{ background: "#fff", borderColor: "rgba(0,0,0,0.07)" }}>
-              <p className="font-bebas text-3xl mb-3" style={{ color: "rgba(240,90,40,0.25)" }}>{s.step}</p>
-              <p className="font-semibold text-sm mb-2" style={{ color: "#2C1810" }}>{s.title}</p>
-              <p className="text-sm leading-relaxed" style={{ color: "#6B5E4E" }}>{s.body}</p>
-            </div>
-          ))}
-        </div>
-        <p className="text-sm mt-8" style={{ color: "#9B8E7E" }}>
-          Track clicks, conversions, and earnings in your partner dashboard — updated in real time.
-        </p>
-      </section>
-
-      {/* ── PARTNER TOOLS ── */}
-      <section style={{ background: "rgba(240,90,40,0.04)", borderTop: "1px solid rgba(240,90,40,0.1)", borderBottom: "1px solid rgba(240,90,40,0.1)" }}>
-        <div className="mx-auto max-w-6xl px-6 py-16">
-          <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#9B8E7E" }}>What's included</p>
-          <h2 className="font-bebas text-4xl tracking-wide mb-10" style={{ color: "#2C1810" }}>What You Get as a Partner</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* ══════════════════════════════════════════════════════
+          WHY IT CONVERTS — cream bg
+      ══════════════════════════════════════════════════════ */}
+      <section>
+        <div className="mx-auto max-w-6xl px-6 py-16 md:py-20">
+          <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#9B8E7E" }}>Why it works</p>
+          <h2 className="font-black text-3xl mb-2" style={{ color: "#1A1208", letterSpacing: "-0.02em" }}>
+            The easiest product to promote<br />in the KDP space.
+          </h2>
+          <p className="text-sm mb-10" style={{ color: "#6B5E4E" }}>
+            Your audience has the problem. You have the solution. The conversion happens naturally.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
-              { icon: "🔗", title: "Unique referral link", body: "Your personalised link with 12-month tracking built in." },
-              { icon: "📊", title: "Performance dashboard", body: "Clicks, conversions, earnings, and payout status — all in one place." },
-              { icon: "🎯", title: "We do the selling", body: "Your link goes straight to a page with a clear headline, a visible price, and a single action. You share it — the page closes it." },
-              { icon: "🛠 ", title: "Real tools to demo", body: "Free tools your audience can use right now — no barrier to entry." },
+              { label: "Real problem", body: "KDP rejects files for small formatting issues. Authors lose weeks to rejection cycles. Your audience knows this pain." },
+              { label: "Clear solution", body: "Check the PDF before upload. See exactly what will fail — page by page. Simple to explain. Easy to demonstrate." },
+              { label: "Fast value", body: "Results in under 90 seconds. No waiting, no setup, no jargon. Your audience sees it work immediately." },
+              { label: "Low friction", body: "$9 entry offer. Easy for anyone to say yes to without overthinking. Packs follow naturally." },
+              { label: "Massive audience", body: "Indie authors, Canva users, self-publishers, KDP creators. One of the fastest-growing creator segments." },
+              { label: "Repeat buyers", body: "Authors scan every book. Once they use it, they buy again. Your referral keeps paying." },
             ].map((c) => (
-              <div key={c.title} className="rounded-2xl border p-5 transition-all hover:shadow-sm"
-                style={{ background: "#fff", borderColor: "rgba(0,0,0,0.07)" }}>
-                <span className="text-2xl block mb-3">{c.icon}</span>
-                <p className="font-semibold text-sm mb-1.5" style={{ color: "#2C1810" }}>{c.title}</p>
+              <div key={c.label}
+                className="rounded-2xl p-5 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
+                style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)" }}>
+                <div className="w-1.5 h-4 rounded-full mb-4" style={{ background: "#f05a28" }} />
+                <p className="font-bold text-sm mb-2" style={{ color: "#1A1208" }}>{c.label}</p>
                 <p className="text-sm leading-relaxed" style={{ color: "#6B5E4E" }}>{c.body}</p>
               </div>
             ))}
@@ -394,46 +311,191 @@ function MarketingLanding({ onSignIn, onSignInClick }: { onSignIn: (email: strin
         </div>
       </section>
 
-      {/* ── FAQ ── */}
-      <section className="mx-auto max-w-3xl px-6 py-16 md:py-20">
-        <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#9B8E7E" }}>Questions</p>
-        <h2 className="font-bebas text-4xl tracking-wide mb-8" style={{ color: "#2C1810" }}>Common Questions</h2>
-        <Accordion items={FAQS} />
+      {/* ══════════════════════════════════════════════════════
+          WHAT YOUR AUDIENCE GETS — dark bg
+      ══════════════════════════════════════════════════════ */}
+      <section style={{ background: "#1A1208" }}>
+        <div className="mx-auto max-w-6xl px-6 py-16 md:py-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "rgba(255,255,255,0.3)" }}>The product</p>
+              <h2 className="font-black text-3xl mb-4" style={{ color: "#fff", letterSpacing: "-0.02em", lineHeight: 1.2 }}>
+                What your audience<br />actually gets.
+              </h2>
+              <p className="text-base leading-relaxed mb-8" style={{ color: "rgba(255,255,255,0.45)" }}>
+                A tool that fits naturally into the publishing workflow — right before the KDP upload step. Practical, fast, and immediately useful.
+              </p>
+              <div className="space-y-3">
+                {[
+                  "Page-by-page PDF compliance check against all 26 KDP rules",
+                  "Exact page numbers for every violation found",
+                  "Annotated PDF showing every problem visually",
+                  "Plain-English fix instructions — no technical knowledge needed",
+                  "Confidence before submitting to KDP",
+                ].map((item) => (
+                  <div key={item} className="flex items-start gap-3">
+                    <span className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                      style={{ background: "rgba(76,217,100,0.15)" }}>
+                      <span className="text-xs" style={{ color: "#4cd964" }}>✓</span>
+                    </span>
+                    <span className="text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Mock report */}
+            <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <div className="px-5 py-3 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.3)" }}>KDP Compliance Report</p>
+                <span className="text-xs px-2 py-0.5 rounded-full font-bold" style={{ background: "rgba(240,90,40,0.15)", color: "#f05a28" }}>3 issues</span>
+              </div>
+              <div className="p-5">
+                {/* Score row */}
+                <div className="flex items-center gap-4 rounded-xl px-4 py-3 mb-4"
+                  style={{ background: "rgba(240,90,40,0.08)", border: "1px solid rgba(240,90,40,0.15)" }}>
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center shrink-0"
+                    style={{ border: "2px solid #f05a28" }}>
+                    <span className="font-black text-xl" style={{ color: "#f05a28" }}>C</span>
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-bold text-sm" style={{ color: "rgba(255,255,255,0.9)" }}>Readiness: 58/100</p>
+                    <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>Issues found — fix before uploading</p>
+                  </div>
+                </div>
+                <div className="space-y-2.5">
+                  {[
+                    { page: "p.3", issue: "Gutter margin too narrow", detail: "0.31\" found — 0.50\" required" },
+                    { page: "p.1", issue: "Trim size mismatch", detail: "8.5×11 detected — 6×9 expected" },
+                    { page: "p.5", issue: "Image below 300 DPI", detail: "187 DPI — will print blurry" },
+                  ].map((item) => (
+                    <div key={item.issue} className="flex items-start gap-3 rounded-lg px-3 py-2.5"
+                      style={{ background: "rgba(255,255,255,0.03)", borderLeft: "2px solid rgba(240,90,40,0.4)" }}>
+                      <span className="text-xs font-mono font-bold shrink-0 px-1.5 py-0.5 rounded"
+                        style={{ background: "rgba(240,90,40,0.15)", color: "#f05a28" }}>
+                        {item.page}
+                      </span>
+                      <div>
+                        <p className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.8)" }}>{item.issue}</p>
+                        <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>{item.detail}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
-      {/* ── SIGN IN ── */}
-      <section ref={loginRef} style={{ background: "#2C1810" }}>
+      {/* ══════════════════════════════════════════════════════
+          HOW IT WORKS — 4 steps
+      ══════════════════════════════════════════════════════ */}
+      <section>
+        <div className="mx-auto max-w-6xl px-6 py-16 md:py-20">
+          <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#9B8E7E" }}>Process</p>
+          <h2 className="font-black text-3xl mb-10" style={{ color: "#1A1208", letterSpacing: "-0.02em" }}>
+            Four steps to your first commission.
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { step: "01", title: "Apply", body: "Fill out the short form. Get approved — usually within 24 hours." },
+              { step: "02", title: "Share your link", body: "Drop it in content, newsletters, YouTube descriptions, or social posts." },
+              { step: "03", title: "Audience converts", body: "They click, scan their PDF, and purchase. You earn on every sale." },
+              { step: "04", title: "Get paid", body: "Commission recorded and paid monthly via PayPal or Wise." },
+            ].map((s, i) => (
+              <div key={s.step} className="rounded-2xl p-5 relative overflow-hidden"
+                style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)" }}>
+                <p className="font-black text-6xl absolute top-3 right-4 select-none"
+                  style={{ color: "rgba(240,90,40,0.06)", lineHeight: 1, letterSpacing: "-0.04em" }}>{s.step}</p>
+                <div className="w-7 h-7 rounded-full flex items-center justify-center mb-4"
+                  style={{ background: i === 3 ? "rgba(76,217,100,0.12)" : "rgba(240,90,40,0.08)" }}>
+                  <span className="font-black text-xs" style={{ color: i === 3 ? "#2d8a3e" : "#f05a28" }}>{i + 1}</span>
+                </div>
+                <p className="font-bold text-sm mb-2" style={{ color: "#1A1208" }}>{s.title}</p>
+                <p className="text-sm leading-relaxed" style={{ color: "#6B5E4E" }}>{s.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════
+          WHAT YOU GET — tools strip
+      ══════════════════════════════════════════════════════ */}
+      <section style={{ background: "#1A1208" }}>
         <div className="mx-auto max-w-6xl px-6 py-16">
+          <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "rgba(255,255,255,0.3)" }}>Included</p>
+          <h2 className="font-black text-3xl mb-10" style={{ color: "#fff", letterSpacing: "-0.02em" }}>
+            Everything you need to start earning.
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { icon: "🔗", title: "Referral link", body: "Unique link with 12-month attribution built in. Works everywhere." },
+              { icon: "📊", title: "Live dashboard", body: "Clicks, conversions, earnings, payout status — all in one place, real time." },
+              { icon: "🎯", title: "We handle the sale", body: "Your link goes to a dedicated conversion page. You share it — it closes." },
+              { icon: "🛠", title: "Free tools to demo", body: "Your audience can try free tools immediately. No barrier to entry." },
+            ].map((c) => (
+              <div key={c.title}
+                className="rounded-2xl p-5 transition-all hover:-translate-y-0.5 duration-200"
+                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                <span className="text-2xl block mb-3">{c.icon}</span>
+                <p className="font-bold text-sm mb-1.5" style={{ color: "rgba(255,255,255,0.9)" }}>{c.title}</p>
+                <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.4)" }}>{c.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════
+          FAQ
+      ══════════════════════════════════════════════════════ */}
+      <section>
+        <div className="mx-auto max-w-3xl px-6 py-16 md:py-20">
+          <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#9B8E7E" }}>Questions</p>
+          <h2 className="font-black text-3xl mb-8" style={{ color: "#1A1208", letterSpacing: "-0.02em" }}>
+            Common questions.
+          </h2>
+          <Accordion items={FAQS} />
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════
+          SIGN IN — dark, minimal
+      ══════════════════════════════════════════════════════ */}
+      <section ref={loginRef} style={{ background: "#1A1208" }}>
+        <div className="mx-auto max-w-5xl px-6 py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="font-bebas text-5xl tracking-wide mb-4" style={{ color: "#fff" }}>
-                Already a Partner?
+              <h2 className="font-black text-3xl mb-3" style={{ color: "#fff", letterSpacing: "-0.02em" }}>
+                Already a partner?
               </h2>
-              <p className="text-base mb-2" style={{ color: "rgba(255,255,255,0.55)" }}>
-                Sign in to your partner dashboard — view your link, track earnings, and check payouts.
+              <p className="text-base mb-2 leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>
+                Sign in to your dashboard — view your link, track earnings, and manage payouts.
               </p>
             </div>
-            <div className="rounded-2xl p-6" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
-              <p className="text-sm font-semibold mb-4" style={{ color: "rgba(255,255,255,0.9)" }}>
-                Enter your partner email
+            <div className="rounded-2xl p-6" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <p className="text-sm font-semibold mb-4" style={{ color: "rgba(255,255,255,0.7)" }}>
+                Enter your partner email<span style={{ color: "#f05a28" }}>*</span>
               </p>
               <form onSubmit={handleEmailSubmit} className="space-y-3">
                 <input
                   type="email" value={email} onChange={(e) => setEmail(e.target.value)}
                   placeholder="your@email.com" required
-                  className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none"
-                  style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", color: "#fff" }}
+                  className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none transition-all"
+                  style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }}
                 />
-                {error && <p className="text-red-400 text-xs">{error}</p>}
+                {error && <p className="text-xs" style={{ color: "#f05a28" }}>{error}</p>}
                 <button type="submit" disabled={loading || !email.trim()}
-                  className="w-full rounded-xl py-3 font-bold text-sm transition-all hover:opacity-90 disabled:opacity-40"
+                  className="w-full rounded-xl py-3 font-bold text-sm transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-40"
                   style={{ background: "#f05a28", color: "#fff" }}>
-                  {loading ? "Sending code…" : "Send verification code →"}
+                  {loading ? "Sending…" : "Send verification code →"}
                 </button>
               </form>
-              <p className="text-xs mt-4" style={{ color: "rgba(255,255,255,0.3)" }}>
+              <p className="text-xs mt-4" style={{ color: "rgba(255,255,255,0.25)" }}>
                 Not a partner yet?{" "}
-                <Link href="/partners/apply" className="underline hover:opacity-70" style={{ color: "rgba(255,255,255,0.5)" }}>
+                <Link href="/partners/apply" className="underline hover:opacity-70 transition-opacity" style={{ color: "rgba(255,255,255,0.4)" }}>
                   Apply here →
                 </Link>
               </p>
@@ -442,27 +504,33 @@ function MarketingLanding({ onSignIn, onSignInClick }: { onSignIn: (email: strin
         </div>
       </section>
 
-      {/* ── FINAL CTA ── */}
-      <section className="mx-auto max-w-6xl px-6 py-20 text-center">
-        <h2 className="font-bebas text-5xl tracking-wide mb-4" style={{ color: "#2C1810" }}>
-          Ready to Partner With manu2print?
-        </h2>
-        <p className="text-lg mb-8 mx-auto" style={{ color: "#6B5E4E", maxWidth: 480 }}>
-          Promote a tool that solves a real publishing problem — before it becomes a rejection.
-        </p>
-        <div className="flex flex-wrap items-center justify-center gap-4">
-          <Link href="/partners/apply"
-            className="inline-flex items-center gap-2 rounded-xl px-7 py-4 font-bold text-base transition-all hover:scale-[1.02]"
-            style={{ background: "#f05a28", color: "#fff", boxShadow: "0 4px 20px rgba(240,90,40,0.3)" }}>
-            Join the Partner Program
-          </Link>
-          <button onClick={onSignInClick ?? scrollToLogin}
-            className="text-sm font-medium transition-colors hover:opacity-70 underline underline-offset-2"
-            style={{ color: "#6B5E4E" }}>
-            Already a partner? Sign in →
-          </button>
+      {/* ══════════════════════════════════════════════════════
+          FINAL CTA — cream, bold
+      ══════════════════════════════════════════════════════ */}
+      <section>
+        <div className="mx-auto max-w-4xl px-6 py-20 text-center">
+          <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: "#9B8E7E" }}>Ready?</p>
+          <h2 className="font-black mb-4" style={{ color: "#1A1208", fontSize: "clamp(2rem,4vw,3rem)", letterSpacing: "-0.03em", lineHeight: 1.1 }}>
+            Earn up to{" "}
+            <span style={{ color: "#f05a28" }}>$31.60 per sale.</span><br />
+            Start today.
+          </h2>
+          <p className="text-base mb-8 mx-auto" style={{ color: "#6B5E4E", maxWidth: 420 }}>
+            Promote a tool that solves a real publishing problem — before it becomes a rejection.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <Link href="/partners/apply"
+              className="inline-flex items-center gap-2 rounded-xl px-7 py-4 font-bold text-base transition-all hover:scale-[1.02] active:scale-[0.98]"
+              style={{ background: "#f05a28", color: "#fff", boxShadow: "0 4px 24px rgba(240,90,40,0.35)" }}>
+              Become a Partner →
+            </Link>
+            <button onClick={onSignInClick ?? scrollToLogin}
+              className="text-sm font-medium transition-opacity hover:opacity-60"
+              style={{ color: "#9B8E7E" }}>
+              Already a partner? Sign in →
+            </button>
+          </div>
         </div>
-        <p className="text-xs mt-6" style={{ color: "#9B8E7E" }}>Simple to start. Easy to share.</p>
       </section>
 
       <footer className="border-t py-6 text-center" style={{ borderColor: "rgba(0,0,0,0.07)" }}>
