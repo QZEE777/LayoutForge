@@ -352,10 +352,10 @@ export default function KdpPdfCheckerPage() {
               <span style={{ color: "#4cd964", fontWeight: "bold", fontSize: "1.1rem" }}>2print</span>
             </span>
           </Link>
-          <Link href="/my-orders"
+          <Link href="/dashboard"
             className="text-xs font-medium hover:opacity-70 transition-opacity"
             style={{ color: "#9B8E7E" }}>
-            Already purchased? View orders →
+            Already purchased? View dashboard →
           </Link>
         </div>
       </header>

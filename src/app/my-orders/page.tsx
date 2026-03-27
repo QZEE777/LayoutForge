@@ -1,7 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
+
+const SESSION_KEY = "m2p_orders_session";
+const SESSION_TTL = 45 * 60 * 1000; // 45 minutes
 
 type Payment = {
   id: string;
@@ -58,7 +62,52 @@ function planLabel(plan: string) {
   return plan;
 }
 
-// ── Step 1: Email entry ──────────────────────────────────────────────────────
+function saveSession(data: OrderData) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(SESSION_KEY, JSON.stringify({
+    data,
+    expiresAt: Date.now() + SESSION_TTL,
+  }));
+}
+
+function loadSession(): OrderData | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    const { data, expiresAt } = JSON.parse(raw);
+    if (Date.now() > expiresAt) { localStorage.removeItem(SESSION_KEY); return null; }
+    return data as OrderData;
+  } catch { return null; }
+}
+
+function clearSession() {
+  if (typeof window !== "undefined") localStorage.removeItem(SESSION_KEY);
+}
+
+// ── Nav ───────────────────────────────────────────────────────────────────────
+function Nav() {
+  return (
+    <header className="border-b" style={{ borderColor: "rgba(0,0,0,0.07)", background: "#FAF7EE" }}>
+      <div className="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2">
+          <Image src="/MANNY AVATAR.png" alt="manu2print" width={32} height={32} className="rounded-full" />
+          <span>
+            <span style={{ color: "#F05A28", fontWeight: "bold", fontSize: "1.1rem" }}>manu</span>
+            <span style={{ color: "#4cd964", fontWeight: "bold", fontSize: "1.1rem" }}>2print</span>
+          </span>
+        </Link>
+        <Link href="/kdp-pdf-checker"
+          className="text-xs font-medium hover:opacity-70 transition-opacity"
+          style={{ color: "#9B8E7E" }}>
+          Check my PDF →
+        </Link>
+      </div>
+    </header>
+  );
+}
+
+// ── Step 1: Email entry ───────────────────────────────────────────────────────
 function EmailStep({ onNext }: { onNext: (email: string, token: string, expiresAt: number) => void }) {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -92,16 +141,18 @@ function EmailStep({ onNext }: { onNext: (email: string, token: string, expiresA
   return (
     <div className="w-full max-w-md mx-auto">
       <div className="text-center mb-8">
-        <h1 className="font-bebas text-4xl text-m2p-ink mb-2 tracking-wide">My Orders</h1>
-        <p className="text-m2p-muted text-sm leading-relaxed">
-          Enter the email address you used at checkout.<br />
-          We&apos;ll send you a 6-digit code to verify it&apos;s you.
+        <h1 className="text-3xl font-black mb-2" style={{ color: "#1A1208", letterSpacing: "-0.02em" }}>
+          My Orders
+        </h1>
+        <p className="text-sm leading-relaxed" style={{ color: "#6B6151" }}>
+          Enter the email you used at checkout.<br />
+          We&apos;ll send a 6-digit code — you stay logged in for 45 minutes.
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-m2p-ink mb-2">
+          <label className="block text-sm font-medium mb-2" style={{ color: "#1A1208" }}>
             Email address
           </label>
           <input
@@ -110,24 +161,26 @@ function EmailStep({ onNext }: { onNext: (email: string, token: string, expiresA
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
             required
-            className="w-full border border-m2p-border rounded-xl px-4 py-3 text-m2p-ink placeholder-m2p-muted text-sm focus:outline-none focus:border-m2p-green bg-white"
+            className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none"
+            style={{ border: "1px solid rgba(0,0,0,0.12)", color: "#1A1208", background: "#fff" }}
           />
         </div>
 
-        {error && <p className="text-red-500 text-xs">{error}</p>}
+        {error && <p className="text-xs" style={{ color: "#DC2626" }}>{error}</p>}
 
         <button
           type="submit"
           disabled={loading || !email.trim()}
-          className="w-full bg-m2p-orange hover:opacity-90 disabled:opacity-50 text-white font-bold py-3 rounded-xl transition-opacity text-sm"
+          className="w-full font-bold py-3 rounded-xl text-sm transition-opacity disabled:opacity-50"
+          style={{ background: "#f05a28", color: "#fff" }}
         >
           {loading ? "Sending code…" : "Send verification code →"}
         </button>
       </form>
 
-      <p className="text-center text-m2p-muted text-xs mt-6">
+      <p className="text-center text-xs mt-6" style={{ color: "#9B8E7E" }}>
         No purchase yet?{" "}
-        <Link href="/kdp-pdf-checker" className="text-m2p-orange hover:underline font-medium">
+        <Link href="/kdp-pdf-checker" className="font-medium hover:underline" style={{ color: "#f05a28" }}>
           Check my PDF — $9
         </Link>
       </p>
@@ -135,13 +188,9 @@ function EmailStep({ onNext }: { onNext: (email: string, token: string, expiresA
   );
 }
 
-// ── Step 2: Code verification ────────────────────────────────────────────────
+// ── Step 2: Code verification ─────────────────────────────────────────────────
 function CodeStep({
-  email,
-  token,
-  expiresAt,
-  onVerified,
-  onBack,
+  email, token, expiresAt, onVerified, onBack,
 }: {
   email: string;
   token: string;
@@ -180,144 +229,137 @@ function CodeStep({
     <div className="w-full max-w-md mx-auto">
       <div className="text-center mb-8">
         <div className="text-4xl mb-3">📧</div>
-        <h1 className="font-bebas text-4xl text-m2p-ink mb-2 tracking-wide">Check your email</h1>
-        <p className="text-m2p-muted text-sm leading-relaxed">
-          We sent a 6-digit code to<br />
-          <span className="font-medium text-m2p-ink">{email}</span>
+        <h1 className="text-3xl font-black mb-2" style={{ color: "#1A1208", letterSpacing: "-0.02em" }}>
+          Check your email
+        </h1>
+        <p className="text-sm leading-relaxed" style={{ color: "#6B6151" }}>
+          6-digit code sent to{" "}
+          <span className="font-semibold" style={{ color: "#1A1208" }}>{email}</span>
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-m2p-ink mb-2">
-            Verification code
-          </label>
-          <input
-            type="text"
-            value={code}
-            onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-            placeholder="000000"
-            maxLength={6}
-            required
-            className="w-full border border-m2p-border rounded-xl px-4 py-3 text-m2p-ink text-center text-2xl font-bold tracking-widest placeholder-m2p-muted focus:outline-none focus:border-m2p-green bg-white"
-          />
-        </div>
+        <input
+          type="text"
+          value={code}
+          onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+          placeholder="000000"
+          maxLength={6}
+          required
+          className="w-full rounded-xl px-4 py-3 text-center text-2xl font-bold tracking-widest focus:outline-none"
+          style={{ border: "1px solid rgba(240,90,40,0.4)", color: "#1A1208", background: "#fff" }}
+        />
 
-        {error && <p className="text-red-500 text-xs text-center">{error}</p>}
+        {error && <p className="text-xs text-center" style={{ color: "#DC2626" }}>{error}</p>}
 
         <button
           type="submit"
           disabled={loading || code.length !== 6}
-          className="w-full bg-m2p-orange hover:opacity-90 disabled:opacity-50 text-white font-bold py-3 rounded-xl transition-opacity text-sm"
+          className="w-full font-bold py-3 rounded-xl text-sm transition-opacity disabled:opacity-50"
+          style={{ background: "#f05a28", color: "#fff" }}
         >
           {loading ? "Verifying…" : "View my orders →"}
         </button>
       </form>
 
       <p className="text-center mt-4">
-        <button
-          onClick={onBack}
-          className="text-m2p-muted hover:text-m2p-ink text-xs underline"
-        >
+        <button onClick={onBack} className="text-xs underline hover:opacity-70" style={{ color: "#9B8E7E" }}>
           ← Use a different email
         </button>
-      </p>
-
-      <p className="text-center text-m2p-muted text-xs mt-2">
-        Code expires in 10 minutes. Check your spam folder if you don&apos;t see it.
       </p>
     </div>
   );
 }
 
-// ── Step 3: Orders display ───────────────────────────────────────────────────
+// ── Step 3: Orders display ────────────────────────────────────────────────────
 function OrdersView({ data, onSignOut }: { data: OrderData; onSignOut: () => void }) {
   const hasOrders = data.payments.length > 0;
   const hasSub = data.subscriptions.length > 0;
   const hasBeta = data.betaAccess.length > 0;
-
   const activeSub = data.subscriptions.find(
     (s) => s.status === "active" && new Date(s.current_period_end) > new Date()
   );
 
   return (
     <div className="w-full max-w-2xl mx-auto">
-      {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="font-bebas text-4xl text-m2p-ink tracking-wide">My Orders</h1>
-          <p className="text-m2p-muted text-sm">{data.email}</p>
+          <h1 className="text-3xl font-black" style={{ color: "#1A1208", letterSpacing: "-0.02em" }}>
+            My Orders
+          </h1>
+          <p className="text-sm mt-0.5" style={{ color: "#9B8E7E" }}>{data.email}</p>
         </div>
         <button
           onClick={onSignOut}
-          className="text-xs text-m2p-muted hover:text-m2p-ink underline"
+          className="text-xs underline hover:opacity-70"
+          style={{ color: "#9B8E7E" }}
         >
           Sign out
         </button>
       </div>
 
-      {/* Active subscription banner */}
       {activeSub && (
-        <div className="bg-m2p-green/10 border border-m2p-green rounded-xl px-5 py-4 mb-6 flex items-center gap-3">
+        <div className="rounded-xl px-5 py-4 mb-6 flex items-center gap-3"
+          style={{ background: "rgba(76,217,100,0.08)", border: "1px solid rgba(76,217,100,0.25)" }}>
           <span className="text-2xl">✅</span>
           <div>
-            <p className="font-semibold text-m2p-green text-sm">
+            <p className="font-semibold text-sm" style={{ color: "#2d8a3e" }}>
               {planLabel(activeSub.plan)} — Active
             </p>
-            <p className="text-xs text-m2p-muted">
+            <p className="text-xs" style={{ color: "#6B6151" }}>
               Access until {formatDate(activeSub.current_period_end)}
             </p>
           </div>
         </div>
       )}
 
-      {/* Beta access banner */}
       {hasBeta && (
-        <div className="bg-m2p-orange/10 border border-m2p-orange/30 rounded-xl px-5 py-4 mb-6 flex items-center gap-3">
+        <div className="rounded-xl px-5 py-4 mb-6 flex items-center gap-3"
+          style={{ background: "rgba(240,90,40,0.07)", border: "1px solid rgba(240,90,40,0.2)" }}>
           <span className="text-2xl">🎟</span>
           <div>
-            <p className="font-semibold text-m2p-orange text-sm">Beta Access</p>
-            <p className="text-xs text-m2p-muted">
-              You have beta access to: {data.betaAccess.map((b) => toolLabel(b.tool)).join(", ")}
+            <p className="font-semibold text-sm" style={{ color: "#f05a28" }}>Beta Access</p>
+            <p className="text-xs" style={{ color: "#6B6151" }}>
+              {data.betaAccess.map((b) => toolLabel(b.tool)).join(", ")}
             </p>
           </div>
         </div>
       )}
 
-      {/* No orders state */}
       {!hasOrders && !hasSub && !hasBeta && (
-        <div className="text-center py-12 border border-m2p-border rounded-xl bg-white">
-          <p className="text-m2p-muted text-sm mb-4">No purchases found for this email.</p>
-          <Link
-            href="/kdp-pdf-checker"
-            className="inline-block bg-m2p-orange text-white font-bold px-6 py-3 rounded-xl text-sm hover:opacity-90 transition-opacity"
-          >
+        <div className="text-center py-12 rounded-xl"
+          style={{ border: "1px solid rgba(0,0,0,0.07)", background: "#fff" }}>
+          <p className="text-sm mb-4" style={{ color: "#9B8E7E" }}>No purchases found for this email.</p>
+          <Link href="/kdp-pdf-checker"
+            className="inline-block font-bold px-6 py-3 rounded-xl text-sm"
+            style={{ background: "#f05a28", color: "#fff" }}>
             Check my PDF — $9
           </Link>
         </div>
       )}
 
-      {/* Payment history */}
       {hasOrders && (
         <section className="mb-8">
-          <h2 className="font-bebas text-xl text-m2p-ink tracking-wide mb-4">Purchase History</h2>
+          <h2 className="text-sm font-bold uppercase tracking-widest mb-4" style={{ color: "#9B8E7E" }}>
+            Purchase History
+          </h2>
           <div className="space-y-3">
             {data.payments.map((p) => (
-              <div
-                key={p.id}
-                className="bg-white border border-m2p-border rounded-xl px-5 py-4 flex items-center justify-between gap-4"
-              >
+              <div key={p.id}
+                className="rounded-xl px-5 py-4 flex items-center justify-between gap-4"
+                style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)" }}>
                 <div className="min-w-0">
-                  <p className="font-semibold text-m2p-ink text-sm truncate">
+                  <p className="font-semibold text-sm truncate" style={{ color: "#1A1208" }}>
                     {toolLabel(p.tool)}
                   </p>
-                  <p className="text-xs text-m2p-muted mt-0.5">
+                  <p className="text-xs mt-0.5" style={{ color: "#9B8E7E" }}>
                     {p.payment_type === "subscription" ? "6-Month Access" : "Single Use"} · {formatDate(p.created_at)}
                   </p>
                 </div>
                 <div className="text-right flex-shrink-0">
-                  <p className="font-bold text-m2p-ink text-sm">{formatAmount(p.amount)}</p>
-                  <span className="inline-block text-xs bg-m2p-green/15 text-m2p-green font-medium px-2 py-0.5 rounded-full mt-1">
+                  <p className="font-bold text-sm" style={{ color: "#1A1208" }}>{formatAmount(p.amount)}</p>
+                  <span className="inline-block text-xs font-medium px-2 py-0.5 rounded-full mt-1"
+                    style={{ background: "rgba(76,217,100,0.12)", color: "#2d8a3e" }}>
                     {p.status}
                   </span>
                 </div>
@@ -327,22 +369,21 @@ function OrdersView({ data, onSignOut }: { data: OrderData; onSignOut: () => voi
         </section>
       )}
 
-      {/* CTA */}
-      <div className="bg-m2p-ink rounded-xl px-6 py-5 flex items-center justify-between gap-4">
+      <div className="rounded-xl px-6 py-5 flex items-center justify-between gap-4"
+        style={{ background: "#1A1208" }}>
         <div>
-          <p className="font-semibold text-white text-sm">Need to check another PDF?</p>
-          <p className="text-white/50 text-xs mt-0.5">$9 per check — results in minutes</p>
+          <p className="font-semibold text-sm" style={{ color: "#fff" }}>Need to check another PDF?</p>
+          <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>$9 per check — results in minutes</p>
         </div>
-        <Link
-          href="/kdp-pdf-checker"
-          className="flex-shrink-0 bg-m2p-orange hover:opacity-90 text-white font-bold px-5 py-2.5 rounded-lg text-sm transition-opacity"
-        >
+        <Link href="/kdp-pdf-checker"
+          className="flex-shrink-0 font-bold px-5 py-2.5 rounded-lg text-sm transition-opacity hover:opacity-90"
+          style={{ background: "#f05a28", color: "#fff" }}>
           Check my PDF →
         </Link>
       </div>
 
       <p className="text-center mt-6">
-        <Link href="/" className="text-m2p-muted hover:text-m2p-ink text-xs underline">
+        <Link href="/" className="text-xs underline hover:opacity-70" style={{ color: "#9B8E7E" }}>
           ← Back to home
         </Link>
       </p>
@@ -350,7 +391,7 @@ function OrdersView({ data, onSignOut }: { data: OrderData; onSignOut: () => voi
   );
 }
 
-// ── Main page ────────────────────────────────────────────────────────────────
+// ── Main page ─────────────────────────────────────────────────────────────────
 export default function MyOrdersPage() {
   const [step, setStep] = useState<"email" | "code" | "orders">("email");
   const [email, setEmail] = useState("");
@@ -358,24 +399,33 @@ export default function MyOrdersPage() {
   const [expiresAt, setExpiresAt] = useState(0);
   const [orderData, setOrderData] = useState<OrderData | null>(null);
 
-  return (
-    <div className="min-h-screen bg-m2p-ivory flex flex-col">
-      {/* Nav */}
-      <header className="border-b border-m2p-border bg-m2p-ivory">
-        <div className="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
-          <Link href="/">
-            <span className="font-bebas text-xl tracking-widest">
-              <span className="text-m2p-orange">manu</span>
-              <span className="text-m2p-green">2print</span>
-            </span>
-          </Link>
-          <Link href="/kdp-pdf-checker" className="text-xs text-m2p-muted hover:text-m2p-orange transition-colors">
-            Check my PDF →
-          </Link>
-        </div>
-      </header>
+  // Restore session from localStorage on mount
+  useEffect(() => {
+    const saved = loadSession();
+    if (saved) {
+      setOrderData(saved);
+      setStep("orders");
+    }
+  }, []);
 
-      {/* Content */}
+  function handleVerified(data: OrderData) {
+    saveSession(data);
+    setOrderData(data);
+    setStep("orders");
+  }
+
+  function handleSignOut() {
+    clearSession();
+    setOrderData(null);
+    setEmail("");
+    setToken("");
+    setExpiresAt(0);
+    setStep("email");
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col" style={{ background: "#FAF7EE" }}>
+      <Nav />
       <main className="flex-1 flex items-center justify-center px-6 py-12">
         {step === "email" && (
           <EmailStep
@@ -392,24 +442,12 @@ export default function MyOrdersPage() {
             email={email}
             token={token}
             expiresAt={expiresAt}
-            onVerified={(data) => {
-              setOrderData(data);
-              setStep("orders");
-            }}
+            onVerified={handleVerified}
             onBack={() => setStep("email")}
           />
         )}
         {step === "orders" && orderData && (
-          <OrdersView
-            data={orderData}
-            onSignOut={() => {
-              setOrderData(null);
-              setEmail("");
-              setToken("");
-              setExpiresAt(0);
-              setStep("email");
-            }}
-          />
+          <OrdersView data={orderData} onSignOut={handleSignOut} />
         )}
       </main>
     </div>
