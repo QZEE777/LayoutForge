@@ -7,6 +7,33 @@ import Image from "next/image";
 
 const APP_URL = "https://www.manu2print.com";
 
+// ── Session persistence ────────────────────────────────────────────────────────
+const PARTNER_SESSION_KEY = "m2p_partner_session";
+const PARTNER_SESSION_TTL = 45 * 60 * 1000; // 45 minutes
+
+function savePartnerSession(data: AffiliateData) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(PARTNER_SESSION_KEY, JSON.stringify({
+    data,
+    expiresAt: Date.now() + PARTNER_SESSION_TTL,
+  }));
+}
+
+function loadPartnerSession(): AffiliateData | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(PARTNER_SESSION_KEY);
+    if (!raw) return null;
+    const { data, expiresAt } = JSON.parse(raw);
+    if (Date.now() > expiresAt) { localStorage.removeItem(PARTNER_SESSION_KEY); return null; }
+    return data as AffiliateData;
+  } catch { return null; }
+}
+
+function clearPartnerSession() {
+  if (typeof window !== "undefined") localStorage.removeItem(PARTNER_SESSION_KEY);
+}
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 type Referral = {
@@ -1338,6 +1365,13 @@ export default function AffiliatesPage() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
+    // Restore saved session first — skip login entirely if valid
+    const saved = loadPartnerSession();
+    if (saved) {
+      setData(saved);
+      setStep("dashboard");
+      return;
+    }
     // ?signin=1 → skip marketing, go straight to email entry
     if (searchParams.get("signin") === "1") {
       setStep("signin");
@@ -1385,7 +1419,7 @@ export default function AffiliatesPage() {
     return (
       <CodeStep
         email={email} token={token} expiresAt={expiresAt}
-        onVerified={(d) => { setData(d); setStep("dashboard"); }}
+        onVerified={(d) => { savePartnerSession(d); setData(d); setStep("dashboard"); }}
         onBack={() => setStep("signin")}
       />
     );
@@ -1395,7 +1429,7 @@ export default function AffiliatesPage() {
     return (
       <Dashboard
         data={data}
-        onSignOut={() => { setData(null); setEmail(""); setToken(""); setStep("landing"); }}
+        onSignOut={() => { clearPartnerSession(); setData(null); setEmail(""); setToken(""); setStep("landing"); }}
       />
     );
   }
