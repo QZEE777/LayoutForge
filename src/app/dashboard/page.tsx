@@ -31,12 +31,6 @@ type Summary = {
   credits: { total: number; used: number; remaining: number };
 };
 
-type Usage = {
-  usage_count: number;
-  is_founder: boolean;
-  uses_remaining: number | null;
-};
-
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function gradeColor(grade: string | null): string {
@@ -114,7 +108,6 @@ function EmptyState({ icon, title, body, action, actionHref }: {
 export default function DashboardPage() {
   const router = useRouter();
   const [user,    setUser]    = useState<User | null>(null);
-  const [usage,   setUsage]   = useState<Usage | null>(null);
   const [summary, setSummary] = useState<Summary | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -123,13 +116,10 @@ export default function DashboardPage() {
     client.auth.getUser().then(({ data: { user } }) => {
       if (!user) { router.replace("/auth"); return; }
       setUser(user);
-      Promise.all([
-        fetch("/api/track-usage",      { method: "GET", credentials: "include" }).then((r) => r.ok ? r.json() : null),
-        fetch("/api/dashboard/summary", { method: "GET", credentials: "include" }).then((r) => r.ok ? r.json() : null),
-      ]).then(([usageData, summaryData]) => {
-        if (usageData)   setUsage({ usage_count: usageData.usage_count, is_founder: !!usageData.is_founder, uses_remaining: usageData.uses_remaining ?? null });
-        if (summaryData) setSummary(summaryData);
-      }).finally(() => setLoading(false));
+      fetch("/api/dashboard/summary", { method: "GET", credentials: "include" })
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => { if (data) setSummary(data); })
+        .finally(() => setLoading(false));
     });
   }, [router]);
 
@@ -207,15 +197,7 @@ export default function DashboardPage() {
             <h1 className="font-bebas text-3xl tracking-wide" style={{ color: "#2C1810" }}>
               Publishing Dashboard
             </h1>
-            <p className="text-sm mt-0.5" style={{ color: "#9B8E7E" }}>
-              {user.email}
-              {usage?.is_founder && (
-                <span className="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold"
-                  style={{ background: "rgba(76,217,100,0.15)", color: "#2d8a3e" }}>
-                  Founder Access
-                </span>
-              )}
-            </p>
+            <p className="text-sm mt-0.5" style={{ color: "#9B8E7E" }}>{user.email}</p>
           </div>
         </div>
 
@@ -315,9 +297,9 @@ export default function DashboardPage() {
               </div>
             </div>
           ) : (
-            <EmptyState icon="📄" title="No scans yet"
-              body="Run your first KDP compliance check to see results here."
-              action="Check My PDF" actionHref="/kdp-pdf-checker" />
+            <EmptyState icon="📄" title="Upload your first PDF"
+              body="Check your file against all 26 KDP rules before you submit — results in under 90 seconds."
+              action="Check Before You Upload — $9" actionHref="/kdp-pdf-checker" />
           )}
         </section>
 
@@ -342,7 +324,7 @@ export default function DashboardPage() {
                       <Link href={`/download/${scan.id}?source=checker`}
                         className="shrink-0 text-xs font-semibold rounded-lg px-3 py-2 transition-all hover:opacity-80"
                         style={{ background: "rgba(240,90,40,0.1)", color: "#c04010" }}>
-                        Fix →
+                        Review Report →
                       </Link>
                     </div>
                   ))}
@@ -377,8 +359,8 @@ export default function DashboardPage() {
               ) : (
                 <div className="rounded-xl border px-5 py-6 text-center"
                   style={{ borderColor: "rgba(0,0,0,0.07)", background: "rgba(0,0,0,0.02)" }}>
-                  <p className="text-sm font-semibold" style={{ color: "#6B5E4E" }}>No files passed yet</p>
-                  <p className="text-xs mt-1" style={{ color: "#9B8E7E" }}>Fix your issues and re-check to see clean files here.</p>
+                  <p className="text-sm font-semibold" style={{ color: "#6B5E4E" }}>Nothing ready yet</p>
+                  <p className="text-xs mt-1" style={{ color: "#9B8E7E" }}>Review your report, fix the flagged issues, re-check — clean files appear here.</p>
                 </div>
               )}
             </section>
@@ -456,7 +438,7 @@ export default function DashboardPage() {
           <div className="rounded-2xl border p-5"
             style={{ background: "#fff", borderColor: "rgba(0,0,0,0.07)" }}>
             <div className="flex items-center gap-1 flex-wrap">
-              {["Upload PDF", "Scan", "Fix Issues", "Publish to KDP"].map((step, i, arr) => {
+              {["Upload PDF", "Scan", "Review Report", "Publish to KDP"].map((step, i, arr) => {
                 const isActive = !lastScan && i === 0
                   ? true
                   : lastScan && !lastScan.kdpReady && i === 2
