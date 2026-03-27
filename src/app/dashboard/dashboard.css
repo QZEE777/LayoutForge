@@ -1,0 +1,18 @@
+/* manu2print dashboard — light theme scoped to .m2p-dash */
+/* Does NOT affect any public pages */
+.m2p-dash {
+  --d-bg:       #f8fafc;
+  --d-card:     #ffffff;
+  --d-border:   #e2e8f0;
+  --d-muted:    #f1f5f9;
+  --d-fg:       #0f172a;
+  --d-fg-muted: #64748b;
+  --d-primary:  #F05A28;
+  --d-accent:   #10b981;
+  --d-danger:   #ef4444;
+
+  background-color: var(--d-bg);
+  color: var(--d-fg);
+  min-height: 100vh;
+  font-family: Inter, system-ui, sans-serif;
+}
