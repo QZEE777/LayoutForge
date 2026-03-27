@@ -36,23 +36,27 @@ const CHECKS = [
 const FAQS = [
   {
     q: "When do I pay?",
-    a: "After you see the report. You upload your PDF free, we scan it, and you pay $9 to unlock the full annotated PDF and fix instructions. If your file is perfect, you still see the pass confirmation.",
+    a: "After the scan. Upload free, see your readiness score and issue count — then pay $9 to unlock the full annotated report and fix instructions.",
   },
   {
     q: "What formats does it accept?",
-    a: "PDF only — which is exactly what KDP requires. Whether you designed in Canva, InDesign, Word, or Affinity, just export as PDF and upload that file.",
+    a: "PDF only. That's what KDP requires. Export from Canva, InDesign, Word, or Affinity Publisher — then upload that file.",
   },
   {
     q: "How long does it take?",
-    a: "Most scans complete in under 90 seconds. Larger files (100+ pages with many images) may take up to 3 minutes.",
+    a: "Under 90 seconds for most files. Larger files (100+ pages, lots of images) may take up to 3 minutes.",
   },
   {
     q: "What does the annotated PDF show?",
-    a: "Each problem is highlighted directly on the relevant page — you see exactly where the margin violation is, which image is low-res, or where the trim bleeds incorrectly. Plus plain-English instructions to fix each one.",
+    a: "Every issue highlighted on the exact page it appears — margin violations, low-res images, trim errors. Plus plain-English instructions for fixing each one.",
+  },
+  {
+    q: "Will fixing these issues guarantee KDP approval?",
+    a: "No tool can guarantee that — Amazon's review is theirs. But fixing every flagged issue removes the most common rejection causes. Your odds go up significantly.",
   },
   {
     q: "Does it cover interior manuscripts only?",
-    a: "Yes — this tool checks interior PDFs (the book content). Cover files have different specs; a separate cover check is coming soon.",
+    a: "Yes. This checks interior PDFs. Cover files have different specs — cover checking is coming soon.",
   },
 ];
 
@@ -223,8 +227,8 @@ function UploadWidget({
 
         <p className="text-center text-xs mt-3" style={{ color: "#9B8E7E" }}>
           {file
-            ? "✓ File ready · report in ~90 seconds"
-            : "You see the report before you pay — then decide"}
+            ? "✓ File ready · score in ~90 seconds · $9 to unlock full report"
+            : "Score is free. $9 unlocks the full annotated report."}
         </p>
       </div>
     </div>
@@ -368,28 +372,41 @@ export default function KdpPdfCheckerPage() {
               <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide mb-6"
                 style={{ background: "rgba(240,90,40,0.08)", color: "#f05a28", border: "1px solid rgba(240,90,40,0.15)" }}>
                 <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#f05a28" }} />
-                $9 · No subscription · Results in ~90 seconds
+                $9 · One time · Results in ~90 seconds
               </div>
 
-              <h1 className="font-black leading-tight mb-5"
-                style={{ color: "#1A1208", fontSize: "clamp(2rem,4vw,2.8rem)", letterSpacing: "-0.025em" }}>
-                KDP Will Reject Your Manuscript.{" "}
-                <span style={{ color: "#f05a28" }}>Unless You Check It First.</span>
+              <h1 className="font-black leading-tight mb-4"
+                style={{ color: "#1A1208", fontSize: "clamp(2rem,4vw,2.8rem)", letterSpacing: "-0.025em", textWrap: "balance" } as React.CSSProperties}>
+                Your PDF looks right.{" "}
+                <span style={{ color: "#f05a28" }}>KDP will still reject it.</span>
               </h1>
 
-              <p className="text-lg leading-relaxed mb-8" style={{ color: "#3a3020" }}>
-                Upload your PDF. Get a full compliance report in 90 seconds —
-                margins, trim size, bleed, fonts, and image resolution checked
-                against all <strong>26 KDP rules</strong>. Every issue flagged
-                with the exact page number, <em>before</em> Amazon sees it.
+              <p className="text-base font-semibold mb-4" style={{ color: "#3a3020" }}>
+                Check it before you upload — or fix it after rejection.
               </p>
 
-              <div className="space-y-2.5 mb-8">
+              <p className="text-base leading-relaxed mb-5" style={{ color: "#6B6151" }}>
+                Get a precise, page-by-page compliance report in minutes — so you can fix every issue before Amazon sees it.
+              </p>
+
+              <div className="rounded-xl px-4 py-3 mb-7"
+                style={{ background: "rgba(240,90,40,0.05)", border: "1px solid rgba(240,90,40,0.12)" }}>
+                <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: "#f05a28" }}>Most files fail on:</p>
+                <div className="grid grid-cols-2 gap-1">
+                  {["Margins", "Trim size", "Font embedding", "Bleed settings"].map((f) => (
+                    <div key={f} className="flex items-center gap-1.5 text-sm" style={{ color: "#3a3020" }}>
+                      <span style={{ color: "#f05a28" }}>·</span> {f}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2.5 mb-7">
                 {[
-                  "Annotated PDF with problems highlighted page by page",
-                  "Exact page numbers for every violation found",
+                  "Annotated PDF with every issue highlighted by page",
+                  "Exact page numbers for every violation",
                   "Plain-English fix instructions — no guesswork",
-                  "Works with Canva, InDesign, Word, and any PDF export",
+                  "Works with Canva, InDesign, Word, and PDF exports",
                 ].map((item) => (
                   <div key={item} className="flex items-start gap-3">
                     <span className="shrink-0 mt-0.5" style={{ color: "#4cd964" }}>✓</span>
@@ -398,8 +415,8 @@ export default function KdpPdfCheckerPage() {
                 ))}
               </div>
 
-              <div className="flex flex-wrap gap-5 text-xs" style={{ color: "#9B8E7E" }}>
-                {["🔒 Secure upload", "🚫 No account needed", "💳 Pay only after you see the report", "📥 Instant download"].map((t) => (
+              <div className="flex flex-wrap gap-4 text-xs" style={{ color: "#9B8E7E" }}>
+                {["🔒 Secure upload", "🚫 No account required", "📊 See score free · $9 unlocks full report", "📥 Instant download"].map((t) => (
                   <span key={t}>{t}</span>
                 ))}
               </div>
@@ -436,29 +453,33 @@ export default function KdpPdfCheckerPage() {
                 style={{ color: "rgba(255,255,255,0.25)" }}>
                 The problem
               </p>
-              <h2 className="font-black leading-tight mb-5"
+              <h2 className="font-black leading-tight mb-4"
                 style={{ color: "#fff", fontSize: "clamp(1.6rem,3vw,2.2rem)", letterSpacing: "-0.02em" }}>
                 Amazon doesn&apos;t tell you what&apos;s wrong.
+                <br />
+                <span style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.75em", fontWeight: 700 }}>It sends you back to guess.</span>
               </h2>
-              <p className="text-base leading-relaxed mb-8" style={{ color: "rgba(255,255,255,0.5)" }}>
-                They reject your file with a vague error and send you back to guess.
-                Most authors fix one thing, re-upload, wait again — and get rejected
-                for something else they didn&apos;t know was there. It costs you days.
-                Sometimes weeks.
+              <p className="text-base leading-relaxed mb-3" style={{ color: "rgba(255,255,255,0.5)" }}>
+                Upload → wait → vague rejection → guess → re-upload → repeat.
+                Sometimes for days. Sometimes for weeks.
               </p>
+              <p className="text-sm font-bold mb-6" style={{ color: "rgba(255,255,255,0.3)" }}>
+                Every rejection resets your timeline.
+              </p>
+              <p className="text-base font-semibold mb-5" style={{ color: "rgba(255,255,255,0.7)" }}>Or…</p>
               <div className="space-y-3">
-                <div className="rounded-xl px-4 py-3 flex items-start gap-3"
-                  style={{ background: "rgba(240,90,40,0.08)", border: "1px solid rgba(240,90,40,0.15)" }}>
-                  <span className="text-sm shrink-0 mt-0.5" style={{ color: "#f05a28" }}>✗</span>
+                <div className="rounded-xl px-4 py-3"
+                  style={{ background: "rgba(240,90,40,0.08)", border: "1px solid rgba(240,90,40,0.2)" }}>
+                  <p className="text-xs font-bold uppercase tracking-wide mb-1.5" style={{ color: "#f05a28" }}>Without manu2print</p>
                   <span className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
-                    Upload → wait → vague rejection → guess → re-upload → repeat
+                    Upload → wait → rejection → guess → repeat
                   </span>
                 </div>
-                <div className="rounded-xl px-4 py-3 flex items-start gap-3"
-                  style={{ background: "rgba(76,217,100,0.08)", border: "1px solid rgba(76,217,100,0.15)" }}>
-                  <span className="text-sm shrink-0 mt-0.5" style={{ color: "#4cd964" }}>✓</span>
+                <div className="rounded-xl px-4 py-3"
+                  style={{ background: "rgba(76,217,100,0.08)", border: "1px solid rgba(76,217,100,0.2)" }}>
+                  <p className="text-xs font-bold uppercase tracking-wide mb-1.5" style={{ color: "#4cd964" }}>With manu2print</p>
                   <span className="text-sm" style={{ color: "rgba(255,255,255,0.75)" }}>
-                    Upload → scan → see every issue → fix once → publish
+                    Upload → scan → fix → publish
                   </span>
                 </div>
               </div>
@@ -511,11 +532,14 @@ export default function KdpPdfCheckerPage() {
           <div className="text-center mb-8">
             <h2 className="font-black text-3xl mb-2"
               style={{ color: "#fff", letterSpacing: "-0.02em" }}>
-              26 KDP rules.{" "}
-              <span style={{ color: "#f05a28" }}>Every one.</span>
+              KDP checks 26 rules.{" "}
+              <span style={{ color: "#f05a28" }}>Miss one — you&apos;re rejected.</span>
             </h2>
-            <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)", maxWidth: 440, margin: "0 auto" }}>
-              The same checks Amazon&apos;s system runs — so you know what to fix before you upload.
+            <p className="text-sm mb-1" style={{ color: "rgba(255,255,255,0.4)", maxWidth: 480, margin: "0 auto" }}>
+              We check every one before you upload — so you don&apos;t find out the hard way.
+            </p>
+            <p className="text-xs mt-2" style={{ color: "rgba(255,255,255,0.25)", maxWidth: 480, margin: "8px auto 0" }}>
+              Visual correctness does not guarantee approval. We check the same categories KDP reviews before every submission.
             </p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
@@ -537,32 +561,35 @@ export default function KdpPdfCheckerPage() {
       <section style={{ background: "#FAF8F4" }}>
         <div className="mx-auto max-w-5xl px-6 py-16 text-center">
           <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#9B8E7E" }}>
-            Process
+            How it works
           </p>
-          <h2 className="font-black text-3xl mb-10" style={{ color: "#1A1208", letterSpacing: "-0.02em" }}>
-            Three steps. Under two minutes.
+          <h2 className="font-black text-3xl mb-2" style={{ color: "#1A1208", letterSpacing: "-0.02em" }}>
+            Three steps. No guesswork.
           </h2>
+          <p className="text-sm mb-10" style={{ color: "#9B8E7E" }}>
+            If your file isn&apos;t perfect, KDP will catch it. We catch it first.
+          </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {[
               {
                 step: "01",
                 title: "Upload your PDF",
-                body: "Drop the exact file you plan to submit to KDP — interior manuscripts only, any page count.",
+                body: "The exact file you plan to submit to KDP. Interior manuscripts only, any page count.",
               },
               {
                 step: "02",
-                title: "We scan it",
-                body: "Our engine checks your file against all 26 KDP rules and flags every issue with an exact page number.",
+                title: "See every issue",
+                body: "Margins, trim size, bleed, fonts — flagged by page. Score and issue count shown immediately.",
               },
               {
                 step: "03",
-                title: "Fix and publish",
-                body: "Get your annotated PDF and fix instructions. Resolve the issues, re-export, upload to KDP with confidence.",
+                title: "Fix once. Upload once.",
+                body: "Pay $9 to unlock the full annotated report. Fix the issues, re-export, publish with confidence.",
               },
             ].map((s) => (
               <div key={s.step} className="rounded-2xl p-6 text-left"
-                style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)" }}>
-                <p className="font-black text-4xl mb-3" style={{ color: "rgba(240,90,40,0.2)" }}>{s.step}</p>
+                style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
+                <p className="font-black text-4xl mb-3" style={{ color: "rgba(240,90,40,0.18)" }}>{s.step}</p>
                 <p className="font-bold text-sm mb-2" style={{ color: "#1A1208" }}>{s.title}</p>
                 <p className="text-sm leading-relaxed" style={{ color: "#6B6151" }}>{s.body}</p>
               </div>
@@ -577,13 +604,28 @@ export default function KdpPdfCheckerPage() {
       <section style={{ background: "rgba(240,90,40,0.04)", borderTop: "1px solid rgba(240,90,40,0.1)", borderBottom: "1px solid rgba(240,90,40,0.1)" }}>
         <div className="mx-auto max-w-lg px-6 py-16">
           <div className="text-center mb-8">
-            <h2 className="font-black text-3xl mb-3"
+            <h2 className="font-black text-3xl mb-2"
               style={{ color: "#1A1208", letterSpacing: "-0.02em" }}>
-              Ready to stop guessing?
+              Stop guessing.{" "}
+              <span style={{ color: "#f05a28" }}>Start knowing.</span>
             </h2>
-            <p className="text-sm" style={{ color: "#6B6151" }}>
-              $9. One time. See your full report before you pay.
+            <p className="text-sm mb-2" style={{ color: "#6B6151" }}>
+              Check your file before Amazon does.
             </p>
+            <p className="text-xs" style={{ color: "#9B8E7E" }}>
+              No waiting. No re-uploads. No guesswork.
+            </p>
+          </div>
+
+          {/* Affiliate "Perfect for" block */}
+          <div className="rounded-xl px-5 py-4 mb-6 text-center"
+            style={{ background: "rgba(0,0,0,0.03)", border: "1px solid rgba(0,0,0,0.07)" }}>
+            <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: "#9B8E7E" }}>Perfect for</p>
+            <div className="flex flex-wrap justify-center gap-x-5 gap-y-1">
+              {["Canva users", "First-time authors", "Self-publishers", "Book formatters"].map((t) => (
+                <span key={t} className="text-sm" style={{ color: "#6B6151" }}>· {t}</span>
+              ))}
+            </div>
           </div>
           <UploadWidget
             file={file}
