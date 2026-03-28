@@ -39,7 +39,10 @@
       "Bash(dir \"C:\\\\Dev\\\\Dev projects\\\\projects\\\\LayoutForge-main\\\\src\\\\app\\\\api\\\\affiliates\")",
       "Bash(dir \"C:\\\\Dev\\\\Dev projects\\\\projects\\\\LayoutForge-main\\\\src\\\\app\\\\api\\\\admin\")",
       "Bash(dir \"C:\\\\Dev\\\\Dev projects\\\\projects\\\\LayoutForge-main\\\\src\\\\app\\\\api\\\\admin\\\\affiliates\")",
-      "Bash(node -e \"const ls = require\\(''@lemonsqueezy/lemonsqueezy.js''\\); console.log\\(Object.keys\\(ls\\).filter\\(k => k.toLowerCase\\(\\).includes\\(''affil''\\)\\)\\)\")"
+      "Bash(node -e \"const ls = require\\(''@lemonsqueezy/lemonsqueezy.js''\\); console.log\\(Object.keys\\(ls\\).filter\\(k => k.toLowerCase\\(\\).includes\\(''affil''\\)\\)\\)\")",
+      "WebFetch(domain:vm-ssj24y0fwwpd433o31xfnu.vusercontent.net)",
+      "Bash(dir \"C:\\\\Dev\\\\Dev projects\\\\projects\\\\LayoutForge-main\\\\src\\\\app\\\\go\")",
+      "Bash(dir \"C:\\\\Dev\\\\Dev projects\\\\projects\\\\LayoutForge-main\\\\src\\\\app\\\\r\")"
     ]
   }
 }
