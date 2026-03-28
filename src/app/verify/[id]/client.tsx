@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 interface Props {
@@ -10,6 +10,7 @@ interface Props {
   issuesCount: number | null;
   filename: string;
   verifyUrl: string;
+  verificationId: string;
 }
 
 function ScoreGlow({ level }: { level: Props["statusLevel"] }) {
@@ -26,8 +27,19 @@ function ScoreGlow({ level }: { level: Props["statusLevel"] }) {
   );
 }
 
-export function VerifyClient({ score, statusLabel, statusLevel, issuesCount, filename, verifyUrl }: Props) {
+export function VerifyClient({ score, statusLabel, statusLevel, issuesCount, filename, verifyUrl, verificationId }: Props) {
   const [copied, setCopied] = useState<"link" | "caption" | null>(null);
+  const [refCode, setRefCode] = useState<string | null>(null);
+
+  // Pick up the sharer's ref code so the card URL carries attribution
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("m2p_ref");
+      if (stored) setRefCode(stored);
+    } catch { /* private browsing */ }
+  }, []);
+
+  const cardUrl = `/verify/${verificationId}/card${refCode ? `?ref=${refCode}` : ""}`;
 
   const hook =
     statusLevel === "ready"
@@ -183,14 +195,21 @@ export function VerifyClient({ score, statusLabel, statusLevel, issuesCount, fil
             If someone checks their file from your link, you earn a free scan.
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <Link
+              href={cardUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ display: "block", background: "#F05A28", color: "#fff", fontWeight: 700, fontSize: 13, padding: "11px 20px", borderRadius: 8, textDecoration: "none", textAlign: "center" }}>
+              📸 Create Share Card (Instagram / Facebook)
+            </Link>
             <button
               onClick={() => copy("link")}
-              style={{ background: copied === "link" ? "#4cd964" : "#F05A28", color: "#fff", fontWeight: 700, fontSize: 13, padding: "11px 20px", borderRadius: 8, border: "none", cursor: "pointer", transition: "background 0.2s" }}>
-              {copied === "link" ? "✓ Link copied!" : "Copy this result link"}
+              style={{ background: "transparent", color: "#F05A28", fontWeight: 700, fontSize: 13, padding: "11px 20px", borderRadius: 8, border: "1.5px solid #F05A28", cursor: "pointer", transition: "background 0.2s" }}>
+              {copied === "link" ? "✓ Link copied!" : "Copy result link"}
             </button>
             <button
               onClick={() => copy("caption")}
-              style={{ background: "transparent", color: "#F05A28", fontWeight: 700, fontSize: 13, padding: "11px 20px", borderRadius: 8, border: "1.5px solid #F05A28", cursor: "pointer" }}>
+              style={{ background: "transparent", color: "#6B6151", fontWeight: 600, fontSize: 13, padding: "11px 20px", borderRadius: 8, border: "1.5px solid #E0D8C4", cursor: "pointer" }}>
               {copied === "caption" ? "✓ Caption copied!" : "Copy caption for social media"}
             </button>
           </div>

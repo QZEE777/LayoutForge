@@ -60,6 +60,7 @@ export default async function VerifyPage({ params }: VerifyPageProps) {
       issuesCount={typeof data.issues_count === "number" ? data.issues_count : null}
       filename={data.filename_clean ?? ""}
       verifyUrl={verifyUrl}
+      verificationId={verificationId}
     />
   );
 }
