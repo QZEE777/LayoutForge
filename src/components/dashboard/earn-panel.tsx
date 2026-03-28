@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Gift, DollarSign, Users, TrendingUp, Copy, Check, ExternalLink, Share2, Clock } from "lucide-react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { PartnerUpgradeModal, PartnerUpgradeBanner } from "@/components/dashboard/partner-upgrade-modal";
 
 interface Affiliate {
   id: string;
@@ -45,6 +46,7 @@ export function EarnPanel({ affiliate, stats }: Props) {
   const [copied, setCopied] = useState(false);
   const [shareData, setShareData] = useState<ShareTokenData | null>(null);
   const [shareLinkCopied, setShareLinkCopied] = useState(false);
+  const [modalDismissed, setModalDismissed] = useState(false);
   const referralLink = affiliate ? `${APP_URL}/kdp-pdf-checker?ref=${affiliate.code}` : "";
 
   // Fetch share token data for non-partner users
@@ -84,7 +86,17 @@ export function EarnPanel({ affiliate, stats }: Props) {
     const atThreshold = progress >= PARTNER_THRESHOLD;
 
     return (
+      <>
+        {/* Partner upgrade modal — auto-fires once when threshold reached */}
+        <PartnerUpgradeModal
+          visible={atThreshold && !modalDismissed}
+          onClose={() => setModalDismissed(true)}
+        />
+
       <div className="max-w-2xl mx-auto space-y-5">
+
+        {/* 7-day banner fallback after modal is dismissed */}
+        {atThreshold && <PartnerUpgradeBanner />}
 
         {/* Share-to-earn card — shown to all non-partners */}
         <Card className="overflow-hidden">
@@ -214,6 +226,7 @@ export function EarnPanel({ affiliate, stats }: Props) {
           ))}
         </div>
       </div>
+      </>
     );
   }
 
