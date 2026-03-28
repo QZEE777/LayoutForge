@@ -70,6 +70,19 @@ export default function AdminPage() {
   }>>([]);
   const [affiliateLoading, setAffiliateLoading] = useState(false);
   const [lsNudge, setLsNudge] = useState<{ name: string; email: string } | null>(null);
+  const [shareRewards, setShareRewards] = useState<Array<{
+    reward_id: string;
+    sharer_email: string;
+    order_id: string;
+    credits_amount: number;
+    status: string;
+    refund_window_closes_at: string;
+    fraud_hold_reason: string | null;
+    fraud_hold_until: string | null;
+    created_at: string;
+    token: string;
+  }>>([]);
+  const [shareRewardsLoading, setShareRewardsLoading] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -128,6 +141,15 @@ export default function AdminPage() {
           const affData = await affRes.json();
           setAffiliates(affData.affiliates || []);
           setReferrals(affData.referrals || []);
+        }
+      } catch {
+        /* ignore */
+      }
+      try {
+        const srRes = await fetch("/api/admin/share-rewards", { headers: { "x-admin-password": pwd } });
+        if (srRes.ok) {
+          const srData = await srRes.json();
+          setShareRewards(srData.rewards || []);
         }
       } catch {
         /* ignore */
@@ -768,6 +790,65 @@ export default function AdminPage() {
                 </table>
                 {affiliates.length === 0 && (
                   <div className="px-4 py-8 text-center text-soft-muted">No affiliate applications yet.</div>
+                )}
+              </div>
+            </section>
+
+            <section className="mb-10">
+              <div className="flex items-center justify-between gap-4 mb-2">
+                <h2 className="text-lg font-bold">Share Rewards</h2>
+                <span className="text-xs text-soft-muted">
+                  {shareRewards.filter(r => r.status === "pending").length} pending ·{" "}
+                  {shareRewards.filter(r => r.fraud_hold_reason).length} fraud holds
+                </span>
+              </div>
+              <p className="text-xs text-soft-muted mb-4">Share-to-earn credits. Pending = refund window open. Awarded = credit released.</p>
+              <div className="overflow-x-auto rounded-xl border border-m2p-border bg-m2p-ivory">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-m2p-border text-xs text-soft-muted">
+                      <th className="px-4 py-3 text-left">Sharer</th>
+                      <th className="px-4 py-3 text-left">Status</th>
+                      <th className="px-4 py-3 text-left">Credits</th>
+                      <th className="px-4 py-3 text-left">Refund window closes</th>
+                      <th className="px-4 py-3 text-left">Fraud hold</th>
+                      <th className="px-4 py-3 text-left">Order</th>
+                      <th className="px-4 py-3 text-left">Created</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-m2p-border">
+                    {shareRewards.map((r) => (
+                      <tr key={r.reward_id} className="hover:bg-m2p-border/30">
+                        <td className="px-4 py-3 text-xs">{r.sharer_email}</td>
+                        <td className="px-4 py-3">
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                            r.status === "awarded"  ? "bg-green-100 text-green-700" :
+                            r.status === "pending"  ? "bg-amber-100 text-amber-700" :
+                            r.status === "voided"   ? "bg-red-100 text-red-600" :
+                            "bg-gray-100 text-gray-500"
+                          }`}>{r.status}</span>
+                        </td>
+                        <td className="px-4 py-3 font-semibold">+{r.credits_amount}</td>
+                        <td className="px-4 py-3 text-xs text-soft-muted">
+                          {new Date(r.refund_window_closes_at) < new Date()
+                            ? <span className="text-green-600">Closed ✓</span>
+                            : new Date(r.refund_window_closes_at).toLocaleDateString()}
+                        </td>
+                        <td className="px-4 py-3 text-xs">
+                          {r.fraud_hold_reason
+                            ? <span className="text-red-600">{r.fraud_hold_reason}</span>
+                            : <span className="text-soft-muted">—</span>}
+                        </td>
+                        <td className="px-4 py-3 font-mono text-xs text-soft-muted">{r.order_id.slice(0, 10)}…</td>
+                        <td className="px-4 py-3 text-xs text-soft-muted">
+                          {new Date(r.created_at).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {shareRewards.length === 0 && (
+                  <div className="px-4 py-8 text-center text-soft-muted">No share rewards yet.</div>
                 )}
               </div>
             </section>
