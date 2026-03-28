@@ -56,7 +56,9 @@ export default function AdminPage() {
     website?: string | null;
     reason?: string | null;
     created_at: string;
+    ls_affiliate_code?: string | null;
   }>>([]);
+  const [lsCodeInputs, setLsCodeInputs] = useState<Record<string, string>>({});
   const [referrals, setReferrals] = useState<Array<{
     id: string;
     affiliate_code: string;
@@ -290,6 +292,23 @@ export default function AdminPage() {
       }
     } finally {
       setAffiliateLoading(false);
+    }
+  };
+
+  const saveLsCode = async (affiliateId: string) => {
+    const pwd = typeof window !== "undefined" ? sessionStorage.getItem(ADMIN_PWD_KEY) : null;
+    const code = lsCodeInputs[affiliateId]?.trim();
+    if (!pwd || !code) return;
+    await fetch("/api/admin/affiliates", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-admin-password": pwd },
+      body: JSON.stringify({ action: "save-ls-code", id: affiliateId, ls_code: code }),
+    });
+    // Refresh list
+    const res = await fetch("/api/admin/affiliates", { headers: { "x-admin-password": pwd } });
+    if (res.ok) {
+      const data = await res.json();
+      setAffiliates(data.affiliates || []);
     }
   };
 
@@ -715,6 +734,32 @@ export default function AdminPage() {
                                 </button>
                               )}
                             </div>
+                            {/* LS affiliate code input — paste from LS dashboard after invite */}
+                            {a.status === "active" && (
+                              <div className="mt-2 flex items-center gap-1.5">
+                                {a.ls_affiliate_code ? (
+                                  <span className="text-xs text-green-700 bg-green-50 border border-green-200 rounded px-2 py-0.5">
+                                    LS: {a.ls_affiliate_code} ✓
+                                  </span>
+                                ) : (
+                                  <>
+                                    <input
+                                      type="text"
+                                      placeholder="Paste LS affiliate code"
+                                      value={lsCodeInputs[a.id] ?? ""}
+                                      onChange={(e) => setLsCodeInputs((prev) => ({ ...prev, [a.id]: e.target.value }))}
+                                      className="text-xs border rounded px-2 py-0.5 w-40 focus:outline-none focus:border-green-400"
+                                    />
+                                    <button
+                                      onClick={() => saveLsCode(a.id)}
+                                      className="text-xs bg-green-600 hover:bg-green-700 text-white px-2 py-0.5 rounded"
+                                    >
+                                      Save
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            )}
                           </td>
                         </tr>
                       );

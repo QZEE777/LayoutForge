@@ -16,6 +16,7 @@ interface Affiliate {
   paypal_email: string | null;
   wise_email: string | null;
   email: string;
+  ls_affiliate_code?: string | null;
 }
 
 interface AffiliateStats {
@@ -255,19 +256,51 @@ export function EarnPanel({ affiliate, stats }: Props) {
 
       <Card className="p-5">
         <h3 className="font-semibold mb-3" style={{ color: "var(--d-fg)" }}>Your Referral Link</h3>
-        <div className="flex gap-2">
-          <Input value={referralLink} readOnly className="font-mono text-sm" />
-          <button
-            onClick={copyLink}
-            className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold border transition-all shrink-0"
-            style={{ borderColor: "var(--d-border)", color: copied ? "#10b981" : "var(--d-fg)", background: "var(--d-card)" }}>
-            {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-            {copied ? "Copied!" : "Copy"}
-          </button>
-        </div>
-        <p className="text-xs mt-2" style={{ color: "var(--d-fg-muted)" }}>
-          Earn 30% on $9 singles · 40% on packs. Tracked automatically.
-        </p>
+        {affiliate.ls_affiliate_code ? (
+          <>
+            {/* LS payout link — primary */}
+            <p className="text-xs font-semibold mb-1.5" style={{ color: "#10b981" }}>
+              ✓ Payout link — share this one to earn commissions
+            </p>
+            <div className="flex gap-2 mb-3">
+              <Input
+                value={`https://manu2print.lemonsqueezy.com/?aff=${affiliate.ls_affiliate_code}`}
+                readOnly
+                className="font-mono text-sm"
+              />
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(`https://manu2print.lemonsqueezy.com/?aff=${affiliate.ls_affiliate_code}`);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                }}
+                className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold border transition-all shrink-0"
+                style={{ borderColor: "var(--d-border)", color: copied ? "#10b981" : "var(--d-fg)", background: "var(--d-card)" }}>
+                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                {copied ? "Copied!" : "Copy"}
+              </button>
+            </div>
+            <p className="text-xs mb-3" style={{ color: "var(--d-fg-muted)" }}>
+              Earn 30% on $9 singles · 40% on packs. LemonSqueezy pays you automatically at $20.
+            </p>
+          </>
+        ) : (
+          <>
+            <div className="flex gap-2 mb-2">
+              <Input value={referralLink} readOnly className="font-mono text-sm" />
+              <button
+                onClick={copyLink}
+                className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold border transition-all shrink-0"
+                style={{ borderColor: "var(--d-border)", color: copied ? "#10b981" : "var(--d-fg)", background: "var(--d-card)" }}>
+                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                {copied ? "Copied!" : "Copy"}
+              </button>
+            </div>
+            <p className="text-xs p-2 rounded-lg mb-1" style={{ color: "#92400e", background: "#fef3c7" }}>
+              ⏳ Your LemonSqueezy payout link is being set up. Check your email from LemonSqueezy or contact us at hello@manu2print.com.
+            </p>
+          </>
+        )}
       </Card>
 
       <Card className="p-5">

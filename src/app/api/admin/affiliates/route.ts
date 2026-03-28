@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
   const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
   const [affiliatesRes, referralsRes] = await Promise.all([
-    supabase.from("affiliates").select("*").order("created_at", { ascending: false }),
+    supabase.from("affiliates").select("*, ls_affiliate_code").order("created_at", { ascending: false }),
     supabase.from("referrals").select("*").order("created_at", { ascending: false }).limit(200),
   ]);
 
@@ -30,11 +30,12 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   if (!auth(request)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  let action: string, id: string;
+  let action: string, id: string, lsCodeRaw: string;
   try {
     const body = await request.json();
     action = body?.action ?? "";
     id = body?.id ?? "";
+    lsCodeRaw = typeof body?.ls_code === "string" ? body.ls_code.trim() : "";
   } catch {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
@@ -66,6 +67,12 @@ export async function POST(request: NextRequest) {
 
   if (action === "suspend") {
     await supabase.from("affiliates").update({ status: "suspended" }).eq("id", id);
+    return NextResponse.json({ ok: true });
+  }
+
+  if (action === "save-ls-code") {
+    if (!lsCodeRaw) return NextResponse.json({ error: "ls_code required" }, { status: 400 });
+    await supabase.from("affiliates").update({ ls_affiliate_code: lsCodeRaw }).eq("id", id);
     return NextResponse.json({ ok: true });
   }
 
