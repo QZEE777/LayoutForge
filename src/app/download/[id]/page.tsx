@@ -8,7 +8,7 @@ import Link from "next/link";
 import Image from "next/image";
 import PaymentGate from "@/components/PaymentGate";
 import CheckerPdfViewer from "@/components/CheckerPdfViewer";
-import { difficultyLabel, cleanFilenameForDisplay, toFixDifficulty, type FixDifficulty } from "@/lib/kdpReportEnhance";
+import { difficultyLabel, cleanFilenameForDisplay, toFixDifficulty, getScoreGrade, type FixDifficulty } from "@/lib/kdpReportEnhance";
 
 const MAX_ISSUES_GROUP_DISPLAY = 10;
 
@@ -419,13 +419,18 @@ export default function DownloadPage() {
         {/* Checker pre-gate teaser — grade, score, issue count visible before payment */}
         {report && isChecker && (() => {
           const score = calculatedScore ?? report.readinessScore100 ?? report.readiness_score ?? null;
-          const gradeInfo =
-            score === null ? null
-            : score >= 90 ? { letter: "A", color: "#4cd964", label: "KDP Ready" }
-            : score >= 75 ? { letter: "B", color: "#6bc94d", label: "Looking Good" }
-            : score >= 60 ? { letter: "C", color: "#f0a028", label: "Needs Work" }
-            : score >= 40 ? { letter: "D", color: "#f05a28", label: "At Risk" }
-            : { letter: "F", color: "#e03d3d", label: "Not Ready" };
+          const _sg = score !== null ? getScoreGrade(score) : null;
+          const gradeColor = (g: string) =>
+            g === "A+" || g === "A" ? "#4cd964"
+            : g === "B" ? "#6bc94d"
+            : g === "C" ? "#f0a028"
+            : g === "D" ? "#f05a28"
+            : "#e03d3d";
+          const gradeInfo = _sg === null ? null : {
+            letter: _sg.grade,
+            color:  gradeColor(_sg.grade),
+            label:  _sg.label,
+          };
 
           const uniqueIssues = new Map<string, string>();
           for (const i of (report.issuesEnriched ?? [])) {
@@ -553,17 +558,21 @@ export default function DownloadPage() {
                       {report.fileNameScanned && cleanFilenameForDisplay(report.fileNameScanned)}
                     </p>
                   )}
-                  {report.scoreGrade && (
-                    <div className="mb-4 flex items-center gap-4 rounded-lg border border-m2p-border bg-m2p-ivory px-5 py-4">
-                      <span className="text-5xl font-bebas leading-none" style={{ color: report.scoreGrade.grade === "A+" || report.scoreGrade.grade === "A" ? "#4cd964" : report.scoreGrade.grade === "B" ? "#F05A28" : report.scoreGrade.grade === "C" ? "#f59e0b" : "#ef4444" }}>
-                        {report.scoreGrade.grade}
-                      </span>
-                      <div>
-                        <p className="font-bold text-m2p-ink text-lg leading-tight">{report.scoreGrade.label}</p>
-                        <p className="text-sm text-m2p-muted mt-0.5">{report.scoreGrade.description}</p>
+                  {(() => {
+                    const s = calculatedScore ?? report.readinessScore100 ?? report.readiness_score ?? null;
+                    const sg = s !== null ? getScoreGrade(s) : report.scoreGrade ?? null;
+                    if (!sg) return null;
+                    const col = sg.grade === "A+" || sg.grade === "A" ? "#4cd964" : sg.grade === "B" ? "#6bc94d" : sg.grade === "C" ? "#f0a028" : sg.grade === "D" ? "#f05a28" : "#e03d3d";
+                    return (
+                      <div className="mb-4 flex items-center gap-4 rounded-lg border border-m2p-border bg-m2p-ivory px-5 py-4">
+                        <span className="text-5xl font-bebas leading-none" style={{ color: col }}>{sg.grade}</span>
+                        <div>
+                          <p className="font-bold text-m2p-ink text-lg leading-tight">{sg.label}</p>
+                          <p className="text-sm text-m2p-muted mt-0.5">{sg.description}</p>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
                   {(calculatedScore ?? report.readinessScore100) != null && (
                     <p className="mb-2 text-2xl font-bold text-m2p-ink">
                       Readiness: {calculatedScore ?? report.readinessScore100}/100
