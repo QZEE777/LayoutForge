@@ -81,6 +81,95 @@ export async function sendDownloadLinkEmail(to: string, downloadUrl: string) {
   return data;
 }
 
+export async function sendShareCreditAwardedEmail(
+  to: string,
+  opts: { credits: number; expiresAt: string; wasHeld: boolean }
+) {
+  const resend = new Resend(process.env.RESEND_API_KEY ?? "");
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com";
+  const dashUrl = `${appUrl}/dashboard`;
+  const expiryDate = new Date(opts.expiresAt).toLocaleDateString("en-US", {
+    month: "long", day: "numeric", year: "numeric",
+  });
+  const creditWord = opts.credits === 1 ? "scan credit" : "scan credits";
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: system-ui, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; background: #FAF7EE; color: #1A1208;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 560px; margin: 0 auto;">
+    <tr>
+      <td style="padding-bottom: 24px; border-bottom: 2px solid #F05A28;">
+        <span style="font-size: 22px; font-weight: 700; color: #F05A28;">manu</span><span style="font-size: 22px; font-weight: 700; color: #4cd964;">2print</span>
+        <span style="font-size: 13px; color: #6B6151; margin-left: 8px;">Share &amp; Earn</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 32px 0 16px;">
+        <p style="font-size: 20px; font-weight: 700; margin: 0 0 8px;">Your ${creditWord} ${opts.credits === 1 ? "is" : "are"} ready! 🎉</p>
+        <p style="font-size: 15px; line-height: 1.7; color: #3a3020; margin: 0 0 20px;">
+          Someone you referred just completed their PDF check. As a thank-you,
+          <strong>${opts.credits} free ${creditWord}</strong> ${opts.credits === 1 ? "has" : "have"} been added to your account.
+        </p>
+        ${opts.wasHeld ? `<p style="font-size: 14px; line-height: 1.6; color: #6B6151; margin: 0 0 20px;">
+          This credit was held briefly for review. Everything checked out — it&rsquo;s yours.
+        </p>` : ""}
+        <div style="background: #1A1208; border-radius: 10px; padding: 16px 20px; margin: 0 0 24px; text-align: center;">
+          <p style="font-size: 28px; font-weight: 800; color: #4cd964; margin: 0 0 4px;">+${opts.credits}</p>
+          <p style="font-size: 13px; color: #9B8E7E; margin: 0;">Expires ${expiryDate}</p>
+        </div>
+        <a href="${dashUrl}"
+           style="display: inline-block; padding: 14px 32px; background: #F05A28; color: #ffffff;
+                  text-decoration: none; font-weight: 700; font-size: 16px; border-radius: 8px;">
+          Use Your Credit →
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 24px 0 0; border-top: 1px solid #E0D8C4;">
+        <p style="font-size: 13px; color: #6B6151; margin: 0 0 6px;">
+          💡 <strong>Keep earning:</strong> every time someone checks their PDF from your share link, you get another free scan.
+        </p>
+        <p style="font-size: 13px; color: #6B6151; margin: 0 0 6px;">
+          🚀 Refer 3 people to unlock <strong>Partner mode</strong> and earn 30–40% cash commission.
+        </p>
+        <p style="font-size: 12px; color: #9B8E7E; margin: 16px 0 0;">— manu2print.com</p>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
+`.trim();
+
+  const text = [
+    `Your ${creditWord} ${opts.credits === 1 ? "is" : "are"} ready!`,
+    "",
+    `+${opts.credits} free ${creditWord} added to your account. Expires ${expiryDate}.`,
+    "",
+    opts.wasHeld ? "This credit was held briefly for review — it's now cleared." : "",
+    "",
+    `Use your credit: ${dashUrl}`,
+    "",
+    "Keep earning: every referral = 1 free scan. Refer 3 people to unlock cash commissions.",
+    "",
+    "— manu2print.com",
+  ].filter(Boolean).join("\n");
+
+  const { data, error } = await resend.emails.send({
+    from: FROM,
+    to,
+    subject: `+${opts.credits} free scan ${creditWord} — your referral paid off 🎉`,
+    html,
+    text,
+  });
+
+  if (error) throw error;
+  return data;
+}
+
 export async function sendAffiliateApprovalEmail(to: string, name: string, code: string) {
   const resend = new Resend(process.env.RESEND_API_KEY ?? "");
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com";

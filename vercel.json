@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/release-share-credits",
+      "schedule": "0 3 * * *"
+    }
+  ]
+}
