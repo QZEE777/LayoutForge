@@ -245,7 +245,7 @@ export default function DownloadPage() {
 
   const handleCopyVerificationLink = useCallback(async () => {
     if (!id) return;
-    const url = `https://manu2print.com/verify/${id}`;
+    const url = `https://www.manu2print.com/verify/${id}${shareToken ? `?sh=${shareToken}` : ""}`;
     setCopyShareStatus("idle");
     try {
       await navigator.clipboard.writeText(url);
@@ -844,10 +844,10 @@ export default function DownloadPage() {
                   {/* Verify / social share section */}
                   <div className="mt-4 bg-m2p-orange-soft border border-m2p-border rounded-lg p-5">
                     <p className="font-semibold text-center text-xl text-m2p-ink mb-1">
-                      Share your readiness score
+                      Share your score
                     </p>
                     <p className="text-sm text-m2p-muted mb-4 text-center">
-                      Help other indie authors find manu2print — share your results
+                      Let other indie authors check their files before KDP rejects them
                     </p>
                     <div className="flex justify-center mb-4">
                       <button
@@ -877,7 +877,7 @@ export default function DownloadPage() {
                     </div>
                     <div className="flex gap-4 justify-center flex-wrap items-center" style={{ gap: 16 }}>
                       <a
-                        href={`https://www.facebook.com/sharer/sharer.php?u=https://manu2print.com/verify/${id}`}
+                        href={`https://www.facebook.com/sharer/sharer.php?u=https://www.manu2print.com/verify/${id}${shareToken ? `?sh=${shareToken}` : ""}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label="Share on Facebook"
@@ -888,7 +888,7 @@ export default function DownloadPage() {
                         </svg>
                       </a>
                       <a
-                        href={`https://www.linkedin.com/sharing/share-offsite/?url=https://manu2print.com/verify/${id}`}
+                        href={`https://www.linkedin.com/sharing/share-offsite/?url=https://www.manu2print.com/verify/${id}${shareToken ? `?sh=${shareToken}` : ""}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label="Share on LinkedIn"
@@ -904,7 +904,8 @@ export default function DownloadPage() {
                         title="Copy caption for Instagram"
                         onClick={async () => {
                           const score = calculatedScore ?? report?.readinessScore100 ?? "";
-                          const caption = `Just checked my manuscript with manu2print — KDP Readiness Score: ${score}/100 🎯\nVerify: https://manu2print.com/verify/${id}\n#KDP #IndieAuthor #SelfPublishing #manu2print`;
+                          const verifyLink = `https://www.manu2print.com/verify/${id}${shareToken ? `?sh=${shareToken}` : ""}`;
+                          const caption = `I just checked my manuscript with manu2print — KDP Readiness Score: ${score}/100 🎯\nWould yours pass? ${verifyLink}\n#KDP #IndieAuthor #SelfPublishing #manu2print`;
                           try { await navigator.clipboard.writeText(caption); } catch {}
                         }}
                         className="inline-flex items-center justify-center w-[52px] h-[52px] rounded-full text-white shadow-md hover:scale-[1.08] transition-transform"
@@ -915,7 +916,7 @@ export default function DownloadPage() {
                         </svg>
                       </button>
                       <a
-                        href={`https://twitter.com/intent/tweet?url=https://manu2print.com/verify/${id}&text=Just%20checked%20my%20manuscript%20on%20Manu2Print%20-%20KDP%20Readiness%20Score%3A%20${calculatedScore ?? report.readinessScore100 ?? ""}%2F100`}
+                        href={`https://twitter.com/intent/tweet?url=https://www.manu2print.com/verify/${id}${shareToken ? `?sh=${shareToken}` : ""}&text=Just%20checked%20my%20manuscript%20on%20Manu2Print%20-%20KDP%20Readiness%20Score%3A%20${calculatedScore ?? report.readinessScore100 ?? ""}%2F100`}
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label="Share on X"

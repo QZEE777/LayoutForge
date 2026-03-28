@@ -13,25 +13,10 @@ interface Props {
   verificationId: string;
 }
 
-function ScoreGlow({ level }: { level: Props["statusLevel"] }) {
-  const color =
-    level === "ready"   ? "#4cd964" :
-    level === "nearly"  ? "#f59e0b" :
-    "#F05A28";
-  return (
-    <div style={{
-      position: "absolute", inset: -24, borderRadius: "50%",
-      background: `radial-gradient(circle, ${color}22 0%, transparent 70%)`,
-      pointerEvents: "none",
-    }} />
-  );
-}
-
 export function VerifyClient({ score, statusLabel, statusLevel, issuesCount, filename, verifyUrl, verificationId }: Props) {
   const [copied, setCopied] = useState<"link" | "caption" | null>(null);
   const [refCode, setRefCode] = useState<string | null>(null);
 
-  // Pick up the sharer's ref code so the card URL carries attribution
   useEffect(() => {
     try {
       const stored = localStorage.getItem("m2p_ref");
@@ -41,26 +26,22 @@ export function VerifyClient({ score, statusLabel, statusLevel, issuesCount, fil
 
   const cardUrl = `/verify/${verificationId}/card${refCode ? `?ref=${refCode}` : ""}`;
 
-  const hook =
+  // Result-first copy — state the fact, THEN pivot to "would yours?"
+  const resultFact =
+    statusLevel === "reject"     ? "This file would be rejected by KDP." :
+    statusLevel === "needs-work" ? "This file needs significant fixes." :
+    statusLevel === "nearly"     ? "This file is nearly ready for KDP." :
+    "This file is ready for KDP.";
+
+  const pivot =
     statusLevel === "ready"
-      ? "Your file passed — would yours?"
-      : "Would your PDF pass this check? Most don't.";
-
-  const subLabel =
-    statusLevel === "reject"  ? "This file would likely be rejected" :
-    statusLevel === "needs-work" ? "This file needs significant fixes" :
-    statusLevel === "nearly"  ? "This file is nearly ready" :
-    "This file is ready for KDP";
-
-  const scoreColor =
-    statusLevel === "ready"  ? "#4cd964" :
-    statusLevel === "nearly" ? "#f59e0b" :
-    "#F05A28";
+      ? "Would your PDF pass too? Most don't."
+      : "Would YOUR PDF pass? Most don't.";
 
   const caption = [
-    `I thought my PDF was ready… It scored ${score}/100 😳`,
-    issuesCount ? `Turns out there were ${issuesCount} issues I couldn't see.` : "",
-    "If you're publishing on KDP, check your file before you upload.",
+    `I just checked my manuscript with manu2print — it scored ${score}/100 😳`,
+    issuesCount ? `Found ${issuesCount} issues I couldn't see. Before I uploaded to KDP.` : "",
+    "If you're self-publishing, check your file first.",
     `👉 ${verifyUrl}`,
     "#KDP #selfpublishing #indieauthor #kindlepublishing",
   ].filter(Boolean).join("\n");
@@ -73,11 +54,15 @@ export function VerifyClient({ score, statusLabel, statusLevel, issuesCount, fil
     });
   };
 
+  // Orange for all bad/neutral scores. Green only for "ready" — still bold, never dark brown.
+  const heroBg    = statusLevel === "ready" ? "#2D6A2D" : "#F05A28";
+  const ctaBtnBg  = statusLevel === "ready" ? "#2D6A2D" : "#F05A28";
+
   return (
     <div style={{ fontFamily: "system-ui,sans-serif", background: "#FAF7EE", minHeight: "100vh", color: "#1A1208" }}>
 
       {/* ── Nav ─────────────────────────────────────────── */}
-      <header style={{ borderBottom: "1px solid #E0D8C4", padding: "0 24px" }}>
+      <header style={{ borderBottom: "1px solid #E0D8C4", padding: "0 24px", background: "#FAF7EE" }}>
         <div style={{ maxWidth: 640, margin: "0 auto", height: 52, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <span>
             <span style={{ fontWeight: 900, color: "#F05A28" }}>manu</span>
@@ -89,52 +74,56 @@ export function VerifyClient({ score, statusLabel, statusLevel, issuesCount, fil
 
       <div style={{ maxWidth: 640, margin: "0 auto", padding: "32px 24px 64px" }}>
 
-        {/* ── Score hero ─────────────────────────────────── */}
-        <div style={{ background: "#1A1208", borderRadius: 20, padding: "36px 32px", marginBottom: 24, textAlign: "center", position: "relative", overflow: "hidden" }}>
-          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(250,247,238,0.5)", textTransform: "uppercase", margin: "0 0 20px" }}>
-            KDP Readiness Verified
+        {/* ── Score hero — RESULT FIRST ───────────────────── */}
+        <div style={{
+          background: heroBg,
+          borderRadius: 20,
+          padding: "36px 32px",
+          marginBottom: 24,
+          textAlign: "center",
+          position: "relative",
+          overflow: "hidden",
+        }}>
+          {/* Subtle label + filename */}
+          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", margin: "0 0 16px" }}>
+            KDP Readiness Verified{filename ? ` · ${filename}` : ""}
           </p>
 
-          {/* Score with glow */}
-          <div style={{ position: "relative", display: "inline-block", marginBottom: 12 }}>
-            <ScoreGlow level={statusLevel} />
-            <span style={{ fontSize: "5rem", fontWeight: 900, color: scoreColor, lineHeight: 1 }}>
+          {/* THE RESULT — massive, white, undeniable */}
+          <div style={{ marginBottom: 8 }}>
+            <span style={{ fontSize: "6rem", fontWeight: 900, color: "#fff", lineHeight: 1 }}>
               {score}
             </span>
-            <span style={{ fontSize: "2rem", fontWeight: 700, color: "rgba(250,247,238,0.4)" }}>/100</span>
+            <span style={{ fontSize: "2.2rem", fontWeight: 700, color: "rgba(255,255,255,0.45)" }}>/100</span>
           </div>
 
-          <p style={{ fontSize: "1rem", fontWeight: 700, color: "#FAF7EE", margin: "0 0 6px" }}>
-            {subLabel}
+          {/* What it means */}
+          <p style={{ fontSize: "1.15rem", fontWeight: 800, color: "#fff", margin: "0 0 8px" }}>
+            {resultFact}
           </p>
 
           {issuesCount !== null && issuesCount > 0 && (
-            <p style={{ fontSize: 13, color: "#F05A28", margin: "0 0 20px", fontWeight: 600 }}>
+            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.8)", margin: "0 0 24px", fontWeight: 600 }}>
               {issuesCount} issue{issuesCount !== 1 ? "s" : ""} found before upload
             </p>
           )}
 
-          {/* Hook */}
-          <div style={{ background: "rgba(240,90,40,0.12)", border: "1px solid rgba(240,90,40,0.25)", borderRadius: 12, padding: "14px 20px" }}>
-            <p style={{ fontSize: "1.05rem", fontWeight: 800, color: "#FAF7EE", margin: "0 0 4px" }}>
-              {hook}
-            </p>
-            <p style={{ fontSize: 13, color: "rgba(250,247,238,0.55)", margin: 0 }}>
-              {statusLevel !== "ready" ? "Most don't." : "Check yours in 90 seconds."}
-            </p>
-          </div>
+          {/* Divider */}
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.2)", margin: "20px 0" }} />
 
-          {filename && (
-            <p style={{ fontSize: 11, color: "rgba(250,247,238,0.3)", marginTop: 16, fontStyle: "italic" }}>
-              {filename}
-            </p>
-          )}
+          {/* Pivot — hook for the viewer, secondary to the result */}
+          <p style={{ fontSize: "1rem", fontWeight: 800, color: "#fff", margin: "0 0 4px" }}>
+            {pivot}
+          </p>
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", margin: 0 }}>
+            Check yours in 90 seconds — before Amazon does.
+          </p>
         </div>
 
         {/* ── Pattern interrupt ──────────────────────────── */}
         {statusLevel !== "ready" && (
           <div style={{ background: "#fff", border: "1px solid #E0D8C4", borderRadius: 14, padding: "20px 24px", marginBottom: 20 }}>
-            <p style={{ fontSize: 13, fontWeight: 800, color: "#F05A28", margin: "0 0 12px", display: "flex", gap: 8, alignItems: "center" }}>
+            <p style={{ fontSize: 13, fontWeight: 800, color: "#F05A28", margin: "0 0 12px" }}>
               ⚠️ Most files fail on:
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
@@ -145,12 +134,12 @@ export function VerifyClient({ score, statusLabel, statusLevel, issuesCount, fil
               ))}
             </div>
             <p style={{ fontSize: 12, color: "#9B8E7E", margin: "12px 0 0", fontStyle: "italic" }}>
-              These are real KDP rejection causes — found before upload, not after.
+              Real KDP rejection causes — found before upload, not after.
             </p>
           </div>
         )}
 
-        {/* ── Comparison trigger ─────────────────────────── */}
+        {/* ── Comparison ─────────────────────────────────── */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
           <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 12, padding: "16px" }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: "#dc2626", letterSpacing: "0.08em", margin: "0 0 8px" }}>WITHOUT CHECKING</p>
@@ -166,22 +155,22 @@ export function VerifyClient({ score, statusLabel, statusLevel, issuesCount, fil
           </div>
         </div>
 
-        {/* ── Primary CTA ────────────────────────────────── */}
-        <div style={{ background: "#1A1208", borderRadius: 16, padding: "28px 28px", marginBottom: 20, textAlign: "center" }}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(250,247,238,0.4)", letterSpacing: "0.1em", textTransform: "uppercase", margin: "0 0 8px" }}>
+        {/* ── Primary CTA — orange, never dark ───────────── */}
+        <div style={{ background: "#FFF3EE", border: `2px solid ${ctaBtnBg}`, borderRadius: 16, padding: "28px", marginBottom: 20, textAlign: "center" }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: "#9B8E7E", letterSpacing: "0.1em", textTransform: "uppercase", margin: "0 0 8px" }}>
             Every rejection resets your timeline.
           </p>
-          <h2 style={{ fontSize: "1.4rem", fontWeight: 900, color: "#FAF7EE", margin: "0 0 6px" }}>
+          <h2 style={{ fontSize: "1.4rem", fontWeight: 900, color: "#1A1208", margin: "0 0 6px" }}>
             Check Before You Upload
           </h2>
-          <p style={{ fontSize: 13, color: "rgba(250,247,238,0.55)", margin: "0 0 20px" }}>
+          <p style={{ fontSize: 13, color: "#6B6151", margin: "0 0 20px" }}>
             Find out in minutes — before Amazon rejects it.
           </p>
           <Link href="/kdp-pdf-checker"
-            style={{ display: "inline-block", background: "#F05A28", color: "#fff", fontWeight: 700, fontSize: "0.95rem", padding: "14px 36px", borderRadius: 10, textDecoration: "none" }}>
+            style={{ display: "inline-block", background: ctaBtnBg, color: "#fff", fontWeight: 700, fontSize: "0.95rem", padding: "14px 36px", borderRadius: 10, textDecoration: "none" }}>
             Check My PDF — $9 →
           </Link>
-          <p style={{ fontSize: 11, color: "rgba(250,247,238,0.3)", margin: "10px 0 0" }}>
+          <p style={{ fontSize: 11, color: "#9B8E7E", margin: "10px 0 0" }}>
             For authors who want to publish once — not fix files for days.
           </p>
         </div>
@@ -204,7 +193,7 @@ export function VerifyClient({ score, statusLabel, statusLevel, issuesCount, fil
             </Link>
             <button
               onClick={() => copy("link")}
-              style={{ background: "transparent", color: "#F05A28", fontWeight: 700, fontSize: 13, padding: "11px 20px", borderRadius: 8, border: "1.5px solid #F05A28", cursor: "pointer", transition: "background 0.2s" }}>
+              style={{ background: "transparent", color: "#F05A28", fontWeight: 700, fontSize: 13, padding: "11px 20px", borderRadius: 8, border: "1.5px solid #F05A28", cursor: "pointer" }}>
               {copied === "link" ? "✓ Link copied!" : "Copy result link"}
             </button>
             <button
