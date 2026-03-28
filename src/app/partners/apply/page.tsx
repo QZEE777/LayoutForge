@@ -1,13 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { createClient } from "@/lib/supabaseClient";
 
 export default function AffiliateApplyPage() {
+  const router = useRouter();
   const [form, setForm] = useState({ name: "", email: "", website: "", reason: "" });
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "existing" | "error">("idle");
   const [error, setError] = useState("");
+  const [sessionEmail, setSessionEmail] = useState<string | null>(null);
+
+  // Detect Supabase session on load
+  useEffect(() => {
+    (async () => {
+      const client = createClient();
+      const { data: { user } } = await client.auth.getUser();
+      if (!user?.email) return;
+
+      const email = user.email.trim().toLowerCase();
+      setSessionEmail(email);
+      setForm((f) => ({ ...f, email }));
+
+      // Check if already an approved affiliate — if so, send straight to dashboard
+      const res = await fetch("/api/affiliates/me");
+      if (res.ok) {
+        const d = await res.json();
+        if (d.affiliate?.status === "active") {
+          router.replace("/dashboard?tab=earn");
+        }
+      }
+    })();
+  }, [router]);
 
   function set(field: string, value: string) {
     setForm((f) => ({ ...f, [field]: value }));
@@ -28,6 +54,11 @@ export default function AffiliateApplyPage() {
         setError(data.error ?? "Something went wrong.");
         setStatus("error");
       } else if (data.existing) {
+        // If we have a Supabase session, the dashboard is their partner portal
+        if (sessionEmail) {
+          router.replace("/dashboard?tab=earn");
+          return;
+        }
         setStatus("existing");
       } else {
         setStatus("done");
@@ -50,9 +81,15 @@ export default function AffiliateApplyPage() {
               <span className="font-bold text-xl" style={{ color: "#4cd964" }}>2print</span>
             </span>
           </Link>
-          <Link href="/partners?signin=1" className="text-xs text-white/50 hover:text-white transition-colors">
-            Already a partner? Sign in →
-          </Link>
+          {sessionEmail ? (
+            <Link href="/dashboard?tab=earn" className="text-xs text-white/50 hover:text-white transition-colors">
+              ← Back to dashboard
+            </Link>
+          ) : (
+            <Link href="/partners?signin=1" className="text-xs text-white/50 hover:text-white transition-colors">
+              Already a partner? Sign in →
+            </Link>
+          )}
         </div>
       </header>
 
@@ -136,14 +173,19 @@ export default function AffiliateApplyPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-white/70 text-xs font-medium mb-1.5">Email address *</label>
+                      <label className="block text-white/70 text-xs font-medium mb-1.5">
+                        Email address *
+                        {sessionEmail && <span className="ml-1.5 text-m2p-green text-xs">✓ from your account</span>}
+                      </label>
                       <input
                         type="email"
                         value={form.email}
-                        onChange={(e) => set("email", e.target.value)}
+                        onChange={(e) => !sessionEmail && set("email", e.target.value)}
                         placeholder="jane@example.com"
                         required
+                        readOnly={!!sessionEmail}
                         className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2.5 text-white placeholder-white/30 text-sm focus:outline-none focus:border-m2p-green"
+                        style={sessionEmail ? { opacity: 0.7, cursor: "default" } : {}}
                       />
                     </div>
                   </div>
