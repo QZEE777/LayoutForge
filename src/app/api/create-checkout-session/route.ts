@@ -9,10 +9,14 @@ export async function POST(req: Request) {
     const tool = typeof body?.tool === "string" ? body.tool : "";
     const downloadId = typeof body?.downloadId === "string" ? body.downloadId : "";
 
-    // Affiliate referral tracking — read from 30-day cookie
+    // Affiliate referral tracking — read from 30-day cookie (partner code, priority 1)
     const cookieHeader = req.headers.get("cookie") ?? "";
     const refMatch = cookieHeader.match(/(?:^|;\s*)m2p_ref=([a-zA-Z0-9_-]{3,32})/);
     const refCode = refMatch ? refMatch[1].toLowerCase() : "";
+
+    // Share-to-earn attribution — read from 30-day cookie (priority 2, only if no partner code)
+    const shMatch = cookieHeader.match(/(?:^|;\s*)m2p_sh=(sh_[a-z0-9]{16})/);
+    const shareToken = (!refCode && shMatch) ? shMatch[1] : "";
 
     const apiKey = process.env.LEMONSQUEEZY_API_KEY;
     const storeId = process.env.LEMONSQUEEZY_STORE_ID;
@@ -63,9 +67,10 @@ export async function POST(req: Request) {
         email: email || undefined,
         custom: {
           tool,
-          download_id: downloadId,
-          price_type: priceType,
-          ref_code: refCode || undefined,
+          download_id:  downloadId,
+          price_type:   priceType,
+          ref_code:     refCode     || undefined,
+          share_token:  shareToken  || undefined,
         },
       },
       checkoutOptions: {

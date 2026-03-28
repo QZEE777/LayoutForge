@@ -153,6 +153,9 @@ export default function DownloadPage() {
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [copyReviewStatus, setCopyReviewStatus] = useState<"idle" | "ok" | "fail">("idle");
   const [copyShareStatus, setCopyShareStatus] = useState<"idle" | "ok" | "fail">("idle");
+  // Share-to-earn state
+  const [shareToken, setShareToken] = useState<string | null>(null);
+  const [shareCopied, setShareCopied] = useState(false);
   const [annotatedReady, setAnnotatedReady] = useState(false);
   const [annotatedError, setAnnotatedError] = useState(false);
   const [annotatedWaitStartedAt, setAnnotatedWaitStartedAt] = useState<number | null>(null);
@@ -221,6 +224,24 @@ export default function DownloadPage() {
       setTimeout(() => setCopyShareStatus("idle"), 3000);
     }
   }, [report]);
+
+  // Fetch share token for authenticated user (passive share mode)
+  useEffect(() => {
+    fetch("/api/share/token")
+      .then((r) => r.json())
+      .then((d) => { if (d?.token?.token) setShareToken(d.token.token); })
+      .catch(() => {});
+  }, []);
+
+  const handleCopyShareEarnLink = useCallback(async () => {
+    if (!shareToken) return;
+    const url = `https://www.manu2print.com/kdp-pdf-checker?sh=${shareToken}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2500);
+    } catch { /* clipboard blocked */ }
+  }, [shareToken]);
 
   const handleCopyVerificationLink = useCallback(async () => {
     if (!id) return;
@@ -785,7 +806,42 @@ export default function DownloadPage() {
                       Download Full Report (PDF)
                     </button>
                   </div>
-                  {/* Share section */}
+                  {/* Share-to-earn CTA — shown to authenticated users with a token */}
+                  {shareToken && (
+                    <div className="mt-4 rounded-lg border border-m2p-border bg-white p-5">
+                      <p className="font-semibold text-m2p-ink mb-0.5">
+                        {(() => {
+                          const score = calculatedScore ?? report?.readinessScore100 ?? 0;
+                          return score >= 70
+                            ? "Your file is ready — share it with other authors"
+                            : "This file needs work — help others check theirs first";
+                        })()}
+                      </p>
+                      <p className="text-sm text-m2p-muted mb-3">
+                        When someone checks their file from your link, you get a free scan.
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <input
+                          readOnly
+                          value={`https://www.manu2print.com/kdp-pdf-checker?sh=${shareToken}`}
+                          className="flex-1 rounded-lg border border-m2p-border bg-m2p-ivory px-3 py-2 text-xs text-m2p-muted font-mono truncate"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleCopyShareEarnLink}
+                          className="shrink-0 rounded-lg bg-m2p-orange text-white px-4 py-2 text-sm font-semibold hover:bg-m2p-orange-hover transition-colors"
+                        >
+                          {shareCopied ? "Copied!" : "Copy link"}
+                        </button>
+                      </div>
+                      <p className="text-xs text-m2p-muted mt-2">
+                        Sign in to track your credits →{" "}
+                        <a href="/dashboard" className="text-m2p-orange hover:underline">Dashboard</a>
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Verify / social share section */}
                   <div className="mt-4 bg-m2p-orange-soft border border-m2p-border rounded-lg p-5">
                     <p className="font-semibold text-center text-xl text-m2p-ink mb-1">
                       Share your readiness score

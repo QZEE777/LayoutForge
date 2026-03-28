@@ -63,13 +63,14 @@ export async function POST(req: Request) {
   }
 
   const customData = payload.meta?.custom_data as Record<string, unknown> | undefined;
-  const downloadId = typeof customData?.download_id === "string" ? customData.download_id : "";
-  const priceType = typeof customData?.price_type === "string" ? customData.price_type : "single_use";
-  const tool = typeof customData?.tool === "string" ? customData.tool : "";
-  const refCode = typeof customData?.ref_code === "string" ? customData.ref_code : "";
-  const email = payload.data?.attributes?.user_email ?? "";
-  const orderId = payload.data?.id != null ? String(payload.data.id) : "";
-  const amount = payload.data?.attributes?.total ?? 0;
+  const downloadId  = typeof customData?.download_id  === "string" ? customData.download_id  : "";
+  const priceType   = typeof customData?.price_type   === "string" ? customData.price_type   : "single_use";
+  const tool        = typeof customData?.tool         === "string" ? customData.tool         : "";
+  const refCode     = typeof customData?.ref_code     === "string" ? customData.ref_code     : "";
+  const shareToken  = typeof customData?.share_token  === "string" ? customData.share_token  : "";
+  const email       = payload.data?.attributes?.user_email ?? "";
+  const orderId     = payload.data?.id != null ? String(payload.data.id) : "";
+  const amount      = payload.data?.attributes?.total ?? 0;
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -155,6 +156,87 @@ export async function POST(req: Request) {
           }
         } catch (err) {
           console.error("[webhooks/lemonsqueezy] referral insert failed:", err);
+        }
+      }
+
+      // ── Share-to-earn: award scan credit to result sharer ─────────────────
+      // Only fires when NO partner ref_code is present (partner always takes priority)
+      if (!refCode && shareToken && /^sh_[a-z0-9]{16}$/.test(shareToken) && orderId && email) {
+        try {
+          // Idempotency: check if this order_id already has a share reward
+          const { data: existingReward } = await supabase
+            .from("share_rewards")
+            .select("reward_id")
+            .eq("order_id", orderId)
+            .maybeSingle();
+
+          if (!existingReward) {
+            // Verify token is active and get sharer info
+            const { data: tokenRecord } = await supabase
+              .from("share_tokens")
+              .select("id, email, canonical_ref_id, token_status")
+              .eq("token", shareToken)
+              .eq("token_status", "active")
+              .maybeSingle();
+
+            if (tokenRecord) {
+              // Fraud check 1: self-referral (sharer email === purchaser email)
+              const sharerEmail = tokenRecord.email.toLowerCase();
+              const buyerEmail  = email.toLowerCase();
+              const isSelfReferral = sharerEmail === buyerEmail;
+
+              if (!isSelfReferral) {
+                // Fraud check 2: check if this purchaser email already converted via any share token
+                const { data: priorConversion } = await supabase
+                  .from("share_rewards")
+                  .select("reward_id")
+                  .eq("sharer_email", sharerEmail)
+                  .limit(1)
+                  .maybeSingle();
+
+                // Only award if first purchase from this buyer
+                const crypto = await import("crypto");
+                const SALT = process.env.HASH_SALT ?? "m2p_default_salt_change_in_prod";
+                const purchaserHash = "v1_" + crypto.createHmac("sha256", SALT)
+                  .update(buyerEmail).digest("hex");
+
+                // Refund window: 30 days from now
+                const refundWindowCloses = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+                await supabase.from("share_rewards").insert({
+                  token:                  shareToken,
+                  canonical_ref_id:       tokenRecord.canonical_ref_id,
+                  order_id:               orderId,
+                  sharer_email:           sharerEmail,
+                  purchaser_email_hash:   purchaserHash,
+                  reward_type:            "scan_credit",
+                  credits_amount:         1,
+                  status:                 "pending",
+                  refund_window_closes_at: refundWindowCloses.toISOString(),
+                  fraud_hold_reason:      priorConversion ? "repeat_buyer" : null,
+                  fraud_hold_until:       priorConversion
+                    ? new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString()
+                    : null,
+                });
+
+                // Increment pending conversion counter on token
+                await supabase
+                  .from("share_tokens")
+                  .update({
+                    total_conversions_pending: supabase.rpc as unknown as number,
+                    last_click_at: new Date().toISOString(),
+                  })
+                  .eq("token", shareToken);
+
+                // Atomic increment via raw SQL (best effort)
+                try {
+                  await supabase.rpc("increment_share_conversions_pending", { p_token: shareToken });
+                } catch { /* best effort */ }
+              }
+            }
+          }
+        } catch (err) {
+          console.error("[webhooks/lemonsqueezy] share_reward insert failed:", err);
         }
       }
     }

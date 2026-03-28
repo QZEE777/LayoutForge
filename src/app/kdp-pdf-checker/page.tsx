@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { formatFileSize } from "@/lib/formatFileName";
@@ -239,11 +239,37 @@ function UploadWidget({
 
 export default function KdpPdfCheckerPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [file, setFile]                   = useState<File | null>(null);
   const [isDragging, setIsDragging]       = useState(false);
   const [uploading, setUploading]         = useState(false);
   const [checkElapsedSec, setCheckElapsedSec] = useState(0);
   const [error, setError]                 = useState<string | null>(null);
+
+  // ── Share token attribution — set cookie + localStorage on ?sh= param ───────
+  useEffect(() => {
+    const sh = searchParams.get("sh");
+    if (!sh || !sh.startsWith("sh_") || sh.length > 22) return;
+
+    // Sanitise token (alphanumeric + underscore only)
+    if (!/^sh_[a-z0-9]{16}$/.test(sh)) return;
+
+    const COOKIE_NAME = "m2p_sh";
+    const THIRTY_DAYS = 30 * 24 * 60 * 60;
+
+    // Set 30-day cookie (always reset on new click = re-engagement reset)
+    document.cookie = `${COOKIE_NAME}=${sh}; max-age=${THIRTY_DAYS}; path=/; SameSite=Lax`;
+
+    // localStorage fallback
+    try { localStorage.setItem(COOKIE_NAME, sh); } catch { /* blocked */ }
+
+    // Fire-and-forget click record to API
+    fetch("/api/share/click", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({ token: sh, source_page: "kdp-pdf-checker" }),
+    }).catch(() => { /* attribution loss acceptable */ });
+  }, [searchParams]);
 
   useEffect(() => {
     if (!uploading) { setCheckElapsedSec(0); return; }
