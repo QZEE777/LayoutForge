@@ -1,80 +1,37 @@
 "use client";
 
-import { useState, useCallback } from "react";
 import { Card } from "@/components/ui/card";
-import { Upload, FileText, CheckCircle2, Zap, Shield, ArrowRight, Sparkles } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
+import { Upload, FileText, CheckCircle2, Zap, Shield, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 interface UploadPanelProps {
   scansRemaining: number;
 }
 
 export function UploadPanel({ scansRemaining }: UploadPanelProps) {
-  const [isDragging, setIsDragging] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
-  const router = useRouter();
-
-  const handleDragOver = useCallback((e: React.DragEvent) => { e.preventDefault(); setIsDragging(true); }, []);
-  const handleDragLeave = useCallback((e: React.DragEvent) => { e.preventDefault(); setIsDragging(false); }, []);
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const f = e.dataTransfer.files[0];
-    if (f?.type === "application/pdf") setFile(f);
-  }, []);
-  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0];
-    if (f) setFile(f);
-  }, []);
-
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <Card className="overflow-hidden">
         <div className="p-6 lg:p-8">
-          <div
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            className={cn(
-              "relative border-2 border-dashed rounded-2xl p-10 text-center transition-all duration-200 cursor-pointer group",
-              isDragging ? "scale-[1.01]" : "",
-              file ? "border-emerald-400" : "hover:border-[var(--d-primary)]/50 hover:bg-[var(--d-muted)]/50"
-            )}
-            style={{ borderColor: isDragging ? "#F05A28" : file ? "#10b981" : "var(--d-border)", background: isDragging ? "rgba(240,90,40,0.04)" : file ? "rgba(16,185,129,0.04)" : undefined }}
-          >
-            <input type="file" accept=".pdf" onChange={handleFileSelect} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-            {!file ? (
-              <>
-                <div className={cn(
-                  "w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-5 transition-all duration-200",
-                  isDragging ? "scale-110" : "group-hover:bg-[var(--d-primary)]/10"
-                )} style={{ background: isDragging ? "#F05A28" : "var(--d-muted)", color: isDragging ? "#fff" : "var(--d-fg-muted)" }}>
-                  <Upload className="w-8 h-8" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2" style={{ color: "var(--d-fg)" }}>Drop your PDF here</h3>
-                <p className="mb-2" style={{ color: "var(--d-fg-muted)" }}>or click to browse from your computer</p>
-                <p className="text-sm" style={{ color: "var(--d-fg-muted)" }}>Supports PDF exports from Canva, Word, InDesign, and more</p>
-              </>
-            ) : (
-              <>
-                <div className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-5" style={{ background: "rgba(16,185,129,0.1)" }}>
-                  <FileText className="w-8 h-8" style={{ color: "#10b981" }} />
-                </div>
-                <h3 className="text-xl font-semibold mb-1" style={{ color: "var(--d-fg)" }}>{file.name}</h3>
-                <p className="mb-5" style={{ color: "var(--d-fg-muted)" }}>{(file.size / 1024 / 1024).toFixed(2)} MB</p>
-                <button
-                  onClick={() => router.push("/kdp-pdf-checker")}
-                  className="inline-flex items-center gap-2 rounded-xl px-6 py-3 font-semibold text-white transition-opacity hover:opacity-90"
-                  style={{ background: "#F05A28" }}
-                >
-                  <Sparkles className="w-4 h-4" />
-                  Start KDP Check
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </>
-            )}
-          </div>
+          {/* CTA zone */}
+          <Link href="/kdp-pdf-checker" className="block group">
+            <div className="border-2 border-dashed rounded-2xl p-10 text-center transition-all duration-200 hover:scale-[1.01]"
+              style={{ borderColor: "rgba(240,90,40,0.3)", background: "rgba(240,90,40,0.02)" }}>
+              <div className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-5 transition-all duration-200 group-hover:scale-110"
+                style={{ background: "#F05A28" }}>
+                <Upload className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2" style={{ color: "var(--d-fg)" }}>Check a New PDF</h3>
+              <p className="mb-5" style={{ color: "var(--d-fg-muted)" }}>
+                Upload your PDF and get a full KDP compliance report in under 90 seconds.
+              </p>
+              <span className="inline-flex items-center gap-2 rounded-xl px-6 py-3 font-semibold text-white transition-opacity group-hover:opacity-90"
+                style={{ background: "#F05A28" }}>
+                Go to KDP Checker
+                <ArrowRight className="w-4 h-4" />
+              </span>
+            </div>
+          </Link>
         </div>
 
         {/* Quick stats */}

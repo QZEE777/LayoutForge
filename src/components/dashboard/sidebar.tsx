@@ -42,11 +42,8 @@ export function DashboardSidebar({ activeView, setActiveView, sidebarOpen, setSi
       )}>
         {/* Logo */}
         <div className="h-16 flex items-center justify-between px-5 border-b border-[var(--d-border)]">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "#F05A28" }}>
-              <span className="text-white font-black text-xs">m2</span>
-            </div>
-            <span className="text-base font-black tracking-tight">
+          <Link href="/" className="flex items-center">
+            <span className="text-xl font-black tracking-tight">
               <span style={{ color: "#F05A28" }}>manu</span>
               <span style={{ color: "#4cd964" }}>2print</span>
             </span>

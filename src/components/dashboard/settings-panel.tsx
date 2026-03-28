@@ -86,7 +86,7 @@ export function SettingsPanel({ user, affiliate, firstName, setFirstName, saving
 
       <Card className="divide-y" style={{ borderColor: "var(--d-border)" }}>
         <SettingRow icon={CreditCard} title="Purchase History" description="View all your scan reports and receipts" href="/my-orders" />
-        <SettingRow icon={Shield} title="Security" description="Manage your sign-in options" href="/auth" />
+        <SettingRow icon={Shield} title="Help & FAQ" description="Answers to common questions" href="/faq" />
       </Card>
 
       <Card className="p-5">

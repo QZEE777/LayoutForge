@@ -1,7 +1,7 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { ArrowRight, ExternalLink } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 interface Tool {
@@ -37,8 +37,7 @@ export function ToolsPanel() {
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {FREE_TOOLS.map((tool) => (
-          <Link key={tool.id} href={tool.href} target="_blank" rel="noopener noreferrer"
-            className="block group">
+          <Link key={tool.id} href={tool.href} className="block group">
             <Card className="p-5 h-full hover:shadow-md transition-all duration-200 hover:border-[var(--d-primary)]/30 relative">
               {tool.comingSoon && (
                 <span className="absolute top-3 right-3 text-xs px-2 py-0.5 rounded-full font-medium"
@@ -61,7 +60,7 @@ export function ToolsPanel() {
                 </div>
               </div>
               <div className="mt-3 flex items-center text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: "#F05A28" }}>
-                Open Tool <ExternalLink className="w-3 h-3 ml-1" />
+                Open Tool <ArrowRight className="w-3 h-3 ml-1" />
               </div>
             </Card>
           </Link>

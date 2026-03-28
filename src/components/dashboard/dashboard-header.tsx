@@ -2,7 +2,7 @@
 
 import { ActiveView } from "./sidebar";
 import { Button } from "@/components/ui/button";
-import { Menu, Bell, HelpCircle } from "lucide-react";
+import { Menu, HelpCircle } from "lucide-react";
 import Link from "next/link";
 
 const viewMeta: Record<ActiveView, { title: string; subtitle: string }> = {
@@ -21,26 +21,24 @@ interface HeaderProps {
 export function DashboardHeader({ activeView, setSidebarOpen }: HeaderProps) {
   const { title, subtitle } = viewMeta[activeView];
   return (
-    <header className="h-16 flex items-center justify-between px-4 lg:px-6 border-b shrink-0"
+    <header className="h-16 flex items-center px-4 lg:px-6 border-b shrink-0 relative"
       style={{ background: "var(--d-card)", borderColor: "var(--d-border)" }}>
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(true)}>
-          <Menu className="w-5 h-5" />
-        </Button>
-        <div>
-          <h1 className="text-base font-semibold" style={{ color: "var(--d-fg)" }}>{title}</h1>
-          <p className="text-xs hidden sm:block" style={{ color: "var(--d-fg-muted)" }}>{subtitle}</p>
-        </div>
+      {/* Mobile menu button — left */}
+      <Button variant="ghost" size="icon" className="lg:hidden shrink-0" onClick={() => setSidebarOpen(true)}>
+        <Menu className="w-5 h-5" />
+      </Button>
+      {/* Title — centered absolutely */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+        <h1 className="text-base font-semibold" style={{ color: "var(--d-fg)" }}>{title}</h1>
+        <p className="text-xs hidden sm:block" style={{ color: "var(--d-fg-muted)" }}>{subtitle}</p>
       </div>
-      <div className="flex items-center gap-1">
-        <Link href="/" target="_blank">
+      {/* Help — right */}
+      <div className="ml-auto shrink-0">
+        <Link href="/faq">
           <Button variant="ghost" size="icon">
             <HelpCircle className="w-5 h-5" />
           </Button>
         </Link>
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="w-5 h-5" />
-        </Button>
       </div>
     </header>
   );
