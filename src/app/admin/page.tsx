@@ -67,6 +67,7 @@ export default function AdminPage() {
     created_at: string;
   }>>([]);
   const [affiliateLoading, setAffiliateLoading] = useState(false);
+  const [lsNudge, setLsNudge] = useState<{ name: string; email: string } | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -268,6 +269,8 @@ export default function AdminPage() {
     const pwd = typeof window !== "undefined" ? sessionStorage.getItem(ADMIN_PWD_KEY) : null;
     if (!pwd) return;
     setAffiliateLoading(true);
+    // Capture affiliate details before approval for the LS nudge
+    const target = action === "approve" ? affiliates.find((a) => a.id === id) : null;
     try {
       await fetch("/api/admin/affiliates", {
         method: "POST",
@@ -280,6 +283,10 @@ export default function AdminPage() {
         const data = await res.json();
         setAffiliates(data.affiliates || []);
         setReferrals(data.referrals || []);
+      }
+      // Show LemonSqueezy nudge after approval
+      if (action === "approve" && target) {
+        setLsNudge({ name: target.name, email: target.email });
       }
     } finally {
       setAffiliateLoading(false);
@@ -613,6 +620,31 @@ export default function AdminPage() {
                 <h2 className="text-lg font-bold">Partners</h2>
                 <span className="text-xs text-soft-muted">{affiliateLoading ? "Saving…" : ""}</span>
               </div>
+
+              {/* LemonSqueezy invite nudge — appears after approving a partner */}
+              {lsNudge && (
+                <div className="flex items-center justify-between gap-4 mb-4 px-4 py-3 rounded-xl bg-green-50 border border-green-200">
+                  <p className="text-sm text-green-800">
+                    <strong>✓ {lsNudge.name} approved</strong> — now invite them in LemonSqueezy so they can earn commissions and get paid automatically.
+                  </p>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <a
+                      href="https://app.lemonsqueezy.com/affiliates"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs bg-green-600 hover:bg-green-700 text-white font-semibold px-3 py-1.5 rounded-lg"
+                    >
+                      Invite in LemonSqueezy →
+                    </a>
+                    <button
+                      onClick={() => setLsNudge(null)}
+                      className="text-xs text-green-600 hover:text-green-800 px-2 py-1.5"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                </div>
+              )}
               <p className="text-xs text-soft-muted mb-4">Approve applications, suspend bad actors, mark commissions paid.</p>
               <div className="overflow-x-auto rounded-xl border border-m2p-border bg-m2p-ivory">
                 <table className="w-full text-sm">
