@@ -83,6 +83,11 @@ export default function AdminPage() {
     token: string;
   }>>([]);
   const [shareRewardsLoading, setShareRewardsLoading] = useState(false);
+  const [grantEmail, setGrantEmail] = useState("");
+  const [grantCredits, setGrantCredits] = useState("5");
+  const [grantNote, setGrantNote] = useState("beta_grant");
+  const [grantStatus, setGrantStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
+  const [grantMsg, setGrantMsg] = useState("");
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -315,6 +320,34 @@ export default function AdminPage() {
     } finally {
       setAffiliateLoading(false);
     }
+  };
+
+  const handleGrantCredits = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const pwd = typeof window !== "undefined" ? sessionStorage.getItem(ADMIN_PWD_KEY) : null;
+    if (!pwd) return;
+    setGrantStatus("loading");
+    setGrantMsg("");
+    try {
+      const res = await fetch("/api/admin/grant-credits", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-admin-password": pwd },
+        body: JSON.stringify({ email: grantEmail, credits: parseInt(grantCredits, 10), note: grantNote }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setGrantStatus("ok");
+        setGrantMsg(`✓ ${data.credits} credits granted to ${data.email}`);
+        setGrantEmail("");
+      } else {
+        setGrantStatus("error");
+        setGrantMsg(data.error ?? "Failed");
+      }
+    } catch {
+      setGrantStatus("error");
+      setGrantMsg("Network error");
+    }
+    setTimeout(() => setGrantStatus("idle"), 4000);
   };
 
   const saveLsCode = async (affiliateId: string) => {
@@ -654,6 +687,59 @@ export default function AdminPage() {
                   <div className="px-4 py-8 text-center text-soft-muted">No email captures.</div>
                 )}
               </div>
+            </section>
+
+            {/* ── Grant Credits ────────────────────────────────── */}
+            <section className="mb-10">
+              <h2 className="text-lg font-bold mb-2">Grant Free Credits</h2>
+              <p className="text-xs text-soft-muted mb-4">Beta testers, manual overrides. Credits never expire.</p>
+              <form onSubmit={handleGrantCredits} className="flex flex-wrap items-end gap-3 p-4 rounded-xl border border-m2p-border bg-m2p-ivory">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs text-soft-muted">Email</label>
+                  <input
+                    type="email"
+                    required
+                    value={grantEmail}
+                    onChange={(e) => setGrantEmail(e.target.value)}
+                    placeholder="tester@example.com"
+                    className="border rounded-lg px-3 py-2 text-sm w-56 focus:outline-none focus:border-m2p-orange"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs text-soft-muted">Credits</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={100}
+                    required
+                    value={grantCredits}
+                    onChange={(e) => setGrantCredits(e.target.value)}
+                    className="border rounded-lg px-3 py-2 text-sm w-20 focus:outline-none focus:border-m2p-orange"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs text-soft-muted">Note (source label)</label>
+                  <input
+                    type="text"
+                    value={grantNote}
+                    onChange={(e) => setGrantNote(e.target.value)}
+                    placeholder="beta_grant"
+                    className="border rounded-lg px-3 py-2 text-sm w-36 focus:outline-none focus:border-m2p-orange"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={grantStatus === "loading"}
+                  className="bg-m2p-orange hover:opacity-90 disabled:opacity-50 text-white font-semibold px-4 py-2 rounded-lg text-sm"
+                >
+                  {grantStatus === "loading" ? "Granting…" : "Grant Credits"}
+                </button>
+                {grantMsg && (
+                  <p className={`text-sm font-medium ${grantStatus === "ok" ? "text-green-600" : "text-red-500"}`}>
+                    {grantMsg}
+                  </p>
+                )}
+              </form>
             </section>
 
             <section className="mb-10">
