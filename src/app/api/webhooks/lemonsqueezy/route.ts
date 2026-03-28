@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 import { markDownloadPaid } from "@/lib/storage";
-import { sendDownloadLinkEmail } from "@/lib/resend";
+import { sendDownloadLinkEmail, sendPartnerThresholdEmail } from "@/lib/resend";
 
 export async function POST(req: Request) {
   const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
@@ -232,6 +232,24 @@ export async function POST(req: Request) {
                 try {
                   await supabase.rpc("increment_share_conversions_pending", { p_token: shareToken });
                 } catch { /* best effort */ }
+
+                // Partner threshold email — fires once when pending hits exactly 3
+                // Re-fetch updated token to get accurate count after increment
+                try {
+                  const PARTNER_THRESHOLD = 3;
+                  const { data: updatedToken } = await supabase
+                    .from("share_tokens")
+                    .select("total_conversions, total_conversions_pending")
+                    .eq("token", shareToken)
+                    .maybeSingle();
+
+                  if (updatedToken) {
+                    const total = (updatedToken.total_conversions ?? 0) + (updatedToken.total_conversions_pending ?? 0);
+                    if (total === PARTNER_THRESHOLD) {
+                      await sendPartnerThresholdEmail(sharerEmail);
+                    }
+                  }
+                } catch { /* best effort — email is nice-to-have, not critical */ }
               }
             }
           }

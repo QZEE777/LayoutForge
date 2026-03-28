@@ -170,6 +170,87 @@ export async function sendShareCreditAwardedEmail(
   return data;
 }
 
+export async function sendPartnerThresholdEmail(to: string) {
+  const resend = new Resend(process.env.RESEND_API_KEY ?? "");
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com";
+  const applyUrl = `${appUrl}/partners/apply`;
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: system-ui, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; background: #FAF7EE; color: #1A1208;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 560px; margin: 0 auto;">
+    <tr>
+      <td style="padding-bottom: 24px; border-bottom: 2px solid #4cd964;">
+        <span style="font-size: 22px; font-weight: 700; color: #F05A28;">manu</span><span style="font-size: 22px; font-weight: 700; color: #4cd964;">2print</span>
+        <span style="font-size: 13px; color: #6B6151; margin-left: 8px;">Share &amp; Earn</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 32px 0 16px;">
+        <p style="font-size: 20px; font-weight: 700; margin: 0 0 8px;">You&rsquo;ve unlocked Partner mode 🚀</p>
+        <p style="font-size: 15px; line-height: 1.7; color: #3a3020; margin: 0 0 20px;">
+          You&rsquo;ve referred 3 people to manu2print — that&rsquo;s the threshold to upgrade from free scan credits
+          to <strong>real cash commissions</strong>.
+        </p>
+        <div style="background: #1A1208; border-radius: 10px; padding: 16px 20px; margin: 0 0 24px;">
+          <p style="font-size: 14px; color: #9B8E7E; margin: 0 0 10px;">What you unlock as a Partner:</p>
+          <p style="font-size: 14px; color: #4cd964; margin: 0 0 6px;">✓ 30% commission on every $9 single scan</p>
+          <p style="font-size: 14px; color: #4cd964; margin: 0 0 6px;">✓ 40% commission on every pack sale (up to $31.60)</p>
+          <p style="font-size: 14px; color: #4cd964; margin: 0 0 0;">✓ Monthly payouts via PayPal or Wise</p>
+        </div>
+        <a href="${applyUrl}"
+           style="display: inline-block; padding: 14px 32px; background: #F05A28; color: #ffffff;
+                  text-decoration: none; font-weight: 700; font-size: 16px; border-radius: 8px;">
+          Activate Partner Mode →
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 24px 0 0; border-top: 1px solid #E0D8C4;">
+        <p style="font-size: 13px; color: #6B6151; margin: 0 0 6px;">
+          Takes under 2 minutes to apply. No minimums. No waitlist.
+        </p>
+        <p style="font-size: 12px; color: #9B8E7E; margin: 12px 0 0;">— manu2print.com</p>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
+`.trim();
+
+  const text = [
+    "You've unlocked Partner mode!",
+    "",
+    "You've referred 3 people — that's the threshold to upgrade from free credits to cash commissions.",
+    "",
+    "What you unlock:",
+    "• 30% commission on every $9 single scan",
+    "• 40% commission on every pack sale (up to $31.60)",
+    "• Monthly payouts via PayPal or Wise",
+    "",
+    `Activate Partner Mode: ${applyUrl}`,
+    "",
+    "Takes under 2 minutes. No minimums. No waitlist.",
+    "",
+    "— manu2print.com",
+  ].join("\n");
+
+  const { data, error } = await resend.emails.send({
+    from: FROM,
+    to,
+    subject: "You've unlocked Partner mode — earn 30–40% cash commission 🚀",
+    html,
+    text,
+  });
+
+  if (error) throw error;
+  return data;
+}
+
 export async function sendAffiliateApprovalEmail(to: string, name: string, code: string) {
   const resend = new Resend(process.env.RESEND_API_KEY ?? "");
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com";
