@@ -4,8 +4,9 @@ import { GoLandingClient } from "./client";
 
 export const dynamic = "force-dynamic";
 
-export default async function GoPage({ params }: { params: { code: string } }) {
-  const code = (params.code ?? "").toLowerCase().trim();
+export default async function GoPage({ params }: { params: Promise<{ code: string }> }) {
+  const { code: rawCode } = await params;
+  const code = (rawCode ?? "").toLowerCase().trim();
 
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
