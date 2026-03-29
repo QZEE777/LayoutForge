@@ -266,6 +266,20 @@ export async function POST(req: Request) {
     } catch (err) {
       console.error("[webhooks/lemonsqueezy] markDownloadPaid failed:", err);
     }
+
+    // Suppress nudge email — user has already paid
+    if (email && supabaseUrl && supabaseKey) {
+      try {
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        await supabase
+          .from("scan_nudges")
+          .update({ sent_at: new Date().toISOString() })
+          .eq("email", email.toLowerCase())
+          .eq("download_id", downloadId)
+          .is("sent_at", null);
+      } catch { /* best effort — nudge suppression is non-critical */ }
+    }
+
     if (email) {
       try {
         const downloadUrl = `${process.env.NEXT_PUBLIC_APP_URL}/download/${downloadId}`;

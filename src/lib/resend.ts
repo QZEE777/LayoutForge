@@ -199,7 +199,7 @@ export async function sendPartnerThresholdEmail(to: string) {
           <p style="font-size: 14px; color: #9B8E7E; margin: 0 0 10px;">What you unlock as a Partner:</p>
           <p style="font-size: 14px; color: #4cd964; margin: 0 0 6px;">✓ 30% commission on every $9 single scan</p>
           <p style="font-size: 14px; color: #4cd964; margin: 0 0 6px;">✓ 40% commission on every pack sale (up to $31.60)</p>
-          <p style="font-size: 14px; color: #4cd964; margin: 0 0 0;">✓ Monthly payouts via PayPal or Wise</p>
+          <p style="font-size: 14px; color: #4cd964; margin: 0 0 0;">✓ Automatic payouts via LemonSqueezy</p>
         </div>
         <a href="${applyUrl}"
            style="display: inline-block; padding: 14px 32px; background: #F05A28; color: #ffffff;
@@ -296,7 +296,7 @@ export async function sendAffiliateApprovalEmail(to: string, name: string, code:
           🍪 <strong>Cookie:</strong> 12 months — you get credit even if they buy months later
         </p>
         <p style="font-size: 13px; color: #6B6151; margin: 0 0 6px;">
-          💳 <strong>Payouts:</strong> Monthly via PayPal once you hit $20 minimum
+          💳 <strong>Payouts:</strong> Automatic via LemonSqueezy — no minimum threshold
         </p>
         <p style="font-size: 12px; color: #9B8E7E; margin: 16px 0 0;">Questions? Reply to this email or contact hello@manu2print.com</p>
         <p style="font-size: 12px; color: #9B8E7E; margin: 4px 0 0;">— manu2print.com</p>
@@ -320,7 +320,7 @@ export async function sendAffiliateApprovalEmail(to: string, name: string, code:
     "",
     "Commission: 40% on Author Pack ($7.60), Indie Pack ($15.60), Pro Pack ($31.60)",
     "Cookie: 12 months",
-    "Payouts: Monthly via PayPal, $20 minimum",
+    "Payouts: Automatic via LemonSqueezy — no minimum threshold",
     "",
     "Questions? Email hello@manu2print.com",
     "— manu2print.com",

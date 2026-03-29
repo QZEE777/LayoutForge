@@ -78,6 +78,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Failed to unlock download. Contact support." }, { status: 500 });
   }
 
+  // Suppress nudge email — download has been unlocked
+  try {
+    await supabase
+      .from("scan_nudges")
+      .update({ sent_at: new Date().toISOString() })
+      .eq("email", email)
+      .eq("download_id", downloadId)
+      .is("sent_at", null);
+  } catch { /* best effort */ }
+
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
   const downloadUrl = `${baseUrl}/download/${downloadId}`;
 

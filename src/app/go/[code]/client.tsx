@@ -25,7 +25,7 @@ interface Props {
   partnerName: string;
 }
 
-export function GoLandingClient({ checkoutUrl, refCode }: Props) {
+export function GoLandingClient({ checkoutUrl, refCode, partnerName }: Props) {
   // Set custom ref cookie so our analytics also captures the attribution
   useEffect(() => {
     if (!refCode) return;
@@ -53,6 +53,12 @@ export function GoLandingClient({ checkoutUrl, refCode }: Props) {
       {/* ── Hero ─────────────────────────────────────────── */}
       <section style={{ maxWidth: 1100, margin: "0 auto", padding: "72px 24px 56px", display: "grid", gridTemplateColumns: "1fr auto", gap: 48, alignItems: "center" }}>
         <div>
+          {partnerName && (
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(45,106,45,0.08)", border: "1px solid rgba(45,106,45,0.18)", color: "#2D6A2D", fontWeight: 600, fontSize: 12, padding: "4px 12px", borderRadius: 999, marginBottom: 12 }}>
+              <span style={{ fontSize: 14 }}>👤</span>
+              Recommended by {partnerName}
+            </div>
+          )}
           <div style={{ display: "inline-block", background: "rgba(240,90,40,0.1)", color: "#F05A28", fontWeight: 700, fontSize: 12, padding: "4px 12px", borderRadius: 999, marginBottom: 20, letterSpacing: "0.08em", textTransform: "uppercase" }}>
             $9 · One-time · Ready in 90 seconds
           </div>
