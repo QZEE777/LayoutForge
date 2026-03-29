@@ -48,16 +48,25 @@ export function EarnPanel({ affiliate, stats }: Props) {
   const [shareData, setShareData] = useState<ShareTokenData | null>(null);
   const [shareLinkCopied, setShareLinkCopied] = useState(false);
   const [modalDismissed, setModalDismissed] = useState(false);
+  const [creditBalance, setCreditBalance] = useState<{ total: number; used: number; remaining: number } | null>(null);
   const referralLink = affiliate ? `${APP_URL}/kdp-pdf-checker?ref=${affiliate.code}` : "";
 
   // Fetch share token data for non-partner users
   useEffect(() => {
-    if (affiliate) return; // partners use ref code, not share token
+    if (affiliate) return;
     fetch("/api/share/token")
       .then((r) => r.json())
       .then((d) => { if (d?.token) setShareData(d.token); })
       .catch(() => {});
   }, [affiliate]);
+
+  // Fetch scan credit balance for all users
+  useEffect(() => {
+    fetch("/api/credits/balance")
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => { if (d) setCreditBalance(d); })
+      .catch(() => {});
+  }, []);
 
   const shareLink = shareData ? `${APP_URL}/kdp-pdf-checker?sh=${shareData.token}` : "";
 
@@ -217,7 +226,7 @@ export function EarnPanel({ affiliate, stats }: Props) {
           {[
             { step: 1, title: "Apply",    desc: "Join in under 2 minutes" },
             { step: 2, title: "Share",    desc: "Use your unique referral link" },
-            { step: 3, title: "Get paid", desc: "Monthly via PayPal or Wise" },
+            { step: 3, title: "Get paid", desc: "Automatically via LemonSqueezy" },
           ].map(({ step, title, desc }) => (
             <Card key={step} className="p-4">
               <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white mb-2" style={{ background: "#F05A28" }}>{step}</div>
@@ -226,6 +235,32 @@ export function EarnPanel({ affiliate, stats }: Props) {
             </Card>
           ))}
         </div>
+        {/* Scan Credits — non-partner */}
+        {creditBalance !== null && creditBalance.total > 0 && (
+          <Card className="p-5">
+            <h3 className="font-semibold mb-3" style={{ color: "var(--d-fg)" }}>
+              <Gift className="w-4 h-4 inline mr-2 opacity-60" />
+              Scan Credits
+            </h3>
+            <div className="flex items-center justify-between gap-4 mb-3">
+              <div className="text-center flex-1 rounded-lg p-3" style={{ background: "var(--d-bg)" }}>
+                <p className="text-2xl font-black" style={{ color: "#F05A28" }}>{creditBalance.remaining}</p>
+                <p className="text-xs mt-1" style={{ color: "var(--d-fg-muted)" }}>remaining</p>
+              </div>
+              <div className="text-center flex-1 rounded-lg p-3" style={{ background: "var(--d-bg)" }}>
+                <p className="text-2xl font-black" style={{ color: "var(--d-fg)" }}>{creditBalance.total}</p>
+                <p className="text-xs mt-1" style={{ color: "var(--d-fg-muted)" }}>granted</p>
+              </div>
+              <div className="text-center flex-1 rounded-lg p-3" style={{ background: "var(--d-bg)" }}>
+                <p className="text-2xl font-black" style={{ color: "var(--d-fg-muted)" }}>{creditBalance.used}</p>
+                <p className="text-xs mt-1" style={{ color: "var(--d-fg-muted)" }}>used</p>
+              </div>
+            </div>
+            <p className="text-xs" style={{ color: "var(--d-fg-muted)" }}>
+              Use at checkout — enter your email and click &quot;Use a Scan Credit&quot;.
+            </p>
+          </Card>
+        )}
       </div>
       </>
     );
@@ -303,24 +338,65 @@ export function EarnPanel({ affiliate, stats }: Props) {
         )}
       </Card>
 
+      {/* Scan Credits */}
+      {creditBalance !== null && (
+        <Card className="p-5">
+          <h3 className="font-semibold mb-3" style={{ color: "var(--d-fg)" }}>
+            <Gift className="w-4 h-4 inline mr-2 opacity-60" />
+            Scan Credits
+          </h3>
+          <div className="flex items-center justify-between gap-4 mb-3">
+            <div className="text-center flex-1 rounded-lg p-3" style={{ background: "var(--d-bg)" }}>
+              <p className="text-2xl font-black" style={{ color: "#F05A28" }}>{creditBalance.remaining}</p>
+              <p className="text-xs mt-1" style={{ color: "var(--d-fg-muted)" }}>remaining</p>
+            </div>
+            <div className="text-center flex-1 rounded-lg p-3" style={{ background: "var(--d-bg)" }}>
+              <p className="text-2xl font-black" style={{ color: "var(--d-fg)" }}>{creditBalance.total}</p>
+              <p className="text-xs mt-1" style={{ color: "var(--d-fg-muted)" }}>granted</p>
+            </div>
+            <div className="text-center flex-1 rounded-lg p-3" style={{ background: "var(--d-bg)" }}>
+              <p className="text-2xl font-black" style={{ color: "var(--d-fg-muted)" }}>{creditBalance.used}</p>
+              <p className="text-xs mt-1" style={{ color: "var(--d-fg-muted)" }}>used</p>
+            </div>
+          </div>
+          {creditBalance.remaining > 0 ? (
+            <p className="text-xs" style={{ color: "var(--d-fg-muted)" }}>
+              Use credits at checkout — enter your email and click &quot;Use a Scan Credit&quot;.
+            </p>
+          ) : (
+            <p className="text-xs" style={{ color: "var(--d-fg-muted)" }}>
+              No credits remaining.{" "}
+              <Link href="/kdp-pdf-checker" className="underline" style={{ color: "#F05A28" }}>Run a scan for $9 →</Link>
+            </p>
+          )}
+        </Card>
+      )}
+
       <Card className="p-5">
         <h3 className="font-semibold mb-4" style={{ color: "var(--d-fg)" }}>Payout Details</h3>
         <div className="space-y-3 text-sm">
-          {[
-            { label: "Status",    value: affiliate.status === "active" ? "✓ Active" : affiliate.status },
-            { label: "PayPal",    value: affiliate.paypal_email ?? "—" },
-            { label: "Wise",      value: affiliate.wise_email   ?? "—" },
-          ].map(({ label, value }) => (
-            <div key={label} className="flex items-center justify-between gap-4">
-              <span style={{ color: "var(--d-fg-muted)" }}>{label}</span>
-              <span className="font-medium" style={{ color: "var(--d-fg)" }}>{value}</span>
-            </div>
-          ))}
+          <div className="flex items-center justify-between gap-4">
+            <span style={{ color: "var(--d-fg-muted)" }}>Status</span>
+            <span className="font-medium" style={{ color: affiliate.status === "active" ? "#10b981" : "var(--d-fg)" }}>
+              {affiliate.status === "active" ? "✓ Active" : affiliate.status}
+            </span>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <span style={{ color: "var(--d-fg-muted)" }}>Commission</span>
+            <span className="font-medium" style={{ color: "var(--d-fg)" }}>
+              {affiliate.commission_rate ? `${affiliate.commission_rate}%` : "30% singles · 40% packs"}
+            </span>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <span style={{ color: "var(--d-fg-muted)" }}>Payouts</span>
+            <span className="font-medium" style={{ color: "var(--d-fg)" }}>via LemonSqueezy</span>
+          </div>
         </div>
         <p className="text-xs mt-4" style={{ color: "var(--d-fg-muted)" }}>
-          Update payment details via the{" "}
-          <Link href="/partners" className="underline" style={{ color: "#F05A28" }}>Partners portal</Link>.
-          Payouts processed monthly when balance exceeds $20.
+          Payouts are handled automatically by LemonSqueezy at $20 minimum.
+          Connect your payout method directly in your{" "}
+          <a href="https://app.lemonsqueezy.com" target="_blank" rel="noopener noreferrer"
+            className="underline" style={{ color: "#F05A28" }}>LemonSqueezy dashboard →</a>
         </p>
       </Card>
     </div>
