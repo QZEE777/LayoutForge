@@ -292,10 +292,12 @@ export function SocialCard({
           </div>
         ))}
 
-        {/* Copy link button */}
-        <button
-          onClick={copyLink}
+        {/* Download card button */}
+        <a
+          href={`/api/og/verify/${verificationId}`}
+          download={`manu2print-result.png`}
           style={{
+            display: "block",
             width: "100%",
             marginTop: 14,
             padding: "13px 0",
@@ -304,6 +306,28 @@ export function SocialCard({
             fontWeight: 800,
             fontSize: 14,
             border: "none",
+            borderRadius: 10,
+            cursor: "pointer",
+            textAlign: "center",
+            textDecoration: "none",
+            boxSizing: "border-box",
+          }}
+        >
+          ⬇️ Download card image
+        </a>
+
+        {/* Copy link button */}
+        <button
+          onClick={copyLink}
+          style={{
+            width: "100%",
+            marginTop: 10,
+            padding: "13px 0",
+            background: "rgba(255,255,255,0.08)",
+            color: "#fff",
+            fontWeight: 700,
+            fontSize: 14,
+            border: "1px solid rgba(255,255,255,0.15)",
             borderRadius: 10,
             cursor: "pointer",
           }}

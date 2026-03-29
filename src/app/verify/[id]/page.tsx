@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { VerifyClient } from "./client";
@@ -5,6 +6,28 @@ import { VerifyClient } from "./client";
 interface VerifyPageProps {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ sh?: string }>;
+}
+
+export async function generateMetadata({ params }: VerifyPageProps): Promise<Metadata> {
+  const { id } = await params;
+  const ogImage = `https://www.manu2print.com/api/og/verify/${id}`;
+  return {
+    title: "KDP PDF Check Result — manu2print",
+    description: "See how this manuscript scored on KDP readiness. Would your PDF pass?",
+    openGraph: {
+      title: "KDP PDF Check Result — manu2print",
+      description: "See how this manuscript scored on KDP readiness. Would your PDF pass?",
+      images: [{ url: ogImage, width: 1200, height: 630, alt: "KDP readiness score card" }],
+      url: `https://www.manu2print.com/verify/${id}`,
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "KDP PDF Check Result — manu2print",
+      description: "Would your PDF pass? Most don't.",
+      images: [ogImage],
+    },
+  };
 }
 
 export default async function VerifyPage({ params, searchParams }: VerifyPageProps) {
