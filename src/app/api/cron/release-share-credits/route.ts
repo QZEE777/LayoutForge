@@ -1,6 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { sendShareCreditAwardedEmail } from "@/lib/resend";
+import { Resend } from "resend";
+
+async function alertCronFailure(reason: string) {
+  try {
+    const resend = new Resend(process.env.RESEND_API_KEY ?? "");
+    await resend.emails.send({
+      from: "noreply@manu2print.com",
+      to: "hello@manu2print.com",
+      subject: `⚠️ Cron failure: release-share-credits — ${new Date().toISOString().slice(0, 10)}`,
+      text: `The daily share-credit release cron failed.\n\nReason: ${reason}\n\nCheck Vercel logs immediately.\n\n— manu2print cron monitor`,
+    });
+  } catch {
+    // If email itself fails, nothing we can do — Vercel logs still capture the error
+  }
+}
 
 // Vercel cron passes Authorization: Bearer <CRON_SECRET>
 function isAuthorized(req: NextRequest): boolean {
@@ -42,6 +57,7 @@ export async function GET(req: NextRequest) {
 
   if (fetchError) {
     console.error("[cron/release-share-credits] fetch error:", fetchError);
+    await alertCronFailure(`DB fetch failed: ${fetchError.message}`);
     return NextResponse.json({ error: "DB fetch failed" }, { status: 500 });
   }
 
@@ -132,6 +148,11 @@ export async function GET(req: NextRequest) {
   console.log(
     `[cron/release-share-credits] done — released: ${released}, errors: ${errors}, email_skipped: ${skipped.length}`
   );
+
+  // Alert if any rewards failed to process
+  if (errors > 0) {
+    await alertCronFailure(`${errors} of ${rewards.length} rewards failed to process. Check Vercel logs.`);
+  }
 
   return NextResponse.json({
     released,

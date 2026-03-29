@@ -24,10 +24,27 @@ const inter = Inter({
   display: "swap",
 });
 
+const OG_IMAGE = "https://www.manu2print.com/api/og";
+const OG_TITLE = "KDP PDF Checker — Find Formatting Errors Before Amazon Rejects Your Book | manu2print";
+const OG_DESC  = "Upload your PDF manuscript and get a full KDP compliance report in minutes. Check margins, trim size, bleed, and fonts before Amazon rejects your self-publishing PDF. $9, no subscription.";
+
 export const metadata: Metadata = {
-  title: "KDP PDF Checker — Find Formatting Errors Before Amazon Rejects Your Book | manu2print",
-  description:
-    "Upload your PDF manuscript and get a full KDP compliance report in minutes. Check margins, trim size, bleed, and fonts before Amazon rejects your self-publishing PDF. $9, no subscription.",
+  title: OG_TITLE,
+  description: OG_DESC,
+  openGraph: {
+    title: OG_TITLE,
+    description: OG_DESC,
+    url: "https://www.manu2print.com",
+    siteName: "manu2print",
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Would your PDF pass KDP? — manu2print" }],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: OG_TITLE,
+    description: "Would your PDF pass KDP? Most don't. Check yours in 90 seconds.",
+    images: [OG_IMAGE],
+  },
 };
 
 export default function RootLayout({

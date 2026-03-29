@@ -172,9 +172,19 @@ export default function PaymentGate({
     if (trimmed && typeof window !== "undefined") localStorage.setItem(STORED_EMAIL_KEY, trimmed);
   };
 
+  const captureNudge = (email: string) => {
+    if (!email || !downloadId) return;
+    fetch("/api/nudge-subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, downloadId }),
+    }).catch(() => { /* non-fatal */ });
+  };
+
   const handleSingleUse = async () => {
     const email = userEmail.trim();
     saveEmailForNextTime(email);
+    captureNudge(email);
     // Mark as "checkout initiated" so if the user returns to the download page
     // before the webhook confirms payment, we show the verifying overlay instead
     // of letting them pay again.
@@ -204,6 +214,7 @@ export default function PaymentGate({
     const email = userEmail.trim();
     if (!email) { setCreditError("Enter your email first."); return; }
     saveEmailForNextTime(email);
+    captureNudge(email);
     setCreditError("");
     setCreditStep("sending");
     try {

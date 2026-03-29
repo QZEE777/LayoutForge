@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/release-share-credits",
       "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron/send-scan-nudges",
+      "schedule": "0 10 * * *"
     }
   ]
 }
