@@ -68,4 +68,4 @@ Disallow: /
 # -----------------------------------------------
 # Sitemap
 # -----------------------------------------------
-Sitemap: https://manu2print.com/sitemap.xml
+Sitemap: https://www.manu2print.com/sitemap.xml
