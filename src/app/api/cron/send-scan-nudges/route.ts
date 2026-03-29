@@ -2,6 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 
+async function alertCronFailure(reason: string) {
+  try {
+    const resend = new Resend(process.env.RESEND_API_KEY ?? "");
+    await resend.emails.send({
+      from: "noreply@manu2print.com",
+      to: "hello@manu2print.com",
+      subject: `⚠️ Cron failure: send-scan-nudges — ${new Date().toISOString().slice(0, 10)}`,
+      text: `The daily scan-nudge cron failed.\n\nReason: ${reason}\n\nCheck Vercel logs immediately.\n\n— manu2print cron monitor`,
+    });
+  } catch { /* ignore — Vercel logs still capture the error */ }
+}
+
 function isAuthorized(req: NextRequest): boolean {
   const auth   = req.headers.get("authorization") ?? "";
   const secret = process.env.CRON_SECRET;
@@ -35,6 +47,7 @@ export async function GET(req: NextRequest) {
 
   if (error) {
     console.error("[cron/send-scan-nudges] fetch error:", error);
+    await alertCronFailure(`DB fetch failed: ${error.message}`);
     return NextResponse.json({ error: "DB fetch failed" }, { status: 500 });
   }
 
@@ -107,5 +120,8 @@ export async function GET(req: NextRequest) {
   }
 
   console.log(`[cron/send-scan-nudges] done — sent: ${sent}, errors: ${errors}`);
+  if (errors > 0) {
+    await alertCronFailure(`${errors} of ${nudges.length} nudge emails failed to send. Check Vercel logs.`);
+  }
   return NextResponse.json({ sent, errors, total: nudges.length });
 }
