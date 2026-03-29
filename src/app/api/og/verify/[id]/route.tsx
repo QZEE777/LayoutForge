@@ -165,10 +165,10 @@ export async function GET(
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={mannyUrl}
-          width={320}
-          height={480}
+          width={300}
+          height={450}
           alt="Manny"
-          style={{ objectFit: "contain", alignSelf: "flex-end", marginLeft: 40 }}
+          style={{ alignSelf: "flex-end", marginLeft: 40 }}
         />
       </div>
     ),
