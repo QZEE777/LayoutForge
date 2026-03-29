@@ -214,7 +214,7 @@ export default function PaymentGate({
     const email = userEmail.trim();
     if (!email) { setCreditError("Enter your email first."); return; }
     saveEmailForNextTime(email);
-    captureNudge(email);
+    // Note: no captureNudge here — credit holders shouldn't receive a "pay $9" nudge
     setCreditError("");
     setCreditStep("sending");
     try {
