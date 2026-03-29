@@ -35,6 +35,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.6,
     },
     {
+      url: `${BASE}/blog/why-kdp-rejects-your-pdf`,
+      lastModified: new Date("2026-03-25"),
+      changeFrequency: "monthly",
+      priority: 0.65,
+    },
+    {
+      url: `${BASE}/blog/kdp-margin-requirements`,
+      lastModified: new Date("2026-03-22"),
+      changeFrequency: "monthly",
+      priority: 0.65,
+    },
+    {
+      url: `${BASE}/blog/welcome`,
+      lastModified: new Date("2026-03-18"),
+      changeFrequency: "monthly",
+      priority: 0.4,
+    },
+    {
       url: `${BASE}/resend-link`,
       lastModified: new Date(),
       changeFrequency: "yearly",
