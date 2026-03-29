@@ -16,16 +16,17 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from("scan_credits")
-    .select("credits, used")
+    .select("credits")
     .eq("email", user.email.toLowerCase());
 
   if (error || !data) {
     return NextResponse.json({ total: 0, used: 0, remaining: 0 });
   }
 
-  const total = data.reduce((sum, row) => sum + (row.credits ?? 0), 0);
-  const used = data.reduce((sum, row) => sum + (row.used ?? 0), 0);
-  const remaining = Math.max(0, total - used);
+  // Ledger: positive rows = grants, negative rows = usage deductions
+  const granted  = data.reduce((sum, row) => sum + (row.credits > 0 ? row.credits  : 0), 0);
+  const deducted = data.reduce((sum, row) => sum + (row.credits < 0 ? -row.credits : 0), 0);
+  const remaining = Math.max(0, granted - deducted);
 
-  return NextResponse.json({ total, used, remaining });
+  return NextResponse.json({ total: granted, used: deducted, remaining });
 }
