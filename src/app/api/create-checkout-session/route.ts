@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { lemonSqueezySetup, createCheckout } from "@lemonsqueezy/lemonsqueezy.js";
+import { createClient } from "@supabase/supabase-js";
 
 export async function POST(req: Request) {
   try {
@@ -106,7 +107,29 @@ export async function POST(req: Request) {
       );
     }
 
-    return NextResponse.json({ checkoutUrl });
+    // Append ?aff=LS_CODE for LS native affiliate attribution when a partner ref is present
+    let finalCheckoutUrl = checkoutUrl;
+    if (refCode) {
+      try {
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+        if (supabaseUrl && supabaseKey) {
+          const supabase = createClient(supabaseUrl, supabaseKey);
+          const { data: aff } = await supabase
+            .from("affiliates")
+            .select("ls_affiliate_code")
+            .eq("code", refCode)
+            .eq("status", "active")
+            .maybeSingle();
+          if (aff?.ls_affiliate_code) {
+            const sep = finalCheckoutUrl.includes("?") ? "&" : "?";
+            finalCheckoutUrl = `${finalCheckoutUrl}${sep}aff=${aff.ls_affiliate_code}`;
+          }
+        }
+      } catch { /* best effort — checkout still works without affiliate param */ }
+    }
+
+    return NextResponse.json({ checkoutUrl: finalCheckoutUrl });
   } catch (e) {
     console.error("[create-checkout-session]", e);
     return NextResponse.json(

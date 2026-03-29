@@ -642,7 +642,7 @@ type DashTab = "overview" | "profile" | "payouts";
 
 function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => void }) {
   const { affiliate, stats, referrals, sessionToken, sessionExpiresAt } = data;
-  const refLink = `${APP_URL}/kdp-pdf-checker?ref=${affiliate.code}`;
+  const refLink = `${APP_URL}/go/${affiliate.code}`;
   const [copied, setCopied]           = useState(false);
   const [tab, setTab]                 = useState<DashTab>("overview");
   const isPending                     = affiliate.status === "pending";

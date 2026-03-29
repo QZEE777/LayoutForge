@@ -15,7 +15,7 @@ export default async function GoPage({ params }: { params: Promise<{ code: strin
 
   const { data: affiliate } = await supabase
     .from("affiliates")
-    .select("name, code, ls_affiliate_code, status")
+    .select("name, code, status")
     .eq("code", code)
     .eq("status", "active")
     .maybeSingle();
@@ -23,13 +23,10 @@ export default async function GoPage({ params }: { params: Promise<{ code: strin
   // Unknown or inactive partner — send to main site
   if (!affiliate) redirect("https://www.manu2print.com/kdp-pdf-checker");
 
-  const variantId = process.env.LEMONSQUEEZY_SINGLE_USE_VARIANT_ID ?? "1346943";
-
-  // Primary CTA: direct LS checkout with affiliate attribution
-  // Fallback: main checker with custom ref cookie
-  const checkoutUrl = affiliate.ls_affiliate_code
-    ? `https://manu2print.lemonsqueezy.com/checkout/buy/${variantId}?aff=${affiliate.ls_affiliate_code}`
-    : `https://www.manu2print.com/kdp-pdf-checker?ref=${code}`;
+  // Always send users through the scan flow (upload PDF first, pay after).
+  // LS native affiliate tracking fires via ?aff= appended to the checkout URL
+  // in create-checkout-session when the m2p_ref cookie is read.
+  const checkoutUrl = `https://www.manu2print.com/kdp-pdf-checker?ref=${code}`;
 
   return (
     <GoLandingClient

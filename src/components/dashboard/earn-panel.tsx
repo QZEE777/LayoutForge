@@ -49,7 +49,7 @@ export function EarnPanel({ affiliate, stats }: Props) {
   const [shareLinkCopied, setShareLinkCopied] = useState(false);
   const [modalDismissed, setModalDismissed] = useState(false);
   const [creditBalance, setCreditBalance] = useState<{ total: number; used: number; remaining: number } | null>(null);
-  const referralLink = affiliate ? `${APP_URL}/kdp-pdf-checker?ref=${affiliate.code}` : "";
+  const referralLink = affiliate ? `${APP_URL}/go/${affiliate.code}` : "";
 
   // Fetch share token data for non-partner users
   useEffect(() => {

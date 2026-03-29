@@ -255,7 +255,7 @@ export async function sendAffiliateApprovalEmail(to: string, name: string, code:
   const resend = new Resend(process.env.RESEND_API_KEY ?? "");
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com";
   const dashUrl = `${appUrl}/partners`;
-  const refLink = `${appUrl}/?ref=${code}`;
+  const refLink = `${appUrl}/go/${code}`;
 
   const html = `
 <!DOCTYPE html>
