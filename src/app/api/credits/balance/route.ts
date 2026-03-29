@@ -14,10 +14,12 @@ export async function GET() {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
+  const now = new Date().toISOString();
   const { data, error } = await supabase
     .from("scan_credits")
     .select("credits")
-    .eq("email", user.email.toLowerCase());
+    .eq("email", user.email.toLowerCase())
+    .or(`expires_at.is.null,expires_at.gt.${now}`);
 
   if (error || !data) {
     return NextResponse.json({ total: 0, used: 0, remaining: 0 });

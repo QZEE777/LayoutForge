@@ -38,11 +38,13 @@ export async function POST(req: Request) {
 
   const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
-  // Check if this email has any credits
+  // Check if this email has any non-expired credits
+  const nowIso = new Date(now).toISOString();
   const { data: creditRows } = await supabase
     .from("scan_credits")
     .select("credits")
-    .eq("email", email);
+    .eq("email", email)
+    .or(`expires_at.is.null,expires_at.gt.${nowIso}`);
 
   const balance = (creditRows ?? []).reduce((sum, r) => sum + (r.credits ?? 0), 0);
 
