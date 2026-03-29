@@ -114,7 +114,7 @@ const FAQS = [
   { q: "Is it free to join?", a: "Yes. Applying is free. Once approved, you get a unique referral link and access to your dashboard immediately." },
   { q: "How does the commission work?", a: "30% on Single Scans ($9), 40% on all packs ($19/$39/$79). You earn on every sale traced to your link within a 12-month attribution window." },
   { q: "Do I need a large audience?", a: "No. A small engaged audience converts better than a large disengaged one. If you consistently talk to authors about the publishing process, your referrals will convert." },
-  { q: "How do payouts work?", a: "Monthly via PayPal or Wise. Minimum payout threshold is $20. Add your payout details in the Payouts tab of your partner dashboard." },
+  { q: "How do payouts work?", a: "Payouts are handled automatically by LemonSqueezy — our payment processor. Once approved, you'll receive a LemonSqueezy affiliate invite. You connect your own payout method (PayPal, bank transfer, or other) directly in your LemonSqueezy dashboard. We never hold or manually transfer your money." },
   { q: "How do I track performance?", a: "Your partner dashboard shows clicks, conversions, total earned, paid out, and pending balance — all updated in real time." },
   { q: "What is the cookie duration?", a: "12 months. If someone clicks your link and purchases anytime within 12 months, you earn the commission." },
 ];
@@ -236,7 +236,7 @@ function MarketingLanding({ onSignIn, onSignInClick }: { onSignIn: (email: strin
               <p className="text-base leading-relaxed mb-8" style={{ color: "rgba(255,255,255,0.55)", maxWidth: 460 }}>
                 Share your link. Earn up to{" "}
                 <span className="font-bold" style={{ color: "#fff" }}>$31.60 per pack sale</span>{" "}
-                — with a 12-month attribution cookie and monthly payouts.{" "}
+                — with a 12-month attribution cookie. Payouts handled automatically by LemonSqueezy.{" "}
                 <span style={{ color: "rgba(255,255,255,0.35)" }}>The best partner deal in the KDP space.</span>
               </p>
 
@@ -296,7 +296,7 @@ function MarketingLanding({ onSignIn, onSignInClick }: { onSignIn: (email: strin
               ))}
               <div className="px-5 py-3.5" style={{ background: "rgba(255,255,255,0.03)", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
                 <p className="text-xs" style={{ color: "rgba(255,255,255,0.25)" }}>
-                  Monthly payouts via PayPal or Wise · Real-time dashboard tracking
+                  Automatic payouts via LemonSqueezy · Real-time dashboard tracking
                 </p>
               </div>
             </div>
@@ -429,7 +429,7 @@ function MarketingLanding({ onSignIn, onSignInClick }: { onSignIn: (email: strin
               { step: "01", title: "Apply", body: "Fill out the short form. Get approved — usually within 24 hours." },
               { step: "02", title: "Share your link", body: "Drop it in content, newsletters, YouTube descriptions, or social posts." },
               { step: "03", title: "Audience converts", body: "They click, scan their PDF, and purchase. You earn on every sale." },
-              { step: "04", title: "Get paid", body: "Commission recorded and paid monthly via PayPal or Wise." },
+              { step: "04", title: "Get paid", body: "Commission recorded and paid automatically via LemonSqueezy — you connect your payout method directly in your LS dashboard." },
             ].map((s, i) => (
               <div key={s.step} className="rounded-2xl p-5 relative overflow-hidden"
                 style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)" }}>
@@ -854,7 +854,7 @@ function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => 
               <div className="flex flex-wrap gap-5 text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>
                 <span>12-month cookie</span>
                 <span>30% singles · 40% packs</span>
-                <span>Monthly PayPal payout</span>
+                <span>Auto payouts via LemonSqueezy</span>
               </div>
             </div>
 
@@ -867,7 +867,7 @@ function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => 
                     💰 {formatCents(stats.pendingPayout)} ready for payout
                   </p>
                   <p className="text-xs mt-0.5" style={{ color: "#6B5E4E" }}>
-                    Add your PayPal or Wise email in the Payouts tab to receive your payment.
+                    Set up your payout method in your LemonSqueezy affiliate dashboard to receive your payment.
                   </p>
                 </div>
                 <button onClick={() => setTab("payouts")}
@@ -1119,98 +1119,46 @@ function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => 
               ))}
             </div>
 
-            {/* Payout methods */}
+            {/* How LemonSqueezy pays you */}
             <div className="rounded-2xl border p-6" style={{ background: "#fff", borderColor: "rgba(0,0,0,0.07)" }}>
-              <div className="flex items-start justify-between gap-4 mb-5">
+              <div className="flex items-start gap-3 mb-5">
+                <span style={{ fontSize: 28 }}>💳</span>
                 <div>
-                  <h2 className="text-base font-bold mb-0.5" style={{ color: "#2C1810" }}>
-                    Payout Details
+                  <h2 className="text-base font-bold mb-1" style={{ color: "#2C1810" }}>
+                    Payouts are handled by LemonSqueezy
                   </h2>
-                  <p className="text-xs" style={{ color: "#9B8E7E" }}>
-                    Add at least one payout method. We&apos;ll use whichever you provide.
+                  <p className="text-sm leading-relaxed" style={{ color: "#6B5E4E" }}>
+                    We use LemonSqueezy as our payment processor. They pay you directly — we never hold your money or manually transfer anything.
                   </p>
                 </div>
-                {(affiliate.paypal_email || affiliate.wise_email) && (
-                  <span className="shrink-0 text-xs font-bold px-3 py-1 rounded-full"
-                    style={{ background: "rgba(76,217,100,0.1)", color: "#2d8a3e" }}>
-                    ✓ Configured
-                  </span>
-                )}
               </div>
 
-              {/* Current values */}
-              {(affiliate.paypal_email || affiliate.wise_email) && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
-                  {affiliate.paypal_email && (
-                    <div className="rounded-xl px-4 py-3 flex items-center gap-3"
-                      style={{ background: "rgba(76,217,100,0.06)", border: "1px solid rgba(76,217,100,0.15)" }}>
-                      <span>💳</span>
-                      <div>
-                        <p className="text-xs font-semibold" style={{ color: "#2d8a3e" }}>PayPal</p>
-                        <p className="text-sm font-bold truncate" style={{ color: "#2C1810" }}>{affiliate.paypal_email}</p>
-                      </div>
+              <div className="space-y-3 mb-6">
+                {[
+                  { icon: "📧", title: "Check your email", body: "Once approved, you'll receive a LemonSqueezy affiliate invite from our account. Accept it to activate your affiliate link." },
+                  { icon: "💰", title: "Connect your payout method", body: "Inside your LemonSqueezy affiliate dashboard you can add PayPal, bank transfer, or other supported methods. You choose — we never see your details." },
+                  { icon: "📅", title: "Get paid automatically", body: "LemonSqueezy processes affiliate payouts on a rolling monthly basis once you hit the minimum threshold." },
+                ].map((s) => (
+                  <div key={s.title} className="flex items-start gap-3 rounded-xl px-4 py-3"
+                    style={{ background: "rgba(240,90,40,0.04)", border: "1px solid rgba(240,90,40,0.1)" }}>
+                    <span className="text-lg shrink-0 mt-0.5">{s.icon}</span>
+                    <div>
+                      <p className="text-xs font-bold mb-0.5" style={{ color: "#2C1810" }}>{s.title}</p>
+                      <p className="text-xs leading-relaxed" style={{ color: "#6B5E4E" }}>{s.body}</p>
                     </div>
-                  )}
-                  {affiliate.wise_email && (
-                    <div className="rounded-xl px-4 py-3 flex items-center gap-3"
-                      style={{ background: "rgba(76,217,100,0.06)", border: "1px solid rgba(76,217,100,0.15)" }}>
-                      <span>🌍</span>
-                      <div>
-                        <p className="text-xs font-semibold" style={{ color: "#2d8a3e" }}>Wise</p>
-                        <p className="text-sm font-bold truncate" style={{ color: "#2C1810" }}>{affiliate.wise_email}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
+                  </div>
+                ))}
+              </div>
 
-              <form onSubmit={savePayoutDetails} className="space-y-4">
-                {/* PayPal */}
-                <div>
-                  <label className="flex items-center gap-2 text-xs font-semibold mb-1.5" style={{ color: "#6B5E4E" }}>
-                    <span>💳</span> PayPal email
-                  </label>
-                  <input
-                    type="email" value={paypalEmail}
-                    onChange={(e) => setPaypalEmail(e.target.value)}
-                    placeholder="your-paypal@email.com"
-                    className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none"
-                    style={{ borderColor: "rgba(0,0,0,0.12)", color: "#2C1810" }}
-                  />
-                </div>
-
-                {/* Wise */}
-                <div>
-                  <label className="flex items-center gap-2 text-xs font-semibold mb-1.5" style={{ color: "#6B5E4E" }}>
-                    <span>🌍</span> Wise email
-                    <span className="font-normal" style={{ color: "#9B8E7E" }}>— best for international</span>
-                  </label>
-                  <input
-                    type="email" value={wiseEmail}
-                    onChange={(e) => setWiseEmail(e.target.value)}
-                    placeholder="your-wise@email.com"
-                    className="w-full border rounded-xl px-4 py-3 text-sm focus:outline-none"
-                    style={{ borderColor: "rgba(0,0,0,0.12)", color: "#2C1810" }}
-                  />
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <button
-                    type="submit"
-                    disabled={payoutSaving || (!paypalEmail.trim() && !wiseEmail.trim())}
-                    className="px-6 py-2.5 rounded-xl font-bold text-sm transition-all hover:opacity-90 disabled:opacity-50"
-                    style={{ background: "#f05a28", color: "#fff" }}
-                  >
-                    {payoutSaving ? "Saving…" : "Save payout details"}
-                  </button>
-                  {payoutMsg && (
-                    <span className="text-sm font-medium"
-                      style={{ color: payoutMsg.startsWith("✓") ? "#2d8a3e" : "#dc2626" }}>
-                      {payoutMsg}
-                    </span>
-                  )}
-                </div>
-              </form>
+              <a
+                href="https://app.lemonsqueezy.com/affiliates"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all hover:opacity-90"
+                style={{ background: "#f05a28", color: "#fff", textDecoration: "none" }}
+              >
+                Open LemonSqueezy affiliate dashboard →
+              </a>
             </div>
 
             {/* Payout rules */}
@@ -1219,11 +1167,11 @@ function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => 
               <p className="text-sm font-semibold mb-3" style={{ color: "#2C1810" }}>How payouts work</p>
               <ul className="space-y-2">
                 {[
-                  "Payouts are processed on the 1st of each month",
-                  "Minimum payout threshold is $20",
-                  "Payouts via PayPal or Wise — whichever you configure",
+                  "Payouts are processed automatically by LemonSqueezy — no manual action needed from us",
+                  "Minimum payout threshold set by LemonSqueezy (typically $50)",
+                  "You choose your payout method inside your LemonSqueezy affiliate dashboard",
                   "Commissions are earned on confirmed, non-refunded sales only",
-                  "Pending balance becomes payout-eligible after 14-day refund window",
+                  "Pending balance becomes payout-eligible after the refund window closes",
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2.5 text-xs" style={{ color: "#6B5E4E" }}>
                     <span className="shrink-0 mt-0.5" style={{ color: "#f05a28" }}>→</span>
