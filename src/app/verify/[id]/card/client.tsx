@@ -186,13 +186,26 @@ export function SocialCard({
             </p>
           </div>
 
-          <div style={{ width: 130, flexShrink: 0, alignSelf: "flex-end" }}>
+          <div style={{
+            width: 140,
+            height: 210,
+            flexShrink: 0,
+            alignSelf: "flex-end",
+            overflow: "hidden",
+            position: "relative",
+          }}>
             <Image
               src={mannySrc}
               alt={isPass ? "Manny thumbs up" : "Manny shrugging"}
-              width={130}
-              height={200}
-              style={{ objectFit: "contain", objectPosition: "bottom", display: "block" }}
+              width={140}
+              height={210}
+              style={{
+                objectFit: "cover",
+                objectPosition: "50% 0%",
+                display: "block",
+                width: "100%",
+                height: "100%",
+              }}
               priority
             />
           </div>
