@@ -77,7 +77,7 @@ export async function POST(req: Request) {
   <table width="100%" cellpadding="0" cellspacing="0">
     <tr>
       <td style="padding-bottom: 20px; border-bottom: 2px solid #2D6A2D;">
-        <span style="font-size: 20px; font-weight: 700; color: #2D6A2D; letter-spacing: 1px;">manu2print</span>
+        <span style="font-size: 20px; font-weight: 700; color: #F05A28;">manu</span><span style="font-size: 20px; font-weight: 700; color: #2D6A2D;">2print</span>
       </td>
     </tr>
     <tr>

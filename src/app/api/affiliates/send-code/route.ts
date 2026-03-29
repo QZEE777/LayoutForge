@@ -54,7 +54,7 @@ export async function POST(req: Request) {
   const html = `
 <!DOCTYPE html><html><head><meta charset="utf-8"></head>
 <body style="font-family:system-ui,sans-serif;max-width:480px;margin:0 auto;padding:24px;background:#FAF7EE;color:#1A1208;">
-  <p style="font-size:20px;font-weight:700;color:#2D6A2D;border-bottom:2px solid #2D6A2D;padding-bottom:16px;margin-bottom:24px;">manu2print — Affiliates</p>
+  <p style="font-size:20px;font-weight:700;border-bottom:2px solid #2D6A2D;padding-bottom:16px;margin-bottom:24px;"><span style="color:#F05A28;">manu</span><span style="color:#2D6A2D;">2print</span> <span style="font-size:14px;font-weight:400;color:#6B6151;">— Affiliates</span></p>
   <p style="font-size:15px;font-weight:600;margin:0 0 8px;">Your verification code</p>
   <p style="font-size:14px;color:#6B6151;margin:0 0 20px;">Enter this to access your affiliate dashboard:</p>
   <div style="background:#1A1208;color:#fff;font-size:36px;font-weight:700;letter-spacing:12px;text-align:center;padding:20px 32px;border-radius:12px;">${code}</div>

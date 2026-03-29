@@ -35,6 +35,18 @@ export function GoLandingClient({ checkoutUrl, refCode, partnerName }: Props) {
 
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", background: "#FAF7EE", color: "#1A1208", minHeight: "100vh" }}>
+      <style>{`
+        .go-hero { display: grid; grid-template-columns: 1fr auto; gap: 48px; align-items: center; }
+        .go-checkout-card { display: block; }
+        .go-problem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 720px; }
+        .go-checklist { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 32px; margin-bottom: 36px; max-width: 440px; }
+        @media (max-width: 700px) {
+          .go-hero { grid-template-columns: 1fr; gap: 32px; }
+          .go-checkout-card { display: none; }
+          .go-problem-grid { grid-template-columns: 1fr; }
+          .go-checklist { grid-template-columns: 1fr; }
+        }
+      `}</style>
 
       {/* ── Nav ─────────────────────────────────────────── */}
       <header style={{ background: "#FAF7EE", borderBottom: "1px solid rgba(0,0,0,0.08)", position: "sticky", top: 0, zIndex: 20 }}>
@@ -51,7 +63,7 @@ export function GoLandingClient({ checkoutUrl, refCode, partnerName }: Props) {
       </header>
 
       {/* ── Hero ─────────────────────────────────────────── */}
-      <section style={{ maxWidth: 1100, margin: "0 auto", padding: "72px 24px 56px", display: "grid", gridTemplateColumns: "1fr auto", gap: 48, alignItems: "center" }}>
+      <section className="go-hero" style={{ maxWidth: 1100, margin: "0 auto", padding: "72px 24px 56px" }}>
         <div>
           {partnerName && (
             <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(45,106,45,0.08)", border: "1px solid rgba(45,106,45,0.18)", color: "#2D6A2D", fontWeight: 600, fontSize: 12, padding: "4px 12px", borderRadius: 999, marginBottom: 12 }}>
@@ -73,7 +85,7 @@ export function GoLandingClient({ checkoutUrl, refCode, partnerName }: Props) {
           </p>
 
           {/* Checklist */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 32px", marginBottom: 36, maxWidth: 440 }}>
+          <div className="go-checklist">
             {[
               "Annotated PDF with every issue highlighted by page",
               "Exact page numbers for every violation",
@@ -98,8 +110,8 @@ export function GoLandingClient({ checkoutUrl, refCode, partnerName }: Props) {
           </div>
         </div>
 
-        {/* Checkout card */}
-        <div style={{ background: "#fff", border: "1px solid #E0D8C4", borderRadius: 16, padding: "24px", minWidth: 280, boxShadow: "0 4px 24px rgba(0,0,0,0.07)" }}>
+        {/* Checkout card — hidden on mobile */}
+        <div className="go-checkout-card" style={{ background: "#fff", border: "1px solid #E0D8C4", borderRadius: 16, padding: "24px", minWidth: 280, boxShadow: "0 4px 24px rgba(0,0,0,0.07)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
             <span style={{ fontWeight: 700, fontSize: 15 }}>KDP PDF Checker</span>
             <div style={{ textAlign: "right" }}>
@@ -132,7 +144,7 @@ export function GoLandingClient({ checkoutUrl, refCode, partnerName }: Props) {
             It sends you back to guess. Upload → wait → rejection → guess → re-upload → repeat.
             Sometimes for days. Sometimes for weeks. <strong style={{ color: "#FAF7EE" }}>Every rejection resets your timeline.</strong>
           </p>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, maxWidth: 720 }}>
+          <div className="go-problem-grid">
             <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "20px" }}>
               <p style={{ fontSize: 11, fontWeight: 700, color: "#F05A28", letterSpacing: "0.08em", margin: "0 0 12px" }}>WITHOUT MANU2PRINT</p>
               <p style={{ fontSize: 13, color: "rgba(250,247,238,0.6)", lineHeight: 1.6, margin: "0 0 16px" }}>

@@ -23,7 +23,7 @@ export async function sendDownloadLinkEmail(to: string, downloadUrl: string) {
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 560px; margin: 0 auto;">
     <tr>
       <td style="padding-bottom: 24px; border-bottom: 2px solid #2D6A2D;">
-        <span style="font-size: 22px; font-weight: 700; color: #2D6A2D; letter-spacing: 1px;">manu2print</span>
+        <span style="font-size: 22px; font-weight: 700; color: #F05A28;">manu</span><span style="font-size: 22px; font-weight: 700; color: #2D6A2D;">2print</span>
         <span style="font-size: 13px; color: #6B6151; margin-left: 8px;">KDP PDF Checker</span>
       </td>
     </tr>
@@ -101,8 +101,8 @@ export async function sendShareCreditAwardedEmail(
 
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 560px; margin: 0 auto;">
     <tr>
-      <td style="padding-bottom: 24px; border-bottom: 2px solid #F05A28;">
-        <span style="font-size: 22px; font-weight: 700; color: #F05A28;">manu</span><span style="font-size: 22px; font-weight: 700; color: #4cd964;">2print</span>
+      <td style="padding-bottom: 24px; border-bottom: 2px solid #2D6A2D;">
+        <span style="font-size: 22px; font-weight: 700; color: #F05A28;">manu</span><span style="font-size: 22px; font-weight: 700; color: #2D6A2D;">2print</span>
         <span style="font-size: 13px; color: #6B6151; margin-left: 8px;">Share &amp; Earn</span>
       </td>
     </tr>
@@ -183,8 +183,8 @@ export async function sendPartnerThresholdEmail(to: string) {
 
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 560px; margin: 0 auto;">
     <tr>
-      <td style="padding-bottom: 24px; border-bottom: 2px solid #4cd964;">
-        <span style="font-size: 22px; font-weight: 700; color: #F05A28;">manu</span><span style="font-size: 22px; font-weight: 700; color: #4cd964;">2print</span>
+      <td style="padding-bottom: 24px; border-bottom: 2px solid #2D6A2D;">
+        <span style="font-size: 22px; font-weight: 700; color: #F05A28;">manu</span><span style="font-size: 22px; font-weight: 700; color: #2D6A2D;">2print</span>
         <span style="font-size: 13px; color: #6B6151; margin-left: 8px;">Share &amp; Earn</span>
       </td>
     </tr>
@@ -266,7 +266,7 @@ export async function sendAffiliateApprovalEmail(to: string, name: string, code:
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 560px; margin: 0 auto;">
     <tr>
       <td style="padding-bottom: 24px; border-bottom: 2px solid #2D6A2D;">
-        <span style="font-size: 22px; font-weight: 700; color: #F05A28;">manu</span><span style="font-size: 22px; font-weight: 700; color: #4cd964;">2print</span>
+        <span style="font-size: 22px; font-weight: 700; color: #F05A28;">manu</span><span style="font-size: 22px; font-weight: 700; color: #2D6A2D;">2print</span>
         <span style="font-size: 13px; color: #6B6151; margin-left: 8px;">Partner Program</span>
       </td>
     </tr>
