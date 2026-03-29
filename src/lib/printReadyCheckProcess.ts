@@ -231,6 +231,19 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
 
   try {
     const issuesCount = enrichedReport?.issuesEnriched?.length ?? report?.issues?.length ?? 0;
+
+    // Derive per-check status from preflight errors by rule_id and message text
+    const allErrors = [...(preflight?.errors ?? []), ...(preflight?.warnings ?? [])];
+    const hasIssue = (terms: string[]) =>
+      allErrors.some((e) => {
+        const haystack = `${e.rule_id ?? ""} ${e.message ?? ""}`.toLowerCase();
+        return terms.some((t) => haystack.includes(t));
+      });
+    const trim_ok    = !hasIssue(["trim", "page size", "page_size", "dimensions", "paper size"]);
+    const margins_ok = !hasIssue(["margin"]);
+    const bleed_ok   = !hasIssue(["bleed"]);
+    const fonts_ok   = !hasIssue(["font", "embed"]);
+
     await supabase.from("verification_results").upsert(
       {
         verification_id: stored.id,
@@ -240,6 +253,10 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
         kdp_ready: enrichedReport?.kdpReady,
         scan_date: enrichedReport?.scanDate,
         issues_count: issuesCount,
+        trim_ok,
+        margins_ok,
+        bleed_ok,
+        fonts_ok,
       },
       { onConflict: "verification_id" }
     );

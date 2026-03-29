@@ -14,7 +14,7 @@ export default async function CardPage({
 
   const { data, error } = await supabase
     .from("verification_results")
-    .select("verification_id, readiness_score, issues_count")
+    .select("verification_id, readiness_score, issues_count, trim_ok, margins_ok, bleed_ok, fonts_ok")
     .eq("verification_id", verificationId)
     .maybeSingle();
 
@@ -41,6 +41,10 @@ export default async function CardPage({
       verifyUrl={verifyUrl}
       verificationId={verificationId}
       shToken={shToken ?? null}
+      trimOk={data.trim_ok ?? null}
+      marginsOk={data.margins_ok ?? null}
+      bleedOk={data.bleed_ok ?? null}
+      fontsOk={data.fonts_ok ?? null}
     />
   );
 }

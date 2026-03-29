@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 
 type StatusLevel = "reject" | "needs-work" | "nearly" | "ready";
 
@@ -11,312 +12,323 @@ interface Props {
   verifyUrl: string;
   verificationId: string;
   shToken: string | null;
+  trimOk: boolean | null;
+  marginsOk: boolean | null;
+  bleedOk: boolean | null;
+  fontsOk: boolean | null;
 }
 
-export function SocialCard({ score, statusLevel, issuesCount, verifyUrl, verificationId, shToken }: Props) {
+export function SocialCard({
+  score,
+  statusLevel,
+  issuesCount,
+  verifyUrl,
+  verificationId,
+  shToken,
+  trimOk,
+  marginsOk,
+  bleedOk,
+  fontsOk,
+}: Props) {
   const [copied, setCopied] = useState(false);
 
-  const isBad     = statusLevel === "reject" || statusLevel === "needs-work";
-  const bg        = isBad ? "#F05A28" : "#2D6A2D";
-  const scoreBg   = "rgba(0,0,0,0.18)";
-  const proofBg   = "rgba(0,0,0,0.14)";
-  const ctaColor  = isBad ? "#F05A28" : "#2D6A2D";
+  const isPass = statusLevel === "ready" || statusLevel === "nearly";
 
-  const hook = isBad ? "Would your PDF pass KDP?" : "My PDF is ready for KDP.";
-  const subHook = isBad
-    ? "Most authors find out the hard way."
-    : "Checked before uploading. Zero surprises.";
+  // ── Colours ────────────────────────────────────────────────────────────────
+  const bgGrad = isPass
+    ? "linear-gradient(160deg, #1a5c1a 0%, #2d8a2d 55%, #1a5c1a 100%)"
+    : "linear-gradient(160deg, #b83800 0%, #e84e00 55%, #b83800 100%)";
+  const accentOk   = isPass ? "#7fffb0" : "#ffdd88";
+  const accentFail = "#ff6b6b";
+  const stepColor  = isPass ? "#2D8A2D" : "#F05A28";
 
-  const statusText =
-    statusLevel === "reject"     ? "WOULD BE REJECTED" :
-    statusLevel === "needs-work" ? "NEEDS SIGNIFICANT FIXES" :
-    statusLevel === "nearly"     ? "NEARLY READY" :
-    "READY TO UPLOAD";
+  // ── Check rows ─────────────────────────────────────────────────────────────
+  const checks: { label: string; ok: boolean | null }[] = [
+    { label: "Trim Size", ok: trimOk },
+    { label: "Margins",   ok: marginsOk },
+    { label: "Bleed",     ok: bleedOk },
+    { label: "Fonts",     ok: fontsOk },
+  ];
 
-  const curiosity = isBad
-    ? "Most files fail on margins, bleed, and trim size."
-    : "Check yours before Amazon rejects it.";
+  function checkIcon(ok: boolean | null) {
+    if (ok === null) return <span style={{ color: "rgba(255,255,255,0.35)" }}>—</span>;
+    return ok
+      ? <span style={{ color: accentOk, fontWeight: 900 }}>✓</span>
+      : <span style={{ color: accentFail, fontWeight: 900 }}>✗</span>;
+  }
 
-  const copyLink = () => {
+  function checkLabel(ok: boolean | null) {
+    if (ok === null) return <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 13 }}>Unknown</span>;
+    return ok
+      ? <span style={{ color: accentOk, fontWeight: 700, fontSize: 13 }}>OK</span>
+      : <span style={{ color: accentFail, fontWeight: 700, fontSize: 13 }}>
+          {isPass ? "Minor issue" : "Incorrect"}
+        </span>;
+  }
+
+  const summaryLine = isPass
+    ? "No critical errors"
+    : `${issuesCount ?? "Multiple"} issues detected`;
+
+  const mannySrc = isPass ? "/manny/manny_pass.png" : "/manny/manny_fail.png";
+
+  function copyLink() {
     navigator.clipboard.writeText(verifyUrl).then(() => {
       setCopied(true);
-      setTimeout(() => setCopied(false), 3000);
+      setTimeout(() => setCopied(false), 2500);
     });
-  };
+  }
+
+  const backHref = `/verify/${verificationId}${shToken ? `?sh=${shToken}` : ""}`;
 
   return (
     <div style={{
       minHeight: "100vh",
-      background: "#1A1208",
+      background: "#111",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      justifyContent: "flex-start",
-      padding: "32px 20px 48px",
-      fontFamily: "system-ui, sans-serif",
+      justifyContent: "center",
+      padding: "24px 16px 40px",
+      fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
     }}>
 
-      {/* ── Header ─────────────────────────────────────────── */}
-      <div style={{ width: "100%", maxWidth: 480, marginBottom: 28 }}>
-        <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.35)", letterSpacing: "0.12em", textTransform: "uppercase", margin: "0 0 8px" }}>
-          Your KDP Score Card
-        </p>
-        <p style={{ fontSize: "clamp(1.2rem, 5vw, 1.5rem)", fontWeight: 900, color: "#fff", margin: 0, lineHeight: 1.2 }}>
-          Share this to earn a free scan
-        </p>
-        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", margin: "6px 0 0" }}>
-          When a friend checks their PDF using your link, you both win.
-        </p>
-      </div>
-
-      {/* ── Social card — 4:5 portrait ─────────────────────── */}
-      <div id="social-card" style={{
-        width: "min(480px, 100%)",
-        aspectRatio: "4 / 5",
-        background: bg,
+      {/* ══════════════════════════════════════════════
+          THE CARD — 4:5 portrait (matches 1080×1350)
+      ══════════════════════════════════════════════ */}
+      <div style={{
+        width: "100%",
+        maxWidth: 400,
+        aspectRatio: "4/5",
+        background: bgGrad,
         borderRadius: 24,
+        padding: "26px 26px 0 26px",
+        position: "relative",
         overflow: "hidden",
+        boxShadow: "0 24px 80px rgba(0,0,0,0.55)",
         display: "flex",
         flexDirection: "column",
-        padding: "32px 28px 28px",
         boxSizing: "border-box",
       }}>
 
-        {/* Logo */}
-        <div style={{ marginBottom: 4 }}>
-          <span style={{ fontWeight: 900, fontSize: 14, color: "rgba(255,255,255,0.95)" }}>manu</span>
-          <span style={{ fontWeight: 900, fontSize: 14, color: "rgba(255,255,255,0.55)" }}>2print</span>
-          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginLeft: 6 }}>KDP tools</span>
+        {/* TOP LABEL */}
+        <p style={{
+          fontSize: 11,
+          fontWeight: 700,
+          letterSpacing: "0.13em",
+          textTransform: "uppercase",
+          color: "rgba(255,255,255,0.6)",
+          margin: "0 0 16px",
+        }}>
+          KDP Pre-Check Result
+        </p>
+
+        {/* PASS / FAIL HEADLINE */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+          <span style={{ fontSize: 54, fontWeight: 900, color: "#fff", lineHeight: 1, letterSpacing: "-0.02em" }}>
+            {isPass ? "PASS" : "FAIL"}
+          </span>
+          <span style={{ fontSize: 36 }}>{isPass ? "✅" : "⚠️"}</span>
         </div>
 
-        {/* Hook — 30% */}
-        <div style={{ margin: "18px 0 0" }}>
-          <p style={{
-            fontSize: "clamp(1.55rem, 6.5vw, 2rem)",
-            fontWeight: 900,
-            color: "#fff",
-            lineHeight: 1.15,
-            margin: "0 0 6px",
-          }}>
-            {hook}
-          </p>
-          <p style={{
-            fontSize: "clamp(0.8rem, 2.8vw, 0.95rem)",
-            color: "rgba(255,255,255,0.72)",
-            margin: 0,
-            fontWeight: 500,
-          }}>
-            {subHook}
-          </p>
+        {/* SCORE */}
+        <p style={{ fontSize: 15, fontWeight: 700, color: "rgba(255,255,255,0.88)", margin: "0 0 18px" }}>
+          Readiness Score:&nbsp;
+          <span style={{ color: "#fff", fontWeight: 900 }}>{score} / 100</span>
+        </p>
+
+        {/* DETAILS BOX */}
+        <div style={{
+          background: "rgba(0,0,0,0.2)",
+          borderRadius: 14,
+          padding: "14px 16px 10px",
+          backdropFilter: "blur(4px)",
+        }}>
+          {checks.map(({ label, ok }, i) => (
+            <div key={label} style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              paddingBottom: i < checks.length - 1 ? 9 : 4,
+              marginBottom: i < checks.length - 1 ? 9 : 0,
+              borderBottom: i < checks.length - 1 ? "1px solid rgba(255,255,255,0.09)" : "none",
+            }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.82)" }}>
+                {label}:
+              </span>
+              <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 15 }}>
+                {checkIcon(ok)}&nbsp;{checkLabel(ok)}
+              </span>
+            </div>
+          ))}
+
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.12)", marginTop: 10, paddingTop: 9, textAlign: "center" }}>
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 900, color: "#fff" }}>
+              {summaryLine}
+            </p>
+          </div>
         </div>
 
-        {/* Score — 40% */}
+        {/* BOTTOM — Manny + tagline */}
         <div style={{
           flex: 1,
           display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          background: scoreBg,
-          borderRadius: 18,
-          padding: "20px 12px",
-          margin: "18px 0 14px",
-          textAlign: "center",
+          alignItems: "flex-end",
+          justifyContent: "space-between",
+          marginTop: 6,
         }}>
-          <div style={{ lineHeight: 1 }}>
-            <span style={{
-              fontSize: "clamp(5.5rem, 22vw, 8.5rem)",
-              fontWeight: 900,
-              color: "#fff",
-              display: "inline-block",
-            }}>
-              {score}
-            </span>
-            <span style={{
-              fontSize: "clamp(2rem, 8vw, 3rem)",
-              fontWeight: 700,
-              color: "rgba(255,255,255,0.45)",
-            }}>
-              /100
-            </span>
-          </div>
-          <p style={{
-            fontSize: "clamp(0.7rem, 2.8vw, 0.9rem)",
-            fontWeight: 800,
-            color: "rgba(255,255,255,0.88)",
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
-            margin: "10px 0 0",
-          }}>
-            {statusText}
-          </p>
-        </div>
-
-        {/* Proof / curiosity — 15% */}
-        <div style={{
-          background: proofBg,
-          borderRadius: 12,
-          padding: "11px 14px",
-          marginBottom: 12,
-          textAlign: "center",
-        }}>
-          {issuesCount !== null && issuesCount > 0 ? (
-            <>
-              <p style={{ fontSize: "clamp(0.8rem, 3vw, 0.95rem)", fontWeight: 700, color: "#fff", margin: "0 0 3px" }}>
-                {issuesCount} issue{issuesCount !== 1 ? "s" : ""} found before upload
-              </p>
-              <p style={{ fontSize: "clamp(0.65rem, 2.4vw, 0.78rem)", color: "rgba(255,255,255,0.6)", margin: 0 }}>
-                {curiosity}
-              </p>
-            </>
-          ) : (
-            <p style={{ fontSize: "clamp(0.7rem, 2.4vw, 0.82rem)", color: "rgba(255,255,255,0.75)", margin: 0 }}>
-              {curiosity}
+          <div style={{ paddingBottom: 22, maxWidth: "54%" }}>
+            <p style={{ margin: 0, fontSize: 12, color: "rgba(255,255,255,0.65)", lineHeight: 1.45, marginBottom: 5 }}>
+              Checked before uploading to KDP.
             </p>
-          )}
+            <p style={{ margin: 0, fontSize: 15, fontWeight: 900, color: "#fff", lineHeight: 1.25 }}>
+              Would your PDF pass?
+            </p>
+          </div>
+
+          <div style={{ width: 130, flexShrink: 0, alignSelf: "flex-end" }}>
+            <Image
+              src={mannySrc}
+              alt={isPass ? "Manny thumbs up" : "Manny shrugging"}
+              width={130}
+              height={200}
+              style={{ objectFit: "contain", objectPosition: "bottom", display: "block" }}
+              priority
+            />
+          </div>
         </div>
 
-        {/* CTA block — 15% */}
+        {/* FOOTER STRIP */}
         <div style={{
-          background: "#fff",
-          borderRadius: 13,
-          padding: "13px 16px",
-          textAlign: "center",
+          margin: "0 -26px",
+          padding: "9px 20px",
+          background: "rgba(0,0,0,0.28)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
         }}>
-          <p style={{
-            fontSize: "clamp(0.78rem, 3vw, 0.92rem)",
-            fontWeight: 800,
-            color: ctaColor,
-            margin: "0 0 2px",
+          <span style={{ fontSize: 13, fontWeight: 900 }}>
+            <span style={{ color: "#F05A28" }}>manu</span>
+            <span style={{ color: "#fff" }}>2</span>
+            <span style={{ color: "#5cb85c" }}>print</span>
+          </span>
+          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.55)" }}>manu2print.com</span>
+          <span style={{
+            fontSize: 10, fontWeight: 700,
+            color: "rgba(255,255,255,0.5)",
+            border: "1px solid rgba(255,255,255,0.22)",
+            borderRadius: 6,
+            padding: "2px 7px",
           }}>
-            Check Before You Upload
-          </p>
-          <p style={{
-            fontSize: "clamp(0.6rem, 2.2vw, 0.72rem)",
-            color: "#9B8E7E",
-            margin: 0,
-          }}>
-            manu2print.com
-          </p>
+            ✓ Verified
+          </span>
         </div>
       </div>
 
-      {/* ── How to share — step by step ────────────────────── */}
+      {/* ══════════════════════════════════════════════
+          HOW TO SHARE
+      ══════════════════════════════════════════════ */}
       <div style={{
+        marginTop: 20,
         width: "100%",
-        maxWidth: 480,
-        marginTop: 28,
+        maxWidth: 400,
         background: "rgba(255,255,255,0.05)",
         borderRadius: 16,
-        padding: "22px 20px",
+        padding: "18px 20px",
         border: "1px solid rgba(255,255,255,0.08)",
       }}>
-        <p style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.35)", letterSpacing: "0.1em", textTransform: "uppercase", margin: "0 0 16px" }}>
-          How to share
+        <p style={{
+          margin: "0 0 14px",
+          fontSize: 11,
+          fontWeight: 700,
+          color: "rgba(255,255,255,0.5)",
+          letterSpacing: "0.1em",
+          textTransform: "uppercase",
+        }}>
+          📱 Share to social media
         </p>
 
-        {/* Mobile */}
-        <div style={{ marginBottom: 18 }}>
-          <p style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.85)", margin: "0 0 8px" }}>
-            📱 On your phone
-          </p>
-          {[
-            "Press and hold the card above",
-            "Tap \"Save Image\" or \"Save to Photos\"",
-            "Open Instagram or Facebook → New Post → upload the saved image",
-            "Paste your link in the caption or bio",
-          ].map((step, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 7 }}>
-              <span style={{
-                minWidth: 22, height: 22,
-                background: bg,
-                color: "#fff",
-                fontWeight: 800,
-                fontSize: 11,
-                borderRadius: 50,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-                marginTop: 1,
-              }}>
-                {i + 1}
-              </span>
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", margin: 0, lineHeight: 1.45 }}>
-                {step}
-              </p>
-            </div>
-          ))}
-        </div>
+        {/* Mobile steps */}
+        <p style={{ margin: "0 0 6px", fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.8)" }}>
+          On your phone
+        </p>
+        {[
+          "Press & hold the card above",
+          "Tap \"Save Image\" → post it to Instagram or Facebook",
+          "Paste your link in the caption",
+        ].map((step, i) => (
+          <div key={i} style={{ display: "flex", gap: 9, alignItems: "flex-start", marginBottom: 7 }}>
+            <span style={{
+              minWidth: 20, height: 20,
+              background: stepColor, color: "#fff",
+              fontWeight: 800, fontSize: 10,
+              borderRadius: "50%",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0, marginTop: 1,
+            }}>{i + 1}</span>
+            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", margin: 0, lineHeight: 1.5 }}>{step}</p>
+          </div>
+        ))}
 
-        {/* Desktop */}
-        <div style={{ marginBottom: 20 }}>
-          <p style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.85)", margin: "0 0 8px" }}>
-            💻 On your computer
-          </p>
-          {[
-            "Right-click the card above",
-            "Select \"Save Image As\" and save it",
-            "Upload the image when posting on Facebook or Instagram",
-            "Paste your link in the caption",
-          ].map((step, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 7 }}>
-              <span style={{
-                minWidth: 22, height: 22,
-                background: bg,
-                color: "#fff",
-                fontWeight: 800,
-                fontSize: 11,
-                borderRadius: 50,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-                marginTop: 1,
-              }}>
-                {i + 1}
-              </span>
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", margin: 0, lineHeight: 1.45 }}>
-                {step}
-              </p>
-            </div>
-          ))}
-        </div>
+        {/* Desktop steps */}
+        <p style={{ margin: "12px 0 6px", fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.8)" }}>
+          On desktop
+        </p>
+        {[
+          "Right-click the card above → Save image as",
+          "Upload the image when posting on Facebook or Instagram",
+          "Paste your link in the caption",
+        ].map((step, i) => (
+          <div key={i} style={{ display: "flex", gap: 9, alignItems: "flex-start", marginBottom: 7 }}>
+            <span style={{
+              minWidth: 20, height: 20,
+              background: stepColor, color: "#fff",
+              fontWeight: 800, fontSize: 10,
+              borderRadius: "50%",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0, marginTop: 1,
+            }}>{i + 1}</span>
+            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", margin: 0, lineHeight: 1.5 }}>{step}</p>
+          </div>
+        ))}
 
         {/* Copy link button */}
         <button
           onClick={copyLink}
           style={{
             width: "100%",
-            background: copied ? "rgba(45,106,45,0.6)" : bg,
+            marginTop: 14,
+            padding: "13px 0",
+            background: stepColor,
             color: "#fff",
             fontWeight: 800,
             fontSize: 14,
-            padding: "14px 16px",
-            borderRadius: 12,
             border: "none",
+            borderRadius: 10,
             cursor: "pointer",
-            transition: "background 0.2s",
-            marginBottom: 10,
           }}
         >
-          {copied ? "✓ Link copied — paste it in your caption!" : "Copy your share link"}
+          {copied ? "✓ Copied! Paste into your caption" : "📋 Copy your share link"}
         </button>
 
-        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", margin: 0, textAlign: "center", lineHeight: 1.5 }}>
-          This link is unique to you. When someone clicks it and checks their PDF,<br />
-          you earn a free scan credit.
+        <p style={{
+          margin: "10px 0 0",
+          fontSize: 11,
+          color: "rgba(255,255,255,0.28)",
+          textAlign: "center",
+          lineHeight: 1.5,
+        }}>
+          Your link is unique. When someone clicks it and buys a scan, you earn a free credit.
         </p>
       </div>
 
-      {/* Back link */}
+      {/* BACK LINK */}
       <a
-        href={`/verify/${verificationId}${shToken ? `?sh=${shToken}` : ""}`}
-        style={{ marginTop: 24, fontSize: 13, color: "rgba(255,255,255,0.3)", textDecoration: "none" }}
+        href={backHref}
+        style={{ marginTop: 18, fontSize: 12, color: "rgba(255,255,255,0.28)", textDecoration: "none" }}
       >
         ← Back to your result
       </a>
-
     </div>
   );
 }
