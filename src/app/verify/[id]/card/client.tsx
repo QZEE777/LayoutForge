@@ -10,9 +10,10 @@ interface Props {
   issuesCount: number | null;
   verifyUrl: string;
   verificationId: string;
+  shToken: string | null;
 }
 
-export function SocialCard({ score, statusLevel, issuesCount, verifyUrl, verificationId }: Props) {
+export function SocialCard({ score, statusLevel, issuesCount, verifyUrl, verificationId, shToken }: Props) {
   const [copied, setCopied] = useState(false);
 
   const isBad     = statusLevel === "reject" || statusLevel === "needs-work";
@@ -310,7 +311,7 @@ export function SocialCard({ score, statusLevel, issuesCount, verifyUrl, verific
 
       {/* Back link */}
       <a
-        href={`/verify/${verificationId}`}
+        href={`/verify/${verificationId}${shToken ? `?sh=${shToken}` : ""}`}
         style={{ marginTop: 24, fontSize: 13, color: "rgba(255,255,255,0.3)", textDecoration: "none" }}
       >
         ← Back to your result

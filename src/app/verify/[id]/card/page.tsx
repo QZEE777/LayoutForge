@@ -7,10 +7,10 @@ export default async function CardPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ ref?: string }>;
+  searchParams: Promise<{ sh?: string }>;
 }) {
   const { id: verificationId } = await params;
-  const { ref } = await searchParams;
+  const { sh: shToken } = await searchParams;
 
   const { data, error } = await supabase
     .from("verification_results")
@@ -28,9 +28,9 @@ export default async function CardPage({
     score >= 50 ? "needs-work" :
     "reject";
 
-  // Embed ref in the verify URL so clicks from the shared card are attributed
-  const verifyUrl = ref
-    ? `https://www.manu2print.com/verify/${verificationId}?ref=${ref}`
+  // Embed sh token so clicks from the shared card are attributed to the original sharer
+  const verifyUrl = shToken
+    ? `https://www.manu2print.com/verify/${verificationId}?sh=${shToken}`
     : `https://www.manu2print.com/verify/${verificationId}`;
 
   return (
@@ -40,6 +40,7 @@ export default async function CardPage({
       issuesCount={typeof data.issues_count === "number" ? data.issues_count : null}
       verifyUrl={verifyUrl}
       verificationId={verificationId}
+      shToken={shToken ?? null}
     />
   );
 }

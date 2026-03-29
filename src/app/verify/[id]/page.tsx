@@ -4,10 +4,12 @@ import { VerifyClient } from "./client";
 
 interface VerifyPageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ sh?: string }>;
 }
 
-export default async function VerifyPage({ params }: VerifyPageProps) {
+export default async function VerifyPage({ params, searchParams }: VerifyPageProps) {
   const { id: verificationId } = await params;
+  const { sh: shToken } = await searchParams;
 
   const { data, error } = await supabase
     .from("verification_results")
@@ -61,6 +63,7 @@ export default async function VerifyPage({ params }: VerifyPageProps) {
       filename={data.filename_clean ?? ""}
       verifyUrl={verifyUrl}
       verificationId={verificationId}
+      shToken={shToken ?? null}
     />
   );
 }

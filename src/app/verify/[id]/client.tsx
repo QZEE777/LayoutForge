@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 
 interface Props {
@@ -11,20 +11,16 @@ interface Props {
   filename: string;
   verifyUrl: string;
   verificationId: string;
+  shToken: string | null;
 }
 
-export function VerifyClient({ score, statusLevel, issuesCount, verifyUrl, verificationId }: Props) {
+export function VerifyClient({ score, statusLevel, issuesCount, verifyUrl, verificationId, shToken }: Props) {
   const [copied, setCopied] = useState(false);
-  const [refCode, setRefCode] = useState<string | null>(null);
 
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem("m2p_ref");
-      if (stored) setRefCode(stored);
-    } catch { /* private browsing */ }
-  }, []);
-
-  const cardUrl = `/verify/${verificationId}/card${refCode ? `?ref=${refCode}` : ""}`;
+  // sh= is the share-to-earn token — carry it forward so conversions are attributed
+  const shParam = shToken ? `?sh=${shToken}` : "";
+  const cardUrl = `/verify/${verificationId}/card${shToken ? `?sh=${shToken}` : ""}`;
+  const ctaHref = `/kdp-pdf-checker${shParam}`;
 
   const isBad  = statusLevel === "reject" || statusLevel === "needs-work";
   const bg     = isBad ? "#F05A28" : "#2D6A2D";
@@ -134,7 +130,7 @@ export function VerifyClient({ score, statusLevel, issuesCount, verifyUrl, verif
 
         {/* Primary CTA */}
         <Link
-          href="/kdp-pdf-checker"
+          href={ctaHref}
           style={{
             display: "block",
             background: "#fff",
