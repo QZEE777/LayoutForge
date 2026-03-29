@@ -233,6 +233,23 @@ export async function POST(request: NextRequest) {
     // Store public verification summary
     try {
       const issuesCount = enrichedReport.issuesEnriched?.length ?? report.issues.length;
+
+      // Derive per-check booleans for the social share card
+      const allPreflightIssues = [
+        ...(preflightReport?.errors ?? []),
+        ...(preflightReport?.warnings ?? []),
+      ];
+      const hasIssueMatching = (terms: string[]) =>
+        allPreflightIssues.some((i) => {
+          const hay = `${i.rule_id ?? ""} ${i.message ?? ""}`.toLowerCase();
+          return terms.some((t) => hay.includes(t));
+        });
+
+      const trimOk: boolean = report.trimMatchKDP;
+      const marginsOk: boolean = !hasIssueMatching(["margin", "safe zone", "safe_zone", "gutter"]);
+      const bleedOk: boolean = !hasIssueMatching(["bleed"]);
+      const fontsOk: boolean = !hasIssueMatching(["font", "embed", "subsett"]);
+
       await supabase.from("verification_results").upsert(
         {
           verification_id: stored.id,
@@ -241,6 +258,10 @@ export async function POST(request: NextRequest) {
           kdp_ready: enrichedReport.kdpReady,
           scan_date: enrichedReport.scanDate,
           issues_count: issuesCount,
+          trim_ok: trimOk,
+          margins_ok: marginsOk,
+          bleed_ok: bleedOk,
+          fonts_ok: fontsOk,
         },
         { onConflict: "verification_id" }
       );
