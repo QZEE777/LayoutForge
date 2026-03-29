@@ -15,7 +15,7 @@ export async function GET(
   const res = await fetch(
     `${supabaseUrl}/rest/v1/verification_results` +
     `?verification_id=eq.${id}` +
-    `&select=readiness_score,issues_count,trim_ok,margins_ok,bleed_ok,fonts_ok`,
+    `&select=readiness_score,issues_count,kdp_ready,trim_ok,margins_ok,bleed_ok,fonts_ok`,
     { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
   );
 
@@ -24,7 +24,7 @@ export async function GET(
 
   const score       = data?.readiness_score ?? 0;
   const issuesCount = data?.issues_count    ?? 0;
-  const isPass      = score >= 70;
+  const isPass      = data?.kdp_ready === true || score >= 90;
 
   const bgTop    = isPass ? "#1B6B3A" : "#C04A00";
   const bgBottom = isPass ? "#0D4424" : "#7A2D00";
@@ -86,16 +86,19 @@ export async function GET(
             KDP Pre-Check Result
           </span>
 
-          {/* PASS / FAIL + Score */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {/* PASS / FAIL + subline + Score */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-              <span style={{ fontSize: 104, fontWeight: 900, color: "#fff", lineHeight: 1, letterSpacing: "-2px" }}>
+              <span style={{ fontSize: 96, fontWeight: 900, color: "#fff", lineHeight: 1, letterSpacing: "-2px" }}>
                 {isPass ? "PASS" : "FAIL"}
               </span>
-              <span style={{ fontSize: 72 }}>{isPass ? "✅" : "⚠️"}</span>
+              <span style={{ fontSize: 64 }}>{isPass ? "✅" : "⚠️"}</span>
             </div>
-            <span style={{ fontSize: 28, fontWeight: 600, color: "rgba(255,255,255,0.85)" }}>
-              Readiness Score: <span style={{ color: "#fff", fontWeight: 900 }}>{score} / 100</span>
+            <span style={{ fontSize: 26, fontWeight: 800, color: "rgba(255,255,255,0.9)" }}>
+              {isPass ? "Ready for upload" : "Would be rejected"}
+            </span>
+            <span style={{ fontSize: 22, fontWeight: 500, color: "rgba(255,255,255,0.65)" }}>
+              Score: <span style={{ color: "#fff", fontWeight: 800 }}>{score} / 100</span>
             </span>
           </div>
 
@@ -162,14 +165,29 @@ export async function GET(
         </div>
 
         {/* ─── MANNY ─── */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={mannyUrl}
-          width={300}
-          height={450}
-          alt="Manny"
-          style={{ alignSelf: "flex-end", marginLeft: 40 }}
-        />
+        <div style={{
+          display: "flex",
+          alignSelf: "flex-end",
+          marginLeft: 36,
+          width: 280,
+          height: 420,
+          flexShrink: 0,
+          borderRadius: "20px 20px 0 0",
+          overflow: "hidden",
+          background: `linear-gradient(150deg, ${bgTop} 0%, ${bgBottom} 100%)`,
+        }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={mannyUrl}
+            alt="Manny"
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              objectPosition: "center top",
+            }}
+          />
+        </div>
       </div>
     ),
     { width: 1200, height: 630 }
