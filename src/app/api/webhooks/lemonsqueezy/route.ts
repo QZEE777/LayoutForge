@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 import { markDownloadPaid } from "@/lib/storage";
-import { sendDownloadLinkEmail, sendPartnerThresholdEmail } from "@/lib/resend";
+import { sendDownloadLinkEmail, sendPartnerThresholdEmail, sendPackPurchaseEmail } from "@/lib/resend";
 
 export async function POST(req: Request) {
   const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
@@ -106,6 +106,11 @@ export async function POST(req: Request) {
         indie_pack: 10,
         pro_pack: 25,
       };
+      const PACK_NAMES: Record<string, string> = {
+        author_pack: "Author Pack (3 credits)",
+        indie_pack:  "Indie Pack (10 credits)",
+        pro_pack:    "Pro Pack (25 credits)",
+      };
       if (priceType in PACK_CREDITS && email) {
         try {
           await supabase.from("scan_credits").insert({
@@ -116,6 +121,15 @@ export async function POST(req: Request) {
           });
         } catch (err) {
           console.error("[webhooks/lemonsqueezy] scan_credits insert failed:", err);
+        }
+        // Send pack confirmation email
+        try {
+          await sendPackPurchaseEmail(email, {
+            credits: PACK_CREDITS[priceType],
+            packName: PACK_NAMES[priceType] ?? priceType,
+          });
+        } catch (err) {
+          console.error("[webhooks/lemonsqueezy] sendPackPurchaseEmail failed:", err);
         }
       }
 
