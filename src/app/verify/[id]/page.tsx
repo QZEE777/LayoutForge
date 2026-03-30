@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { getStored } from "@/lib/storage";
 import { VerifyClient } from "./client";
 
 interface VerifyPageProps {
@@ -34,11 +35,15 @@ export default async function VerifyPage({ params, searchParams }: VerifyPagePro
   const { id: verificationId } = await params;
   const { sh: shToken } = await searchParams;
 
-  const { data, error } = await supabase
-    .from("verification_results")
-    .select("verification_id, filename_clean, readiness_score, kdp_ready, scan_date, issues_count")
-    .eq("verification_id", verificationId)
-    .maybeSingle();
+  // Fetch DB summary + S3 source-of-truth report in parallel
+  const [{ data, error }, stored] = await Promise.all([
+    supabase
+      .from("verification_results")
+      .select("verification_id, filename_clean, readiness_score, kdp_ready, scan_date, issues_count")
+      .eq("verification_id", verificationId)
+      .maybeSingle(),
+    getStored(verificationId).catch(() => null),
+  ]);
 
   if (error || !data) {
     return (
@@ -61,8 +66,13 @@ export default async function VerifyPage({ params, searchParams }: VerifyPagePro
     );
   }
 
-  const score   = data.readiness_score ?? 0;
-  const isPass  = data.kdp_ready === true || score >= 90;
+  // S3 processingReport is the authoritative source (same data download page uses)
+  // DB is the fast fallback. If either says PASS, it's a PASS.
+  const s3KdpReady    = stored?.processingReport?.kdpReady ?? null;
+  const s3Score       = stored?.processingReport?.readinessScore100 ?? stored?.processingReport?.readiness_score ?? null;
+
+  const score  = s3Score ?? data.readiness_score ?? 0;
+  const isPass = s3KdpReady === true || data.kdp_ready === true || score >= 90;
 
   const statusLevel =
     isPass      ? "ready" :
@@ -76,6 +86,12 @@ export default async function VerifyPage({ params, searchParams }: VerifyPagePro
     statusLevel === "needs-work" ? "NEEDS WORK" :
     "LIKELY REJECTED";
 
+  // Issues count: prefer DB (more reliable integer), fall back to S3 report
+  const issuesCount =
+    typeof data.issues_count === "number"
+      ? data.issues_count
+      : (stored?.processingReport?.issues?.length ?? null);
+
   const verifyUrl = `https://www.manu2print.com/verify/${verificationId}`;
 
   return (
@@ -83,7 +99,7 @@ export default async function VerifyPage({ params, searchParams }: VerifyPagePro
       score={score}
       statusLabel={statusLabel}
       statusLevel={statusLevel}
-      issuesCount={typeof data.issues_count === "number" ? data.issues_count : null}
+      issuesCount={issuesCount}
       filename={data.filename_clean ?? ""}
       verifyUrl={verifyUrl}
       verificationId={verificationId}
@@ -91,4 +107,3 @@ export default async function VerifyPage({ params, searchParams }: VerifyPagePro
     />
   );
 }
-
