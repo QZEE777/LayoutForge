@@ -69,7 +69,7 @@ export default async function VerifyPage({ params, searchParams }: VerifyPagePro
   // S3 processingReport is the authoritative source (same data download page uses)
   // DB is the fast fallback. If either says PASS, it's a PASS.
   const s3KdpReady    = stored?.processingReport?.kdpReady ?? null;
-  const s3Score       = stored?.processingReport?.readinessScore100 ?? stored?.processingReport?.readiness_score ?? null;
+  const s3Score       = stored?.processingReport?.readinessScore100 ?? null;
 
   const score  = s3Score ?? data.readiness_score ?? 0;
   const isPass = s3KdpReady === true || data.kdp_ready === true || score >= 90;
