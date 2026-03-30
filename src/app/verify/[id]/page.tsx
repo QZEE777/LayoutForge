@@ -61,10 +61,11 @@ export default async function VerifyPage({ params, searchParams }: VerifyPagePro
     );
   }
 
-  const score = data.readiness_score ?? 0;
+  const score   = data.readiness_score ?? 0;
+  const isPass  = data.kdp_ready === true || score >= 90;
 
   const statusLevel =
-    score >= 90 ? "ready" :
+    isPass      ? "ready" :
     score >= 70 ? "nearly" :
     score >= 50 ? "needs-work" :
     "reject";
