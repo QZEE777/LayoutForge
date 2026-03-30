@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: VerifyPageProps): Promise<Met
     openGraph: {
       title: "KDP PDF Check Result — manu2print",
       description: "See how this manuscript scored on KDP readiness. Would your PDF pass?",
-      images: [{ url: ogImage, width: 1200, height: 630, alt: "KDP readiness score card" }],
+      images: [{ url: ogImage, width: 1080, height: 1350, alt: "KDP readiness score card" }],
       url: `https://www.manu2print.com/verify/${id}`,
       type: "website",
     },
