@@ -78,12 +78,12 @@ export function SocialCard({ verifyUrl, verificationId, shToken, isPass }: Props
         marginBottom: 20,
       }}>
         <p style={{
-          margin: "0 0 10px",
-          fontSize: 11,
-          fontWeight: 700,
-          letterSpacing: "0.12em",
+          margin: "0 0 12px",
+          fontSize: 16,
+          fontWeight: 900,
+          letterSpacing: "0.04em",
           textTransform: "uppercase",
-          color: "rgba(255,255,255,0.4)",
+          color: "#F05A28",
           textAlign: "center",
         }}>
           Choose your message
@@ -95,7 +95,7 @@ export function SocialCard({ verifyUrl, verificationId, shToken, isPass }: Props
               onClick={() => setVariant(v.id)}
               style={{
                 flex: 1,
-                padding: "12px 8px",
+                padding: "14px 8px",
                 background: variant === v.id ? accentColor : "rgba(255,255,255,0.07)",
                 color: variant === v.id ? "#fff" : "rgba(255,255,255,0.55)",
                 border: variant === v.id
@@ -103,8 +103,8 @@ export function SocialCard({ verifyUrl, verificationId, shToken, isPass }: Props
                   : "2px solid rgba(255,255,255,0.12)",
                 borderRadius: 10,
                 cursor: "pointer",
-                fontWeight: 800,
-                fontSize: 13,
+                fontWeight: 900,
+                fontSize: 15,
                 lineHeight: 1.3,
                 textAlign: "center",
               }}
@@ -112,10 +112,10 @@ export function SocialCard({ verifyUrl, verificationId, shToken, isPass }: Props
               {v.label}
               <span style={{
                 display: "block",
-                fontSize: 10,
-                fontWeight: 500,
+                fontSize: 11,
+                fontWeight: 600,
                 opacity: 0.75,
-                marginTop: 3,
+                marginTop: 4,
               }}>
                 {v.sub}
               </span>
@@ -150,20 +150,20 @@ export function SocialCard({ verifyUrl, verificationId, shToken, isPass }: Props
         <div style={{
           background: accentColor,
           borderRadius: 14,
-          padding: "16px 20px",
+          padding: "20px 24px",
           marginBottom: 10,
         }}>
           <p style={{
-            margin: "0 0 4px",
-            fontSize: 11,
-            fontWeight: 700,
-            color: "rgba(255,255,255,0.75)",
-            letterSpacing: "0.1em",
+            margin: "0 0 6px",
+            fontSize: 13,
+            fontWeight: 800,
+            color: "rgba(255,255,255,0.80)",
+            letterSpacing: "0.12em",
             textTransform: "uppercase",
           }}>
             Step 1 — Download
           </p>
-          <p style={{ margin: "0 0 14px", fontSize: 16, fontWeight: 900, color: "#fff" }}>
+          <p style={{ margin: "0 0 18px", fontSize: 22, fontWeight: 900, color: "#fff", lineHeight: 1.2 }}>
             Save your card
           </p>
           <a
@@ -172,16 +172,16 @@ export function SocialCard({ verifyUrl, verificationId, shToken, isPass }: Props
             style={{
               display: "block",
               width: "100%",
-              padding: "13px 0",
+              padding: "15px 0",
               background: "#fff",
               color: accentColor,
               fontWeight: 900,
-              fontSize: 14,
+              fontSize: 16,
               borderRadius: 10,
               textAlign: "center",
               textDecoration: "none",
               boxSizing: "border-box",
-              marginBottom: 8,
+              marginBottom: 10,
             }}
           >
             ⬇️ Instagram &amp; LinkedIn (1080×1350)
@@ -192,11 +192,11 @@ export function SocialCard({ verifyUrl, verificationId, shToken, isPass }: Props
             style={{
               display: "block",
               width: "100%",
-              padding: "13px 0",
+              padding: "15px 0",
               background: "rgba(255,255,255,0.18)",
               color: "#fff",
               fontWeight: 800,
-              fontSize: 14,
+              fontSize: 16,
               borderRadius: 10,
               textAlign: "center",
               textDecoration: "none",

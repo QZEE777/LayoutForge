@@ -45,25 +45,17 @@ export async function GET(
       ? (isPass ? "Would your PDF pass?" : "This would fail KDP review.")
       : "Would yours pass?"; // curiosity — universal
 
-  // Footer CTA line — changes per variant
-  const ctaLine =
-    variant === "ego"  ? "Before uploading to KDP." :
-    variant === "fear" ? "Fix before upload." :
-    "Check before you upload.";
-
-  // Check columns — DB is the source (S3 report doesn't store these separately)
+  // Check columns — icons only, no verbose labels
   const allChecks = [
-    { label: "Trim Size", okLabel: "OK",       failLabel: "Incorrect",    ok: data?.trim_ok    ?? null },
-    { label: "Margins",   okLabel: "OK",        failLabel: "Incorrect",    ok: data?.margins_ok ?? null },
-    { label: "Bleed",     okLabel: "Present",   failLabel: "Missing",      ok: data?.bleed_ok   ?? null },
-    { label: "Fonts",     okLabel: "Embedded",  failLabel: "Not embedded", ok: data?.fonts_ok   ?? null },
+    { label: "Trim Size", ok: data?.trim_ok    ?? null },
+    { label: "Margins",   ok: data?.margins_ok ?? null },
+    { label: "Bleed",     ok: data?.bleed_ok   ?? null },
+    { label: "Fonts",     ok: data?.fonts_ok   ?? null },
   ];
 
   const visibleChecks = allChecks.filter(c =>
     c.ok === null ? true : isPass ? c.ok === true : c.ok === false
   );
-
-  const summaryLine = isPass ? "No critical errors" : "Issues detected";
 
   // Colours — orange for FAIL, deep green for PASS
   const bgTop    = isPass ? "#1a5f3f" : "#C35B00";
@@ -170,25 +162,13 @@ export async function GET(
                 {c.label}:
               </span>
               <span style={{ fontSize: fs(36), fontWeight: 700, color: "rgba(255,255,255,0.90)" }}>
-                {c.ok === null ? "—" : c.ok ? c.okLabel : c.failLabel}
+                {c.ok === null ? "—" : c.ok ? "✔" : "✗"}
               </span>
             </div>
           ))}
-
-          <div style={{
-            borderTop: "1.5px solid rgba(255,255,255,0.20)",
-            marginTop: fs(26),
-            paddingTop: fs(26),
-            display: "flex",
-            justifyContent: "center",
-          }}>
-            <span style={{ fontSize: fs(40), fontWeight: 900, color: "#FFFFFF" }}>
-              {summaryLine}
-            </span>
-          </div>
         </div>
 
-        {/* CTA line — variant-driven */}
+        {/* CTA block */}
         <div style={{
           width: "100%",
           display: "flex",
@@ -198,10 +178,10 @@ export async function GET(
           paddingLeft: fs(8),
         }}>
           <span style={{ fontSize: fs(30), color: "rgba(255,255,255,0.75)", marginBottom: fs(8) }}>
-            {ctaLine}
+            Check before you upload.
           </span>
           <span style={{ fontSize: fs(40), fontWeight: 900, color: "#FFFFFF" }}>
-            Would your PDF pass?
+            Run your file. See your score.
           </span>
         </div>
 
