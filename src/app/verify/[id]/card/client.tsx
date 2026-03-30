@@ -271,26 +271,49 @@ export function SocialCard({
             Step 1
           </p>
           <p style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 900, color: "#fff" }}>
-            Download this image
+            Download your card
           </p>
+          {/* IG / LinkedIn */}
           <a
             href={`/api/og/verify/${verificationId}`}
-            download="manu2print-result.png"
+            download="manu2print-result-ig.png"
             style={{
               display: "block",
               width: "100%",
-              padding: "14px 0",
+              padding: "13px 0",
               background: "#fff",
               color: accentColor,
               fontWeight: 900,
-              fontSize: 15,
+              fontSize: 14,
               borderRadius: 10,
               textAlign: "center",
               textDecoration: "none",
               boxSizing: "border-box",
+              marginBottom: 8,
             }}
           >
-            ⬇️ Download card image
+            ⬇️ Instagram &amp; LinkedIn (1080×1350)
+          </a>
+          {/* Facebook */}
+          <a
+            href={`/api/og/verify/${verificationId}?format=fb`}
+            download="manu2print-result-fb.png"
+            style={{
+              display: "block",
+              width: "100%",
+              padding: "13px 0",
+              background: "rgba(255,255,255,0.18)",
+              color: "#fff",
+              fontWeight: 800,
+              fontSize: 14,
+              borderRadius: 10,
+              textAlign: "center",
+              textDecoration: "none",
+              boxSizing: "border-box",
+              border: "1px solid rgba(255,255,255,0.35)",
+            }}
+          >
+            ⬇️ Facebook (1200×1500)
           </a>
         </div>
 

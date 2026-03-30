@@ -3,10 +3,13 @@ import { ImageResponse } from "next/og";
 export const runtime = "edge";
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+  const { searchParams } = new URL(req.url);
+  // ?format=fb → Facebook 1200×1500  |  default → IG/LinkedIn 1080×1350
+  const isFb = searchParams.get("format") === "fb";
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -25,14 +28,6 @@ export async function GET(
   const issuesCount = data?.issues_count    ?? 0;
   const isPass      = data?.kdp_ready === true || score >= 90;
 
-  // Colours — mirror the card shell design
-  const frameColor  = isPass ? "#22C55E" : "#F05A28";
-  const accentColor = isPass ? "#16A34A" : "#EA580C";
-
-  const subline = isPass
-    ? "Your PDF is KDP-ready ✅"
-    : "Your PDF would be rejected ❌";
-
   const checks = [
     { label: "Trim Size", ok: data?.trim_ok    ?? null },
     { label: "Margins",   ok: data?.margins_ok ?? null },
@@ -44,209 +39,202 @@ export async function GET(
     ? "No critical errors found"
     : `${issuesCount} issues detected`;
 
-  const mannyUrl = isPass
-    ? "https://www.manu2print.com/manny/manny_pass.png"
-    : "https://www.manu2print.com/manny/manny_fail.png";
+  const subline = isPass
+    ? "Your PDF is KDP-ready"
+    : "Your PDF would be rejected";
 
-  // Portrait 1080×1350 — matches IG / FB / LinkedIn shell dimensions
+  // Shell images served from /public/shells/
+  const base = "https://www.manu2print.com";
+  const shellUrl = isPass
+    ? (isFb ? `${base}/shells/shell_pass_fb.png` : `${base}/shells/shell_pass_ig.png`)
+    : (isFb ? `${base}/shells/shell_fail_fb.png` : `${base}/shells/shell_fail_ig.png`);
+
+  // Canvas matches the shell dimensions
+  const W = isFb ? 1200 : 1080;
+  const H = isFb ? 1500 : 1350;
+
+  // Scale factor (FB is 1.111× the IG shell)
+  const S = isFb ? 1200 / 1080 : 1;
+  const fs = (n: number) => Math.round(n * S);
+
+  const accentColor = isPass ? "#16A34A" : "#EA580C";
+  const passGreen   = "#16A34A";
+  const failRed     = "#DC2626";
+
+  // Text occupies the left ~56% of the white zone to stay clear of Manny
+  const padX  = fs(62);
+  const padY  = fs(62);
+  const textW = fs(550);
+
   return new ImageResponse(
     (
       <div
         style={{
-          width: 1080,
-          height: 1350,
-          background: frameColor,
-          padding: "48px 48px 32px 48px",
+          width: W,
+          height: H,
+          position: "relative",
           display: "flex",
-          flexDirection: "column",
-          gap: 26,
-          fontFamily: "system-ui, sans-serif",
         }}
       >
-        {/* ── WHITE CONTENT ZONE ── */}
+        {/* Shell background — your designed PNG */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={shellUrl}
+          alt=""
+          style={{ position: "absolute", top: 0, left: 0, width: W, height: H }}
+        />
+
+        {/* Dynamic text — overlaid on the white zone */}
         <div
           style={{
-            flex: 1,
-            background: "#FFFFFF",
-            borderRadius: 32,
-            padding: "58px 56px 56px 60px",
+            position: "absolute",
+            top: padY,
+            left: padX,
+            width: textW,
             display: "flex",
             flexDirection: "column",
-            position: "relative",
-            overflow: "hidden",
           }}
         >
-          {/* Small label */}
-          <span
-            style={{
-              fontSize: 26,
-              fontWeight: 700,
-              letterSpacing: "0.13em",
-              textTransform: "uppercase",
-              color: "#999",
-              marginBottom: 26,
-            }}
-          >
+          {/* Label */}
+          <span style={{
+            fontSize: fs(20),
+            fontWeight: 700,
+            letterSpacing: "0.13em",
+            textTransform: "uppercase",
+            color: "#999",
+            marginBottom: fs(20),
+            fontFamily: "system-ui, sans-serif",
+          }}>
             KDP Pre-Check Result
           </span>
 
           {/* PASS / FAIL */}
-          <span
-            style={{
-              fontSize: 144,
-              fontWeight: 900,
-              color: accentColor,
-              lineHeight: 1,
-              letterSpacing: "-4px",
-              marginBottom: 10,
-            }}
-          >
+          <span style={{
+            fontSize: fs(128),
+            fontWeight: 900,
+            color: accentColor,
+            lineHeight: 1,
+            letterSpacing: "-3px",
+            marginBottom: fs(6),
+            fontFamily: "system-ui, sans-serif",
+          }}>
             {isPass ? "PASS" : "FAIL"}
           </span>
 
           {/* Subline */}
-          <span
-            style={{
-              fontSize: 36,
-              fontWeight: 700,
-              color: "#333",
-              marginBottom: 46,
-            }}
-          >
+          <span style={{
+            fontSize: fs(30),
+            fontWeight: 700,
+            color: "#333",
+            marginBottom: fs(32),
+            fontFamily: "system-ui, sans-serif",
+          }}>
             {subline}
           </span>
 
-          {/* Score row + bar */}
-          <div style={{ display: "flex", flexDirection: "column", marginBottom: 46 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-              <span style={{ fontSize: 30, fontWeight: 600, color: "#555" }}>Readiness Score</span>
-              <span style={{ fontSize: 38, fontWeight: 900, color: accentColor }}>{score} / 100</span>
-            </div>
-            <div
-              style={{
-                height: 18,
-                background: "#E5E7EB",
-                borderRadius: 9,
-                overflow: "hidden",
-                display: "flex",
-              }}
-            >
-              <div
-                style={{
-                  height: "100%",
-                  width: `${score}%`,
-                  background: accentColor,
-                  borderRadius: 9,
-                  display: "flex",
-                }}
-              />
-            </div>
+          {/* Score */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: fs(10) }}>
+            <span style={{ fontSize: fs(24), fontWeight: 600, color: "#555", fontFamily: "system-ui, sans-serif" }}>
+              Readiness Score
+            </span>
+            <span style={{ fontSize: fs(30), fontWeight: 900, color: accentColor, fontFamily: "system-ui, sans-serif" }}>
+              {score} / 100
+            </span>
           </div>
 
-          {/* Checks grid */}
-          <div
-            style={{
-              background: "#F9FAFB",
-              borderRadius: 24,
-              padding: "30px 38px",
-              border: "2px solid #E5E7EB",
+          {/* Score bar */}
+          <div style={{
+            height: fs(12),
+            background: "#E5E7EB",
+            borderRadius: fs(6),
+            overflow: "hidden",
+            display: "flex",
+            marginBottom: fs(28),
+          }}>
+            <div style={{
+              height: "100%",
+              width: `${score}%`,
+              background: accentColor,
+              borderRadius: fs(6),
               display: "flex",
-              flexDirection: "column",
-              marginBottom: 44,
-            }}
-          >
+            }} />
+          </div>
+
+          {/* Checks */}
+          <div style={{
+            background: "#F9FAFB",
+            borderRadius: fs(18),
+            padding: `${fs(20)}px ${fs(26)}px`,
+            border: "2px solid #E5E7EB",
+            display: "flex",
+            flexDirection: "column",
+            marginBottom: fs(28),
+          }}>
             {checks.map((c, i) => (
-              <div
-                key={c.label}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  paddingBottom: i < checks.length - 1 ? 22 : 0,
-                  marginBottom: i < checks.length - 1 ? 22 : 0,
-                  borderBottom: i < checks.length - 1 ? "1px solid #EFEFEF" : "none",
-                }}
-              >
-                <span style={{ fontSize: 32, fontWeight: 600, color: "#374151" }}>{c.label}</span>
-                <span
-                  style={{
-                    fontSize: 32,
-                    fontWeight: 800,
-                    color: c.ok === null ? "#9CA3AF" : c.ok ? "#16A34A" : "#DC2626",
-                  }}
-                >
+              <div key={c.label} style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                paddingBottom: i < checks.length - 1 ? fs(16) : 0,
+                marginBottom: i < checks.length - 1 ? fs(16) : 0,
+                borderBottom: i < checks.length - 1 ? "1px solid #EFEFEF" : "none",
+              }}>
+                <span style={{ fontSize: fs(26), fontWeight: 600, color: "#374151", fontFamily: "system-ui, sans-serif" }}>
+                  {c.label}
+                </span>
+                <span style={{
+                  fontSize: fs(26),
+                  fontWeight: 800,
+                  color: c.ok === null ? "#9CA3AF" : c.ok ? passGreen : failRed,
+                  fontFamily: "system-ui, sans-serif",
+                }}>
                   {c.ok === null ? "—" : c.ok ? "✓  OK" : "✗  Issue"}
                 </span>
               </div>
             ))}
-            <div
-              style={{
-                borderTop: "1px solid #E5E7EB",
-                marginTop: 22,
-                paddingTop: 22,
-                display: "flex",
-                justifyContent: "center",
-              }}
-            >
-              <span style={{ fontSize: 32, fontWeight: 900, color: accentColor }}>{summaryText}</span>
+            <div style={{
+              borderTop: "1px solid #E5E7EB",
+              marginTop: fs(16),
+              paddingTop: fs(16),
+              display: "flex",
+              justifyContent: "center",
+            }}>
+              <span style={{ fontSize: fs(24), fontWeight: 900, color: accentColor, fontFamily: "system-ui, sans-serif" }}>
+                {summaryText}
+              </span>
             </div>
           </div>
 
           {/* Hook */}
-          <span style={{ fontSize: 40, fontWeight: 900, color: "#111" }}>Would YOUR PDF pass?</span>
-          <span style={{ fontSize: 28, fontWeight: 500, color: "#9CA3AF", marginTop: 10 }}>
-            Free KDP pre-check at manu2print.com
+          <span style={{ fontSize: fs(32), fontWeight: 900, color: "#111", fontFamily: "system-ui, sans-serif" }}>
+            Would YOUR PDF pass?
           </span>
-
-          {/* MANNY — absolute bottom-right of white zone */}
-          <div
-            style={{
-              position: "absolute",
-              bottom: 0,
-              right: 0,
-              width: 380,
-              height: 520,
-              overflow: "hidden",
-              display: "flex",
-            }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={mannyUrl}
-              alt="Manny"
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                objectPosition: "center top",
-              }}
-            />
-          </div>
+          <span style={{ fontSize: fs(22), color: "#9CA3AF", marginTop: fs(6), fontFamily: "system-ui, sans-serif" }}>
+            Free KDP pre-check · manu2print.com
+          </span>
         </div>
 
-        {/* ── BOTTOM BAR — logo + verified ── */}
-        <div
-          style={{
-            background: "#FFFFFF",
-            borderRadius: 24,
-            padding: "24px 44px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexShrink: 0,
-          }}
-        >
-          <span style={{ fontSize: 42, fontWeight: 900 }}>
+        {/* Bottom bar — logo + verified text */}
+        <div style={{
+          position: "absolute",
+          bottom: fs(30),
+          left: fs(55),
+          right: fs(55),
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}>
+          <span style={{ fontSize: fs(34), fontWeight: 900, fontFamily: "system-ui, sans-serif" }}>
             <span style={{ color: "#F05A28" }}>manu</span>
             <span style={{ color: "#111" }}>2</span>
             <span style={{ color: "#16A34A" }}>print</span>
           </span>
-          <span style={{ fontSize: 28, fontWeight: 600, color: "#6B7280" }}>
+          <span style={{ fontSize: fs(22), fontWeight: 600, color: "#6B7280", fontFamily: "system-ui, sans-serif" }}>
             ✓ Verified by manu2print.com
           </span>
         </div>
       </div>
     ),
-    { width: 1080, height: 1350 }
+    { width: W, height: H }
   );
 }
