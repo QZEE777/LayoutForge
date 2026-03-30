@@ -18,29 +18,33 @@ export async function GET(
     { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
   );
 
-  const rows  = await res.json();
-  const data  = rows?.[0];
+  const rows = await res.json();
+  const data = rows?.[0];
+
   const score       = data?.readiness_score ?? 0;
-  const issuesCount = data?.issues_count    ?? 0;
   const isPass      = data?.kdp_ready === true || score >= 90;
 
-  const checks = [
-    { label: "Trim Size", ok: data?.trim_ok    ?? null },
-    { label: "Margins",   ok: data?.margins_ok ?? null },
-    { label: "Bleed",     ok: data?.bleed_ok   ?? null },
-    { label: "Fonts",     ok: data?.fonts_ok   ?? null },
+  // Only show relevant checks — OK items for PASS, failing items for FAIL
+  const allChecks = [
+    { label: "Trim Size", okLabel: "OK",           failLabel: "Incorrect",     ok: data?.trim_ok    ?? null },
+    { label: "Margins",   okLabel: "OK",           failLabel: "Incorrect",     ok: data?.margins_ok ?? null },
+    { label: "Bleed",     okLabel: "Present",      failLabel: "Missing",       ok: data?.bleed_ok   ?? null },
+    { label: "Fonts",     okLabel: "Embedded",     failLabel: "Not embedded",  ok: data?.fonts_ok   ?? null },
   ];
 
-  // Colours
-  const border  = isPass ? "#16A34A" : "#EA580C";
-  const accent  = isPass ? "#16A34A" : "#EA580C";
-  const okColor = "#16A34A";
-  const badColor= "#DC2626";
+  const visibleChecks = allChecks.filter(c =>
+    c.ok === null ? true : isPass ? c.ok === true : c.ok === false
+  );
 
-  const statusLine = isPass ? "READY FOR KDP UPLOAD" : "WOULD BE REJECTED BY KDP";
-  const issueLine  = isPass
-    ? "No critical issues found"
-    : `${issuesCount} issue${issuesCount !== 1 ? "s" : ""} found before upload`;
+  const summaryLine = isPass ? "No critical errors" : "Issues detected";
+
+  // Colours
+  const bgTop    = isPass ? "#1A5C28" : "#C35B00";
+  const bgBottom = isPass ? "#2E7D32" : "#E65100";
+  const cardBg   = isPass ? "rgba(255,255,255,0.10)" : "rgba(255,255,255,0.10)";
+
+  const base      = "https://www.manu2print.com";
+  const avatarUrl = `${base}/manny-avatar.png`;
 
   const W = 1080;
   const H = 1350;
@@ -51,152 +55,148 @@ export async function GET(
         style={{
           width: W,
           height: H,
-          background: border,
           display: "flex",
-          padding: 36,
+          flexDirection: "column",
+          alignItems: "center",
+          padding: "60px 64px 48px 64px",
+          background: `linear-gradient(180deg, ${bgTop} 0%, ${bgBottom} 100%)`,
           fontFamily: "system-ui, sans-serif",
         }}
       >
-        {/* Inner white card */}
-        <div
-          style={{
-            flex: 1,
-            background: "#FFFFFF",
-            borderRadius: 28,
-            display: "flex",
-            flexDirection: "column",
-            padding: "52px 60px 40px 60px",
-          }}
-        >
-          {/* Top label */}
-          <span style={{
-            fontSize: 26,
-            fontWeight: 700,
-            letterSpacing: "0.14em",
-            textTransform: "uppercase",
-            color: "#AAAAAA",
-            marginBottom: 28,
-          }}>
-            KDP Pre-Check Result
-          </span>
+        {/* Label */}
+        <span style={{
+          fontSize: 30,
+          fontWeight: 600,
+          color: "rgba(255,255,255,0.75)",
+          letterSpacing: "0.04em",
+          marginBottom: 32,
+        }}>
+          KDP Pre-Check Result
+        </span>
 
-          {/* PASS / FAIL */}
+        {/* PASS / FAIL + emoji */}
+        <div style={{ display: "flex", alignItems: "center", gap: 24, marginBottom: 20 }}>
           <span style={{
-            fontSize: 170,
+            fontSize: 148,
             fontWeight: 900,
-            color: accent,
+            color: "#FFFFFF",
             lineHeight: 1,
-            letterSpacing: "-6px",
-            marginBottom: 10,
+            letterSpacing: "-4px",
           }}>
             {isPass ? "PASS" : "FAIL"}
           </span>
-
-          {/* Score */}
-          <div style={{
-            display: "flex",
-            alignItems: "flex-end",
-            gap: 0,
-            marginBottom: 10,
-          }}>
-            <span style={{ fontSize: 96, fontWeight: 900, color: "#111", lineHeight: 1 }}>
-              {score}
-            </span>
-            <span style={{ fontSize: 48, fontWeight: 700, color: "#BBBBBB", lineHeight: 1.4 }}>
-              /100
-            </span>
-          </div>
-
-          {/* Status line */}
-          <span style={{
-            fontSize: 30,
-            fontWeight: 800,
-            letterSpacing: "0.06em",
-            color: accent,
-            textTransform: "uppercase",
-            marginBottom: 36,
-          }}>
-            {statusLine}
+          <span style={{ fontSize: 100 }}>
+            {isPass ? "✅" : "⚠️"}
           </span>
+        </div>
 
-          {/* Checks box */}
-          <div style={{
-            background: "#F8F8F8",
-            borderRadius: 20,
-            border: "2px solid #EEEEEE",
-            padding: "28px 36px",
-            display: "flex",
-            flexDirection: "column",
-            marginBottom: 30,
-          }}>
-            {checks.map((c, i) => (
-              <div
-                key={c.label}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  paddingBottom: i < checks.length - 1 ? 20 : 0,
-                  marginBottom: i < checks.length - 1 ? 20 : 0,
-                  borderBottom: i < checks.length - 1 ? "1px solid #EEEEEE" : "none",
-                }}
-              >
-                <span style={{ fontSize: 32, fontWeight: 600, color: "#333" }}>
-                  {c.label}
-                </span>
-                <span style={{
-                  fontSize: 32,
-                  fontWeight: 800,
-                  color: c.ok === null ? "#BBBBBB" : c.ok ? okColor : badColor,
-                }}>
-                  {c.ok === null ? "—" : c.ok ? "OK" : "Issue"}
-                </span>
-              </div>
-            ))}
+        {/* Score */}
+        <span style={{
+          fontSize: 42,
+          fontWeight: 700,
+          color: "rgba(255,255,255,0.95)",
+          marginBottom: 44,
+        }}>
+          Readiness Score: {score} / 100
+        </span>
 
-            {/* Summary row */}
-            <div style={{
-              borderTop: "1px solid #EEEEEE",
-              marginTop: 20,
-              paddingTop: 20,
-              display: "flex",
-              justifyContent: "center",
-            }}>
-              <span style={{ fontSize: 28, fontWeight: 900, color: accent }}>
-                {issueLine}
+        {/* Checks card */}
+        <div style={{
+          width: "100%",
+          background: cardBg,
+          borderRadius: 24,
+          border: "1.5px solid rgba(255,255,255,0.20)",
+          padding: "36px 44px",
+          display: "flex",
+          flexDirection: "column",
+          marginBottom: 44,
+        }}>
+          {visibleChecks.map((c, i) => (
+            <div
+              key={c.label}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                paddingBottom: i < visibleChecks.length - 1 ? 22 : 0,
+                marginBottom: i < visibleChecks.length - 1 ? 22 : 0,
+                borderBottom: i < visibleChecks.length - 1 ? "1px solid rgba(255,255,255,0.15)" : "none",
+              }}
+            >
+              <span style={{ fontSize: 36, fontWeight: 700, color: "#FFFFFF" }}>
+                {c.label}:
+              </span>
+              <span style={{ fontSize: 36, fontWeight: 700, color: "rgba(255,255,255,0.90)" }}>
+                {c.ok === null ? "—" : c.ok ? c.okLabel : c.failLabel}
               </span>
             </div>
-          </div>
+          ))}
 
-          {/* CTA pill */}
+          {/* Summary */}
           <div style={{
-            background: accent,
-            borderRadius: 60,
+            borderTop: "1.5px solid rgba(255,255,255,0.20)",
+            marginTop: 26,
+            paddingTop: 26,
             display: "flex",
-            alignItems: "center",
             justifyContent: "center",
-            padding: "26px 0",
-            marginBottom: 28,
           }}>
-            <span style={{ fontSize: 36, fontWeight: 800, color: "#FFFFFF" }}>
-              Check My PDF — manu2print.com
+            <span style={{ fontSize: 40, fontWeight: 900, color: "#FFFFFF" }}>
+              {summaryLine}
             </span>
           </div>
+        </div>
 
-          {/* Bottom branding */}
-          <div style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginTop: "auto",
-          }}>
-            <span style={{ fontSize: 34, fontWeight: 900 }}>
-              <span style={{ color: "#F05A28" }}>manu</span>
-              <span style={{ color: "#111" }}>2</span>
-              <span style={{ color: "#16A34A" }}>print</span>
+        {/* CTA section */}
+        <div style={{
+          width: "100%",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-end",
+          marginBottom: 44,
+          paddingLeft: 8,
+          paddingRight: 8,
+        }}>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <span style={{ fontSize: 32, color: "rgba(255,255,255,0.80)", marginBottom: 8 }}>
+              Checked before uploading to KDP.
             </span>
-            <span style={{ fontSize: 24, color: "#AAAAAA", fontWeight: 600 }}>
-              Verified by manu2print.com
+            <span style={{ fontSize: 38, fontWeight: 900, color: "#FFFFFF" }}>
+              Would your PDF pass?
+            </span>
+          </div>
+        </div>
+
+        {/* Bottom bar */}
+        <div style={{
+          width: "100%",
+          borderTop: "1px solid rgba(255,255,255,0.20)",
+          paddingTop: 28,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginTop: "auto",
+        }}>
+          {/* Wordmark */}
+          <span style={{ fontSize: 42, fontWeight: 900, letterSpacing: "-1px" }}>
+            <span style={{ color: "#FFA040" }}>manu</span>
+            <span style={{ color: "#FFFFFF" }}>2</span>
+            <span style={{ color: "#A8E6A3" }}>print</span>
+          </span>
+
+          {/* URL */}
+          <span style={{ fontSize: 28, color: "rgba(255,255,255,0.70)", fontWeight: 600 }}>
+            manu2print.com
+          </span>
+
+          {/* Avatar + Verified */}
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={avatarUrl}
+              alt=""
+              style={{ width: 52, height: 52, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.4)" }}
+            />
+            <span style={{ fontSize: 24, color: "rgba(255,255,255,0.75)", fontWeight: 600 }}>
+              Verified by manu2print
             </span>
           </div>
         </div>
