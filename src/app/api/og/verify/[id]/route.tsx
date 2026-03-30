@@ -1,6 +1,8 @@
 import { ImageResponse } from "next/og";
+import { getStored } from "@/lib/storage";
 
-export const runtime = "edge";
+// Node runtime required — getStored uses AWS SDK (not edge-compatible)
+export const runtime = "nodejs";
 
 export async function GET(
   req: Request,
@@ -17,18 +19,23 @@ export async function GET(
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-  const res = await fetch(
-    `${supabaseUrl}/rest/v1/verification_results` +
-    `?verification_id=eq.${id}` +
-    `&select=readiness_score,issues_count,kdp_ready,trim_ok,margins_ok,bleed_ok,fonts_ok`,
-    { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
-  );
+  // Fetch DB + S3 in parallel — S3 is authoritative (same source as download page)
+  const [dbRes, stored] = await Promise.all([
+    fetch(
+      `${supabaseUrl}/rest/v1/verification_results` +
+      `?verification_id=eq.${id}` +
+      `&select=readiness_score,issues_count,kdp_ready,trim_ok,margins_ok,bleed_ok,fonts_ok`,
+      { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
+    ).then(r => r.json()).then(rows => rows?.[0] ?? null).catch(() => null),
+    getStored(id).catch(() => null),
+  ]);
 
-  const rows = await res.json();
-  const data = rows?.[0];
+  const data = dbRes;
+  const report = stored?.processingReport;
 
-  const score  = data?.readiness_score ?? 0;
-  const isPass = data?.kdp_ready === true || score >= 90;
+  // S3 is authoritative — same source the download page uses
+  const score  = report?.readinessScore100 ?? report?.readiness_score ?? data?.readiness_score ?? 0;
+  const isPass = report?.kdpReady === true || data?.kdp_ready === true || score >= 90;
 
   // Hook text — changes per variant
   const hookText =
@@ -44,7 +51,7 @@ export async function GET(
     variant === "fear" ? "Fix before upload." :
     "Check before you upload.";
 
-  // Show relevant checks only: PASS → only OK rows, FAIL → only failing rows
+  // Check columns — DB is the source (S3 report doesn't store these separately)
   const allChecks = [
     { label: "Trim Size", okLabel: "OK",       failLabel: "Incorrect",    ok: data?.trim_ok    ?? null },
     { label: "Margins",   okLabel: "OK",        failLabel: "Incorrect",    ok: data?.margins_ok ?? null },
