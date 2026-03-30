@@ -49,8 +49,6 @@ export async function GET(
     ? (isFb ? `${base}/shells/shell_pass_fb.png` : `${base}/shells/shell_pass_ig.png`)
     : (isFb ? `${base}/shells/shell_fail_fb.png` : `${base}/shells/shell_fail_ig.png`);
 
-  const logoUrl = `${base}/logo.png`;
-
   // Canvas matches the shell dimensions
   const W = isFb ? 1200 : 1080;
   const H = isFb ? 1500 : 1350;
@@ -63,10 +61,10 @@ export async function GET(
   const passGreen   = "#16A34A";
   const failRed     = "#DC2626";
 
-  // Text occupies the left ~56% of the white zone to stay clear of Manny
+  // Text occupies the left 44% of the white zone — Manny's hand starts ~x=480
   const padX  = fs(70);
-  const padY  = fs(70);
-  const textW = fs(580);
+  const padY  = fs(65);
+  const textW = fs(455);
 
   return new ImageResponse(
     (
@@ -99,12 +97,12 @@ export async function GET(
         >
           {/* Label */}
           <span style={{
-            fontSize: fs(26),
+            fontSize: fs(22),
             fontWeight: 700,
-            letterSpacing: "0.13em",
+            letterSpacing: "0.12em",
             textTransform: "uppercase",
             color: "#999",
-            marginBottom: fs(24),
+            marginBottom: fs(18),
             fontFamily: "system-ui, sans-serif",
           }}>
             KDP Pre-Check Result
@@ -112,12 +110,12 @@ export async function GET(
 
           {/* PASS / FAIL */}
           <span style={{
-            fontSize: fs(156),
+            fontSize: fs(148),
             fontWeight: 900,
             color: accentColor,
             lineHeight: 1,
             letterSpacing: "-4px",
-            marginBottom: fs(8),
+            marginBottom: fs(6),
             fontFamily: "system-ui, sans-serif",
           }}>
             {isPass ? "PASS" : "FAIL"}
@@ -125,39 +123,39 @@ export async function GET(
 
           {/* Subline */}
           <span style={{
-            fontSize: fs(36),
+            fontSize: fs(30),
             fontWeight: 700,
             color: "#333",
-            marginBottom: fs(36),
+            marginBottom: fs(28),
             fontFamily: "system-ui, sans-serif",
           }}>
             {subline}
           </span>
 
           {/* Score */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: fs(12) }}>
-            <span style={{ fontSize: fs(30), fontWeight: 600, color: "#555", fontFamily: "system-ui, sans-serif" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: fs(10) }}>
+            <span style={{ fontSize: fs(24), fontWeight: 600, color: "#555", fontFamily: "system-ui, sans-serif" }}>
               Readiness Score
             </span>
-            <span style={{ fontSize: fs(36), fontWeight: 900, color: accentColor, fontFamily: "system-ui, sans-serif" }}>
-              {score} / 100
+            <span style={{ fontSize: fs(28), fontWeight: 900, color: accentColor, fontFamily: "system-ui, sans-serif" }}>
+              {score}/100
             </span>
           </div>
 
           {/* Score bar */}
           <div style={{
-            height: fs(16),
+            height: fs(14),
             background: "#E5E7EB",
-            borderRadius: fs(8),
+            borderRadius: fs(7),
             overflow: "hidden",
             display: "flex",
-            marginBottom: fs(32),
+            marginBottom: fs(24),
           }}>
             <div style={{
               height: "100%",
               width: `${Math.max(score, 2)}%`,
               background: accentColor,
-              borderRadius: fs(8),
+              borderRadius: fs(7),
               display: "flex",
             }} />
           </div>
@@ -165,27 +163,27 @@ export async function GET(
           {/* Checks */}
           <div style={{
             background: "#F9FAFB",
-            borderRadius: fs(20),
-            padding: `${fs(24)}px ${fs(30)}px`,
+            borderRadius: fs(16),
+            padding: `${fs(18)}px ${fs(22)}px`,
             border: "2px solid #E5E7EB",
             display: "flex",
             flexDirection: "column",
-            marginBottom: fs(32),
+            marginBottom: fs(24),
           }}>
             {checks.map((c, i) => (
               <div key={c.label} style={{
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                paddingBottom: i < checks.length - 1 ? fs(20) : 0,
-                marginBottom: i < checks.length - 1 ? fs(20) : 0,
+                paddingBottom: i < checks.length - 1 ? fs(15) : 0,
+                marginBottom: i < checks.length - 1 ? fs(15) : 0,
                 borderBottom: i < checks.length - 1 ? "1px solid #EFEFEF" : "none",
               }}>
-                <span style={{ fontSize: fs(30), fontWeight: 600, color: "#374151", fontFamily: "system-ui, sans-serif" }}>
+                <span style={{ fontSize: fs(26), fontWeight: 600, color: "#374151", fontFamily: "system-ui, sans-serif" }}>
                   {c.label}
                 </span>
                 <span style={{
-                  fontSize: fs(30),
+                  fontSize: fs(26),
                   fontWeight: 800,
                   color: c.ok === null ? "#9CA3AF" : c.ok ? passGreen : failRed,
                   fontFamily: "system-ui, sans-serif",
@@ -196,27 +194,27 @@ export async function GET(
             ))}
             <div style={{
               borderTop: "1px solid #E5E7EB",
-              marginTop: fs(20),
-              paddingTop: fs(20),
+              marginTop: fs(15),
+              paddingTop: fs(15),
               display: "flex",
               justifyContent: "center",
             }}>
-              <span style={{ fontSize: fs(28), fontWeight: 900, color: accentColor, fontFamily: "system-ui, sans-serif" }}>
+              <span style={{ fontSize: fs(22), fontWeight: 900, color: accentColor, fontFamily: "system-ui, sans-serif" }}>
                 {summaryText}
               </span>
             </div>
           </div>
 
           {/* Hook */}
-          <span style={{ fontSize: fs(38), fontWeight: 900, color: "#111", fontFamily: "system-ui, sans-serif" }}>
+          <span style={{ fontSize: fs(30), fontWeight: 900, color: "#111", fontFamily: "system-ui, sans-serif" }}>
             Would YOUR PDF pass?
           </span>
-          <span style={{ fontSize: fs(26), color: "#9CA3AF", marginTop: fs(8), fontFamily: "system-ui, sans-serif" }}>
+          <span style={{ fontSize: fs(22), color: "#9CA3AF", marginTop: fs(6), fontFamily: "system-ui, sans-serif" }}>
             Free KDP pre-check · manu2print.com
           </span>
         </div>
 
-        {/* Bottom bar — logo image + verified text */}
+        {/* Bottom bar — styled wordmark + verified */}
         <div style={{
           position: "absolute",
           bottom: fs(32),
@@ -226,13 +224,11 @@ export async function GET(
           alignItems: "center",
           justifyContent: "space-between",
         }}>
-          {/* Logo image */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={logoUrl}
-            alt="manu2print"
-            style={{ height: fs(52), width: "auto", objectFit: "contain" }}
-          />
+          <span style={{ fontSize: fs(40), fontWeight: 900, fontFamily: "system-ui, sans-serif" }}>
+            <span style={{ color: "#F05A28" }}>manu</span>
+            <span style={{ color: "#111" }}>2</span>
+            <span style={{ color: "#16A34A" }}>print</span>
+          </span>
           <span style={{ fontSize: fs(26), fontWeight: 700, color: "#555", fontFamily: "system-ui, sans-serif" }}>
             Verified by manu2print.com
           </span>
