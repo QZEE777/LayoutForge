@@ -34,7 +34,7 @@ export async function GET(
   const report = stored?.processingReport;
 
   // S3 is authoritative — same source the download page uses
-  const score  = report?.readinessScore100 ?? report?.readiness_score ?? data?.readiness_score ?? 0;
+  const score  = report?.readinessScore100 ?? data?.readiness_score ?? 0;
   const isPass = report?.kdpReady === true || data?.kdp_ready === true || score >= 90;
 
   // Hook text — changes per variant
