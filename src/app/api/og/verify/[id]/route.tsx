@@ -1,8 +1,26 @@
 import { ImageResponse } from "next/og";
 import { getStored } from "@/lib/storage";
+import { computeCheckerScore } from "@/lib/scoreUtils";
 
 // Node runtime required — getStored uses AWS SDK (not edge-compatible)
 export const runtime = "nodejs";
+
+// Module-level font cache — nodejs runtime reuses across requests
+let _bebasFont: ArrayBuffer | null | undefined;
+async function loadBebasFont(): Promise<ArrayBuffer | null> {
+  if (_bebasFont !== undefined) return _bebasFont;
+  try {
+    const css = await fetch(
+      "https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap",
+      { headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" } }
+    ).then((r) => r.text());
+    const woffUrl = css.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+\.woff2)\)/)?.[1];
+    _bebasFont = woffUrl ? await fetch(woffUrl).then((r) => r.arrayBuffer()) : null;
+  } catch {
+    _bebasFont = null;
+  }
+  return _bebasFont ?? null;
+}
 
 export async function GET(
   req: Request,
@@ -19,22 +37,28 @@ export async function GET(
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-  // Fetch DB + S3 in parallel — S3 is authoritative (same source as download page)
-  const [dbRes, stored] = await Promise.all([
+  // Fetch DB + S3 in parallel — S3 is authoritative
+  const [dbRes, stored, bebasFont] = await Promise.all([
     fetch(
       `${supabaseUrl}/rest/v1/verification_results` +
       `?verification_id=eq.${id}` +
       `&select=readiness_score,issues_count,kdp_ready,trim_ok,margins_ok,bleed_ok,fonts_ok`,
       { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
-    ).then(r => r.json()).then(rows => rows?.[0] ?? null).catch(() => null),
+    ).then((r) => r.json()).then((rows) => rows?.[0] ?? null).catch(() => null),
     getStored(id).catch(() => null),
+    loadBebasFont(),
   ]);
 
-  const data = dbRes;
+  const data   = dbRes;
   const report = stored?.processingReport;
 
-  // S3 is authoritative — same source the download page uses
-  const score  = report?.readinessScore100 ?? data?.readiness_score ?? 0;
+  // Use the SAME scoring algorithm as the download page
+  const computedScore =
+    report?.outputType === "checker" && report.issuesEnriched
+      ? computeCheckerScore(report.issuesEnriched)
+      : null;
+
+  const score  = computedScore ?? report?.readinessScore100 ?? data?.readiness_score ?? 0;
   const isPass = report?.kdpReady === true || data?.kdp_ready === true || score >= 90;
 
   // Hook text — changes per variant
@@ -53,23 +77,30 @@ export async function GET(
     { label: "Fonts",     ok: data?.fonts_ok   ?? null },
   ];
 
-  const visibleChecks = allChecks.filter(c =>
+  const visibleChecks = allChecks.filter((c) =>
     c.ok === null ? true : isPass ? c.ok === true : c.ok === false
   );
 
-  // Colours — orange for FAIL, deep green for PASS
+  // Background gradient
   const bgTop    = isPass ? "#1a5f3f" : "#C35B00";
   const bgBottom = isPass ? "#2d8659" : "#E65100";
-  // Accent — high-contrast orange on both backgrounds
-  const accent   = isPass ? "#FFA040" : "#FFD480";
+  // Accent — orange on green PASS, vivid green on orange FAIL
+  const accent   = isPass ? "#FFA040" : "#FFA040";
+  // Verdict text — contrasting colour draws the eye
+  const verdictColor = isPass ? "#FF8C00" : "#4CE87A";
 
   const base      = "https://www.manu2print.com";
   const avatarUrl = `${base}/manny-avatar.png`;
 
+  // Font family — use Bebas Neue when available (matches website)
+  const displayFont = bebasFont
+    ? "'Bebas Neue', system-ui, sans-serif"
+    : "system-ui, sans-serif";
+
   // Canvas size
   const W = isFb ? 1200 : 1080;
   const H = isFb ? 1500 : 1350;
-  const S = isFb ? 1200 / 1080 : 1; // scale all sizes proportionally
+  const S = isFb ? 1200 / 1080 : 1;
   const fs = (n: number) => Math.round(n * S);
 
   return new ImageResponse(
@@ -81,59 +112,58 @@ export async function GET(
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          padding: `${fs(60)}px ${fs(64)}px ${fs(48)}px ${fs(64)}px`,
+          padding: `${fs(56)}px ${fs(64)}px ${fs(48)}px ${fs(64)}px`,
           background: `linear-gradient(180deg, ${bgTop} 0%, ${bgBottom} 100%)`,
           fontFamily: "system-ui, sans-serif",
         }}
       >
-        {/* Hook — variant-driven, top of card */}
+        {/* Hook — variant-driven */}
         <span style={{
-          fontSize: fs(54),
+          fontSize: fs(52),
           fontWeight: 900,
           color: accent,
           letterSpacing: "-0.01em",
-          marginBottom: fs(32),
+          marginBottom: fs(28),
           textAlign: "center",
           lineHeight: 1.1,
         }}>
           {hookText}
         </span>
 
-        {/* PASS / FAIL + emoji */}
-        <div style={{ display: "flex", alignItems: "center", gap: fs(24), marginBottom: fs(16) }}>
+        {/* PASS / FAIL — no emoji, contrasting colour, Bebas Neue */}
+        <div style={{ display: "flex", alignItems: "center", marginBottom: fs(8) }}>
           <span style={{
-            fontSize: fs(148),
+            fontSize: fs(180),
             fontWeight: 900,
-            color: "#FFFFFF",
+            fontFamily: displayFont,
+            color: verdictColor,
             lineHeight: 1,
-            letterSpacing: "-4px",
+            letterSpacing: "2px",
           }}>
             {isPass ? "PASS" : "FAIL"}
           </span>
-          <span style={{ fontSize: fs(96) }}>
-            {isPass ? "✅" : "⚠️"}
-          </span>
         </div>
 
-        {/* Score — prominent but not competing with PASS/FAIL */}
+        {/* Score — large number / small /100 */}
         <div style={{
           display: "flex",
           alignItems: "baseline",
-          gap: fs(8),
-          marginBottom: fs(44),
+          gap: fs(6),
+          marginBottom: fs(40),
         }}>
           <span style={{
-            fontSize: fs(90),
+            fontSize: fs(108),
             fontWeight: 900,
+            fontFamily: displayFont,
             color: "#FFFFFF",
             lineHeight: 1,
           }}>
             {score}
           </span>
           <span style={{
-            fontSize: fs(44),
+            fontSize: fs(48),
             fontWeight: 700,
-            color: "rgba(255,255,255,0.55)",
+            color: "rgba(255,255,255,0.50)",
           }}>
             /100
           </span>
@@ -145,10 +175,10 @@ export async function GET(
           background: "rgba(255,255,255,0.10)",
           borderRadius: fs(24),
           border: "1.5px solid rgba(255,255,255,0.20)",
-          padding: `${fs(36)}px ${fs(44)}px`,
+          padding: `${fs(32)}px ${fs(44)}px`,
           display: "flex",
           flexDirection: "column",
-          marginBottom: fs(40),
+          marginBottom: fs(36),
         }}>
           {visibleChecks.map((c, i) => (
             <div
@@ -156,36 +186,36 @@ export async function GET(
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                paddingBottom: i < visibleChecks.length - 1 ? fs(22) : 0,
-                marginBottom: i < visibleChecks.length - 1 ? fs(22) : 0,
+                paddingBottom: i < visibleChecks.length - 1 ? fs(20) : 0,
+                marginBottom: i < visibleChecks.length - 1 ? fs(20) : 0,
                 borderBottom: i < visibleChecks.length - 1 ? "1px solid rgba(255,255,255,0.15)" : "none",
               }}
             >
-              <span style={{ fontSize: fs(36), fontWeight: 700, color: "#FFFFFF" }}>
-                {c.label}:
+              <span style={{ fontSize: fs(34), fontWeight: 700, color: "#FFFFFF" }}>
+                {c.label}
               </span>
-              <span style={{ fontSize: fs(36), fontWeight: 700, color: "rgba(255,255,255,0.90)" }}>
+              <span style={{ fontSize: fs(34), fontWeight: 700, color: "rgba(255,255,255,0.90)" }}>
                 {c.ok === null ? "—" : c.ok ? "✔" : "✗"}
               </span>
             </div>
           ))}
         </div>
 
-        {/* CTA block */}
+        {/* CTA block — centered, orange, stacked lines */}
         <div style={{
           width: "100%",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          marginBottom: fs(40),
+          marginBottom: fs(36),
         }}>
-          <span style={{ fontSize: fs(36), fontWeight: 800, color: accent, marginBottom: fs(10), textAlign: "center" }}>
+          <span style={{ fontSize: fs(34), fontWeight: 800, color: accent, marginBottom: fs(8), textAlign: "center" }}>
             Check before you upload.
           </span>
-          <span style={{ fontSize: fs(56), fontWeight: 900, color: accent, lineHeight: 1.15, textAlign: "center" }}>
+          <span style={{ fontSize: fs(54), fontWeight: 900, color: accent, lineHeight: 1.15, textAlign: "center" }}>
             Run your file.
           </span>
-          <span style={{ fontSize: fs(56), fontWeight: 900, color: accent, lineHeight: 1.15, textAlign: "center" }}>
+          <span style={{ fontSize: fs(54), fontWeight: 900, color: accent, lineHeight: 1.15, textAlign: "center" }}>
             See your score.
           </span>
         </div>
@@ -194,36 +224,42 @@ export async function GET(
         <div style={{
           width: "100%",
           borderTop: "1px solid rgba(255,255,255,0.20)",
-          paddingTop: fs(28),
+          paddingTop: fs(24),
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           marginTop: "auto",
         }}>
-          <span style={{ fontSize: fs(56), fontWeight: 900, letterSpacing: "-1.5px" }}>
+          <span style={{ fontSize: fs(56), fontWeight: 900, fontFamily: displayFont, letterSpacing: "1px" }}>
             <span style={{ color: "#FFA040" }}>manu</span>
             <span style={{ color: "#FFFFFF" }}>2</span>
             <span style={{ color: "#A8E6A3" }}>print</span>
           </span>
 
-          <span style={{ fontSize: fs(32), color: "rgba(255,255,255,0.70)", fontWeight: 700 }}>
+          <span style={{ fontSize: fs(30), color: "rgba(255,255,255,0.70)", fontWeight: 700 }}>
             manu2print.com
           </span>
 
-          <div style={{ display: "flex", alignItems: "center", gap: fs(14) }}>
+          <div style={{ display: "flex", alignItems: "center", gap: fs(12) }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={avatarUrl}
               alt=""
-              style={{ width: fs(60), height: fs(60), borderRadius: "50%", border: "2px solid rgba(255,255,255,0.4)" }}
+              style={{ width: fs(58), height: fs(58), borderRadius: "50%", border: "2px solid rgba(255,255,255,0.4)" }}
             />
-            <span style={{ fontSize: fs(28), color: "rgba(255,255,255,0.80)", fontWeight: 700 }}>
+            <span style={{ fontSize: fs(26), color: "rgba(255,255,255,0.80)", fontWeight: 700 }}>
               Verified by manu2print
             </span>
           </div>
         </div>
       </div>
     ),
-    { width: W, height: H }
+    {
+      width: W,
+      height: H,
+      fonts: bebasFont
+        ? [{ name: "Bebas Neue", data: bebasFont, style: "normal" as const, weight: 400 }]
+        : [],
+    }
   );
 }

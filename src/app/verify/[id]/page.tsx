@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { getStored } from "@/lib/storage";
+import { computeCheckerScore } from "@/lib/scoreUtils";
 import { VerifyClient } from "./client";
 
 interface VerifyPageProps {
@@ -67,12 +68,17 @@ export default async function VerifyPage({ params, searchParams }: VerifyPagePro
   }
 
   // S3 processingReport is the authoritative source (same data download page uses)
-  // DB is the fast fallback. If either says PASS, it's a PASS.
-  const s3KdpReady    = stored?.processingReport?.kdpReady ?? null;
-  const s3Score       = stored?.processingReport?.readinessScore100 ?? null;
+  const report        = stored?.processingReport;
 
-  const score  = s3Score ?? data.readiness_score ?? 0;
-  const isPass = s3KdpReady === true || data.kdp_ready === true || score >= 90;
+  // Use the SAME scoring algorithm as the download page (recalculate from issuesEnriched)
+  // so that verify page always shows the same number the user saw on their report.
+  const computedScore =
+    report?.outputType === "checker" && report.issuesEnriched
+      ? computeCheckerScore(report.issuesEnriched)
+      : null;
+
+  const score  = computedScore ?? report?.readinessScore100 ?? data.readiness_score ?? 0;
+  const isPass = report?.kdpReady === true || data.kdp_ready === true || score >= 90;
 
   const statusLevel =
     isPass      ? "ready" :
