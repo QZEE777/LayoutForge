@@ -239,121 +239,121 @@ export function SocialCard({
       </div>
 
       {/* ═══════════════════════════════════════════
-          HOW TO SHARE
+          HOW TO SHARE — dead simple, no confusion
       ═══════════════════════════════════════════ */}
+
+      {/* STEP 1 — Download (primary action) */}
       <div style={{
         marginTop: 20,
         width: "100%",
         maxWidth: 400,
-        background: "rgba(255,255,255,0.05)",
-        borderRadius: 16,
-        padding: "18px 20px",
-        border: "1px solid rgba(255,255,255,0.08)",
       }}>
         <p style={{
-          margin: "0 0 14px",
+          margin: "0 0 8px",
           fontSize: 11,
           fontWeight: 700,
-          color: "rgba(255,255,255,0.5)",
-          letterSpacing: "0.1em",
+          letterSpacing: "0.12em",
           textTransform: "uppercase",
-        }}>
-          📱 Share to social media
-        </p>
-
-        <p style={{ margin: "0 0 6px", fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.8)" }}>
-          On your phone
-        </p>
-        {[
-          "Press & hold the card above → Save Image",
-          "Post to Instagram, Facebook or LinkedIn",
-          "Paste your unique share link in the caption",
-        ].map((step, i) => (
-          <div key={i} style={{ display: "flex", gap: 9, alignItems: "flex-start", marginBottom: 7 }}>
-            <span style={{
-              minWidth: 20, height: 20,
-              background: accentColor, color: "#fff",
-              fontWeight: 800, fontSize: 10,
-              borderRadius: "50%",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              flexShrink: 0, marginTop: 1,
-            }}>{i + 1}</span>
-            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", margin: 0, lineHeight: 1.5 }}>{step}</p>
-          </div>
-        ))}
-
-        <p style={{ margin: "12px 0 6px", fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.8)" }}>
-          On desktop
-        </p>
-        {[
-          "Click \"Download card image\" below",
-          "Upload the image when posting on Facebook or LinkedIn",
-          "Paste your unique share link in the caption",
-        ].map((step, i) => (
-          <div key={i} style={{ display: "flex", gap: 9, alignItems: "flex-start", marginBottom: 7 }}>
-            <span style={{
-              minWidth: 20, height: 20,
-              background: accentColor, color: "#fff",
-              fontWeight: 800, fontSize: 10,
-              borderRadius: "50%",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              flexShrink: 0, marginTop: 1,
-            }}>{i + 1}</span>
-            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", margin: 0, lineHeight: 1.5 }}>{step}</p>
-          </div>
-        ))}
-
-        {/* Download */}
-        <a
-          href={`/api/og/verify/${verificationId}`}
-          download="manu2print-result.png"
-          style={{
-            display: "block",
-            width: "100%",
-            marginTop: 14,
-            padding: "13px 0",
-            background: accentColor,
-            color: "#fff",
-            fontWeight: 800,
-            fontSize: 14,
-            borderRadius: 10,
-            cursor: "pointer",
-            textAlign: "center",
-            textDecoration: "none",
-            boxSizing: "border-box",
-          }}
-        >
-          ⬇️ Download card image
-        </a>
-
-        {/* Copy link */}
-        <button
-          onClick={copyLink}
-          style={{
-            width: "100%",
-            marginTop: 10,
-            padding: "13px 0",
-            background: "rgba(255,255,255,0.08)",
-            color: "#fff",
-            fontWeight: 700,
-            fontSize: 14,
-            border: "1px solid rgba(255,255,255,0.15)",
-            borderRadius: 10,
-            cursor: "pointer",
-          }}
-        >
-          {copied ? "✓ Copied! Paste into your caption" : "📋 Copy your share link"}
-        </button>
-
-        <p style={{
-          margin: "10px 0 0",
-          fontSize: 11,
-          color: "rgba(255,255,255,0.28)",
+          color: "rgba(255,255,255,0.4)",
           textAlign: "center",
-          lineHeight: 1.5,
         }}>
-          Your link is unique — when someone buys a scan through it, you earn a free credit.
+          How to share this card
         </p>
+
+        {/* Step 1 */}
+        <div style={{
+          background: accentColor,
+          borderRadius: 14,
+          padding: "16px 20px",
+          marginBottom: 10,
+        }}>
+          <p style={{ margin: "0 0 4px", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.75)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+            Step 1
+          </p>
+          <p style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 900, color: "#fff" }}>
+            Download this image
+          </p>
+          <a
+            href={`/api/og/verify/${verificationId}`}
+            download="manu2print-result.png"
+            style={{
+              display: "block",
+              width: "100%",
+              padding: "14px 0",
+              background: "#fff",
+              color: accentColor,
+              fontWeight: 900,
+              fontSize: 15,
+              borderRadius: 10,
+              textAlign: "center",
+              textDecoration: "none",
+              boxSizing: "border-box",
+            }}
+          >
+            ⬇️ Download card image
+          </a>
+        </div>
+
+        {/* Step 2 */}
+        <div style={{
+          background: "rgba(255,255,255,0.07)",
+          borderRadius: 14,
+          padding: "16px 20px",
+          marginBottom: 10,
+          border: "1px solid rgba(255,255,255,0.1)",
+        }}>
+          <p style={{ margin: "0 0 4px", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+            Step 2
+          </p>
+          <p style={{ margin: "0 0 10px", fontSize: 16, fontWeight: 900, color: "#fff" }}>
+            Post the image to LinkedIn / Instagram / Facebook
+          </p>
+          <p style={{ margin: 0, fontSize: 12, color: "rgba(255,255,255,0.5)", lineHeight: 1.6 }}>
+            On LinkedIn → click <strong style={{ color: "rgba(255,255,255,0.8)" }}>"Photo"</strong> and upload the image.{"\n"}
+            On Instagram → tap <strong style={{ color: "rgba(255,255,255,0.8)" }}>+ New Post</strong> and select the image.{"\n"}
+            <strong style={{ color: "#ff6b6b" }}>Do NOT paste your link as a post</strong> — upload the image file.
+          </p>
+        </div>
+
+        {/* Step 3 */}
+        <div style={{
+          background: "rgba(255,255,255,0.07)",
+          borderRadius: 14,
+          padding: "16px 20px",
+          border: "1px solid rgba(255,255,255,0.1)",
+        }}>
+          <p style={{ margin: "0 0 4px", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+            Step 3
+          </p>
+          <p style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 900, color: "#fff" }}>
+            Paste your share link in the caption
+          </p>
+          <button
+            onClick={copyLink}
+            style={{
+              width: "100%",
+              padding: "13px 0",
+              background: "rgba(255,255,255,0.1)",
+              color: "#fff",
+              fontWeight: 700,
+              fontSize: 14,
+              border: "1px solid rgba(255,255,255,0.2)",
+              borderRadius: 10,
+              cursor: "pointer",
+            }}
+          >
+            {copied ? "✓ Copied! Now paste into your caption" : "📋 Copy caption link"}
+          </button>
+          <p style={{
+            margin: "8px 0 0",
+            fontSize: 11,
+            color: "rgba(255,255,255,0.28)",
+            textAlign: "center",
+            lineHeight: 1.5,
+          }}>
+            When someone buys a scan through your link, you earn a free credit.
+          </p>
+        </div>
       </div>
 
       <a
