@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+type Variant = "ego" | "fear" | "curiosity";
+
 interface Props {
   verifyUrl: string;
   verificationId: string;
@@ -10,10 +12,24 @@ interface Props {
 }
 
 export function SocialCard({ verifyUrl, verificationId, shToken, isPass }: Props) {
-  const [copied, setCopied] = useState(false);
+  const defaultVariant: Variant = isPass ? "ego" : "fear";
+  const [variant, setVariant]   = useState<Variant>(defaultVariant);
+  const [copied, setCopied]     = useState(false);
+  const [clipped, setClipped]   = useState<"idle" | "copying" | "done" | "error">("idle");
 
   const accentColor = isPass ? "#16A34A" : "#EA580C";
   const backHref    = `/verify/${verificationId}${shToken ? `?sh=${shToken}` : ""}`;
+
+  const ogBase   = `/api/og/verify/${verificationId}`;
+  const igUrl    = `${ogBase}?v=${variant}`;
+  const fbUrl    = `${ogBase}?v=${variant}&format=fb`;
+
+  // Available variants depend on result
+  const variants: { id: Variant; label: string; sub: string }[] = [
+    ...(isPass  ? [{ id: "ego"       as Variant, label: "EGO",       sub: "Brag about your pass"    }] : []),
+    ...(!isPass ? [{ id: "fear"      as Variant, label: "FEAR",      sub: "Warn your audience"      }] : []),
+    {             id: "curiosity",               label: "CURIOSITY", sub: "Most viral — works both" },
+  ];
 
   function copyLink() {
     navigator.clipboard.writeText(verifyUrl).then(() => {
@@ -22,6 +38,27 @@ export function SocialCard({ verifyUrl, verificationId, shToken, isPass }: Props
     });
   }
 
+  async function copyImageToClipboard() {
+    setClipped("copying");
+    try {
+      const blob = await fetch(igUrl).then(r => r.blob());
+      await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+      setClipped("done");
+      setTimeout(() => setClipped("idle"), 3000);
+    } catch {
+      // Fallback: open image in new tab for manual copy
+      window.open(igUrl, "_blank");
+      setClipped("error");
+      setTimeout(() => setClipped("idle"), 3000);
+    }
+  }
+
+  const clipLabel =
+    clipped === "copying" ? "Copying…" :
+    clipped === "done"    ? "✓ Copied to clipboard!" :
+    clipped === "error"   ? "Opened in new tab — save from there" :
+    "Copy image to clipboard";
+
   return (
     <div style={{
       minHeight: "100vh",
@@ -29,33 +66,19 @@ export function SocialCard({ verifyUrl, verificationId, shToken, isPass }: Props
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      justifyContent: "center",
-      padding: "24px 16px 40px",
+      justifyContent: "flex-start",
+      padding: "32px 16px 48px",
       fontFamily: "system-ui, sans-serif",
     }}>
 
-      {/* ── LIVE PREVIEW — exactly what you download ── */}
+      {/* ── VARIANT SELECTOR ── */}
       <div style={{
         width: "100%",
         maxWidth: 400,
-        borderRadius: 22,
-        overflow: "hidden",
-        boxShadow: "0 24px 80px rgba(0,0,0,0.6)",
-        marginBottom: 24,
+        marginBottom: 20,
       }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={`/api/og/verify/${verificationId}`}
-          alt="Your KDP result card"
-          style={{ width: "100%", display: "block" }}
-        />
-      </div>
-
-      {/* ── STEPS ── */}
-      <div style={{ width: "100%", maxWidth: 400 }}>
-
         <p style={{
-          margin: "0 0 12px",
+          margin: "0 0 10px",
           fontSize: 11,
           fontWeight: 700,
           letterSpacing: "0.12em",
@@ -63,25 +86,89 @@ export function SocialCard({ verifyUrl, verificationId, shToken, isPass }: Props
           color: "rgba(255,255,255,0.4)",
           textAlign: "center",
         }}>
-          How to share this card
+          Choose your message
         </p>
+        <div style={{ display: "flex", gap: 8 }}>
+          {variants.map(v => (
+            <button
+              key={v.id}
+              onClick={() => setVariant(v.id)}
+              style={{
+                flex: 1,
+                padding: "12px 8px",
+                background: variant === v.id ? accentColor : "rgba(255,255,255,0.07)",
+                color: variant === v.id ? "#fff" : "rgba(255,255,255,0.55)",
+                border: variant === v.id
+                  ? `2px solid ${accentColor}`
+                  : "2px solid rgba(255,255,255,0.12)",
+                borderRadius: 10,
+                cursor: "pointer",
+                fontWeight: 800,
+                fontSize: 13,
+                lineHeight: 1.3,
+                textAlign: "center",
+              }}
+            >
+              {v.label}
+              <span style={{
+                display: "block",
+                fontSize: 10,
+                fontWeight: 500,
+                opacity: 0.75,
+                marginTop: 3,
+              }}>
+                {v.sub}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
 
-        {/* Step 1 — Download */}
+      {/* ── LIVE PREVIEW — exactly what you download ── */}
+      <div style={{
+        width: "100%",
+        maxWidth: 400,
+        borderRadius: 18,
+        overflow: "hidden",
+        boxShadow: "0 20px 60px rgba(0,0,0,0.7)",
+        marginBottom: 24,
+      }}>
+        {/* Key on variant forces img reload when variant changes */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          key={variant}
+          src={igUrl}
+          alt="Your KDP result card"
+          style={{ width: "100%", display: "block" }}
+        />
+      </div>
+
+      {/* ── ACTIONS ── */}
+      <div style={{ width: "100%", maxWidth: 400 }}>
+
+        {/* Download buttons */}
         <div style={{
           background: accentColor,
           borderRadius: 14,
           padding: "16px 20px",
           marginBottom: 10,
         }}>
-          <p style={{ margin: "0 0 4px", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.75)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
-            Step 1
+          <p style={{
+            margin: "0 0 4px",
+            fontSize: 11,
+            fontWeight: 700,
+            color: "rgba(255,255,255,0.75)",
+            letterSpacing: "0.1em",
+            textTransform: "uppercase",
+          }}>
+            Step 1 — Download
           </p>
-          <p style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 900, color: "#fff" }}>
-            Download your card
+          <p style={{ margin: "0 0 14px", fontSize: 16, fontWeight: 900, color: "#fff" }}>
+            Save your card
           </p>
           <a
-            href={`/api/og/verify/${verificationId}`}
-            download="manu2print-result-ig.png"
+            href={igUrl}
+            download={`manu2print-${variant}-ig.png`}
             style={{
               display: "block",
               width: "100%",
@@ -100,8 +187,8 @@ export function SocialCard({ verifyUrl, verificationId, shToken, isPass }: Props
             ⬇️ Instagram &amp; LinkedIn (1080×1350)
           </a>
           <a
-            href={`/api/og/verify/${verificationId}?format=fb`}
-            download="manu2print-result-fb.png"
+            href={fbUrl}
+            download={`manu2print-${variant}-fb.png`}
             style={{
               display: "block",
               width: "100%",
@@ -121,7 +208,27 @@ export function SocialCard({ verifyUrl, verificationId, shToken, isPass }: Props
           </a>
         </div>
 
-        {/* Step 2 — Post image */}
+        {/* Copy image to clipboard */}
+        <button
+          onClick={copyImageToClipboard}
+          disabled={clipped === "copying"}
+          style={{
+            width: "100%",
+            padding: "14px 0",
+            background: "rgba(255,255,255,0.09)",
+            color: clipped === "done" ? "#4ade80" : clipped === "error" ? "#f87171" : "rgba(255,255,255,0.75)",
+            fontWeight: 700,
+            fontSize: 14,
+            border: "1.5px solid rgba(255,255,255,0.15)",
+            borderRadius: 12,
+            cursor: clipped === "copying" ? "wait" : "pointer",
+            marginBottom: 10,
+          }}
+        >
+          {clipLabel}
+        </button>
+
+        {/* Post instructions */}
         <div style={{
           background: "rgba(255,255,255,0.07)",
           borderRadius: 14,
@@ -130,19 +237,19 @@ export function SocialCard({ verifyUrl, verificationId, shToken, isPass }: Props
           border: "1px solid rgba(255,255,255,0.1)",
         }}>
           <p style={{ margin: "0 0 4px", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
-            Step 2
+            Step 2 — Post
           </p>
-          <p style={{ margin: "0 0 8px", fontSize: 16, fontWeight: 900, color: "#fff" }}>
-            Post the image on LinkedIn / Instagram / Facebook
+          <p style={{ margin: "0 0 8px", fontSize: 15, fontWeight: 800, color: "#fff" }}>
+            Upload the image on LinkedIn / Instagram / Facebook
           </p>
           <p style={{ margin: 0, fontSize: 12, color: "rgba(255,255,255,0.5)", lineHeight: 1.6 }}>
-            LinkedIn → click <strong style={{ color: "rgba(255,255,255,0.8)" }}>Photo</strong> and upload the file.{" "}
-            Instagram → tap <strong style={{ color: "rgba(255,255,255,0.8)" }}>+ New Post</strong> and select the image.{" "}
-            <strong style={{ color: "#ff6b6b" }}>Do NOT paste a link</strong> — upload the image file directly.
+            LinkedIn → <strong style={{ color: "rgba(255,255,255,0.8)" }}>Photo</strong> → upload file.{" "}
+            Instagram → <strong style={{ color: "rgba(255,255,255,0.8)" }}>+ New Post</strong> → select image.{" "}
+            <strong style={{ color: "#f87171" }}>Do not paste a link</strong> — upload the image file.
           </p>
         </div>
 
-        {/* Step 3 — Caption link */}
+        {/* Caption link */}
         <div style={{
           background: "rgba(255,255,255,0.07)",
           borderRadius: 14,
@@ -150,9 +257,9 @@ export function SocialCard({ verifyUrl, verificationId, shToken, isPass }: Props
           border: "1px solid rgba(255,255,255,0.1)",
         }}>
           <p style={{ margin: "0 0 4px", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
-            Step 3
+            Step 3 — Caption
           </p>
-          <p style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 900, color: "#fff" }}>
+          <p style={{ margin: "0 0 12px", fontSize: 15, fontWeight: 800, color: "#fff" }}>
             Paste your share link in the caption
           </p>
           <button
@@ -172,14 +279,14 @@ export function SocialCard({ verifyUrl, verificationId, shToken, isPass }: Props
             {copied ? "✓ Copied! Paste into your caption" : "📋 Copy caption link"}
           </button>
           <p style={{ margin: "8px 0 0", fontSize: 11, color: "rgba(255,255,255,0.28)", textAlign: "center" }}>
-            When someone buys a scan through your link, you earn a free credit.
+            Someone buys through your link → you earn a free scan credit.
           </p>
         </div>
       </div>
 
       <a
         href={backHref}
-        style={{ marginTop: 18, fontSize: 12, color: "rgba(255,255,255,0.28)", textDecoration: "none" }}
+        style={{ marginTop: 20, fontSize: 12, color: "rgba(255,255,255,0.28)", textDecoration: "none" }}
       >
         ← Back to your result
       </a>
