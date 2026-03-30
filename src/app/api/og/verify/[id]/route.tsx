@@ -60,6 +60,8 @@ export async function GET(
   // Colours — orange for FAIL, deep green for PASS
   const bgTop    = isPass ? "#1a5f3f" : "#C35B00";
   const bgBottom = isPass ? "#2d8659" : "#E65100";
+  // Accent — high-contrast orange on both backgrounds
+  const accent   = isPass ? "#FFA040" : "#FFD480";
 
   const base      = "https://www.manu2print.com";
   const avatarUrl = `${base}/manny-avatar.png`;
@@ -86,12 +88,13 @@ export async function GET(
       >
         {/* Hook — variant-driven, top of card */}
         <span style={{
-          fontSize: fs(32),
-          fontWeight: 600,
-          color: "rgba(255,255,255,0.80)",
-          letterSpacing: "0.02em",
-          marginBottom: fs(28),
+          fontSize: fs(54),
+          fontWeight: 900,
+          color: accent,
+          letterSpacing: "-0.01em",
+          marginBottom: fs(32),
           textAlign: "center",
+          lineHeight: 1.1,
         }}>
           {hookText}
         </span>
@@ -173,15 +176,17 @@ export async function GET(
           width: "100%",
           display: "flex",
           flexDirection: "column",
-          alignItems: "flex-start",
+          alignItems: "center",
           marginBottom: fs(40),
-          paddingLeft: fs(8),
         }}>
-          <span style={{ fontSize: fs(30), color: "rgba(255,255,255,0.75)", marginBottom: fs(8) }}>
+          <span style={{ fontSize: fs(36), fontWeight: 800, color: accent, marginBottom: fs(10), textAlign: "center" }}>
             Check before you upload.
           </span>
-          <span style={{ fontSize: fs(40), fontWeight: 900, color: "#FFFFFF" }}>
-            Run your file. See your score.
+          <span style={{ fontSize: fs(56), fontWeight: 900, color: accent, lineHeight: 1.15, textAlign: "center" }}>
+            Run your file.
+          </span>
+          <span style={{ fontSize: fs(56), fontWeight: 900, color: accent, lineHeight: 1.15, textAlign: "center" }}>
+            See your score.
           </span>
         </div>
 
@@ -195,13 +200,13 @@ export async function GET(
           justifyContent: "space-between",
           marginTop: "auto",
         }}>
-          <span style={{ fontSize: fs(42), fontWeight: 900, letterSpacing: "-1px" }}>
+          <span style={{ fontSize: fs(56), fontWeight: 900, letterSpacing: "-1.5px" }}>
             <span style={{ color: "#FFA040" }}>manu</span>
             <span style={{ color: "#FFFFFF" }}>2</span>
             <span style={{ color: "#A8E6A3" }}>print</span>
           </span>
 
-          <span style={{ fontSize: fs(28), color: "rgba(255,255,255,0.70)", fontWeight: 600 }}>
+          <span style={{ fontSize: fs(32), color: "rgba(255,255,255,0.70)", fontWeight: 700 }}>
             manu2print.com
           </span>
 
@@ -210,9 +215,9 @@ export async function GET(
             <img
               src={avatarUrl}
               alt=""
-              style={{ width: fs(52), height: fs(52), borderRadius: "50%", border: "2px solid rgba(255,255,255,0.4)" }}
+              style={{ width: fs(60), height: fs(60), borderRadius: "50%", border: "2px solid rgba(255,255,255,0.4)" }}
             />
-            <span style={{ fontSize: fs(24), color: "rgba(255,255,255,0.75)", fontWeight: 600 }}>
+            <span style={{ fontSize: fs(28), color: "rgba(255,255,255,0.80)", fontWeight: 700 }}>
               Verified by manu2print
             </span>
           </div>
