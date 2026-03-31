@@ -5,23 +5,6 @@ import { computeCheckerScore } from "@/lib/scoreUtils";
 // Node runtime required — getStored uses AWS SDK (not edge-compatible)
 export const runtime = "nodejs";
 
-// Module-level font cache — nodejs runtime reuses across requests
-let _bebasFont: ArrayBuffer | null | undefined;
-async function loadBebasFont(): Promise<ArrayBuffer | null> {
-  if (_bebasFont !== undefined) return _bebasFont;
-  try {
-    const css = await fetch(
-      "https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap",
-      { headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" } }
-    ).then((r) => r.text());
-    const woffUrl = css.match(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+\.woff2)\)/)?.[1];
-    _bebasFont = woffUrl ? await fetch(woffUrl).then((r) => r.arrayBuffer()) : null;
-  } catch {
-    _bebasFont = null;
-  }
-  return _bebasFont ?? null;
-}
-
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -38,7 +21,7 @@ export async function GET(
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
   // Fetch DB + S3 in parallel — S3 is authoritative
-  const [dbRes, stored, bebasFont] = await Promise.all([
+  const [dbRes, stored] = await Promise.all([
     fetch(
       `${supabaseUrl}/rest/v1/verification_results` +
       `?verification_id=eq.${id}` +
@@ -46,7 +29,6 @@ export async function GET(
       { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
     ).then((r) => r.json()).then((rows) => rows?.[0] ?? null).catch(() => null),
     getStored(id).catch(() => null),
-    loadBebasFont(),
   ]);
 
   const data   = dbRes;
@@ -92,10 +74,7 @@ export async function GET(
   const base      = "https://www.manu2print.com";
   const avatarUrl = `${base}/manny-avatar.png`;
 
-  // Font family — use Bebas Neue when available (matches website)
-  const displayFont = bebasFont
-    ? "'Bebas Neue', system-ui, sans-serif"
-    : "system-ui, sans-serif";
+  const displayFont = "system-ui, sans-serif";
 
   // Canvas size
   const W = isFb ? 1200 : 1080;
@@ -254,12 +233,6 @@ export async function GET(
         </div>
       </div>
     ),
-    {
-      width: W,
-      height: H,
-      fonts: bebasFont
-        ? [{ name: "Bebas Neue", data: bebasFont, style: "normal" as const, weight: 400 }]
-        : [],
-    }
+    { width: W, height: H }
   );
 }
