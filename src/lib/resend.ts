@@ -510,16 +510,34 @@ export async function sendWelcomeEmail(to: string, downloadUrl: string) {
     <tr>
       <td style="padding: 36px 32px 24px; background: #FAF7EE;">
 
-        <p style="font-size: 22px; font-weight: 700; color: #1A1208; margin: 0 0 16px; line-height: 1.3;">
-          Hey — your KDP report is waiting for you. 👋
+        <p style="font-size: 22px; font-weight: 700; color: #1A1208; margin: 0 0 20px; line-height: 1.3;">
+          Your KDP readiness score is ready.
+        </p>
+
+        <p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 6px;">
+          I'm Manny. I built manu2print after watching too many solid books get rejected for things no one warns you about.
+        </p>
+
+        <p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 6px;">
+          Margins slightly off.<br>
+          Bleed missing.<br>
+          Fonts not embedded.
         </p>
 
         <p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 20px;">
-          I'm Manny. I built manu2print because I kept watching indie authors get rejected by KDP for formatting issues that are totally fixable — if you know what to look for.
+          You only find out after you upload… wait… and get the rejection.
         </p>
 
-        <p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 20px;">
-          Your PDF has already been scanned. Your readiness score is ready. All that's left is unlocking the full report — which shows you <strong>exactly</strong> what's wrong, which pages are affected, and how to fix each issue before you submit to KDP.
+        <p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 6px;">
+          That's usually when people start looking for answers.
+        </p>
+
+        <p style="font-size: 15px; font-weight: 600; color: #1A1208; margin: 0 0 24px;">
+          That's why you're here.
+        </p>
+
+        <p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 8px;">
+          Your PDF has been scanned. The full report shows you exactly what's flagged, which pages are affected, and what to fix — before you submit to KDP.
         </p>
 
         <!-- CTA -->
@@ -529,7 +547,7 @@ export async function sendWelcomeEmail(to: string, downloadUrl: string) {
               <a href="${safeDownloadUrl}"
                  style="display: inline-block; padding: 16px 36px; color: #ffffff;
                         text-decoration: none; font-weight: 700; font-size: 16px;">
-                Unlock my full report — $9 →
+                See your full report — $9 &rarr;
               </a>
             </td>
           </tr>
@@ -541,22 +559,22 @@ export async function sendWelcomeEmail(to: string, downloadUrl: string) {
           <tr>
             <td style="padding: 20px 24px;">
               <p style="font-size: 13px; font-weight: 700; color: #1A1208; margin: 0 0 12px; text-transform: uppercase; letter-spacing: 0.05em;">
-                What&apos;s in your full report
+                Your full report includes
               </p>
               <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;Every issue flagged — bleed, margins, fonts, image resolution</p>
               <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;Exact page numbers for every problem</p>
               <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;Plain-English fix for each issue</p>
-              <p style="font-size: 14px; color: #3a3020; margin: 0; line-height: 1.7;">&#10003; &nbsp;Annotated PDF with issues highlighted visually</p>
+              <p style="font-size: 14px; color: #3a3020; margin: 0; line-height: 1.7;">&#10003; &nbsp;Annotated PDF with issues marked visually</p>
             </td>
           </tr>
         </table>
 
         <p style="font-size: 14px; line-height: 1.8; color: #6B6151; margin: 0 0 8px;">
-          Got questions? Just reply to this email — it comes straight to me.
+          Questions about your file? Just reply — I read every one.
         </p>
 
         <p style="font-size: 14px; color: #6B6151; margin: 0;">
-          Need to check another PDF?
+          Got another manuscript to check?
           <a href="${safeCheckerUrl}" style="color: #F05A28; text-decoration: none; font-weight: 600;">Run another check &rarr;</a>
         </p>
 
@@ -578,26 +596,34 @@ export async function sendWelcomeEmail(to: string, downloadUrl: string) {
 `.trim();
 
   const text = [
-    "Hey — your KDP report is waiting for you.",
+    "Your KDP readiness score is ready.",
     "",
-    "I'm Manny. I built manu2print because I kept watching indie authors get rejected",
-    "by KDP for formatting issues that are totally fixable — if you know what to look for.",
+    "I'm Manny. I built manu2print after watching too many solid books get rejected",
+    "for things no one warns you about.",
     "",
-    "Your PDF has been scanned. Your readiness score is ready.",
-    "Unlock the full report to see exactly what's wrong, which pages are affected,",
-    "and how to fix each issue before you submit to KDP.",
+    "Margins slightly off.",
+    "Bleed missing.",
+    "Fonts not embedded.",
     "",
-    `Unlock my full report — $9: ${downloadUrl}`,
+    "You only find out after you upload… wait… and get the rejection.",
     "",
-    "What's in your full report:",
+    "That's usually when people start looking for answers.",
+    "That's why you're here.",
+    "",
+    "Your PDF has been scanned. The full report shows you exactly what's flagged,",
+    "which pages are affected, and what to fix — before you submit to KDP.",
+    "",
+    `See your full report — $9: ${downloadUrl}`,
+    "",
+    "Your full report includes:",
     "✓ Every issue flagged — bleed, margins, fonts, image resolution",
     "✓ Exact page numbers for every problem",
     "✓ Plain-English fix for each issue",
-    "✓ Annotated PDF with issues highlighted visually",
+    "✓ Annotated PDF with issues marked visually",
     "",
-    "Got questions? Just reply to this email — it comes straight to me.",
+    "Questions about your file? Just reply — I read every one.",
     "",
-    `Need to check another PDF? ${checkerUrl}`,
+    `Got another manuscript to check? ${checkerUrl}`,
     "",
     "— Manny, manu2print.com",
   ].join("\n");
