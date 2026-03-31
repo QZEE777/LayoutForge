@@ -39,6 +39,15 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Validate UUID shape before interpolating into PostgREST .or() filter
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!UUID_RE.test(id)) {
+      return NextResponse.json(
+        { error: "Invalid id", message: "id must be a valid UUID." },
+        { status: 400 }
+      );
+    }
+
     let meta = await getStored(id);
     let report = await buildReportFromStored(meta);
 

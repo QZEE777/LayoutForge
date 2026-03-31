@@ -3,10 +3,13 @@ import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import crypto from "crypto";
 
-const rateLimit = new Map<string, { count: number; resetAt: number }>();
+const OTP_RATE_LIMIT   = 5;                // max sends per window
+const OTP_WINDOW_MS    = 15 * 60 * 1000;  // 15-minute window
+const OTP_EXPIRY_MS    = 10 * 60 * 1000;  // code valid for 10 minutes
 
 function generateCode(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+  // crypto.randomInt is cryptographically secure; Math.random() is not
+  return crypto.randomInt(100000, 1000000).toString();
 }
 
 function signToken(email: string, code: string, expiresAt: number): string {
@@ -27,19 +30,31 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Valid email required" }, { status: 400 });
   }
 
-  const now = Date.now();
-  const rl = rateLimit.get(email);
-  if (rl && now < rl.resetAt) {
-    if (rl.count >= 3) return NextResponse.json({ error: "Too many attempts. Try again in 10 minutes." }, { status: 429 });
-    rl.count++;
-  } else {
-    rateLimit.set(email, { count: 1, resetAt: now + 10 * 60 * 1000 });
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  // DB-based rate limit — survives cold starts unlike an in-memory Map
+  const windowStart = new Date(Date.now() - OTP_WINDOW_MS).toISOString();
+  const { count: recentAttempts } = await supabase
+    .from("scan_otp_attempts")
+    .select("*", { count: "exact", head: true })
+    .eq("email", email)
+    .gte("created_at", windowStart);
+
+  if ((recentAttempts ?? 0) >= OTP_RATE_LIMIT) {
+    return NextResponse.json(
+      { error: "Too many attempts. Try again in 15 minutes." },
+      { status: 429 }
+    );
   }
 
-  const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+  // Record this attempt before sending (prevents burst on concurrent requests)
+  await supabase.from("scan_otp_attempts").insert({ email });
 
   // Check if this email has any non-expired credits
-  const nowIso = new Date(now).toISOString();
+  const nowIso = new Date().toISOString();
   const { data: creditRows } = await supabase
     .from("scan_credits")
     .select("credits")
@@ -48,12 +63,13 @@ export async function POST(req: Request) {
 
   const balance = (creditRows ?? []).reduce((sum, r) => sum + (r.credits ?? 0), 0);
 
-  // Always return ok — don't reveal if email has credits
+  // Always return ok — don't reveal whether this email has credits
   if (balance <= 0) return NextResponse.json({ ok: true, token: null });
 
-  const code = generateCode();
-  const expiresAt = now + 10 * 60 * 1000;
-  const token = signToken(email, code, expiresAt);
+  const now      = Date.now();
+  const code     = generateCode();
+  const expiresAt = now + OTP_EXPIRY_MS;
+  const token    = signToken(email, code, expiresAt);
 
   const resend = new Resend(process.env.RESEND_API_KEY ?? "");
   const html = `
