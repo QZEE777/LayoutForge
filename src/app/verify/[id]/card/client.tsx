@@ -71,6 +71,21 @@ export function SocialCard({ verifyUrl, verificationId, shToken, isPass }: Props
       fontFamily: "system-ui, sans-serif",
     }}>
 
+      {/* ── LOGO HEADER ── */}
+      <div style={{ marginBottom: 24, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/manny-avatar.png" alt="" style={{ width: 48, height: 48, borderRadius: "50%" }} />
+          <span style={{ fontWeight: 900, fontSize: 26, letterSpacing: "-0.5px" }}>
+            <span style={{ color: "#F05A28" }}>manu</span>
+            <span style={{ color: "#27AE60" }}>2print</span>
+          </span>
+        </div>
+        <span style={{ fontSize: 22, fontWeight: 700, color: accentColor }}>
+          KDP Readiness Verified
+        </span>
+      </div>
+
       {/* ── VARIANT SELECTOR ── */}
       <div style={{
         width: "100%",

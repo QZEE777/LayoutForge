@@ -66,10 +66,12 @@ export async function GET(
   // Background gradient
   const bgTop    = isPass ? "#1a5f3f" : "#C35B00";
   const bgBottom = isPass ? "#2d8659" : "#E65100";
-  // Accent — orange on green PASS, vivid green on orange FAIL
-  const accent   = isPass ? "#FFA040" : "#FFA040";
-  // Verdict text — contrasting colour draws the eye
+  // Accent for hook + CTA text
+  const accent   = isPass ? "#FFA040" : "#FFD480";
+  // Verdict (PASS/FAIL) — contrasting colour: orange on green, green on orange
   const verdictColor = isPass ? "#FF8C00" : "#4CE87A";
+  // Tagline — "KDP Readiness Verified": orange on green cards, green on orange cards
+  const taglineColor = isPass ? "#FFA040" : "#4CE87A";
 
   const base      = "https://www.manu2print.com";
   const avatarUrl = `${base}/manny-avatar.png`;
@@ -203,33 +205,35 @@ export async function GET(
         <div style={{
           width: "100%",
           borderTop: "1px solid rgba(255,255,255,0.20)",
-          paddingTop: fs(24),
+          paddingTop: fs(20),
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           marginTop: "auto",
         }}>
-          <span style={{ fontSize: fs(56), fontWeight: 900, fontFamily: displayFont, letterSpacing: "1px" }}>
-            <span style={{ color: "#FFA040" }}>manu</span>
-            <span style={{ color: "#FFFFFF" }}>2</span>
-            <span style={{ color: "#A8E6A3" }}>print</span>
-          </span>
-
-          <span style={{ fontSize: fs(30), color: "rgba(255,255,255,0.70)", fontWeight: 700 }}>
-            manu2print.com
-          </span>
-
-          <div style={{ display: "flex", alignItems: "center", gap: fs(12) }}>
+          {/* Brand block: Manny avatar + name + tagline */}
+          <div style={{ display: "flex", alignItems: "center", gap: fs(18) }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={avatarUrl}
               alt=""
-              style={{ width: fs(58), height: fs(58), borderRadius: "50%", border: "2px solid rgba(255,255,255,0.4)" }}
+              style={{ width: fs(120), height: fs(120), borderRadius: "50%", border: "3px solid rgba(255,255,255,0.35)" }}
             />
-            <span style={{ fontSize: fs(26), color: "rgba(255,255,255,0.80)", fontWeight: 700 }}>
-              Verified by manu2print
-            </span>
+            <div style={{ display: "flex", flexDirection: "column", gap: fs(4) }}>
+              <span style={{ fontSize: fs(52), fontWeight: 900, fontFamily: displayFont, lineHeight: 1 }}>
+                <span style={{ color: "#FFA040" }}>manu</span>
+                <span style={{ color: "#A8E6A3" }}>2print</span>
+              </span>
+              <span style={{ fontSize: fs(26), fontWeight: 800, color: taglineColor, lineHeight: 1.2 }}>
+                KDP Readiness Verified
+              </span>
+            </div>
           </div>
+
+          {/* Right: URL */}
+          <span style={{ fontSize: fs(28), color: "rgba(255,255,255,0.60)", fontWeight: 600 }}>
+            manu2print.com
+          </span>
         </div>
       </div>
     ),
