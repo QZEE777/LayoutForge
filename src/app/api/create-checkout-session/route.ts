@@ -57,8 +57,9 @@ export async function POST(req: Request) {
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (req.headers.get("origin") ?? "");
     const isPack = priceType !== "single_use";
+    const packEmailParam = (isPack && email) ? `&email=${encodeURIComponent(email)}` : "";
     const redirectUrl = isPack
-      ? `${baseUrl}/success?pack=${encodeURIComponent(priceType ?? "")}`
+      ? `${baseUrl}/success?pack=${encodeURIComponent(priceType ?? "")}${packEmailParam}`
       : downloadId
         ? `${baseUrl}/success?id=${encodeURIComponent(downloadId)}`
         : `${baseUrl}/success`;

@@ -73,11 +73,32 @@ export async function POST(req: Request) {
     .eq("email", email)
     .limit(5);
 
+  // Credit ledger
+  const now = new Date().toISOString();
+  const { data: creditRows } = await supabase
+    .from("scan_credits")
+    .select("credits, source, order_id, created_at, expires_at")
+    .eq("email", email)
+    .or(`expires_at.is.null,expires_at.gt.${now}`)
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  const credits = creditRows ?? [];
+  const creditsTotal    = credits.reduce((s, r) => s + (r.credits > 0 ? r.credits  : 0), 0);
+  const creditsUsed     = credits.reduce((s, r) => s + (r.credits < 0 ? -r.credits : 0), 0);
+  const creditsRemaining = Math.max(0, creditsTotal - creditsUsed);
+
   return NextResponse.json({
     ok: true,
     email,
     payments: payments ?? [],
     subscriptions: subscriptions ?? [],
     betaAccess: betaAccess ?? [],
+    credits: {
+      remaining: creditsRemaining,
+      total: creditsTotal,
+      used: creditsUsed,
+      ledger: credits,
+    },
   });
 }
