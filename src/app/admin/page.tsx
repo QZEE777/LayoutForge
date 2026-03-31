@@ -377,11 +377,19 @@ export default function AdminPage() {
     downloadCsv("leads-manuscript.csv", [headers, ...rows]);
   };
 
-  if (!authed) {
+  // Show login form when not authed, OR when authed but sessionStorage pwd is gone
+  // (new tab / browser restart clears sessionStorage — localStorage flag persists but pwd does not)
+  const sessionPwd = typeof window !== "undefined" ? sessionStorage.getItem(ADMIN_PWD_KEY) : null;
+  const needsPassword = !authed || !sessionPwd;
+
+  if (needsPassword) {
     return (
       <div className="min-h-screen bg-m2p-ivory flex items-center justify-center px-6">
         <div className="w-full max-w-sm">
           <h1 className="font-bebas text-xl tracking-wide text-m2p-ink mb-4">Admin</h1>
+          {authed && !sessionPwd && (
+            <p className="text-sm text-m2p-muted mb-3">Session expired — re-enter your password to continue.</p>
+          )}
           <form onSubmit={handleLogin} className="space-y-3">
             <input
               type="password"
