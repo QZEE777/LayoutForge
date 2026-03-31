@@ -175,8 +175,12 @@ export async function GET(
               <span style={{ fontSize: fs(34), fontWeight: 700, color: "#FFFFFF" }}>
                 {c.label}
               </span>
-              <span style={{ fontSize: fs(34), fontWeight: 700, color: "rgba(255,255,255,0.90)" }}>
-                {c.ok === null ? "—" : c.ok ? "✔" : "✗"}
+              <span style={{
+                fontSize: fs(34),
+                fontWeight: 900,
+                color: c.ok === null ? "rgba(255,255,255,0.45)" : c.ok ? "#4CE87A" : "#FF8C69",
+              }}>
+                {c.ok === null ? "-" : c.ok ? "\u2713" : "\u00D7"}
               </span>
             </div>
           ))}

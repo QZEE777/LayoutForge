@@ -279,7 +279,7 @@ export default function PaymentGate({
       <div className="rounded-2xl border p-6 text-center space-y-4 mt-4"
         style={{ background: "#2C1810", borderColor: "rgba(255,255,255,0.08)" }}>
         <h2 className="text-lg font-bold text-white">Unlock your full report</h2>
-        <p className="text-sm text-white/70">See every issue, which pages are affected, how to fix each one — and your annotated PDF.</p>
+        <p className="text-sm text-white/70">See every issue, which pages are affected, how to fix each one<br />and your annotated PDF.</p>
         <input
           type="email"
           placeholder="Your email (for receipt / credits)"

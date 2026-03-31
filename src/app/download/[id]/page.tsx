@@ -505,7 +505,7 @@ export default function DownloadPage() {
                   </div>
                 </div>
                 <p className="mt-4 text-xs text-m2p-muted text-center border-t border-m2p-border pt-3 leading-relaxed" style={{ textWrap: "balance" } as React.CSSProperties}>
-                  Unlock below to see every issue, which pages are affected, how to fix each one — and your annotated&nbsp;PDF.
+                  Unlock below to see every issue, which pages are affected, how to fix each one<br />and your annotated PDF.
                 </p>
               </div>
             </div>
