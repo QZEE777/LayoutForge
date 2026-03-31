@@ -59,9 +59,11 @@ export default function DashboardPage() {
   const [summary, setSummary]         = useState<Summary | null>(null);
   const [affiliate, setAffiliate]     = useState<Affiliate | null | undefined>(undefined);
   const [affStats, setAffStats]       = useState<AffiliateStats | null>(null);
-  const [firstName, setFirstName]     = useState("");
-  const [saving, setSaving]           = useState(false);
-  const [profileMsg, setProfileMsg]   = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [firstName, setFirstName]       = useState("");
+  const [avatarUrl, setAvatarUrl]       = useState<string | undefined>(undefined);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [saving, setSaving]             = useState(false);
+  const [profileMsg, setProfileMsg]     = useState<{ type: "ok" | "err"; text: string } | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [tab, setTab]                 = useState<ActiveView>(() => {
     const t = searchParams.get("tab");
@@ -80,7 +82,7 @@ export default function DashboardPage() {
       const [summaryRes, affiliateRes, profileRes] = await Promise.all([
         fetch("/api/dashboard/summary"),
         fetch("/api/affiliates/me"),
-        client.from("profiles").select("first_name").eq("id", u.id).maybeSingle(),
+        client.from("profiles").select("first_name, avatar_url").eq("id", u.id).maybeSingle(),
       ]);
 
       if (summaryRes.ok) {
@@ -97,6 +99,7 @@ export default function DashboardPage() {
       }
 
       if (profileRes.data?.first_name) setFirstName(profileRes.data.first_name);
+      if (profileRes.data?.avatar_url)  setAvatarUrl(profileRes.data.avatar_url);
     })();
   }, [router]);
 
@@ -114,6 +117,30 @@ export default function DashboardPage() {
       setSaving(false);
     }
   }, [user, firstName]);
+
+  // ── Avatar upload ────────────────────────────────────────────────────────
+  const handleAvatarUpload = useCallback(async (file: File) => {
+    if (!user) return;
+    setAvatarUploading(true);
+    setProfileMsg(null);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      form.append("userId", user.id);
+      const res = await fetch("/api/profile/avatar", { method: "POST", body: form });
+      const json = await res.json();
+      if (!res.ok) {
+        setProfileMsg({ type: "err", text: json.error ?? "Upload failed." });
+      } else {
+        setAvatarUrl(json.url);
+        setProfileMsg({ type: "ok", text: "Photo updated!" });
+      }
+    } catch {
+      setProfileMsg({ type: "err", text: "Upload failed." });
+    } finally {
+      setAvatarUploading(false);
+    }
+  }, [user]);
 
   // ── Sign out ─────────────────────────────────────────────────────────────
   const handleSignOut = useCallback(async () => {
@@ -178,6 +205,9 @@ export default function DashboardPage() {
               profileMsg={profileMsg}
               onSave={handleProfileSave}
               onSignOut={handleSignOut}
+              avatarUrl={avatarUrl}
+              avatarUploading={avatarUploading}
+              onAvatarChange={handleAvatarUpload}
             />
           )}
         </main>

@@ -1,8 +1,9 @@
 "use client";
 
+import { useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { User, CreditCard, Shield, LogOut, ChevronRight } from "lucide-react";
+import { User, CreditCard, Shield, LogOut, ChevronRight, Camera } from "lucide-react";
 import Link from "next/link";
 
 interface Affiliate {
@@ -19,10 +20,14 @@ interface Props {
   profileMsg: { type: "ok" | "err"; text: string } | null;
   onSave: (e: React.FormEvent) => void;
   onSignOut: () => void;
+  avatarUrl?: string;
+  avatarUploading?: boolean;
+  onAvatarChange?: (file: File) => void;
 }
 
-export function SettingsPanel({ user, affiliate, firstName, setFirstName, saving, profileMsg, onSave, onSignOut }: Props) {
+export function SettingsPanel({ user, affiliate, firstName, setFirstName, saving, profileMsg, onSave, onSignOut, avatarUrl, avatarUploading, onAvatarChange }: Props) {
   const initials = user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <div className="max-w-xl mx-auto space-y-5">
@@ -33,9 +38,49 @@ export function SettingsPanel({ user, affiliate, firstName, setFirstName, saving
         </h3>
         <form onSubmit={onSave} className="space-y-4">
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0"
-              style={{ background: "linear-gradient(135deg, #F05A28, #4cd964)" }}>
-              {initials}
+            {/* Avatar — click to upload */}
+            <div className="relative shrink-0 group">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-14 h-14 rounded-full overflow-hidden flex items-center justify-center text-white font-bold text-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
+                style={{ background: avatarUrl ? "transparent" : "linear-gradient(135deg, #F05A28, #4cd964)" }}
+                title="Change profile photo"
+              >
+                {avatarUploading ? (
+                  <div className="w-6 h-6 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                ) : avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={avatarUrl} alt="Profile" className="w-14 h-14 rounded-full object-cover" />
+                ) : (
+                  initials
+                )}
+              </button>
+              {/* Camera overlay on hover */}
+              {!avatarUploading && (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="absolute inset-0 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                  style={{ background: "rgba(0,0,0,0.45)" }}
+                >
+                  <Camera className="w-5 h-5 text-white" />
+                </div>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f && onAvatarChange) onAvatarChange(f);
+                  e.target.value = "";
+                }}
+              />
+            </div>
+            <div>
+              <p className="text-sm font-medium" style={{ color: "var(--d-fg)" }}>Profile photo</p>
+              <p className="text-xs" style={{ color: "var(--d-fg-muted)" }}>Click to upload · JPG, PNG or WebP · max 2MB</p>
             </div>
           </div>
           <div className="grid sm:grid-cols-2 gap-4">

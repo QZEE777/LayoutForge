@@ -13,10 +13,12 @@ function escapeHtmlAttr(s: string): string {
     .replace(/>/g, "&gt;");
 }
 
-export async function sendDownloadLinkEmail(to: string, downloadUrl: string) {
+export async function sendDownloadLinkEmail(to: string, downloadUrl: string, name?: string) {
   const resend = new Resend(process.env.RESEND_API_KEY ?? "");
   const safeUrl = escapeHtmlAttr(downloadUrl);
   const resendUrl = escapeHtmlAttr("https://www.manu2print.com/resend-link");
+  const firstName = name ? name.split(" ")[0] : "";
+  const greeting = firstName ? `Hey ${firstName} —` : "You're in.";
 
   const html = `
 <!DOCTYPE html>
@@ -38,7 +40,7 @@ export async function sendDownloadLinkEmail(to: string, downloadUrl: string) {
       <td style="padding: 36px 32px 24px; background: #FAF7EE;">
 
         <p style="font-size: 22px; font-weight: 700; color: #1A1208; margin: 0 0 16px; line-height: 1.3;">
-          You're in. Your full report is ready. 🎉
+          ${greeting} your full report is ready.
         </p>
 
         <p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 20px;">
@@ -101,7 +103,7 @@ export async function sendDownloadLinkEmail(to: string, downloadUrl: string) {
 `.trim();
 
   const text = [
-    "You're in. Your full report is ready.",
+    firstName ? `Hey ${firstName} — your full report is ready.` : "You're in. Your full report is ready.",
     "",
     "Thank you for trusting manu2print with your manuscript.",
     "Your full KDP PDF Check Report is ready — every issue, every page, every fix.",
@@ -126,7 +128,9 @@ export async function sendDownloadLinkEmail(to: string, downloadUrl: string) {
     from: FROM_MANNY,
     replyTo: REPLY_TO,
     to,
-    subject: "You're in — your full KDP report is ready",
+    subject: firstName
+      ? `${firstName} — your full KDP report is ready`
+      : "You're in — your full KDP report is ready",
     html,
     text,
   });
@@ -141,7 +145,8 @@ export async function sendShareCreditAwardedEmail(
 ) {
   const resend = new Resend(process.env.RESEND_API_KEY ?? "");
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com";
-  const dashUrl = `${appUrl}/dashboard`;
+  const checkerUrl = `${appUrl}/kdp-pdf-checker`;
+  const safeCheckerUrl = escapeHtmlAttr(checkerUrl);
   const expiryDate = new Date(opts.expiresAt).toLocaleDateString("en-US", {
     month: "long", day: "numeric", year: "numeric",
   });
@@ -151,47 +156,74 @@ export async function sendShareCreditAwardedEmail(
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"></head>
-<body style="font-family: system-ui, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; background: #FAF7EE; color: #1A1208;">
+<body style="font-family: system-ui, sans-serif; max-width: 560px; margin: 0 auto; padding: 0; background: #FAF7EE; color: #1A1208;">
 
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 560px; margin: 0 auto;">
+
+    <!-- Header -->
     <tr>
-      <td style="padding-bottom: 24px; border-bottom: 2px solid #2D6A2D;">
-        <span style="font-size: 22px; font-weight: 700; color: #F05A28;">manu</span><span style="font-size: 22px; font-weight: 700; color: #2D6A2D;">2print</span>
-        <span style="font-size: 13px; color: #6B6151; margin-left: 8px;">Share &amp; Earn</span>
+      <td style="background: #1A1208; padding: 24px 32px; border-radius: 12px 12px 0 0;">
+        <span style="font-size: 24px; font-weight: 700; color: #F05A28;">manu</span><span style="font-size: 24px; font-weight: 700; color: #4cd964;">2print</span>
       </td>
     </tr>
+
+    <!-- Body -->
     <tr>
-      <td style="padding: 32px 0 16px;">
-        <p style="font-size: 20px; font-weight: 700; margin: 0 0 8px;">Your ${creditWord} ${opts.credits === 1 ? "is" : "are"} ready! 🎉</p>
-        <p style="font-size: 15px; line-height: 1.7; color: #3a3020; margin: 0 0 20px;">
-          Someone you referred just completed their PDF check. As a thank-you,
-          <strong>${opts.credits} free ${creditWord}</strong> ${opts.credits === 1 ? "has" : "have"} been added to your account.
+      <td style="padding: 36px 32px 24px; background: #FAF7EE;">
+
+        <p style="font-size: 22px; font-weight: 700; color: #1A1208; margin: 0 0 20px; line-height: 1.3;">
+          Someone you sent our way just checked their PDF.
         </p>
-        ${opts.wasHeld ? `<p style="font-size: 14px; line-height: 1.6; color: #6B6151; margin: 0 0 20px;">
-          This credit was held briefly for review. Everything checked out — it&rsquo;s yours.
+
+        <p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 12px;">
+          That means your share link worked — and you earned it.
+        </p>
+
+        ${opts.wasHeld ? `<p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 12px;">
+          This one was held briefly while we verified it. Everything checked out — it&rsquo;s yours.
         </p>` : ""}
-        <div style="background: #1A1208; border-radius: 10px; padding: 16px 20px; margin: 0 0 24px; text-align: center;">
-          <p style="font-size: 28px; font-weight: 800; color: #4cd964; margin: 0 0 4px;">+${opts.credits}</p>
+
+        <p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 24px;">
+          <strong>${opts.credits} free ${creditWord}</strong> ${opts.credits === 1 ? "has" : "have"} been added to your account. Use ${opts.credits === 1 ? "it" : "them"} on your next PDF check — no charge.
+        </p>
+
+        <!-- Credit badge -->
+        <div style="background: #1A1208; border-radius: 10px; padding: 20px 24px; margin: 0 0 28px; text-align: center;">
+          <p style="font-size: 44px; font-weight: 900; color: #4cd964; margin: 0 0 4px; line-height: 1;">+${opts.credits}</p>
           <p style="font-size: 13px; color: #9B8E7E; margin: 0;">Expires ${expiryDate}</p>
         </div>
-        <a href="${dashUrl}"
-           style="display: inline-block; padding: 14px 32px; background: #F05A28; color: #ffffff;
-                  text-decoration: none; font-weight: 700; font-size: 16px; border-radius: 8px;">
-          Use Your Credit →
-        </a>
+
+        <!-- CTA -->
+        <table cellpadding="0" cellspacing="0" style="margin: 0 0 28px;">
+          <tr>
+            <td style="background: #F05A28; border-radius: 10px;">
+              <a href="${safeCheckerUrl}"
+                 style="display: inline-block; padding: 16px 36px; color: #ffffff;
+                        text-decoration: none; font-weight: 700; font-size: 16px;">
+                Run a Free Check &rarr;
+              </a>
+            </td>
+          </tr>
+        </table>
+
+        <p style="font-size: 14px; line-height: 1.8; color: #6B6151; margin: 0 0 6px;">
+          Every person you send our way earns you another free scan. Keep sharing.
+        </p>
+        <p style="font-size: 14px; line-height: 1.8; color: #6B6151; margin: 0;">
+          Refer 3 people total and you unlock <strong>Partner mode</strong> — real cash commissions, no minimums.
+        </p>
+
       </td>
     </tr>
+
+    <!-- Footer -->
     <tr>
-      <td style="padding: 24px 0 0; border-top: 1px solid #E0D8C4;">
-        <p style="font-size: 13px; color: #6B6151; margin: 0 0 6px;">
-          💡 <strong>Keep earning:</strong> every time someone checks their PDF from your share link, you get another free scan.
-        </p>
-        <p style="font-size: 13px; color: #6B6151; margin: 0 0 6px;">
-          🚀 Refer 3 people to unlock <strong>Partner mode</strong> and earn 30–40% cash commission.
-        </p>
-        <p style="font-size: 12px; color: #9B8E7E; margin: 16px 0 0;">— manu2print.com</p>
+      <td style="padding: 20px 32px; border-top: 1px solid #E0D8C4; background: #FAF7EE;">
+        <p style="font-size: 12px; color: #9B8E7E; margin: 0 0 4px;">— Manny, manu2print.com</p>
+        <p style="font-size: 11px; color: #C4B9AC; margin: 0;">Thank you for spreading the word. It means more than you know.</p>
       </td>
     </tr>
+
   </table>
 
 </body>
@@ -199,23 +231,27 @@ export async function sendShareCreditAwardedEmail(
 `.trim();
 
   const text = [
-    `Your ${creditWord} ${opts.credits === 1 ? "is" : "are"} ready!`,
+    "Someone you sent our way just checked their PDF.",
     "",
+    "That means your share link worked — and you earned it.",
+    "",
+    opts.wasHeld ? "This one was held briefly for review. Everything checked out — it's yours." : "",
     `+${opts.credits} free ${creditWord} added to your account. Expires ${expiryDate}.`,
     "",
-    opts.wasHeld ? "This credit was held briefly for review — it's now cleared." : "",
+    `Run a free check now: ${checkerUrl}`,
     "",
-    `Use your credit: ${dashUrl}`,
+    "Every referral = another free scan. Refer 3 people total to unlock Partner mode — real cash commissions.",
     "",
-    "Keep earning: every referral = 1 free scan. Refer 3 people to unlock cash commissions.",
+    "Thank you for spreading the word.",
     "",
-    "— manu2print.com",
+    "— Manny, manu2print.com",
   ].filter(Boolean).join("\n");
 
   const { data, error } = await resend.emails.send({
-    from: FROM,
+    from: FROM_MANNY,
+    replyTo: REPLY_TO,
     to,
-    subject: `+${opts.credits} free scan ${creditWord} — your referral paid off 🎉`,
+    subject: `Your referral came through — +${opts.credits} free ${creditWord} added`,
     html,
     text,
   });
@@ -228,48 +264,82 @@ export async function sendPartnerThresholdEmail(to: string) {
   const resend = new Resend(process.env.RESEND_API_KEY ?? "");
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com";
   const applyUrl = `${appUrl}/partners/apply`;
+  const safeApplyUrl = escapeHtmlAttr(applyUrl);
 
   const html = `
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"></head>
-<body style="font-family: system-ui, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; background: #FAF7EE; color: #1A1208;">
+<body style="font-family: system-ui, sans-serif; max-width: 560px; margin: 0 auto; padding: 0; background: #FAF7EE; color: #1A1208;">
 
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 560px; margin: 0 auto;">
+
+    <!-- Header -->
     <tr>
-      <td style="padding-bottom: 24px; border-bottom: 2px solid #2D6A2D;">
-        <span style="font-size: 22px; font-weight: 700; color: #F05A28;">manu</span><span style="font-size: 22px; font-weight: 700; color: #2D6A2D;">2print</span>
-        <span style="font-size: 13px; color: #6B6151; margin-left: 8px;">Share &amp; Earn</span>
+      <td style="background: #1A1208; padding: 24px 32px; border-radius: 12px 12px 0 0;">
+        <span style="font-size: 24px; font-weight: 700; color: #F05A28;">manu</span><span style="font-size: 24px; font-weight: 700; color: #4cd964;">2print</span>
       </td>
     </tr>
+
+    <!-- Body -->
     <tr>
-      <td style="padding: 32px 0 16px;">
-        <p style="font-size: 20px; font-weight: 700; margin: 0 0 8px;">You&rsquo;ve unlocked Partner mode 🚀</p>
-        <p style="font-size: 15px; line-height: 1.7; color: #3a3020; margin: 0 0 20px;">
-          You&rsquo;ve referred 3 people to manu2print — that&rsquo;s the threshold to upgrade from free scan credits
-          to <strong>real cash commissions</strong>.
+      <td style="padding: 36px 32px 24px; background: #FAF7EE;">
+
+        <p style="font-size: 22px; font-weight: 700; color: #1A1208; margin: 0 0 20px; line-height: 1.3;">
+          You've referred 3 people. That's the threshold.
         </p>
-        <div style="background: #1A1208; border-radius: 10px; padding: 16px 20px; margin: 0 0 24px;">
-          <p style="font-size: 14px; color: #9B8E7E; margin: 0 0 10px;">What you unlock as a Partner:</p>
-          <p style="font-size: 14px; color: #4cd964; margin: 0 0 6px;">✓ 30% commission on every $9 single scan</p>
-          <p style="font-size: 14px; color: #4cd964; margin: 0 0 6px;">✓ 40% commission on every pack sale (up to $31.60)</p>
-          <p style="font-size: 14px; color: #4cd964; margin: 0 0 0;">✓ Automatic payouts via LemonSqueezy</p>
-        </div>
-        <a href="${applyUrl}"
-           style="display: inline-block; padding: 14px 32px; background: #F05A28; color: #ffffff;
-                  text-decoration: none; font-weight: 700; font-size: 16px; border-radius: 8px;">
-          Activate Partner Mode →
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td style="padding: 24px 0 0; border-top: 1px solid #E0D8C4;">
-        <p style="font-size: 13px; color: #6B6151; margin: 0 0 6px;">
-          Takes under 2 minutes to apply. No minimums. No waitlist.
+
+        <p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 12px;">
+          Thank you. Seriously. You've been sending authors our way and it's made a difference.
         </p>
-        <p style="font-size: 12px; color: #9B8E7E; margin: 12px 0 0;">— manu2print.com</p>
+
+        <p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 24px;">
+          Three referrals is where free scan credits end and real cash commissions begin. You've earned the upgrade.
+        </p>
+
+        <!-- Unlock box -->
+        <table width="100%" cellpadding="0" cellspacing="0"
+               style="background: #1A1208; border-radius: 10px; margin: 0 0 28px;">
+          <tr>
+            <td style="padding: 20px 24px;">
+              <p style="font-size: 13px; font-weight: 700; color: #9B8E7E; margin: 0 0 12px; text-transform: uppercase; letter-spacing: 0.05em;">
+                What Partner mode unlocks
+              </p>
+              <p style="font-size: 14px; color: #4cd964; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;30% commission on every $9 single scan</p>
+              <p style="font-size: 14px; color: #4cd964; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;40% commission on every pack sale — up to $31.60 per referral</p>
+              <p style="font-size: 14px; color: #4cd964; margin: 0; line-height: 1.7;">&#10003; &nbsp;Automatic payouts via LemonSqueezy — no minimum</p>
+            </td>
+          </tr>
+        </table>
+
+        <!-- CTA -->
+        <table cellpadding="0" cellspacing="0" style="margin: 0 0 24px;">
+          <tr>
+            <td style="background: #F05A28; border-radius: 10px;">
+              <a href="${safeApplyUrl}"
+                 style="display: inline-block; padding: 16px 36px; color: #ffffff;
+                        text-decoration: none; font-weight: 700; font-size: 16px;">
+                Activate Partner Mode &rarr;
+              </a>
+            </td>
+          </tr>
+        </table>
+
+        <p style="font-size: 14px; line-height: 1.8; color: #6B6151; margin: 0;">
+          Takes under 2 minutes. No minimums. No waitlist.
+        </p>
+
       </td>
     </tr>
+
+    <!-- Footer -->
+    <tr>
+      <td style="padding: 20px 32px; border-top: 1px solid #E0D8C4; background: #FAF7EE;">
+        <p style="font-size: 12px; color: #9B8E7E; margin: 0 0 4px;">— Manny, manu2print.com</p>
+        <p style="font-size: 11px; color: #C4B9AC; margin: 0;">Questions? Just reply — I read every one.</p>
+      </td>
+    </tr>
+
   </table>
 
 </body>
@@ -277,26 +347,30 @@ export async function sendPartnerThresholdEmail(to: string) {
 `.trim();
 
   const text = [
-    "You've unlocked Partner mode!",
+    "You've referred 3 people. That's the threshold.",
     "",
-    "You've referred 3 people — that's the threshold to upgrade from free credits to cash commissions.",
+    "Thank you. Seriously. You've been sending authors our way and it's made a difference.",
     "",
-    "What you unlock:",
-    "• 30% commission on every $9 single scan",
-    "• 40% commission on every pack sale (up to $31.60)",
-    "• Monthly payouts via PayPal or Wise",
+    "Three referrals is where free scan credits end and real cash commissions begin.",
+    "You've earned the upgrade.",
+    "",
+    "What Partner mode unlocks:",
+    "✓ 30% commission on every $9 single scan",
+    "✓ 40% commission on every pack sale — up to $31.60 per referral",
+    "✓ Automatic payouts via LemonSqueezy — no minimum",
     "",
     `Activate Partner Mode: ${applyUrl}`,
     "",
     "Takes under 2 minutes. No minimums. No waitlist.",
     "",
-    "— manu2print.com",
+    "— Manny, manu2print.com",
   ].join("\n");
 
   const { data, error } = await resend.emails.send({
-    from: FROM,
+    from: FROM_MANNY,
+    replyTo: REPLY_TO,
     to,
-    subject: "You've unlocked Partner mode — earn 30–40% cash commission 🚀",
+    subject: "You've hit the threshold — Partner mode is yours to activate",
     html,
     text,
   });
@@ -310,52 +384,91 @@ export async function sendAffiliateApprovalEmail(to: string, name: string, code:
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com";
   const dashUrl = `${appUrl}/partners`;
   const refLink = `${appUrl}/go/${code}`;
+  const safeDashUrl = escapeHtmlAttr(dashUrl);
+  const safeRefLink = escapeHtmlAttr(refLink);
+  const firstName = name.split(" ")[0] || name;
 
   const html = `
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"></head>
-<body style="font-family: system-ui, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; background: #FAF7EE; color: #1A1208;">
+<body style="font-family: system-ui, sans-serif; max-width: 560px; margin: 0 auto; padding: 0; background: #FAF7EE; color: #1A1208;">
 
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 560px; margin: 0 auto;">
+
+    <!-- Header -->
     <tr>
-      <td style="padding-bottom: 24px; border-bottom: 2px solid #2D6A2D;">
-        <span style="font-size: 22px; font-weight: 700; color: #F05A28;">manu</span><span style="font-size: 22px; font-weight: 700; color: #2D6A2D;">2print</span>
-        <span style="font-size: 13px; color: #6B6151; margin-left: 8px;">Partner Program</span>
+      <td style="background: #1A1208; padding: 24px 32px; border-radius: 12px 12px 0 0;">
+        <span style="font-size: 24px; font-weight: 700; color: #F05A28;">manu</span><span style="font-size: 24px; font-weight: 700; color: #4cd964;">2print</span>
       </td>
     </tr>
+
+    <!-- Body -->
     <tr>
-      <td style="padding: 32px 0 16px;">
-        <p style="font-size: 20px; font-weight: 700; margin: 0 0 8px;">You're approved, ${name}! 🎉</p>
-        <p style="font-size: 15px; line-height: 1.7; color: #3a3020; margin: 0 0 20px;">
-          Welcome to the manu2print partner program. You earn <strong>40% commission</strong> on every pack sale — up to <strong>$31.60 per referral</strong> — with a 12-month attribution cookie.
+      <td style="padding: 36px 32px 24px; background: #FAF7EE;">
+
+        <p style="font-size: 22px; font-weight: 700; color: #1A1208; margin: 0 0 20px; line-height: 1.3;">
+          Hey ${firstName} — you're in. Welcome to the partner program.
         </p>
-        <p style="font-size: 14px; font-weight: 600; color: #1A1208; margin: 0 0 8px;">Your referral link:</p>
-        <div style="background: #1A1208; border-radius: 8px; padding: 12px 16px; margin: 0 0 24px;">
-          <span style="font-size: 14px; color: #4cd964; font-family: monospace;">${refLink}</span>
+
+        <p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 12px;">
+          Thank you for applying. I reviewed your account and I'm glad to have you.
+        </p>
+
+        <p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 24px;">
+          Every author you send our way earns you <strong>40% commission</strong> on pack sales — up to <strong>$31.60 per referral</strong>. Your link tracks for 12 months, so you get credit even if they come back later.
+        </p>
+
+        <!-- Referral link -->
+        <p style="font-size: 14px; font-weight: 700; color: #1A1208; margin: 0 0 8px;">Your referral link:</p>
+        <div style="background: #1A1208; border-radius: 8px; padding: 14px 18px; margin: 0 0 28px;">
+          <a href="${safeRefLink}" style="font-size: 14px; color: #4cd964; font-family: monospace; text-decoration: none; word-break: break-all;">${refLink}</a>
         </div>
-        <a href="${dashUrl}"
-           style="display: inline-block; padding: 14px 32px; background: #F05A28; color: #ffffff;
-                  text-decoration: none; font-weight: 700; font-size: 16px; border-radius: 8px;">
-          View Your Dashboard →
-        </a>
+
+        <!-- Details -->
+        <table width="100%" cellpadding="0" cellspacing="0"
+               style="background: #fff; border-radius: 10px; border: 1px solid #E0D8C4; margin: 0 0 28px;">
+          <tr>
+            <td style="padding: 20px 24px;">
+              <p style="font-size: 13px; font-weight: 700; color: #1A1208; margin: 0 0 12px; text-transform: uppercase; letter-spacing: 0.05em;">
+                Your commission breakdown
+              </p>
+              <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;Author Pack — 40% = <strong>$7.60</strong></p>
+              <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;Indie Pack — 40% = <strong>$15.60</strong></p>
+              <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;Pro Pack — 40% = <strong>$31.60</strong></p>
+              <p style="font-size: 14px; color: #3a3020; margin: 0; line-height: 1.7;">&#10003; &nbsp;Payouts automatic via LemonSqueezy — no minimum</p>
+            </td>
+          </tr>
+        </table>
+
+        <!-- CTA -->
+        <table cellpadding="0" cellspacing="0" style="margin: 0 0 24px;">
+          <tr>
+            <td style="background: #F05A28; border-radius: 10px;">
+              <a href="${safeDashUrl}"
+                 style="display: inline-block; padding: 16px 36px; color: #ffffff;
+                        text-decoration: none; font-weight: 700; font-size: 16px;">
+                View Your Dashboard &rarr;
+              </a>
+            </td>
+          </tr>
+        </table>
+
+        <p style="font-size: 14px; line-height: 1.8; color: #6B6151; margin: 0;">
+          12-month cookie. No minimums. Just share the link and let the tool do its job.
+        </p>
+
       </td>
     </tr>
+
+    <!-- Footer -->
     <tr>
-      <td style="padding: 24px 0 0; border-top: 1px solid #E0D8C4;">
-        <p style="font-size: 13px; color: #6B6151; margin: 0 0 6px;">
-          💰 <strong>Commission:</strong> 40% on Author Pack ($7.60), Indie Pack ($15.60), Pro Pack ($31.60)
-        </p>
-        <p style="font-size: 13px; color: #6B6151; margin: 0 0 6px;">
-          🍪 <strong>Cookie:</strong> 12 months — you get credit even if they buy months later
-        </p>
-        <p style="font-size: 13px; color: #6B6151; margin: 0 0 6px;">
-          💳 <strong>Payouts:</strong> Automatic via LemonSqueezy — no minimum threshold
-        </p>
-        <p style="font-size: 12px; color: #9B8E7E; margin: 16px 0 0;">Questions? Reply to this email or contact hello@manu2print.com</p>
-        <p style="font-size: 12px; color: #9B8E7E; margin: 4px 0 0;">— manu2print.com</p>
+      <td style="padding: 20px 32px; border-top: 1px solid #E0D8C4; background: #FAF7EE;">
+        <p style="font-size: 12px; color: #9B8E7E; margin: 0 0 4px;">— Manny, manu2print.com</p>
+        <p style="font-size: 11px; color: #C4B9AC; margin: 0;">Questions? Just reply — I read every one.</p>
       </td>
     </tr>
+
   </table>
 
 </body>
@@ -363,27 +476,33 @@ export async function sendAffiliateApprovalEmail(to: string, name: string, code:
 `.trim();
 
   const text = [
-    `You're approved, ${name}!`,
+    `Hey ${firstName} — you're in. Welcome to the partner program.`,
     "",
-    "Welcome to the manu2print partner program.",
-    "You earn 40% commission on every pack sale — up to $31.60 per referral — with a 12-month attribution cookie.",
+    "Thank you for applying. I reviewed your account and I'm glad to have you.",
+    "",
+    "Every author you send our way earns you 40% commission on pack sales — up to $31.60 per referral.",
+    "Your link tracks for 12 months.",
     "",
     `Your referral link: ${refLink}`,
     "",
+    "Commission breakdown:",
+    "✓ Author Pack — 40% = $7.60",
+    "✓ Indie Pack — 40% = $15.60",
+    "✓ Pro Pack — 40% = $31.60",
+    "✓ Payouts automatic via LemonSqueezy — no minimum",
+    "",
     `View your dashboard: ${dashUrl}`,
     "",
-    "Commission: 40% on Author Pack ($7.60), Indie Pack ($15.60), Pro Pack ($31.60)",
-    "Cookie: 12 months",
-    "Payouts: Automatic via LemonSqueezy — no minimum threshold",
+    "12-month cookie. No minimums. Just share the link.",
     "",
-    "Questions? Email hello@manu2print.com",
-    "— manu2print.com",
+    "— Manny, manu2print.com",
   ].join("\n");
 
   const { data, error } = await resend.emails.send({
-    from: FROM,
+    from: FROM_MANNY,
+    replyTo: REPLY_TO,
     to,
-    subject: "You're approved! Welcome to the manu2print Affiliate Program 🎉",
+    subject: `You're approved, ${firstName} — welcome to the manu2print partner program`,
     html,
     text,
   });
@@ -394,60 +513,100 @@ export async function sendAffiliateApprovalEmail(to: string, name: string, code:
 
 export async function sendPackPurchaseEmail(
   to: string,
-  opts: { credits: number; packName: string }
+  opts: { credits: number; packName: string; name?: string }
 ) {
   const resend = new Resend(process.env.RESEND_API_KEY ?? "");
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com";
   const checkerUrl = `${appUrl}/kdp-pdf-checker`;
-  const dashUrl = `${appUrl}/dashboard`;
+  const accountUrl = `${appUrl}/account`;
+  const safeCheckerUrl = escapeHtmlAttr(checkerUrl);
+  const safeAccountUrl = escapeHtmlAttr(accountUrl);
   const creditWord = opts.credits === 1 ? "scan credit" : "scan credits";
+  const firstName = opts.name ? opts.name.split(" ")[0] : "";
 
   const html = `
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"></head>
-<body style="font-family: system-ui, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; background: #FAF7EE; color: #1A1208;">
+<body style="font-family: system-ui, sans-serif; max-width: 560px; margin: 0 auto; padding: 0; background: #FAF7EE; color: #1A1208;">
 
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 560px; margin: 0 auto;">
+
+    <!-- Header -->
     <tr>
-      <td style="padding-bottom: 24px; border-bottom: 2px solid #2D6A2D;">
-        <span style="font-size: 22px; font-weight: 700; color: #F05A28;">manu</span><span style="font-size: 22px; font-weight: 700; color: #2D6A2D;">2print</span>
-        <span style="font-size: 13px; color: #6B6151; margin-left: 8px;">Scan Credits</span>
+      <td style="background: #1A1208; padding: 24px 32px; border-radius: 12px 12px 0 0;">
+        <span style="font-size: 24px; font-weight: 700; color: #F05A28;">manu</span><span style="font-size: 24px; font-weight: 700; color: #4cd964;">2print</span>
       </td>
     </tr>
+
+    <!-- Body -->
     <tr>
-      <td style="padding: 32px 0 16px;">
-        <p style="font-size: 20px; font-weight: 700; margin: 0 0 8px;">Your ${opts.packName} is ready. 🎉</p>
-        <p style="font-size: 15px; line-height: 1.7; color: #3a3020; margin: 0 0 20px;">
-          <strong>${opts.credits} ${creditWord}</strong> ${opts.credits === 1 ? "has" : "have"} been added to your account.
-          Use ${opts.credits === 1 ? "it" : "them"} any time to unlock a full annotated KDP compliance report.
+      <td style="padding: 36px 32px 24px; background: #FAF7EE;">
+
+        <p style="font-size: 22px; font-weight: 700; color: #1A1208; margin: 0 0 20px; line-height: 1.3;">
+          ${firstName ? `Hey ${firstName} — ` : ""}${opts.packName} confirmed. Your credits are loaded.
         </p>
-        <div style="background: #1A1208; border-radius: 10px; padding: 20px 24px; margin: 0 0 24px; text-align: center;">
-          <p style="font-size: 40px; font-weight: 900; color: #4cd964; margin: 0 0 4px; line-height: 1;">+${opts.credits}</p>
-          <p style="font-size: 13px; color: #9B8E7E; margin: 0;">${creditWord} added to your account</p>
+
+        <p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 12px;">
+          Thank you — genuinely. You didn't just buy a tool, you decided to get your book right before KDP gets to tell you it isn't.
+        </p>
+
+        <p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 24px;">
+          That's the move most authors skip. You didn't.
+        </p>
+
+        <!-- Credit badge -->
+        <div style="background: #1A1208; border-radius: 10px; padding: 20px 24px; margin: 0 0 28px; text-align: center;">
+          <p style="font-size: 44px; font-weight: 900; color: #4cd964; margin: 0 0 4px; line-height: 1;">+${opts.credits}</p>
+          <p style="font-size: 14px; color: #9B8E7E; margin: 0;">${creditWord} ready to use</p>
         </div>
-        <p style="font-size: 15px; font-weight: 600; margin: 0 0 10px;">How to use your credits:</p>
-        <p style="font-size: 14px; color: #6B6151; line-height: 1.6; margin: 0 0 6px;">1. Upload your PDF at the KDP PDF Checker</p>
-        <p style="font-size: 14px; color: #6B6151; line-height: 1.6; margin: 0 0 6px;">2. Get your free readiness score</p>
-        <p style="font-size: 14px; color: #6B6151; line-height: 1.6; margin: 0 0 24px;">3. Click "Use a Scan Credit" — enter your email and a 6-digit code to unlock the full report</p>
-        <a href="${checkerUrl}"
-           style="display: inline-block; padding: 14px 32px; background: #F05A28; color: #ffffff;
-                  text-decoration: none; font-weight: 700; font-size: 16px; border-radius: 8px;">
-          Check a PDF Now →
-        </a>
+
+        <!-- How it works -->
+        <table width="100%" cellpadding="0" cellspacing="0"
+               style="background: #fff; border-radius: 10px; border: 1px solid #E0D8C4; margin: 0 0 28px;">
+          <tr>
+            <td style="padding: 20px 24px;">
+              <p style="font-size: 13px; font-weight: 700; color: #1A1208; margin: 0 0 12px; text-transform: uppercase; letter-spacing: 0.05em;">
+                When you're ready to run a check
+              </p>
+              <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">1. &nbsp;Upload your PDF at the KDP PDF Checker</p>
+              <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">2. &nbsp;Get your free readiness score</p>
+              <p style="font-size: 14px; color: #3a3020; margin: 0; line-height: 1.7;">3. &nbsp;Click <strong>"Use a Scan Credit"</strong> — enter your email and the 6-digit code we send you</p>
+            </td>
+          </tr>
+        </table>
+
+        <!-- CTA -->
+        <table cellpadding="0" cellspacing="0" style="margin: 0 0 24px;">
+          <tr>
+            <td style="background: #F05A28; border-radius: 10px;">
+              <a href="${safeCheckerUrl}"
+                 style="display: inline-block; padding: 16px 36px; color: #ffffff;
+                        text-decoration: none; font-weight: 700; font-size: 16px;">
+                Check a PDF Now &rarr;
+              </a>
+            </td>
+          </tr>
+        </table>
+
+        <p style="font-size: 14px; line-height: 1.8; color: #6B6151; margin: 0 0 6px;">
+          Credits never expire — use them when you're ready.
+        </p>
+        <p style="font-size: 14px; line-height: 1.8; color: #6B6151; margin: 0;">
+          Check your balance any time at <a href="${safeAccountUrl}" style="color: #F05A28; text-decoration: none;">your account</a>.
+        </p>
+
       </td>
     </tr>
+
+    <!-- Footer -->
     <tr>
-      <td style="padding: 24px 0 0; border-top: 1px solid #E0D8C4;">
-        <p style="font-size: 13px; color: #6B6151; margin: 0 0 6px;">
-          📊 Check your balance any time at <a href="${dashUrl}" style="color: #2D6A2D;">your dashboard</a>.
-        </p>
-        <p style="font-size: 13px; color: #6B6151; margin: 0 0 6px;">
-          💡 Credits never expire — use them whenever you're ready.
-        </p>
-        <p style="font-size: 12px; color: #9B8E7E; margin: 16px 0 0;">— manu2print.com</p>
+      <td style="padding: 20px 32px; border-top: 1px solid #E0D8C4; background: #FAF7EE;">
+        <p style="font-size: 12px; color: #9B8E7E; margin: 0 0 4px;">— Manny, manu2print.com</p>
+        <p style="font-size: 11px; color: #C4B9AC; margin: 0;">Got a question about your file? Just reply — I read every one.</p>
       </td>
     </tr>
+
   </table>
 
 </body>
@@ -455,27 +614,35 @@ export async function sendPackPurchaseEmail(
 `.trim();
 
   const text = [
-    `Your ${opts.packName} is ready!`,
+    firstName
+      ? `Hey ${firstName} — ${opts.packName} confirmed. Your credits are loaded.`
+      : `${opts.packName} confirmed. Your credits are loaded.`,
     "",
-    `${opts.credits} ${creditWord} added to your account.`,
+    "Thank you — genuinely. You decided to get your book right before KDP gets to tell you it isn't.",
+    "That's the move most authors skip. You didn't.",
     "",
-    "How to use your credits:",
+    `+${opts.credits} ${creditWord} ready to use. Credits never expire.`,
+    "",
+    "When you're ready to run a check:",
     "1. Upload your PDF at the KDP PDF Checker",
     "2. Get your free readiness score",
-    "3. Click 'Use a Scan Credit' and enter your email + 6-digit code",
+    "3. Click 'Use a Scan Credit' — enter your email and the 6-digit code we send you",
     "",
     `Check a PDF now: ${checkerUrl}`,
-    `Your dashboard: ${dashUrl}`,
+    `Your account: ${accountUrl}`,
     "",
-    "Credits never expire.",
+    "Got a question? Just reply — I read every one.",
     "",
-    "— manu2print.com",
+    "— Manny, manu2print.com",
   ].join("\n");
 
   const { data, error } = await resend.emails.send({
-    from: FROM,
+    from: FROM_MANNY,
+    replyTo: REPLY_TO,
     to,
-    subject: `Your ${opts.packName} is ready — ${opts.credits} ${creditWord} added ✓`,
+    subject: firstName
+      ? `${firstName} — ${opts.packName} confirmed, ${opts.credits} ${creditWord} loaded`
+      : `${opts.packName} confirmed — ${opts.credits} ${creditWord} loaded and ready`,
     html,
     text,
   });

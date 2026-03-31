@@ -30,6 +30,8 @@ export interface StoredManuscript {
   title?: string;
   // Lead magnet (e.g. PDF compressor)
   leadEmail?: string;
+  /** Buyer's name captured from Lemon Squeezy order. */
+  buyerName?: string;
   /** Set when payment is confirmed via webhook (Lemon Squeezy order_created). */
   payment_confirmed?: boolean;
   /** Pre-signed R2 download URL for the report file (when USE_R2). */

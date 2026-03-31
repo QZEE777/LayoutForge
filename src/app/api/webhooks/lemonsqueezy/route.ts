@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
-import { markDownloadPaid } from "@/lib/storage";
+import { markDownloadPaid, updateMeta } from "@/lib/storage";
 import { sendDownloadLinkEmail, sendPartnerThresholdEmail, sendPackPurchaseEmail } from "@/lib/resend";
 
 export async function POST(req: Request) {
@@ -46,7 +46,7 @@ export async function POST(req: Request) {
 
   let payload: {
     meta?: { event_name?: string; custom_data?: Record<string, unknown> };
-    data?: { id?: string; attributes?: { user_email?: string; total?: number } };
+    data?: { id?: string; attributes?: { user_email?: string; user_name?: string; total?: number } };
   };
   try {
     payload = JSON.parse(rawBody);
@@ -69,6 +69,9 @@ export async function POST(req: Request) {
   const refCode     = typeof customData?.ref_code     === "string" ? customData.ref_code     : "";
   const shareToken  = typeof customData?.share_token  === "string" ? customData.share_token  : "";
   const email       = payload.data?.attributes?.user_email ?? "";
+  const buyerName   = typeof payload.data?.attributes?.user_name === "string"
+    ? payload.data.attributes.user_name.trim()
+    : "";
   const orderId     = payload.data?.id != null ? String(payload.data.id) : "";
   const amount      = payload.data?.attributes?.total ?? 0;
 
@@ -129,6 +132,7 @@ export async function POST(req: Request) {
           await sendPackPurchaseEmail(email, {
             credits: PACK_CREDITS[priceType],
             packName: PACK_NAMES[priceType] ?? priceType,
+            name: buyerName,
           });
         } catch (err) {
           console.error("[webhooks/lemonsqueezy] sendPackPurchaseEmail failed:", err);
@@ -299,11 +303,16 @@ export async function POST(req: Request) {
       } catch { /* best effort — nudge suppression is non-critical */ }
     }
 
+    // Store buyer name on the scan metadata (best effort)
+    if (buyerName) {
+      updateMeta(downloadId, { buyerName }).catch(() => { /* best effort */ });
+    }
+
     // Only send download email on first delivery — not on webhook retries
     if (!alreadyProcessed && email) {
       try {
         const downloadUrl = `${process.env.NEXT_PUBLIC_APP_URL}/download/${downloadId}`;
-        await sendDownloadLinkEmail(email, downloadUrl);
+        await sendDownloadLinkEmail(email, downloadUrl, buyerName);
       } catch (err) {
         console.error("[webhooks/lemonsqueezy] sendDownloadLinkEmail failed:", err);
       }
