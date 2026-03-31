@@ -75,11 +75,13 @@ export async function POST(req: Request) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+  // Hoisted so the downloadId block below can also check it
+  let alreadyProcessed = false;
+
   if (supabaseUrl && supabaseKey) {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Idempotency: skip insert if we already have this order (webhook retry)
-    let alreadyProcessed = false;
     if (orderId) {
       const { data: existing } = await supabase
         .from("payments")
@@ -200,19 +202,23 @@ export async function POST(req: Request) {
               const isSelfReferral = sharerEmail === buyerEmail;
 
               if (!isSelfReferral) {
-                // Fraud check 2: check if this purchaser email already converted via any share token
+                // Compute purchaser hash first (needed for fraud check + reward record)
+                const cryptoLib = await import("crypto");
+                const SALT = process.env.HASH_SALT;
+                if (!SALT) {
+                  console.error("[webhooks/lemonsqueezy] HASH_SALT env var not set — share reward skipped");
+                  throw new Error("HASH_SALT not configured");
+                }
+                const purchaserHash = "v1_" + cryptoLib.createHmac("sha256", SALT)
+                  .update(buyerEmail).digest("hex");
+
+                // Fraud check 2: check if this purchaser already converted via any share token
                 const { data: priorConversion } = await supabase
                   .from("share_rewards")
                   .select("reward_id")
-                  .eq("sharer_email", sharerEmail)
+                  .eq("purchaser_email_hash", purchaserHash)
                   .limit(1)
                   .maybeSingle();
-
-                // Only award if first purchase from this buyer
-                const crypto = await import("crypto");
-                const SALT = process.env.HASH_SALT ?? "m2p_default_salt_change_in_prod";
-                const purchaserHash = "v1_" + crypto.createHmac("sha256", SALT)
-                  .update(buyerEmail).digest("hex");
 
                 // Refund window: 30 days from now
                 const refundWindowCloses = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
@@ -233,16 +239,15 @@ export async function POST(req: Request) {
                     : null,
                 });
 
-                // Increment pending conversion counter on token
+                // Update last_click_at; counter is incremented atomically via RPC below
                 await supabase
                   .from("share_tokens")
                   .update({
-                    total_conversions_pending: supabase.rpc as unknown as number,
                     last_click_at: new Date().toISOString(),
                   })
                   .eq("token", shareToken);
 
-                // Atomic increment via raw SQL (best effort)
+                // Atomic increment via RPC (best effort)
                 try {
                   await supabase.rpc("increment_share_conversions_pending", { p_token: shareToken });
                 } catch { /* best effort */ }
@@ -294,7 +299,8 @@ export async function POST(req: Request) {
       } catch { /* best effort — nudge suppression is non-critical */ }
     }
 
-    if (email) {
+    // Only send download email on first delivery — not on webhook retries
+    if (!alreadyProcessed && email) {
       try {
         const downloadUrl = `${process.env.NEXT_PUBLIC_APP_URL}/download/${downloadId}`;
         await sendDownloadLinkEmail(email, downloadUrl);

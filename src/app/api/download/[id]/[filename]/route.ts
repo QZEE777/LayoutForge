@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readOutput } from "@/lib/storage";
+import { readOutput, getStored } from "@/lib/storage";
 
 export async function GET(
   request: NextRequest,
@@ -35,6 +35,15 @@ export async function GET(
       return NextResponse.json(
         { error: "Invalid file", message: "Only PDF, DOCX, and EPUB files can be downloaded." },
         { status: 400 }
+      );
+    }
+
+    // Payment gate: verify download is paid before serving the file
+    const meta = await getStored(id);
+    if (!meta?.payment_confirmed) {
+      return NextResponse.json(
+        { error: "Payment required", message: "Purchase this report to download." },
+        { status: 402 }
       );
     }
 

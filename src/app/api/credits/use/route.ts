@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { markDownloadPaid } from "@/lib/storage";
+import { markDownloadPaid, getStored } from "@/lib/storage";
 import { sendDownloadLinkEmail } from "@/lib/resend";
 import crypto from "crypto";
 
+// Must match credits/send-code exactly — same prefix, same fallback
 function signToken(email: string, code: string, expiresAt: number): string {
   const secret = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "fallback";
   return crypto.createHmac("sha256", secret).update(`cred|${email}|${code}|${expiresAt}`).digest("hex");
@@ -13,11 +14,11 @@ export async function POST(req: Request) {
   let email: string, code: string, token: string, expiresAt: number, downloadId: string;
   try {
     const body = await req.json();
-    email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
-    code = typeof body?.code === "string" ? body.code.trim() : "";
-    token = typeof body?.token === "string" ? body.token : "";
-    expiresAt = typeof body?.expiresAt === "number" ? body.expiresAt : 0;
-    downloadId = typeof body?.downloadId === "string" ? body.downloadId : "";
+    email      = typeof body?.email      === "string" ? body.email.trim().toLowerCase() : "";
+    code       = typeof body?.code       === "string" ? body.code.trim()                : "";
+    token      = typeof body?.token      === "string" ? body.token                      : "";
+    expiresAt  = typeof body?.expiresAt  === "number" ? body.expiresAt                  : 0;
+    downloadId = typeof body?.downloadId === "string" ? body.downloadId                 : "";
   } catch {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
@@ -36,6 +37,18 @@ export async function POST(req: Request) {
   }
 
   const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+
+  // Idempotency: if this download is already unlocked, return success without deducting again.
+  // Prevents double-deduction if the user submits the form twice within the 10-min window.
+  const existingMeta = await getStored(downloadId).catch(() => null);
+  if (existingMeta?.payment_confirmed) {
+    const now0 = new Date().toISOString();
+    const { data: cr } = await supabase
+      .from("scan_credits").select("credits").eq("email", email)
+      .or(`expires_at.is.null,expires_at.gt.${now0}`);
+    const bal = (cr ?? []).reduce((s: number, r: { credits: number }) => s + (r.credits ?? 0), 0);
+    return NextResponse.json({ ok: true, balance: Math.max(0, bal) });
+  }
 
   // Check credit balance — exclude expired rows
   const now = new Date().toISOString();
