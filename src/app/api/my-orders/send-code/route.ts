@@ -3,11 +3,12 @@ import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import crypto from "crypto";
 
-// Rate limit (in-memory, per warm instance — good enough for beta)
-const rateLimit = new Map<string, { count: number; resetAt: number }>();
+const OTP_RATE_LIMIT = 5;
+const OTP_WINDOW_MS  = 15 * 60 * 1000;
+const OTP_EXPIRY_MS  = 10 * 60 * 1000;
 
 function generateCode(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+  return crypto.randomInt(100000, 1000000).toString();
 }
 
 function signToken(email: string, code: string, expiresAt: number): string {
@@ -31,24 +32,30 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Valid email required" }, { status: 400 });
   }
 
-  // Rate limit: 3 requests per 10 minutes per email
-  const now = Date.now();
-  const rl = rateLimit.get(email);
-  if (rl && now < rl.resetAt) {
-    if (rl.count >= 3) {
-      return NextResponse.json({ error: "Too many attempts. Try again in 10 minutes." }, { status: 429 });
-    }
-    rl.count++;
-  } else {
-    rateLimit.set(email, { count: 1, resetAt: now + 10 * 60 * 1000 });
-  }
-
-  // Check if email has any purchases
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
+  // DB-based rate limit — survives cold starts
+  const windowStart = new Date(Date.now() - OTP_WINDOW_MS).toISOString();
+  const { count: recentAttempts } = await supabase
+    .from("scan_otp_attempts")
+    .select("*", { count: "exact", head: true })
+    .eq("email", email)
+    .gte("created_at", windowStart);
+
+  if ((recentAttempts ?? 0) >= OTP_RATE_LIMIT) {
+    return NextResponse.json(
+      { error: "Too many attempts. Try again in 15 minutes." },
+      { status: 429 }
+    );
+  }
+
+  // Record attempt before sending
+  await supabase.from("scan_otp_attempts").insert({ email });
+
+  // Check if email has any purchases — don't reveal if it doesn't
   const { data: payment } = await supabase
     .from("payments")
     .select("id")
@@ -57,17 +64,15 @@ export async function POST(req: Request) {
     .limit(1)
     .maybeSingle();
 
-  // Always return ok — don't reveal if email exists
   if (!payment) {
     return NextResponse.json({ ok: true, token: null });
   }
 
-  // Generate code + signed token (expires in 10 minutes)
-  const code = generateCode();
-  const expiresAt = now + 10 * 60 * 1000;
-  const token = signToken(email, code, expiresAt);
+  const now       = Date.now();
+  const code      = generateCode();
+  const expiresAt = now + OTP_EXPIRY_MS;
+  const token     = signToken(email, code, expiresAt);
 
-  // Send verification email
   const resend = new Resend(process.env.RESEND_API_KEY ?? "");
   const html = `
 <!DOCTYPE html>
@@ -83,7 +88,7 @@ export async function POST(req: Request) {
     <tr>
       <td style="padding: 28px 0 16px;">
         <p style="font-size: 16px; font-weight: 600; margin: 0 0 8px;">Your verification code</p>
-        <p style="font-size: 14px; color: #6B6151; margin: 0 0 24px;">Enter this code on the manu2print orders page:</p>
+        <p style="font-size: 14px; color: #6B6151; margin: 0 0 24px;">Enter this code to access your account:</p>
         <div style="background: #1A1208; color: #ffffff; font-size: 36px; font-weight: 700; letter-spacing: 12px; text-align: center; padding: 20px 32px; border-radius: 12px;">
           ${code}
         </div>
@@ -113,6 +118,5 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Failed to send email. Try again." }, { status: 500 });
   }
 
-  // Return signed token to client — used in verify step
   return NextResponse.json({ ok: true, token, expiresAt });
 }

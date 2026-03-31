@@ -195,6 +195,10 @@ export default function SuccessPage() {
           <Link href="/resend-link" className="text-white/60 underline hover:text-white">
             Get it resent
           </Link>
+          {" · "}
+          <Link href="/account" className="text-white/60 underline hover:text-white">
+            My account
+          </Link>
         </p>
 
         <Link href="/" className="mt-6 inline-block text-white/40 hover:text-white/70 text-sm">
