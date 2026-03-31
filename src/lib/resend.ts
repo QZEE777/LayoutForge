@@ -16,43 +16,84 @@ function escapeHtmlAttr(s: string): string {
 export async function sendDownloadLinkEmail(to: string, downloadUrl: string) {
   const resend = new Resend(process.env.RESEND_API_KEY ?? "");
   const safeUrl = escapeHtmlAttr(downloadUrl);
+  const resendUrl = escapeHtmlAttr("https://www.manu2print.com/resend-link");
+
   const html = `
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"></head>
-<body style="font-family: system-ui, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; background: #FAF7EE; color: #1A1208;">
+<body style="font-family: system-ui, sans-serif; max-width: 560px; margin: 0 auto; padding: 0; background: #FAF7EE; color: #1A1208;">
 
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 560px; margin: 0 auto;">
+
+    <!-- Header -->
     <tr>
-      <td style="padding-bottom: 24px; border-bottom: 2px solid #2D6A2D;">
-        <span style="font-size: 22px; font-weight: 700; color: #F05A28;">manu</span><span style="font-size: 22px; font-weight: 700; color: #2D6A2D;">2print</span>
-        <span style="font-size: 13px; color: #6B6151; margin-left: 8px;">KDP PDF Checker</span>
+      <td style="background: #1A1208; padding: 24px 32px; border-radius: 12px 12px 0 0;">
+        <span style="font-size: 24px; font-weight: 700; color: #F05A28;">manu</span><span style="font-size: 24px; font-weight: 700; color: #4cd964;">2print</span>
       </td>
     </tr>
+
+    <!-- Body -->
     <tr>
-      <td style="padding: 32px 0 16px;">
-        <p style="font-size: 18px; font-weight: 600; margin: 0 0 12px;">Your report is ready.</p>
-        <p style="font-size: 15px; line-height: 1.7; color: #3a3020; margin: 0 0 28px;">
-          Thank you for your purchase. Click below to view your KDP PDF Check Report and download your results.
+      <td style="padding: 36px 32px 24px; background: #FAF7EE;">
+
+        <p style="font-size: 22px; font-weight: 700; color: #1A1208; margin: 0 0 16px; line-height: 1.3;">
+          You're in. Your full report is ready. 🎉
         </p>
-        <a href="${safeUrl}"
-           style="display: inline-block; padding: 14px 32px; background: #F05A28; color: #ffffff;
-                  text-decoration: none; font-weight: 700; font-size: 16px; border-radius: 8px;">
-          View &amp; Download Report →
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td style="padding: 24px 0 0; border-top: 1px solid #E0D8C4;">
+
+        <p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 20px;">
+          Thank you for trusting manu2print with your manuscript. Your full KDP PDF Check Report is ready — every issue, every page, every fix. Let's get your book KDP-ready.
+        </p>
+
+        <!-- CTA -->
+        <table cellpadding="0" cellspacing="0" style="margin: 32px 0;">
+          <tr>
+            <td style="background: #F05A28; border-radius: 10px;">
+              <a href="${safeUrl}"
+                 style="display: inline-block; padding: 16px 36px; color: #ffffff;
+                        text-decoration: none; font-weight: 700; font-size: 16px;">
+                View &amp; Download My Report &rarr;
+              </a>
+            </td>
+          </tr>
+        </table>
+
+        <!-- What's inside -->
+        <table width="100%" cellpadding="0" cellspacing="0"
+               style="background: #fff; border-radius: 10px; border: 1px solid #E0D8C4; margin: 0 0 28px;">
+          <tr>
+            <td style="padding: 20px 24px;">
+              <p style="font-size: 13px; font-weight: 700; color: #1A1208; margin: 0 0 12px; text-transform: uppercase; letter-spacing: 0.05em;">
+                Your report includes
+              </p>
+              <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;Every formatting issue flagged — bleed, margins, fonts, image resolution</p>
+              <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;Exact page numbers for every problem</p>
+              <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;Plain-English fix instructions for each issue</p>
+              <p style="font-size: 14px; color: #3a3020; margin: 0; line-height: 1.7;">&#10003; &nbsp;Annotated PDF with issues highlighted visually</p>
+            </td>
+          </tr>
+        </table>
+
         <p style="font-size: 13px; color: #6B6151; margin: 0 0 6px;">
           ⚠️ <strong>Save this link</strong> — your file is available for <strong>24 hours</strong>.
+          Lost it? <a href="${resendUrl}" style="color: #F05A28;">Get it resent here.</a>
         </p>
-        <p style="font-size: 13px; color: #6B6151; margin: 0 0 6px;">
-          Lost this email? Visit <a href="https://www.manu2print.com/resend-link" style="color: #2D6A2D;">manu2print.com/resend-link</a> to get it resent.
+
+        <p style="font-size: 14px; line-height: 1.8; color: #6B6151; margin: 16px 0 0;">
+          Got questions about your results? Just reply — I read every one.
         </p>
-        <p style="font-size: 12px; color: #9B8E7E; margin: 16px 0 0;">— manu2print.com</p>
+
       </td>
     </tr>
+
+    <!-- Footer -->
+    <tr>
+      <td style="padding: 20px 32px; border-top: 1px solid #E0D8C4; background: #FAF7EE;">
+        <p style="font-size: 12px; color: #9B8E7E; margin: 0 0 4px;">— Manny, manu2print.com</p>
+        <p style="font-size: 11px; color: #C4B9AC; margin: 0;">Built for indie authors who want to get it right the first time.</p>
+      </td>
+    </tr>
+
   </table>
 
 </body>
@@ -60,21 +101,32 @@ export async function sendDownloadLinkEmail(to: string, downloadUrl: string) {
 `.trim();
 
   const text = [
-    "Your KDP PDF Check Report is ready.",
+    "You're in. Your full report is ready.",
+    "",
+    "Thank you for trusting manu2print with your manuscript.",
+    "Your full KDP PDF Check Report is ready — every issue, every page, every fix.",
     "",
     `View and download your report: ${downloadUrl}`,
     "",
+    "Your report includes:",
+    "✓ Every formatting issue flagged — bleed, margins, fonts, image resolution",
+    "✓ Exact page numbers for every problem",
+    "✓ Plain-English fix instructions for each issue",
+    "✓ Annotated PDF with issues highlighted visually",
+    "",
     "⚠ Save this link — your file is available for 24 hours.",
+    "Lost it? Visit https://www.manu2print.com/resend-link",
     "",
-    "Lost this email? Visit https://www.manu2print.com/resend-link to get it resent.",
+    "Got questions about your results? Just reply — I read every one.",
     "",
-    "— manu2print.com",
+    "— Manny, manu2print.com",
   ].join("\n");
 
   const { data, error } = await resend.emails.send({
-    from: FROM,
+    from: FROM_MANNY,
+    replyTo: REPLY_TO,
     to,
-    subject: SUBJECT,
+    subject: "You're in — your full KDP report is ready",
     html,
     text,
   });
