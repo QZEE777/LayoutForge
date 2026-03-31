@@ -6,6 +6,52 @@ import Image from "next/image";
 
 const ADMIN_KEY = "Manu2Print_admin_auth";
 const ADMIN_PWD_KEY = "Manu2Print_admin_pwd";
+const PAGE_SIZE = 10;
+
+function usePagination<T>(items: T[]) {
+  const [page, setPage] = useState(0);
+  const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages - 1);
+  const slice = items.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);
+  return {
+    slice,
+    page: safePage,
+    totalPages,
+    total: items.length,
+    setPage,
+    from: items.length === 0 ? 0 : safePage * PAGE_SIZE + 1,
+    to: Math.min(safePage * PAGE_SIZE + PAGE_SIZE, items.length),
+  };
+}
+
+function Pager({ from, to, total, page, totalPages, setPage }: {
+  from: number; to: number; total: number;
+  page: number; totalPages: number;
+  setPage: (p: number) => void;
+}) {
+  if (total === 0) return null;
+  return (
+    <div className="flex items-center justify-between px-4 py-3 border-t border-m2p-border text-xs text-soft-muted">
+      <span>{from}–{to} of {total}</span>
+      <div className="flex gap-2">
+        <button
+          onClick={() => setPage(page - 1)}
+          disabled={page === 0}
+          className="px-3 py-1 rounded border border-m2p-border hover:border-m2p-orange disabled:opacity-30 disabled:cursor-not-allowed"
+        >
+          ← Prev
+        </button>
+        <button
+          onClick={() => setPage(page + 1)}
+          disabled={page >= totalPages - 1}
+          className="px-3 py-1 rounded border border-m2p-border hover:border-m2p-orange disabled:opacity-30 disabled:cursor-not-allowed"
+        >
+          Next →
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export default function AdminPage() {
   const [password, setPassword] = useState("");
@@ -83,6 +129,12 @@ export default function AdminPage() {
     token: string;
   }>>([]);
   const [shareRewardsLoading, setShareRewardsLoading] = useState(false);
+  const paymentsPager       = usePagination(payments);
+  const subscriptionsPager  = usePagination(subscriptions);
+  const betaPager           = usePagination(betaAccess);
+  const formatterLeadsPager = usePagination(formatterLeads);
+  const emailCapturesPager  = usePagination(emailCaptures);
+
   const [grantEmail, setGrantEmail] = useState("");
   const [grantCredits, setGrantCredits] = useState("5");
   const [grantNote, setGrantNote] = useState("beta_grant");
@@ -516,7 +568,7 @@ export default function AdminPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {payments.map((p) => (
+                    {paymentsPager.slice.map((p) => (
                       <tr key={p.id} className="border-b border-m2p-border/80">
                         <td className="px-4 py-3">{formatDate(p.created_at)}</td>
                         <td className="px-4 py-3">{p.email || "—"}</td>
@@ -545,6 +597,7 @@ export default function AdminPage() {
                 {payments.length === 0 && (
                   <div className="px-4 py-8 text-center text-soft-muted">No payments yet.</div>
                 )}
+                <Pager {...paymentsPager} />
               </div>
             </section>
 
@@ -570,7 +623,7 @@ export default function AdminPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {subscriptions.map((s, i) => (
+                    {subscriptionsPager.slice.map((s, i) => (
                       <tr key={i} className="border-b border-m2p-border/80">
                         <td className="px-4 py-3">{s.email || "—"}</td>
                         <td className="px-4 py-3">{s.plan || "—"}</td>
@@ -585,6 +638,7 @@ export default function AdminPage() {
                 {subscriptions.length === 0 && (
                   <div className="px-4 py-8 text-center text-soft-muted">No subscriptions.</div>
                 )}
+                <Pager {...subscriptionsPager} />
               </div>
             </section>
 
@@ -609,7 +663,7 @@ export default function AdminPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {betaAccess.map((b) => (
+                    {betaPager.slice.map((b) => (
                       <tr key={b.created_at + (b.email || "")} className="border-b border-m2p-border/80">
                         <td className="px-4 py-3">{formatDate(b.created_at)}</td>
                         <td className="px-4 py-3">{b.email || "—"}</td>
@@ -621,6 +675,7 @@ export default function AdminPage() {
                 {betaAccess.length === 0 && (
                   <div className="px-4 py-8 text-center text-soft-muted">No beta usage yet.</div>
                 )}
+                <Pager {...betaPager} />
               </div>
             </section>
 
@@ -645,7 +700,7 @@ export default function AdminPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {formatterLeads.map((f, i) => (
+                    {formatterLeadsPager.slice.map((f, i) => (
                       <tr key={f.id ?? i} className="border-b border-m2p-border/80">
                         <td className="px-4 py-3">{f.created_at ? formatDate(f.created_at) : "—"}</td>
                         <td className="px-4 py-3">{f.email ?? "—"}</td>
@@ -657,6 +712,7 @@ export default function AdminPage() {
                 {formatterLeads.length === 0 && (
                   <div className="px-4 py-8 text-center text-soft-muted">No formatter leads.</div>
                 )}
+                <Pager {...formatterLeadsPager} />
               </div>
             </section>
 
@@ -682,7 +738,7 @@ export default function AdminPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {emailCaptures.map((e, i) => (
+                    {emailCapturesPager.slice.map((e, i) => (
                       <tr key={e.id ?? i} className="border-b border-m2p-border/80">
                         <td className="px-4 py-3">{e.created_at ? formatDate(e.created_at) : "—"}</td>
                         <td className="px-4 py-3">{e.email ?? "—"}</td>
@@ -694,6 +750,7 @@ export default function AdminPage() {
                 {emailCaptures.length === 0 && (
                   <div className="px-4 py-8 text-center text-soft-muted">No email captures.</div>
                 )}
+                <Pager {...emailCapturesPager} />
               </div>
             </section>
 
