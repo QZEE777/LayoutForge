@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { updateMeta } from "@/lib/storage";
+import { sendWelcomeEmail } from "@/lib/resend";
 
 export async function POST(req: NextRequest) {
   let email: string, downloadId: string;
@@ -23,6 +24,13 @@ export async function POST(req: NextRequest) {
 
   // Capture email as lead on the manuscript metadata
   updateMeta(downloadId, { leadEmail: email }).catch(() => { /* best effort */ });
+
+  // Send warm welcome email with unlock CTA — first touchpoint
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com";
+  const downloadUrl = `${appUrl}/download/${downloadId}`;
+  sendWelcomeEmail(email, downloadUrl).catch((err) => {
+    console.error("[nudge-subscribe] sendWelcomeEmail failed:", err);
+  });
 
   // Upsert — harmless if called multiple times for same email+scan
   await supabase.from("scan_nudges").upsert(

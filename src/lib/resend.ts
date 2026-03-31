@@ -1,6 +1,8 @@
 import { Resend } from "resend";
 
-const FROM = "noreply@manu2print.com";
+const FROM         = "noreply@manu2print.com";
+const FROM_MANNY   = "Manny from manu2print <manny@manu2print.com>";
+const REPLY_TO     = "hello@manu2print.com";
 const SUBJECT = "Your KDP PDF Check — Download Ready";
 
 function escapeHtmlAttr(s: string): string {
@@ -422,6 +424,137 @@ export async function sendPackPurchaseEmail(
     from: FROM,
     to,
     subject: `Your ${opts.packName} is ready — ${opts.credits} ${creditWord} added ✓`,
+    html,
+    text,
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function sendWelcomeEmail(to: string, downloadUrl: string) {
+  const resend = new Resend(process.env.RESEND_API_KEY ?? "");
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com";
+  const checkerUrl = `${appUrl}/kdp-pdf-checker`;
+  const safeDownloadUrl = escapeHtmlAttr(downloadUrl);
+  const safeCheckerUrl = escapeHtmlAttr(checkerUrl);
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: system-ui, sans-serif; max-width: 560px; margin: 0 auto; padding: 0; background: #FAF7EE; color: #1A1208;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 560px; margin: 0 auto;">
+
+    <!-- Header -->
+    <tr>
+      <td style="background: #1A1208; padding: 24px 32px; border-radius: 12px 12px 0 0;">
+        <span style="font-size: 24px; font-weight: 700; color: #F05A28;">manu</span><span style="font-size: 24px; font-weight: 700; color: #4cd964;">2print</span>
+      </td>
+    </tr>
+
+    <!-- Body -->
+    <tr>
+      <td style="padding: 36px 32px 24px; background: #FAF7EE;">
+
+        <p style="font-size: 22px; font-weight: 700; color: #1A1208; margin: 0 0 16px; line-height: 1.3;">
+          Hey — your KDP report is waiting for you. 👋
+        </p>
+
+        <p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 20px;">
+          I'm Manny. I built manu2print because I kept watching indie authors get rejected by KDP for formatting issues that are totally fixable — if you know what to look for.
+        </p>
+
+        <p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 20px;">
+          Your PDF has already been scanned. Your readiness score is ready. All that's left is unlocking the full report — which shows you <strong>exactly</strong> what's wrong, which pages are affected, and how to fix each issue before you submit to KDP.
+        </p>
+
+        <!-- CTA -->
+        <table cellpadding="0" cellspacing="0" style="margin: 32px 0;">
+          <tr>
+            <td style="background: #F05A28; border-radius: 10px;">
+              <a href="${safeDownloadUrl}"
+                 style="display: inline-block; padding: 16px 36px; color: #ffffff;
+                        text-decoration: none; font-weight: 700; font-size: 16px;">
+                Unlock my full report — $9 →
+              </a>
+            </td>
+          </tr>
+        </table>
+
+        <!-- What they get -->
+        <table width="100%" cellpadding="0" cellspacing="0"
+               style="background: #fff; border-radius: 10px; border: 1px solid #E0D8C4; margin: 0 0 28px;">
+          <tr>
+            <td style="padding: 20px 24px;">
+              <p style="font-size: 13px; font-weight: 700; color: #1A1208; margin: 0 0 12px; text-transform: uppercase; letter-spacing: 0.05em;">
+                What&apos;s in your full report
+              </p>
+              <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;Every issue flagged — bleed, margins, fonts, image resolution</p>
+              <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;Exact page numbers for every problem</p>
+              <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;Plain-English fix for each issue</p>
+              <p style="font-size: 14px; color: #3a3020; margin: 0; line-height: 1.7;">&#10003; &nbsp;Annotated PDF with issues highlighted visually</p>
+            </td>
+          </tr>
+        </table>
+
+        <p style="font-size: 14px; line-height: 1.8; color: #6B6151; margin: 0 0 8px;">
+          Got questions? Just reply to this email — it comes straight to me.
+        </p>
+
+        <p style="font-size: 14px; color: #6B6151; margin: 0;">
+          Need to check another PDF?
+          <a href="${safeCheckerUrl}" style="color: #F05A28; text-decoration: none; font-weight: 600;">Run another check &rarr;</a>
+        </p>
+
+      </td>
+    </tr>
+
+    <!-- Footer -->
+    <tr>
+      <td style="padding: 20px 32px; border-top: 1px solid #E0D8C4; background: #FAF7EE;">
+        <p style="font-size: 12px; color: #9B8E7E; margin: 0 0 4px;">— Manny, manu2print.com</p>
+        <p style="font-size: 11px; color: #C4B9AC; margin: 0;">Built for indie authors who want to get it right the first time.</p>
+      </td>
+    </tr>
+
+  </table>
+
+</body>
+</html>
+`.trim();
+
+  const text = [
+    "Hey — your KDP report is waiting for you.",
+    "",
+    "I'm Manny. I built manu2print because I kept watching indie authors get rejected",
+    "by KDP for formatting issues that are totally fixable — if you know what to look for.",
+    "",
+    "Your PDF has been scanned. Your readiness score is ready.",
+    "Unlock the full report to see exactly what's wrong, which pages are affected,",
+    "and how to fix each issue before you submit to KDP.",
+    "",
+    `Unlock my full report — $9: ${downloadUrl}`,
+    "",
+    "What's in your full report:",
+    "✓ Every issue flagged — bleed, margins, fonts, image resolution",
+    "✓ Exact page numbers for every problem",
+    "✓ Plain-English fix for each issue",
+    "✓ Annotated PDF with issues highlighted visually",
+    "",
+    "Got questions? Just reply to this email — it comes straight to me.",
+    "",
+    `Need to check another PDF? ${checkerUrl}`,
+    "",
+    "— Manny, manu2print.com",
+  ].join("\n");
+
+  const { data, error } = await resend.emails.send({
+    from: FROM_MANNY,
+    replyTo: REPLY_TO,
+    to,
+    subject: "Your KDP readiness report is waiting — here's what we found",
     html,
     text,
   });
