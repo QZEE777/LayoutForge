@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { updateMeta } from "@/lib/storage";
 
 export async function POST(req: NextRequest) {
   let email: string, downloadId: string;
@@ -19,6 +20,9 @@ export async function POST(req: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
+
+  // Capture email as lead on the manuscript metadata
+  updateMeta(downloadId, { leadEmail: email }).catch(() => { /* best effort */ });
 
   // Upsert — harmless if called multiple times for same email+scan
   await supabase.from("scan_nudges").upsert(
