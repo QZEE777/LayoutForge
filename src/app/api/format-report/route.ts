@@ -68,9 +68,14 @@ export async function GET(request: NextRequest) {
         { status: 404 }
       );
     }
+    // Strip outputFilename for unpaid downloads — the download route enforces
+    // payment_confirmed independently, but no need to leak the filename to unpaid callers.
+    const isPaid = meta?.payment_confirmed === true;
+    const safeReport = isPaid ? report : { ...report, outputFilename: undefined };
+
     return NextResponse.json({
       success: true,
-      report,
+      report: safeReport,
     });
   } catch (e) {
     console.error("[format-report]", e);

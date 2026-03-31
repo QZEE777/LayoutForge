@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
 export async function POST() {
-  return NextResponse.json({ message: 'Payment gateway not configured yet.' }, { status: 503 });
+  // Stripe not in use — acknowledge immediately so Stripe stops retrying
+  return NextResponse.json({ received: true });
 }
