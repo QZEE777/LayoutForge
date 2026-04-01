@@ -12,14 +12,16 @@ interface VerifyPageProps {
 
 export async function generateMetadata({ params }: VerifyPageProps): Promise<Metadata> {
   const { id } = await params;
-  const ogImage = `https://www.manu2print.com/api/og/verify/${id}`;
+  // Landscape 1200×630 for FB/LinkedIn/Twitter link previews (portrait gets badly cropped)
+  const ogImage         = `https://www.manu2print.com/api/og/verify/${id}?format=og`;
+  const ogImagePortrait = `https://www.manu2print.com/api/og/verify/${id}`;
   return {
     title: "KDP PDF Check Result — manu2print",
     description: "See how this manuscript scored on KDP readiness. Would your PDF pass?",
     openGraph: {
       title: "KDP PDF Check Result — manu2print",
       description: "See how this manuscript scored on KDP readiness. Would your PDF pass?",
-      images: [{ url: ogImage, width: 1080, height: 1350, alt: "KDP readiness score card" }],
+      images: [{ url: ogImage, width: 1200, height: 630, alt: "KDP readiness score card" }],
       url: `https://www.manu2print.com/verify/${id}`,
       type: "website",
     },
@@ -27,7 +29,7 @@ export async function generateMetadata({ params }: VerifyPageProps): Promise<Met
       card: "summary_large_image",
       title: "KDP PDF Check Result — manu2print",
       description: "Would your PDF pass? Most don't.",
-      images: [ogImage],
+      images: [ogImagePortrait],
     },
   };
 }
@@ -98,6 +100,20 @@ export default async function VerifyPage({ params, searchParams }: VerifyPagePro
       ? data.issues_count
       : (stored?.processingReport?.issues?.length ?? null);
 
+  // Check fields: DB is primary; fall back to S3 issuesEnriched for older records
+  const s3Issues = stored?.processingReport?.issuesEnriched ?? [];
+  const hasKw = (kws: string[]) =>
+    s3Issues.some((i: { humanMessage?: string; originalMessage?: string }) => {
+      const txt = ((i.humanMessage ?? "") + " " + (i.originalMessage ?? "")).toLowerCase();
+      return kws.some((k) => txt.includes(k));
+    });
+  const hasS3Issues = s3Issues.length > 0;
+
+  const trimOk    = data.trim_ok    ?? (hasS3Issues ? !hasKw(["trim", "page size", "dimensions", "paper size"]) : null);
+  const marginsOk = data.margins_ok ?? (hasS3Issues ? !hasKw(["margin", "safe zone", "gutter"])                 : null);
+  const bleedOk   = data.bleed_ok   ?? (hasS3Issues ? !hasKw(["bleed"])                                         : null);
+  const fontsOk   = data.fonts_ok   ?? (hasS3Issues ? !hasKw(["font", "embed", "subsett"])                      : null);
+
   const verifyUrl = `https://www.manu2print.com/verify/${verificationId}`;
 
   return (
@@ -110,10 +126,10 @@ export default async function VerifyPage({ params, searchParams }: VerifyPagePro
       verifyUrl={verifyUrl}
       verificationId={verificationId}
       shToken={shToken ?? null}
-      trimOk={data.trim_ok    ?? null}
-      marginsOk={data.margins_ok ?? null}
-      bleedOk={data.bleed_ok   ?? null}
-      fontsOk={data.fonts_ok   ?? null}
+      trimOk={trimOk}
+      marginsOk={marginsOk}
+      bleedOk={bleedOk}
+      fontsOk={fontsOk}
     />
   );
 }

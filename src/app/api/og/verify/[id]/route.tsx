@@ -14,8 +14,10 @@ export async function GET(
 
   // v = ego | fear | curiosity (default: curiosity)
   const variant = (searchParams.get("v") ?? "curiosity") as "ego" | "fear" | "curiosity";
-  // format = fb → 1200×1500, default → 1080×1350
-  const isFb = searchParams.get("format") === "fb";
+  // format: "fb" → 1200×1500 portrait  |  "og" → 1200×630 landscape (FB link preview)  |  default → 1080×1350 portrait
+  const format = searchParams.get("format") ?? "default";
+  const isFb  = format === "fb";
+  const isOg  = format === "og"; // landscape, used in <meta og:image>
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -43,6 +45,26 @@ export async function GET(
   const score  = computedScore ?? report?.readinessScore100 ?? data?.readiness_score ?? 0;
   const isPass = report?.kdpReady === true || data?.kdp_ready === true || score >= 90;
 
+  // Check fields — DB is authoritative; fall back to S3 issues if null
+  const issues = report?.issuesEnriched ?? [];
+  const hasKeyword = (kws: string[]) =>
+    issues.some((i: { humanMessage?: string; originalMessage?: string }) => {
+      const txt = ((i.humanMessage ?? "") + " " + (i.originalMessage ?? "")).toLowerCase();
+      return kws.some((k) => txt.includes(k));
+    });
+
+  const dbTrimOk    = data?.trim_ok    ?? null;
+  const dbMarginsOk = data?.margins_ok ?? null;
+  const dbBleedOk   = data?.bleed_ok   ?? null;
+  const dbFontsOk   = data?.fonts_ok   ?? null;
+
+  // If we have issues from S3, derive any null DB fields from them
+  const hasIssues = issues.length > 0;
+  const trimOk    = dbTrimOk    ?? (hasIssues ? !hasKeyword(["trim", "page size", "dimensions", "paper size"]) : null);
+  const marginsOk = dbMarginsOk ?? (hasIssues ? !hasKeyword(["margin", "safe zone", "gutter"])                 : null);
+  const bleedOk   = dbBleedOk   ?? (hasIssues ? !hasKeyword(["bleed"])                                         : null);
+  const fontsOk   = dbFontsOk   ?? (hasIssues ? !hasKeyword(["font", "embed", "subsett"])                      : null);
+
   // Hook text — changes per variant
   const hookText =
     variant === "ego"
@@ -51,26 +73,25 @@ export async function GET(
       ? (isPass ? "Would your PDF pass?" : "This would fail KDP review.")
       : "Would yours pass?"; // curiosity — universal
 
-  // Check columns — icons only, no verbose labels
   const allChecks = [
-    { label: "Trim Size", ok: data?.trim_ok    ?? null },
-    { label: "Margins",   ok: data?.margins_ok ?? null },
-    { label: "Bleed",     ok: data?.bleed_ok   ?? null },
-    { label: "Fonts",     ok: data?.fonts_ok   ?? null },
+    { label: "Trim Size", ok: trimOk },
+    { label: "Margins",   ok: marginsOk },
+    { label: "Bleed",     ok: bleedOk },
+    { label: "Fonts",     ok: fontsOk },
   ];
 
-  const visibleChecks = allChecks.filter((c) =>
-    c.ok === null ? true : isPass ? c.ok === true : c.ok === false
-  );
+  // Portrait: show only relevant checks. Landscape OG: show all 4.
+  const visibleChecks = isOg
+    ? allChecks
+    : allChecks.filter((c) =>
+        c.ok === null ? true : isPass ? c.ok === true : c.ok === false
+      );
 
-  // Background gradient
-  const bgTop    = isPass ? "#1a5f3f" : "#C35B00";
-  const bgBottom = isPass ? "#2d8659" : "#E65100";
-  // Accent for hook + CTA text
-  const accent   = isPass ? "#FFA040" : "#FFD480";
-  // Verdict (PASS/FAIL) — contrasting colour: orange on green, green on orange
+  // Colors
+  const bgTop        = isPass ? "#1a5f3f" : "#C35B00";
+  const bgBottom     = isPass ? "#2d8659" : "#E65100";
+  const accent       = isPass ? "#FFA040" : "#FFD480";
   const verdictColor = isPass ? "#FF8C00" : "#4CE87A";
-  // Tagline — "KDP Readiness Verified": orange on green cards, green on orange cards
   const taglineColor = isPass ? "#FFA040" : "#4CE87A";
 
   const base      = "https://www.manu2print.com";
@@ -78,7 +99,130 @@ export async function GET(
 
   const displayFont = "system-ui, sans-serif";
 
-  // Canvas size
+  // ── Landscape OG image (1200×630) — for <meta og:image> / FB link preview ──
+  if (isOg) {
+    const W = 1200;
+    const H = 630;
+
+    return new ImageResponse(
+      (
+        <div style={{
+          width: W,
+          height: H,
+          display: "flex",
+          flexDirection: "column",
+          background: `linear-gradient(135deg, ${bgTop} 0%, ${bgBottom} 100%)`,
+          fontFamily: displayFont,
+        }}>
+
+          {/* Top bar: brand + hook + URL */}
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "28px 48px 20px",
+            borderBottom: "1px solid rgba(255,255,255,0.14)",
+          }}>
+            {/* Brand */}
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={avatarUrl} alt="" style={{ width: 60, height: 60, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.3)" }} />
+              <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                <span style={{ fontSize: 32, fontWeight: 900, lineHeight: 1 }}>
+                  <span style={{ color: accent }}>manu</span>
+                  <span style={{ color: isPass ? "#A8E6A3" : "#FFFFFF" }}>2print</span>
+                </span>
+                <span style={{ fontSize: 15, fontWeight: 700, color: taglineColor, letterSpacing: "0.04em" }}>
+                  KDP Readiness Verified
+                </span>
+              </div>
+            </div>
+
+            {/* Hook */}
+            <span style={{ fontSize: 30, fontWeight: 900, color: accent, textAlign: "center", lineHeight: 1.1 }}>
+              {hookText}
+            </span>
+
+            {/* URL */}
+            <span style={{ fontSize: 18, color: "rgba(255,255,255,0.5)", fontWeight: 600 }}>
+              manu2print.com
+            </span>
+          </div>
+
+          {/* Main content row */}
+          <div style={{ display: "flex", flex: 1, padding: "0 48px" }}>
+
+            {/* Left: Verdict + Score */}
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              minWidth: 260,
+              paddingRight: 40,
+              borderRight: "1px solid rgba(255,255,255,0.14)",
+            }}>
+              <span style={{
+                fontSize: 100,
+                fontWeight: 900,
+                color: verdictColor,
+                lineHeight: 1,
+                letterSpacing: "2px",
+              }}>
+                {isPass ? "PASS" : "FAIL"}
+              </span>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginTop: 4 }}>
+                <span style={{ fontSize: 72, fontWeight: 900, color: "#FFFFFF", lineHeight: 1 }}>
+                  {score}
+                </span>
+                <span style={{ fontSize: 32, fontWeight: 700, color: "rgba(255,255,255,0.40)" }}>
+                  /100
+                </span>
+              </div>
+            </div>
+
+            {/* Right: All 4 check rows */}
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              flex: 1,
+              paddingLeft: 40,
+              gap: 0,
+            }}>
+              {visibleChecks.map((c, i) => (
+                <div
+                  key={c.label}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    paddingTop:    i === 0 ? 0 : 14,
+                    paddingBottom: i === visibleChecks.length - 1 ? 0 : 14,
+                    borderBottom:  i < visibleChecks.length - 1 ? "1px solid rgba(255,255,255,0.12)" : "none",
+                  }}
+                >
+                  <span style={{ fontSize: 28, fontWeight: 700, color: "#FFFFFF" }}>
+                    {c.label}
+                  </span>
+                  <span style={{
+                    fontSize: 32,
+                    fontWeight: 900,
+                    color: c.ok === null ? "rgba(255,255,255,0.35)" : c.ok ? "#4CE87A" : "#FF8C69",
+                  }}>
+                    {c.ok === null ? "\u2014" : c.ok ? "\u2713" : "\u00D7"}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
+      ),
+      { width: W, height: H }
+    );
+  }
+
+  // ── Portrait OG images (Instagram / download) ─────────────────────────────
   const W = isFb ? 1200 : 1080;
   const H = isFb ? 1500 : 1350;
   const S = isFb ? 1200 / 1080 : 1;
@@ -95,7 +239,7 @@ export async function GET(
           alignItems: "center",
           padding: `${fs(56)}px ${fs(64)}px ${fs(48)}px ${fs(64)}px`,
           background: `linear-gradient(180deg, ${bgTop} 0%, ${bgBottom} 100%)`,
-          fontFamily: "system-ui, sans-serif",
+          fontFamily: displayFont,
         }}
       >
         {/* Hook — variant-driven */}
@@ -111,7 +255,7 @@ export async function GET(
           {hookText}
         </span>
 
-        {/* PASS / FAIL — no emoji, contrasting colour, Bebas Neue */}
+        {/* PASS / FAIL */}
         <div style={{ display: "flex", alignItems: "center", marginBottom: fs(8) }}>
           <span style={{
             fontSize: fs(180),
@@ -125,7 +269,7 @@ export async function GET(
           </span>
         </div>
 
-        {/* Score — large number / small /100 */}
+        {/* Score */}
         <div style={{
           display: "flex",
           alignItems: "baseline",
@@ -186,7 +330,7 @@ export async function GET(
           ))}
         </div>
 
-        {/* CTA block — centered, orange, stacked lines */}
+        {/* CTA block */}
         <div style={{
           width: "100%",
           display: "flex",
@@ -215,7 +359,6 @@ export async function GET(
           justifyContent: "space-between",
           marginTop: "auto",
         }}>
-          {/* Brand block: Manny avatar + name + tagline */}
           <div style={{ display: "flex", alignItems: "center", gap: fs(18) }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -233,8 +376,6 @@ export async function GET(
               </span>
             </div>
           </div>
-
-          {/* Right: URL */}
           <span style={{ fontSize: fs(28), color: "rgba(255,255,255,0.60)", fontWeight: 600 }}>
             manu2print.com
           </span>
