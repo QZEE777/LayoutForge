@@ -92,7 +92,7 @@ export async function POST(req: Request) {
     if (checkout.error) {
       console.error("[create-checkout-session] Lemon Squeezy error:", checkout.error);
       return NextResponse.json(
-        { error: "Checkout creation failed" },
+        { error: "Checkout creation failed", detail: JSON.stringify(checkout.error) },
         { status: 500 }
       );
     }
