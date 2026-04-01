@@ -12,35 +12,60 @@ interface Props {
   verifyUrl: string;
   verificationId: string;
   shToken: string | null;
+  trimOk: boolean | null;
+  marginsOk: boolean | null;
+  bleedOk: boolean | null;
+  fontsOk: boolean | null;
 }
 
-export function VerifyClient({ score, statusLevel, issuesCount, verifyUrl, verificationId, shToken }: Props) {
-  const [copied, setCopied] = useState(false);
+export function VerifyClient({
+  score, statusLevel, issuesCount, verifyUrl, verificationId, shToken,
+  trimOk, marginsOk, bleedOk, fontsOk,
+}: Props) {
+  const [copyState, setCopyState] = useState<"idle" | "copied">("idle");
 
-  // sh= is the share-to-earn token — carry it forward so conversions are attributed
+  const isPass  = statusLevel === "ready" || statusLevel === "nearly";
   const shParam = shToken ? `?sh=${shToken}` : "";
-  const cardUrl = `/verify/${verificationId}/card${shToken ? `?sh=${shToken}` : ""}`;
-  const ctaHref = `/kdp-pdf-checker${shParam}`;
+  const shareUrl = `${verifyUrl}${shParam}`;
+  const ctaHref  = `/kdp-pdf-checker${shParam}`;
+  const ogImageUrl = `/api/og/verify/${verificationId}`;
 
-  const isBad  = statusLevel === "reject" || statusLevel === "needs-work";
-  const bg     = isBad ? "#F05A28" : "#2D6A2D";
+  const bg     = isPass ? "#1a5f3f" : "#8B2F00";
+  const accent = isPass ? "#FFA040" : "#FFD480";
+
+  // Pre-written caption — ready to paste
+  const caption = isPass
+    ? `My KDP PDF just scored ${score}/100. ✅\nCleared before upload.\nWould yours pass? → ${shareUrl}`
+    : `My KDP PDF would've been rejected.\nFound ${issuesCount ?? "multiple"} issues before uploading.\nCheck yours here: ${shareUrl}`;
+
+  const handleShare = async () => {
+    // Web Share API on mobile — native sheet
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ text: caption });
+        return;
+      } catch { /* user cancelled — fall through */ }
+    }
+    // Desktop fallback: clipboard
+    try {
+      await navigator.clipboard.writeText(caption);
+      setCopyState("copied");
+      setTimeout(() => setCopyState("idle"), 2500);
+    } catch { /* ignore */ }
+  };
 
   const resultLine =
-    statusLevel === "reject"     ? "Would be rejected by KDP." :
-    statusLevel === "needs-work" ? "Needs significant fixes." :
-    statusLevel === "nearly"     ? "Nearly ready for KDP." :
-    "Ready for KDP. ✓";
+    statusLevel === "ready"      ? "Ready for KDP" :
+    statusLevel === "nearly"     ? "Nearly Ready"  :
+    statusLevel === "needs-work" ? "Needs Work"    :
+    "Would Be Rejected";
 
-  const hook = isBad
-    ? "Would YOUR PDF pass? Most don't."
-    : "Would your PDF pass too?";
-
-  const copyLink = () => {
-    navigator.clipboard.writeText(verifyUrl).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
-    });
-  };
+  const checks = [
+    { label: "Trim Size", ok: trimOk },
+    { label: "Margins",   ok: marginsOk },
+    { label: "Bleed",     ok: bleedOk },
+    { label: "Fonts",     ok: fontsOk },
+  ];
 
   return (
     <div style={{
@@ -49,94 +74,236 @@ export function VerifyClient({ score, statusLevel, issuesCount, verifyUrl, verif
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      justifyContent: "center",
-      padding: "24px 20px 40px",
-      fontFamily: "system-ui, sans-serif",
+      padding: "28px 20px 60px",
+      fontFamily: "system-ui, -apple-system, sans-serif",
     }}>
+      <div style={{ width: "100%", maxWidth: 520 }}>
 
-      {/* ── Single card ─────────────────────────────────── */}
-      <div style={{
-        width: "100%",
-        maxWidth: 480,
-        display: "flex",
-        flexDirection: "column",
-        gap: 0,
-      }}>
-
-        {/* Logo */}
-        <div style={{ marginBottom: 28, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        {/* ── Logo ─────────────────────────────────────────── */}
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/manny-avatar.png" alt="" style={{ width: 48, height: 48, borderRadius: "50%" }} />
-            <span style={{ fontWeight: 900, fontSize: 26, letterSpacing: "-0.5px" }}>
-              <span style={{ color: isBad ? "#FFFFFF" : "#F05A28" }}>manu</span>
-              <span style={{ color: isBad ? "#6EE7A0" : "#27AE60" }}>2print</span>
+            <img src="/manny-avatar.png" alt="" style={{ width: 44, height: 44, borderRadius: "50%" }} />
+            <span style={{ fontWeight: 900, fontSize: 24, letterSpacing: "-0.5px" }}>
+              <span style={{ color: accent }}>manu</span>
+              <span style={{ color: isPass ? "#A8E6A3" : "#FFFFFF" }}>2print</span>
             </span>
           </div>
-          <span style={{ fontSize: 22, fontWeight: 700, color: isBad ? "#6EE7A0" : "#F05A28" }}>
-            KDP Readiness Verified
-          </span>
-        </div>
-
-        {/* Hook */}
-        <p style={{
-          fontSize: "clamp(1.5rem, 6vw, 2rem)",
-          fontWeight: 900,
-          color: "#fff",
-          lineHeight: 1.15,
-          margin: "0 0 28px",
-          textAlign: "center",
-        }}>
-          {hook}
-        </p>
-
-        {/* Score block */}
-        <div style={{
-          background: "rgba(0,0,0,0.15)",
-          borderRadius: 20,
-          padding: "32px 20px",
-          textAlign: "center",
-          marginBottom: 16,
-        }}>
-          <div style={{ lineHeight: 1 }}>
-            <span style={{ fontSize: "clamp(5.5rem, 22vw, 7.5rem)", fontWeight: 900, color: "#fff" }}>
-              {score}
-            </span>
-            <span style={{ fontSize: "clamp(2rem, 8vw, 2.8rem)", fontWeight: 700, color: "rgba(255,255,255,0.4)" }}>
-              /100
-            </span>
-          </div>
-          <p style={{
-            fontSize: "clamp(0.8rem, 3.5vw, 1rem)",
-            fontWeight: 800,
-            color: "rgba(255,255,255,0.9)",
-            letterSpacing: "0.1em",
+          <div style={{
+            fontSize: 12,
+            fontWeight: 700,
+            color: "rgba(255,255,255,0.5)",
+            marginTop: 5,
+            letterSpacing: "0.07em",
             textTransform: "uppercase",
-            margin: "12px 0 0",
           }}>
-            {resultLine}
-          </p>
+            KDP Readiness Verified
+          </div>
         </div>
 
-        {/* Issues + curiosity */}
+        {/* ── Section 1: Score + Check Rows ────────────────── */}
         <div style={{
-          background: "rgba(0,0,0,0.12)",
-          borderRadius: 12,
-          padding: "12px 16px",
-          textAlign: "center",
-          marginBottom: 24,
+          background: "rgba(0,0,0,0.22)",
+          borderRadius: 20,
+          padding: "28px 24px",
+          marginBottom: 14,
         }}>
-          {issuesCount !== null && issuesCount > 0 ? (
-            <p style={{ fontSize: 15, fontWeight: 700, color: "#fff", margin: "0 0 4px" }}>
-              {issuesCount} issue{issuesCount !== 1 ? "s" : ""} found before upload
-            </p>
-          ) : null}
-          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", margin: 0 }}>
-            Most files fail on margins, bleed, and trim size.
-          </p>
+          {/* Score */}
+          <div style={{ textAlign: "center", marginBottom: 22 }}>
+            <div style={{ lineHeight: 1 }}>
+              <span style={{ fontSize: "clamp(5rem, 20vw, 7rem)", fontWeight: 900, color: "#fff" }}>
+                {score}
+              </span>
+              <span style={{ fontSize: "clamp(2rem, 8vw, 2.6rem)", fontWeight: 700, color: "rgba(255,255,255,0.35)" }}>
+                /100
+              </span>
+            </div>
+            <div style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              marginTop: 10,
+            }}>
+              <span style={{
+                fontSize: "clamp(1rem, 4vw, 1.2rem)",
+                fontWeight: 900,
+                color: isPass ? "#4CE87A" : "#FF8C69",
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+              }}>
+                {isPass ? "✓ PASS" : "✗ FAIL"}
+              </span>
+              <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 14 }}>—</span>
+              <span style={{
+                fontSize: "clamp(0.85rem, 3vw, 1rem)",
+                fontWeight: 700,
+                color: "rgba(255,255,255,0.7)",
+                textTransform: "uppercase",
+                letterSpacing: "0.04em",
+              }}>
+                {resultLine}
+              </span>
+            </div>
+          </div>
+
+          {/* Check rows */}
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.14)", paddingTop: 20 }}>
+            {checks.map(({ label, ok }, i) => (
+              <div key={label} style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                paddingBottom: i < checks.length - 1 ? 13 : 0,
+                marginBottom:  i < checks.length - 1 ? 13 : 0,
+                borderBottom:  i < checks.length - 1 ? "1px solid rgba(255,255,255,0.09)" : "none",
+              }}>
+                <span style={{ fontSize: 15, fontWeight: 600, color: "rgba(255,255,255,0.82)" }}>
+                  {label}
+                </span>
+                <span style={{
+                  fontSize: 18,
+                  fontWeight: 900,
+                  color: ok === null ? "rgba(255,255,255,0.3)" : ok ? "#4CE87A" : "#FF8C69",
+                }}>
+                  {ok === null ? "—" : ok ? "✓" : "✗"}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Primary CTA */}
+        {/* ── Section 2: Share Card Preview ────────────────── */}
+        <div style={{
+          background: "rgba(0,0,0,0.18)",
+          borderRadius: 20,
+          padding: "18px 18px 14px",
+          marginBottom: 14,
+        }}>
+          <p style={{
+            fontSize: 11,
+            fontWeight: 700,
+            color: "rgba(255,255,255,0.45)",
+            textTransform: "uppercase",
+            letterSpacing: "0.08em",
+            marginBottom: 12,
+            textAlign: "center",
+          }}>
+            Your Share Card
+          </p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={ogImageUrl}
+            alt="Share card preview"
+            style={{
+              width: "100%",
+              borderRadius: 12,
+              display: "block",
+              marginBottom: 12,
+              border: "1px solid rgba(255,255,255,0.10)",
+            }}
+          />
+          <a
+            href={ogImageUrl}
+            download="kdp-result-card.jpg"
+            style={{
+              display: "block",
+              textAlign: "center",
+              background: "rgba(255,255,255,0.11)",
+              color: "#fff",
+              fontWeight: 700,
+              fontSize: 13,
+              padding: "11px 16px",
+              borderRadius: 10,
+              textDecoration: "none",
+              border: "1.5px solid rgba(255,255,255,0.18)",
+            }}
+          >
+            ⬇ Download Card
+          </a>
+        </div>
+
+        {/* ── Section 3: Ready-to-paste Caption ────────────── */}
+        <div style={{
+          background: "rgba(0,0,0,0.18)",
+          borderRadius: 20,
+          padding: "18px 18px 16px",
+          marginBottom: 14,
+        }}>
+          <p style={{
+            fontSize: 11,
+            fontWeight: 700,
+            color: "rgba(255,255,255,0.45)",
+            textTransform: "uppercase",
+            letterSpacing: "0.08em",
+            marginBottom: 10,
+            textAlign: "center",
+          }}>
+            Ready-to-paste caption
+          </p>
+          {/* Caption preview */}
+          <div style={{
+            background: "rgba(0,0,0,0.22)",
+            borderRadius: 10,
+            padding: "12px 14px",
+            marginBottom: 12,
+            fontSize: 13,
+            lineHeight: 1.6,
+            color: "rgba(255,255,255,0.72)",
+            whiteSpace: "pre-line",
+            border: "1px solid rgba(255,255,255,0.09)",
+            wordBreak: "break-word",
+          }}>
+            {caption}
+          </div>
+          <button
+            onClick={handleShare}
+            style={{
+              width: "100%",
+              background: accent,
+              color: "#1a1208",
+              fontWeight: 800,
+              fontSize: "0.95rem",
+              padding: "14px 16px",
+              borderRadius: 12,
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            {copyState === "copied" ? "✓ Copied to clipboard!" : "📋 Copy Caption + Link"}
+          </button>
+        </div>
+
+        {/* ── Section 4: Earn ───────────────────────────────── */}
+        <div style={{
+          background: isPass ? "rgba(255,160,64,0.13)" : "rgba(255,212,128,0.10)",
+          border: `1.5px solid ${isPass ? "rgba(255,160,64,0.30)" : "rgba(255,212,128,0.25)"}`,
+          borderRadius: 16,
+          padding: "18px 20px",
+          marginBottom: 20,
+          textAlign: "center",
+        }}>
+          <p style={{ fontSize: 15, fontWeight: 800, color: accent, margin: "0 0 5px" }}>
+            Earn free scan credits.
+          </p>
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", margin: "0 0 12px", lineHeight: 1.5 }}>
+            Every check through your link rewards you.
+          </p>
+          <Link
+            href="/partners"
+            style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: accent,
+              textDecoration: "none",
+              borderBottom: `1px solid ${accent}`,
+              paddingBottom: 1,
+            }}
+          >
+            Want to earn cash instead? Become a partner →
+          </Link>
+        </div>
+
+        {/* ── Primary CTA ───────────────────────────────────── */}
         <Link
           href={ctaHref}
           style={{
@@ -149,56 +316,10 @@ export function VerifyClient({ score, statusLevel, issuesCount, verifyUrl, verif
             borderRadius: 13,
             textDecoration: "none",
             textAlign: "center",
-            marginBottom: 12,
           }}
         >
           Check My PDF — $9
         </Link>
-
-        {/* Secondary actions */}
-        <div style={{ display: "flex", gap: 8 }}>
-          <Link
-            href={cardUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              flex: 1,
-              display: "block",
-              background: "rgba(255,255,255,0.15)",
-              color: "#fff",
-              fontWeight: 700,
-              fontSize: 13,
-              padding: "11px 12px",
-              borderRadius: 10,
-              textDecoration: "none",
-              textAlign: "center",
-              border: "1.5px solid rgba(255,255,255,0.3)",
-            }}
-          >
-            📸 Share Card
-          </Link>
-          <button
-            onClick={copyLink}
-            style={{
-              flex: 1,
-              background: "rgba(255,255,255,0.15)",
-              color: "#fff",
-              fontWeight: 700,
-              fontSize: 13,
-              padding: "11px 12px",
-              borderRadius: 10,
-              border: "1.5px solid rgba(255,255,255,0.3)",
-              cursor: "pointer",
-            }}
-          >
-            {copied ? "✓ Copied!" : "Copy Link"}
-          </button>
-        </div>
-
-        {/* Earn note */}
-        <p style={{ textAlign: "center", fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 16 }}>
-          Share your link — earn a free scan when someone checks theirs
-        </p>
 
       </div>
     </div>

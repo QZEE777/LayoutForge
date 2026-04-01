@@ -40,7 +40,7 @@ export default async function VerifyPage({ params, searchParams }: VerifyPagePro
   const [{ data, error }, stored] = await Promise.all([
     supabase
       .from("verification_results")
-      .select("verification_id, filename_clean, readiness_score, kdp_ready, scan_date, issues_count")
+      .select("verification_id, filename_clean, readiness_score, kdp_ready, scan_date, issues_count, trim_ok, margins_ok, bleed_ok, fonts_ok")
       .eq("verification_id", verificationId)
       .maybeSingle(),
     getStored(verificationId).catch(() => null),
@@ -110,6 +110,10 @@ export default async function VerifyPage({ params, searchParams }: VerifyPagePro
       verifyUrl={verifyUrl}
       verificationId={verificationId}
       shToken={shToken ?? null}
+      trimOk={data.trim_ok    ?? null}
+      marginsOk={data.margins_ok ?? null}
+      bleedOk={data.bleed_ok   ?? null}
+      fontsOk={data.fonts_ok   ?? null}
     />
   );
 }
