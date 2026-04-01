@@ -72,6 +72,23 @@ function derivePhase(tick: number, playing: boolean, done: boolean): Phase {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
+const liveDemoStyles = `
+@keyframes liveDemoGlow {
+  0%, 100% { box-shadow: 0 0 6px 1px rgba(76,217,100,0.45), 0 0 12px 2px rgba(76,217,100,0.2); }
+  50%       { box-shadow: 0 0 10px 3px rgba(76,217,100,0.75), 0 0 22px 5px rgba(76,217,100,0.35); }
+}
+@keyframes liveDot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+.live-demo-pill {
+  animation: liveDemoGlow 2s ease-in-out infinite;
+}
+.live-demo-dot {
+  animation: liveDot 1.2s ease-in-out infinite;
+}
+`;
+
 export default function HeroDemo() {
   const [playing,    setPlaying]    = useState(false);
   const [done,       setDone]       = useState(false);
@@ -177,41 +194,71 @@ export default function HeroDemo() {
   // ── IDLE STATE ────────────────────────────────────────────────────────────
   if (phase === "idle") {
     return (
-      <div className="w-full rounded-2xl overflow-hidden border"
-        style={{ background: "#141a14", borderColor: "rgba(255,255,255,0.09)", boxShadow: "0 8px 40px rgba(0,0,0,0.45)" }}>
-        {chrome}
-        <div className="flex flex-col items-center justify-center gap-5 px-5 pt-6 pb-0" style={{ minHeight: 288 }}>
-          <p className="font-bebas tracking-wide text-center" style={{ color: "rgba(255,255,255,0.85)", fontSize: 20 }}>
-            KDP PDF <span style={{ color: "#4cd964" }}>Checker</span>
-          </p>
-          <div className="w-full rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-3"
-            style={{ minHeight: 148, borderColor: "rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.02)" }}>
-            <div className="w-11 h-11 rounded-full flex items-center justify-center"
-              style={{ background: "rgba(255,255,255,0.05)" }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.28)" strokeWidth="2">
-                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-                <polyline points="17,8 12,3 7,8" />
-                <line x1="12" y1="3" x2="12" y2="15" />
-              </svg>
+      <>
+        <style>{liveDemoStyles}</style>
+        <div className="w-full rounded-2xl overflow-hidden border"
+          style={{ background: "#141a14", borderColor: "rgba(255,255,255,0.09)", boxShadow: "0 8px 40px rgba(0,0,0,0.45)" }}>
+          {chrome}
+          <div className="flex flex-col items-center justify-center gap-5 px-5 pt-6 pb-0" style={{ minHeight: 288 }}>
+
+            {/* Title + LIVE DEMO pill */}
+            <div className="flex items-center justify-center gap-3 flex-wrap">
+              <p className="font-bebas tracking-wide text-center" style={{ color: "rgba(255,255,255,0.85)", fontSize: 20 }}>
+                KDP PDF <span style={{ color: "#4cd964" }}>Checker</span>
+              </p>
+              <span
+                className="live-demo-pill flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider"
+                style={{
+                  background: "rgba(76,217,100,0.12)",
+                  border: "1px solid rgba(76,217,100,0.5)",
+                  color: "#4cd964",
+                  letterSpacing: "0.08em",
+                }}
+              >
+                <span className="live-demo-dot w-1.5 h-1.5 rounded-full inline-block" style={{ background: "#4cd964" }} />
+                Live Demo
+              </span>
             </div>
-            <p className="text-sm" style={{ color: "rgba(255,255,255,0.26)" }}>Drop your PDF here</p>
+
+            {/* Drop zone with DEMO badge */}
+            <div className="relative w-full rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-3"
+              style={{ minHeight: 148, borderColor: "rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.02)" }}>
+
+              {/* DEMO badge top-center */}
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-widest"
+                style={{ background: "#f05a28", color: "#fff", letterSpacing: "0.12em", fontSize: 10 }}>
+                DEMO
+              </div>
+
+              <div className="w-11 h-11 rounded-full flex items-center justify-center"
+                style={{ background: "rgba(255,255,255,0.05)" }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.28)" strokeWidth="2">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                  <polyline points="17,8 12,3 7,8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+              </div>
+              <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>Watch the demo — see how it works</p>
+            </div>
+
+            {/* Play Demo button */}
+            <button
+              onClick={start}
+              className="flex items-center gap-3 rounded-xl px-6 py-3 font-semibold text-sm transition-all duration-200 hover:scale-105"
+              style={{ background: "rgba(240,90,40,0.1)", border: "1px solid rgba(240,90,40,0.32)", color: "#f05a28" }}
+            >
+              <span className="flex items-center justify-center w-7 h-7 rounded-full"
+                style={{ background: "rgba(240,90,40,0.16)" }}>
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="#f05a28">
+                  <polygon points="3,1 11,6 3,11" />
+                </svg>
+              </span>
+              Play Demo
+            </button>
           </div>
-          <button
-            onClick={start}
-            className="flex items-center gap-3 rounded-xl px-6 py-3 font-semibold text-sm transition-all duration-200 hover:scale-105"
-            style={{ background: "rgba(240,90,40,0.1)", border: "1px solid rgba(240,90,40,0.32)", color: "#f05a28" }}
-          >
-            <span className="flex items-center justify-center w-7 h-7 rounded-full"
-              style={{ background: "rgba(240,90,40,0.16)" }}>
-              <svg width="11" height="11" viewBox="0 0 12 12" fill="#f05a28">
-                <polygon points="3,1 11,6 3,11" />
-              </svg>
-            </span>
-            See How It Works
-          </button>
+          {ctaFooter}
         </div>
-        {ctaFooter}
-      </div>
+      </>
     );
   }
 
