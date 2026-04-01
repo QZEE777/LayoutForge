@@ -55,6 +55,7 @@ export default function PaymentGate({
   const [betaLoading, setBetaLoading] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [checkoutError, setCheckoutError] = useState("");
   const [verifyTimedOut, setVerifyTimedOut] = useState(false);
 
   // Credit redemption state
@@ -185,13 +186,11 @@ export default function PaymentGate({
     const email = userEmail.trim();
     saveEmailForNextTime(email);
     captureNudge(email);
-    // Mark as "checkout initiated" so if the user returns to the download page
-    // before the webhook confirms payment, we show the verifying overlay instead
-    // of letting them pay again.
     if (downloadId && typeof window !== "undefined") {
       localStorage.setItem(getCheckoutPendingKey(downloadId), "1");
     }
     setCheckoutLoading(true);
+    setCheckoutError("");
     try {
       const res = await fetch("/api/create-checkout-session", {
         method: "POST",
@@ -204,7 +203,13 @@ export default function PaymentGate({
         }),
       });
       const data = await res.json();
-      if (data?.checkoutUrl) window.location.href = data.checkoutUrl;
+      if (data?.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        setCheckoutError(data?.error ?? "Checkout unavailable — please try again or contact support.");
+      }
+    } catch {
+      setCheckoutError("Network error — please check your connection and try again.");
     } finally {
       setCheckoutLoading(false);
     }
@@ -323,6 +328,7 @@ export default function PaymentGate({
                 Use a Scan Credit →
               </button>
             </div>
+            {checkoutError && <p className="text-sm text-red-400">{checkoutError}</p>}
             {creditStep === "error" && creditError && (
               <div className="space-y-2">
                 <p className="text-sm text-red-400">{creditError}</p>
@@ -428,6 +434,7 @@ export default function PaymentGate({
                   Use a Scan Credit →
                 </button>
               </div>
+              {checkoutError && <p className="text-sm text-red-400">{checkoutError}</p>}
               {creditStep === "error" && creditError && (
                 <div className="space-y-2">
                   <p className="text-sm text-red-400">{creditError}</p>
