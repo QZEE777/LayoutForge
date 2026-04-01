@@ -42,8 +42,13 @@ export async function GET(
       ? computeCheckerScore(report.issuesEnriched)
       : null;
 
-  const score  = computedScore ?? report?.readinessScore100 ?? data?.readiness_score ?? 0;
-  const isPass = report?.kdpReady === true || data?.kdp_ready === true || score >= 90;
+  // Accept override params from the verify page — page stamps ?p=1&s=83 so
+  // the card can never diverge from what the user saw on the page
+  const scoreOverride = searchParams.get("s") ? Number(searchParams.get("s")) : null;
+  const passOverride  = searchParams.get("p") !== null ? searchParams.get("p") === "1" : null;
+
+  const score  = scoreOverride ?? computedScore ?? report?.readinessScore100 ?? data?.readiness_score ?? 0;
+  const isPass = passOverride  ?? (report?.kdpReady === true || data?.kdp_ready === true || score >= 90);
 
   // Check fields — DB is authoritative; fall back to S3 issues if null
   const issues = report?.issuesEnriched ?? [];

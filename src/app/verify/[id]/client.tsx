@@ -18,47 +18,97 @@ interface Props {
   fontsOk: boolean | null;
 }
 
+// ── Inline SVG icons — no emoji, no render glitches ──────────────────────────
+function IconPass({ size = 22 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 22 22" fill="none">
+      <circle cx="11" cy="11" r="11" fill="#4CE87A" />
+      <path d="M6 11.5 L9.5 15 L16 8" stroke="#0D3B1E" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function IconFail({ size = 22 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 22 22" fill="none">
+      <circle cx="11" cy="11" r="11" fill="#FF8C69" />
+      <path d="M7 7 L15 15 M15 7 L7 15" stroke="#4A1500" strokeWidth="2.2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function IconUnknown({ size = 22 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 22 22" fill="none">
+      <circle cx="11" cy="11" r="11" fill="rgba(255,255,255,0.15)" />
+      <text x="11" y="15.5" textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="12" fontWeight="700">—</text>
+    </svg>
+  );
+}
+
+function BigPassBadge() {
+  return (
+    <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
+      <circle cx="36" cy="36" r="36" fill="#4CE87A" fillOpacity="0.15" />
+      <circle cx="36" cy="36" r="28" fill="#4CE87A" fillOpacity="0.22" />
+      <circle cx="36" cy="36" r="20" fill="#4CE87A" />
+      <path d="M24 37 L32 45 L48 28" stroke="#0D3B1E" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function BigFailBadge() {
+  return (
+    <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
+      <circle cx="36" cy="36" r="36" fill="#FF8C69" fillOpacity="0.15" />
+      <circle cx="36" cy="36" r="28" fill="#FF8C69" fillOpacity="0.22" />
+      <circle cx="36" cy="36" r="20" fill="#FF8C69" />
+      <path d="M27 27 L45 45 M45 27 L27 45" stroke="#4A1500" strokeWidth="3.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function VerifyClient({
   score, statusLevel, issuesCount, verifyUrl, verificationId, shToken,
   trimOk, marginsOk, bleedOk, fontsOk,
 }: Props) {
   const [copyState, setCopyState] = useState<"idle" | "copied">("idle");
 
+  // ── Single Source of Truth ────────────────────────────────────────────────
   const isPass  = statusLevel === "ready" || statusLevel === "nearly";
   const shParam = shToken ? `?sh=${shToken}` : "";
   const shareUrl = `${verifyUrl}${shParam}`;
   const ctaHref  = `/kdp-pdf-checker${shParam}`;
-  const ogImageUrl = `/api/og/verify/${verificationId}`;
 
-  const bg     = isPass ? "#1a5f3f" : "#8B2F00";
-  const accent = isPass ? "#FFA040" : "#FFD480";
+  // OG image URL stamps the computed state so the card can NEVER diverge from the page
+  const ogParams = `?p=${isPass ? 1 : 0}&s=${score}`;
+  const ogPortraitUrl  = `/api/og/verify/${verificationId}${ogParams}`;
 
-  // Pre-written caption — ready to paste
+  const bg        = isPass ? "#1a5f3f" : "#8B2F00";
+  const cardColor = isPass ? "#2D6A2D" : "#8B2F00";
+  const accent    = isPass ? "#4CE87A" : "#FFD480";
+
+  const resultLine =
+    statusLevel === "ready"      ? "Ready for KDP"    :
+    statusLevel === "nearly"     ? "Nearly Ready"     :
+    statusLevel === "needs-work" ? "Needs Work"       :
+    "Would Be Rejected";
+
+  // ── High-conversion captions ──────────────────────────────────────────────
   const caption = isPass
-    ? `My KDP PDF just scored ${score}/100. ✅\nCleared before upload.\nWould yours pass? → ${shareUrl}`
-    : `My KDP PDF would've been rejected.\nFound ${issuesCount ?? "multiple"} issues before uploading.\nCheck yours here: ${shareUrl}`;
+    ? `Ran my KDP PDF through a pro check. Scored ${score}/100. ✅\nMost authors upload blind. I didn't.\nCheck yours → ${shareUrl}`
+    : `Almost uploaded this to KDP.\nFound ${issuesCount ?? "multiple"} issues before it cost me.\nRun yours → ${shareUrl}`;
 
   const handleShare = async () => {
-    // Web Share API on mobile — native sheet
     if (typeof navigator !== "undefined" && navigator.share) {
-      try {
-        await navigator.share({ text: caption });
-        return;
-      } catch { /* user cancelled — fall through */ }
+      try { await navigator.share({ text: caption }); return; } catch { /* cancelled */ }
     }
-    // Desktop fallback: clipboard
     try {
       await navigator.clipboard.writeText(caption);
       setCopyState("copied");
       setTimeout(() => setCopyState("idle"), 2500);
     } catch { /* ignore */ }
   };
-
-  const resultLine =
-    statusLevel === "ready"      ? "Ready for KDP" :
-    statusLevel === "nearly"     ? "Nearly Ready"  :
-    statusLevel === "needs-work" ? "Needs Work"    :
-    "Would Be Rejected";
 
   const checks = [
     { label: "Trim Size", ok: trimOk },
@@ -79,75 +129,63 @@ export function VerifyClient({
     }}>
       <div style={{ width: "100%", maxWidth: 520 }}>
 
-        {/* ── Logo ─────────────────────────────────────────── */}
-        <div style={{ textAlign: "center", marginBottom: 32 }}>
+        {/* ── Logo ──────────────────────────────────────────────────────── */}
+        <div style={{ textAlign: "center", marginBottom: 28 }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/manny-avatar.png" alt="" style={{ width: 44, height: 44, borderRadius: "50%" }} />
-            <span style={{ fontWeight: 900, fontSize: 24, letterSpacing: "-0.5px" }}>
-              <span style={{ color: accent }}>manu</span>
+            <img src="/manny-avatar.png" alt="" style={{ width: 42, height: 42, borderRadius: "50%" }} />
+            <span style={{ fontWeight: 900, fontSize: 23, letterSpacing: "-0.5px" }}>
+              <span style={{ color: isPass ? "#FFA040" : "#FFD480" }}>manu</span>
               <span style={{ color: isPass ? "#A8E6A3" : "#FFFFFF" }}>2print</span>
             </span>
           </div>
-          <div style={{
-            fontSize: 12,
-            fontWeight: 700,
-            color: "rgba(255,255,255,0.5)",
-            marginTop: 5,
-            letterSpacing: "0.07em",
-            textTransform: "uppercase",
-          }}>
-            KDP Readiness Verified
-          </div>
         </div>
 
-        {/* ── Section 1: Score + Check Rows ────────────────── */}
+        {/* ── Section 1: Score + Badge + Checks ─────────────────────────── */}
         <div style={{
           background: "rgba(0,0,0,0.22)",
           borderRadius: 20,
-          padding: "28px 24px",
-          marginBottom: 14,
+          padding: "28px 24px 22px",
+          marginBottom: 12,
+          textAlign: "center",
         }}>
+          {/* Big badge */}
+          <div style={{ marginBottom: 14 }}>
+            {isPass ? <BigPassBadge /> : <BigFailBadge />}
+          </div>
+
           {/* Score */}
-          <div style={{ textAlign: "center", marginBottom: 22 }}>
-            <div style={{ lineHeight: 1 }}>
-              <span style={{ fontSize: "clamp(5rem, 20vw, 7rem)", fontWeight: 900, color: "#fff" }}>
-                {score}
-              </span>
-              <span style={{ fontSize: "clamp(2rem, 8vw, 2.6rem)", fontWeight: 700, color: "rgba(255,255,255,0.35)" }}>
-                /100
-              </span>
-            </div>
-            <div style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-              marginTop: 10,
-            }}>
-              <span style={{
-                fontSize: "clamp(1rem, 4vw, 1.2rem)",
-                fontWeight: 900,
-                color: isPass ? "#4CE87A" : "#FF8C69",
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-              }}>
-                {isPass ? "✓ PASS" : "✗ FAIL"}
-              </span>
-              <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 14 }}>—</span>
-              <span style={{
-                fontSize: "clamp(0.85rem, 3vw, 1rem)",
-                fontWeight: 700,
-                color: "rgba(255,255,255,0.7)",
-                textTransform: "uppercase",
-                letterSpacing: "0.04em",
-              }}>
-                {resultLine}
-              </span>
-            </div>
+          <div style={{ lineHeight: 1, marginBottom: 8 }}>
+            <span style={{ fontSize: "clamp(5rem, 20vw, 7rem)", fontWeight: 900, color: "#fff" }}>
+              {score}
+            </span>
+            <span style={{ fontSize: "clamp(2rem, 8vw, 2.4rem)", fontWeight: 700, color: "rgba(255,255,255,0.30)" }}>
+              /100
+            </span>
+          </div>
+
+          {/* Verdict pill */}
+          <div style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            background: isPass ? "rgba(76,232,122,0.15)" : "rgba(255,140,105,0.15)",
+            border: `1.5px solid ${isPass ? "rgba(76,232,122,0.4)" : "rgba(255,140,105,0.4)"}`,
+            borderRadius: 999,
+            padding: "5px 16px",
+            marginBottom: 22,
+          }}>
+            <span style={{ fontSize: 13, fontWeight: 900, color: isPass ? "#4CE87A" : "#FF8C69", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+              {isPass ? "PASS" : "FAIL"}
+            </span>
+            <span style={{ color: "rgba(255,255,255,0.25)", fontSize: 12 }}>·</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+              {resultLine}
+            </span>
           </div>
 
           {/* Check rows */}
-          <div style={{ borderTop: "1px solid rgba(255,255,255,0.14)", paddingTop: 20 }}>
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.12)", paddingTop: 18 }}>
             {checks.map(({ label, ok }, i) => (
               <div key={label} style={{
                 display: "flex",
@@ -155,102 +193,95 @@ export function VerifyClient({
                 alignItems: "center",
                 paddingBottom: i < checks.length - 1 ? 13 : 0,
                 marginBottom:  i < checks.length - 1 ? 13 : 0,
-                borderBottom:  i < checks.length - 1 ? "1px solid rgba(255,255,255,0.09)" : "none",
+                borderBottom:  i < checks.length - 1 ? "1px solid rgba(255,255,255,0.08)" : "none",
               }}>
-                <span style={{ fontSize: 15, fontWeight: 600, color: "rgba(255,255,255,0.82)" }}>
+                <span style={{ fontSize: 15, fontWeight: 600, color: "rgba(255,255,255,0.80)" }}>
                   {label}
                 </span>
-                <span style={{
-                  fontSize: 18,
-                  fontWeight: 900,
-                  color: ok === null ? "rgba(255,255,255,0.3)" : ok ? "#4CE87A" : "#FF8C69",
-                }}>
-                  {ok === null ? "—" : ok ? "✓" : "✗"}
-                </span>
+                {ok === null ? <IconUnknown /> : ok ? <IconPass /> : <IconFail />}
               </div>
             ))}
           </div>
         </div>
 
-        {/* ── Section 2: Share Card Preview ────────────────── */}
+        {/* ── Section 2: Share Card Preview ─────────────────────────────── */}
         <div style={{
           background: "rgba(0,0,0,0.18)",
           borderRadius: 20,
-          padding: "18px 18px 14px",
-          marginBottom: 14,
+          padding: "16px 16px 14px",
+          marginBottom: 12,
         }}>
           <p style={{
-            fontSize: 11,
+            fontSize: 10,
             fontWeight: 700,
-            color: "rgba(255,255,255,0.45)",
+            color: "rgba(255,255,255,0.4)",
             textTransform: "uppercase",
-            letterSpacing: "0.08em",
-            marginBottom: 12,
+            letterSpacing: "0.1em",
+            marginBottom: 10,
             textAlign: "center",
           }}>
             Your Share Card
           </p>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={ogImageUrl}
-            alt="Share card preview"
+            src={ogPortraitUrl}
+            alt={`KDP check result card — ${isPass ? "PASS" : "FAIL"} ${score}/100`}
             style={{
               width: "100%",
-              borderRadius: 12,
+              borderRadius: 10,
               display: "block",
-              marginBottom: 12,
-              border: "1px solid rgba(255,255,255,0.10)",
+              marginBottom: 10,
+              border: `1.5px solid ${isPass ? "rgba(76,232,122,0.2)" : "rgba(255,140,105,0.2)"}`,
             }}
           />
           <a
-            href={ogImageUrl}
-            download="kdp-result-card.jpg"
+            href={ogPortraitUrl}
+            download={`kdp-result-${isPass ? "pass" : "fail"}-${score}.jpg`}
             style={{
               display: "block",
               textAlign: "center",
-              background: "rgba(255,255,255,0.11)",
+              background: "rgba(255,255,255,0.10)",
               color: "#fff",
               fontWeight: 700,
-              fontSize: 13,
-              padding: "11px 16px",
+              fontSize: 14,
+              padding: "12px 16px",
               borderRadius: 10,
               textDecoration: "none",
-              border: "1.5px solid rgba(255,255,255,0.18)",
+              border: "1.5px solid rgba(255,255,255,0.16)",
             }}
           >
             ⬇ Download Card
           </a>
         </div>
 
-        {/* ── Section 3: Ready-to-paste Caption ────────────── */}
+        {/* ── Section 3: Caption + Share button ─────────────────────────── */}
         <div style={{
           background: "rgba(0,0,0,0.18)",
           borderRadius: 20,
-          padding: "18px 18px 16px",
-          marginBottom: 14,
+          padding: "16px 16px 14px",
+          marginBottom: 12,
         }}>
           <p style={{
-            fontSize: 11,
+            fontSize: 10,
             fontWeight: 700,
-            color: "rgba(255,255,255,0.45)",
+            color: "rgba(255,255,255,0.4)",
             textTransform: "uppercase",
-            letterSpacing: "0.08em",
+            letterSpacing: "0.1em",
             marginBottom: 10,
             textAlign: "center",
           }}>
             Ready-to-paste caption
           </p>
-          {/* Caption preview */}
           <div style={{
-            background: "rgba(0,0,0,0.22)",
+            background: "rgba(0,0,0,0.25)",
             borderRadius: 10,
             padding: "12px 14px",
             marginBottom: 12,
-            fontSize: 13,
-            lineHeight: 1.6,
-            color: "rgba(255,255,255,0.72)",
+            fontSize: 13.5,
+            lineHeight: 1.65,
+            color: "rgba(255,255,255,0.75)",
             whiteSpace: "pre-line",
-            border: "1px solid rgba(255,255,255,0.09)",
+            border: "1px solid rgba(255,255,255,0.08)",
             wordBreak: "break-word",
           }}>
             {caption}
@@ -260,42 +291,44 @@ export function VerifyClient({
             style={{
               width: "100%",
               background: accent,
-              color: "#1a1208",
+              color: isPass ? "#0D3B1E" : "#2A1600",
               fontWeight: 800,
-              fontSize: "0.95rem",
-              padding: "14px 16px",
+              fontSize: "1rem",
+              padding: "15px 16px",
               borderRadius: 12,
               border: "none",
               cursor: "pointer",
+              letterSpacing: "0.01em",
             }}
           >
-            {copyState === "copied" ? "✓ Copied to clipboard!" : "📋 Copy Caption + Link"}
+            {copyState === "copied" ? "✓ Copied!" : "📋 Copy Share Package"}
           </button>
         </div>
 
-        {/* ── Section 4: Earn ───────────────────────────────── */}
+        {/* ── Section 4: Earn — full-width brand green ───────────────────── */}
         <div style={{
-          background: isPass ? "rgba(255,160,64,0.13)" : "rgba(255,212,128,0.10)",
-          border: `1.5px solid ${isPass ? "rgba(255,160,64,0.30)" : "rgba(255,212,128,0.25)"}`,
+          background: "#2D6A2D",
           borderRadius: 16,
-          padding: "18px 20px",
-          marginBottom: 20,
+          padding: "20px 22px",
+          marginBottom: 18,
           textAlign: "center",
         }}>
-          <p style={{ fontSize: 15, fontWeight: 800, color: accent, margin: "0 0 5px" }}>
-            Earn free scan credits.
+          <p style={{ fontSize: 17, fontWeight: 900, color: "#fff", margin: "0 0 6px", lineHeight: 1.3 }}>
+            🎁 Share &amp; Get Free Scans
           </p>
-          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", margin: "0 0 12px", lineHeight: 1.5 }}>
-            Every check through your link rewards you.
+          <p style={{ fontSize: 13.5, color: "rgba(255,255,255,0.82)", margin: "0 0 14px", lineHeight: 1.55 }}>
+            When someone checks their PDF through your link,<br />
+            you earn a 100% Free Scan Credit.
           </p>
           <Link
             href="/partners"
             style={{
-              fontSize: 12,
+              display: "inline-block",
+              fontSize: 13,
               fontWeight: 700,
-              color: accent,
+              color: "#4CE87A",
               textDecoration: "none",
-              borderBottom: `1px solid ${accent}`,
+              borderBottom: "1.5px solid rgba(76,232,122,0.5)",
               paddingBottom: 1,
             }}
           >
@@ -303,7 +336,7 @@ export function VerifyClient({
           </Link>
         </div>
 
-        {/* ── Primary CTA ───────────────────────────────────── */}
+        {/* ── Primary CTA ───────────────────────────────────────────────── */}
         <Link
           href={ctaHref}
           style={{
