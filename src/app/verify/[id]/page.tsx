@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { getStored } from "@/lib/storage";
@@ -10,11 +11,44 @@ interface VerifyPageProps {
   searchParams: Promise<{ sh?: string }>;
 }
 
+// React cache dedupes this across generateMetadata + VerifyPage in the same render
+const fetchVerifyData = cache(async (id: string) => {
+  const [{ data }, stored] = await Promise.all([
+    supabase
+      .from("verification_results")
+      .select("verification_id, filename_clean, readiness_score, kdp_ready, scan_date, issues_count, trim_ok, margins_ok, bleed_ok, fonts_ok")
+      .eq("verification_id", id)
+      .maybeSingle(),
+    getStored(id).catch(() => null),
+  ]);
+  return { data: data ?? null, stored };
+});
+
 export async function generateMetadata({ params }: VerifyPageProps): Promise<Metadata> {
   const { id } = await params;
-  // Landscape 1200×630 for FB/LinkedIn/Twitter link previews (portrait gets badly cropped)
-  const ogImage         = `https://www.manu2print.com/api/og/verify/${id}?format=og`;
-  const ogImagePortrait = `https://www.manu2print.com/api/og/verify/${id}`;
+  const base = "https://www.manu2print.com";
+
+  // Compute state from DB so the og:image URL stamps the correct p/s params —
+  // FB's crawler hits the og:image URL, not the page JS, so this is the only way
+  // to guarantee the card FB shows matches the actual result
+  try {
+    const { data, stored } = await fetchVerifyData(id);
+    const report = stored?.processingReport;
+    const computedScore =
+      report?.outputType === "checker" && report.issuesEnriched
+        ? computeCheckerScore(report.issuesEnriched)
+        : null;
+    const score  = computedScore ?? report?.readinessScore100 ?? data?.readiness_score ?? 0;
+    const isPass = report?.kdpReady === true || data?.kdp_ready === true || score >= 90;
+    const ogImage = `${base}/api/og/verify/${id}?p=${isPass ? 1 : 0}&s=${score}`;
+    return buildMeta(id, ogImage, base);
+  } catch {
+    // Fallback: let OG route do its own fetch
+    return buildMeta(id, `${base}/api/og/verify/${id}`, base);
+  }
+}
+
+function buildMeta(id: string, ogImage: string, base: string): Metadata {
   return {
     title: "KDP PDF Check Result — manu2print",
     description: "See how this manuscript scored on KDP readiness. Would your PDF pass?",
@@ -22,14 +56,14 @@ export async function generateMetadata({ params }: VerifyPageProps): Promise<Met
       title: "KDP PDF Check Result — manu2print",
       description: "See how this manuscript scored on KDP readiness. Would your PDF pass?",
       images: [{ url: ogImage, width: 1200, height: 630, alt: "KDP readiness score card" }],
-      url: `https://www.manu2print.com/verify/${id}`,
+      url: `${base}/verify/${id}`,
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
       title: "KDP PDF Check Result — manu2print",
       description: "Would your PDF pass? Most don't.",
-      images: [ogImagePortrait],
+      images: [ogImage],
     },
   };
 }
@@ -38,17 +72,11 @@ export default async function VerifyPage({ params, searchParams }: VerifyPagePro
   const { id: verificationId } = await params;
   const { sh: shToken } = await searchParams;
 
-  // Fetch DB summary + S3 source-of-truth report in parallel
-  const [{ data, error }, stored] = await Promise.all([
-    supabase
-      .from("verification_results")
-      .select("verification_id, filename_clean, readiness_score, kdp_ready, scan_date, issues_count, trim_ok, margins_ok, bleed_ok, fonts_ok")
-      .eq("verification_id", verificationId)
-      .maybeSingle(),
-    getStored(verificationId).catch(() => null),
-  ]);
+  // Re-uses the cached fetch from generateMetadata — no double DB hit
+  const { data, stored } = await fetchVerifyData(verificationId);
+  const error = !data;
 
-  if (error || !data) {
+  if (error) {
     return (
       <div style={{ fontFamily: "system-ui,sans-serif", background: "#FAF7EE", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 24px" }}>
         <div style={{ maxWidth: 440, width: "100%", textAlign: "center" }}>

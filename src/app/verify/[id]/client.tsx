@@ -18,52 +18,50 @@ interface Props {
   fontsOk: boolean | null;
 }
 
-// ── Inline SVG icons — no emoji, no render glitches ──────────────────────────
-function IconPass({ size = 22 }: { size?: number }) {
+// ── SVG icons — inline, no glyph rendering risk ──────────────────────────────
+function SvgPass({ size = 24 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 22 22" fill="none">
-      <circle cx="11" cy="11" r="11" fill="#4CE87A" />
-      <path d="M6 11.5 L9.5 15 L16 8" stroke="#0D3B1E" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="12" fill="rgba(76,232,122,0.2)" />
+      <circle cx="12" cy="12" r="9" fill="#4CE87A" />
+      <path d="M7 12.5 L10.5 16 L17 9" stroke="#0D3B1E" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
-function IconFail({ size = 22 }: { size?: number }) {
+function SvgFail({ size = 24 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 22 22" fill="none">
-      <circle cx="11" cy="11" r="11" fill="#FF8C69" />
-      <path d="M7 7 L15 15 M15 7 L7 15" stroke="#4A1500" strokeWidth="2.2" strokeLinecap="round" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="12" fill="rgba(255,140,105,0.2)" />
+      <circle cx="12" cy="12" r="9" fill="#FF8C69" />
+      <path d="M8.5 8.5 L15.5 15.5 M15.5 8.5 L8.5 15.5" stroke="#4A1500" strokeWidth="2.2" strokeLinecap="round" />
     </svg>
   );
 }
 
-function IconUnknown({ size = 22 }: { size?: number }) {
+function SvgUnknown({ size = 24 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 22 22" fill="none">
-      <circle cx="11" cy="11" r="11" fill="rgba(255,255,255,0.15)" />
-      <text x="11" y="15.5" textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="12" fontWeight="700">—</text>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="9" fill="rgba(255,255,255,0.10)" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" />
+      <rect x="10.5" y="11" width="3" height="2" rx="1" fill="rgba(255,255,255,0.3)" />
     </svg>
   );
 }
 
-function BigPassBadge() {
-  return (
-    <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
-      <circle cx="36" cy="36" r="36" fill="#4CE87A" fillOpacity="0.15" />
-      <circle cx="36" cy="36" r="28" fill="#4CE87A" fillOpacity="0.22" />
-      <circle cx="36" cy="36" r="20" fill="#4CE87A" />
-      <path d="M24 37 L32 45 L48 28" stroke="#0D3B1E" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+function SvgHeroBadge({ isPass }: { isPass: boolean }) {
+  return isPass ? (
+    <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+      <circle cx="40" cy="40" r="40" fill="rgba(76,232,122,0.10)" />
+      <circle cx="40" cy="40" r="32" fill="rgba(76,232,122,0.18)" />
+      <circle cx="40" cy="40" r="24" fill="#4CE87A" />
+      <path d="M27 41 L36 50 L54 31" stroke="#0D3B1E" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
-  );
-}
-
-function BigFailBadge() {
-  return (
-    <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
-      <circle cx="36" cy="36" r="36" fill="#FF8C69" fillOpacity="0.15" />
-      <circle cx="36" cy="36" r="28" fill="#FF8C69" fillOpacity="0.22" />
-      <circle cx="36" cy="36" r="20" fill="#FF8C69" />
-      <path d="M27 27 L45 45 M45 27 L27 45" stroke="#4A1500" strokeWidth="3.5" strokeLinecap="round" />
+  ) : (
+    <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+      <circle cx="40" cy="40" r="40" fill="rgba(255,140,105,0.10)" />
+      <circle cx="40" cy="40" r="32" fill="rgba(255,140,105,0.18)" />
+      <circle cx="40" cy="40" r="24" fill="#FF8C69" />
+      <path d="M28 28 L52 52 M52 28 L28 52" stroke="#4A1500" strokeWidth="4" strokeLinecap="round" />
     </svg>
   );
 }
@@ -72,7 +70,7 @@ export function VerifyClient({
   score, statusLevel, issuesCount, verifyUrl, verificationId, shToken,
   trimOk, marginsOk, bleedOk, fontsOk,
 }: Props) {
-  const [copyState, setCopyState] = useState<"idle" | "copied">("idle");
+  const [shareState, setShareState] = useState<"idle" | "copied">("idle");
 
   // ── Single Source of Truth ────────────────────────────────────────────────
   const isPass  = statusLevel === "ready" || statusLevel === "nearly";
@@ -80,13 +78,17 @@ export function VerifyClient({
   const shareUrl = `${verifyUrl}${shParam}`;
   const ctaHref  = `/kdp-pdf-checker${shParam}`;
 
-  // OG image URL stamps the computed state so the card can NEVER diverge from the page
-  const ogParams = `?p=${isPass ? 1 : 0}&s=${score}`;
-  const ogPortraitUrl  = `/api/og/verify/${verificationId}${ogParams}`;
+  // OG image — page stamps all state params so the card is always in sync
+  const checkParams = [
+    `trim=${trimOk === null ? "" : trimOk ? 1 : 0}`,
+    `margins=${marginsOk === null ? "" : marginsOk ? 1 : 0}`,
+    `bleed=${bleedOk === null ? "" : bleedOk ? 1 : 0}`,
+    `fonts=${fontsOk === null ? "" : fontsOk ? 1 : 0}`,
+  ].join("&");
+  const ogUrl = `/api/og/verify/${verificationId}?p=${isPass ? 1 : 0}&s=${score}&${checkParams}`;
 
-  const bg        = isPass ? "#1a5f3f" : "#8B2F00";
-  const cardColor = isPass ? "#2D6A2D" : "#8B2F00";
-  const accent    = isPass ? "#4CE87A" : "#FFD480";
+  const bg     = isPass ? "#1a5f3f" : "#8B2F00";
+  const accent = isPass ? "#4CE87A" : "#FFD480";
 
   const resultLine =
     statusLevel === "ready"      ? "Ready for KDP"    :
@@ -94,20 +96,29 @@ export function VerifyClient({
     statusLevel === "needs-work" ? "Needs Work"       :
     "Would Be Rejected";
 
-  // ── High-conversion captions ──────────────────────────────────────────────
+  // ── Guru captions ─────────────────────────────────────────────────────────
   const caption = isPass
-    ? `Ran my KDP PDF through a pro check. Scored ${score}/100. ✅\nMost authors upload blind. I didn't.\nCheck yours → ${shareUrl}`
-    : `Almost uploaded this to KDP.\nFound ${issuesCount ?? "multiple"} issues before it cost me.\nRun yours → ${shareUrl}`;
+    ? `Just checked my KDP manuscript on manu2print.com — scored ${score}/100. ✅ Ready for Amazon. Would yours pass? Check free: ${shareUrl}`
+    : `Caught ${issuesCount ?? "multiple"} issues in my KDP PDF before uploading to Amazon. 🛑 Saved myself a rejection. Check yours before you submit: ${shareUrl}`;
 
+  // ── Share handler: native sheet on mobile, FB dialog on desktop ───────────
   const handleShare = async () => {
+    // Mobile: native Web Share API
     if (typeof navigator !== "undefined" && navigator.share) {
-      try { await navigator.share({ text: caption }); return; } catch { /* cancelled */ }
+      try {
+        await navigator.share({ text: caption, url: shareUrl });
+        return;
+      } catch { /* user cancelled */ }
     }
-    try {
-      await navigator.clipboard.writeText(caption);
-      setCopyState("copied");
-      setTimeout(() => setCopyState("idle"), 2500);
-    } catch { /* ignore */ }
+    // Desktop: copy caption then open FB share dialog
+    try { await navigator.clipboard.writeText(caption); } catch { /* ignore */ }
+    setShareState("copied");
+    setTimeout(() => setShareState("idle"), 3000);
+    window.open(
+      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
+      "fb-share",
+      "width=600,height=460,resizable=yes,scrollbars=yes"
+    );
   };
 
   const checks = [
@@ -141,25 +152,25 @@ export function VerifyClient({
           </div>
         </div>
 
-        {/* ── Section 1: Score + Badge + Checks ─────────────────────────── */}
+        {/* ── Hero block: badge + score + checks ────────────────────────── */}
         <div style={{
           background: "rgba(0,0,0,0.22)",
           borderRadius: 20,
-          padding: "28px 24px 22px",
-          marginBottom: 12,
+          padding: "30px 24px 24px",
+          marginBottom: 14,
           textAlign: "center",
         }}>
-          {/* Big badge */}
-          <div style={{ marginBottom: 14 }}>
-            {isPass ? <BigPassBadge /> : <BigFailBadge />}
+          {/* Badge */}
+          <div style={{ marginBottom: 16 }}>
+            <SvgHeroBadge isPass={isPass} />
           </div>
 
           {/* Score */}
-          <div style={{ lineHeight: 1, marginBottom: 8 }}>
+          <div style={{ lineHeight: 1, marginBottom: 10 }}>
             <span style={{ fontSize: "clamp(5rem, 20vw, 7rem)", fontWeight: 900, color: "#fff" }}>
               {score}
             </span>
-            <span style={{ fontSize: "clamp(2rem, 8vw, 2.4rem)", fontWeight: 700, color: "rgba(255,255,255,0.30)" }}>
+            <span style={{ fontSize: "clamp(2rem, 8vw, 2.4rem)", fontWeight: 700, color: "rgba(255,255,255,0.28)" }}>
               /100
             </span>
           </div>
@@ -170,22 +181,34 @@ export function VerifyClient({
             alignItems: "center",
             gap: 8,
             background: isPass ? "rgba(76,232,122,0.15)" : "rgba(255,140,105,0.15)",
-            border: `1.5px solid ${isPass ? "rgba(76,232,122,0.4)" : "rgba(255,140,105,0.4)"}`,
+            border: `1.5px solid ${isPass ? "rgba(76,232,122,0.35)" : "rgba(255,140,105,0.35)"}`,
             borderRadius: 999,
-            padding: "5px 16px",
-            marginBottom: 22,
+            padding: "5px 18px",
+            marginBottom: 24,
           }}>
-            <span style={{ fontSize: 13, fontWeight: 900, color: isPass ? "#4CE87A" : "#FF8C69", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+            <span style={{
+              fontSize: 13,
+              fontWeight: 900,
+              color: isPass ? "#4CE87A" : "#FF8C69",
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+            }}>
               {isPass ? "PASS" : "FAIL"}
             </span>
-            <span style={{ color: "rgba(255,255,255,0.25)", fontSize: 12 }}>·</span>
-            <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+            <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 12 }}>·</span>
+            <span style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: "rgba(255,255,255,0.6)",
+              textTransform: "uppercase",
+              letterSpacing: "0.04em",
+            }}>
               {resultLine}
             </span>
           </div>
 
           {/* Check rows */}
-          <div style={{ borderTop: "1px solid rgba(255,255,255,0.12)", paddingTop: 18 }}>
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.11)", paddingTop: 18 }}>
             {checks.map(({ label, ok }, i) => (
               <div key={label} style={{
                 display: "flex",
@@ -195,117 +218,59 @@ export function VerifyClient({
                 marginBottom:  i < checks.length - 1 ? 13 : 0,
                 borderBottom:  i < checks.length - 1 ? "1px solid rgba(255,255,255,0.08)" : "none",
               }}>
-                <span style={{ fontSize: 15, fontWeight: 600, color: "rgba(255,255,255,0.80)" }}>
+                <span style={{ fontSize: 15, fontWeight: 600, color: "rgba(255,255,255,0.82)" }}>
                   {label}
                 </span>
-                {ok === null ? <IconUnknown /> : ok ? <IconPass /> : <IconFail />}
+                {ok === null ? <SvgUnknown /> : ok ? <SvgPass /> : <SvgFail />}
               </div>
             ))}
           </div>
         </div>
 
-        {/* ── Section 2: Share Card Preview ─────────────────────────────── */}
-        <div style={{
-          background: "rgba(0,0,0,0.18)",
-          borderRadius: 20,
-          padding: "16px 16px 14px",
-          marginBottom: 12,
-        }}>
-          <p style={{
-            fontSize: 10,
-            fontWeight: 700,
-            color: "rgba(255,255,255,0.4)",
-            textTransform: "uppercase",
-            letterSpacing: "0.1em",
+        {/* ── Primary: Share to Social ───────────────────────────────────── */}
+        <button
+          onClick={handleShare}
+          style={{
+            width: "100%",
+            background: accent,
+            color: isPass ? "#0D3B1E" : "#2A1600",
+            fontWeight: 900,
+            fontSize: "1.05rem",
+            padding: "17px 16px",
+            borderRadius: 13,
+            border: "none",
+            cursor: "pointer",
             marginBottom: 10,
-            textAlign: "center",
-          }}>
-            Your Share Card
-          </p>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={ogPortraitUrl}
-            alt={`KDP check result card — ${isPass ? "PASS" : "FAIL"} ${score}/100`}
-            style={{
-              width: "100%",
-              borderRadius: 10,
-              display: "block",
-              marginBottom: 10,
-              border: `1.5px solid ${isPass ? "rgba(76,232,122,0.2)" : "rgba(255,140,105,0.2)"}`,
-            }}
-          />
-          <a
-            href={ogPortraitUrl}
-            download={`kdp-result-${isPass ? "pass" : "fail"}-${score}.jpg`}
-            style={{
-              display: "block",
-              textAlign: "center",
-              background: "rgba(255,255,255,0.10)",
-              color: "#fff",
-              fontWeight: 700,
-              fontSize: 14,
-              padding: "12px 16px",
-              borderRadius: 10,
-              textDecoration: "none",
-              border: "1.5px solid rgba(255,255,255,0.16)",
-            }}
-          >
-            ⬇ Download Card
-          </a>
-        </div>
+            letterSpacing: "0.01em",
+          }}
+        >
+          {shareState === "copied"
+            ? "✓ Caption copied — FB dialog is open"
+            : "🚀 Share to Social"}
+        </button>
 
-        {/* ── Section 3: Caption + Share button ─────────────────────────── */}
-        <div style={{
-          background: "rgba(0,0,0,0.18)",
-          borderRadius: 20,
-          padding: "16px 16px 14px",
-          marginBottom: 12,
-        }}>
-          <p style={{
-            fontSize: 10,
+        {/* ── Secondary: Download Image ──────────────────────────────────── */}
+        <a
+          href={ogUrl}
+          download={`kdp-result-${isPass ? "pass" : "fail"}-${score}.jpg`}
+          style={{
+            display: "block",
+            textAlign: "center",
+            background: "rgba(255,255,255,0.10)",
+            color: "#fff",
             fontWeight: 700,
-            color: "rgba(255,255,255,0.4)",
-            textTransform: "uppercase",
-            letterSpacing: "0.1em",
-            marginBottom: 10,
-            textAlign: "center",
-          }}>
-            Ready-to-paste caption
-          </p>
-          <div style={{
-            background: "rgba(0,0,0,0.25)",
-            borderRadius: 10,
-            padding: "12px 14px",
-            marginBottom: 12,
-            fontSize: 13.5,
-            lineHeight: 1.65,
-            color: "rgba(255,255,255,0.75)",
-            whiteSpace: "pre-line",
-            border: "1px solid rgba(255,255,255,0.08)",
-            wordBreak: "break-word",
-          }}>
-            {caption}
-          </div>
-          <button
-            onClick={handleShare}
-            style={{
-              width: "100%",
-              background: accent,
-              color: isPass ? "#0D3B1E" : "#2A1600",
-              fontWeight: 800,
-              fontSize: "1rem",
-              padding: "15px 16px",
-              borderRadius: 12,
-              border: "none",
-              cursor: "pointer",
-              letterSpacing: "0.01em",
-            }}
-          >
-            {copyState === "copied" ? "✓ Copied!" : "📋 Copy Share Package"}
-          </button>
-        </div>
+            fontSize: 14,
+            padding: "13px 16px",
+            borderRadius: 12,
+            textDecoration: "none",
+            border: "1.5px solid rgba(255,255,255,0.18)",
+            marginBottom: 20,
+          }}
+        >
+          ⬇ Download Image
+        </a>
 
-        {/* ── Section 4: Earn — full-width brand green ───────────────────── */}
+        {/* ── Earn — full-width brand green ──────────────────────────────── */}
         <div style={{
           background: "#2D6A2D",
           borderRadius: 16,
