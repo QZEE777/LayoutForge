@@ -40,10 +40,10 @@ export async function POST(req: Request) {
     lemonSqueezySetup({ apiKey });
 
     const VARIANT_MAP: Record<string, string | undefined> = {
-      single_use: process.env.LEMONSQUEEZY_SINGLE_USE_VARIANT_ID ?? "937359",
-      author_pack: process.env.LEMONSQUEEZY_AUTHOR_PACK_VARIANT_ID,
-      indie_pack: process.env.LEMONSQUEEZY_INDIE_PACK_VARIANT_ID,
-      pro_pack: process.env.LEMONSQUEEZY_PRO_PACK_VARIANT_ID,
+      single_use: process.env.LEMONSQUEEZY_SINGLE_USE_VARIANT_ID ?? "1473395",
+      author_pack: process.env.LEMONSQUEEZY_AUTHOR_PACK_VARIANT_ID ?? "1473418",
+      indie_pack: process.env.LEMONSQUEEZY_INDIE_PACK_VARIANT_ID  ?? "1473420",
+      pro_pack: process.env.LEMONSQUEEZY_PRO_PACK_VARIANT_ID      ?? "1473421",
     };
 
     const variantId = VARIANT_MAP[priceType ?? "single_use"];
@@ -92,7 +92,7 @@ export async function POST(req: Request) {
     if (checkout.error) {
       console.error("[create-checkout-session] Lemon Squeezy error:", checkout.error);
       return NextResponse.json(
-        { error: "Checkout creation failed", detail: JSON.stringify(checkout.error) },
+        { error: "Checkout creation failed" },
         { status: 500 }
       );
     }
