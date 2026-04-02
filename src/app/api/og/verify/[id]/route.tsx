@@ -153,128 +153,159 @@ export async function GET(
 
           {/* ── Hook line ────────────────────────────────────────────── */}
           <div style={{
-            padding: `0 ${fs(56)}px ${fs(24)}px`,
+            padding: `0 ${fs(56)}px ${fs(22)}px`,
             display: "flex",
           }}>
             <span style={{
-              fontSize: fs(28),
+              fontSize: fs(30),
               fontWeight: 800,
-              color: hookColor,
-              opacity: 0.85,
-              lineHeight: 1.25,
+              color: "#FAF7EE",
+              lineHeight: 1.2,
             }}>
               {isPass
-                ? "KDP manuscript check complete."
-                : "Caught before it hit KDP."}
+                ? "This passed KDP review."
+                : "This would be rejected by KDP."}
             </span>
           </div>
 
-          {/* ── Verdict slab ─────────────────────────────────────────── */}
+          {/* ── Hero slab: Score (dominant) + Verdict (label) ────────── */}
           <div style={{
-            margin: `0 ${fs(56)}px ${fs(28)}px`,
-            background: verdictBg,
+            margin: `0 ${fs(56)}px ${fs(24)}px`,
+            background: "rgba(0,0,0,0.28)",
             borderRadius: fs(20),
-            padding: `${fs(28)}px ${fs(40)}px`,
+            padding: `${fs(26)}px ${fs(40)}px`,
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            boxShadow: "0 8px 40px rgba(0,0,0,0.25)",
+            boxShadow: "0 8px 40px rgba(0,0,0,0.30)",
           }}>
-            <span style={{
-              fontSize: fs(96),
-              fontWeight: 900,
-              color: verdictText,
-              lineHeight: 1,
-              letterSpacing: "2px",
-            }}>
-              {isPass ? "PASS" : "FAIL"}
-            </span>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 2 }}>
-              <div style={{ display: "flex", alignItems: "baseline", gap: fs(6) }}>
-                <span style={{ fontSize: fs(72), fontWeight: 900, color: scoreColor, lineHeight: 1 }}>
+            {/* LEFT: Score — the hook */}
+            <div style={{ display: "flex", flexDirection: "column", gap: fs(4) }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: fs(8) }}>
+                <span style={{ fontSize: fs(110), fontWeight: 900, color: "#FFFFFF", lineHeight: 1 }}>
                   {score}
                 </span>
-                <span style={{ fontSize: fs(32), fontWeight: 700, color: "rgba(255,255,255,0.45)" }}>
+                <span style={{ fontSize: fs(36), fontWeight: 700, color: "rgba(255,255,255,0.38)" }}>
                   /100
                 </span>
               </div>
               <span style={{
-                fontSize: fs(15),
+                fontSize: fs(16),
                 fontWeight: 700,
-                color: "rgba(255,255,255,0.65)",
+                color: "rgba(255,255,255,0.58)",
+                letterSpacing: "0.05em",
                 textTransform: "uppercase",
-                letterSpacing: "0.06em",
               }}>
-                {isPass ? "Ready for KDP" : "Needs attention"}
+                {isPass ? "Ready for KDP upload" : "Fix required before upload"}
+              </span>
+            </div>
+
+            {/* RIGHT: Verdict — confirmation */}
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              background: verdictBg,
+              borderRadius: fs(14),
+              padding: `${fs(14)}px ${fs(28)}px`,
+            }}>
+              <span style={{
+                fontSize: fs(48),
+                fontWeight: 900,
+                color: "#FFFFFF",
+                lineHeight: 1,
+                letterSpacing: "2px",
+              }}>
+                {isPass ? "PASS" : "FAIL"}
+              </span>
+              <span style={{ fontSize: fs(20), color: "rgba(255,255,255,0.75)", marginTop: fs(2) }}>
+                {isPass ? "✓" : "⚠"}
               </span>
             </div>
           </div>
 
-          {/* ── Check rows ───────────────────────────────────────────── */}
+          {/* ── Check rows — left-aligned icon + label, no pills ─────── */}
           <div style={{
             margin: `0 ${fs(56)}px`,
             display: "flex",
             flexDirection: "column",
-            gap: fs(12),
+            gap: fs(10),
             flex: 1,
           }}>
-            {checks.map((c) => (
-              <div
-                key={c.label}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  background: "rgba(0,0,0,0.15)",
-                  borderRadius: fs(12),
-                  padding: `${fs(14)}px ${fs(22)}px`,
-                  border: "1px solid rgba(255,255,255,0.08)",
-                }}
-              >
-                <span style={{ fontSize: fs(26), fontWeight: 700, color: "#FFFFFF" }}>
-                  {c.label}
-                </span>
-                <div style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: c.ok === null ? checkFailBg : c.ok ? checkPassBg : checkFailBg,
-                  border: `1.5px solid ${c.ok === null ? checkFailBorder : c.ok ? checkPassBorder : checkFailBorder}`,
-                  borderRadius: fs(8),
-                  padding: `${fs(6)}px ${fs(20)}px`,
-                  minWidth: fs(90),
-                }}>
-                  <span style={{
-                    fontSize: fs(16),
-                    fontWeight: 900,
-                    color: c.ok === null ? checkFailText : c.ok ? checkPassText : checkFailText,
-                    letterSpacing: "0.06em",
-                  }}>
-                    {c.ok === null ? "N/A" : c.ok ? "PASS" : "FAIL"}
+            {checks.map((c) => {
+              const dotColor = c.ok === null
+                ? "rgba(255,255,255,0.20)"
+                : c.ok
+                  ? "#4CE87A"
+                  : "rgba(255,255,255,0.30)";
+              const labelColor = c.ok === null
+                ? "rgba(255,255,255,0.40)"
+                : c.ok
+                  ? "rgba(255,255,255,0.95)"
+                  : "rgba(255,255,255,0.65)";
+
+              return (
+                <div
+                  key={c.label}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: fs(20),
+                    padding: `${fs(12)}px ${fs(22)}px`,
+                    background: "rgba(0,0,0,0.12)",
+                    borderRadius: fs(12),
+                    border: `1px solid ${c.ok ? "rgba(76,232,122,0.18)" : "rgba(255,255,255,0.06)"}`,
+                  }}
+                >
+                  {/* Icon — solid circle, green=pass, dim=fail */}
+                  <div style={{
+                    width: fs(32), height: fs(32),
+                    borderRadius: "50%",
+                    background: dotColor,
+                    flexShrink: 0,
+                    display: "flex",
+                  }} />
+                  <span style={{ fontSize: fs(28), fontWeight: 700, color: labelColor }}>
+                    {c.label}
                   </span>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
-          {/* ── Footer CTA ───────────────────────────────────────────── */}
+          {/* ── Tension line — replaces dead space ───────────────────── */}
           <div style={{
-            padding: `${fs(28)}px ${fs(56)}px ${fs(40)}px`,
+            padding: `${fs(22)}px ${fs(56)}px ${fs(10)}px`,
+            display: "flex",
+            justifyContent: "center",
+          }}>
+            <span style={{
+              fontSize: fs(26),
+              fontWeight: 900,
+              color: isPass ? "#4CE87A" : "#FAF7EE",
+              textAlign: "center",
+              letterSpacing: "-0.01em",
+            }}>
+              {isPass ? "You're clear. Upload with confidence." : "Don't upload this yet."}
+            </span>
+          </div>
+
+          {/* ── Footer ───────────────────────────────────────────────── */}
+          <div style={{
+            padding: `${fs(14)}px ${fs(56)}px ${fs(40)}px`,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             borderTop: "1px solid rgba(255,255,255,0.10)",
-            marginTop: fs(20),
           }}>
             <span style={{
-              fontSize: fs(22),
-              fontWeight: 800,
-              color: "rgba(255,255,255,0.80)",
+              fontSize: fs(20),
+              fontWeight: 700,
+              color: "rgba(255,255,255,0.55)",
               textAlign: "center",
             }}>
-              {isPass
-                ? "Would YOUR manuscript pass? → manu2print.com"
-                : "Check yours before KDP rejects it → manu2print.com"}
+              {isPass ? "Check yours → manu2print.com" : "Check yours → manu2print.com"}
             </span>
           </div>
 
