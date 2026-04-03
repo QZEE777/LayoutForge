@@ -1,8 +1,6 @@
 import { ImageResponse } from "next/og";
-import { getStored } from "@/lib/storage";
-import { computeCheckerScore } from "@/lib/scoreUtils";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 export async function GET(
   req: Request,
@@ -19,45 +17,31 @@ export async function GET(
   const isPortrait = format === "portrait";
   const isSquare   = format === "square";
 
-  const [dbRes, stored] = await Promise.all([
-    fetch(
-      `${supabaseUrl}/rest/v1/verification_results` +
-      `?verification_id=eq.${id}` +
-      `&select=readiness_score,issues_count,kdp_ready,trim_ok,margins_ok,bleed_ok,fonts_ok`,
-      { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
-    ).then((r) => r.json()).then((rows) => rows?.[0] ?? null).catch(() => null),
-    getStored(id).catch(() => null),
-  ]);
+  // DB fetch only — getStored removed (edge runtime: no fs access)
+  // OG card always receives ?p= and ?s= stamped by the verify/download page
+  const dbRes = await fetch(
+    `${supabaseUrl}/rest/v1/verification_results` +
+    `?verification_id=eq.${id}` +
+    `&select=readiness_score,issues_count,kdp_ready,trim_ok,margins_ok,bleed_ok,fonts_ok`,
+    { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
+  ).then((r) => r.json()).then((rows) => rows?.[0] ?? null).catch(() => null);
 
-  const data   = dbRes;
-  const report = stored?.processingReport;
-
-  const computedScore =
-    report?.outputType === "checker" && report.issuesEnriched
-      ? computeCheckerScore(report.issuesEnriched)
-      : null;
+  const data = dbRes;
 
   // Page stamps ?p= and ?s= — card is always locked to page's computed state
   const scoreOverride = searchParams.get("s") ? Number(searchParams.get("s")) : null;
   const passOverride  = searchParams.get("p") !== null ? searchParams.get("p") === "1" : null;
 
-  const score  = scoreOverride ?? computedScore ?? report?.readinessScore100 ?? data?.readiness_score ?? 0;
-  const isPass = passOverride  ?? (report?.kdpReady === true || data?.kdp_ready === true || score >= 90);
+  const score  = scoreOverride ?? data?.readiness_score ?? 0;
+  const isPass = passOverride  ?? (data?.kdp_ready === true || score >= 90);
 
-  // Check fields — DB primary, S3 keyword fallback
-  const issues = report?.issuesEnriched ?? [];
-  const hasKw  = (kws: string[]) =>
-    issues.some((i: { humanMessage?: string; originalMessage?: string }) => {
-      const txt = ((i.humanMessage ?? "") + " " + (i.originalMessage ?? "")).toLowerCase();
-      return kws.some((k) => txt.includes(k));
-    });
-  const hasS3 = issues.length > 0;
-
+  // Check fields: DB first, then URL params (?trim=1 etc), then null
+  const sp = (k: string) => searchParams.has(k) ? searchParams.get(k) === "1" : null;
   const checks = [
-    { label: "Trim Size", ok: data?.trim_ok    ?? (searchParams.get("trim")    ? searchParams.get("trim")    === "1" : null) ?? (hasS3 ? !hasKw(["trim", "page size", "dimensions", "paper size"]) : null) },
-    { label: "Margins",   ok: data?.margins_ok ?? (searchParams.get("margins") ? searchParams.get("margins") === "1" : null) ?? (hasS3 ? !hasKw(["margin", "safe zone", "gutter"]) : null) },
-    { label: "Bleed",     ok: data?.bleed_ok   ?? (searchParams.get("bleed")   ? searchParams.get("bleed")   === "1" : null) ?? (hasS3 ? !hasKw(["bleed"]) : null) },
-    { label: "Fonts",     ok: data?.fonts_ok   ?? (searchParams.get("fonts")   ? searchParams.get("fonts")   === "1" : null) ?? (hasS3 ? !hasKw(["font", "embed", "subsett"]) : null) },
+    { label: "Trim Size", ok: data?.trim_ok    ?? sp("trim") },
+    { label: "Margins",   ok: data?.margins_ok ?? sp("margins") },
+    { label: "Bleed",     ok: data?.bleed_ok   ?? sp("bleed") },
+    { label: "Fonts",     ok: data?.fonts_ok   ?? sp("fonts") },
   ];
 
   // ── Brand palette ──────────────────────────────────────────────────────────
@@ -78,7 +62,9 @@ export async function GET(
   const brandManu     = isPass ? "#FF7A45" : "#FAF7EE";
   const brand2print   = isPass ? "#FAF7EE" : "#4CE87A";
 
-  const base      = "https://www.manu2print.com";
+  // Derive base from the incoming request so images resolve in dev + production
+  const reqUrl    = new URL(req.url);
+  const base      = process.env.NEXT_PUBLIC_SITE_URL ?? `${reqUrl.protocol}//${reqUrl.host}`;
   const avatarUrl = `${base}/manny-avatar.png`;
 
   // ── Canvas sizes ───────────────────────────────────────────────────────────
@@ -87,232 +73,230 @@ export async function GET(
 
   // ── PORTRAIT / SQUARE layout (for actual social posts) ────────────────────
   if (isPortrait || isSquare) {
-    // Scale factor so square has slightly tighter layout
-    const S  = isSquare ? 0.88 : 1;
+    const S  = isSquare ? 0.85 : 1;
     const fs = (n: number) => Math.round(n * S);
 
-    return new ImageResponse(
+    // ── Load Anton display font ────────────────────────────────────────────
+    let antonFont: ArrayBuffer | null = null;
+    try {
+      const fontRes = await fetch(
+        "https://fonts.gstatic.com/s/anton/v25/1Ptgg87LROyAm0K08i4gS7lu.woff"
+      );
+      if (fontRes.ok) antonFont = await fontRes.arrayBuffer();
+    } catch { /* fall back to system-ui */ }
+
+    // ── Mascot images — HTTP URL (edge runtime fetches via Satori) ────────
+    const mannyFile = isPass ? "manny_pass_card.png" : "manny_fail_card.png";
+    const mannySrc  = `${base}/manny/${mannyFile}`;
+
+    // ── Approve / Reject icons as base64 SVG ─────────────────────────────
+    const checkSvgB64 = Buffer.from(
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">` +
+      `<circle cx="50" cy="50" r="44" fill="none" stroke="#2ECC71" stroke-width="8"/>` +
+      `<polyline points="22,52 40,70 78,28" fill="none" stroke="#2ECC71" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>` +
+      `</svg>`
+    ).toString("base64");
+
+    const xSvgB64 = Buffer.from(
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">` +
+      `<circle cx="50" cy="50" r="44" fill="none" stroke="#D32F2F" stroke-width="8"/>` +
+      `<line x1="28" y1="28" x2="72" y2="72" stroke="#D32F2F" stroke-width="9" stroke-linecap="round"/>` +
+      `<line x1="72" y1="28" x2="28" y2="72" stroke="#D32F2F" stroke-width="9" stroke-linecap="round"/>` +
+      `</svg>`
+    ).toString("base64");
+
+    const iconSrc = `data:image/svg+xml;base64,${isPass ? checkSvgB64 : xSvgB64}`;
+
+    const fontFamily = antonFont ? '"Anton", sans-serif' : "system-ui, sans-serif";
+
+    // ── Palette ───────────────────────────────────────────────────────────
+    const gradTop      = isPass ? "#1FAF5C"                        : "#D65A2F";
+    const gradBottom   = isPass ? "#178A49"                        : "#C14A27";
+    const bannerBg     = isPass ? "#2ECC71"                        : "#D28A3F";
+    const bannerText   = isPass ? "THIS PDF IS READY FOR KDP"      : "THIS PDF WOULD BE REJECTED BY KDP";
+    const scoreBlockBg = isPass ? "#2ECC71"                        : "#FF6A2B";
+    const statusColor  = isPass ? "#FFFFFF"                        : "#00FF66";
+    const statusText   = isPass ? "Cleared for upload"             : "Fix required before upload";
+    const verdictLabel = isPass ? "VERIFIED"                       : "REJECTED";
+    const verdictColor = isPass ? "#2ECC71"                        : "#D32F2F";
+    const msgBlockBg   = isPass ? "#2ECC71"                        : "#FF6A2B";
+    const msgLines     = isPass
+      ? [
+          "I just checked my KDP PDF on manu2print.",
+          `Scored ${score}/100 and cleared for upload.`,
+          "Would yours pass?",
+        ]
+      : [
+          "I just caught issues in my KDP PDF before uploading.",
+          "That likely saved me a rejection.",
+          "Check yours before you submit",
+        ];
+
+    try {
+    const imgResponse = new ImageResponse(
       (
-        <div style={{
-          width: W,
-          height: H,
-          display: "flex",
-          flexDirection: "column",
-          background: `linear-gradient(170deg, ${bgTop} 0%, ${bgBottom} 100%)`,
-          fontFamily: "system-ui, sans-serif",
-          overflow: "hidden",
-          position: "relative",
-        }}>
+        <div
+          style={{
+            width: W, height: H,
+            display: "flex", flexDirection: "column",
+            background: `linear-gradient(180deg, ${gradTop} 0%, ${gradBottom} 100%)`,
+            fontFamily,
+            overflow: "hidden",
+          }}
+        >
 
-          {/* Subtle texture circles — depth without noise */}
-          <div style={{
-            position: "absolute", top: -120, right: -120,
-            width: 480, height: 480, borderRadius: "50%",
-            background: "rgba(255,255,255,0.04)",
-            display: "flex",
-          }} />
-          <div style={{
-            position: "absolute", bottom: -80, left: -80,
-            width: 360, height: 360, borderRadius: "50%",
-            background: "rgba(0,0,0,0.10)",
-            display: "flex",
-          }} />
-
-          {/* ── Top: brand ──────────────────────────────────────────── */}
+          {/* ── HEADER — #F2F2F2, rounded, 130px, left/center/right ── */}
           <div style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: `${fs(44)}px ${fs(56)}px ${fs(28)}px`,
+            background: "#F2F2F2",
+            borderRadius: fs(16),
+            height: fs(130),
+            margin: `${fs(40)}px ${fs(40)}px 0`,
+            padding: `0 ${fs(24)}px`,
+            flexShrink: 0,
           }}>
-            <div style={{ display: "flex", alignItems: "center", gap: fs(14) }}>
+
+            {/* LEFT: Manny mascot, 100px, vertically centered */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={mannySrc} alt=""
+              style={{ height: fs(100), objectFit: "contain" }}
+            />
+
+            {/* CENTER: reject/approve icon 60px + verdict label */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: fs(6) }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={avatarUrl}
-                alt=""
-                style={{
-                  width: fs(60), height: fs(60),
+              <img src={iconSrc} alt="" style={{ width: fs(60), height: fs(60) }} />
+              <span style={{ fontSize: fs(22), fontWeight: 700, color: verdictColor }}>
+                {verdictLabel}
+              </span>
+            </div>
+
+            {/* RIGHT: manu2print wordmark */}
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <span style={{ fontSize: fs(30), fontWeight: 900, color: "#FF6A2B" }}>manu</span>
+              <span style={{ fontSize: fs(30), fontWeight: 900, color: "#2ECC71" }}>2print</span>
+            </div>
+          </div>
+
+          {/* ── BANNER — 64px, rounded ─────────────────────────────── */}
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "center",
+            height: fs(64),
+            background: bannerBg,
+            borderRadius: fs(12),
+            margin: `${fs(16)}px ${fs(40)}px 0`,
+            flexShrink: 0,
+          }}>
+            <span style={{ fontSize: fs(28), fontWeight: 700, color: "#FFFFFF", textAlign: "center" }}>
+              {bannerText}
+            </span>
+          </div>
+
+          {/* ── SCORE BLOCK — 300px, score dominant ───────────────── */}
+          <div style={{
+            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+            height: fs(300),
+            background: scoreBlockBg,
+            borderRadius: fs(20),
+            margin: `${fs(20)}px ${fs(40)}px 0`,
+            flexShrink: 0,
+          }}>
+            <div style={{ display: "flex", alignItems: "baseline" }}>
+              <span style={{ fontSize: fs(150), fontWeight: 900, color: "#FFFFFF", lineHeight: 1 }}>
+                {score}
+              </span>
+              <span style={{ fontSize: fs(60), color: "rgba(255,255,255,0.70)", lineHeight: 1 }}>
+                /100
+              </span>
+            </div>
+            <span style={{ fontSize: fs(30), color: statusColor, marginTop: fs(8) }}>
+              {statusText}
+            </span>
+          </div>
+
+          {/* ── CHECKLIST — dots only, no row boxes ───────────────── */}
+          <div style={{
+            display: "flex", flexDirection: "column",
+            margin: `${fs(28)}px ${fs(40)}px 0`,
+            gap: fs(20),
+          }}>
+            {checks.map((c) => (
+              <div key={c.label} style={{ display: "flex", alignItems: "center", gap: fs(20) }}>
+                <div style={{
+                  width: fs(34), height: fs(34),
                   borderRadius: "50%",
-                  border: `2.5px solid rgba(255,255,255,0.35)`,
-                }}
-              />
-              <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                <span style={{ fontSize: fs(32), fontWeight: 900, lineHeight: 1 }}>
-                  <span style={{ color: brandManu }}>manu</span>
-                  <span style={{ color: brand2print }}>2print</span>
-                </span>
-                <span style={{ fontSize: fs(14), fontWeight: 600, color: "rgba(255,255,255,0.55)", letterSpacing: "0.06em" }}>
-                  KDP READINESS VERIFIED
+                  background: c.ok === null
+                    ? "rgba(255,255,255,0.35)"
+                    : c.ok ? "#2ECC71" : "#B0B0B0",
+                  flexShrink: 0,
+                  display: "flex",
+                }} />
+                <span style={{ fontSize: fs(30), fontWeight: 700, color: "#FFFFFF" }}>
+                  {c.label}
                 </span>
               </div>
-            </div>
-            <span style={{ fontSize: fs(15), color: "rgba(255,255,255,0.40)", fontWeight: 600 }}>
+            ))}
+          </div>
+
+          {/* ── MESSAGE BLOCK — 200px ─────────────────────────────── */}
+          <div style={{
+            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+            height: fs(200),
+            background: msgBlockBg,
+            borderRadius: fs(20),
+            margin: `${fs(28)}px ${fs(40)}px 0`,
+            padding: `0 ${fs(32)}px`,
+            flexShrink: 0,
+            gap: fs(4),
+          }}>
+            {msgLines.map((line, i) => (
+              <span key={i} style={{
+                fontSize: fs(38), fontWeight: 700,
+                color: "#FFFFFF",
+                textAlign: "center",
+                lineHeight: 1.25,
+              }}>
+                {line}
+              </span>
+            ))}
+          </div>
+
+          {/* ── CTA ───────────────────────────────────────────────── */}
+          <div style={{ display: "flex", justifyContent: "center", margin: `${fs(36)}px ${fs(40)}px 0` }}>
+            <span style={{ fontSize: fs(34), fontWeight: 700, color: "#FFFFFF" }}>
               manu2print.com
             </span>
           </div>
 
-          {/* ── Hook line ────────────────────────────────────────────── */}
-          <div style={{
-            padding: `0 ${fs(56)}px ${fs(22)}px`,
-            display: "flex",
-          }}>
-            <span style={{
-              fontSize: fs(30),
-              fontWeight: 800,
-              color: "#FAF7EE",
-              lineHeight: 1.2,
-            }}>
-              {isPass
-                ? "This passed KDP review."
-                : "This would be rejected by KDP."}
-            </span>
-          </div>
-
-          {/* ── Hero slab: Score (dominant) + Verdict (label) ────────── */}
-          <div style={{
-            margin: `0 ${fs(56)}px ${fs(24)}px`,
-            background: "rgba(0,0,0,0.28)",
-            borderRadius: fs(20),
-            padding: `${fs(26)}px ${fs(40)}px`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            boxShadow: "0 8px 40px rgba(0,0,0,0.30)",
-          }}>
-            {/* LEFT: Score — the hook */}
-            <div style={{ display: "flex", flexDirection: "column", gap: fs(4) }}>
-              <div style={{ display: "flex", alignItems: "baseline", gap: fs(8) }}>
-                <span style={{ fontSize: fs(110), fontWeight: 900, color: "#FFFFFF", lineHeight: 1 }}>
-                  {score}
-                </span>
-                <span style={{ fontSize: fs(36), fontWeight: 700, color: "rgba(255,255,255,0.38)" }}>
-                  /100
-                </span>
-              </div>
-              <span style={{
-                fontSize: fs(16),
-                fontWeight: 700,
-                color: "rgba(255,255,255,0.58)",
-                letterSpacing: "0.05em",
-                textTransform: "uppercase",
-              }}>
-                {isPass ? "Ready for KDP upload" : "Fix required before upload"}
-              </span>
-            </div>
-
-            {/* RIGHT: Verdict — confirmation */}
-            <div style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              background: verdictBg,
-              borderRadius: fs(14),
-              padding: `${fs(14)}px ${fs(28)}px`,
-            }}>
-              <span style={{
-                fontSize: fs(48),
-                fontWeight: 900,
-                color: "#FFFFFF",
-                lineHeight: 1,
-                letterSpacing: "2px",
-              }}>
-                {isPass ? "PASS" : "FAIL"}
-              </span>
-              <span style={{ fontSize: fs(20), color: "rgba(255,255,255,0.75)", marginTop: fs(2) }}>
-                {isPass ? "✓" : "⚠"}
-              </span>
-            </div>
-          </div>
-
-          {/* ── Check rows — left-aligned icon + label, no pills ─────── */}
-          <div style={{
-            margin: `0 ${fs(56)}px`,
-            display: "flex",
-            flexDirection: "column",
-            gap: fs(10),
-            flex: 1,
-          }}>
-            {checks.map((c) => {
-              const dotColor = c.ok === null
-                ? "rgba(255,255,255,0.20)"
-                : c.ok
-                  ? "#4CE87A"
-                  : "rgba(255,255,255,0.30)";
-              const labelColor = c.ok === null
-                ? "rgba(255,255,255,0.40)"
-                : c.ok
-                  ? "rgba(255,255,255,0.95)"
-                  : "rgba(255,255,255,0.65)";
-
-              return (
-                <div
-                  key={c.label}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: fs(20),
-                    padding: `${fs(12)}px ${fs(22)}px`,
-                    background: "rgba(0,0,0,0.12)",
-                    borderRadius: fs(12),
-                    border: `1px solid ${c.ok ? "rgba(76,232,122,0.18)" : "rgba(255,255,255,0.06)"}`,
-                  }}
-                >
-                  {/* Icon — solid circle, green=pass, dim=fail */}
-                  <div style={{
-                    width: fs(32), height: fs(32),
-                    borderRadius: "50%",
-                    background: dotColor,
-                    flexShrink: 0,
-                    display: "flex",
-                  }} />
-                  <span style={{ fontSize: fs(28), fontWeight: 700, color: labelColor }}>
-                    {c.label}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* ── Tension line — replaces dead space ───────────────────── */}
-          <div style={{
-            padding: `${fs(22)}px ${fs(56)}px ${fs(10)}px`,
-            display: "flex",
-            justifyContent: "center",
-          }}>
-            <span style={{
-              fontSize: fs(26),
-              fontWeight: 900,
-              color: isPass ? "#4CE87A" : "#FAF7EE",
-              textAlign: "center",
-              letterSpacing: "-0.01em",
-            }}>
-              {isPass ? "You're clear. Upload with confidence." : "Don't upload this yet."}
-            </span>
-          </div>
-
-          {/* ── Footer ───────────────────────────────────────────────── */}
-          <div style={{
-            padding: `${fs(14)}px ${fs(56)}px ${fs(40)}px`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            borderTop: "1px solid rgba(255,255,255,0.10)",
-          }}>
-            <span style={{
-              fontSize: fs(20),
-              fontWeight: 700,
-              color: "rgba(255,255,255,0.55)",
-              textAlign: "center",
-            }}>
-              {isPass ? "Check yours → manu2print.com" : "Check yours → manu2print.com"}
+          {/* ── FOOTER ────────────────────────────────────────────── */}
+          <div style={{ display: "flex", justifyContent: "center", margin: `${fs(16)}px ${fs(40)}px 0` }}>
+            <span style={{ fontSize: fs(22), color: "rgba(255,255,255,0.70)" }}>
+              #KDP #IndieAuthor #SelfPublishing
             </span>
           </div>
 
         </div>
       ),
-      { width: W, height: H }
+      {
+        width: W,
+        height: H,
+        ...(antonFont
+          ? { fonts: [{ name: "Anton", data: antonFont, weight: 400 as const, style: "normal" as const }] }
+          : {}),
+      }
     );
+    // Force Satori to render now so any error is catchable here
+    const imgBuf = await imgResponse.arrayBuffer();
+    return new Response(imgBuf, { headers: { "Content-Type": "image/png" } });
+    } catch (err) {
+      console.error("[OG portrait error]", err);
+      return new Response(JSON.stringify({ error: String(err) }), {
+        status: 500, headers: { "Content-Type": "application/json" },
+      });
+    }
   }
 
   // ── LANDSCAPE 1200×630 — link preview only (URL paste in FB/LI/Twitter) ───
