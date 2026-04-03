@@ -82,31 +82,26 @@ export async function GET(
       if (fontRes.ok) antonFont = await fontRes.arrayBuffer();
     } catch { /* fall back to system-ui */ }
 
-    // ── No external images — text + SVG only ─────────────────────────────
-    const verdictIcon = isPass ? "✓" : "✕";
-
     const fontFamily = antonFont ? '"Anton", sans-serif' : "system-ui, sans-serif";
 
-    // ── Palette ───────────────────────────────────────────────────────────
-    const gradTop      = isPass ? "#1FAF5C"                   : "#D65A2F";
-    const gradBottom   = isPass ? "#178A49"                   : "#C14A27";
-    const bannerBg     = isPass ? "#2ECC71"                   : "#D28A3F";
-    const bannerText   = isPass ? "THIS PDF IS READY FOR KDP" : "THIS PDF WOULD BE REJECTED BY KDP";
-    const scoreBlockBg = isPass ? "#2ECC71"                   : "#FF6A2B";
-    const statusColor  = isPass ? "#FFFFFF"                   : "#00FF66";
-    const statusText   = isPass ? "Cleared for upload"        : "fix required before upload";
-    const verdictLabel = isPass ? "VERIFIED"                  : "REJECTED";
-    const verdictColor = isPass ? "#2ECC71"                   : "#D32F2F";
-    const msgBlockBg   = isPass ? "#2ECC71"                   : "#FF6A2B";
+    // ── Dynamic values — only these change between PASS and FAIL ──────────
+    const gradTop      = isPass ? "#1FAF5C" : "#D65A2F";
+    const gradBottom   = isPass ? "#178A49" : "#C14A27";
+    const stateWord    = isPass ? "PASS"    : "FAIL";
+    const stateColor   = isPass ? "#2ECC71" : "#FF6A2B";  // accent on headline
+    const scoreBlockBg = isPass ? "#2ECC71" : "#FF6A2B";
+    const statusText   = isPass ? "Ready for upload" : "Fix before you upload";
+    const statusColor  = isPass ? "#FFFFFF"           : "#00FF66";
+    const msgBlockBg   = isPass ? "rgba(0,0,0,0.18)"  : "rgba(0,0,0,0.18)";
     const msgLines     = isPass
       ? [
-          "I just checked my KDP PDF on manu2print.",
-          `Scored ${score}/100 and cleared for upload.`,
+          `Checked my KDP PDF. Scored ${score}/100.`,
+          "Cleared for upload.",
           "Would yours pass?",
         ]
       : [
-          "Caught issues in my KDP PDF before uploading.",
-          "Saved myself a rejection.",
+          "Caught this before uploading.",
+          "Saved a rejection.",
           "Check yours before you submit.",
         ];
 
@@ -123,132 +118,125 @@ export async function GET(
           }}
         >
 
-          {/* ── HEADER — 120px, #F2F2F2, rounded ─────────────────── */}
-          <div style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            background: "#F2F2F2",
-            borderRadius: 16,
-            height: 120,
-            margin: "40px 40px 0",
-            padding: "0 36px",
-            flexShrink: 0,
-          }}>
-
-            {/* LEFT: verdict icon + label */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-              <span style={{ fontSize: 52, fontWeight: 900, color: verdictColor, lineHeight: 1 }}>
-                {verdictIcon}
-              </span>
-              <span style={{ fontSize: 20, fontWeight: 700, color: verdictColor, letterSpacing: "0.05em" }}>
-                {verdictLabel}
-              </span>
-            </div>
-
-            {/* RIGHT: manu2print wordmark */}
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <span style={{ fontSize: 38, fontWeight: 900, color: "#FF6A2B" }}>manu</span>
-              <span style={{ fontSize: 38, fontWeight: 900, color: "#2ECC71" }}>2print</span>
-            </div>
-          </div>
-
-          {/* ── BANNER — 60px, rounded, mt 12 ─────────────────────── */}
-          <div style={{
-            display: "flex", alignItems: "center", justifyContent: "center",
-            height: 60,
-            background: bannerBg,
-            borderRadius: 12,
-            margin: "12px 40px 0",
-            flexShrink: 0,
-          }}>
-            <span style={{ fontSize: 34, fontWeight: 700, color: "#FFFFFF", textAlign: "center" }}>
-              {bannerText}
-            </span>
-          </div>
-
-          {/* ── SCORE BLOCK — 260px, top-weighted score ────────────── */}
+          {/* ── 1. HEADLINE — "THIS WOULD [FAIL/PASS] KDP" ────────── */}
           <div style={{
             display: "flex", flexDirection: "column", alignItems: "center",
-            justifyContent: "flex-start",
-            paddingTop: 28,
-            height: 260,
+            margin: "60px 50px 0",
+          }}>
+            <span style={{
+              fontSize: 86, fontWeight: 900, color: "#FFFFFF",
+              lineHeight: 1.05, textAlign: "center",
+            }}>
+              THIS WOULD
+            </span>
+            <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+              <span style={{ fontSize: 86, fontWeight: 900, color: stateColor, lineHeight: 1.05 }}>
+                {stateWord}
+              </span>
+              <span style={{ fontSize: 86, fontWeight: 900, color: "#FFFFFF", lineHeight: 1.05 }}>
+                KDP
+              </span>
+            </div>
+            {/* Decorative underline */}
+            <div style={{
+              width: 140, height: 6,
+              background: stateColor,
+              borderRadius: 3,
+              marginTop: 14,
+            }} />
+          </div>
+
+          {/* ── 2. SCORE BLOCK ────────────────────────────────────── */}
+          <div style={{
+            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
             background: scoreBlockBg,
-            borderRadius: 20,
-            margin: "16px 40px 0",
+            borderRadius: 24,
+            margin: "24px 50px 0",
+            padding: "20px 40px 24px",
             flexShrink: 0,
           }}>
-            <div style={{ display: "flex", alignItems: "baseline" }}>
-              <span style={{ fontSize: 160, fontWeight: 900, color: "#FFFFFF", lineHeight: 1 }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
+              <span style={{ fontSize: 230, fontWeight: 900, color: "#FFFFFF", lineHeight: 1 }}>
                 {score}
               </span>
-              <span style={{ fontSize: 60, color: "rgba(255,255,255,0.70)", lineHeight: 1 }}>
+              <span style={{ fontSize: 80, color: "rgba(255,255,255,0.65)", lineHeight: 1 }}>
                 /100
               </span>
             </div>
-            <span style={{ fontSize: 30, color: statusColor, marginTop: 6 }}>
+            <span style={{ fontSize: 34, fontWeight: 700, color: statusColor, marginTop: 4 }}>
               {statusText}
             </span>
           </div>
 
-          {/* ── CHECKLIST — tight stack, no boxes, mt 20, gap 14 ──── */}
+          {/* ── Divider ───────────────────────────────────────────── */}
+          <div style={{
+            height: 1,
+            background: "rgba(255,255,255,0.25)",
+            margin: "28px 50px 0",
+          }} />
+
+          {/* ── 3. CHECKLIST ──────────────────────────────────────── */}
           <div style={{
             display: "flex", flexDirection: "column",
-            margin: "20px 40px 0",
-            gap: 14,
+            margin: "24px 50px 0",
+            gap: 18,
           }}>
             {checks.map((c) => (
-              <div key={c.label} style={{ display: "flex", alignItems: "center", gap: 20 }}>
+              <div key={c.label} style={{ display: "flex", alignItems: "center", gap: 24 }}>
+                {/* Filled circle icon */}
                 <div style={{
-                  width: 28, height: 28,
+                  width: 52, height: 52,
                   borderRadius: "50%",
                   background: c.ok === null
-                    ? "rgba(255,255,255,0.35)"
+                    ? "rgba(255,255,255,0.30)"
                     : c.ok ? "#2ECC71" : "#B0B0B0",
+                  display: "flex", alignItems: "center", justifyContent: "center",
                   flexShrink: 0,
-                  display: "flex",
-                }} />
-                <span style={{ fontSize: 30, fontWeight: 700, color: "#FFFFFF" }}>
+                }}>
+                  <span style={{ fontSize: 30, fontWeight: 900, color: "#FFFFFF", lineHeight: 1 }}>
+                    {c.ok === null ? "?" : c.ok ? "✓" : "✕"}
+                  </span>
+                </div>
+                <span style={{ fontSize: 34, fontWeight: 700, color: "#FFFFFF" }}>
                   {c.label}
                 </span>
               </div>
             ))}
           </div>
 
-          {/* ── MESSAGE BLOCK — 170px, mt 20 ──────────────────────── */}
+          {/* ── 4. MESSAGE BLOCK ──────────────────────────────────── */}
           <div style={{
             display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-            height: 170,
             background: msgBlockBg,
             borderRadius: 20,
-            margin: "20px 40px 0",
-            padding: "0 32px",
+            margin: "28px 50px 0",
+            padding: "24px 36px",
             flexShrink: 0,
             gap: 2,
           }}>
             {msgLines.map((line, i) => (
               <span key={i} style={{
-                fontSize: 36, fontWeight: 700,
+                fontSize: 34, fontWeight: 700,
                 color: "#FFFFFF",
                 textAlign: "center",
-                lineHeight: 1.2,
+                lineHeight: 1.25,
               }}>
                 {line}
               </span>
             ))}
           </div>
 
-          {/* ── CTA — mt 20 ───────────────────────────────────────── */}
-          <div style={{ display: "flex", justifyContent: "center", margin: "20px 40px 0" }}>
-            <span style={{ fontSize: 34, fontWeight: 700, color: "#FFFFFF" }}>
+          {/* ── 5. CTA ────────────────────────────────────────────── */}
+          <div style={{ display: "flex", justifyContent: "center", margin: "28px 50px 0" }}>
+            <span style={{ fontSize: 42, fontWeight: 900, color: "#FFFFFF" }}>
               manu2print.com
             </span>
           </div>
 
-          {/* ── FOOTER — mt 10 ────────────────────────────────────── */}
-          <div style={{ display: "flex", justifyContent: "center", margin: "10px 40px 0" }}>
-            <span style={{ fontSize: 22, color: "rgba(255,255,255,0.70)" }}>
-              #KDP #IndieAuthor #SelfPublishing
+          {/* ── 6. FOOTER ─────────────────────────────────────────── */}
+          <div style={{ display: "flex", justifyContent: "center", margin: "12px 50px 0" }}>
+            <span style={{ fontSize: 24, color: "rgba(255,255,255,0.65)" }}>
+              #KDP  #IndieAuthor  #SelfPublishing
             </span>
           </div>
 
@@ -262,7 +250,6 @@ export async function GET(
           : {}),
       }
     );
-    // Force Satori to render now so any error is catchable here
     const imgBuf = await imgResponse.arrayBuffer();
     return new Response(imgBuf, { headers: { "Content-Type": "image/png" } });
     } catch (err) {
