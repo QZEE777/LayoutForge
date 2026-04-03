@@ -12,10 +12,9 @@ export async function GET(
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-  // format: "portrait" = 1080×1350 (FB/IG post), "square" = 1080×1080 (LI/IG), default = 1200×630 (link preview)
-  const format    = searchParams.get("format") ?? "landscape";
+  // format: "portrait" = 1080×1350 (only social card size), default = 1200×630 (link preview)
+  const format     = searchParams.get("format") ?? "landscape";
   const isPortrait = format === "portrait";
-  const isSquare   = format === "square";
 
   // DB fetch only — getStored removed (edge runtime: no fs access)
   // OG card always receives ?p= and ?s= stamped by the verify/download page
@@ -68,13 +67,11 @@ export async function GET(
   const avatarUrl = `${base}/manny-avatar.png`;
 
   // ── Canvas sizes ───────────────────────────────────────────────────────────
-  const W = isPortrait ? 1080 : isSquare ? 1080 : 1200;
-  const H = isPortrait ? 1350 : isSquare ? 1080 : 630;
+  const W = isPortrait ? 1080 : 1200;
+  const H = isPortrait ? 1350 : 630;
 
-  // ── PORTRAIT / SQUARE layout (for actual social posts) ────────────────────
-  if (isPortrait || isSquare) {
-    const S  = isSquare ? 0.85 : 1;
-    const fs = (n: number) => Math.round(n * S);
+  // ── PORTRAIT 1080×1350 — only social card size ────────────────────────────
+  if (isPortrait) {
 
     // ── Load Anton display font ────────────────────────────────────────────
     let antonFont: ArrayBuffer | null = null;
@@ -85,7 +82,7 @@ export async function GET(
       if (fontRes.ok) antonFont = await fontRes.arrayBuffer();
     } catch { /* fall back to system-ui */ }
 
-    // ── Mascot images — HTTP URL (edge runtime fetches via Satori) ────────
+    // ── Mascot — HTTP URL, edge-compatible ────────────────────────────────
     const mannyFile = isPass ? "manny_pass_card.png" : "manny_fail_card.png";
     const mannySrc  = `${base}/manny/${mannyFile}`;
 
@@ -110,16 +107,16 @@ export async function GET(
     const fontFamily = antonFont ? '"Anton", sans-serif' : "system-ui, sans-serif";
 
     // ── Palette ───────────────────────────────────────────────────────────
-    const gradTop      = isPass ? "#1FAF5C"                        : "#D65A2F";
-    const gradBottom   = isPass ? "#178A49"                        : "#C14A27";
-    const bannerBg     = isPass ? "#2ECC71"                        : "#D28A3F";
-    const bannerText   = isPass ? "THIS PDF IS READY FOR KDP"      : "THIS PDF WOULD BE REJECTED BY KDP";
-    const scoreBlockBg = isPass ? "#2ECC71"                        : "#FF6A2B";
-    const statusColor  = isPass ? "#FFFFFF"                        : "#00FF66";
-    const statusText   = isPass ? "Cleared for upload"             : "Fix required before upload";
-    const verdictLabel = isPass ? "VERIFIED"                       : "REJECTED";
-    const verdictColor = isPass ? "#2ECC71"                        : "#D32F2F";
-    const msgBlockBg   = isPass ? "#2ECC71"                        : "#FF6A2B";
+    const gradTop      = isPass ? "#1FAF5C"                   : "#D65A2F";
+    const gradBottom   = isPass ? "#178A49"                   : "#C14A27";
+    const bannerBg     = isPass ? "#2ECC71"                   : "#D28A3F";
+    const bannerText   = isPass ? "THIS PDF IS READY FOR KDP" : "THIS PDF WOULD BE REJECTED BY KDP";
+    const scoreBlockBg = isPass ? "#2ECC71"                   : "#FF6A2B";
+    const statusColor  = isPass ? "#FFFFFF"                   : "#00FF66";
+    const statusText   = isPass ? "Cleared for upload"        : "fix required before upload";
+    const verdictLabel = isPass ? "VERIFIED"                  : "REJECTED";
+    const verdictColor = isPass ? "#2ECC71"                   : "#D32F2F";
+    const msgBlockBg   = isPass ? "#2ECC71"                   : "#FF6A2B";
     const msgLines     = isPass
       ? [
           "I just checked my KDP PDF on manu2print.",
@@ -127,9 +124,9 @@ export async function GET(
           "Would yours pass?",
         ]
       : [
-          "I just caught issues in my KDP PDF before uploading.",
-          "That likely saved me a rejection.",
-          "Check yours before you submit",
+          "Caught issues in my KDP PDF before uploading.",
+          "Saved myself a rejection.",
+          "Check yours before you submit.",
         ];
 
     try {
@@ -137,7 +134,7 @@ export async function GET(
       (
         <div
           style={{
-            width: W, height: H,
+            width: 1080, height: 1350,
             display: "flex", flexDirection: "column",
             background: `linear-gradient(180deg, ${gradTop} 0%, ${gradBottom} 100%)`,
             fontFamily,
@@ -145,88 +142,90 @@ export async function GET(
           }}
         >
 
-          {/* ── HEADER — #F2F2F2, rounded, 130px, left/center/right ── */}
+          {/* ── HEADER — 120px, #F2F2F2, rounded ─────────────────── */}
           <div style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
             background: "#F2F2F2",
-            borderRadius: fs(16),
-            height: fs(130),
-            margin: `${fs(40)}px ${fs(40)}px 0`,
-            padding: `0 ${fs(24)}px`,
+            borderRadius: 16,
+            height: 120,
+            margin: "40px 40px 0",
+            padding: "0 24px",
             flexShrink: 0,
           }}>
 
-            {/* LEFT: Manny mascot, 100px, vertically centered */}
+            {/* LEFT: Manny, 90px, top-left, vertically centered */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={mannySrc} alt=""
-              style={{ height: fs(100), objectFit: "contain" }}
+              style={{ height: 90, objectFit: "contain", objectPosition: "left center" }}
             />
 
-            {/* CENTER: reject/approve icon 60px + verdict label */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: fs(6) }}>
+            {/* CENTER: icon 60px + verdict label */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={iconSrc} alt="" style={{ width: fs(60), height: fs(60) }} />
-              <span style={{ fontSize: fs(22), fontWeight: 700, color: verdictColor }}>
+              <img src={iconSrc} alt="" style={{ width: 60, height: 60 }} />
+              <span style={{ fontSize: 22, fontWeight: 700, color: verdictColor }}>
                 {verdictLabel}
               </span>
             </div>
 
-            {/* RIGHT: manu2print wordmark */}
+            {/* RIGHT: manu2print wordmark, right padding 24px */}
             <div style={{ display: "flex", alignItems: "center" }}>
-              <span style={{ fontSize: fs(30), fontWeight: 900, color: "#FF6A2B" }}>manu</span>
-              <span style={{ fontSize: fs(30), fontWeight: 900, color: "#2ECC71" }}>2print</span>
+              <span style={{ fontSize: 30, fontWeight: 900, color: "#FF6A2B" }}>manu</span>
+              <span style={{ fontSize: 30, fontWeight: 900, color: "#2ECC71" }}>2print</span>
             </div>
           </div>
 
-          {/* ── BANNER — 64px, rounded ─────────────────────────────── */}
+          {/* ── BANNER — 60px, rounded, mt 12 ─────────────────────── */}
           <div style={{
             display: "flex", alignItems: "center", justifyContent: "center",
-            height: fs(64),
+            height: 60,
             background: bannerBg,
-            borderRadius: fs(12),
-            margin: `${fs(16)}px ${fs(40)}px 0`,
+            borderRadius: 12,
+            margin: "12px 40px 0",
             flexShrink: 0,
           }}>
-            <span style={{ fontSize: fs(28), fontWeight: 700, color: "#FFFFFF", textAlign: "center" }}>
+            <span style={{ fontSize: 34, fontWeight: 700, color: "#FFFFFF", textAlign: "center" }}>
               {bannerText}
             </span>
           </div>
 
-          {/* ── SCORE BLOCK — 300px, score dominant ───────────────── */}
+          {/* ── SCORE BLOCK — 260px, top-weighted score ────────────── */}
           <div style={{
-            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-            height: fs(300),
+            display: "flex", flexDirection: "column", alignItems: "center",
+            justifyContent: "flex-start",
+            paddingTop: 28,
+            height: 260,
             background: scoreBlockBg,
-            borderRadius: fs(20),
-            margin: `${fs(20)}px ${fs(40)}px 0`,
+            borderRadius: 20,
+            margin: "16px 40px 0",
             flexShrink: 0,
           }}>
             <div style={{ display: "flex", alignItems: "baseline" }}>
-              <span style={{ fontSize: fs(150), fontWeight: 900, color: "#FFFFFF", lineHeight: 1 }}>
+              <span style={{ fontSize: 160, fontWeight: 900, color: "#FFFFFF", lineHeight: 1 }}>
                 {score}
               </span>
-              <span style={{ fontSize: fs(60), color: "rgba(255,255,255,0.70)", lineHeight: 1 }}>
+              <span style={{ fontSize: 60, color: "rgba(255,255,255,0.70)", lineHeight: 1 }}>
                 /100
               </span>
             </div>
-            <span style={{ fontSize: fs(30), color: statusColor, marginTop: fs(8) }}>
+            <span style={{ fontSize: 30, color: statusColor, marginTop: 6 }}>
               {statusText}
             </span>
           </div>
 
-          {/* ── CHECKLIST — dots only, no row boxes ───────────────── */}
+          {/* ── CHECKLIST — tight stack, no boxes, mt 20, gap 14 ──── */}
           <div style={{
             display: "flex", flexDirection: "column",
-            margin: `${fs(28)}px ${fs(40)}px 0`,
-            gap: fs(20),
+            margin: "20px 40px 0",
+            gap: 14,
           }}>
             {checks.map((c) => (
-              <div key={c.label} style={{ display: "flex", alignItems: "center", gap: fs(20) }}>
+              <div key={c.label} style={{ display: "flex", alignItems: "center", gap: 20 }}>
                 <div style={{
-                  width: fs(34), height: fs(34),
+                  width: 28, height: 28,
                   borderRadius: "50%",
                   background: c.ok === null
                     ? "rgba(255,255,255,0.35)"
@@ -234,46 +233,46 @@ export async function GET(
                   flexShrink: 0,
                   display: "flex",
                 }} />
-                <span style={{ fontSize: fs(30), fontWeight: 700, color: "#FFFFFF" }}>
+                <span style={{ fontSize: 30, fontWeight: 700, color: "#FFFFFF" }}>
                   {c.label}
                 </span>
               </div>
             ))}
           </div>
 
-          {/* ── MESSAGE BLOCK — 200px ─────────────────────────────── */}
+          {/* ── MESSAGE BLOCK — 170px, mt 20 ──────────────────────── */}
           <div style={{
             display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-            height: fs(200),
+            height: 170,
             background: msgBlockBg,
-            borderRadius: fs(20),
-            margin: `${fs(28)}px ${fs(40)}px 0`,
-            padding: `0 ${fs(32)}px`,
+            borderRadius: 20,
+            margin: "20px 40px 0",
+            padding: "0 32px",
             flexShrink: 0,
-            gap: fs(4),
+            gap: 2,
           }}>
             {msgLines.map((line, i) => (
               <span key={i} style={{
-                fontSize: fs(38), fontWeight: 700,
+                fontSize: 36, fontWeight: 700,
                 color: "#FFFFFF",
                 textAlign: "center",
-                lineHeight: 1.25,
+                lineHeight: 1.2,
               }}>
                 {line}
               </span>
             ))}
           </div>
 
-          {/* ── CTA ───────────────────────────────────────────────── */}
-          <div style={{ display: "flex", justifyContent: "center", margin: `${fs(36)}px ${fs(40)}px 0` }}>
-            <span style={{ fontSize: fs(34), fontWeight: 700, color: "#FFFFFF" }}>
+          {/* ── CTA — mt 20 ───────────────────────────────────────── */}
+          <div style={{ display: "flex", justifyContent: "center", margin: "20px 40px 0" }}>
+            <span style={{ fontSize: 34, fontWeight: 700, color: "#FFFFFF" }}>
               manu2print.com
             </span>
           </div>
 
-          {/* ── FOOTER ────────────────────────────────────────────── */}
-          <div style={{ display: "flex", justifyContent: "center", margin: `${fs(16)}px ${fs(40)}px 0` }}>
-            <span style={{ fontSize: fs(22), color: "rgba(255,255,255,0.70)" }}>
+          {/* ── FOOTER — mt 10 ────────────────────────────────────── */}
+          <div style={{ display: "flex", justifyContent: "center", margin: "10px 40px 0" }}>
+            <span style={{ fontSize: 22, color: "rgba(255,255,255,0.70)" }}>
               #KDP #IndieAuthor #SelfPublishing
             </span>
           </div>
@@ -281,8 +280,8 @@ export async function GET(
         </div>
       ),
       {
-        width: W,
-        height: H,
+        width: 1080,
+        height: 1350,
         ...(antonFont
           ? { fonts: [{ name: "Anton", data: antonFont, weight: 400 as const, style: "normal" as const }] }
           : {}),
