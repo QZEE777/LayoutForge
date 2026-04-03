@@ -85,17 +85,17 @@ export async function GET(
     const fontFamily = antonFont ? '"Anton", sans-serif' : "system-ui, sans-serif";
 
     // ── Dynamic values ────────────────────────────────────────────────────
-    const gradTop    = isPass ? "#1FAF5C" : "#D65A2F";
-    const gradBottom = isPass ? "#178A49" : "#C14A27";
+    const gradTop    = isPass ? "#1A6B2A" : "#D65A2F";
+    const gradBottom = isPass ? "#0D3D18" : "#C14A27";
     const stateWord  = isPass ? "PASS"    : "FAIL";
-    const stateColor = isPass ? "#2ECC71" : "#FF6A2B";
-    const statusText = isPass ? "Ready for upload"    : "Fix before you upload";
-    const statusColor= isPass ? "#FFFFFF"             : "#00FF66";
-    const msgBg      = isPass ? "rgba(0,0,0,0.20)"   : "rgba(0,0,0,0.20)";
+    const stateColor = isPass ? "#C5E83A" : "#FF6A2B";  // yellow-green for PASS, orange for FAIL
+    const statusText = isPass ? "Ready for KDP upload" : "Fix before you upload";
+    const statusColor= isPass ? "#A8D878"              : "#00FF66";
+    const msgBg      = isPass ? "rgba(0,0,0,0.22)"    : "rgba(0,0,0,0.20)";
     const msgLines   = isPass
       ? [
-          `Scored ${score}/100. Cleared for upload.`,
-          "KDP ready.",
+          "Checked this before uploading.",
+          "Cleared for KDP.",
           "Would yours pass?",
         ]
       : [
