@@ -84,26 +84,32 @@ export async function GET(
 
     const fontFamily = antonFont ? '"Anton", sans-serif' : "system-ui, sans-serif";
 
-    // ── Dynamic values — only these change between PASS and FAIL ──────────
-    const gradTop      = isPass ? "#1FAF5C" : "#D65A2F";
-    const gradBottom   = isPass ? "#178A49" : "#C14A27";
-    const stateWord    = isPass ? "PASS"    : "FAIL";
-    const stateColor   = isPass ? "#2ECC71" : "#FF6A2B";  // accent on headline
-    const scoreBlockBg = isPass ? "#2ECC71" : "#FF6A2B";
-    const statusText   = isPass ? "Ready for upload" : "Fix before you upload";
-    const statusColor  = isPass ? "#FFFFFF"           : "#00FF66";
-    const msgBlockBg   = isPass ? "rgba(0,0,0,0.18)"  : "rgba(0,0,0,0.18)";
-    const msgLines     = isPass
+    // ── Dynamic values ────────────────────────────────────────────────────
+    const gradTop    = isPass ? "#1FAF5C" : "#D65A2F";
+    const gradBottom = isPass ? "#178A49" : "#C14A27";
+    const stateWord  = isPass ? "PASS"    : "FAIL";
+    const stateColor = isPass ? "#2ECC71" : "#FF6A2B";
+    const statusText = isPass ? "Ready for upload"    : "Fix before you upload";
+    const statusColor= isPass ? "#FFFFFF"             : "#00FF66";
+    const msgBg      = isPass ? "rgba(0,0,0,0.20)"   : "rgba(0,0,0,0.20)";
+    const msgLines   = isPass
       ? [
-          `Checked my KDP PDF. Scored ${score}/100.`,
-          "Cleared for upload.",
+          `Scored ${score}/100. Cleared for upload.`,
+          "KDP ready.",
           "Would yours pass?",
         ]
       : [
-          "Caught this before uploading.",
+          "Caught this before uploading,",
           "Saved a rejection.",
           "Check yours before you submit.",
         ];
+
+    // ── Curved swoosh underline (SVG) ─────────────────────────────────────
+    const swooshSrc = `data:image/svg+xml;base64,${Buffer.from(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="24" viewBox="0 0 400 24">` +
+      `<path d="M 20 16 Q 200 4 380 14" stroke="${stateColor}" stroke-width="5" fill="none" stroke-linecap="round"/>` +
+      `</svg>`
+    ).toString("base64")}`;
 
     try {
     const imgResponse = new ImageResponse(
@@ -118,86 +124,73 @@ export async function GET(
           }}
         >
 
-          {/* ── 1. HEADLINE — "THIS WOULD [FAIL/PASS] KDP" ────────── */}
+          {/* ── 1. HEADLINE ───────────────────────────────────────── */}
           <div style={{
             display: "flex", flexDirection: "column", alignItems: "center",
-            margin: "60px 50px 0",
+            margin: "70px 50px 0",
           }}>
-            <span style={{
-              fontSize: 86, fontWeight: 900, color: "#FFFFFF",
-              lineHeight: 1.05, textAlign: "center",
-            }}>
+            <span style={{ fontSize: 90, fontWeight: 900, color: "#FFFFFF", lineHeight: 1.0 }}>
               THIS WOULD
             </span>
-            <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-              <span style={{ fontSize: 86, fontWeight: 900, color: stateColor, lineHeight: 1.05 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+              <span style={{ fontSize: 90, fontWeight: 900, color: stateColor, lineHeight: 1.0 }}>
                 {stateWord}
               </span>
-              <span style={{ fontSize: 86, fontWeight: 900, color: "#FFFFFF", lineHeight: 1.05 }}>
+              <span style={{ fontSize: 90, fontWeight: 900, color: "#FFFFFF", lineHeight: 1.0 }}>
                 KDP
               </span>
             </div>
-            {/* Decorative underline */}
-            <div style={{
-              width: 140, height: 6,
-              background: stateColor,
-              borderRadius: 3,
-              marginTop: 14,
-            }} />
+            {/* Curved swoosh underline */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={swooshSrc} alt="" style={{ width: 320, height: 20, marginTop: 6 }} />
           </div>
 
-          {/* ── 2. SCORE BLOCK ────────────────────────────────────── */}
+          {/* ── 2. SCORE — no background box, sits on gradient ────── */}
           <div style={{
-            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-            background: scoreBlockBg,
-            borderRadius: 24,
-            margin: "24px 50px 0",
-            padding: "20px 40px 24px",
-            flexShrink: 0,
+            display: "flex", flexDirection: "column", alignItems: "center",
+            margin: "16px 50px 0",
           }}>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-              <span style={{ fontSize: 230, fontWeight: 900, color: "#FFFFFF", lineHeight: 1 }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+              <span style={{ fontSize: 240, fontWeight: 900, color: "#FFFFFF", lineHeight: 0.9 }}>
                 {score}
               </span>
-              <span style={{ fontSize: 80, color: "rgba(255,255,255,0.65)", lineHeight: 1 }}>
+              <span style={{ fontSize: 90, color: "rgba(255,255,255,0.60)", lineHeight: 1 }}>
                 /100
               </span>
             </div>
-            <span style={{ fontSize: 34, fontWeight: 700, color: statusColor, marginTop: 4 }}>
+            <span style={{ fontSize: 36, fontWeight: 700, color: statusColor, marginTop: 8 }}>
               {statusText}
             </span>
           </div>
 
           {/* ── Divider ───────────────────────────────────────────── */}
           <div style={{
-            height: 1,
-            background: "rgba(255,255,255,0.25)",
-            margin: "28px 50px 0",
+            height: 1, background: "rgba(255,255,255,0.25)",
+            margin: "24px 50px 0",
           }} />
 
-          {/* ── 3. CHECKLIST ──────────────────────────────────────── */}
+          {/* ── 3. CHECKLIST — centered as a group ────────────────── */}
           <div style={{
-            display: "flex", flexDirection: "column",
-            margin: "24px 50px 0",
-            gap: 18,
+            display: "flex", flexDirection: "column", alignItems: "center",
+            margin: "20px 50px 0",
+            gap: 16,
           }}>
             {checks.map((c) => (
-              <div key={c.label} style={{ display: "flex", alignItems: "center", gap: 24 }}>
-                {/* Filled circle icon */}
+              <div key={c.label} style={{
+                display: "flex", alignItems: "center", gap: 22,
+                width: 380,
+              }}>
                 <div style={{
-                  width: 52, height: 52,
-                  borderRadius: "50%",
-                  background: c.ok === null
-                    ? "rgba(255,255,255,0.30)"
-                    : c.ok ? "#2ECC71" : "#B0B0B0",
+                  width: 54, height: 54, borderRadius: "50%",
+                  background: c.ok === null ? "rgba(255,255,255,0.30)" : c.ok ? "#2ECC71" : "#888888",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   flexShrink: 0,
                 }}>
-                  <span style={{ fontSize: 30, fontWeight: 900, color: "#FFFFFF", lineHeight: 1 }}>
+                  <span style={{ fontSize: 32, fontWeight: 900, color: "#FFFFFF", lineHeight: 1 }}>
                     {c.ok === null ? "?" : c.ok ? "✓" : "✕"}
                   </span>
                 </div>
-                <span style={{ fontSize: 34, fontWeight: 700, color: "#FFFFFF" }}>
+                <span style={{ fontSize: 36, fontWeight: 700, color: "#FFFFFF" }}>
                   {c.label}
                 </span>
               </div>
@@ -207,35 +200,38 @@ export async function GET(
           {/* ── 4. MESSAGE BLOCK ──────────────────────────────────── */}
           <div style={{
             display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-            background: msgBlockBg,
+            background: msgBg,
             borderRadius: 20,
-            margin: "28px 50px 0",
-            padding: "24px 36px",
+            margin: "24px 50px 0",
+            padding: "22px 36px",
             flexShrink: 0,
-            gap: 2,
+            gap: 0,
           }}>
             {msgLines.map((line, i) => (
               <span key={i} style={{
-                fontSize: 34, fontWeight: 700,
-                color: "#FFFFFF",
-                textAlign: "center",
-                lineHeight: 1.25,
+                fontSize: 34, fontWeight: 700, color: "#FFFFFF",
+                textAlign: "center", lineHeight: 1.3,
               }}>
                 {line}
               </span>
             ))}
           </div>
 
-          {/* ── 5. CTA ────────────────────────────────────────────── */}
-          <div style={{ display: "flex", justifyContent: "center", margin: "28px 50px 0" }}>
-            <span style={{ fontSize: 42, fontWeight: 900, color: "#FFFFFF" }}>
+          {/* ── 5. CTA — with — decorators ────────────────────────── */}
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "center",
+            gap: 20, margin: "28px 50px 0",
+          }}>
+            <div style={{ height: 2, width: 80, background: "rgba(255,255,255,0.40)", borderRadius: 1 }} />
+            <span style={{ fontSize: 44, fontWeight: 900, color: "#FFFFFF" }}>
               manu2print.com
             </span>
+            <div style={{ height: 2, width: 80, background: "rgba(255,255,255,0.40)", borderRadius: 1 }} />
           </div>
 
           {/* ── 6. FOOTER ─────────────────────────────────────────── */}
-          <div style={{ display: "flex", justifyContent: "center", margin: "12px 50px 0" }}>
-            <span style={{ fontSize: 24, color: "rgba(255,255,255,0.65)" }}>
+          <div style={{ display: "flex", justifyContent: "center", margin: "14px 50px 0" }}>
+            <span style={{ fontSize: 26, color: "rgba(255,255,255,0.60)" }}>
               #KDP  #IndieAuthor  #SelfPublishing
             </span>
           </div>
