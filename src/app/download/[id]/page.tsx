@@ -848,7 +848,6 @@ export default function DownloadPage() {
                     const verifyLink  = `https://www.manu2print.com/verify/${id}${shareToken ? `?sh=${shareToken}` : ""}`;
                     const ogBase      = `/api/og/verify/${id}?p=${shareIsPass ? 1 : 0}&s=${shareScore}`;
                     const portraitUrl = `${ogBase}&format=portrait`;
-                    const squareUrl   = `${ogBase}&format=square`;
                     const caption     = shareIsPass
                       ? `Just checked my KDP manuscript on manu2print.com — scored ${shareScore}/100. ✅ Ready for Amazon. Would yours pass? ${verifyLink} #KDP #IndieAuthor #SelfPublishing`
                       : `Caught issues in my KDP PDF before uploading to Amazon. 🛑 Saved myself a rejection. Check yours before you submit: ${verifyLink} #KDP #IndieAuthor #SelfPublishing`;
@@ -878,21 +877,14 @@ export default function DownloadPage() {
                             style={{ width: "100%", maxWidth: 300, display: "block", margin: "0 auto 14px", borderRadius: 12, border: "1.5px solid rgba(0,0,0,0.07)", boxShadow: "0 6px 24px rgba(0,0,0,0.13)" }}
                           />
 
-                          {/* Download buttons */}
-                          <div style={{ display: "flex", gap: 10, marginBottom: 18 }}>
+                          {/* Download button */}
+                          <div style={{ marginBottom: 18 }}>
                             <a
                               href={portraitUrl}
                               download={`manu2print-result-${shareIsPass ? "pass" : "fail"}-portrait.jpg`}
-                              style={{ flex: 1, display: "block", textAlign: "center", background: headerBg, color: "#fff", fontWeight: 700, fontSize: 13, padding: "12px 8px", borderRadius: 10, textDecoration: "none" }}
+                              style={{ display: "block", textAlign: "center", background: headerBg, color: "#fff", fontWeight: 700, fontSize: 14, padding: "14px 8px", borderRadius: 10, textDecoration: "none" }}
                             >
-                              ⬇ Facebook / Instagram
-                            </a>
-                            <a
-                              href={squareUrl}
-                              download={`manu2print-result-${shareIsPass ? "pass" : "fail"}-square.jpg`}
-                              style={{ flex: 1, display: "block", textAlign: "center", background: headerBg, color: "#fff", fontWeight: 700, fontSize: 13, padding: "12px 8px", borderRadius: 10, textDecoration: "none" }}
-                            >
-                              ⬇ LinkedIn / Square
+                              ⬇ Download — IG / FB / LinkedIn
                             </a>
                           </div>
 
