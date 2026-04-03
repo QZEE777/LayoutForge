@@ -82,27 +82,8 @@ export async function GET(
       if (fontRes.ok) antonFont = await fontRes.arrayBuffer();
     } catch { /* fall back to system-ui */ }
 
-    // ── Mascot — HTTP URL, edge-compatible ────────────────────────────────
-    const mannyFile = isPass ? "manny_pass_card.png" : "manny_fail_card.png";
-    const mannySrc  = `${base}/manny/${mannyFile}`;
-
-    // ── Approve / Reject icons as base64 SVG ─────────────────────────────
-    const checkSvgB64 = Buffer.from(
-      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">` +
-      `<circle cx="50" cy="50" r="44" fill="none" stroke="#2ECC71" stroke-width="8"/>` +
-      `<polyline points="22,52 40,70 78,28" fill="none" stroke="#2ECC71" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>` +
-      `</svg>`
-    ).toString("base64");
-
-    const xSvgB64 = Buffer.from(
-      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">` +
-      `<circle cx="50" cy="50" r="44" fill="none" stroke="#D32F2F" stroke-width="8"/>` +
-      `<line x1="28" y1="28" x2="72" y2="72" stroke="#D32F2F" stroke-width="9" stroke-linecap="round"/>` +
-      `<line x1="72" y1="28" x2="28" y2="72" stroke="#D32F2F" stroke-width="9" stroke-linecap="round"/>` +
-      `</svg>`
-    ).toString("base64");
-
-    const iconSrc = `data:image/svg+xml;base64,${isPass ? checkSvgB64 : xSvgB64}`;
+    // ── No external images — text + SVG only ─────────────────────────────
+    const verdictIcon = isPass ? "✓" : "✕";
 
     const fontFamily = antonFont ? '"Anton", sans-serif' : "system-ui, sans-serif";
 
@@ -151,30 +132,24 @@ export async function GET(
             borderRadius: 16,
             height: 120,
             margin: "40px 40px 0",
-            padding: "0 24px",
+            padding: "0 36px",
             flexShrink: 0,
           }}>
 
-            {/* LEFT: Manny, 90px, top-left, vertically centered */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={mannySrc} alt=""
-              style={{ height: 90, objectFit: "contain", objectPosition: "left center" }}
-            />
-
-            {/* CENTER: icon 60px + verdict label */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={iconSrc} alt="" style={{ width: 60, height: 60 }} />
-              <span style={{ fontSize: 22, fontWeight: 700, color: verdictColor }}>
+            {/* LEFT: verdict icon + label */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+              <span style={{ fontSize: 52, fontWeight: 900, color: verdictColor, lineHeight: 1 }}>
+                {verdictIcon}
+              </span>
+              <span style={{ fontSize: 20, fontWeight: 700, color: verdictColor, letterSpacing: "0.05em" }}>
                 {verdictLabel}
               </span>
             </div>
 
-            {/* RIGHT: manu2print wordmark, right padding 24px */}
+            {/* RIGHT: manu2print wordmark */}
             <div style={{ display: "flex", alignItems: "center" }}>
-              <span style={{ fontSize: 30, fontWeight: 900, color: "#FF6A2B" }}>manu</span>
-              <span style={{ fontSize: 30, fontWeight: 900, color: "#2ECC71" }}>2print</span>
+              <span style={{ fontSize: 38, fontWeight: 900, color: "#FF6A2B" }}>manu</span>
+              <span style={{ fontSize: 38, fontWeight: 900, color: "#2ECC71" }}>2print</span>
             </div>
           </div>
 
