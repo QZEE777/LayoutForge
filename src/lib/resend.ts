@@ -408,35 +408,47 @@ export async function sendAffiliateApprovalEmail(to: string, name: string, code:
       <td style="padding: 36px 32px 24px; background: #FAF7EE;">
 
         <p style="font-size: 22px; font-weight: 700; color: #1A1208; margin: 0 0 20px; line-height: 1.3;">
-          Hey ${firstName} — you're in. Welcome to the partner program.
+          You're approved, ${firstName} — welcome to the crew. 🎉
         </p>
 
         <p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 12px;">
-          Thank you for applying. I reviewed your account and I'm glad to have you.
-        </p>
-
-        <p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 24px;">
-          Every author you send our way earns you <strong>40% commission</strong> on pack sales — up to <strong>$31.60 per referral</strong>. Your link tracks for 12 months, so you get credit even if they come back later.
+          Your referral link is ready to go — share it, post it, DM it, tattoo it on your laptop if you want:
         </p>
 
         <!-- Referral link -->
-        <p style="font-size: 14px; font-weight: 700; color: #1A1208; margin: 0 0 8px;">Your referral link:</p>
         <div style="background: #1A1208; border-radius: 8px; padding: 14px 18px; margin: 0 0 28px;">
           <a href="${safeRefLink}" style="font-size: 14px; color: #4cd964; font-family: monospace; text-decoration: none; word-break: break-all;">${refLink}</a>
         </div>
 
+        <p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 24px;">
+          Every KDP author who checks their PDF through your link earns you cold, hard commission:
+        </p>
+
         <!-- Details -->
         <table width="100%" cellpadding="0" cellspacing="0"
-               style="background: #fff; border-radius: 10px; border: 1px solid #E0D8C4; margin: 0 0 28px;">
+               style="background: #fff; border-radius: 10px; border: 1px solid #E0D8C4; margin: 0 0 20px;">
           <tr>
             <td style="padding: 20px 24px;">
               <p style="font-size: 13px; font-weight: 700; color: #1A1208; margin: 0 0 12px; text-transform: uppercase; letter-spacing: 0.05em;">
                 Your commission breakdown
               </p>
+              <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;Single scan — 30% = <strong>$2.70</strong></p>
               <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;Author Pack — 40% = <strong>$7.60</strong></p>
               <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;Indie Pack — 40% = <strong>$15.60</strong></p>
-              <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;Pro Pack — 40% = <strong>$31.60</strong></p>
-              <p style="font-size: 14px; color: #3a3020; margin: 0; line-height: 1.7;">&#10003; &nbsp;Payouts automatic via LemonSqueezy — no minimum</p>
+              <p style="font-size: 14px; color: #3a3020; margin: 0; line-height: 1.7;">&#10003; &nbsp;Pro Pack — 40% = <strong>$31.60</strong></p>
+            </td>
+          </tr>
+        </table>
+
+        <!-- LS heads up -->
+        <table width="100%" cellpadding="0" cellspacing="0"
+               style="background: #FEF3C7; border-radius: 10px; border: 1px solid #FDE68A; margin: 0 0 28px;">
+          <tr>
+            <td style="padding: 16px 20px;">
+              <p style="font-size: 14px; color: #92400E; margin: 0; line-height: 1.7;">
+                <strong>One heads up:</strong> Your payout link through LemonSqueezy takes up to 48 hours to activate — that's their process, not ours. Once it's live, it'll appear in your Partner Dashboard automatically. Nothing for you to do except sit tight.<br><br>
+                In the meantime, nothing stops you from sharing your link <em>right now</em>. Every click counts from this moment.
+              </p>
             </td>
           </tr>
         </table>
@@ -455,7 +467,7 @@ export async function sendAffiliateApprovalEmail(to: string, name: string, code:
         </table>
 
         <p style="font-size: 14px; line-height: 1.8; color: #6B6151; margin: 0;">
-          12-month cookie. No minimums. Just share the link and let the tool do its job.
+          12-month cookie. No cap. No minimums. Just send authors our way and let the tool close for you.
         </p>
 
       </td>
@@ -476,24 +488,26 @@ export async function sendAffiliateApprovalEmail(to: string, name: string, code:
 `.trim();
 
   const text = [
-    `Hey ${firstName} — you're in. Welcome to the partner program.`,
+    `You're approved, ${firstName} — welcome to the crew. 🎉`,
     "",
-    "Thank you for applying. I reviewed your account and I'm glad to have you.",
+    "Your referral link is ready to go — share it, post it, DM it, tattoo it on your laptop if you want:",
     "",
-    "Every author you send our way earns you 40% commission on pack sales — up to $31.60 per referral.",
-    "Your link tracks for 12 months.",
+    `  ${refLink}`,
     "",
-    `Your referral link: ${refLink}`,
+    "Every KDP author who checks their PDF through your link earns you cold, hard commission:",
     "",
     "Commission breakdown:",
+    "✓ Single scan — 30% = $2.70",
     "✓ Author Pack — 40% = $7.60",
     "✓ Indie Pack — 40% = $15.60",
     "✓ Pro Pack — 40% = $31.60",
-    "✓ Payouts automatic via LemonSqueezy — no minimum",
+    "",
+    "One heads up: Your payout link through LemonSqueezy takes up to 48 hours to activate — that's their process, not ours. Once it's live, it'll appear in your Partner Dashboard automatically.",
+    "In the meantime, nothing stops you from sharing your link right now. Every click counts from this moment.",
     "",
     `View your dashboard: ${dashUrl}`,
     "",
-    "12-month cookie. No minimums. Just share the link.",
+    "12-month cookie. No cap. No minimums. Just send authors our way and let the tool close for you.",
     "",
     "— Manny, manu2print.com",
   ].join("\n");
