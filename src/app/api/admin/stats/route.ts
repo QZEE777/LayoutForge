@@ -57,6 +57,22 @@ export async function GET(request: NextRequest) {
         ? (recentPayments[0] as { created_at: string }).created_at
         : null;
 
+    // Revenue breakdown by product type
+    type PaymentRow = { status: string; payment_type: string | null; amount: number | null };
+    const revenueByType = (completed as PaymentRow[]).reduce<Record<string, number>>((acc, p) => {
+      const key = p.payment_type ?? "other";
+      acc[key] = (acc[key] ?? 0) + (p.amount ?? 0);
+      return acc;
+    }, {});
+
+    // Credit stats
+    const creditsRes = await supabase
+      .from("scan_credits")
+      .select("credits, used");
+    const creditsRows = creditsRes.data ?? [];
+    const totalCreditsIssued = creditsRows.reduce((s: number, r: { credits: number | null }) => s + (r.credits ?? 0), 0);
+    const totalCreditsUsed = creditsRows.reduce((s: number, r: { used: number | null }) => s + (r.used ?? 0), 0);
+
     return NextResponse.json({
       totalRevenue,
       totalPayingCustomers,
@@ -64,6 +80,9 @@ export async function GET(request: NextRequest) {
       betaUsers,
       pendingAffiliates,
       activeAffiliates,
+      revenueByType,
+      totalCreditsIssued,
+      totalCreditsUsed,
       recentPayments,
       subscriptions,
       betaUsage,

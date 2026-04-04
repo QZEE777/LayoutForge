@@ -65,7 +65,20 @@ export default function AdminPage() {
     betaUsers: number;
     pendingAffiliates: number;
     activeAffiliates: number;
+    revenueByType: Record<string, number>;
+    totalCreditsIssued: number;
+    totalCreditsUsed: number;
   } | null>(null);
+  const [userLookupEmail, setUserLookupEmail] = useState("");
+  const [userLookupLoading, setUserLookupLoading] = useState(false);
+  const [userLookupResult, setUserLookupResult] = useState<{
+    profile: { id: string; full_name: string | null; created_at: string } | null;
+    email: string;
+    credits: { total: number; used: number; remaining: number; rows: Array<{ credits: number; used: number; note: string | null; created_at: string }> };
+    payments: Array<{ id: string; amount: number | null; payment_type: string | null; status: string | null; gateway_order_id: string | null; created_at: string }>;
+    scans: Array<{ download_id: string | null; created_at: string }>;
+  } | null>(null);
+  const [userLookupError, setUserLookupError] = useState<string | null>(null);
   const [payments, setPayments] = useState<Array<{
     id: string;
     email: string | null;
@@ -191,6 +204,9 @@ export default function AdminPage() {
         betaUsers: data.betaUsers ?? 0,
         pendingAffiliates: data.pendingAffiliates ?? 0,
         activeAffiliates: data.activeAffiliates ?? 0,
+        revenueByType: data.revenueByType ?? {},
+        totalCreditsIssued: data.totalCreditsIssued ?? 0,
+        totalCreditsUsed: data.totalCreditsUsed ?? 0,
       });
       setPayments(data.recentPayments || []);
       setSubscriptions(data.subscriptions || []);
@@ -265,6 +281,33 @@ export default function AdminPage() {
     setLeadsFromStorage([]);
     setAffiliates([]);
     setReferrals([]);
+    setUserLookupResult(null);
+    setUserLookupError(null);
+    setUserLookupEmail("");
+  };
+
+  const handleUserLookup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const pwd = typeof window !== "undefined" ? sessionStorage.getItem(ADMIN_PWD_KEY) : null;
+    if (!pwd || !userLookupEmail.trim()) return;
+    setUserLookupLoading(true);
+    setUserLookupResult(null);
+    setUserLookupError(null);
+    try {
+      const res = await fetch(`/api/admin/user-lookup?email=${encodeURIComponent(userLookupEmail.trim())}`, {
+        headers: { "x-admin-password": pwd },
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setUserLookupError(data.error ?? "Lookup failed");
+      } else {
+        setUserLookupResult(data);
+      }
+    } catch {
+      setUserLookupError("Network error");
+    } finally {
+      setUserLookupLoading(false);
+    }
   };
 
   const handleRefresh = () => {
@@ -482,32 +525,154 @@ export default function AdminPage() {
 
         {stats && (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
               <div className="rounded-xl border border-m2p-border bg-m2p-ivory p-4">
                 <p className="text-xs text-soft-muted mb-1">Total revenue</p>
-                <p className="text-2xl font-bold text-brave">
-                  ${(stats.totalRevenue / 100).toFixed(2)}
-                </p>
-                <p className="text-[10px] text-soft-muted mt-1">Completed one-time + subscription</p>
+                <p className="text-2xl font-bold text-brave">${(stats.totalRevenue / 100).toFixed(2)}</p>
+                <p className="text-[10px] text-soft-muted mt-1">All completed payments</p>
               </div>
               <div className="rounded-xl border border-m2p-border bg-m2p-ivory p-4">
                 <p className="text-xs text-soft-muted mb-1">Paying customers</p>
                 <p className="text-2xl font-bold">{stats.totalPayingCustomers}</p>
-              </div>
-              <div className={`rounded-xl border p-4 ${stats.pendingAffiliates > 0 ? "border-amber-300 bg-amber-50" : "border-m2p-border bg-m2p-ivory"}`}>
-                <p className="text-xs text-soft-muted mb-1">Partners pending</p>
-                <p className={`text-2xl font-bold ${stats.pendingAffiliates > 0 ? "text-amber-600" : ""}`}>{stats.pendingAffiliates}</p>
+                <div className="mt-1 flex flex-wrap gap-1">
+                  {Object.entries(stats.revenueByType).map(([type, cents]) => (
+                    <span key={type} className="text-[10px] bg-m2p-border rounded px-1.5 py-0.5">
+                      {type}: ${(cents / 100).toFixed(0)}
+                    </span>
+                  ))}
+                </div>
               </div>
               <div className="rounded-xl border border-m2p-border bg-m2p-ivory p-4">
-                <p className="text-xs text-soft-muted mb-1">Active partners</p>
-                <p className="text-2xl font-bold text-green-600">{stats.activeAffiliates}</p>
+                <p className="text-xs text-soft-muted mb-1">Credits issued / used</p>
+                <p className="text-2xl font-bold">{stats.totalCreditsIssued}</p>
+                <p className="text-[10px] text-soft-muted mt-1">{stats.totalCreditsUsed} used · {Math.max(0, stats.totalCreditsIssued - stats.totalCreditsUsed)} remaining</p>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className={`rounded-xl border p-4 ${stats.pendingAffiliates > 0 ? "border-amber-300 bg-amber-50" : "border-m2p-border bg-m2p-ivory"}`}>
+                  <p className="text-xs text-soft-muted mb-1">Partners pending</p>
+                  <p className={`text-2xl font-bold ${stats.pendingAffiliates > 0 ? "text-amber-600" : ""}`}>{stats.pendingAffiliates}</p>
+                </div>
+                <div className="rounded-xl border border-m2p-border bg-m2p-ivory p-4">
+                  <p className="text-xs text-soft-muted mb-1">Active partners</p>
+                  <p className="text-2xl font-bold text-green-600">{stats.activeAffiliates}</p>
+                </div>
               </div>
             </div>
+
+            {/* Pending partner alert */}
+            {stats.pendingAffiliates > 0 && (
+              <div className="mb-6 flex items-center gap-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3">
+                <span className="text-amber-600 font-bold text-sm">⚠ {stats.pendingAffiliates} partner application{stats.pendingAffiliates > 1 ? "s" : ""} waiting for review</span>
+                <a href="#partners" className="ml-auto text-xs bg-amber-500 hover:bg-amber-600 text-white font-semibold px-3 py-1.5 rounded-lg">Review now →</a>
+              </div>
+            )}
+
             {latestPaymentAt && (
               <p className="text-xs text-soft-muted mb-8">
                 Latest payment recorded: {formatDate(latestPaymentAt)} — if this is stale, check webhook URL in Lemon Squeezy.
               </p>
             )}
+
+            {/* ── User Lookup ───────────────────────────────────── */}
+            <section className="mb-10">
+              <h2 className="text-lg font-bold mb-2">User Lookup</h2>
+              <p className="text-xs text-soft-muted mb-4">Search any user by email — credits, payments, scan history in one view.</p>
+              <form onSubmit={handleUserLookup} className="flex gap-3 mb-4">
+                <input
+                  type="email"
+                  required
+                  value={userLookupEmail}
+                  onChange={(e) => setUserLookupEmail(e.target.value)}
+                  placeholder="user@example.com"
+                  className="border rounded-lg px-3 py-2 text-sm w-72 focus:outline-none focus:border-m2p-orange"
+                />
+                <button
+                  type="submit"
+                  disabled={userLookupLoading}
+                  className="bg-m2p-orange hover:opacity-90 disabled:opacity-50 text-white font-semibold px-4 py-2 rounded-lg text-sm"
+                >
+                  {userLookupLoading ? "Looking up…" : "Look up"}
+                </button>
+              </form>
+              {userLookupError && <p className="text-sm text-red-500 mb-4">{userLookupError}</p>}
+              {userLookupResult && (
+                <div className="rounded-xl border border-m2p-border bg-m2p-ivory p-5 space-y-5">
+                  {/* Profile */}
+                  <div>
+                    <p className="text-xs text-soft-muted mb-1 font-medium uppercase tracking-wide">Account</p>
+                    <p className="font-semibold">{userLookupResult.profile?.full_name || <span className="text-soft-muted italic">No name set</span>}</p>
+                    <p className="text-sm text-soft-muted">{userLookupResult.email}</p>
+                    {userLookupResult.profile?.created_at && (
+                      <p className="text-xs text-soft-muted mt-0.5">Joined {formatDate(userLookupResult.profile.created_at)}</p>
+                    )}
+                    {!userLookupResult.profile && (
+                      <p className="text-xs text-amber-600 mt-1">⚠ No profile row — user may not have completed sign-up</p>
+                    )}
+                  </div>
+                  {/* Credits */}
+                  <div>
+                    <p className="text-xs text-soft-muted mb-2 font-medium uppercase tracking-wide">Credits</p>
+                    <div className="flex gap-4 mb-2">
+                      <span className="text-sm"><span className="font-bold text-green-600">{userLookupResult.credits.remaining}</span> remaining</span>
+                      <span className="text-sm text-soft-muted">{userLookupResult.credits.used} used of {userLookupResult.credits.total} issued</span>
+                    </div>
+                    {userLookupResult.credits.rows.length > 0 && (
+                      <div className="text-xs text-soft-muted space-y-0.5">
+                        {userLookupResult.credits.rows.map((r, i) => (
+                          <div key={i} className="flex gap-3">
+                            <span>{formatDate(r.created_at)}</span>
+                            <span>+{r.credits} credits</span>
+                            <span className="bg-m2p-border rounded px-1">{r.note ?? "—"}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  {/* Payments */}
+                  <div>
+                    <p className="text-xs text-soft-muted mb-2 font-medium uppercase tracking-wide">Payments ({userLookupResult.payments.length})</p>
+                    {userLookupResult.payments.length === 0 ? (
+                      <p className="text-sm text-soft-muted">No payments.</p>
+                    ) : (
+                      <div className="space-y-1">
+                        {userLookupResult.payments.map((p, i) => (
+                          <div key={i} className="flex gap-3 text-sm items-center">
+                            <span className="text-soft-muted text-xs">{formatDate(p.created_at)}</span>
+                            <span className="font-semibold">{formatAmount(p.amount)}</span>
+                            <span className="text-xs bg-m2p-border rounded px-1.5 py-0.5">{p.payment_type ?? "—"}</span>
+                            <span className={`text-xs ${statusColor(p.status)}`}>{p.status}</span>
+                            {p.gateway_order_id && (
+                              <a href={`https://app.lemonsqueezy.com/orders/${p.gateway_order_id}`} target="_blank" rel="noopener noreferrer" className="text-xs text-m2p-orange hover:underline ml-auto">
+                                Order →
+                              </a>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  {/* Scans */}
+                  <div>
+                    <p className="text-xs text-soft-muted mb-2 font-medium uppercase tracking-wide">Scan history ({userLookupResult.scans.length})</p>
+                    {userLookupResult.scans.length === 0 ? (
+                      <p className="text-sm text-soft-muted">No scans recorded.</p>
+                    ) : (
+                      <div className="space-y-1">
+                        {userLookupResult.scans.slice(0, 10).map((s, i) => (
+                          <div key={i} className="flex gap-3 text-xs text-soft-muted">
+                            <span>{formatDate(s.created_at)}</span>
+                            <span className="font-mono truncate max-w-[240px]">{s.download_id ?? "—"}</span>
+                          </div>
+                        ))}
+                        {userLookupResult.scans.length > 10 && (
+                          <p className="text-xs text-soft-muted">+ {userLookupResult.scans.length - 10} more</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </section>
 
             <section className="mb-10">
               <div className="flex items-center justify-between gap-4 mb-4">
@@ -624,7 +789,7 @@ export default function AdminPage() {
               </form>
             </section>
 
-            <section className="mb-10">
+            <section id="partners" className="mb-10">
               <div className="flex items-center justify-between gap-4 mb-2">
                 <h2 className="text-lg font-bold">Partners</h2>
                 <span className="text-xs text-soft-muted">{affiliateLoading ? "Saving…" : ""}</span>
