@@ -141,7 +141,7 @@ export function GoLandingClient({ checkoutUrl, refCode, partnerName }: Props) {
             <strong className="text-white">Every rejection resets your timeline.</strong>
           </p>
 
-          <div className="grid sm:grid-cols-2 gap-5 max-w-2xl">
+          <div className="grid sm:grid-cols-2 gap-5 max-w-2xl mx-auto">
             <div className="bg-white/5 border border-white/10 rounded-xl p-5 text-center">
               <p className="text-xs font-bold text-m2p-orange tracking-widest uppercase mb-3">
                 WITHOUT MANU2PRINT
