@@ -7,13 +7,13 @@ const THIRTY_DAYS = 60 * 60 * 24 * 30;
 
 const RULES = [
   "Trim size", "Margin compliance", "Bleed zone", "Font embedding",
-  "Page count", "Image resolution", "File size limits", "Colour mode",
+  "Page count", "Image resolution", "File size limits", "Color mode",
   "Safe zone", "Spine & cover", "Page-number tags", "26 rules total",
 ];
 
 const STEPS = [
-  { n: "01", title: "Upload your PDF", desc: "The exact file you plan to submit to KDP Interior manuscripts only, any page count." },
-  { n: "02", title: "See every issue", desc: "Margins, trim size, bleed, fonts — flagged by page. Score and issue count shown immediately." },
+  { n: "01", title: "Upload your PDF",      desc: "The exact file you plan to submit to KDP. Interior manuscripts only, any page count." },
+  { n: "02", title: "See every issue",       desc: "Margins, trim size, bleed, fonts — flagged by page. Score and issue count shown immediately." },
   { n: "03", title: "Fix once. Upload once.", desc: "Pay $9 to unlock the full annotated report. Fix the issues, re-export, publish with confidence." },
 ];
 
@@ -26,147 +26,150 @@ interface Props {
 }
 
 export function GoLandingClient({ checkoutUrl, refCode, partnerName }: Props) {
-  // Set custom ref cookie so our analytics also captures the attribution
   useEffect(() => {
     if (!refCode) return;
     document.cookie = `m2p_ref=${refCode}; max-age=${THIRTY_DAYS}; path=/; SameSite=Lax`;
-    try { localStorage.setItem("m2p_ref", refCode); } catch { }
+    try { localStorage.setItem("m2p_ref", refCode); } catch { /* ignore */ }
   }, [refCode]);
 
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", background: "#FAF7EE", color: "#1A1208", minHeight: "100vh" }}>
-      <style>{`
-        .go-hero { display: grid; grid-template-columns: 1fr auto; gap: 48px; align-items: center; }
-        .go-checkout-card { display: block; }
-        .go-problem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 720px; }
-        .go-checklist { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 32px; margin-bottom: 36px; max-width: 440px; }
-        @media (max-width: 700px) {
-          .go-hero { grid-template-columns: 1fr; gap: 32px; }
-          .go-checkout-card { display: none; }
-          .go-problem-grid { grid-template-columns: 1fr; }
-          .go-checklist { grid-template-columns: 1fr; }
-        }
-      `}</style>
+    <div className="font-sans bg-m2p-ivory text-m2p-ink min-h-screen">
 
-      {/* ── Nav ─────────────────────────────────────────── */}
-      <header style={{ background: "#FAF7EE", borderBottom: "1px solid rgba(0,0,0,0.08)", position: "sticky", top: 0, zIndex: 20 }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 24px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <Link href="/" style={{ textDecoration: "none" }}>
-            <span style={{ fontWeight: 900, fontSize: "1.15rem", color: "#F05A28" }}>manu</span>
-            <span style={{ fontWeight: 900, fontSize: "1.15rem", color: "#2D6A2D" }}>2print</span>
+      {/* ── Nav ───────────────────────────────────────────────────────────── */}
+      <header className="sticky top-0 z-20 bg-m2p-ivory border-b border-m2p-border">
+        <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
+          <Link href="/" className="no-underline flex items-center">
+            <span className="font-black text-lg text-m2p-orange">manu</span>
+            <span className="font-black text-lg text-m2p-live">2print</span>
           </Link>
-          <a href={checkoutUrl}
-            style={{ background: "#F05A28", color: "#fff", fontWeight: 700, fontSize: 13, padding: "8px 20px", borderRadius: 8, textDecoration: "none" }}>
+          <a
+            href={checkoutUrl}
+            className="bg-m2p-orange hover:opacity-90 text-white font-bold text-sm px-5 py-2 rounded-lg no-underline transition-opacity"
+          >
             Check My PDF — $9
           </a>
         </div>
       </header>
 
-      {/* ── Hero ─────────────────────────────────────────── */}
-      <section className="go-hero" style={{ maxWidth: 1100, margin: "0 auto", padding: "72px 24px 56px" }}>
+      {/* ── Hero ──────────────────────────────────────────────────────────── */}
+      <section className="max-w-5xl mx-auto px-6 py-16 lg:py-20 grid lg:grid-cols-[1fr_288px] gap-12 items-center">
         <div>
           {partnerName && (
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(45,106,45,0.08)", border: "1px solid rgba(45,106,45,0.18)", color: "#2D6A2D", fontWeight: 600, fontSize: 12, padding: "4px 12px", borderRadius: 999, marginBottom: 12 }}>
-              <span style={{ fontSize: 14 }}>👤</span>
+            <div className="inline-flex items-center gap-1.5 bg-m2p-live/10 border border-m2p-live/25 text-m2p-live font-semibold text-xs px-3 py-1 rounded-full mb-3">
+              <span>👤</span>
               Recommended by {partnerName}
             </div>
           )}
-          <div style={{ display: "inline-block", background: "rgba(240,90,40,0.1)", color: "#F05A28", fontWeight: 700, fontSize: 12, padding: "4px 12px", borderRadius: 999, marginBottom: 20, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+
+          <div className="inline-block bg-m2p-orange/10 text-m2p-orange font-bold text-xs px-3 py-1 rounded-full mb-5 tracking-widest uppercase">
             $9 · One-time · Ready in 90 seconds
           </div>
-          <h1 style={{ fontSize: "clamp(2rem,5vw,3.5rem)", fontWeight: 900, lineHeight: 1.1, margin: "0 0 20px" }}>
+
+          <h1 className="text-4xl lg:text-5xl xl:text-[3.25rem] font-black leading-[1.08] mb-5 text-balance">
             Your PDF looks right.{" "}
-            <span style={{ color: "#F05A28" }}>KDP will<br />still reject it.</span>
+            <span className="text-m2p-orange">KDP will still reject it.</span>
           </h1>
-          <p style={{ fontSize: "1.05rem", lineHeight: 1.7, color: "#3a3020", maxWidth: 520, margin: "0 0 32px" }}>
-            Check it before you upload — or fix it after rejection.
-            Get a precise, page-by-page compliance report in minutes — so you
-            can fix every issue before Amazon sees it.
+
+          <p className="text-base leading-relaxed text-m2p-muted max-w-lg mb-8 text-pretty">
+            Check it before you upload — or fix it after rejection. Get a precise,
+            page-by-page compliance report in minutes — so you can fix every issue
+            before Amazon sees it.
           </p>
 
-          {/* Checklist */}
-          <div className="go-checklist">
+          <div className="grid sm:grid-cols-2 gap-x-8 gap-y-2.5 mb-8 max-w-[440px]">
             {[
               "Annotated PDF with every issue highlighted by page",
               "Exact page numbers for every violation",
               "Plain-English fix instructions — no guesswork",
               "Works with Canva, InDesign, Word and PDF exports",
             ].map((item) => (
-              <div key={item} style={{ display: "flex", gap: 8, alignItems: "flex-start", fontSize: 13, color: "#3a3020" }}>
-                <span style={{ color: "#2D6A2D", fontWeight: 700, marginTop: 1 }}>✓</span>
-                {item}
+              <div key={item} className="flex items-start gap-2 text-sm text-m2p-ink">
+                <span className="text-m2p-live font-bold mt-0.5 shrink-0">✓</span>
+                <span className="text-pretty">{item}</span>
               </div>
             ))}
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
-            <a href={checkoutUrl}
-              style={{ display: "inline-block", background: "#F05A28", color: "#fff", fontWeight: 700, fontSize: "1rem", padding: "16px 36px", borderRadius: 12, textDecoration: "none" }}>
+          <div className="flex items-center gap-4 flex-wrap">
+            <a
+              href={checkoutUrl}
+              className="inline-block bg-m2p-orange hover:opacity-90 text-white font-bold text-base px-9 py-4 rounded-xl no-underline transition-opacity"
+            >
               Check My PDF — $9
             </a>
-            <p style={{ fontSize: 13, color: "#6B6151", margin: 0 }}>
+            <p className="text-sm text-m2p-muted">
               Score is free. $9 unlocks the full annotated report.
             </p>
           </div>
         </div>
 
-        {/* Checkout card — hidden on mobile */}
-        <div className="go-checkout-card" style={{ background: "#fff", border: "1px solid #E0D8C4", borderRadius: 16, padding: "24px", minWidth: 280, boxShadow: "0 4px 24px rgba(0,0,0,0.07)" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-            <span style={{ fontWeight: 700, fontSize: 15 }}>KDP PDF Checker</span>
-            <div style={{ textAlign: "right" }}>
-              <div style={{ fontWeight: 900, fontSize: 22, color: "#F05A28" }}>$9</div>
-              <div style={{ fontSize: 11, color: "#6B6151" }}>one-time</div>
+        {/* Checkout card — desktop only */}
+        <div className="hidden lg:block bg-white border border-m2p-border rounded-2xl p-6 shadow-md">
+          <div className="flex justify-between items-center mb-4">
+            <span className="font-bold text-sm text-m2p-ink">KDP PDF Checker</span>
+            <div className="text-right">
+              <div className="text-2xl font-black text-m2p-orange">$9</div>
+              <div className="text-xs text-m2p-muted">one-time</div>
             </div>
           </div>
-          <div style={{ background: "#FAF7EE", border: "2px dashed #E0D8C4", borderRadius: 12, padding: "32px 16px", textAlign: "center", marginBottom: 16 }}>
-            <div style={{ fontSize: 32, marginBottom: 8 }}>📄</div>
-            <p style={{ fontSize: 13, color: "#6B6151", margin: 0 }}>Drop your PDF here<br /><span style={{ fontSize: 11 }}>or click to browse</span></p>
+          <div className="bg-m2p-ivory border-2 border-dashed border-m2p-border rounded-xl py-8 px-4 text-center mb-4">
+            <div className="text-3xl mb-2">📄</div>
+            <p className="text-sm text-m2p-muted mb-0">Drop your PDF here</p>
+            <p className="text-xs text-m2p-muted">or click to browse</p>
           </div>
-          <a href={checkoutUrl}
-            style={{ display: "block", background: "#F05A28", color: "#fff", fontWeight: 700, fontSize: 15, padding: "14px", borderRadius: 10, textDecoration: "none", textAlign: "center" }}>
+          <a
+            href={checkoutUrl}
+            className="block bg-m2p-orange hover:opacity-90 text-white font-bold text-sm py-3.5 rounded-xl no-underline text-center transition-opacity"
+          >
             Check My PDF →
           </a>
-          <p style={{ fontSize: 11, color: "#9B8E7E", textAlign: "center", margin: "10px 0 0" }}>
-            Score is free. $9 unlocks the full annotated report.
-          </p>
         </div>
       </section>
 
-      {/* ── Problem ──────────────────────────────────────── */}
-      <section style={{ background: "#1A1208", color: "#FAF7EE", padding: "72px 24px" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <p style={{ fontSize: 12, fontWeight: 700, color: "#F05A28", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 16 }}>THE PROBLEM</p>
-          <h2 style={{ fontSize: "clamp(1.8rem,4vw,2.8rem)", fontWeight: 900, margin: "0 0 12px" }}>
-            Amazon doesn&apos;t tell you<br />what&apos;s wrong.
-          </h2>
-          <p style={{ fontSize: "1rem", color: "rgba(250,247,238,0.65)", marginBottom: 40, maxWidth: 520 }}>
-            It sends you back to guess. Upload → wait → rejection → guess → re-upload → repeat.
-            Sometimes for days. Sometimes for weeks. <strong style={{ color: "#FAF7EE" }}>Every rejection resets your timeline.</strong>
+      {/* ── Problem ───────────────────────────────────────────────────────── */}
+      <section className="bg-m2p-ink py-16 lg:py-20 px-6">
+        <div className="max-w-5xl mx-auto">
+          <p className="text-xs font-bold text-m2p-orange tracking-[0.1em] uppercase mb-4">
+            THE PROBLEM
           </p>
-          <div className="go-problem-grid">
-            <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "20px" }}>
-              <p style={{ fontSize: 11, fontWeight: 700, color: "#F05A28", letterSpacing: "0.08em", margin: "0 0 12px" }}>WITHOUT MANU2PRINT</p>
-              <p style={{ fontSize: 13, color: "rgba(250,247,238,0.6)", lineHeight: 1.6, margin: "0 0 16px" }}>
+          <h2 className="text-3xl lg:text-4xl font-black text-white mb-3 text-balance">
+            Amazon doesn&apos;t tell you what&apos;s wrong.
+          </h2>
+          <p className="text-base text-white/60 mb-10 max-w-xl text-pretty">
+            It sends you back to guess. Upload → wait → rejection → guess →
+            re-upload → repeat. Sometimes for days. Sometimes for weeks.{" "}
+            <strong className="text-white">Every rejection resets your timeline.</strong>
+          </p>
+
+          <div className="grid sm:grid-cols-2 gap-5 max-w-2xl">
+            <div className="bg-white/5 border border-white/10 rounded-xl p-5">
+              <p className="text-xs font-bold text-m2p-orange tracking-widest uppercase mb-3">
+                WITHOUT MANU2PRINT
+              </p>
+              <p className="text-sm text-white/60 leading-relaxed mb-4">
                 Upload → wait → rejection → guess → re-upload → repeat
               </p>
-              <div style={{ background: "rgba(220,38,38,0.1)", border: "1px solid rgba(220,38,38,0.2)", borderRadius: 8, padding: "10px 12px", fontSize: 12, color: "#fca5a5" }}>
-                &ldquo;Your file has been rejected. Please review the KDP Formatting Guidelines and resubmit your manuscript.&rdquo;
+              <div className="bg-red-900/20 border border-red-500/20 rounded-lg p-3 text-xs text-red-300 leading-relaxed">
+                &ldquo;Your file has been rejected. Please review the KDP
+                Formatting Guidelines and resubmit your manuscript.&rdquo;
               </div>
             </div>
-            <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(45,106,45,0.3)", borderRadius: 12, padding: "20px" }}>
-              <p style={{ fontSize: 11, fontWeight: 700, color: "#4cd964", letterSpacing: "0.08em", margin: "0 0 12px" }}>WITH MANU2PRINT</p>
-              <p style={{ fontSize: 13, color: "rgba(250,247,238,0.6)", lineHeight: 1.6, margin: "0 0 16px" }}>
+
+            <div className="bg-white/5 border border-m2p-live/30 rounded-xl p-5">
+              <p className="text-xs font-bold text-m2p-live tracking-widest uppercase mb-3">
+                WITH MANU2PRINT
+              </p>
+              <p className="text-sm text-white/60 leading-relaxed mb-4">
                 Upload → scan → fix → publish ✓
               </p>
               {[
-                "Cover margin 0.5&quot; — needs 0.125&quot;",
+                'Cover margin 0.5" — needs 0.125"',
                 "Two KDP-incompatible fonts",
                 "Image 62 DPI — will look blurry",
               ].map((item) => (
-                <div key={item} style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12, color: "#fbbf24", marginBottom: 6 }}>
-                  <span>⚠</span>
-                  <span dangerouslySetInnerHTML={{ __html: item }} />
+                <div key={item} className="flex items-center gap-2 text-xs text-amber-300 mb-1.5">
+                  <span className="shrink-0">⚠</span>
+                  <span>{item}</span>
                 </div>
               ))}
             </div>
@@ -174,89 +177,96 @@ export function GoLandingClient({ checkoutUrl, refCode, partnerName }: Props) {
         </div>
       </section>
 
-      {/* ── 26 Rules ─────────────────────────────────────── */}
-      <section style={{ padding: "72px 24px", textAlign: "center" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <h2 style={{ fontSize: "clamp(1.6rem,3.5vw,2.4rem)", fontWeight: 900, margin: "0 0 12px" }}>
+      {/* ── 26 Rules ──────────────────────────────────────────────────────── */}
+      <section className="py-16 lg:py-20 px-6 text-center">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-3xl lg:text-4xl font-black mb-3 text-balance">
             KDP checks 26 rules.{" "}
-            <span style={{ color: "#F05A28" }}>Miss one —<br />you&apos;re rejected.</span>
+            <span className="text-m2p-orange">Miss one — you&apos;re rejected.</span>
           </h2>
-          <p style={{ fontSize: "0.95rem", color: "#6B6151", marginBottom: 40 }}>
+          <p className="text-base text-m2p-muted mb-10 text-pretty">
             We check every one before you upload — so you don&apos;t find out the hard way.
           </p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(140px,1fr))", gap: 12, maxWidth: 800, margin: "0 auto" }}>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-w-3xl mx-auto">
             {RULES.map((rule) => (
-              <div key={rule} style={{ background: "#fff", border: "1px solid #E0D8C4", borderRadius: 10, padding: "14px 12px", fontSize: 13, fontWeight: 600, color: "#1A1208" }}>
-                {rule === "26 rules total"
-                  ? <span style={{ color: "#F05A28" }}>{rule}</span>
-                  : rule}
+              <div
+                key={rule}
+                className={`bg-white border border-m2p-border rounded-xl px-3 py-3.5 text-sm font-semibold ${
+                  rule === "26 rules total" ? "text-m2p-orange" : "text-m2p-ink"
+                }`}
+              >
+                {rule}
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── How It Works ─────────────────────────────────── */}
-      <section style={{ background: "#F0EBE0", padding: "72px 24px" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <p style={{ fontSize: 12, fontWeight: 700, color: "#F05A28", letterSpacing: "0.1em", textTransform: "uppercase", textAlign: "center", marginBottom: 12 }}>HOW IT WORKS</p>
-          <h2 style={{ fontSize: "clamp(1.6rem,3.5vw,2.4rem)", fontWeight: 900, textAlign: "center", margin: "0 0 48px" }}>
+      {/* ── How It Works ──────────────────────────────────────────────────── */}
+      <section className="bg-m2p-ivory-alt py-16 lg:py-20 px-6">
+        <div className="max-w-5xl mx-auto">
+          <p className="text-xs font-bold text-m2p-orange tracking-[0.1em] uppercase text-center mb-3">
+            HOW IT WORKS
+          </p>
+          <h2 className="text-3xl lg:text-4xl font-black text-center mb-12 text-balance">
             Three steps. No guesswork.
           </h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 32 }}>
+          <div className="grid sm:grid-cols-3 gap-10">
             {STEPS.map((step) => (
               <div key={step.n}>
-                <p style={{ fontSize: "3rem", fontWeight: 900, color: "#F05A28", margin: "0 0 12px", lineHeight: 1 }}>{step.n}</p>
-                <h3 style={{ fontWeight: 800, fontSize: "1.1rem", margin: "0 0 8px" }}>{step.title}</h3>
-                <p style={{ fontSize: 14, color: "#6B6151", lineHeight: 1.6, margin: 0 }}>{step.desc}</p>
+                <p className="text-5xl font-black text-m2p-orange mb-3 leading-none">{step.n}</p>
+                <h3 className="font-extrabold text-lg mb-2 text-m2p-ink">{step.title}</h3>
+                <p className="text-sm text-m2p-muted leading-relaxed text-pretty">{step.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Social proof + CTA ───────────────────────────── */}
-      <section style={{ background: "#1A1208", color: "#FAF7EE", padding: "72px 24px", textAlign: "center" }}>
-        <div style={{ maxWidth: 640, margin: "0 auto" }}>
-          <h2 style={{ fontSize: "clamp(1.8rem,4vw,2.8rem)", fontWeight: 900, margin: "0 0 12px" }}>
+      {/* ── Bottom CTA ────────────────────────────────────────────────────── */}
+      <section className="bg-m2p-ink py-16 lg:py-20 px-6 text-center">
+        <div className="max-w-xl mx-auto">
+          <h2 className="text-3xl lg:text-4xl font-black text-white mb-3 text-balance">
             Stop guessing.{" "}
-            <span style={{ color: "#F05A28" }}>Start knowing.</span>
+            <span className="text-m2p-orange">Start knowing.</span>
           </h2>
-          <p style={{ fontSize: "1rem", color: "rgba(250,247,238,0.65)", marginBottom: 24 }}>
+          <p className="text-base text-white/60 mb-6 text-pretty">
             Check your file before Amazon does. No waiting. No re-uploads. No guesswork.
           </p>
-
-          {/* Perfect for tags */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", marginBottom: 36 }}>
+          <div className="flex flex-wrap gap-2 justify-center mb-8">
             {FOR_TAGS.map((tag) => (
-              <span key={tag} style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 999, padding: "5px 14px", fontSize: 12, color: "rgba(250,247,238,0.8)" }}>
+              <span
+                key={tag}
+                className="bg-white/10 border border-white/20 rounded-full px-3.5 py-1.5 text-xs text-white/80"
+              >
                 {tag}
               </span>
             ))}
           </div>
-
-          <a href={checkoutUrl}
-            style={{ display: "inline-block", background: "#F05A28", color: "#fff", fontWeight: 700, fontSize: "1.05rem", padding: "18px 48px", borderRadius: 14, textDecoration: "none", marginBottom: 16 }}>
+          <a
+            href={checkoutUrl}
+            className="inline-block bg-m2p-orange hover:opacity-90 text-white font-bold text-lg px-12 py-5 rounded-2xl no-underline transition-opacity mb-4"
+          >
             Check My PDF — $9
           </a>
-          <p style={{ fontSize: 13, color: "rgba(250,247,238,0.4)", margin: 0 }}>
+          <p className="text-sm text-white/40">
             One-time payment · No subscription · Instant report
           </p>
         </div>
       </section>
 
-      {/* ── Footer ───────────────────────────────────────── */}
-      <footer style={{ background: "#FAF7EE", borderTop: "1px solid #E0D8C4", padding: "24px", textAlign: "center" }}>
-        <p style={{ margin: "0 0 8px" }}>
-          <span style={{ fontWeight: 900, color: "#F05A28" }}>manu</span>
-          <span style={{ fontWeight: 900, color: "#2D6A2D" }}>2print</span>
-          <span style={{ fontSize: 13, color: "#9B8E7E", marginLeft: 8 }}>— KDP tools for indie authors.</span>
+      {/* ── Footer ────────────────────────────────────────────────────────── */}
+      <footer className="bg-m2p-ivory border-t border-m2p-border py-6 px-6 text-center">
+        <p className="mb-2">
+          <span className="font-black text-m2p-orange">manu</span>
+          <span className="font-black text-m2p-live">2print</span>
+          <span className="text-sm text-m2p-muted ml-2">— KDP tools for indie authors.</span>
         </p>
-        <div style={{ display: "flex", gap: 16, justifyContent: "center", fontSize: 12, color: "#9B8E7E" }}>
-          <Link href="/privacy" style={{ color: "inherit" }}>Privacy</Link>
-          <Link href="/terms" style={{ color: "inherit" }}>Terms</Link>
-          <Link href="/refunds" style={{ color: "inherit" }}>Refunds</Link>
-          <Link href="/contact" style={{ color: "inherit" }}>Contact</Link>
+        <div className="flex gap-4 justify-center text-xs text-m2p-muted">
+          <Link href="/privacy"  className="hover:text-m2p-ink transition-colors">Privacy</Link>
+          <Link href="/terms"    className="hover:text-m2p-ink transition-colors">Terms</Link>
+          <Link href="/refunds"  className="hover:text-m2p-ink transition-colors">Refunds</Link>
+          <Link href="/contact"  className="hover:text-m2p-ink transition-colors">Contact</Link>
         </div>
       </footer>
 

@@ -56,8 +56,6 @@ type AffiliateData = {
     created_at: string;
     website?: string | null;
     reason?: string | null;
-    paypal_email?: string | null;
-    wise_email?: string | null;
     avatar_url?: string | null;
   };
   stats: {
@@ -655,11 +653,6 @@ function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => 
   const [profileSaving,    setProfileSaving]    = useState(false);
   const [profileMsg,       setProfileMsg]       = useState("");
 
-  // Payouts tab state
-  const [paypalEmail,  setPaypalEmail]  = useState(affiliate.paypal_email ?? "");
-  const [wiseEmail,    setWiseEmail]    = useState(affiliate.wise_email ?? "");
-  const [payoutSaving, setPayoutSaving] = useState(false);
-  const [payoutMsg,    setPayoutMsg]    = useState("");
 
   function copyLink() {
     navigator.clipboard.writeText(refLink).then(() => {
@@ -691,29 +684,6 @@ function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => 
       else setProfileMsg("✓ Profile saved");
     } catch { setProfileMsg("Network error."); }
     finally { setProfileSaving(false); }
-  }
-
-  async function savePayoutDetails(e: React.FormEvent) {
-    e.preventDefault();
-    setPayoutSaving(true);
-    setPayoutMsg("");
-    try {
-      const res = await fetch("/api/affiliates/payout-email", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: affiliate.email,
-          sessionToken,
-          sessionExpiresAt,
-          paypal_email: paypalEmail,
-          wise_email:   wiseEmail,
-        }),
-      });
-      const d = await res.json();
-      if (!res.ok) setPayoutMsg(d.error ?? "Save failed.");
-      else setPayoutMsg("✓ Payout details saved");
-    } catch { setPayoutMsg("Network error."); }
-    finally { setPayoutSaving(false); }
   }
 
   const TABS: { id: DashTab; label: string; icon: string }[] = [

@@ -6,14 +6,8 @@ import { Input } from "@/components/ui/input";
 import { User, CreditCard, Shield, LogOut, ChevronRight, Camera } from "lucide-react";
 import Link from "next/link";
 
-interface Affiliate {
-  paypal_email: string | null;
-  wise_email: string | null;
-}
-
 interface Props {
   user: { name: string; email: string };
-  affiliate: Affiliate | null;
   firstName: string;
   setFirstName: (v: string) => void;
   saving: boolean;
@@ -25,7 +19,7 @@ interface Props {
   onAvatarChange?: (file: File) => void;
 }
 
-export function SettingsPanel({ user, affiliate, firstName, setFirstName, saving, profileMsg, onSave, onSignOut, avatarUrl, avatarUploading, onAvatarChange }: Props) {
+export function SettingsPanel({ user, firstName, setFirstName, saving, profileMsg, onSave, onSignOut, avatarUrl, avatarUploading, onAvatarChange }: Props) {
   const initials = user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -107,27 +101,6 @@ export function SettingsPanel({ user, affiliate, firstName, setFirstName, saving
           </div>
         </form>
       </Card>
-
-      {affiliate && (
-        <Card className="p-6">
-          <h3 className="font-semibold mb-4" style={{ color: "var(--d-fg)" }}>Partner Payouts</h3>
-          <div className="space-y-3 text-sm mb-4">
-            {[
-              { label: "PayPal email", value: affiliate.paypal_email ?? "—" },
-              { label: "Wise email",   value: affiliate.wise_email   ?? "—" },
-            ].map(({ label, value }) => (
-              <div key={label} className="flex items-center justify-between gap-4">
-                <span style={{ color: "var(--d-fg-muted)" }}>{label}</span>
-                <span className="font-medium" style={{ color: "var(--d-fg)" }}>{value}</span>
-              </div>
-            ))}
-          </div>
-          <p className="text-xs" style={{ color: "var(--d-fg-muted)" }}>
-            Update via the{" "}
-            <Link href="/partners" className="underline" style={{ color: "#F05A28" }}>Partners portal</Link>.
-          </p>
-        </Card>
-      )}
 
       <Card className="divide-y" style={{ borderColor: "var(--d-border)" }}>
         <SettingRow icon={CreditCard} title="Purchase History" description="View all your scan reports and receipts" href="/my-orders" />

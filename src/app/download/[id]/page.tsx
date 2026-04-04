@@ -1316,6 +1316,23 @@ export default function DownloadPage() {
         </div>
         )}
 
+        {/* Formatter → Checker nudge: shown after download section for PDF formatter flow */}
+        {!isChecker && !isFormatReview && !isEpub && !isDocx && (
+          <div className="mb-4 rounded-xl border border-m2p-orange/40 bg-m2p-orange/8 p-4 flex items-center gap-4">
+            <div className="shrink-0 w-10 h-10 rounded-lg bg-m2p-orange/15 flex items-center justify-center text-m2p-orange text-xl">✅</div>
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-m2p-ink text-sm mb-0.5">PDF ready — now check it for KDP compliance</p>
+              <p className="text-xs text-m2p-muted">Catches margin, bleed, and font issues before Amazon does.</p>
+            </div>
+            <Link
+              href="/kdp-pdf-checker"
+              className="shrink-0 bg-m2p-orange hover:opacity-90 text-white font-bold px-4 py-2 rounded-lg text-sm transition-opacity whitespace-nowrap"
+            >
+              Check PDF →
+            </Link>
+          </div>
+        )}
+
         {/* Action buttons */}
         <div className="flex gap-4">
           {!isChecker && (

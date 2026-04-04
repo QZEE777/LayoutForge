@@ -15,7 +15,7 @@ export async function GET() {
 
   const { data: affiliate } = await service
     .from("affiliates")
-    .select("id, name, code, status, commission_rate, paypal_email, wise_email, created_at, ls_affiliate_code")
+    .select("id, name, code, status, commission_rate, created_at, ls_affiliate_code")
     .eq("email", email)
     .maybeSingle();
 

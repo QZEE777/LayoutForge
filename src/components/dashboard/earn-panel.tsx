@@ -13,8 +13,6 @@ interface Affiliate {
   code: string;
   status: string;
   commission_rate: number | null;
-  paypal_email: string | null;
-  wise_email: string | null;
   email: string;
   ls_affiliate_code?: string | null;
 }

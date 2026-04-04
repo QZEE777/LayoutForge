@@ -41,7 +41,7 @@ export async function POST(req: Request) {
 
   const { data: affiliate } = await supabase
     .from("affiliates")
-    .select("id, name, code, status, commission_rate, created_at, website, reason, paypal_email, wise_email")
+    .select("id, name, code, status, commission_rate, created_at, website, reason")
     .eq("email", email)
     .maybeSingle();
 

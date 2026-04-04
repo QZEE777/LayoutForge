@@ -37,8 +37,6 @@ type Affiliate = {
   code: string;
   status: string;
   commission_rate: number | null;
-  paypal_email: string | null;
-  wise_email: string | null;
   created_at: string;
   email: string;
 };
@@ -199,7 +197,6 @@ export default function DashboardPage() {
           {tab === "settings" && (
             <SettingsPanel
               user={userInfo}
-              affiliate={affiliate === undefined ? null : affiliate}
               firstName={firstName}
               setFirstName={setFirstName}
               saving={saving}
