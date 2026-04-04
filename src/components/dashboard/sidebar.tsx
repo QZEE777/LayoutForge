@@ -13,6 +13,7 @@ interface SidebarProps {
   sidebarOpen: boolean;
   setSidebarOpen: (o: boolean) => void;
   user: { name: string; email: string; scansRemaining: number };
+  isPartner?: boolean;
 }
 
 const navItems: { id: ActiveView; label: string; icon: React.ElementType; badge?: string }[] = [
@@ -23,8 +24,17 @@ const navItems: { id: ActiveView; label: string; icon: React.ElementType; badge?
   { id: "settings", label: "Settings",     icon: Settings },
 ];
 
-export function DashboardSidebar({ activeView, setActiveView, sidebarOpen, setSidebarOpen, user }: SidebarProps) {
+const partnerNavItems: { id: ActiveView; label: string; icon: React.ElementType; badge?: string }[] = [
+  { id: "upload",   label: "Check PDF",       icon: Upload },
+  { id: "history",  label: "My Scans",        icon: History },
+  { id: "tools",    label: "Free Tools",      icon: Wrench },
+  { id: "earn",     label: "Partner Dashboard", icon: Gift },
+  { id: "settings", label: "Settings",        icon: Settings },
+];
+
+export function DashboardSidebar({ activeView, setActiveView, sidebarOpen, setSidebarOpen, user, isPartner }: SidebarProps) {
   const initials = user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+  const items = isPartner ? partnerNavItems : navItems;
 
   return (
     <>
@@ -78,7 +88,7 @@ export function DashboardSidebar({ activeView, setActiveView, sidebarOpen, setSi
         {/* Nav */}
         <nav className="flex-1 px-3 py-1 overflow-y-auto">
           <ul className="space-y-0.5">
-            {navItems.map(({ id, label, icon: Icon, badge }) => {
+            {items.map(({ id, label, icon: Icon, badge }) => {
               const active = activeView === id;
               return (
                 <li key={id}>

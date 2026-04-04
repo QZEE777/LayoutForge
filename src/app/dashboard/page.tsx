@@ -176,6 +176,7 @@ export default function DashboardPage() {
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
         user={userInfo}
+        isPartner={affiliate?.status === "active"}
       />
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
