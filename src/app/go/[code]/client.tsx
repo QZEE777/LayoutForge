@@ -142,7 +142,7 @@ export function GoLandingClient({ checkoutUrl, refCode, partnerName }: Props) {
           </p>
 
           <div className="grid sm:grid-cols-2 gap-5 max-w-2xl">
-            <div className="bg-white/5 border border-white/10 rounded-xl p-5">
+            <div className="bg-white/5 border border-white/10 rounded-xl p-5 text-center">
               <p className="text-xs font-bold text-m2p-orange tracking-widest uppercase mb-3">
                 WITHOUT MANU2PRINT
               </p>
@@ -155,7 +155,7 @@ export function GoLandingClient({ checkoutUrl, refCode, partnerName }: Props) {
               </div>
             </div>
 
-            <div className="bg-white/5 border border-m2p-live/30 rounded-xl p-5">
+            <div className="bg-white/5 border border-m2p-live/30 rounded-xl p-5 text-center">
               <p className="text-xs font-bold text-m2p-live tracking-widest uppercase mb-3">
                 WITH MANU2PRINT
               </p>
@@ -167,7 +167,7 @@ export function GoLandingClient({ checkoutUrl, refCode, partnerName }: Props) {
                 "Two KDP-incompatible fonts",
                 "Image 62 DPI — will look blurry",
               ].map((item) => (
-                <div key={item} className="flex items-center gap-2 text-xs text-amber-300 mb-1.5">
+                <div key={item} className="flex items-center justify-center gap-2 text-xs text-amber-300 mb-1.5">
                   <span className="shrink-0">⚠</span>
                   <span>{item}</span>
                 </div>
