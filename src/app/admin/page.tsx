@@ -873,6 +873,11 @@ export default function AdminPage() {
                               a.status === "pending" ? "bg-amber-100 text-amber-700" :
                               "bg-red-100 text-red-600"
                             }`}>{a.status}</span>
+                            {a.status === "active" && !a.ls_affiliate_code && (
+                              <span className="ml-1.5 px-2 py-0.5 rounded-full text-xs font-bold bg-orange-100 text-orange-700">
+                                ⚠ No LS
+                              </span>
+                            )}
                           </td>
                           <td className="px-4 py-3">{converted.length}</td>
                           <td className="px-4 py-3">{formatAmount(totalEarned)}</td>
