@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
-import { createClient } from "@/lib/supabaseClient";
+import { createClient } from "@/lib/supabaseServer";
 
 export async function GET() {
-  const client = createClient();
+  const client = await createClient();
   const { data: { user }, error: authError } = await client.auth.getUser();
   if (authError || !user?.email) return NextResponse.json({ affiliate: null });
 
