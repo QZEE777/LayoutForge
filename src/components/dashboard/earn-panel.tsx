@@ -78,9 +78,19 @@ export function EarnPanel({ affiliate, stats }: Props) {
   };
 
   const generateShareToken = async () => {
-    const res = await fetch("/api/share/token", { method: "POST" });
-    const d = await res.json();
-    if (d?.token) setShareData(d.token);
+    try {
+      const res = await fetch("/api/share/token", { method: "POST" });
+      const d = await res.json();
+      if (d?.token) {
+        setShareData(d.token);
+      } else {
+        console.error("Share token error:", d);
+        alert("Couldn't generate your link — please try again or contact hello@manu2print.com");
+      }
+    } catch (e) {
+      console.error("Share token fetch error:", e);
+      alert("Something went wrong — please try again.");
+    }
   };
 
   const copyLink = () => {
