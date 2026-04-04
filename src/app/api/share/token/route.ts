@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabaseClient";
+import { createClient } from "@/lib/supabaseServer";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import crypto from "crypto";
 
@@ -17,7 +17,7 @@ function generateShareToken(): string {
 
 // ─── GET — fetch existing token for authenticated user ────────────────────────
 export async function GET() {
-  const client = createClient();
+  const client = await createClient();
   const { data: { user }, error: authError } = await client.auth.getUser();
   if (authError || !user?.email) {
     return NextResponse.json({ token: null }, { status: 200 });
@@ -40,7 +40,7 @@ export async function GET() {
 
 // ─── POST — get or create token for authenticated user ────────────────────────
 export async function POST() {
-  const client = createClient();
+  const client = await createClient();
   const { data: { user }, error: authError } = await client.auth.getUser();
   if (authError || !user?.email) {
     return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
