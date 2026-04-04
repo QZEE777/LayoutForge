@@ -85,7 +85,7 @@ export function EarnPanel({ affiliate, stats }: Props) {
         setShareData(d.token);
       } else {
         console.error("Share token error:", d);
-        alert("Couldn't generate your link — please try again or contact hello@manu2print.com");
+        alert(`Error: ${d?.error ?? "Unknown error"} (status ${res.status})`);
       }
     } catch (e) {
       console.error("Share token fetch error:", e);
