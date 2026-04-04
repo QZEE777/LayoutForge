@@ -326,7 +326,7 @@ export function EarnPanel({ affiliate, stats }: Props) {
               </button>
             </div>
             <p className="text-xs mb-3" style={{ color: "var(--d-fg-muted)" }}>
-              Earn 30% on $9 singles · 40% on packs. LemonSqueezy pays you automatically at $20.
+              Earn 30% on $9 singles · 40% on packs. LemonSqueezy pays you automatically at $25.
             </p>
           </>
         ) : (
@@ -403,7 +403,7 @@ export function EarnPanel({ affiliate, stats }: Props) {
           </div>
         </div>
         <p className="text-xs mt-4" style={{ color: "var(--d-fg-muted)" }}>
-          Payouts are handled automatically by LemonSqueezy at $20 minimum.
+          Payouts are handled automatically by LemonSqueezy at $25 minimum.
           Connect your payout method directly in your{" "}
           <a href="https://app.lemonsqueezy.com" target="_blank" rel="noopener noreferrer"
             className="underline" style={{ color: "#F05A28" }}>LemonSqueezy dashboard →</a>

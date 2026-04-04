@@ -258,7 +258,7 @@ function MarketingLanding({ onSignIn, onSignInClick }: { onSignIn: (email: strin
                 {[
                   { n: "40%", label: "commission on packs" },
                   { n: "12mo", label: "attribution cookie" },
-                  { n: "$20", label: "minimum payout" },
+                  { n: "$25", label: "minimum payout" },
                 ].map((s) => (
                   <div key={s.n}>
                     <p className="font-black text-xl" style={{ color: "#f05a28", letterSpacing: "-0.02em" }}>{s.n}</p>
