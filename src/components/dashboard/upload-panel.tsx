@@ -27,9 +27,14 @@ export function UploadPanel({ scansRemaining }: UploadPanelProps) {
               </p>
               <span className="inline-flex items-center gap-2 rounded-xl px-6 py-3 font-semibold text-white transition-opacity group-hover:opacity-90"
                 style={{ background: "#F05A28" }}>
-                Go to KDP Checker
+                {scansRemaining > 0 ? `Upload & Use 1 Credit` : "Check My PDF — $9"}
                 <ArrowRight className="w-4 h-4" />
               </span>
+              {scansRemaining > 0 && (
+                <p className="mt-3 text-xs" style={{ color: "var(--d-fg-muted)" }}>
+                  {scansRemaining} credit{scansRemaining !== 1 ? "s" : ""} remaining — no payment needed
+                </p>
+              )}
             </div>
           </Link>
         </div>

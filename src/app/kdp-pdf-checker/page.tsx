@@ -106,6 +106,7 @@ function UploadWidget({
   onClear: () => void;
 }) {
   if (uploading) {
+    const activeCheckIdx = Math.min(Math.floor(checkElapsedSec / 6), CHECKS.length - 1);
     return (
       <div className="rounded-2xl p-8 text-center" style={{ background: "#1A1208", border: "1px solid rgba(240,90,40,0.2)" }}>
         <div className="mx-auto mb-5 w-16 h-16 rounded-full border-4 animate-spin"
@@ -113,9 +114,26 @@ function UploadWidget({
         <p className="text-2xl font-black mb-1" style={{ color: "#fff", letterSpacing: "-0.01em" }}>
           Scanning your manuscript…
         </p>
-        <p className="text-sm mb-5" style={{ color: "rgba(255,255,255,0.5)" }}>
+        <p className="text-sm mb-4" style={{ color: "rgba(255,255,255,0.5)" }}>
           Checking 26 KDP compliance rules
         </p>
+        {/* Live check progress */}
+        <div className="grid grid-cols-2 gap-2 mb-5 text-left">
+          {CHECKS.slice(0, -1).map((check, i) => {
+            const done = i < activeCheckIdx;
+            const active = i === activeCheckIdx;
+            return (
+              <div key={check.label} className="flex items-center gap-2 rounded-lg px-3 py-2"
+                style={{ background: done ? "rgba(76,217,100,0.12)" : active ? "rgba(240,90,40,0.15)" : "rgba(255,255,255,0.04)" }}>
+                <span style={{ fontSize: 14 }}>{done ? "✅" : active ? "⏳" : check.icon}</span>
+                <span className="text-xs font-medium truncate"
+                  style={{ color: done ? "#4cd964" : active ? "#f05a28" : "rgba(255,255,255,0.3)" }}>
+                  {check.label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
         <div className="text-5xl font-black tabular-nums" style={{ color: "#f05a28" }}>
           {formatElapsedSeconds(checkElapsedSec)}
         </div>

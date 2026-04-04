@@ -1299,9 +1299,16 @@ export default function DownloadPage() {
                   <ol className="space-y-1 text-m2p-muted text-sm list-decimal ml-4">
                     <li>Download the PDF above</li>
                     <li>Review the format in a PDF reader</li>
+                    <li><span className="text-m2p-orange font-semibold">Check it for KDP compliance before uploading</span> — catches rejection issues before Amazon does</li>
                     <li>Upload to Amazon KDP as your manuscript</li>
                     <li>Design/upload your cover separately</li>
                   </ol>
+                  <Link
+                    href="/kdp-pdf-checker"
+                    className="mt-4 inline-flex items-center gap-2 bg-m2p-orange hover:opacity-90 text-white font-bold px-5 py-3 rounded-lg text-sm transition-opacity"
+                  >
+                    Check this PDF for KDP compliance →
+                  </Link>
                 </div>
               </>
             )}
@@ -1328,6 +1335,25 @@ export default function DownloadPage() {
             {isFormatReview ? "Review Another" : isChecker ? "Check Another PDF" : isEpub ? "Create Another EPUB" : "Format Another"}
           </Link>
         </div>
+
+        {/* Checker: re-check CTA when issues exist */}
+        {isChecker && report && (() => {
+          const score = calculatedScore ?? report.readinessScore100 ?? report.readiness_score ?? null;
+          const hasIssues = (report.issuesEnriched?.length ?? 0) > 0;
+          if (!hasIssues && score !== null && score >= 90) return null;
+          return (
+            <div className="mt-6 rounded-xl border border-m2p-orange/30 bg-m2p-orange-soft/40 p-5 text-center">
+              <p className="font-bold text-m2p-ink mb-1">Fixed your issues?</p>
+              <p className="text-sm text-m2p-muted mb-4">Re-upload your corrected PDF and get a fresh compliance check.</p>
+              <Link
+                href="/kdp-pdf-checker"
+                className="inline-block bg-m2p-orange hover:opacity-90 text-white font-bold px-6 py-3 rounded-lg text-sm transition-opacity"
+              >
+                Re-check my PDF →
+              </Link>
+            </div>
+          );
+        })()}
         </PaymentGate>
         )}
 
@@ -1379,7 +1405,7 @@ export default function DownloadPage() {
         {/* Bottom CTA */}
         <div className="text-center mt-8">
           <a
-            href="/check-pdf"
+            href="/kdp-pdf-checker"
             className="bg-m2p-orange-soft text-m2p-orange border border-m2p-orange px-6 py-3 rounded-lg font-bold hover:bg-m2p-orange hover:text-white"
           >
             Run Another Manuscript Check →

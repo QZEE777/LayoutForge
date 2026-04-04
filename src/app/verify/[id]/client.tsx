@@ -141,7 +141,7 @@ export function VerifyClient({
       <div style={{ width: "100%", maxWidth: 520 }}>
 
         {/* ── Logo ──────────────────────────────────────────────────────── */}
-        <div style={{ textAlign: "center", marginBottom: 28 }}>
+        <div style={{ textAlign: "center", marginBottom: 16 }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/manny-avatar.png" alt="" style={{ width: 42, height: 42, borderRadius: "50%" }} />
@@ -150,6 +150,20 @@ export function VerifyClient({
               <span style={{ color: isPass ? "#A8E6A3" : "#FFFFFF" }}>2print</span>
             </span>
           </div>
+        </div>
+
+        {/* ── What this is ─────────────────────────────────────────────── */}
+        <div style={{
+          background: "rgba(0,0,0,0.18)",
+          borderRadius: 12,
+          padding: "12px 16px",
+          marginBottom: 20,
+          textAlign: "center",
+        }}>
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", margin: 0, lineHeight: 1.55 }}>
+            This is a <strong style={{ color: "#fff" }}>public KDP scan result</strong> — no login needed to view it.
+            Share it with author groups, beta readers, or your publisher to show your manuscript is print-ready.
+          </p>
         </div>
 
         {/* ── Hero block: badge + score + checks ────────────────────────── */}
