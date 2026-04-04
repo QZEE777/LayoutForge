@@ -111,7 +111,7 @@ export default function DashboardPage() {
     setProfileMsg(null);
     try {
       const client = createClient();
-      const { error } = await client.from("profiles").upsert({ id: user.id, first_name: firstName.trim() });
+      const { error } = await client.from("profiles").update({ first_name: firstName.trim() }).eq("id", user.id);
       setProfileMsg(error ? { type: "err", text: "Failed to save." } : { type: "ok", text: "Saved!" });
     } finally {
       setSaving(false);
