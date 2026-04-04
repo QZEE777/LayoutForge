@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { timingSafeEqualStrings } from "@/lib/security";
 import { sendAffiliateApprovalEmail } from "@/lib/resend";
+import { createLSAffiliate } from "@/lib/lemonsqueezy";
 
 function auth(request: NextRequest): boolean {
   const raw = request.headers.get("x-admin-password") ?? "";
@@ -46,11 +47,29 @@ export async function POST(request: NextRequest) {
     // Fetch affiliate details before updating so we can send the welcome email
     const { data: affiliate } = await supabase
       .from("affiliates")
-      .select("email, name, code, status")
+      .select("email, name, code, status, ls_affiliate_code")
       .eq("id", id)
       .maybeSingle();
 
-    await supabase.from("affiliates").update({ status: "active" }).eq("id", id);
+    // Auto-create affiliate in LemonSqueezy if not already set up
+    let lsCode: string | null = null;
+    if (affiliate && !affiliate.ls_affiliate_code) {
+      try {
+        lsCode = await createLSAffiliate({
+          name: affiliate.name ?? affiliate.email,
+          email: affiliate.email,
+          code: affiliate.code,
+        });
+      } catch (err) {
+        console.error("[admin/affiliates] LS affiliate create failed:", err);
+        // Don't block approval — just log it
+      }
+    }
+
+    await supabase.from("affiliates").update({
+      status: "active",
+      ...(lsCode ? { ls_affiliate_code: lsCode } : {}),
+    }).eq("id", id);
 
     // Send approval email only if they weren't already active
     if (affiliate && affiliate.status !== "active") {
@@ -62,7 +81,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, ls_code: lsCode ?? undefined });
   }
 
   if (action === "suspend") {
