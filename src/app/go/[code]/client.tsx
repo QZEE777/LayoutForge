@@ -128,14 +128,14 @@ export function GoLandingClient({ checkoutUrl, refCode, partnerName }: Props) {
 
       {/* ── Problem ───────────────────────────────────────────────────────── */}
       <section className="bg-m2p-ink py-16 lg:py-20 px-6">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-5xl mx-auto text-center">
           <p className="text-xs font-bold text-m2p-orange tracking-[0.1em] uppercase mb-4">
             THE PROBLEM
           </p>
           <h2 className="text-3xl lg:text-4xl font-black text-white mb-3 text-balance">
             Amazon doesn&apos;t tell you what&apos;s wrong.
           </h2>
-          <p className="text-base text-white/60 mb-10 max-w-xl text-pretty">
+          <p className="text-base text-white/60 mb-10 max-w-xl mx-auto text-pretty">
             It sends you back to guess. Upload → wait → rejection → guess →
             re-upload → repeat. Sometimes for days. Sometimes for weeks.{" "}
             <strong className="text-white">Every rejection resets your timeline.</strong>
