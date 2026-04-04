@@ -283,7 +283,7 @@ export function EarnPanel({ affiliate, stats }: Props) {
           { icon: DollarSign, label: "Total Earned",    value: stats ? fmt(stats.totalEarned)    : "—", color: "#F05A28", bg: "rgba(240,90,40,0.1)" },
           { icon: TrendingUp, label: "Pending Payout",  value: stats ? fmt(stats.pendingPayout)  : "—", color: "#10b981", bg: "rgba(16,185,129,0.1)" },
           { icon: Users,      label: "Conversions",     value: stats ? String(stats.conversions) : "—", color: "var(--d-fg-muted)", bg: "var(--d-muted)" },
-          { icon: Gift,       label: "Commission Rate", value: affiliate.commission_rate ? `${Math.round(affiliate.commission_rate * 100)}%` : "30–40%", color: "var(--d-fg-muted)", bg: "var(--d-muted)" },
+          { icon: Gift,       label: "Commission Rate", value: (affiliate.commission_rate && affiliate.commission_rate !== 0.3) ? `${Math.round(affiliate.commission_rate * 100)}%` : "30–40%", color: "var(--d-fg-muted)", bg: "var(--d-muted)" },
         ].map(({ icon: Icon, label, value, color, bg }) => (
           <Card key={label} className="p-4">
             <div className="flex items-center gap-3">
@@ -394,7 +394,7 @@ export function EarnPanel({ affiliate, stats }: Props) {
           <div className="flex items-center justify-between gap-4">
             <span style={{ color: "var(--d-fg-muted)" }}>Commission</span>
             <span className="font-medium" style={{ color: "var(--d-fg)" }}>
-              {affiliate.commission_rate ? `${Math.round(affiliate.commission_rate * 100)}%` : "30% singles · 40% packs"}
+              {(affiliate.commission_rate && affiliate.commission_rate !== 0.3) ? `${Math.round(affiliate.commission_rate * 100)}% (custom rate)` : "30% singles · 40% packs"}
             </span>
           </div>
           <div className="flex items-center justify-between gap-4">
