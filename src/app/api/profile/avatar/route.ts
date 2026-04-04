@@ -59,7 +59,8 @@ export async function POST(req: Request) {
     // Save URL to profiles table
     await supabase
       .from("profiles")
-      .upsert({ id: userId, avatar_url: publicUrl });
+      .update({ avatar_url: publicUrl })
+      .eq("id", userId);
 
     return NextResponse.json({ url: publicUrl });
   } catch (err) {
