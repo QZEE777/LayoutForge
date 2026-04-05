@@ -122,7 +122,7 @@ function ChipGroup<T extends string>({
               key={opt.value}
               type="button"
               onClick={() => onChange(opt.value)}
-              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition-all"
+              className="flex-1 flex items-center justify-center gap-1.5 rounded-lg py-2.5 transition-all font-serif text-sm"
               style={{
                 background: active ? "#f05a28" : "rgba(0,0,0,0.04)",
                 color: active ? "#fff" : "#6B6151",
