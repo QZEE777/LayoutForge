@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { buildVerifyShareCaption } from "@/lib/shareVerifyCaption";
 
 interface Props {
   score: number;
@@ -28,8 +29,8 @@ export function VerifyClient({
 
   const isPass = statusLevel === "ready";
   const isNearly = statusLevel === "nearly";
-  const shParam = shToken ? `?sh=${shToken}` : "";
-  const shareUrl = verifyUrl;
+  const shParam = shToken ? `?sh=${encodeURIComponent(shToken)}` : "";
+  const shareLinkWithRef = shToken ? `${verifyUrl}?sh=${encodeURIComponent(shToken)}` : verifyUrl;
   const ctaHref = `/kdp-pdf-checker${shParam}`;
 
   const ogUrl = portraitOgPath;
@@ -37,14 +38,17 @@ export function VerifyClient({
   const bg = isPass ? "#1a5f3f" : isNearly ? "#6B3800" : "#8B2F00";
   const accent = isPass ? "#4CE87A" : isNearly ? "#FFA040" : "#FF8C69";
 
-  const caption = ogIsPass
-    ? `Just checked my KDP manuscript on manu2print.com — scored ${score}/100. ✅ Ready for Amazon. Would yours pass? Check free: ${shareUrl}`
-    : `Caught ${issuesCount ?? "multiple"} issues in my KDP PDF before uploading to Amazon. 🛑 Saved myself a rejection. Check yours before you submit: ${shareUrl}`;
+  const caption = buildVerifyShareCaption({
+    isPass: ogIsPass,
+    score,
+    verifyUrl: shareLinkWithRef,
+    issuesCount,
+  });
 
   const handleShare = async () => {
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
-        await navigator.share({ text: caption, url: shareUrl });
+        await navigator.share({ text: caption });
         return;
       } catch {
         /* user cancelled */
@@ -58,7 +62,7 @@ export function VerifyClient({
     setShareState("copied");
     setTimeout(() => setShareState("idle"), 3000);
     window.open(
-      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
+      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareLinkWithRef)}`,
       "fb-share",
       "width=600,height=460,resizable=yes,scrollbars=yes"
     );

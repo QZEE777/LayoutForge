@@ -9,6 +9,7 @@ import Image from "next/image";
 import PaymentGate from "@/components/PaymentGate";
 import CheckerPdfViewer from "@/components/CheckerPdfViewer";
 import { difficultyLabel, cleanFilenameForDisplay, toFixDifficulty, getScoreGrade, type FixDifficulty } from "@/lib/kdpReportEnhance";
+import { buildVerifyShareCaption } from "@/lib/shareVerifyCaption";
 
 const MAX_ISSUES_GROUP_DISPLAY = 10;
 
@@ -902,12 +903,16 @@ export default function DownloadPage() {
                   {(() => {
                     const shareScore  = calculatedScore ?? report?.readinessScore100 ?? 0;
                     const shareIsPass = report?.kdpReady === true || shareScore >= 90;
-                    const verifyLink  = `https://www.manu2print.com/verify/${id}${shareToken ? `?sh=${shareToken}` : ""}`;
+                    const verifyLink  = `https://www.manu2print.com/verify/${id}${shareToken ? `?sh=${encodeURIComponent(shareToken)}` : ""}`;
                     const ogBase      = `/api/og/verify/${id}?p=${shareIsPass ? 1 : 0}&s=${shareScore}`;
                     const portraitUrl = `${ogBase}&format=portrait`;
-                    const caption     = shareIsPass
-                      ? `Just checked my KDP manuscript on manu2print.com — scored ${shareScore}/100. ✅ Ready for Amazon. Would yours pass? ${verifyLink} #KDP #IndieAuthor #SelfPublishing`
-                      : `Caught issues in my KDP PDF before uploading to Amazon. 🛑 Saved myself a rejection. Check yours before you submit: ${verifyLink} #KDP #IndieAuthor #SelfPublishing`;
+                    const shareIssues = getGroupedIssues(report).totalCount;
+                    const caption     = buildVerifyShareCaption({
+                      isPass: shareIsPass,
+                      score: shareScore,
+                      verifyUrl: verifyLink,
+                      issuesCount: shareIssues,
+                    });
                     const headerBg    = shareIsPass ? "#2D6A2D" : "#F05A28";
                     const btnBg       = shareIsPass ? "#F05A28" : "#2D6A2D";
 
@@ -938,7 +943,7 @@ export default function DownloadPage() {
                           <div style={{ marginBottom: 18 }}>
                             <a
                               href={portraitUrl}
-                              download={`manu2print-result-${shareIsPass ? "pass" : "fail"}-portrait.jpg`}
+                              download={`manu2print-result-${shareIsPass ? "pass" : "fail"}-portrait.png`}
                               style={{ display: "block", textAlign: "center", background: headerBg, color: "#fff", fontWeight: 700, fontSize: 14, padding: "14px 8px", borderRadius: 10, textDecoration: "none" }}
                             >
                               ⬇ Download — IG / FB / LinkedIn
