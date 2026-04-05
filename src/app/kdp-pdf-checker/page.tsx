@@ -542,13 +542,28 @@ export default function KdpPdfCheckerPage() {
                 Get a precise, page-by-page compliance report in minutes — so you can fix every issue before Amazon sees it.
               </p>
 
-              <div className="rounded-xl px-4 py-3 mb-7"
-                style={{ background: "rgba(240,90,40,0.05)", border: "1px solid rgba(240,90,40,0.12)" }}>
-                <p className="text-xs font-bold uppercase tracking-wide mb-2 text-center" style={{ color: "#f05a28" }}>Most files fail on:</p>
-                <div className="grid grid-cols-2 gap-1">
+              <div className="relative mb-7 overflow-hidden rounded-3xl border border-orange-200/35 bg-white/55 px-5 py-4 shadow-[0_12px_40px_-16px_rgba(240,90,40,0.25)] backdrop-blur-md ring-1 ring-orange-500/[0.08]">
+                <div
+                  className="pointer-events-none absolute inset-0 opacity-90"
+                  style={{
+                    background: "linear-gradient(135deg, rgba(255,248,242,0.95) 0%, rgba(255,255,255,0.4) 45%, rgba(76,217,100,0.06) 100%)",
+                  }}
+                  aria-hidden
+                />
+                <p className="relative text-center text-sm font-semibold tracking-tight text-[#c2410c] mb-3">
+                  Most files fail on
+                </p>
+                <div className="relative grid grid-cols-2 gap-2">
                   {["Margins", "Trim size", "Font embedding", "Bleed settings"].map((f) => (
-                    <div key={f} className="flex items-center gap-1.5 text-sm" style={{ color: "#3a3020" }}>
-                      <span style={{ color: "#f05a28" }}>·</span> {f}
+                    <div
+                      key={f}
+                      className="flex items-center gap-2 rounded-2xl border border-black/[0.04] bg-white/75 px-3 py-2.5 text-sm font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] transition-colors hover:border-orange-200/50"
+                      style={{ color: "#2c2419" }}
+                    >
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#f05a28]/15 to-[#4cd964]/12 text-[10px] font-bold text-[#f05a28]">
+                        ✦
+                      </span>
+                      <span className="leading-tight">{f}</span>
                     </div>
                   ))}
                 </div>
@@ -568,11 +583,27 @@ export default function KdpPdfCheckerPage() {
                 ))}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs" style={{ color: "#9B8E7E" }}>
-                {["🔒 Secure upload", "🚫 No account required", "📊 See score free · $9 unlocks full report", "📥 Instant download"].map((t) => (
-                  <span key={t} className="rounded-lg border border-black/[0.06] bg-white/50 px-3 py-2 text-center sm:text-left">
-                    {t}
-                  </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[
+                  { icon: "🔒", text: "Secure upload" },
+                  { icon: "🚫", text: "No account required" },
+                  { icon: "📊", text: "See score free · $9 unlocks full report" },
+                  { icon: "📥", text: "Instant download" },
+                ].map(({ icon, text }) => (
+                  <div
+                    key={text}
+                    className="group flex items-center gap-3 rounded-2xl border border-[#1A6B2A]/10 bg-white/75 px-4 py-3 shadow-[0_6px_28px_-12px_rgba(13,61,24,0.14)] backdrop-blur-sm transition-all duration-200 hover:border-[#1A6B2A]/18 hover:shadow-[0_10px_36px_-14px_rgba(13,61,24,0.2)]"
+                  >
+                    <span
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-lg shadow-inner ring-1 ring-black/[0.04]"
+                      style={{
+                        background: "linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(250,247,238,0.9) 100%)",
+                      }}
+                    >
+                      {icon}
+                    </span>
+                    <span className="text-left text-xs font-medium leading-snug text-[#5c5346]">{text}</span>
+                  </div>
                 ))}
               </div>
             </div>
@@ -606,8 +637,7 @@ export default function KdpPdfCheckerPage() {
         <div className="mx-auto max-w-5xl px-6 py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest mb-3"
-                style={{ color: "rgba(255,255,255,0.25)" }}>
+              <p className="text-xs font-semibold tracking-tight mb-3" style={{ color: "rgba(255,255,255,0.35)" }}>
                 The problem
               </p>
               <h2 className="font-black leading-tight mb-4"
@@ -625,21 +655,27 @@ export default function KdpPdfCheckerPage() {
               </p>
               <p className="text-base font-semibold mb-5" style={{ color: "rgba(255,255,255,0.7)" }}>Or…</p>
               <div className="space-y-3">
-                <div className="rounded-xl px-4 py-3"
-                  style={{ background: "rgba(240,90,40,0.08)", border: "1px solid rgba(240,90,40,0.2)" }}>
-                  <p className="text-xs font-bold uppercase tracking-wide mb-1.5 flex flex-wrap items-baseline gap-x-1.5 gap-y-0" style={{ color: "#f05a28" }}>
-                    <span>Without</span> <BrandWordmark variant="onDark" className="text-xs" />
+                <div
+                  className="rounded-2xl px-4 py-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-sm"
+                  style={{ background: "rgba(240,90,40,0.1)", border: "1px solid rgba(240,90,40,0.28)" }}
+                >
+                  <p className="mb-2 flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm font-semibold tracking-tight">
+                    <span style={{ color: "#ff9a6b" }}>Without</span>
+                    <BrandWordmark variant="onDark" className="text-sm" />
                   </p>
-                  <span className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  <span className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.42)" }}>
                     Upload → wait → rejection → guess → repeat
                   </span>
                 </div>
-                <div className="rounded-xl px-4 py-3"
-                  style={{ background: "rgba(76,217,100,0.08)", border: "1px solid rgba(76,217,100,0.2)" }}>
-                  <p className="text-xs font-bold uppercase tracking-wide mb-1.5 flex flex-wrap items-baseline gap-x-1.5 gap-y-0" style={{ color: "#4cd964" }}>
-                    <span>With</span> <BrandWordmark variant="onDark" className="text-xs" />
+                <div
+                  className="rounded-2xl px-4 py-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-sm"
+                  style={{ background: "rgba(76,217,100,0.09)", border: "1px solid rgba(76,217,100,0.28)" }}
+                >
+                  <p className="mb-2 flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm font-semibold tracking-tight">
+                    <span style={{ color: "#7ee89a" }}>With</span>
+                    <BrandWordmark variant="onDark" className="text-sm" />
                   </p>
-                  <span className="text-sm" style={{ color: "rgba(255,255,255,0.75)" }}>
+                  <span className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.78)" }}>
                     Upload → scan → fix → publish
                   </span>
                 </div>
@@ -648,9 +684,11 @@ export default function KdpPdfCheckerPage() {
 
             {/* Mock comparison */}
             <div className="space-y-3">
-              <div className="rounded-xl p-4"
-                style={{ background: "rgba(240,90,40,0.07)", border: "1px solid rgba(240,90,40,0.18)" }}>
-                <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: "#f05a28" }}>
+              <div
+                className="rounded-2xl p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-sm"
+                style={{ background: "rgba(240,90,40,0.08)", border: "1px solid rgba(240,90,40,0.22)" }}
+              >
+                <p className="mb-2 text-sm font-semibold tracking-tight" style={{ color: "#ff9a6b" }}>
                   Amazon&apos;s rejection email
                 </p>
                 <p className="text-sm italic" style={{ color: "rgba(255,255,255,0.45)" }}>
@@ -659,23 +697,33 @@ export default function KdpPdfCheckerPage() {
                 </p>
               </div>
               <div className="text-center text-xl" style={{ color: "rgba(255,255,255,0.15)" }}>↓</div>
-              <div className="rounded-xl p-4"
-                style={{ background: "rgba(76,217,100,0.07)", border: "1px solid rgba(76,217,100,0.18)" }}>
-                <p className="text-xs font-bold uppercase tracking-wide mb-3 flex flex-wrap items-baseline gap-x-1.5 gap-y-0" style={{ color: "#4cd964" }}>
-                  <BrandWordmark variant="onDark" className="text-xs" /> <span>tells you exactly</span>
+              <div
+                className="rounded-2xl p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-sm"
+                style={{ background: "rgba(76,217,100,0.08)", border: "1px solid rgba(76,217,100,0.24)" }}
+              >
+                <p className="mb-3 flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm font-semibold tracking-tight">
+                  <BrandWordmark variant="onDark" className="text-sm" />
+                  <span style={{ color: "#9ef5b2" }}>tells you exactly</span>
                 </p>
-                <div className="space-y-2">
+                <div className="space-y-2.5">
                   {[
                     { page: "p.3",  issue: "Gutter margin 0.31\" — needs 0.50\"" },
                     { page: "p.1",  issue: "Trim 8.5×11 detected — KDP expects 6×9" },
                     { page: "p.5",  issue: "Image 187 DPI — will print blurry" },
                   ].map((item) => (
-                    <div key={item.issue} className="flex items-center gap-2.5">
-                      <span className="text-xs font-mono font-bold px-1.5 py-0.5 rounded shrink-0"
-                        style={{ background: "rgba(76,217,100,0.15)", color: "#4cd964" }}>
+                    <div
+                      key={item.issue}
+                      className="flex items-start gap-2.5 rounded-xl bg-black/15 px-2.5 py-2 ring-1 ring-white/[0.06]"
+                    >
+                      <span
+                        className="mt-0.5 shrink-0 rounded-lg px-2 py-0.5 text-[11px] font-mono font-bold tabular-nums"
+                        style={{ background: "rgba(76,217,100,0.2)", color: "#b8f5c8" }}
+                      >
                         {item.page}
                       </span>
-                      <span className="text-xs" style={{ color: "rgba(255,255,255,0.65)" }}>{item.issue}</span>
+                      <span className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.72)" }}>
+                        {item.issue}
+                      </span>
                     </div>
                   ))}
                 </div>
