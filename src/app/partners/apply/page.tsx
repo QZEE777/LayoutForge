@@ -73,9 +73,9 @@ export default function AffiliateApplyPage() {
     <div className="min-h-screen flex flex-col" style={{ background: "#FAF7EE" }}>
       {/* Nav */}
       <header style={{ borderBottom: "1px solid #E0D8C4", background: "#fff" }}>
-        <div className="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <Image src="/MANNY AVATAR.png" alt="manu2print" width={32} height={32} className="rounded-full" />
+        <div className="mx-auto max-w-4xl px-6 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+          <Link href="/" className="flex items-center gap-3 shrink-0 min-w-0">
+            <Image src="/MANNY AVATAR.png" alt="manu2print" width={100} height={100} className="rounded-full shrink-0" />
             <BrandWordmark variant="onLight" className="text-xl" />
           </Link>
           {sessionEmail ? (

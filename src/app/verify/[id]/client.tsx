@@ -83,9 +83,9 @@ export function VerifyClient({
     >
       <div style={{ width: "100%", maxWidth: 520 }}>
         <div style={{ textAlign: "center", marginBottom: 16 }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 12 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/manny-avatar.png" alt="" style={{ width: 42, height: 42, borderRadius: "50%" }} />
+            <img src="/manny-avatar.png" alt="" style={{ width: 100, height: 100, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} />
             <BrandWordmark variant="onDark" className="text-xl sm:text-2xl tracking-tight" />
           </div>
         </div>

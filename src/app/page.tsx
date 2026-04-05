@@ -35,13 +35,13 @@ export default function Home() {
       <section className="bg-m2p-ink pt-2 pb-8 md:pt-3 md:pb-10">
         <div className="max-w-6xl mx-auto px-6">
           {/* Manny logo — top-left of hero */}
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-3 mb-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/manny-avatar.png"
               alt="Manny"
-              width={44}
-              height={44}
+              width={100}
+              height={100}
               style={{ borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
             />
             <BrandWordmark variant="onDark" className="text-lg" />

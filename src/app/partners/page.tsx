@@ -150,9 +150,9 @@ function Accordion({ items }: { items: { q: string; a: string }[] }) {
 function Nav({ onSignInClick }: { onSignInClick?: () => void }) {
   return (
     <header className="sticky top-0 z-20 border-b" style={{ background: "#F5F0E8", borderColor: "rgba(0,0,0,0.08)" }}>
-      <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2.5">
-          <Image src="/MANNY AVATAR.png" alt="manu2print" width={32} height={32} className="rounded-full" />
+      <div className="mx-auto max-w-6xl px-6 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+        <Link href="/" className="flex items-center gap-3 shrink-0 min-w-0">
+          <Image src="/MANNY AVATAR.png" alt="manu2print" width={100} height={100} className="rounded-full shrink-0" />
           <BrandWordmark variant="onLight" className="text-lg sm:text-xl" />
         </Link>
         <div className="flex items-center gap-3">
@@ -697,10 +697,10 @@ function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => 
 
       {/* ── Header ── */}
       <header className="sticky top-0 z-20 border-b" style={{ background: "#F5F0E8", borderColor: "rgba(0,0,0,0.08)" }}>
-        <div className="mx-auto max-w-4xl px-6 flex items-center justify-between" style={{ minHeight: 56 }}>
+        <div className="mx-auto max-w-4xl px-6 py-3 flex flex-wrap items-center justify-between gap-y-3 gap-x-4">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 shrink-0">
-            <Image src="/MANNY AVATAR.png" alt="manu2print" width={30} height={30} className="rounded-full" />
+          <Link href="/" className="flex items-center gap-3 shrink-0 min-w-0">
+            <Image src="/MANNY AVATAR.png" alt="manu2print" width={100} height={100} className="rounded-full shrink-0" />
             <BrandWordmark variant="onLight" className="text-lg" />
           </Link>
 
@@ -1223,8 +1223,8 @@ function SignInView({ onSignIn }: { onSignIn: (email: string, token: string, exp
     <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: "#F5F0E8" }}>
       <div className="w-full max-w-sm">
         {/* Logo */}
-        <div className="flex items-center justify-center gap-2 mb-10">
-          <Image src="/MANNY AVATAR.png" alt="manu2print" width={36} height={36} className="rounded-full" />
+        <div className="flex items-center justify-center gap-3 mb-10">
+          <Image src="/MANNY AVATAR.png" alt="manu2print" width={100} height={100} className="rounded-full shrink-0" />
           <BrandWordmark variant="onLight" className="text-xl" />
         </div>
 

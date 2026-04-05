@@ -89,9 +89,9 @@ function clearSession() {
 function Nav() {
   return (
     <header className="border-b" style={{ borderColor: "rgba(0,0,0,0.07)", background: "#FAF7EE" }}>
-      <div className="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <Image src="/MANNY AVATAR.png" alt="manu2print" width={32} height={32} className="rounded-full" />
+      <div className="mx-auto max-w-4xl px-6 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+        <Link href="/" className="flex items-center gap-3 shrink-0 min-w-0">
+          <Image src="/MANNY AVATAR.png" alt="manu2print" width={100} height={100} className="rounded-full shrink-0" />
           <BrandWordmark variant="onLight" className="text-lg" />
         </Link>
         <Link href="/kdp-pdf-checker"

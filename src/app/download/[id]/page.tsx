@@ -420,7 +420,7 @@ export default function DownloadPage() {
         >
           <div className="absolute inset-x-0 top-0 h-1 opacity-90" style={{ background: DL_VIS.forestGrad }} aria-hidden />
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
-            <Image src="/MANNY AVATAR.png" alt="Manny" width={96} height={96} className="rounded-full shadow-lg ring-4 ring-white/80" />
+            <Image src="/MANNY AVATAR.png" alt="Manny" width={100} height={100} className="rounded-full shadow-lg ring-4 ring-white/80 shrink-0" />
             <div className="text-left sm:text-center">
               <p className="text-[10px] font-bold tracking-[0.14em] uppercase text-m2p-muted mb-1">KDP compliance</p>
               <BrandWordmark variant="onLight" className="text-xl" />

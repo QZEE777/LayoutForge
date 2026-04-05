@@ -500,13 +500,13 @@ export default function KdpPdfCheckerPage() {
         id="checker-top"
         className="sticky top-0 z-20 border-b border-[#1A6B2A]/10 bg-[#FAF7EE]/75 backdrop-blur-md"
       >
-        <div className="mx-auto max-w-5xl px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <Image src="/MANNY AVATAR.png" alt="manu2print" width={32} height={32} className="rounded-full" />
+        <div className="mx-auto max-w-5xl px-6 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+          <Link href="/" className="flex items-center gap-3 shrink-0 min-w-0">
+            <Image src="/MANNY AVATAR.png" alt="manu2print" width={100} height={100} className="rounded-full shrink-0" />
             <BrandWordmark variant="onLight" className="text-lg sm:text-xl" />
           </Link>
           <Link href="/dashboard"
-            className="text-xs font-medium hover:opacity-70 transition-opacity"
+            className="text-xs font-medium hover:opacity-70 transition-opacity shrink-0"
             style={{ color: "#9B8E7E" }}>
             Already purchased? View dashboard →
           </Link>
