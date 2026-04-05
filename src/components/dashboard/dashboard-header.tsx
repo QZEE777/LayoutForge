@@ -21,23 +21,33 @@ interface HeaderProps {
 export function DashboardHeader({ activeView, setSidebarOpen }: HeaderProps) {
   const { title, subtitle } = viewMeta[activeView];
   return (
-    <header className="h-16 flex items-center px-4 lg:px-6 border-b shrink-0 relative"
-      style={{ background: "var(--d-card)", borderColor: "var(--d-border)" }}>
-      {/* Mobile menu button — left */}
-      <Button variant="ghost" size="icon" className="lg:hidden shrink-0" onClick={() => setSidebarOpen(true)}>
-        <Menu className="w-5 h-5" />
+    <header
+      className="relative flex h-[4.25rem] shrink-0 items-center border-b px-4 lg:px-6"
+      style={{
+        background: "linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(255,253,250,0.92) 100%)",
+        borderColor: "var(--d-border)",
+        boxShadow: "0 1px 0 rgba(255,255,255,0.8), 0 8px 24px -12px rgba(26,18,8,0.08)",
+      }}
+    >
+      <Button variant="ghost" size="icon" className="relative z-10 shrink-0 lg:hidden" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
+        <Menu className="h-5 w-5" />
       </Button>
-      {/* Title — centered absolutely */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-        <h1 className="text-base font-semibold" style={{ color: "var(--d-fg)" }}>{title}</h1>
-        <p className="text-xs hidden sm:block" style={{ color: "var(--d-fg-muted)" }}>{subtitle}</p>
+      <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-14 text-center sm:px-24">
+        <h1 className="text-[15px] font-bold tracking-tight sm:text-base" style={{ color: "var(--d-fg)" }}>
+          {title}
+        </h1>
+        <p className="mt-0.5 hidden max-w-md text-[11px] leading-snug sm:block sm:text-xs" style={{ color: "var(--d-fg-muted)" }}>
+          {subtitle}
+        </p>
       </div>
-      {/* Help — right */}
-      <div className="ml-auto shrink-0">
-        <Link href="/faq">
-          <Button variant="ghost" size="icon">
-            <HelpCircle className="w-5 h-5" />
-          </Button>
+      <div className="relative z-10 ml-auto shrink-0">
+        <Link
+          href="/faq"
+          className="inline-flex items-center gap-1.5 rounded-full border border-[var(--d-border)] bg-white/90 px-3 py-1.5 text-xs font-semibold shadow-sm transition-all hover:border-[#f05a28]/35 hover:bg-[#fff8f4] hover:text-[var(--d-primary)]"
+          style={{ color: "var(--d-fg-muted)" }}
+        >
+          <HelpCircle className="h-4 w-4 shrink-0 text-[var(--d-primary)]" />
+          <span className="hidden sm:inline">Help</span>
         </Link>
       </div>
     </header>

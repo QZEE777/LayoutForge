@@ -117,7 +117,7 @@ export function EarnPanel({ affiliate, stats }: Props) {
         {atThreshold && <PartnerUpgradeBanner />}
 
         {/* Share-to-earn card — shown to all non-partners */}
-        <Card className="overflow-hidden">
+        <Card className="d-card-elevated overflow-hidden border-[var(--d-border-strong)]">
           <div className="p-6" style={{ borderBottom: "1px solid var(--d-border)" }}>
             <div className="flex items-start gap-4">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(76,217,100,0.12)" }}>
@@ -172,20 +172,18 @@ export function EarnPanel({ affiliate, stats }: Props) {
                   <button
                     type="button"
                     onClick={copyShareLink}
-                    className="shrink-0 flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-white transition-colors"
-                    style={{ background: shareLinkCopied ? "#4cd964" : "#F05A28" }}
+                    className={
+                      shareLinkCopied
+                        ? "flex shrink-0 items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-500 px-3 py-2 text-sm font-semibold text-white shadow-sm"
+                        : "d-cta d-cta-md flex shrink-0 items-center gap-1.5"
+                    }
                   >
-                    {shareLinkCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                    {shareLinkCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                     {shareLinkCopied ? "Copied!" : "Copy"}
                   </button>
                 </div>
               ) : (
-                <button
-                  type="button"
-                  onClick={generateShareToken}
-                  className="w-full rounded-lg py-2.5 text-sm font-semibold text-white"
-                  style={{ background: "#F05A28" }}
-                >
+                <button type="button" onClick={generateShareToken} className="d-cta d-cta-md w-full">
                   Get my share link
                 </button>
               )}
@@ -200,20 +198,21 @@ export function EarnPanel({ affiliate, stats }: Props) {
         </Card>
 
         {/* Partner program card */}
-        <Card className="overflow-hidden">
-          <div className="p-8 lg:p-10 text-center" style={{ background: "linear-gradient(135deg, rgba(240,90,40,0.06), rgba(76,217,100,0.06))" }}>
-            <div className="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-5" style={{ background: "rgba(240,90,40,0.1)" }}>
-              <Gift className="w-7 h-7" style={{ color: "#F05A28" }} />
+        <Card className="d-card-elevated overflow-hidden border-[var(--d-border-strong)]">
+          <div
+            className="p-8 text-center lg:p-10"
+            style={{ background: "linear-gradient(135deg, rgba(255,248,244,0.95) 0%, rgba(232,245,233,0.4) 100%)" }}
+          >
+            <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl shadow-md" style={{ background: "rgba(240,90,40,0.12)" }}>
+              <Gift className="h-7 w-7" style={{ color: "#F05A28" }} />
             </div>
-            <h2 className="text-2xl font-bold mb-2" style={{ color: "var(--d-fg)" }}>Earn 30–40% Commission</h2>
-            <p className="text-sm leading-relaxed mb-6 max-w-sm mx-auto" style={{ color: "var(--d-fg-muted)" }}>
+            <h2 className="mb-2 text-2xl font-bold" style={{ color: "var(--d-fg)" }}>Earn 30–40% commission</h2>
+            <p className="mx-auto mb-6 max-w-sm text-sm leading-relaxed" style={{ color: "var(--d-fg-muted)" }}>
               Share manu2print with fellow indie authors and earn on every scan they purchase. No minimums, no waitlist.
             </p>
-            <Link href="/partners/apply"
-              className="inline-flex items-center gap-2 rounded-xl px-6 py-3 font-semibold text-white"
-              style={{ background: "#F05A28" }}>
-              {atThreshold ? "Activate Partner Mode" : "Become a Partner"}
-              <ExternalLink className="w-4 h-4" />
+            <Link href="/partners/apply" className="d-cta d-cta-lg inline-flex">
+              {atThreshold ? "Activate partner mode" : "Become a partner"}
+              <ExternalLink className="h-4 w-4" />
             </Link>
           </div>
           <div className="grid grid-cols-3 divide-x border-t" style={{ borderColor: "var(--d-border)" }}>
@@ -230,25 +229,25 @@ export function EarnPanel({ affiliate, stats }: Props) {
           </div>
         </Card>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
           {[
             { step: 1, title: "Apply",    desc: "Join in under 2 minutes" },
             { step: 2, title: "Share",    desc: "Use your unique referral link" },
             { step: 3, title: "Get paid", desc: "Automatically via LemonSqueezy" },
           ].map(({ step, title, desc }) => (
-            <Card key={step} className="p-4">
-              <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white mb-2" style={{ background: "#F05A28" }}>{step}</div>
-              <p className="font-semibold text-sm mb-0.5" style={{ color: "var(--d-fg)" }}>{title}</p>
-              <p className="text-xs" style={{ color: "var(--d-fg-muted)" }}>{desc}</p>
+            <Card key={step} className="d-card-elevated border-[var(--d-border-strong)] p-3 sm:p-4">
+              <div className="mb-2 flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white shadow-sm" style={{ background: "linear-gradient(135deg, #ff7a4a, #f05a28)" }}>{step}</div>
+              <p className="mb-0.5 text-sm font-bold" style={{ color: "var(--d-fg)" }}>{title}</p>
+              <p className="text-[11px] leading-snug sm:text-xs" style={{ color: "var(--d-fg-muted)" }}>{desc}</p>
             </Card>
           ))}
         </div>
         {/* Scan Credits — non-partner */}
         {creditBalance !== null && creditBalance.total > 0 && (
-          <Card className="p-5">
-            <h3 className="font-semibold mb-3" style={{ color: "var(--d-fg)" }}>
-              <Gift className="w-4 h-4 inline mr-2 opacity-60" />
-              Scan Credits
+          <Card className="d-card-elevated border-[var(--d-border-strong)] p-5">
+            <h3 className="mb-3 font-bold" style={{ color: "var(--d-fg)" }}>
+              <Gift className="mr-2 inline h-4 w-4 opacity-60" />
+              Scan credits
             </h3>
             <div className="flex items-center justify-between gap-4 mb-3">
               <div className="text-center flex-1 rounded-lg p-3" style={{ background: "var(--d-bg)" }}>
@@ -275,15 +274,15 @@ export function EarnPanel({ affiliate, stats }: Props) {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-5">
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    <div className="mx-auto max-w-3xl space-y-5">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
         {[
-          { icon: DollarSign, label: "Total Earned",    value: stats ? fmt(stats.totalEarned)    : "—", color: "#F05A28", bg: "rgba(240,90,40,0.1)" },
-          { icon: TrendingUp, label: "Pending Payout",  value: stats ? fmt(stats.pendingPayout)  : "—", color: "#10b981", bg: "rgba(16,185,129,0.1)" },
+          { icon: DollarSign, label: "Total earned",    value: stats ? fmt(stats.totalEarned)    : "—", color: "#F05A28", bg: "rgba(240,90,40,0.1)" },
+          { icon: TrendingUp, label: "Pending payout",  value: stats ? fmt(stats.pendingPayout)  : "—", color: "#10b981", bg: "rgba(16,185,129,0.1)" },
           { icon: Users,      label: "Conversions",     value: stats ? String(stats.conversions) : "—", color: "var(--d-fg-muted)", bg: "var(--d-muted)" },
-          { icon: Gift,       label: "Commission Rate", value: (affiliate.commission_rate && affiliate.commission_rate !== 0.3) ? `${Math.round(affiliate.commission_rate * 100)}%` : "30–40%", color: "var(--d-fg-muted)", bg: "var(--d-muted)" },
+          { icon: Gift,       label: "Commission rate", value: (affiliate.commission_rate && affiliate.commission_rate !== 0.3) ? `${Math.round(affiliate.commission_rate * 100)}%` : "30–40%", color: "var(--d-fg-muted)", bg: "var(--d-muted)" },
         ].map(({ icon: Icon, label, value, color, bg }) => (
-          <Card key={label} className="p-4">
+          <Card key={label} className="d-card-elevated border-[var(--d-border-strong)] p-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: bg }}>
                 <Icon className="w-5 h-5" style={{ color }} />
@@ -297,8 +296,8 @@ export function EarnPanel({ affiliate, stats }: Props) {
         ))}
       </div>
 
-      <Card className="p-5">
-        <h3 className="font-semibold mb-3" style={{ color: "var(--d-fg)" }}>Your Referral Link</h3>
+      <Card className="d-card-elevated border-[var(--d-border-strong)] p-5">
+        <h3 className="mb-3 font-bold" style={{ color: "var(--d-fg)" }}>Your referral link</h3>
         {affiliate.ls_affiliate_code ? (
           <>
             {/* LS payout link — primary */}
@@ -348,10 +347,10 @@ export function EarnPanel({ affiliate, stats }: Props) {
 
       {/* Scan Credits */}
       {creditBalance !== null && (
-        <Card className="p-5">
-          <h3 className="font-semibold mb-3" style={{ color: "var(--d-fg)" }}>
-            <Gift className="w-4 h-4 inline mr-2 opacity-60" />
-            Scan Credits
+        <Card className="d-card-elevated border-[var(--d-border-strong)] p-5">
+          <h3 className="mb-3 font-bold" style={{ color: "var(--d-fg)" }}>
+            <Gift className="mr-2 inline h-4 w-4 opacity-60" />
+            Scan credits
           </h3>
           <div className="flex items-center justify-between gap-4 mb-3">
             <div className="text-center flex-1 rounded-lg p-3" style={{ background: "var(--d-bg)" }}>
@@ -374,14 +373,16 @@ export function EarnPanel({ affiliate, stats }: Props) {
           ) : (
             <p className="text-xs" style={{ color: "var(--d-fg-muted)" }}>
               No credits remaining.{" "}
-              <Link href="/kdp-pdf-checker" className="underline" style={{ color: "#F05A28" }}>Run a scan for $9 →</Link>
+              <Link href="/kdp-pdf-checker" className="d-link">
+                Run a scan for $9 →
+              </Link>
             </p>
           )}
         </Card>
       )}
 
-      <Card className="p-5">
-        <h3 className="font-semibold mb-4" style={{ color: "var(--d-fg)" }}>Payout Details</h3>
+      <Card className="d-card-elevated border-[var(--d-border-strong)] p-5">
+        <h3 className="mb-4 font-bold" style={{ color: "var(--d-fg)" }}>Payout details</h3>
         <div className="space-y-3 text-sm">
           <div className="flex items-center justify-between gap-4">
             <span style={{ color: "var(--d-fg-muted)" }}>Status</span>
@@ -403,8 +404,9 @@ export function EarnPanel({ affiliate, stats }: Props) {
         <p className="text-xs mt-4" style={{ color: "var(--d-fg-muted)" }}>
           Payouts are handled automatically by LemonSqueezy at $25 minimum.
           Connect your payout method directly in your{" "}
-          <a href="https://app.lemonsqueezy.com" target="_blank" rel="noopener noreferrer"
-            className="underline" style={{ color: "#F05A28" }}>LemonSqueezy dashboard →</a>
+          <a href="https://app.lemonsqueezy.com" target="_blank" rel="noopener noreferrer" className="d-link">
+            LemonSqueezy dashboard →
+          </a>
         </p>
       </Card>
     </div>

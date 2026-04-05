@@ -24,8 +24,8 @@ export function SettingsPanel({ user, firstName, setFirstName, saving, profileMs
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className="max-w-xl mx-auto space-y-5">
-      <Card className="p-6">
+    <div className="mx-auto max-w-xl space-y-5">
+      <Card className="d-card-elevated border-[var(--d-border-strong)] p-6">
         <h3 className="font-semibold flex items-center gap-2 mb-5" style={{ color: "var(--d-fg)" }}>
           <User className="w-4 h-4" style={{ color: "var(--d-fg-muted)" }} />
           Profile
@@ -93,31 +93,32 @@ export function SettingsPanel({ user, firstName, setFirstName, saving, profileMs
             </p>
           )}
           <div className="flex justify-end">
-            <button type="submit" disabled={saving}
-              className="rounded-lg px-5 py-2 text-sm font-semibold text-white disabled:opacity-50"
-              style={{ background: "#F05A28" }}>
-              {saving ? "Saving…" : "Save Changes"}
+            <button type="submit" disabled={saving} className="d-cta d-cta-md disabled:opacity-50">
+              {saving ? "Saving…" : "Save changes"}
             </button>
           </div>
         </form>
       </Card>
 
-      <Card className="divide-y" style={{ borderColor: "var(--d-border)" }}>
+      <Card className="d-card-elevated divide-y overflow-hidden border-[var(--d-border-strong)]" style={{ borderColor: "var(--d-border)" }}>
         <SettingRow icon={CreditCard} title="Purchase History" description="View all your scan reports and receipts" href="/my-orders" />
         <SettingRow icon={Shield} title="Help & FAQ" description="Answers to common questions" href="/faq" />
       </Card>
 
-      <Card className="p-5">
-        <div className="flex items-center justify-between">
+      <Card className="d-card-elevated border-[var(--d-border-strong)] p-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-medium" style={{ color: "var(--d-fg)" }}>Sign Out</p>
-            <p className="text-xs" style={{ color: "var(--d-fg-muted)" }}>Sign out of this device</p>
+            <p className="text-sm font-bold" style={{ color: "var(--d-fg)" }}>Sign out</p>
+            <p className="text-xs" style={{ color: "var(--d-fg-muted)" }}>End your session on this device</p>
           </div>
-          <button onClick={onSignOut}
-            className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium border transition-colors hover:bg-[var(--d-muted)]"
-            style={{ borderColor: "var(--d-border)", color: "var(--d-fg-muted)" }}>
-            <LogOut className="w-4 h-4" />
-            Sign Out
+          <button
+            type="button"
+            onClick={onSignOut}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--d-border)] bg-white px-4 py-2.5 text-sm font-semibold shadow-sm transition-all hover:border-[var(--d-fg-muted)] hover:bg-[var(--d-muted)]"
+            style={{ color: "var(--d-fg-muted)" }}
+          >
+            <LogOut className="h-4 w-4" />
+            Sign out
           </button>
         </div>
       </Card>
@@ -127,15 +128,18 @@ export function SettingsPanel({ user, firstName, setFirstName, saving, profileMs
 
 function SettingRow({ icon: Icon, title, description, href }: { icon: React.ElementType; title: string; description: string; href: string }) {
   return (
-    <Link href={href} className="flex items-center gap-3 p-4 hover:bg-[var(--d-muted)]/50 transition-colors">
-      <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "var(--d-muted)" }}>
-        <Icon className="w-4 h-4" style={{ color: "var(--d-fg-muted)" }} />
+    <Link
+      href={href}
+      className="group flex items-center gap-3 px-2 py-3 transition-colors hover:bg-[var(--d-muted)]/70 sm:px-4 sm:py-3.5"
+    >
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-sm ring-1 ring-black/[0.04]" style={{ background: "var(--d-muted)" }}>
+        <Icon className="h-4 w-4" style={{ color: "var(--d-fg-muted)" }} />
       </div>
-      <div className="flex-1">
-        <p className="text-sm font-medium" style={{ color: "var(--d-fg)" }}>{title}</p>
-        <p className="text-xs" style={{ color: "var(--d-fg-muted)" }}>{description}</p>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-bold" style={{ color: "var(--d-fg)" }}>{title}</p>
+        <p className="text-xs leading-snug" style={{ color: "var(--d-fg-muted)" }}>{description}</p>
       </div>
-      <ChevronRight className="w-4 h-4" style={{ color: "var(--d-fg-muted)" }} />
+      <ChevronRight className="h-4 w-4 shrink-0 opacity-60 transition-transform group-hover:translate-x-0.5" style={{ color: "var(--d-primary)" }} />
     </Link>
   );
 }

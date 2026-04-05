@@ -10,28 +10,30 @@ interface UploadPanelProps {
 
 export function UploadPanel({ scansRemaining }: UploadPanelProps) {
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <Card className="overflow-hidden">
+    <div className="mx-auto max-w-4xl space-y-6">
+      <Card className="d-card-elevated overflow-hidden border-[var(--d-border-strong)]">
         <div className="p-6 lg:p-8">
-          {/* CTA zone */}
-          <Link href="/kdp-pdf-checker" className="block group">
-            <div className="border-2 border-dashed rounded-2xl p-10 text-center transition-all duration-200 hover:scale-[1.01]"
-              style={{ borderColor: "rgba(240,90,40,0.3)", background: "rgba(240,90,40,0.02)" }}>
-              <div className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-5 transition-all duration-200 group-hover:scale-110"
-                style={{ background: "#F05A28" }}>
-                <Upload className="w-8 h-8 text-white" />
+          <Link href="/kdp-pdf-checker" className="group block">
+            <div
+              className="rounded-2xl border-2 border-dashed p-8 text-center transition-all duration-200 hover:scale-[1.01] hover:border-[#f05a28]/50 hover:shadow-[0_16px_48px_-20px_rgba(240,90,40,0.2)] lg:p-10"
+              style={{ borderColor: "rgba(240,90,40,0.28)", background: "linear-gradient(180deg, rgba(255,248,244,0.9) 0%, rgba(255,255,255,0.5) 100%)" }}
+            >
+              <div
+                className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg transition-transform duration-200 group-hover:scale-105"
+                style={{ background: "linear-gradient(145deg, #ff7a4a 0%, #f05a28 100%)" }}
+              >
+                <Upload className="h-8 w-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold mb-2" style={{ color: "var(--d-fg)" }}>Check a New PDF</h3>
-              <p className="mb-5" style={{ color: "var(--d-fg-muted)" }}>
-                Upload your PDF and get a full KDP compliance report in under 90 seconds.
+              <h3 className="mb-2 text-xl font-bold" style={{ color: "var(--d-fg)" }}>Check a new PDF</h3>
+              <p className="mb-5 text-sm leading-relaxed lg:text-base" style={{ color: "var(--d-fg-muted)" }}>
+                Full KDP compliance report in under 90 seconds.
               </p>
-              <span className="inline-flex items-center gap-2 rounded-xl px-6 py-3 font-semibold text-white transition-opacity group-hover:opacity-90"
-                style={{ background: "#F05A28" }}>
-                {scansRemaining > 0 ? `Upload & Use 1 Credit` : "Check My PDF — $9"}
-                <ArrowRight className="w-4 h-4" />
+              <span className="d-cta d-cta-lg inline-flex">
+                {scansRemaining > 0 ? "Upload & use 1 credit" : "Check my PDF — $9"}
+                <ArrowRight className="h-4 w-4" />
               </span>
               {scansRemaining > 0 && (
-                <p className="mt-3 text-xs" style={{ color: "var(--d-fg-muted)" }}>
+                <p className="mt-3 text-xs font-medium" style={{ color: "var(--d-fg-muted)" }}>
                   {scansRemaining} credit{scansRemaining !== 1 ? "s" : ""} remaining — no payment needed
                 </p>
               )}
@@ -39,8 +41,7 @@ export function UploadPanel({ scansRemaining }: UploadPanelProps) {
           </Link>
         </div>
 
-        {/* Quick stats */}
-        <div className="grid grid-cols-3 border-t divide-x" style={{ borderColor: "var(--d-border)", background: "var(--d-muted)" }}>
+        <div className="grid grid-cols-3 divide-x border-t" style={{ borderColor: "var(--d-border)", background: "var(--d-muted)" }}>
           {[
             { icon: Zap,          label: "Scan Time",         value: "<90s", color: "#10b981" },
             { icon: Shield,       label: "KDP Rules Checked", value: "26",   color: "#F05A28" },
@@ -59,29 +60,28 @@ export function UploadPanel({ scansRemaining }: UploadPanelProps) {
 
       {/* What we check */}
       <div>
-        <h2 className="text-base font-semibold mb-3" style={{ color: "var(--d-fg)" }}>What We Check</h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <h2 className="mb-3 text-base font-bold" style={{ color: "var(--d-fg)" }}>What we check</h2>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {[
-            "Bleed & Margins",
-            "Image Resolution (300 DPI)",
-            "Color Profile (CMYK/RGB)",
-            "Font Embedding",
-            "Page Size & Trim",
-            "Spine Width Calculation",
+            "Bleed & margins",
+            "Image resolution (300 DPI)",
+            "Color profile (CMYK/RGB)",
+            "Font embedding",
+            "Page size & trim",
+            "Spine width calculation",
           ].map((item) => (
-            <Card key={item} className="p-4 flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(16,185,129,0.1)" }}>
-                <CheckCircle2 className="w-4 h-4" style={{ color: "#10b981" }} />
+            <Card key={item} className="d-card-elevated flex items-center gap-3 border-[var(--d-border-strong)] p-4 transition-shadow hover:shadow-md">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl" style={{ background: "rgba(76,217,100,0.12)" }}>
+                <CheckCircle2 className="h-4 w-4" style={{ color: "#16a34a" }} />
               </div>
-              <span className="text-sm font-medium" style={{ color: "var(--d-fg)" }}>{item}</span>
+              <span className="text-sm font-semibold" style={{ color: "var(--d-fg)" }}>{item}</span>
             </Card>
           ))}
         </div>
       </div>
 
-      {/* Publishing flow */}
-      <Card className="p-6">
-        <h2 className="text-base font-semibold mb-6" style={{ color: "var(--d-fg)" }}>Your Publishing Flow</h2>
+      <Card className="d-card-elevated border-[var(--d-border-strong)] p-6">
+        <h2 className="mb-6 text-base font-bold" style={{ color: "var(--d-fg)" }}>Your publishing flow</h2>
         <div className="flex items-start justify-between relative">
           <div className="absolute top-5 left-12 right-12 h-px" style={{ background: "var(--d-border)" }} />
           {[

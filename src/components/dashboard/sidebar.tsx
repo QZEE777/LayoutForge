@@ -47,13 +47,13 @@ export function DashboardSidebar({ activeView, setActiveView, sidebarOpen, setSi
       )}
 
       <aside className={cn(
-        "fixed lg:static inset-y-0 left-0 z-50 w-64 flex flex-col transition-transform duration-300 lg:translate-x-0",
-        "bg-[var(--d-card)] border-r border-[var(--d-border)]",
+        "fixed lg:static inset-y-0 left-0 z-50 flex w-64 flex-col transition-transform duration-300 lg:translate-x-0",
+        "border-r border-[var(--d-border-strong)] bg-gradient-to-b from-white via-[#faf8f5] to-[#f3efe8] shadow-[4px_0_24px_-8px_rgba(26,18,8,0.08)]",
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         {/* Logo */}
-        <div className="h-16 flex items-center justify-between px-5 border-b border-[var(--d-border)]">
-          <Link href="/" className="flex items-center">
+        <div className="flex h-16 items-center justify-between border-b border-[var(--d-border)] px-5">
+          <Link href="/" className="flex items-center rounded-lg outline-none ring-offset-2 transition-opacity hover:opacity-85 focus-visible:ring-2 focus-visible:ring-[var(--d-primary)]">
             <BrandWordmark variant="onLight" className="text-xl" />
           </Link>
           <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(false)}>
@@ -63,49 +63,56 @@ export function DashboardSidebar({ activeView, setActiveView, sidebarOpen, setSi
 
         {/* Credits card */}
         <div className="p-3">
-          <div className="rounded-xl p-4 border" style={{ background: "rgba(240,90,40,0.05)", borderColor: "rgba(240,90,40,0.2)" }}>
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-medium" style={{ color: "var(--d-fg-muted)" }}>Scan Credits</span>
-              <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: "rgba(16,185,129,0.1)", color: "#10b981" }}>Active</span>
+          <div
+            className="rounded-2xl border border-[#f05a28]/25 bg-gradient-to-br from-[#fff8f4] to-white p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]"
+          >
+            <div className="mb-1 flex items-center justify-between">
+              <span className="text-xs font-semibold" style={{ color: "var(--d-fg-muted)" }}>Scan credits</span>
+              <span className="rounded-full px-2 py-0.5 text-xs font-semibold" style={{ background: "rgba(76,217,100,0.15)", color: "#15803d" }}>Active</span>
             </div>
-            <div className="flex items-baseline gap-1 mb-3">
-              <span className="text-3xl font-black" style={{ color: "var(--d-fg)" }}>{user.scansRemaining}</span>
+            <div className="mb-3 flex items-baseline gap-1">
+              <span className="text-3xl font-black tabular-nums" style={{ color: "var(--d-fg)" }}>{user.scansRemaining}</span>
               <span className="text-sm" style={{ color: "var(--d-fg-muted)" }}>remaining</span>
             </div>
             <button
-              onClick={() => setActiveView("upload")}
-              className="w-full flex items-center justify-center gap-2 rounded-lg py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-              style={{ background: "#F05A28" }}
+              type="button"
+              onClick={() => { setActiveView("upload"); setSidebarOpen(false); }}
+              className="d-cta d-cta-md w-full"
             >
-              <Upload className="w-4 h-4" />
-              Check PDF Now
+              <Upload className="h-4 w-4 shrink-0" />
+              Check PDF now
             </button>
           </div>
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 px-3 py-1 overflow-y-auto">
-          <ul className="space-y-0.5">
+        <nav className="flex-1 overflow-y-auto px-3 py-2">
+          <ul className="space-y-1">
             {items.map(({ id, label, icon: Icon, badge }) => {
               const active = activeView === id;
               return (
                 <li key={id}>
                   <button
+                    type="button"
                     onClick={() => { setActiveView(id); setSidebarOpen(false); }}
                     className={cn(
-                      "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+                      "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition-all duration-200",
                       active
-                        ? "text-white shadow-md"
-                        : "text-[var(--d-fg-muted)] hover:bg-[var(--d-muted)] hover:text-[var(--d-fg)]"
+                        ? "text-white shadow-[0_6px_20px_-4px_rgba(240,90,40,0.55)] ring-1 ring-white/25"
+                        : "text-[var(--d-fg-muted)] hover:bg-white/80 hover:text-[var(--d-fg)] hover:shadow-sm"
                     )}
-                    style={active ? { background: "#F05A28" } : undefined}
+                    style={
+                      active
+                        ? { background: "linear-gradient(135deg, #ff7a4a 0%, #f05a28 100%)" }
+                        : undefined
+                    }
                   >
-                    <Icon className="w-4 h-4 shrink-0" />
-                    <span className="flex-1 text-left">{label}</span>
+                    <Icon className="h-4 w-4 shrink-0 opacity-95" />
+                    <span className="min-w-0 flex-1 truncate">{label}</span>
                     {badge && (
                       <span className={cn(
-                        "text-xs px-1.5 py-0.5 rounded-full",
-                        active ? "bg-white/20 text-white" : "bg-emerald-100 text-emerald-700"
+                        "shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide",
+                        active ? "bg-white/25 text-white" : "bg-emerald-100 text-emerald-800"
                       )}>
                         {badge}
                       </span>
@@ -118,10 +125,12 @@ export function DashboardSidebar({ activeView, setActiveView, sidebarOpen, setSi
         </nav>
 
         {/* User */}
-        <div className="p-4 border-t border-[var(--d-border)]">
+        <div className="border-t border-[var(--d-border)] bg-white/40 p-4 backdrop-blur-[2px]">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0"
-              style={{ background: "linear-gradient(135deg, #F05A28, #4cd964)" }}>
+            <div
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white shadow-md ring-2 ring-white/40"
+              style={{ background: "linear-gradient(135deg, #F05A28, #4cd964)" }}
+            >
               {initials}
             </div>
             <div className="min-w-0">

@@ -30,57 +30,65 @@ const FREE_TOOLS: Tool[] = [
 
 export function ToolsPanel() {
   return (
-    <div className="max-w-5xl mx-auto space-y-5">
-      <p className="text-sm" style={{ color: "var(--d-fg-muted)" }}>
-        All tools are completely free. No payment required.
+    <div className="mx-auto max-w-5xl space-y-5">
+      <p className="text-sm font-medium leading-relaxed" style={{ color: "var(--d-fg-muted)" }}>
+        Every tool below is free — no payment or account required.
       </p>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {FREE_TOOLS.map((tool) => (
-          <Link key={tool.id} href={tool.href} className="block group">
-            <Card className="p-5 h-full hover:shadow-md transition-all duration-200 hover:border-[var(--d-primary)]/30 relative">
+          <Link key={tool.id} href={tool.href} className="group block">
+            <Card className="d-card-elevated relative h-full border-[var(--d-border-strong)] p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#f05a28]/25 hover:shadow-lg">
               {tool.comingSoon && (
-                <span className="absolute top-3 right-3 text-xs px-2 py-0.5 rounded-full font-medium"
-                  style={{ background: "rgba(240,90,40,0.1)", color: "#F05A28" }}>
-                  Coming soon
+                <span
+                  className="absolute right-3 top-3 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide"
+                  style={{ background: "rgba(240,90,40,0.12)", color: "#c2410c" }}
+                >
+                  Soon
                 </span>
               )}
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors"
-                  style={{ background: "rgba(240,90,40,0.08)", color: "#F05A28" }}>
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <div
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-inner transition-colors group-hover:bg-[#f05a28]/12"
+                  style={{ background: "rgba(240,90,40,0.08)", color: "#F05A28" }}
+                >
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d={tool.iconPath} />
                   </svg>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-sm mb-1 group-hover:text-[var(--d-primary)] transition-colors" style={{ color: "var(--d-fg)" }}>
+                <div className="min-w-0 flex-1">
+                  <h3
+                    className="mb-1 text-sm font-bold transition-colors group-hover:text-[var(--d-primary)]"
+                    style={{ color: "var(--d-fg)" }}
+                  >
                     {tool.title}
                   </h3>
                   <p className="text-xs leading-relaxed" style={{ color: "var(--d-fg-muted)" }}>{tool.description}</p>
                 </div>
               </div>
-              <div className="mt-3 flex items-center text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: "#F05A28" }}>
-                Open Tool <ArrowRight className="w-3 h-3 ml-1" />
+              <div className="mt-3 flex items-center text-xs font-bold transition-colors" style={{ color: "#F05A28" }}>
+                Open tool
+                <ArrowRight className="ml-1 h-3 w-3 transition-transform group-hover:translate-x-0.5" />
               </div>
             </Card>
           </Link>
         ))}
       </div>
 
-      {/* KDP Checker CTA */}
-      <Card className="p-5" style={{ background: "linear-gradient(135deg, rgba(240,90,40,0.05), rgba(76,217,100,0.05))", borderColor: "rgba(240,90,40,0.2)" }}>
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <h3 className="font-semibold mb-0.5" style={{ color: "var(--d-fg)" }}>KDP PDF Checker</h3>
-            <p className="text-sm" style={{ color: "var(--d-fg-muted)" }}>Full validation against all 26 KDP rules. Annotated report with page-level fixes.</p>
-          </div>
-          <Link href="/kdp-pdf-checker"
-            className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white shrink-0"
-            style={{ background: "#F05A28" }}>
-            Check PDF — $9
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+      <Card
+        className="d-card-elevated flex flex-col gap-4 border-[#f05a28]/25 p-5 sm:flex-row sm:items-center sm:justify-between"
+        style={{ background: "linear-gradient(135deg, rgba(255,248,244,0.95) 0%, rgba(232,245,233,0.35) 100%)" }}
+      >
+        <div>
+          <h3 className="mb-0.5 font-bold" style={{ color: "var(--d-fg)" }}>KDP PDF Checker</h3>
+          <p className="text-sm leading-relaxed" style={{ color: "var(--d-fg-muted)" }}>
+            All 26 rules, annotated PDF, page-level fixes — $9 per scan (or use a credit).
+          </p>
         </div>
+        <Link href="/kdp-pdf-checker" className="d-cta d-cta-md shrink-0">
+          Check PDF — $9
+          <ArrowRight className="h-4 w-4" />
+        </Link>
       </Card>
     </div>
   );

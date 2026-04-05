@@ -101,6 +101,15 @@ export default function DashboardPage() {
     })();
   }, [router]);
 
+  // Keep ?tab= in sync when switching views (shareable / refresh-safe)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const path = "/dashboard";
+    const next = tab === "upload" ? path : `${path}?tab=${encodeURIComponent(tab)}`;
+    const cur = window.location.pathname + window.location.search;
+    if (cur !== next) window.history.replaceState(null, "", next);
+  }, [tab]);
+
   // ── Profile save ────────────────────────────────────────────────────────
   const handleProfileSave = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -150,8 +159,13 @@ export default function DashboardPage() {
   // ── Loading state ───────────────────────────────────────────────────────
   if (!user) {
     return (
-      <div className="flex h-screen items-center justify-center" style={{ background: "var(--d-bg)" }}>
-        <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "#F05A28", borderTopColor: "transparent" }} />
+      <div className="flex h-screen flex-col items-center justify-center gap-4 px-6" style={{ background: "var(--d-bg)" }}>
+        <div
+          className="h-10 w-10 rounded-full border-[3px] border-t-transparent animate-spin"
+          style={{ borderColor: "#f05a28", borderTopColor: "transparent" }}
+          aria-hidden
+        />
+        <p className="text-sm font-medium" style={{ color: "var(--d-fg-muted)" }}>Loading your dashboard…</p>
       </div>
     );
   }
@@ -180,7 +194,7 @@ export default function DashboardPage() {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <DashboardHeader activeView={tab} setSidebarOpen={setSidebarOpen} />
 
-        <main className="flex-1 overflow-y-auto p-5 lg:p-8">
+        <main className="flex-1 overflow-y-auto p-5 lg:p-8 lg:pl-10">
           {tab === "upload" && (
             <UploadPanel scansRemaining={userInfo.scansRemaining} />
           )}
