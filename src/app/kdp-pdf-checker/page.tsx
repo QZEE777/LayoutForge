@@ -277,8 +277,8 @@ function UploadWidget({
 
         {/* ── Scan context pickers ── */}
         <div className="mb-4 space-y-3 rounded-xl p-4" style={{ background: "rgba(0,0,0,0.03)", border: "1px solid rgba(0,0,0,0.07)" }}>
-          <p className="text-xs font-bold uppercase tracking-wide" style={{ color: "#6B6151" }}>
-            Tell us about your book <span style={{ color: "#C4B5A0", fontWeight: 400 }}>— helps us give you the right warnings</span>
+          <p className="text-xs font-bold uppercase tracking-wide text-center" style={{ color: "#6B6151" }}>
+            Tell us about your book
           </p>
           <ChipGroup<BookType>
             label="Book type"
