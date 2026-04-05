@@ -604,7 +604,7 @@ export default function KdpPdfCheckerPage() {
                 Upload → wait → vague rejection → guess → re-upload → repeat.
                 Sometimes for days. Sometimes for weeks.
               </p>
-              <p className="text-sm font-bold mb-6" style={{ color: "rgba(255,255,255,0.3)" }}>
+              <p className="text-sm font-bold mb-6" style={{ color: "#f05a28" }}>
                 Every rejection resets your timeline.
               </p>
               <p className="text-base font-semibold mb-5" style={{ color: "rgba(255,255,255,0.7)" }}>Or…</p>
