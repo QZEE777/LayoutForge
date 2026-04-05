@@ -73,9 +73,15 @@ export function VerifyClient({
   const [shareState, setShareState] = useState<"idle" | "copied">("idle");
 
   // ── Single Source of Truth ────────────────────────────────────────────────
-  const isPass  = statusLevel === "ready" || statusLevel === "nearly";
-  const shParam = shToken ? `?sh=${shToken}` : "";
-  const shareUrl = `${verifyUrl}${shParam}`;
+  // Only "ready" (score ≥ 90, no failures) is a genuine pass.
+  // "nearly" has issues and must NOT show green/PASS.
+  const isPass   = statusLevel === "ready";
+  const isNearly = statusLevel === "nearly";
+  const shParam  = shToken ? `?sh=${shToken}` : "";
+  // Caption uses the clean verify URL (no ?sh= token — keeps it readable).
+  // Attribution is preserved: the CTA button on this page carries ?sh= so
+  // anyone who clicks "Check My PDF" from here triggers referral tracking.
+  const shareUrl = verifyUrl;
   const ctaHref  = `/kdp-pdf-checker${shParam}`;
 
   // OG image — page stamps all state params so the card is always in sync
@@ -87,8 +93,8 @@ export function VerifyClient({
   ].join("&");
   const ogUrl = `/api/og/verify/${verificationId}?p=${isPass ? 1 : 0}&s=${score}&${checkParams}`;
 
-  const bg     = isPass ? "#1a5f3f" : "#8B2F00";
-  const accent = isPass ? "#4CE87A" : "#FFD480";
+  const bg     = isPass ? "#1a5f3f" : isNearly ? "#6B3800" : "#8B2F00";
+  const accent = isPass ? "#4CE87A" : isNearly ? "#FFA040" : "#FF8C69";
 
   const resultLine =
     statusLevel === "ready"      ? "Ready for KDP"    :
@@ -176,7 +182,7 @@ export function VerifyClient({
         }}>
           {/* Badge */}
           <div style={{ marginBottom: 16 }}>
-            <SvgHeroBadge isPass={isPass} />
+            <SvgHeroBadge isPass={isPass || isNearly} />
           </div>
 
           {/* Score */}
@@ -203,22 +209,26 @@ export function VerifyClient({
             <span style={{
               fontSize: 13,
               fontWeight: 900,
-              color: isPass ? "#4CE87A" : "#FF8C69",
+              color: accent,
               letterSpacing: "0.08em",
               textTransform: "uppercase",
             }}>
-              {isPass ? "PASS" : "FAIL"}
+              {isPass ? "✓ PASS" : isNearly ? "⚠ NEARLY READY" : "✗ FAIL"}
             </span>
-            <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 12 }}>·</span>
-            <span style={{
-              fontSize: 12,
-              fontWeight: 700,
-              color: "rgba(255,255,255,0.6)",
-              textTransform: "uppercase",
-              letterSpacing: "0.04em",
-            }}>
-              {resultLine}
-            </span>
+            {(isPass || !isNearly) && (
+              <>
+                <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 12 }}>·</span>
+                <span style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: "rgba(255,255,255,0.6)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.04em",
+                }}>
+                  {resultLine}
+                </span>
+              </>
+            )}
           </div>
 
           {/* Check rows */}
