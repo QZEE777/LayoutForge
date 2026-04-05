@@ -149,8 +149,9 @@ export function GoLandingClient({ checkoutUrl, refCode, partnerName }: Props) {
           </h2>
           <p className="text-base text-white/60 mb-10 max-w-xl mx-auto text-pretty">
             It sends you back to guess. Upload → wait → rejection → guess →
-            re-upload → repeat. Sometimes for days. Sometimes for weeks.{" "}
-            <strong className="text-white">Every rejection resets your timeline.</strong>
+            re-upload → repeat. Sometimes for days. Sometimes for weeks.
+            <br />
+            <strong className="font-serif text-white">Every rejection resets your timeline.</strong>
           </p>
 
           <div className="grid sm:grid-cols-2 gap-5 max-w-2xl mx-auto">
