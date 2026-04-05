@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { BrandWordmark } from "@/components/BrandWordmark";
 import { formatFileSize } from "@/lib/formatFileName";
 import { cleanFilenameForDisplay } from "@/lib/kdpReportEnhance";
 import { ErrorRecovery } from "@/components/ErrorRecovery";
@@ -65,11 +66,15 @@ const FAQS = [
 function FaqAccordion({ items }: { items: { q: string; a: string }[] }) {
   const [open, setOpen] = useState<number | null>(null);
   return (
-    <div className="divide-y" style={{ borderColor: "rgba(0,0,0,0.07)" }}>
+    <div
+      className="divide-y rounded-2xl border border-[#1A6B2A]/10 bg-white/90 px-4 py-1 sm:px-6 shadow-[0_12px_40px_-20px_rgba(13,61,24,0.2)]"
+      style={{ borderColor: "rgba(0,0,0,0.06)" }}
+    >
       {items.map((item, i) => (
         <div key={i}>
           <button
-            className="w-full flex items-center justify-between gap-4 py-4 text-left"
+            type="button"
+            className="w-full flex items-center justify-between gap-4 py-4 text-left transition-colors hover:bg-black/[0.02] rounded-lg -mx-1 px-1"
             onClick={() => setOpen(open === i ? null : i)}
           >
             <span className="font-semibold text-sm" style={{ color: "#1A1208" }}>{item.q}</span>
@@ -122,7 +127,7 @@ function ChipGroup<T extends string>({
               key={opt.value}
               type="button"
               onClick={() => onChange(opt.value)}
-              className="flex-1 flex items-center justify-center gap-1.5 rounded-lg py-2.5 transition-all font-serif text-sm"
+              className="flex-1 flex items-center justify-center gap-1.5 rounded-lg py-2.5 transition-all font-semibold text-sm"
               style={{
                 background: active ? "#f05a28" : "rgba(0,0,0,0.04)",
                 color: active ? "#fff" : "#6B6151",
@@ -200,9 +205,15 @@ function UploadWidget({
   }
 
   return (
-    <div className="rounded-2xl overflow-hidden shadow-lg" style={{ border: "2px solid rgba(0,0,0,0.07)", background: "#fff" }}>
+    <div className="rounded-2xl overflow-hidden shadow-[0_20px_50px_-24px_rgba(13,61,24,0.35)]" style={{ border: "1px solid rgba(26,107,42,0.12)", background: "#fff" }}>
       {/* Card header */}
-      <div className="px-6 py-4 flex items-center justify-between" style={{ background: "#1A1208" }}>
+      <div
+        className="px-6 py-4 flex items-center justify-between backdrop-blur-sm"
+        style={{
+          background: "linear-gradient(180deg, rgba(26,18,8,0.97) 0%, #1A1208 100%)",
+          borderBottom: "1px solid rgba(76,217,100,0.12)",
+        }}
+      >
         <div>
           <p className="font-bold text-sm" style={{ color: "#fff" }}>KDP PDF Checker</p>
           <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
@@ -477,19 +488,22 @@ export default function KdpPdfCheckerPage() {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen" style={{ background: "#FAF8F4" }}>
+    <div
+      className="min-h-screen"
+      style={{ background: "linear-gradient(180deg, #FAF7EE 0%, #F2EBDF 35%, #FAF8F4 100%)" }}
+    >
 
       {/* ══════════════════════════════════════════════════════════
           HEADER — logo only (trust signal, not navigation)
       ══════════════════════════════════════════════════════════ */}
-      <header style={{ background: "#FAF8F4", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+      <header
+        id="checker-top"
+        className="sticky top-0 z-20 border-b border-[#1A6B2A]/10 bg-[#FAF7EE]/75 backdrop-blur-md"
+      >
         <div className="mx-auto max-w-5xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <Image src="/MANNY AVATAR.png" alt="manu2print" width={32} height={32} className="rounded-full" />
-            <span>
-              <span style={{ color: "#F05A28", fontWeight: "bold", fontSize: "1.1rem" }}>manu</span>
-              <span style={{ color: "#4cd964", fontWeight: "bold", fontSize: "1.1rem" }}>2print</span>
-            </span>
+            <BrandWordmark variant="onLight" className="text-lg sm:text-xl" />
           </Link>
           <Link href="/dashboard"
             className="text-xs font-medium hover:opacity-70 transition-opacity"
@@ -554,9 +568,11 @@ export default function KdpPdfCheckerPage() {
                 ))}
               </div>
 
-              <div className="flex flex-wrap gap-4 text-xs" style={{ color: "#9B8E7E" }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs" style={{ color: "#9B8E7E" }}>
                 {["🔒 Secure upload", "🚫 No account required", "📊 See score free · $9 unlocks full report", "📥 Instant download"].map((t) => (
-                  <span key={t}>{t}</span>
+                  <span key={t} className="rounded-lg border border-black/[0.06] bg-white/50 px-3 py-2 text-center sm:text-left">
+                    {t}
+                  </span>
                 ))}
               </div>
             </div>
@@ -586,7 +602,7 @@ export default function KdpPdfCheckerPage() {
       {/* ══════════════════════════════════════════════════════════
           THE PROBLEM — Amazon's rejection cycle
       ══════════════════════════════════════════════════════════ */}
-      <section style={{ background: "#1A1208" }}>
+      <section style={{ background: "linear-gradient(180deg, #1A1208 0%, #0f0c09 100%)" }}>
         <div className="mx-auto max-w-5xl px-6 py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
@@ -611,14 +627,18 @@ export default function KdpPdfCheckerPage() {
               <div className="space-y-3">
                 <div className="rounded-xl px-4 py-3"
                   style={{ background: "rgba(240,90,40,0.08)", border: "1px solid rgba(240,90,40,0.2)" }}>
-                  <p className="text-xs font-bold uppercase tracking-wide mb-1.5" style={{ color: "#f05a28" }}>Without manu2print</p>
+                  <p className="text-xs font-bold uppercase tracking-wide mb-1.5 flex flex-wrap items-baseline gap-x-1.5 gap-y-0" style={{ color: "#f05a28" }}>
+                    <span>Without</span> <BrandWordmark variant="onDark" className="text-xs" />
+                  </p>
                   <span className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
                     Upload → wait → rejection → guess → repeat
                   </span>
                 </div>
                 <div className="rounded-xl px-4 py-3"
                   style={{ background: "rgba(76,217,100,0.08)", border: "1px solid rgba(76,217,100,0.2)" }}>
-                  <p className="text-xs font-bold uppercase tracking-wide mb-1.5" style={{ color: "#4cd964" }}>With manu2print</p>
+                  <p className="text-xs font-bold uppercase tracking-wide mb-1.5 flex flex-wrap items-baseline gap-x-1.5 gap-y-0" style={{ color: "#4cd964" }}>
+                    <span>With</span> <BrandWordmark variant="onDark" className="text-xs" />
+                  </p>
                   <span className="text-sm" style={{ color: "rgba(255,255,255,0.75)" }}>
                     Upload → scan → fix → publish
                   </span>
@@ -641,8 +661,8 @@ export default function KdpPdfCheckerPage() {
               <div className="text-center text-xl" style={{ color: "rgba(255,255,255,0.15)" }}>↓</div>
               <div className="rounded-xl p-4"
                 style={{ background: "rgba(76,217,100,0.07)", border: "1px solid rgba(76,217,100,0.18)" }}>
-                <p className="text-xs font-bold uppercase tracking-wide mb-3" style={{ color: "#4cd964" }}>
-                  manu2print tells you exactly
+                <p className="text-xs font-bold uppercase tracking-wide mb-3 flex flex-wrap items-baseline gap-x-1.5 gap-y-0" style={{ color: "#4cd964" }}>
+                  <BrandWordmark variant="onDark" className="text-xs" /> <span>tells you exactly</span>
                 </p>
                 <div className="space-y-2">
                   {[
@@ -668,7 +688,7 @@ export default function KdpPdfCheckerPage() {
       {/* ══════════════════════════════════════════════════════════
           26 CHECKS
       ══════════════════════════════════════════════════════════ */}
-      <section style={{ background: "#1A1208", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+      <section style={{ background: "linear-gradient(180deg, #14100c 0%, #1A1208 40%, #0f0c09 100%)", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
         <div className="mx-auto max-w-5xl px-6 pb-16">
           <div className="text-center mb-8">
             <h2 className="font-black text-3xl mb-2"
@@ -686,7 +706,7 @@ export default function KdpPdfCheckerPage() {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
             {CHECKS.map((check) => (
               <div key={check.label}
-                className="rounded-xl px-4 py-3 flex items-center gap-3"
+                className="rounded-xl px-4 py-3 flex items-center gap-3 transition-all duration-200 hover:bg-white/[0.07] hover:border-white/12"
                 style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
                 <span className="text-lg shrink-0">{check.icon}</span>
                 <span className="text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>{check.label}</span>
@@ -699,7 +719,7 @@ export default function KdpPdfCheckerPage() {
       {/* ══════════════════════════════════════════════════════════
           HOW IT WORKS
       ══════════════════════════════════════════════════════════ */}
-      <section style={{ background: "#FAF8F4" }}>
+      <section className="border-t border-[#1A6B2A]/8" style={{ background: "linear-gradient(180deg, #FAF8F4 0%, #F5F0E8 100%)" }}>
         <div className="mx-auto max-w-5xl px-6 py-16 text-center">
           <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#9B8E7E" }}>
             How it works
@@ -728,7 +748,7 @@ export default function KdpPdfCheckerPage() {
                 body: "Pay $9 to unlock the full annotated report. Fix the issues, re-export, publish with confidence.",
               },
             ].map((s) => (
-              <div key={s.step} className="rounded-2xl p-6 text-left"
+              <div key={s.step} className="rounded-2xl p-6 text-left transition-all duration-200 hover:border-[#1A6B2A]/22 hover:shadow-[0_12px_32px_-16px_rgba(13,61,24,0.18)]"
                 style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
                 <p className="font-black text-4xl mb-3" style={{ color: "rgba(240,90,40,0.18)" }}>{s.step}</p>
                 <p className="font-bold text-sm mb-2" style={{ color: "#1A1208" }}>{s.title}</p>
@@ -744,6 +764,15 @@ export default function KdpPdfCheckerPage() {
       ══════════════════════════════════════════════════════════ */}
       <section style={{ background: "rgba(240,90,40,0.04)", borderTop: "1px solid rgba(240,90,40,0.1)", borderBottom: "1px solid rgba(240,90,40,0.1)" }}>
         <div className="mx-auto max-w-lg px-6 py-16">
+          <div className="text-center mb-2">
+            <a
+              href="#checker-top"
+              className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wide transition-opacity hover:opacity-80"
+              style={{ color: "#f05a28" }}
+            >
+              ↑ Back to upload
+            </a>
+          </div>
           <div className="text-center mb-8">
             <h2 className="font-black text-3xl mb-2"
               style={{ color: "#1A1208", letterSpacing: "-0.02em" }}>
@@ -789,7 +818,7 @@ export default function KdpPdfCheckerPage() {
       {/* ══════════════════════════════════════════════════════════
           FAQ
       ══════════════════════════════════════════════════════════ */}
-      <section style={{ background: "#FAF8F4" }}>
+      <section className="border-t border-black/[0.04]" style={{ background: "#FAF8F4" }}>
         <div className="mx-auto max-w-2xl px-6 py-16">
           <p className="text-xs font-bold uppercase tracking-widest mb-3 text-center" style={{ color: "#9B8E7E" }}>
             Questions

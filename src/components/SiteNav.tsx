@@ -2,16 +2,14 @@
 
 import Link from "next/link";
 import AuthNav from "@/components/AuthNav";
+import { BrandWordmark } from "@/components/BrandWordmark";
 
 export default function SiteNav() {
   return (
     <nav className="sticky top-0 z-50 overflow-visible border-b border-m2p-border bg-m2p-ivory/98 backdrop-blur-sm" style={{ overflow: "visible" }}>
       <div className="mx-auto max-w-6xl px-6 py-3 flex flex-wrap items-center justify-between gap-3">
         <Link href="/" className="flex items-center overflow-visible">
-          <span className="font-bold text-xl">
-            <span className="text-m2p-orange">manu</span>
-            <span className="text-m2p-live">2print</span>
-          </span>
+          <BrandWordmark variant="onLight" className="text-xl" />
         </Link>
         <div className="flex items-center gap-4 sm:gap-6">
           <Link href="/#tools" className="font-medium text-m2p-muted hover:text-m2p-orange transition-colors text-sm" style={{ fontFamily: "Inter, sans-serif" }}>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { BrandWordmark } from "@/components/BrandWordmark";
 
 const SESSION_KEY = "m2p_account_session";
 const SESSION_TTL = 45 * 60 * 1000;
@@ -91,10 +92,7 @@ function Nav() {
       <div className="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <Image src="/MANNY AVATAR.png" alt="manu2print" width={32} height={32} className="rounded-full" />
-          <span>
-            <span style={{ color: "#F05A28", fontWeight: "bold", fontSize: "1.1rem" }}>manu</span>
-            <span style={{ color: "#4cd964", fontWeight: "bold", fontSize: "1.1rem" }}>2print</span>
-          </span>
+          <BrandWordmark variant="onLight" className="text-lg" />
         </Link>
         <Link href="/kdp-pdf-checker"
           className="text-xs font-medium hover:opacity-70 transition-opacity"

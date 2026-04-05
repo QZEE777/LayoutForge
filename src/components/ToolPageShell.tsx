@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import SiteFooter from "@/components/SiteFooter";
+import { BrandWordmark } from "@/components/BrandWordmark";
 
 interface ToolPageShellProps {
   children: ReactNode;
@@ -22,10 +23,7 @@ export default function ToolPageShell({ children }: ToolPageShellProps) {
               height={120}
               className="rounded-full"
             />
-            <span>
-              <span style={{ color: "#F05A28", fontWeight: "bold", fontSize: "1.1rem" }}>manu</span>
-              <span style={{ color: "#2D6A2D", fontWeight: "bold", fontSize: "1.1rem" }}>2print</span>
-            </span>
+            <BrandWordmark variant="onLight" className="text-lg" />
           </Link>
           {/* Right side: Home link + CTA */}
           <div className="flex items-center gap-4">

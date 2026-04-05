@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { BrandWordmark } from "@/components/BrandWordmark";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import ToolBadge from "@/components/ToolBadge";
@@ -43,10 +44,7 @@ export default function Home() {
               height={44}
               style={{ borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
             />
-            <span className="font-bold text-lg">
-              <span className="text-m2p-orange">manu</span>
-              <span className="text-m2p-live">2print</span>
-            </span>
+            <BrandWordmark variant="onDark" className="text-lg" />
           </div>
           <div className="flex flex-col lg:flex-row items-center gap-4 lg:gap-8">
             {/* LEFT — text content */}

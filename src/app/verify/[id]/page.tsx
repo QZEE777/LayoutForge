@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { cache } from "react";
 import Link from "next/link";
+import { BrandWordmark } from "@/components/BrandWordmark";
 import { supabase } from "@/lib/supabase";
 import { getStored } from "@/lib/storage";
 import { computeCheckerScore } from "@/lib/scoreUtils";
@@ -116,8 +117,7 @@ export default async function VerifyPage({ params, searchParams }: VerifyPagePro
       <div style={{ fontFamily: "system-ui,sans-serif", background: "#FAF7EE", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 24px" }}>
         <div style={{ maxWidth: 440, width: "100%", textAlign: "center" }}>
           <p style={{ marginBottom: 12 }}>
-            <span style={{ color: "#F05A28", fontWeight: 900, fontSize: "1.4rem" }}>manu</span>
-            <span style={{ color: "#2D6A2D", fontWeight: 900, fontSize: "1.4rem" }}>2print</span>
+            <BrandWordmark variant="onLight" className="text-2xl" />
           </p>
           <h1 style={{ fontSize: "1.4rem", fontWeight: 800, color: "#1A1208", marginBottom: 8 }}>Verification not found</h1>
           <p style={{ fontSize: 14, color: "#6B6151", marginBottom: 28 }}>This verification link is invalid or has expired.</p>

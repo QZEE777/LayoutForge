@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { BrandWordmark } from "@/components/BrandWordmark";
 import PaymentGate from "@/components/PaymentGate";
 import CheckerPdfViewer from "@/components/CheckerPdfViewer";
 import { difficultyLabel, cleanFilenameForDisplay, toFixDifficulty, getScoreGrade, type FixDifficulty } from "@/lib/kdpReportEnhance";
@@ -18,7 +19,6 @@ const DL_VIS = {
   creamBg: "linear-gradient(180deg, #FAF7EE 0%, #F2EBDF 100%)",
   forestGrad: "linear-gradient(180deg, #1A6B2A 0%, #0D3D18 100%)",
   lime: "#C5E83A",
-  manu: "#FF7A45",
   cardShadow: "0 24px 56px -16px rgba(13,61,24,0.22)",
   innerShadow: "inset 0 1px 0 rgba(255,255,255,0.55)",
 } as const;
@@ -400,10 +400,8 @@ export default function DownloadPage() {
       {/* Header */}
       <header className="border-b border-[#1A6B2A]/10 bg-white/40 backdrop-blur-sm">
         <div className="mx-auto max-w-4xl px-4 py-3.5 flex items-center justify-between">
-          <Link href="/" className="text-xl font-black tracking-tight">
-            <span style={{ color: DL_VIS.manu }}>manu</span>
-            <span className="text-m2p-ink">2</span>
-            <span style={{ color: "#4cd964" }}>print</span>
+          <Link href="/" className="inline-flex items-baseline">
+            <BrandWordmark variant="onLight" className="text-xl" />
           </Link>
           <Link
             href={isFormatReview ? "/kdp-format-review" : isChecker ? "/kdp-pdf-checker" : isEpub ? "/epub-maker" : isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"}
@@ -425,11 +423,7 @@ export default function DownloadPage() {
             <Image src="/MANNY AVATAR.png" alt="Manny" width={96} height={96} className="rounded-full shadow-lg ring-4 ring-white/80" />
             <div className="text-left sm:text-center">
               <p className="text-[10px] font-bold tracking-[0.14em] uppercase text-m2p-muted mb-1">KDP compliance</p>
-              <p className="text-xl font-black">
-                <span style={{ color: DL_VIS.manu }}>manu</span>
-                <span className="text-m2p-ink">2</span>
-                <span style={{ color: "#4cd964" }}>print</span>
-              </p>
+              <BrandWordmark variant="onLight" className="text-xl" />
             </div>
           </div>
           <h1 className="text-3xl sm:text-4xl font-bebas text-m2p-ink text-center mb-2 leading-tight">
@@ -473,12 +467,10 @@ export default function DownloadPage() {
             className="text-center rounded-2xl p-5 mb-6 border border-[#1A6B2A]/20"
             style={{ background: "rgba(255,255,255,0.75)", boxShadow: "0 8px 32px -12px rgba(13,61,24,0.15)" }}
           >
-            <p className="text-m2p-ink font-bold text-sm">
-              <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#C5E83A]/25 text-[#2D6A2D] text-xs mr-1.5">✓</span>
-              Verified by{" "}
-              <span style={{ color: DL_VIS.manu }}>manu</span>
-              <span className="text-m2p-ink">2</span>
-              <span style={{ color: DL_VIS.lime }}>print</span>
+            <p className="text-m2p-ink font-bold text-sm flex flex-wrap items-center justify-center gap-x-1 gap-y-0">
+              <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#C5E83A]/25 text-[#2D6A2D] text-xs mr-1">✓</span>
+              <span>Verified by</span>
+              <BrandWordmark variant="onLight" className="text-sm" />
             </p>
             <p className="text-m2p-muted text-sm mt-2 leading-relaxed max-w-md mx-auto">
               This report checks your manuscript against known Amazon KDP print formatting requirements.
@@ -525,7 +517,6 @@ export default function DownloadPage() {
               : risk === "Medium"
                 ? "Close — fix warnings before upload"
                 : "Fix before you upload";
-          const accentLime = "#C5E83A";
           const subLime = "#A8D878";
 
           return (
@@ -540,11 +531,9 @@ export default function DownloadPage() {
                 <span className="text-white font-black text-[11px] sm:text-xs tracking-[0.2em]">
                   SCAN COMPLETE
                 </span>
-                <span className="text-[10px] sm:text-[11px] font-bold tracking-wide text-white/95 whitespace-nowrap">
-                  <span className="opacity-90">Verified by </span>
-                  <span style={{ color: "#FF7A45" }}>manu</span>
-                  <span className="text-white/95">2</span>
-                  <span style={{ color: accentLime }}>print</span>
+                <span className="text-[10px] sm:text-[11px] font-bold tracking-wide text-white/95 whitespace-nowrap inline-flex items-baseline gap-1">
+                  <span className="opacity-90">Verified by</span>
+                  <BrandWordmark variant="onDark" className="text-[10px] sm:text-xs" />
                 </span>
               </div>
               <div
@@ -714,11 +703,7 @@ export default function DownloadPage() {
                   <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-5 pb-4 border-b border-m2p-border/50">
                     <div>
                       <p className="text-[10px] font-bold tracking-[0.14em] uppercase text-m2p-muted mb-1">Compliance report</p>
-                      <p className="text-2xl font-black">
-                        <span style={{ color: DL_VIS.manu }}>manu</span>
-                        <span className="text-m2p-ink">2</span>
-                        <span style={{ color: "#4cd964" }}>print</span>
-                      </p>
+                      <BrandWordmark variant="onLight" className="text-2xl" />
                     </div>
                     {(report.scanDate || report.fileNameScanned) && (
                       <div className="text-xs sm:text-sm text-m2p-muted text-left sm:text-right space-y-0.5">
@@ -952,14 +937,12 @@ export default function DownloadPage() {
                       style={{ background: "linear-gradient(180deg, #143d1f 0%, #0a2412 100%)" }}
                     >
                       <div className="px-5 py-5 sm:px-6">
-                        <p className="text-white/95 text-sm font-bold mb-3 flex flex-wrap items-center gap-x-1">
-                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#C5E83A]/20 text-[#C5E83A] text-xs font-black mr-1">
+                        <p className="text-white/95 text-sm font-bold mb-3 flex flex-wrap items-center gap-x-1.5">
+                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#C5E83A]/20 text-[#C5E83A] text-xs font-black mr-0.5 shrink-0">
                             ✓
                           </span>
-                          <span className="text-white/80">Verified by</span>{" "}
-                          <span className="text-[#FF7A45]">manu</span>
-                          <span className="text-[#FAF7EE]">2</span>
-                          <span className="text-[#C5E83A]">print</span>
+                          <span className="text-white/80">Verified by</span>
+                          <BrandWordmark variant="onDark" className="text-sm sm:text-base" />
                         </p>
                         <p className="text-lg sm:text-xl font-black tracking-tight text-white mb-1 leading-tight">
                           KDP COMPLIANCE SCAN: <span className="text-[#C5E83A]">PASSED</span>
@@ -1021,7 +1004,8 @@ export default function DownloadPage() {
       <style>
         body { font-family: system-ui, Inter, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; background: linear-gradient(180deg, #FAF7EE 0%, #F2EBDF 100%); color: #1A1208; }
         .header { margin-bottom: 28px; padding-bottom: 16px; border-bottom: 2px solid rgba(26,107,42,0.2); }
-        .logo-manu { color: #FF7A45; font-weight: 900; font-size: 24px; }
+        .logo-manu { color: #F05A28; font-weight: 900; font-size: 24px; }
+        .logo-two { color: #1A1208; font-weight: 900; font-size: 24px; }
         .logo-print { color: #4cd964; font-weight: 900; font-size: 24px; }
         .watermark { position: fixed; bottom: 20px; right: 20px; width: 100px; height: 100px; opacity: 0.08; pointer-events: none; z-index: -1; }
         table { width: 100%; border-collapse: collapse; margin: 16px 0; border-radius: 8px; overflow: hidden; }
@@ -1035,7 +1019,7 @@ export default function DownloadPage() {
     <body>
       <img src="${origin}/MANNY%20AVATAR.png" class="watermark" alt="" />
       <div class="header">
-        <span class="logo-manu">manu</span><span class="logo-print">2print</span>
+        <span class="logo-manu">manu</span><span class="logo-two">2</span><span class="logo-print">print</span>
       </div>
       ${bodyContent}
       <div style="margin-top:32px; padding:24px; background:#FEF0EB; border-radius:12px; text-align:center; border:1px solid #F05A28;">

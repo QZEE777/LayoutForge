@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { BrandWordmark } from "@/components/BrandWordmark";
 
 const APP_URL = "https://www.manu2print.com";
 
@@ -152,10 +153,7 @@ function Nav({ onSignInClick }: { onSignInClick?: () => void }) {
       <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5">
           <Image src="/MANNY AVATAR.png" alt="manu2print" width={32} height={32} className="rounded-full" />
-          <span>
-            <span style={{ color: "#F05A28", fontWeight: "bold", fontSize: "1.15rem" }}>manu</span>
-            <span style={{ color: "#4cd964", fontWeight: "bold", fontSize: "1.15rem" }}>2print</span>
-          </span>
+          <BrandWordmark variant="onLight" className="text-lg sm:text-xl" />
         </Link>
         <div className="flex items-center gap-3">
           <Link href="/partners/apply"
@@ -703,10 +701,7 @@ function Dashboard({ data, onSignOut }: { data: AffiliateData; onSignOut: () => 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 shrink-0">
             <Image src="/MANNY AVATAR.png" alt="manu2print" width={30} height={30} className="rounded-full" />
-            <span>
-              <span style={{ color: "#F05A28", fontWeight: "bold" }}>manu</span>
-              <span style={{ color: "#4cd964", fontWeight: "bold" }}>2print</span>
-            </span>
+            <BrandWordmark variant="onLight" className="text-lg" />
           </Link>
 
           {/* Tab nav */}
@@ -1230,10 +1225,7 @@ function SignInView({ onSignIn }: { onSignIn: (email: string, token: string, exp
         {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-10">
           <Image src="/MANNY AVATAR.png" alt="manu2print" width={36} height={36} className="rounded-full" />
-          <span>
-            <span style={{ color: "#F05A28", fontWeight: "bold", fontSize: "1.2rem" }}>manu</span>
-            <span style={{ color: "#4cd964", fontWeight: "bold", fontSize: "1.2rem" }}>2print</span>
-          </span>
+          <BrandWordmark variant="onLight" className="text-xl" />
         </div>
 
         <div className="rounded-2xl border p-8" style={{ background: "#fff", borderColor: "rgba(0,0,0,0.07)" }}>

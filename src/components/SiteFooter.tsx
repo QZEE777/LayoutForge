@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandWordmark } from "@/components/BrandWordmark";
 
 export default function SiteFooter() {
   return (
@@ -14,10 +15,7 @@ export default function SiteFooter() {
             height={48}
             style={{ flexShrink: 0, display: "block", borderRadius: "50%", objectFit: "cover" }}
           />
-          <span className="font-bold text-xl">
-            <span className="text-m2p-orange">manu</span>
-            <span className="text-m2p-live">2print</span>
-          </span>
+          <BrandWordmark variant="onDark" className="text-xl" />
         </Link>
         <p className="text-sm text-m2p-ivory mt-3">
           Precision KDP compliance tools. Browser-based. Built by authors.

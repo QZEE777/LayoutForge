@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { BrandWordmark } from "@/components/BrandWordmark";
 
 const ADMIN_KEY = "Manu2Print_admin_auth";
 const ADMIN_PWD_KEY = "Manu2Print_admin_pwd";
@@ -515,7 +516,7 @@ export default function AdminPage() {
       <main className="mx-auto max-w-5xl px-6 py-8">
         <div className="flex items-center justify-center gap-1 mb-6 w-full">
           <Image src="/MANNY AVATAR.png" alt="Manny" width={120} height={120} style={{ borderRadius: "50%" }} />
-          <span><span style={{ color: "#F05A28", fontWeight: "bold" }}>manu</span><span style={{ color: "#4cd964", fontWeight: "bold" }}>2print</span></span>
+          <BrandWordmark variant="onLight" className="text-2xl" />
         </div>
         {error && (
           <div className="mb-6 rounded-lg bg-red-500/10 border border-red-500/30 p-4 text-red-400 text-sm">

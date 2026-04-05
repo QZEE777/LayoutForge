@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { BrandWordmark } from "@/components/BrandWordmark";
 import { createClient } from "@/lib/supabaseClient";
 
 export default function AffiliateApplyPage() {
@@ -75,10 +76,7 @@ export default function AffiliateApplyPage() {
         <div className="mx-auto max-w-4xl px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <Image src="/MANNY AVATAR.png" alt="manu2print" width={32} height={32} className="rounded-full" />
-            <span>
-              <span className="font-bold text-xl" style={{ color: "#F05A28" }}>manu</span>
-              <span className="font-bold text-xl" style={{ color: "#4cd964" }}>2print</span>
-            </span>
+            <BrandWordmark variant="onLight" className="text-xl" />
           </Link>
           {sessionEmail ? (
             <Link href="/dashboard?tab=earn" className="text-xs transition-colors" style={{ color: "#6B6151" }}>

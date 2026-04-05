@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { BrandWordmark } from "@/components/BrandWordmark";
 import { buildVerifyShareCaption } from "@/lib/shareVerifyCaption";
 
 interface Props {
@@ -85,10 +86,7 @@ export function VerifyClient({
           <div style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/manny-avatar.png" alt="" style={{ width: 42, height: 42, borderRadius: "50%" }} />
-            <span style={{ fontWeight: 900, fontSize: 23, letterSpacing: "-0.5px" }}>
-              <span style={{ color: isPass ? "#FFA040" : "#FFD480" }}>manu</span>
-              <span style={{ color: isPass ? "#A8E6A3" : "#FFFFFF" }}>2print</span>
-            </span>
+            <BrandWordmark variant="onDark" className="text-xl sm:text-2xl tracking-tight" />
           </div>
         </div>
 

@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Upload, History, Wrench, Gift, Settings, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { BrandWordmark } from "@/components/BrandWordmark";
 
 export type ActiveView = "upload" | "history" | "tools" | "earn" | "settings";
 
@@ -53,10 +54,7 @@ export function DashboardSidebar({ activeView, setActiveView, sidebarOpen, setSi
         {/* Logo */}
         <div className="h-16 flex items-center justify-between px-5 border-b border-[var(--d-border)]">
           <Link href="/" className="flex items-center">
-            <span className="text-xl font-black tracking-tight">
-              <span style={{ color: "#F05A28" }}>manu</span>
-              <span style={{ color: "#4cd964" }}>2print</span>
-            </span>
+            <BrandWordmark variant="onLight" className="text-xl" />
           </Link>
           <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(false)}>
             <X className="w-4 h-4" />
