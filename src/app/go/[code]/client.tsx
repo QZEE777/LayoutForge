@@ -1,10 +1,126 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
 const THIRTY_DAYS = 60 * 60 * 24 * 30;
+
+const TESTIMONIALS = [
+  {
+    quote: "I uploaded my manuscript confident it was ready. manu2print caught 4 margin violations I never would have found. Saved me from a rejection I didn't see coming.",
+    name: "Sarah M.",
+    role: "First-time author · Canva",
+    stars: 5,
+  },
+  {
+    quote: "The annotated PDF is brilliant — every issue highlighted on the exact page. Fixed everything in one afternoon and uploaded to KDP the same day.",
+    name: "James T.",
+    role: "Self-publisher · InDesign",
+    stars: 5,
+  },
+  {
+    quote: "I'd already been rejected twice before I found this. Two minutes after scanning I knew exactly what was wrong. Worth every cent.",
+    name: "Priya K.",
+    role: "Indie author · Vellum",
+    stars: 5,
+  },
+  {
+    quote: "As a book formatter I run every client file through manu2print before delivery. It's my quality gate. Clients love getting a clean report with their files.",
+    name: "Marcus L.",
+    role: "Professional book formatter",
+    stars: 5,
+  },
+  {
+    quote: "Caught a bleed issue on page 1 that would have triggered an instant rejection. $9 to avoid that headache? Easiest decision I've made.",
+    name: "Donna R.",
+    role: "Self-publisher · Word",
+    stars: 5,
+  },
+];
+
+function Testimonials() {
+  const [active, setActive] = useState(0);
+
+  const next = useCallback(() => setActive((i) => (i + 1) % TESTIMONIALS.length), []);
+  const prev = useCallback(() => setActive((i) => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length), []);
+
+  useEffect(() => {
+    const t = setInterval(next, 5000);
+    return () => clearInterval(t);
+  }, [next]);
+
+  const t = TESTIMONIALS[active];
+
+  return (
+    <section className="py-16 lg:py-20 px-6 bg-m2p-ivory-alt">
+      <div className="max-w-2xl mx-auto text-center">
+
+        <p className="text-xs font-bold text-m2p-orange tracking-[0.1em] uppercase mb-3">
+          WHAT AUTHORS SAY
+        </p>
+        <h2 className="text-3xl lg:text-4xl font-black text-m2p-ink mb-10 text-balance">
+          Real results. Real authors.
+        </h2>
+
+        {/* Card */}
+        <div className="relative bg-white border border-m2p-border rounded-2xl px-8 py-10 shadow-sm min-h-[220px] flex flex-col items-center justify-center transition-all duration-300">
+          {/* Stars */}
+          <div className="flex gap-1 justify-center mb-5">
+            {Array.from({ length: t.stars }).map((_, i) => (
+              <span key={i} className="text-m2p-orange text-lg">★</span>
+            ))}
+          </div>
+
+          {/* Quote */}
+          <p className="text-m2p-ink text-base leading-relaxed mb-6 text-pretty">
+            &ldquo;{t.quote}&rdquo;
+          </p>
+
+          {/* Author */}
+          <div>
+            <p className="font-bold text-sm text-m2p-ink">{t.name}</p>
+            <p className="text-xs text-m2p-muted mt-0.5">{t.role}</p>
+          </div>
+        </div>
+
+        {/* Controls */}
+        <div className="flex items-center justify-center gap-4 mt-6">
+          <button
+            onClick={prev}
+            aria-label="Previous testimonial"
+            className="w-9 h-9 rounded-full border border-m2p-border bg-white hover:border-m2p-orange hover:text-m2p-orange text-m2p-muted transition-colors flex items-center justify-center text-sm font-bold"
+          >
+            ‹
+          </button>
+
+          {/* Dots */}
+          <div className="flex gap-2">
+            {TESTIMONIALS.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setActive(i)}
+                aria-label={`Go to testimonial ${i + 1}`}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  i === active ? "bg-m2p-orange w-5" : "bg-m2p-border"
+                }`}
+              />
+            ))}
+          </div>
+
+          <button
+            onClick={next}
+            aria-label="Next testimonial"
+            className="w-9 h-9 rounded-full border border-m2p-border bg-white hover:border-m2p-orange hover:text-m2p-orange text-m2p-muted transition-colors flex items-center justify-center text-sm font-bold"
+          >
+            ›
+          </button>
+        </div>
+
+      </div>
+    </section>
+  );
+}
 
 const RULES = [
   "Trim size", "Margin compliance", "Bleed zone", "Font embedding",
@@ -235,6 +351,9 @@ export function GoLandingClient({ checkoutUrl, refCode, partnerName }: Props) {
           </div>
         </div>
       </section>
+
+      {/* ── Testimonials ──────────────────────────────────────────────────── */}
+      <Testimonials />
 
       {/* ── Bottom CTA ────────────────────────────────────────────────────── */}
       <section className="bg-m2p-ink py-16 lg:py-20 px-6 text-center">
