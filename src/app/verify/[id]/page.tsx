@@ -24,6 +24,25 @@ const fetchVerifyData = cache(async (id: string) => {
   return { data: data ?? null, stored };
 });
 
+/** Portrait social card — same path the verify page hero and download link use. */
+function portraitOgVerifyPath(
+  verificationId: string,
+  score: number,
+  isPass: boolean,
+  trimOk: boolean | null,
+  marginsOk: boolean | null,
+  bleedOk: boolean | null,
+  fontsOk: boolean | null
+): string {
+  const checkParams = [
+    `trim=${trimOk === null ? "" : trimOk ? 1 : 0}`,
+    `margins=${marginsOk === null ? "" : marginsOk ? 1 : 0}`,
+    `bleed=${bleedOk === null ? "" : bleedOk ? 1 : 0}`,
+    `fonts=${fontsOk === null ? "" : fontsOk ? 1 : 0}`,
+  ].join("&");
+  return `/api/og/verify/${verificationId}?p=${isPass ? 1 : 0}&s=${score}&${checkParams}&format=portrait`;
+}
+
 export async function generateMetadata({ params }: VerifyPageProps): Promise<Metadata> {
   const { id } = await params;
   const base = "https://www.manu2print.com";
@@ -33,14 +52,30 @@ export async function generateMetadata({ params }: VerifyPageProps): Promise<Met
   // to guarantee the card FB shows matches the actual result
   try {
     const { data, stored } = await fetchVerifyData(id);
+    if (!data) {
+      return buildMeta(id, `${base}/api/og/verify/${id}`, base);
+    }
     const report = stored?.processingReport;
     const computedScore =
       report?.outputType === "checker" && report.issuesEnriched
         ? computeCheckerScore(report.issuesEnriched)
         : null;
-    const score  = computedScore ?? report?.readinessScore100 ?? data?.readiness_score ?? 0;
-    const isPass = report?.kdpReady === true || data?.kdp_ready === true || score >= 90;
-    const ogImage = `${base}/api/og/verify/${id}?p=${isPass ? 1 : 0}&s=${score}`;
+    const score = computedScore ?? report?.readinessScore100 ?? data.readiness_score ?? 0;
+    const isPass = report?.kdpReady === true || data.kdp_ready === true || score >= 90;
+
+    const s3Issues = stored?.processingReport?.issuesEnriched ?? [];
+    const hasKw = (kws: string[]) =>
+      s3Issues.some((i: { humanMessage?: string; originalMessage?: string }) => {
+        const txt = ((i.humanMessage ?? "") + " " + (i.originalMessage ?? "")).toLowerCase();
+        return kws.some((k) => txt.includes(k));
+      });
+    const hasS3Issues = s3Issues.length > 0;
+    const trimOk = data.trim_ok ?? (hasS3Issues ? !hasKw(["trim", "page size", "dimensions", "paper size"]) : null);
+    const marginsOk = data.margins_ok ?? (hasS3Issues ? !hasKw(["margin", "safe zone", "gutter"]) : null);
+    const bleedOk = data.bleed_ok ?? (hasS3Issues ? !hasKw(["bleed"]) : null);
+    const fontsOk = data.fonts_ok ?? (hasS3Issues ? !hasKw(["font", "embed", "subsett"]) : null);
+
+    const ogImage = `${base}${portraitOgVerifyPath(id, score, isPass, trimOk, marginsOk, bleedOk, fontsOk)}`;
     return buildMeta(id, ogImage, base);
   } catch {
     // Fallback: let OG route do its own fetch
@@ -55,7 +90,7 @@ function buildMeta(id: string, ogImage: string, base: string): Metadata {
     openGraph: {
       title: "KDP PDF Check Result — manu2print",
       description: "See how this manuscript scored on KDP readiness. Would your PDF pass?",
-      images: [{ url: ogImage, width: 1200, height: 630, alt: "KDP readiness score card" }],
+      images: [{ url: ogImage, width: 1080, height: 1350, alt: "KDP readiness score card" }],
       url: `${base}/verify/${id}`,
       type: "website",
     },
@@ -116,12 +151,6 @@ export default async function VerifyPage({ params, searchParams }: VerifyPagePro
     score >= 50 ? "needs-work" :
     "reject";
 
-  const statusLabel =
-    statusLevel === "ready"      ? "READY FOR KDP" :
-    statusLevel === "nearly"     ? "NEARLY READY" :
-    statusLevel === "needs-work" ? "NEEDS WORK" :
-    "LIKELY REJECTED";
-
   // Issues count: prefer DB (more reliable integer), fall back to S3 report
   const issuesCount =
     typeof data.issues_count === "number"
@@ -147,17 +176,20 @@ export default async function VerifyPage({ params, searchParams }: VerifyPagePro
   return (
     <VerifyClient
       score={score}
-      statusLabel={statusLabel}
       statusLevel={statusLevel}
       issuesCount={issuesCount}
-      filename={data.filename_clean ?? ""}
       verifyUrl={verifyUrl}
-      verificationId={verificationId}
       shToken={shToken ?? null}
-      trimOk={trimOk}
-      marginsOk={marginsOk}
-      bleedOk={bleedOk}
-      fontsOk={fontsOk}
+      ogIsPass={isPass}
+      portraitOgPath={portraitOgVerifyPath(
+        verificationId,
+        score,
+        isPass,
+        trimOk,
+        marginsOk,
+        bleedOk,
+        fontsOk
+      )}
     />
   );
 }
