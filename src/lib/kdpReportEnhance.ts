@@ -4,6 +4,15 @@
  * fix difficulty labels, upload checklist, spec table.
  */
 
+import {
+  getGutterInches,
+  MIN_SPINE_TEXT_PAGES,
+  HARDCOVER_MIN_PAGES,
+  HARDCOVER_MAX_PAGES,
+  HARDCOVER_TRIM_SIZES,
+  PAPERBACK_MAX_PAGES,
+} from "./kdpConfig";
+
 export type FixDifficulty = "easy" | "moderate" | "advanced";
 
 export interface EnrichedIssue {
@@ -108,7 +117,14 @@ const TOOL_FIX_MAP: Record<string, Record<string, string>> = {
     affinity_publisher:"File → Document Setup → set Page dimensions to your KDP trim size exactly.",
     vellum:            "Book Settings → Trim Size → select your size. Vellum will automatically set the correct dimensions.",
     canva:             "Create a new design → Custom Size → enter your trim dimensions exactly in inches.",
-    unknown:           "Supported KDP trim sizes: 5×8\", 5.06×7.81\", 5.25×8\", 5.5×8.5\", 6×9\", 6.14×9.21\", 6.69×9.61\", 7×10\", 7.44×9.69\", 7.5×9.25\", 8×10\", 8.25×8.25\", 8.5×8.5\", 8.5×11\". Set your document to exactly one of these sizes and re-export.",
+    unknown:           "Supported KDP paperback trim sizes (16 total): 5×8\", 5.06×7.81\", 5.25×8\", 5.5×8\", 5.5×8.5\", 6×9\", 6.14×9.21\", 6.69×9.61\", 7×10\", 7.44×9.69\", 7.5×9.25\", 8×10\", 8.25×6\", 8.25×8.25\", 8.5×8.5\", 8.5×11\". Hardcover sizes differ — see KDP help. Set your document to exactly one of these sizes and re-export.",
+  },
+  LINE_WEIGHT: {
+    adobe_indesign:    "Select the rule or line → Stroke panel → set Weight to at least 0.75pt. Lines thinner than 0.75pt may not print reliably on KDP's offset presses.",
+    affinity_publisher:"Select the shape or line → Stroke panel → increase Width to 0.75pt minimum.",
+    adobe_illustrator: "Select the path → Stroke panel → set Weight to at least 0.75pt before embedding in your layout.",
+    canva:             "Select the line element → adjust the border or line thickness to at least 1pt (Canva uses whole points). Sub-1pt lines do not print reliably in print PDFs.",
+    unknown:           "Any rule, border, or decorative line thinner than 0.75pt may drop out or print unevenly on KDP's offset presses. Increase all rule weights to 0.75pt or thicker.",
   },
   IMAGE_COLOR_MODE: {
     adobe_indesign:    "Edit → Convert to Profile → set destination to 'U.S. Web Coated (SWOP) v2' CMYK. For spot colors: Window → Swatches → select spot colors → Convert to Process.",
@@ -161,6 +177,13 @@ const RULE_DIFFICULTY: Record<string, FixDifficulty> = {
   IMAGE_COLOR_MODE:        "advanced",
   MIN_FONT_SIZE:           "moderate",
   RESTRICTED_FONT_EMBEDDING: "moderate",
+  // Sprint 1 additions
+  LINE_WEIGHT:             "easy",
+  HARDCOVER_PAGE_MIN:      "easy",
+  HARDCOVER_PAGE_MAX:      "easy",
+  HARDCOVER_TRIM_SIZE:     "easy",
+  SPINE_TEXT_WARNING:      "easy",
+  GUTTER_BOUNDARY_WARNING: "easy",
 };
 
 const EASY_KEYWORDS     = ["margin", "metadata", "gutter", "inner margin", "outer margin", "trim size", "page size", "rotation", "orientation"];
@@ -264,6 +287,37 @@ const HUMAN_MAP: Array<{ pattern: RegExp; rule_ids?: string[]; human: string }> 
   {
     pattern: /pdf version|version.*below/i,
     human: "Your PDF version is below the minimum required. Re-export using PDF 1.3 or higher (PDF 1.4 or 1.5 recommended for best compatibility).",
+  },
+  // ── Sprint 1 additions ────────────────────────────────────────────────────
+  {
+    rule_ids: ["LINE_WEIGHT"],
+    pattern: /line.*weight|stroke.*width|thin.*rule|rule.*thin|hairline/i,
+    human: "One or more rules or borders are thinner than 0.75pt. Lines this thin may drop out entirely or print unevenly on KDP's offset presses. Increase all decorative lines and borders to at least 0.75pt.",
+  },
+  {
+    rule_ids: ["HARDCOVER_PAGE_MIN"],
+    pattern: /hardcover.*minimum|minimum.*hardcover|fewer.*75|75.*pages.*hardcover/i,
+    human: "KDP hardcover books require a minimum of 75 pages. Your file is below this threshold. Add front matter, a blank page, or additional content to reach 75 pages.",
+  },
+  {
+    rule_ids: ["HARDCOVER_PAGE_MAX"],
+    pattern: /hardcover.*maximum|maximum.*hardcover|exceeds.*550|550.*hardcover/i,
+    human: "KDP hardcover books have a 550-page maximum. Your file exceeds this limit. Reduce content or consider splitting into multiple volumes.",
+  },
+  {
+    rule_ids: ["HARDCOVER_TRIM_SIZE"],
+    pattern: /hardcover.*trim|trim.*hardcover|hardcover.*size/i,
+    human: "Your trim size is not on KDP's supported hardcover list. Hardcovers support fewer sizes than paperbacks — supported sizes include 5.5×8.5\", 6×9\", 6.14×9.21\", 6.69×9.61\", 7×10\", 7.44×9.69\", 7.5×9.25\", 8.5×11\".",
+  },
+  {
+    rule_ids: ["SPINE_TEXT_WARNING"],
+    pattern: /spine.*text|text.*spine|spine.*narrow/i,
+    human: "Your page count is below 80 pages, which means the spine is too narrow for title or author text. Leave the spine blank on your cover design — KDP will reject cover files that include spine text on books this thin.",
+  },
+  {
+    rule_ids: ["GUTTER_BOUNDARY_WARNING"],
+    pattern: /gutter.*boundary|boundary.*gutter|near.*gutter.*threshold|gutter.*threshold/i,
+    human: "Your page count is within 5 pages of a KDP gutter margin threshold. Adding or removing a few pages will change the required inside margin. Verify your gutter setting matches the final page count before uploading.",
   },
 ];
 
@@ -591,6 +645,13 @@ export interface CheckerReportBase {
   page_issues?: Array<{ page: number; rule_id: string; severity: string; message: string; bbox: number[] | null }>;
 }
 
+/** Advisory notices generated by the enrichment layer (not from the engine). */
+export interface AdvisoryNotice {
+  rule_id: string;
+  message: string;
+  severity: "info" | "warning";
+}
+
 export interface EnrichedCheckerReport extends CheckerReportBase {
   scanDate: string;
   fileNameScanned: string;
@@ -605,6 +666,98 @@ export interface EnrichedCheckerReport extends CheckerReportBase {
   uploadChecklist: ChecklistItem[];
   specTable: SpecRow[];
   estimatedFixHours: number;
+  advisoryNotices: AdvisoryNotice[];
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ADVISORY NOTICES (Sprint 1 enrichment layer additions)
+// Generated locally from page count / trim data — no engine change needed.
+// ─────────────────────────────────────────────────────────────────────────────
+
+function buildAdvisoryNotices(report: CheckerReportBase): AdvisoryNotice[] {
+  const notices: AdvisoryNotice[] = [];
+  const pageCount = report.pageCount;
+
+  // 1. Spine text threshold warning (< 80 pages)
+  if (pageCount != null && pageCount < MIN_SPINE_TEXT_PAGES) {
+    notices.push({
+      rule_id: "SPINE_TEXT_WARNING",
+      severity: "warning",
+      message: `Your book has ${pageCount} pages — the spine is too narrow for title or author text (minimum ~${MIN_SPINE_TEXT_PAGES} pages). Leave the spine blank on your cover design.`,
+    });
+  }
+
+  // 2. Gutter boundary warning (within 5 pages of a KDP threshold cutover)
+  if (pageCount != null) {
+    const GUTTER_THRESHOLDS = [150, 300, 500, 700];
+    const BOUNDARY = 5;
+    for (const threshold of GUTTER_THRESHOLDS) {
+      if (Math.abs(pageCount - threshold) <= BOUNDARY) {
+        const gutterBelow = getGutterInches(threshold - 1);
+        const gutterAbove = getGutterInches(threshold + 1);
+        notices.push({
+          rule_id: "GUTTER_BOUNDARY_WARNING",
+          severity: "info",
+          message: `Your page count (${pageCount}) is within ${BOUNDARY} pages of a KDP gutter threshold (${threshold} pages). At ≤${threshold} pages the minimum inside margin is ${gutterBelow}", above it is ${gutterAbove}". Confirm your final page count before setting margins.`,
+        });
+        break; // only fire once for the nearest threshold
+      }
+    }
+  }
+
+  // 3. Hardcover-specific checks (detect hardcover from kdpTrimName or trimDetected)
+  const isHardcover =
+    (report.kdpTrimName ?? "").toLowerCase().includes("hardcover") ||
+    (report.trimDetected ?? "").toLowerCase().includes("hc-") ||
+    HARDCOVER_TRIM_SIZES.some(
+      (hc) =>
+        report.trimDetected != null &&
+        Math.abs(hc.widthInches  - parseFloat((report.trimDetected.match(/^([\d.]+)/) ?? [])[1] ?? "0")) < 0.01 &&
+        Math.abs(hc.heightInches - parseFloat((report.trimDetected.match(/×\s*([\d.]+)/) ?? [])[1] ?? "0")) < 0.01
+    );
+
+  if (isHardcover) {
+    if (pageCount != null && pageCount < HARDCOVER_MIN_PAGES) {
+      notices.push({
+        rule_id: "HARDCOVER_PAGE_MIN",
+        severity: "warning",
+        message: `KDP hardcover books require a minimum of ${HARDCOVER_MIN_PAGES} pages. Your file has ${pageCount} pages.`,
+      });
+    }
+    if (pageCount != null && pageCount > HARDCOVER_MAX_PAGES) {
+      notices.push({
+        rule_id: "HARDCOVER_PAGE_MAX",
+        severity: "warning",
+        message: `KDP hardcover books have a maximum of ${HARDCOVER_MAX_PAGES} pages. Your file has ${pageCount} pages — reduce content or split into volumes.`,
+      });
+    }
+    // Hardcover trim size validation
+    if (report.trimDetected) {
+      const trimW = parseFloat((report.trimDetected.match(/^([\d.]+)/) ?? [])[1] ?? "0");
+      const trimH = parseFloat((report.trimDetected.match(/[\d.]+\s*[x×]\s*([\d.]+)/i) ?? [])[1] ?? "0");
+      const validHC = HARDCOVER_TRIM_SIZES.some(
+        (hc) => Math.abs(hc.widthInches - trimW) < 0.01 && Math.abs(hc.heightInches - trimH) < 0.01
+      );
+      if (!validHC && trimW > 0 && trimH > 0) {
+        notices.push({
+          rule_id: "HARDCOVER_TRIM_SIZE",
+          severity: "warning",
+          message: `Your trim size (${report.trimDetected}) is not on KDP's supported hardcover list. Supported hardcover sizes: 5.5×8.5", 6×9", 6.14×9.21", 6.69×9.61", 7×10", 7.44×9.69", 7.5×9.25", 8.5×11".`,
+        });
+      }
+    }
+  }
+
+  // 4. Paperback page count upper boundary
+  if (!isHardcover && pageCount != null && pageCount > PAPERBACK_MAX_PAGES) {
+    notices.push({
+      rule_id: "MAX_PAGE_COUNT",
+      severity: "warning",
+      message: `Your page count (${pageCount}) exceeds the KDP paperback maximum of ${PAPERBACK_MAX_PAGES} pages. KDP will reject this file — split the book into volumes.`,
+    });
+  }
+
+  return notices;
 }
 
 export function enrichCheckerReport(
@@ -718,5 +871,6 @@ export function enrichCheckerReport(
       ...categories,
     }),
     estimatedFixHours: estimateFixMinutes(issuesEnriched) / 60,
+    advisoryNotices:   buildAdvisoryNotices(report),
   };
 }

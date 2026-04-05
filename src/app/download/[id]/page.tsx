@@ -137,6 +137,7 @@ interface ProcessingReport {
   specTable?: Array<{ requirement: string; yourFile: string; kdpRequired: string; status: "pass" | "warning" | "fail" }>;
   estimatedFixHours?: number;
   upsellBridge?: string;
+  advisoryNotices?: Array<{ rule_id: string; message: string; severity: "info" | "warning" }>;
 }
 
 export default function DownloadPage() {
@@ -618,6 +619,36 @@ export default function DownloadPage() {
                       Pages most likely to cause print problems: {report.highRiskPageNumbers.join(", ")}
                     </p>
                   )}
+
+                  {/* Advisory notices (Sprint 1: spine text, gutter boundary, hardcover rules) */}
+                  {report.advisoryNotices && report.advisoryNotices.length > 0 && (
+                    <div className="mb-4 space-y-2">
+                      {report.advisoryNotices.map((notice, i) => (
+                        <div
+                          key={i}
+                          className={`flex items-start gap-3 rounded-lg border px-4 py-3 text-sm ${
+                            notice.severity === "warning"
+                              ? "border-amber-300 bg-amber-50 text-amber-900"
+                              : "border-blue-200 bg-blue-50 text-blue-900"
+                          }`}
+                        >
+                          <span className="shrink-0 mt-0.5">{notice.severity === "warning" ? "⚠️" : "ℹ️"}</span>
+                          <p className="leading-relaxed">{notice.message}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Item 5: Title matches cover — static reminder for all checker reports */}
+                  <div className="mb-4 flex items-start gap-3 rounded-lg border border-m2p-border bg-m2p-ivory px-4 py-3 text-sm text-m2p-ink">
+                    <span className="shrink-0 mt-0.5">📋</span>
+                    <div>
+                      <p className="font-semibold mb-0.5">Reminder: verify your cover title matches your interior</p>
+                      <p className="text-m2p-muted text-xs leading-relaxed">
+                        This scan checks your interior PDF only. Before uploading to KDP, confirm that the title, subtitle, and author name on your cover file exactly match your interior title page — including spelling, punctuation, and capitalization. Mismatches are a common KDP rejection reason.
+                      </p>
+                    </div>
+                  </div>
                   {report.uploadChecklist && report.uploadChecklist.length > 0 && (
                     <div className="mb-4">
                       <p className="text-xs font-medium text-m2p-ink mb-2">Upload readiness checklist</p>
