@@ -131,13 +131,14 @@ export default function PaymentGate({
     return (
       <div className="relative">
         {!hideChildrenUntilUnlocked && <div className="select-none pointer-events-none blur-sm">{children}</div>}
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/70">
-          <div className="max-w-md w-full text-center space-y-4">
-            <h2 className="text-xl font-bold text-white">Confirming your purchase…</h2>
-            <p className="text-sm text-white/90">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/75 backdrop-blur-[2px]">
+          <div className="max-w-md w-full rounded-2xl border border-white/10 p-8 text-center space-y-4 shadow-2xl" style={{ background: "linear-gradient(180deg, #1A6B2A 0%, #0D3D18 100%)" }}>
+            <div className="inline-block w-9 h-9 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto" aria-hidden />
+            <h2 className="text-xl font-black text-white tracking-tight">Confirming your purchase…</h2>
+            <p className="text-sm text-white/90 leading-relaxed">
               {verifyTimedOut ? "Still verifying. If you already paid, refresh in ~1 minute. Otherwise, continue below." : "We’re checking your payment. This usually takes a few seconds."}
             </p>
-            <p className="text-xs text-white/70">
+            <p className="text-xs text-white/65 leading-relaxed">
               If this takes longer than a minute, refresh the page or open this link again in a new tab.
             </p>
           </div>
@@ -281,10 +282,13 @@ export default function PaymentGate({
   // When hideChildrenUntilUnlocked (checker flow), render inline below the teaser — no full-screen overlay
   if (hideChildrenUntilUnlocked) {
     return (
-      <div className="rounded-2xl border p-6 text-center space-y-4 mt-4"
-        style={{ background: "#2C1810", borderColor: "rgba(255,255,255,0.08)" }}>
-        <h2 className="text-lg font-bold text-white">Unlock your full report</h2>
-        <p className="text-sm text-white/70">See every issue, which pages are affected, how to fix each one<br />and your annotated PDF.</p>
+      <div
+        className="rounded-2xl border p-6 sm:p-7 text-center space-y-4 mt-4 shadow-[0_20px_50px_-15px_rgba(13,61,24,0.45)] overflow-hidden"
+        style={{ background: "linear-gradient(165deg, #143d1f 0%, #0a2412 55%, #1a0f0a 100%)", borderColor: "rgba(197,232,58,0.2)" }}
+      >
+        <div className="h-0.5 w-16 mx-auto rounded-full bg-[#C5E83A]/60" aria-hidden />
+        <h2 className="text-lg font-black text-white tracking-tight">Unlock your full report</h2>
+        <p className="text-sm text-white/75 leading-relaxed max-w-sm mx-auto">See every issue, which pages are affected, how to fix each one<br />and your annotated PDF.</p>
         <input
           type="email"
           placeholder="Your email (for receipt / credits)"
@@ -373,9 +377,10 @@ export default function PaymentGate({
           {children}
         </div>
       )}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/70">
-        <div className="max-w-md w-full text-center space-y-5">
-          <h2 className="text-xl font-bold text-white">Your file is ready.</h2>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/75 backdrop-blur-[2px]">
+        <div className="max-w-md w-full rounded-2xl border border-white/10 p-8 text-center space-y-5 shadow-2xl" style={{ background: "linear-gradient(180deg, #1A6B2A 0%, #0D3D18 100%)" }}>
+          <div className="h-0.5 w-14 mx-auto rounded-full bg-[#C5E83A]/50" aria-hidden />
+          <h2 className="text-xl font-black text-white tracking-tight">Your file is ready.</h2>
           <p className="text-sm text-white/90">Choose how you&apos;d like to access it.</p>
           <input
             type="email"

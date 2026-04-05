@@ -13,6 +13,16 @@ import { buildVerifyShareCaption } from "@/lib/shareVerifyCaption";
 
 const MAX_ISSUES_GROUP_DISPLAY = 10;
 
+/** Download page visual tokens — design-only; print HTML uses matching hex values. */
+const DL_VIS = {
+  creamBg: "linear-gradient(180deg, #FAF7EE 0%, #F2EBDF 100%)",
+  forestGrad: "linear-gradient(180deg, #1A6B2A 0%, #0D3D18 100%)",
+  lime: "#C5E83A",
+  manu: "#FF7A45",
+  cardShadow: "0 24px 56px -16px rgba(13,61,24,0.22)",
+  innerShadow: "inset 0 1px 0 rgba(255,255,255,0.55)",
+} as const;
+
 /** Group issues by message type and cap for display. Returns { grouped, totalGroups, totalCount }. */
 function getGroupedIssues(report: ProcessingReport | null): {
   grouped: Array<{ label: string; message: string; pages: number[]; toolFixInstruction?: string }>;
@@ -386,47 +396,71 @@ export default function DownloadPage() {
   }
 
   return (
-    <div className="min-h-screen bg-m2p-ivory text-m2p-ink">
+    <div className="min-h-screen text-m2p-ink" style={{ background: DL_VIS.creamBg }}>
       {/* Header */}
-      <header className="border-b border-white/10">
-        <div className="mx-auto max-w-4xl px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-bold tracking-tight text-m2p-ink">
-            <span><span style={{color:'#F05A28', fontWeight:'bold', fontSize:'1.25rem'}}>manu</span><span style={{color:'#4cd964', fontWeight:'bold', fontSize:'1.25rem'}}>2print</span></span>
+      <header className="border-b border-[#1A6B2A]/10 bg-white/40 backdrop-blur-sm">
+        <div className="mx-auto max-w-4xl px-4 py-3.5 flex items-center justify-between">
+          <Link href="/" className="text-xl font-black tracking-tight">
+            <span style={{ color: DL_VIS.manu }}>manu</span>
+            <span className="text-m2p-ink">2</span>
+            <span style={{ color: "#4cd964" }}>print</span>
           </Link>
-          <Link href={isFormatReview ? "/kdp-format-review" : isChecker ? "/kdp-pdf-checker" : isEpub ? "/epub-maker" : isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"} className="text-sm text-m2p-muted hover:text-m2p-orange">
+          <Link
+            href={isFormatReview ? "/kdp-format-review" : isChecker ? "/kdp-pdf-checker" : isEpub ? "/epub-maker" : isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"}
+            className="text-sm font-semibold text-m2p-muted hover:text-m2p-orange transition-colors"
+          >
             New upload
           </Link>
         </div>
       </header>
 
       {/* Main content */}
-      <main className="max-w-2xl mx-auto px-6 py-12">
-        <div className="flex items-center justify-center gap-1 mb-4 w-full">
-          <Image src="/MANNY AVATAR.png" alt="Manny" width={120} height={120} style={{ borderRadius: "50%" }} />
-          <span><span style={{ color: "#F05A28", fontWeight: "bold" }}>manu</span><span style={{ color: "#4cd964", fontWeight: "bold" }}>2print</span></span>
+      <main className="max-w-2xl mx-auto px-5 sm:px-6 py-10 sm:py-12">
+        <div
+          className="relative rounded-2xl border border-[#1A6B2A]/12 p-6 sm:p-8 mb-8 text-center overflow-hidden"
+          style={{ boxShadow: DL_VIS.cardShadow, background: "rgba(255,255,255,0.72)" }}
+        >
+          <div className="absolute inset-x-0 top-0 h-1 opacity-90" style={{ background: DL_VIS.forestGrad }} aria-hidden />
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
+            <Image src="/MANNY AVATAR.png" alt="Manny" width={96} height={96} className="rounded-full shadow-lg ring-4 ring-white/80" />
+            <div className="text-left sm:text-center">
+              <p className="text-[10px] font-bold tracking-[0.14em] uppercase text-m2p-muted mb-1">KDP compliance</p>
+              <p className="text-xl font-black">
+                <span style={{ color: DL_VIS.manu }}>manu</span>
+                <span className="text-m2p-ink">2</span>
+                <span style={{ color: "#4cd964" }}>print</span>
+              </p>
+            </div>
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-bebas text-m2p-ink text-center mb-2 leading-tight">
+            Your KDP Compliance Report Is Ready
+          </h1>
+          <p className="text-m2p-muted text-center text-sm sm:text-base max-w-lg mx-auto leading-relaxed text-balance">
+            We analyzed your manuscript against all 26 Amazon KDP print formatting requirements.
+            <span className="block mt-1.5 text-m2p-muted/90">Download the full report to review every issue and its recommended fix.</span>
+          </p>
         </div>
-        {/* Header section */}
-        <h1 className="text-3xl font-bebas text-m2p-ink text-center mb-2">
-          Your KDP Compliance Report Is Ready
-        </h1>
-        <p className="text-m2p-muted text-center mb-6 text-balance">
-          We analyzed your manuscript against all 26 Amazon KDP print formatting requirements. Download the full report to review every issue and its recommended fix.
-        </p>
 
         {reportLoading && !report && (
-          <div className="mb-8 rounded-lg p-8 border border-m2p-border bg-white/80 text-center">
-            <p className="text-m2p-ink font-medium">Loading your report…</p>
+          <div
+            className="mb-8 rounded-2xl p-8 border border-m2p-border/60 text-center"
+            style={{ background: "rgba(255,255,255,0.85)", boxShadow: DL_VIS.cardShadow }}
+          >
+            <div className="inline-block w-8 h-8 border-2 border-m2p-orange border-t-transparent rounded-full animate-spin mb-3" aria-hidden />
+            <p className="text-m2p-ink font-semibold">Loading your report…</p>
             <p className="text-sm text-m2p-muted mt-2">If you just uploaded, this may take a moment.</p>
           </div>
         )}
         {reportError && !report && (
-          <div className="mb-8 rounded-lg p-6 border border-amber-500/50 bg-amber-50/80">
-            <p className="text-m2p-ink font-medium">{reportError}</p>
-            <p className="text-sm text-m2p-muted mt-2">If you just ran a check, wait a few seconds and try again.</p>
+          <div className="mb-8 rounded-2xl p-6 border border-amber-400/40 bg-amber-50/90 shadow-lg">
+            <p className="text-m2p-ink font-semibold flex items-center gap-2 justify-center sm:justify-start">
+              <span className="text-amber-600">⚠</span> {reportError}
+            </p>
+            <p className="text-sm text-m2p-muted mt-2 text-center sm:text-left">If you just ran a check, wait a few seconds and try again.</p>
             <button
               type="button"
               onClick={loadReport}
-              className="mt-4 rounded-lg bg-m2p-orange text-white px-4 py-2 text-sm font-medium hover:bg-m2p-orange-hover"
+              className="mt-4 w-full sm:w-auto rounded-xl bg-m2p-orange text-white px-5 py-2.5 text-sm font-bold hover:bg-m2p-orange-hover shadow-md transition-colors"
             >
               Try again
             </button>
@@ -435,9 +469,18 @@ export default function DownloadPage() {
 
         {/* Trust block — always visible, above payment gate so it is never covered by overlay */}
         {!isChecker && (
-          <div className="text-center border border-m2p-border rounded-lg p-4 mb-6">
-            <p className="text-m2p-ink font-bold">✅ Verified by <span className="text-m2p-live">manu2print</span></p>
-            <p className="text-m2p-muted text-sm">
+          <div
+            className="text-center rounded-2xl p-5 mb-6 border border-[#1A6B2A]/20"
+            style={{ background: "rgba(255,255,255,0.75)", boxShadow: "0 8px 32px -12px rgba(13,61,24,0.15)" }}
+          >
+            <p className="text-m2p-ink font-bold text-sm">
+              <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#C5E83A]/25 text-[#2D6A2D] text-xs mr-1.5">✓</span>
+              Verified by{" "}
+              <span style={{ color: DL_VIS.manu }}>manu</span>
+              <span className="text-m2p-ink">2</span>
+              <span style={{ color: DL_VIS.lime }}>print</span>
+            </p>
+            <p className="text-m2p-muted text-sm mt-2 leading-relaxed max-w-md mx-auto">
               This report checks your manuscript against known Amazon KDP print formatting requirements.
             </p>
           </div>
@@ -610,8 +653,12 @@ export default function DownloadPage() {
         >
         {/* Checker: PDF viewer (always show when we have a preview PDF) */}
         {report?.outputType === "checker" && report.hasPdfPreview && report.pdfSourceUrl && (
-          <div className="mb-8">
-            <h2 className="text-lg font-semibold text-m2p-ink mb-3">View issues on your PDF</h2>
+          <div className="mb-8 rounded-2xl border border-[#1A6B2A]/15 overflow-hidden bg-white/90 shadow-[0_12px_40px_-16px_rgba(13,61,24,0.2)]">
+            <div className="px-4 sm:px-5 py-3 border-b border-m2p-border/40" style={{ background: DL_VIS.forestGrad }}>
+              <h2 className="text-[11px] font-black tracking-[0.18em] text-white uppercase">View issues on your PDF</h2>
+              <p className="text-[11px] text-white/75 mt-0.5">Page-by-page highlights match your report below</p>
+            </div>
+            <div className="p-3 sm:p-4">
             <CheckerPdfViewer
               pdfUrl={report.pdfSourceUrl}
               pageIssues={(report.page_issues ?? []).map((issue) => ({
@@ -638,6 +685,7 @@ export default function DownloadPage() {
                 ) : null}
               </>
             )}
+            </div>
           </div>
         )}
         {report?.outputType === "checker" && !report.hasPdfPreview && (
@@ -653,33 +701,54 @@ export default function DownloadPage() {
 
         {/* Processing report card */}
         {report && (
-          <div className={`mb-8 rounded-lg p-6 border ${report.outputType === "format-review" ? "bg-m2p-ivory border-m2p-border text-m2p-ink" : "bg-white border-m2p-border text-m2p-ink"}`}>
+          <div
+            className={`mb-8 rounded-2xl p-5 sm:p-7 border ${report.outputType === "format-review" ? "border-m2p-border text-m2p-ink" : "border-[#1A6B2A]/12 text-m2p-ink"}`}
+            style={{
+              background: report.outputType === "format-review" ? "rgba(250,247,238,0.95)" : "rgba(255,255,255,0.92)",
+              boxShadow: DL_VIS.cardShadow,
+            }}
+          >
             {report.outputType === "checker" && (
               <>
                 <div id="report-content">
-                  <p className="mb-2 text-center text-3xl font-bold">
-                    <span style={{ color: "#F05A28" }}>manu</span>
-                    <span style={{ color: "#4cd964" }}>2print</span>
-                  </p>
-                  {(report.scanDate || report.fileNameScanned) && (
-                    <p className="text-sm text-m2p-muted mb-3">
-                      {report.scanDate && <>Scan: {new Date(report.scanDate).toLocaleString()}</>}
-                      {report.scanDate && report.fileNameScanned && " · "}
-                      {report.fileNameScanned && cleanFilenameForDisplay(report.fileNameScanned)}
-                    </p>
-                  )}
+                  <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-5 pb-4 border-b border-m2p-border/50">
+                    <div>
+                      <p className="text-[10px] font-bold tracking-[0.14em] uppercase text-m2p-muted mb-1">Compliance report</p>
+                      <p className="text-2xl font-black">
+                        <span style={{ color: DL_VIS.manu }}>manu</span>
+                        <span className="text-m2p-ink">2</span>
+                        <span style={{ color: "#4cd964" }}>print</span>
+                      </p>
+                    </div>
+                    {(report.scanDate || report.fileNameScanned) && (
+                      <div className="text-xs sm:text-sm text-m2p-muted text-left sm:text-right space-y-0.5">
+                        {report.scanDate && (
+                          <p>
+                            <span className="font-bold text-[10px] uppercase tracking-wider text-m2p-muted/80">Scan</span>{" "}
+                            <span className="tabular-nums text-m2p-ink">{new Date(report.scanDate).toLocaleString()}</span>
+                          </p>
+                        )}
+                        {report.fileNameScanned && (
+                          <p>
+                            <span className="font-bold text-[10px] uppercase tracking-wider text-m2p-muted/80">File</span>{" "}
+                            <span className="text-m2p-ink">{cleanFilenameForDisplay(report.fileNameScanned)}</span>
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
 
                   {/* Scan context badge — shows what the user declared before uploading */}
                   {isChecker && (scanBookType !== "paperback" || scanBleed || scanColorMode !== "bw") && (
                     <div className="mb-4 flex flex-wrap gap-2 items-center">
-                      <span className="text-xs text-m2p-muted font-medium">Scan context:</span>
-                      <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold bg-m2p-ivory border border-m2p-border text-m2p-ink">
+                      <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-m2p-muted w-full sm:w-auto">Scan context</span>
+                      <span className="rounded-full px-3 py-1 text-xs font-bold bg-white/80 border border-[#1A6B2A]/20 text-m2p-ink shadow-sm">
                         {scanBookType === "hardcover" ? "📕 Hardcover" : "📖 Paperback"}
                       </span>
-                      <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold bg-m2p-ivory border border-m2p-border text-m2p-ink">
+                      <span className="rounded-full px-3 py-1 text-xs font-bold bg-white/80 border border-[#1A6B2A]/20 text-m2p-ink shadow-sm">
                         {scanBleed ? "🩸 With bleed" : "⬜ No bleed"}
                       </span>
-                      <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold bg-m2p-ivory border border-m2p-border text-m2p-ink">
+                      <span className="rounded-full px-3 py-1 text-xs font-bold bg-white/80 border border-[#1A6B2A]/20 text-m2p-ink shadow-sm">
                         {scanColorMode === "color" ? "🎨 Full color" : "⚫ B&W"}
                       </span>
                     </div>
@@ -689,7 +758,7 @@ export default function DownloadPage() {
                   {isChecker && !scanBleed && report.issuesEnriched?.some(
                     (i) => /bleed|trim.*outside|does not extend/i.test(i.originalMessage)
                   ) && (
-                    <div className="mb-4 flex items-start gap-2.5 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">
+                    <div className="mb-4 flex items-start gap-3 rounded-xl border border-blue-200/80 bg-blue-50/90 pl-4 pr-4 py-3 text-sm text-blue-950 border-l-[4px] border-l-blue-600">
                       <span className="shrink-0 mt-0.5">ℹ️</span>
                       <p>You indicated <strong>no bleed</strong> — bleed-related issues below are expected for your book type and can be ignored if you do not intend full-bleed images or backgrounds.</p>
                     </div>
@@ -700,24 +769,32 @@ export default function DownloadPage() {
                     if (!sg) return null;
                     const col = sg.grade === "A+" || sg.grade === "A" ? "#4cd964" : sg.grade === "B" ? "#6bc94d" : sg.grade === "C" ? "#f0a028" : sg.grade === "D" ? "#f05a28" : "#e03d3d";
                     return (
-                      <div className="mb-4 flex items-center gap-4 rounded-lg border border-m2p-border bg-m2p-ivory px-5 py-4">
-                        <span className="text-5xl font-bebas leading-none" style={{ color: col }}>{sg.grade}</span>
+                      <div
+                        className="mb-4 flex items-center gap-4 rounded-xl border border-m2p-border/50 px-5 py-4"
+                        style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(250,247,238,0.95) 100%)", boxShadow: DL_VIS.innerShadow }}
+                      >
+                        <span className="text-5xl sm:text-6xl font-bebas leading-none tabular-nums" style={{ color: col }}>{sg.grade}</span>
                         <div>
-                          <p className="font-bold text-m2p-ink text-lg leading-tight">{sg.label}</p>
-                          <p className="text-sm text-m2p-muted mt-0.5">{sg.description}</p>
+                          <p className="font-black text-m2p-ink text-lg leading-tight">{sg.label}</p>
+                          <p className="text-sm text-m2p-muted mt-0.5 leading-snug">{sg.description}</p>
                         </div>
                       </div>
                     );
                   })()}
                   {(calculatedScore ?? report.readinessScore100) != null && (
-                    <p className="mb-2 text-2xl font-bold text-m2p-ink">
-                      Readiness: {calculatedScore ?? report.readinessScore100}/100
+                    <p className="mb-2 text-2xl sm:text-3xl font-black text-m2p-ink tabular-nums">
+                      Readiness{" "}
+                      <span className="text-[#0D3D18]">{calculatedScore ?? report.readinessScore100}</span>
+                      <span className="text-m2p-muted text-xl font-bold">/100</span>
                     </p>
                   )}
                   {((calculatedScore ?? report.readinessScore100) != null && report.riskLevel) && (
-                    <p className="mb-3 text-base font-semibold text-m2p-ink">
-                      KDP Approval Likelihood: {calculatedScore ?? report.readinessScore100}% — Risk Level:{" "}
-                      {report.riskLevel}
+                    <p className="mb-3 text-sm font-bold text-m2p-ink flex flex-wrap items-center gap-x-2">
+                      <span className="text-m2p-muted font-semibold">KDP approval likelihood</span>
+                      <span className="tabular-nums">{calculatedScore ?? report.readinessScore100}%</span>
+                      <span className="text-m2p-border">·</span>
+                      <span className="text-m2p-muted font-semibold">Risk</span>
+                      <span className="font-black" style={{ color: report.riskLevel === "Low" ? "#2D6A2D" : report.riskLevel === "Medium" ? "#c27803" : "#c2410c" }}>{report.riskLevel}</span>
                     </p>
                   )}
                   {report.creationTool && report.creationTool !== "unknown" && (
@@ -741,10 +818,10 @@ export default function DownloadPage() {
                       {report.advisoryNotices.map((notice, i) => (
                         <div
                           key={i}
-                          className={`flex items-start gap-3 rounded-lg border px-4 py-3 text-sm ${
+                          className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-sm border-l-[4px] ${
                             notice.severity === "warning"
-                              ? "border-amber-300 bg-amber-50 text-amber-900"
-                              : "border-blue-200 bg-blue-50 text-blue-900"
+                              ? "border-amber-200 bg-amber-50/95 text-amber-950 border-l-amber-500"
+                              : "border-blue-200 bg-blue-50/95 text-blue-950 border-l-blue-600"
                           }`}
                         >
                           <span className="shrink-0 mt-0.5">{notice.severity === "warning" ? "⚠️" : "ℹ️"}</span>
@@ -755,10 +832,10 @@ export default function DownloadPage() {
                   )}
 
                   {/* Item 5: Title matches cover — static reminder for all checker reports */}
-                  <div className="mb-4 flex items-start gap-3 rounded-lg border border-m2p-border bg-m2p-ivory px-4 py-3 text-sm text-m2p-ink">
+                  <div className="mb-4 flex items-start gap-3 rounded-xl border border-m2p-border/60 bg-gradient-to-br from-white to-m2p-ivory/80 px-4 py-3 text-sm text-m2p-ink border-l-[4px] border-l-[#2D6A2D] shadow-sm">
                     <span className="shrink-0 mt-0.5">📋</span>
                     <div>
-                      <p className="font-semibold mb-0.5">Reminder: verify your cover title matches your interior</p>
+                      <p className="font-bold mb-0.5">Reminder: verify your cover title matches your interior</p>
                       <p className="text-m2p-muted text-xs leading-relaxed">
                         This scan checks your interior PDF only. Before uploading to KDP, confirm that the title, subtitle, and author name on your cover file exactly match your interior title page — including spelling, punctuation, and capitalization. Mismatches are a common KDP rejection reason.
                       </p>
@@ -766,7 +843,7 @@ export default function DownloadPage() {
                   </div>
                   {report.uploadChecklist && report.uploadChecklist.length > 0 && (
                     <div className="mb-4">
-                      <p className="text-xs font-medium text-m2p-ink mb-2">Upload readiness checklist</p>
+                      <p className="text-[10px] font-black tracking-[0.12em] uppercase text-m2p-muted mb-3">Upload readiness checklist</p>
                       <div className="space-y-2">
                         {report.uploadChecklist.map((item, i) => {
                           const statusStyles = {
@@ -788,7 +865,7 @@ export default function DownloadPage() {
                           return (
                             <div
                               key={i}
-                              className={`flex items-center gap-3 rounded-lg border px-4 py-2.5 text-sm font-medium ${statusStyles[item.status]}`}
+                              className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-sm font-semibold shadow-sm transition-shadow hover:shadow-md ${statusStyles[item.status]}`}
                             >
                               <span>{statusIcon[item.status]}</span>
                               <span className="flex-1">{checkLabel}</span>
@@ -800,24 +877,26 @@ export default function DownloadPage() {
                     </div>
                   )}
                   {report.specTable && report.specTable.length > 0 && (
-                    <div className="mb-4 overflow-x-auto">
-                      <p className="text-xs font-medium text-m2p-ink mb-2">KDP spec comparison</p>
-                      <table className="w-full text-sm border border-m2p-border rounded-lg border-collapse">
+                    <div className="mb-4 overflow-x-auto rounded-xl border border-m2p-border/50 overflow-hidden shadow-sm">
+                      <p className="text-[10px] font-black tracking-[0.12em] uppercase text-m2p-muted mb-0 px-4 py-3 bg-gradient-to-r from-[#1A6B2A]/12 to-transparent">
+                        KDP spec comparison
+                      </p>
+                      <table className="w-full text-sm border-collapse">
                         <thead>
-                          <tr className="bg-m2p-border/30">
-                            <th className="text-left p-2 border-b border-m2p-border">Requirement</th>
-                            <th className="text-left p-2 border-b border-m2p-border">Your file</th>
-                            <th className="text-left p-2 border-b border-m2p-border">KDP required</th>
-                            <th className="text-left p-2 border-b border-m2p-border">Status</th>
+                          <tr style={{ background: "linear-gradient(180deg, #1A6B2A 0%, #0D3D18 100%)" }}>
+                            <th className="text-left p-3 text-[10px] font-black tracking-wider uppercase text-white/95 border-b border-white/10">Requirement</th>
+                            <th className="text-left p-3 text-[10px] font-black tracking-wider uppercase text-white/95 border-b border-white/10">Your file</th>
+                            <th className="text-left p-3 text-[10px] font-black tracking-wider uppercase text-white/95 border-b border-white/10">KDP required</th>
+                            <th className="text-left p-3 text-[10px] font-black tracking-wider uppercase text-white/95 border-b border-white/10">Status</th>
                           </tr>
                         </thead>
-                        <tbody>
+                        <tbody className="bg-white/90">
                           {report.specTable.map((row, i) => (
-                            <tr key={i} className="border-b border-m2p-border/50">
-                              <td className="p-2">{row.requirement}</td>
-                              <td className="p-2">{row.yourFile}</td>
-                              <td className="p-2">{row.kdpRequired}</td>
-                              <td className="p-2">{row.status === "pass" ? "✅" : row.status === "warning" ? "⚠️" : "❌"}</td>
+                            <tr key={i} className={`border-b border-m2p-border/40 ${i % 2 === 1 ? "bg-m2p-ivory/40" : ""}`}>
+                              <td className="p-2.5 align-top">{row.requirement}</td>
+                              <td className="p-2.5 align-top">{row.yourFile}</td>
+                              <td className="p-2.5 align-top">{row.kdpRequired}</td>
+                              <td className="p-2.5">{row.status === "pass" ? "✅" : row.status === "warning" ? "⚠️" : "❌"}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -830,11 +909,11 @@ export default function DownloadPage() {
                     const show = grouped.slice(0, MAX_ISSUES_GROUP_DISPLAY);
                     const remaining = totalGroups - show.length;
                     return (
-                      <div className="mt-4 pt-4 border-t border-m2p-border">
-                        <p className="text-xs font-medium text-m2p-orange mb-2">Issues</p>
+                      <div className="mt-4 pt-5 border-t border-m2p-border/60">
+                        <p className="text-[10px] font-black tracking-[0.14em] uppercase mb-3" style={{ color: "#D65A2F" }}>Issues</p>
                         <ul className="text-sm text-m2p-muted space-y-3">
                           {show.map((item, i) => (
-                            <li key={i} className="rounded-lg border border-m2p-border bg-white/60 px-4 py-3">
+                            <li key={i} className="rounded-xl border border-m2p-border/50 bg-white/80 px-4 py-3 shadow-sm border-l-[3px] border-l-m2p-orange/50 hover:shadow-md transition-shadow">
                               <div>
                                 {item.label ? <span className="text-xs font-bold uppercase tracking-wide text-m2p-orange mr-2">{item.label}</span> : null}
                                 <span className="text-m2p-ink font-medium">{item.message}</span>
@@ -858,8 +937,8 @@ export default function DownloadPage() {
                     );
                   })()}
                   {report.recommendations && report.recommendations.length > 0 && (
-                    <div className="mt-4 pt-4 border-t border-m2p-border">
-                      <p className="text-xs font-medium text-m2p-live mb-2">Recommendations</p>
+                    <div className="mt-4 pt-5 border-t border-m2p-border/60">
+                      <p className="text-[10px] font-black tracking-[0.12em] uppercase text-m2p-live mb-2">Recommendations</p>
                       <ul className="text-xs text-m2p-muted list-disc list-inside space-y-1">
                         {report.recommendations.map((rec, i) => (
                           <li key={i}>{rec}</li>
@@ -901,23 +980,27 @@ export default function DownloadPage() {
                     </div>
                   )}
                 </div>
-                <div className="mt-4 pt-4 border-t border-m2p-border no-print">
-                  {/* Report expiry urgency */}
-                  <p className="text-center text-sm text-m2p-muted mb-4">
-                    ⏳ Report expires in 24 hours — download now to keep a copy.
-                  </p>
-                  {report.annotatedPdfDownloadUrl && (
-                    <div className="flex justify-center mb-3">
-                      <a
-                        href={report.annotatedPdfDownloadUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="bg-m2p-orange text-white px-6 py-3 rounded-lg font-bold hover:bg-m2p-orange-hover cursor-pointer transition-colors inline-block"
-                      >
-                        Download Annotated PDF (with highlights)
-                      </a>
-                    </div>
-                  )}
+                <div className="mt-6 pt-6 border-t border-m2p-border/50 no-print">
+                  <div
+                    className="rounded-2xl border border-[#1A6B2A]/15 p-5 mb-5 text-center"
+                    style={{ background: "rgba(13,61,24,0.06)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.5)" }}
+                  >
+                    <p className="text-[10px] font-black tracking-[0.12em] uppercase text-m2p-muted mb-2">Actions</p>
+                    <p className="text-sm text-m2p-ink font-semibold mb-4">
+                      ⏳ Report expires in 24 hours — download now to keep a copy.
+                    </p>
+                    {report.annotatedPdfDownloadUrl && (
+                      <div className="flex justify-center mb-3">
+                        <a
+                          href={report.annotatedPdfDownloadUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full sm:w-auto text-center bg-m2p-orange text-white px-6 py-3.5 rounded-xl font-black hover:bg-m2p-orange-hover cursor-pointer transition-all shadow-md hover:shadow-lg inline-block"
+                        >
+                          Download Annotated PDF (with highlights)
+                        </a>
+                      </div>
+                    )}
                   <div className="flex justify-center">
                     <button
                       type="button"
@@ -936,16 +1019,17 @@ export default function DownloadPage() {
     <head>
       <title>KDP Compliance Report — manu2print</title>
       <style>
-        body { font-family: Inter, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
-        .header { margin-bottom: 24px; }
-        .logo-manu { color: #F05A28; font-weight: bold; font-size: 24px; }
-        .logo-print { color: #4cd964; font-weight: bold; font-size: 24px; }
+        body { font-family: system-ui, Inter, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; background: linear-gradient(180deg, #FAF7EE 0%, #F2EBDF 100%); color: #1A1208; }
+        .header { margin-bottom: 28px; padding-bottom: 16px; border-bottom: 2px solid rgba(26,107,42,0.2); }
+        .logo-manu { color: #FF7A45; font-weight: 900; font-size: 24px; }
+        .logo-print { color: #4cd964; font-weight: 900; font-size: 24px; }
         .watermark { position: fixed; bottom: 20px; right: 20px; width: 100px; height: 100px; opacity: 0.08; pointer-events: none; z-index: -1; }
-        table { width: 100%; border-collapse: collapse; margin: 16px 0; }
-        th { background: #FAF7EE; padding: 8px; text-align: left; border: 1px solid #E0D8C4; }
-        td { padding: 8px; border: 1px solid #E0D8C4; }
+        table { width: 100%; border-collapse: collapse; margin: 16px 0; border-radius: 8px; overflow: hidden; }
+        th { background: linear-gradient(180deg, #1A6B2A 0%, #0D3D18 100%); color: #fff; padding: 10px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
+        td { padding: 10px; border: 1px solid #E0D8C4; background: rgba(255,255,255,0.85); }
+        tr:nth-child(even) td { background: rgba(250,247,238,0.9); }
         .footer { margin-top: 40px; text-align: center; color: #6B6151; font-size: 12px; border-top: 1px solid #E0D8C4; padding-top: 16px; }
-        @media print { .no-print { display: none; } }
+        @media print { .no-print { display: none; } body { background: #fff; } }
       </style>
     </head>
     <body>
@@ -971,37 +1055,41 @@ export default function DownloadPage() {
                         printWindow.close();
                       }, 500);
                     }}
-                      className="bg-m2p-orange text-white px-6 py-3 rounded-lg font-bold hover:bg-m2p-orange-hover cursor-pointer transition-colors"
+                      className="w-full sm:w-auto border-2 border-[#1A6B2A] bg-transparent text-[#0D3D18] px-6 py-3.5 rounded-xl font-black hover:bg-[#1A6B2A]/8 cursor-pointer transition-all"
                     >
                       Download Full Report (PDF)
                     </button>
                   </div>
+                  </div>
                   {/* Share-to-earn CTA — shown to authenticated users with a token */}
                   {shareToken && (
-                    <div className="mt-4 rounded-lg border border-m2p-border bg-white p-5">
-                      <p className="font-semibold text-center mb-0.5" style={{ color: "#4cd964" }}>
+                    <div
+                      className="mt-4 rounded-2xl p-5 text-center border border-[#1A6B2A]/25"
+                      style={{ background: "linear-gradient(180deg, #2D6A2D 0%, #1a4a1a 100%)", boxShadow: DL_VIS.cardShadow }}
+                    >
+                      <p className="font-black text-white text-base mb-1">
                         Know another author who should check their PDF?
                       </p>
-                      <p className="text-sm text-m2p-muted mb-3 text-center">
+                      <p className="text-sm text-white/80 mb-4 leading-relaxed">
                         Share your personal link — when they run a scan, you earn a free one.
                       </p>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                         <input
                           readOnly
                           value={`https://www.manu2print.com/kdp-pdf-checker?sh=${shareToken}`}
-                          className="flex-1 rounded-lg border border-m2p-border bg-m2p-ivory px-3 py-2 text-xs text-m2p-muted font-mono truncate"
+                          className="flex-1 rounded-xl border border-white/20 bg-black/20 px-3 py-2.5 text-xs text-white font-mono truncate"
                         />
                         <button
                           type="button"
                           onClick={handleCopyShareEarnLink}
-                          className="shrink-0 rounded-lg bg-m2p-orange text-white px-4 py-2 text-sm font-semibold hover:bg-m2p-orange-hover transition-colors"
+                          className="shrink-0 rounded-xl bg-m2p-orange text-white px-5 py-2.5 text-sm font-black hover:bg-m2p-orange-hover transition-colors shadow-md"
                         >
                           {shareCopied ? "Copied! ✓" : "Copy link"}
                         </button>
                       </div>
-                      <p className="text-xs text-m2p-muted mt-2 text-center">
+                      <p className="text-xs text-white/65 mt-3">
                         Track your referrals →{" "}
-                        <a href="/dashboard" className="text-m2p-orange hover:underline">Dashboard</a>
+                        <a href="/dashboard" className="text-[#C5E83A] font-bold hover:underline">Dashboard</a>
                       </p>
                     </div>
                   )}
@@ -1020,20 +1108,23 @@ export default function DownloadPage() {
                       verifyUrl: verifyLink,
                       issuesCount: shareIssues,
                     });
-                    const headerBg    = shareIsPass ? "#2D6A2D" : "#F05A28";
+                    const headerGrad = shareIsPass
+                      ? "linear-gradient(180deg, #1A6B2A 0%, #0D3D18 100%)"
+                      : "linear-gradient(180deg, #D65A2F 0%, #C14A27 100%)";
                     const btnBg       = shareIsPass ? "#F05A28" : "#2D6A2D";
 
                     return (
-                      <div className="mt-6 rounded-2xl overflow-hidden" style={{ border: "1.5px solid rgba(240,90,40,0.18)", boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
+                      <div className="mt-6 rounded-2xl overflow-hidden shadow-[0_16px_40px_-12px_rgba(13,61,24,0.2)] border border-[#1A6B2A]/12">
 
                         {/* Header bar */}
-                        <div style={{ background: headerBg, padding: "16px 24px", textAlign: "center" }}>
-                          <p style={{ fontWeight: 900, fontSize: 17, color: "#fff", margin: 0 }}>
+                        <div style={{ background: headerGrad, padding: "16px 24px", textAlign: "center" }}>
+                          <p style={{ fontWeight: 900, fontSize: 17, color: "#fff", margin: 0, letterSpacing: "-0.02em" }}>
                             {shareIsPass ? "✅ Share your result — inspire other authors" : "🛑 Share your result — warn other authors"}
                           </p>
+                          <div style={{ height: 2, width: 48, background: "rgba(197,232,58,0.5)", borderRadius: 1, margin: "10px auto 0" }} aria-hidden />
                         </div>
 
-                        <div style={{ background: "#FAF7EE", padding: "20px 18px 22px" }}>
+                        <div style={{ background: "linear-gradient(180deg, #FAF7EE 0%, #F2EBDF 100%)", padding: "20px 18px 22px" }}>
 
                           {/* Card preview */}
                           <p style={{ fontSize: 10, fontWeight: 700, color: "#9B8E7A", letterSpacing: "0.09em", textTransform: "uppercase", textAlign: "center", margin: "0 0 10px" }}>
@@ -1051,7 +1142,7 @@ export default function DownloadPage() {
                             <a
                               href={portraitUrl}
                               download={`manu2print-result-${shareIsPass ? "pass" : "fail"}-portrait.png`}
-                              style={{ display: "block", textAlign: "center", background: headerBg, color: "#fff", fontWeight: 700, fontSize: 14, padding: "14px 8px", borderRadius: 10, textDecoration: "none" }}
+                              style={{ display: "block", textAlign: "center", background: headerGrad, color: "#fff", fontWeight: 800, fontSize: 14, padding: "14px 8px", borderRadius: 12, textDecoration: "none", boxShadow: "0 4px 14px rgba(0,0,0,0.15)" }}
                             >
                               ⬇ Download — IG / FB / LinkedIn
                             </a>
@@ -1275,7 +1366,7 @@ export default function DownloadPage() {
 
         {/* Checker: annotated PDF download (status text now lives under viewer) */}
         {isChecker && report?.annotatedPdfUrl && annotatedReady && !annotatedError && (
-              <div className="mb-8 rounded-lg p-6 border bg-m2p-ink border-white/10">
+              <div className="mb-8 rounded-2xl p-5 border border-[#1A6B2A]/25 overflow-hidden" style={{ background: "linear-gradient(180deg, #143d1f 0%, #0a2412 100%)", boxShadow: DL_VIS.cardShadow }}>
                 <button
                   type="button"
                   onClick={() => {
@@ -1283,27 +1374,31 @@ export default function DownloadPage() {
                     const jobId = match?.[1];
                     if (jobId) window.open(`/api/kdp-annotated-pdf?job_id=${encodeURIComponent(jobId)}`, "_blank");
                   }}
-                  className="flex items-center gap-3 border border-m2p-orange rounded-lg p-4 bg-m2p-ivory/50 hover:bg-m2p-ivory/70 transition-colors cursor-pointer text-left w-full"
+                  className="flex items-center gap-4 border border-white/15 rounded-xl p-4 bg-white/10 hover:bg-white/15 transition-all cursor-pointer text-left w-full"
                 >
-                  <div className="w-10 h-10 border border-m2p-orange/30 rounded flex items-center justify-center text-m2p-orange flex-shrink-0">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-12 h-12 border border-[#C5E83A]/40 rounded-xl flex items-center justify-center text-[#C5E83A] flex-shrink-0 bg-black/20">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                   </div>
                   <div>
-                    <span className="font-medium text-white">Download Annotated PDF (issues highlighted)</span>
-                    <p className="text-sm text-m2p-muted mt-0.5">Opens in a new tab</p>
+                    <span className="font-black text-white text-base">Download Annotated PDF (issues highlighted)</span>
+                    <p className="text-sm text-white/65 mt-0.5">Opens in a new tab</p>
                   </div>
                 </button>
               </div>
         )}
 
         {/* Success message */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-m2p-orange mb-2">
+        <div
+          className="text-center mb-8 rounded-2xl border border-[#1A6B2A]/15 px-5 py-6"
+          style={{ background: "rgba(255,255,255,0.75)", boxShadow: DL_VIS.cardShadow }}
+        >
+          <p className="text-[10px] font-black tracking-[0.14em] uppercase text-m2p-muted mb-2">All set</p>
+          <h1 className="text-3xl sm:text-4xl font-black text-m2p-orange mb-2 leading-tight">
             {isFormatReview ? "Format Review Complete" : isChecker ? "KDP Check Complete" : isEpub ? "EPUB Ready!" : isDocx ? "Review DOCX Ready!" : "PDF Generated!"}
           </h1>
-          <p className="text-m2p-muted">
+          <p className="text-m2p-muted text-sm sm:text-base max-w-md mx-auto leading-relaxed">
             {isFormatReview
               ? "Review your KDP Readiness and top actions above. Fix the suggested items, then upload to KDP with confidence."
               : isChecker
@@ -1318,8 +1413,12 @@ export default function DownloadPage() {
 
         {/* Download section - hide for checker and format-review */}
         {!isChecker && !isFormatReview && (
-        <div className="bg-m2p-ink border border-m2p-orange rounded-lg p-6 mb-6">
-          <h2 className="text-xl font-semibold text-center mb-6 text-white">Download your file</h2>
+        <div
+          className="rounded-2xl p-6 sm:p-8 mb-6 border border-[#F05A28]/30 overflow-hidden"
+          style={{ background: "linear-gradient(165deg, #1A1208 0%, #2C1810 50%, #1A1208 100%)", boxShadow: DL_VIS.cardShadow }}
+        >
+          <div className="h-1 w-20 mx-auto rounded-full mb-5" style={{ background: DL_VIS.forestGrad }} aria-hidden />
+          <h2 className="text-xl font-black text-center mb-6 text-white tracking-tight">Download your file</h2>
 
           <div className="mb-6">
             {downloadError && (
@@ -1331,7 +1430,7 @@ export default function DownloadPage() {
               type="button"
               onClick={handleDownload}
               aria-label={isEpub ? "Download Kindle EPUB" : isDocx ? "Download review DOCX" : "Download KDP Print PDF"}
-              className="w-full flex items-center justify-between border border-m2p-orange rounded-lg p-4 bg-m2p-ivory/50 text-left hover:bg-m2p-ivory/70 transition-colors cursor-pointer"
+              className="w-full flex items-center justify-between border-2 border-m2p-orange/60 rounded-xl p-4 bg-white/95 text-left hover:bg-white transition-all cursor-pointer shadow-md hover:shadow-lg hover:border-m2p-orange"
             >
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 border border-m2p-orange/30 rounded flex items-center justify-center text-m2p-orange">
