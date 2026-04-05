@@ -871,10 +871,10 @@ export default function DownloadPage() {
                   {/* Share-to-earn CTA — shown to authenticated users with a token */}
                   {shareToken && (
                     <div className="mt-4 rounded-lg border border-m2p-border bg-white p-5">
-                      <p className="font-semibold text-m2p-ink mb-0.5">
+                      <p className="font-semibold text-center mb-0.5" style={{ color: "#4cd964" }}>
                         Know another author who should check their PDF?
                       </p>
-                      <p className="text-sm text-m2p-muted mb-3">
+                      <p className="text-sm text-m2p-muted mb-3 text-center">
                         Share your personal link — when they run a scan, you earn a free one.
                       </p>
                       <div className="flex items-center gap-2">
@@ -891,7 +891,7 @@ export default function DownloadPage() {
                           {shareCopied ? "Copied! ✓" : "Copy link"}
                         </button>
                       </div>
-                      <p className="text-xs text-m2p-muted mt-2">
+                      <p className="text-xs text-m2p-muted mt-2 text-center">
                         Track your referrals →{" "}
                         <a href="/dashboard" className="text-m2p-orange hover:underline">Dashboard</a>
                       </p>
