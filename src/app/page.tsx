@@ -95,18 +95,18 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── SECTION 2 — PAIN BLOCK ────────────────────────────────────── */}
-      <section className="relative border-t border-white/70 bg-gradient-to-b from-[#FAF7EE] via-m2p-ivory to-[#F0E9DC] py-14 text-center">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#1A6B2A]/20 to-transparent" aria-hidden />
-        <div className="relative mx-auto max-w-3xl px-6">
-          <div className="mx-auto max-w-2xl rounded-3xl border border-black/[0.06] bg-white/50 px-6 py-8 shadow-[0_16px_48px_-24px_rgba(26,18,8,0.18)] backdrop-blur-sm md:px-10">
-            <p className="text-m2p-ink text-xl font-medium leading-relaxed md:text-2xl">
-              Stop guessing if your PDF will pass.
+      {/* ─── SECTION 2 — PAIN BLOCK (orange band, compact) ───────────────── */}
+      <section className="relative border-t border-white/20 bg-gradient-to-br from-[#ff7a4a] via-m2p-orange to-[#d94a1f] py-8 text-center sm:py-9">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_90%_80%_at_50%_0%,rgba(255,255,255,0.12),transparent_55%)]" aria-hidden />
+        <div className="relative mx-auto max-w-xl px-5 sm:px-6">
+          <div className="rounded-2xl border border-white/25 bg-black/10 px-5 py-5 shadow-[0_12px_40px_-12px_rgba(0,0,0,0.25)] backdrop-blur-[2px] sm:px-6 sm:py-5">
+            <p className="text-[15px] font-semibold leading-snug text-white text-balance sm:text-lg sm:leading-relaxed">
+              Stop guessing if your PDF will pass.{" "}
+              <span className="font-medium text-white/95">
+                KDP won&apos;t spell out what&apos;s wrong until after you submit.
+              </span>
             </p>
-            <p className="mt-4 text-m2p-ink/90 text-xl leading-relaxed md:text-2xl">
-              KDP doesn&apos;t tell you what&apos;s wrong until after you submit.
-            </p>
-            <p className="mt-5 font-bebas text-2xl text-m2p-orange md:text-3xl tracking-wide">
+            <p className="mt-3 font-bebas text-xl tracking-wide text-white drop-shadow-sm sm:text-2xl">
               We do — before you upload.
             </p>
           </div>
@@ -132,33 +132,37 @@ export default function Home() {
           >
             How it works
           </h2>
-          <div className="mx-auto grid max-w-3xl grid-cols-1 gap-5 md:grid-cols-3 md:gap-6">
+          <div className="mx-auto grid max-w-3xl grid-cols-1 gap-4 md:grid-cols-3 md:gap-4">
             {[
               {
                 num: "01",
-                title: "Upload Your PDF",
-                body: "Drag and drop your manuscript PDF. Any browser, any operating system. No software to install.",
+                title: "Upload your PDF",
+                body: "Drag and drop your manuscript. Any browser — nothing to install.",
               },
               {
                 num: "02",
-                title: "We Scan Every KDP Rule",
-                body: "Our engine checks 26 KDP compliance rules — the same categories Amazon flags during review. Page size, margins, bleed, fonts, trim size. Every issue flagged with exact page number and fix guidance.",
+                title: "We scan every KDP rule",
+                body: "26 compliance checks — margins, bleed, fonts, trim, and more. Every hit shows the page and how to fix it.",
               },
               {
                 num: "03",
-                title: "Download Your Report",
-                body: "Get a detailed compliance report and an annotated PDF showing exactly where KDP will flag your file. Fix it. Upload with confidence.",
+                title: "Download your report",
+                body: "Full report plus an annotated PDF. Fix issues, re-export, upload with confidence.",
               },
             ].map((step) => (
               <div
                 key={step.num}
-                className="rounded-2xl border border-white/[0.09] bg-white/[0.04] px-5 py-8 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-sm transition-all duration-300 hover:border-white/15 hover:bg-white/[0.06]"
+                className="rounded-xl border border-white/20 bg-gradient-to-b from-[#ff8f5c] to-m2p-orange px-4 py-5 text-center shadow-[0_10px_28px_-8px_rgba(0,0,0,0.45)] ring-1 ring-black/10 transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_32px_-8px_rgba(0,0,0,0.5)]"
               >
-                <div className="font-bebas text-5xl leading-none text-m2p-orange/95 mb-3 tabular-nums">
+                <div className="font-bebas text-4xl leading-none text-white drop-shadow-sm tabular-nums">
                   {step.num}
                 </div>
-                <h3 className="font-bebas text-xl text-m2p-ivory mb-3">{step.title}</h3>
-                <p className="text-sm leading-relaxed text-m2p-ivory/72">{step.body}</p>
+                <h3 className="mt-2 font-sans text-[15px] font-bold leading-tight text-white">
+                  {step.title}
+                </h3>
+                <p className="mt-2 text-left text-[13px] leading-relaxed text-[#2c1810]/90">
+                  {step.body}
+                </p>
               </div>
             ))}
           </div>
