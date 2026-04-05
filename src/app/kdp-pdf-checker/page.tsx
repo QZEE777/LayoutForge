@@ -530,7 +530,7 @@ export default function KdpPdfCheckerPage() {
 
               <div className="rounded-xl px-4 py-3 mb-7"
                 style={{ background: "rgba(240,90,40,0.05)", border: "1px solid rgba(240,90,40,0.12)" }}>
-                <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: "#f05a28" }}>Most files fail on:</p>
+                <p className="text-xs font-bold uppercase tracking-wide mb-2 text-center" style={{ color: "#f05a28" }}>Most files fail on:</p>
                 <div className="grid grid-cols-2 gap-1">
                   {["Margins", "Trim size", "Font embedding", "Bleed settings"].map((f) => (
                     <div key={f} className="flex items-center gap-1.5 text-sm" style={{ color: "#3a3020" }}>
