@@ -111,7 +111,7 @@ function ChipGroup<T extends string>({
 }) {
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: "#9B8E7E" }}>
+      <p className="text-xs font-semibold uppercase tracking-wide mb-1.5 text-center" style={{ color: "#9B8E7E" }}>
         {label}
       </p>
       <div className="flex gap-2">
