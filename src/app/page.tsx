@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { BrandWordmark } from "@/components/BrandWordmark";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
@@ -26,98 +25,114 @@ export const metadata = {
 
 export default function Home() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-m2p-ivory">
       {/* NAVBAR */}
       <SiteNav />
 
       {/* ─── SECTION 1 — HERO ─────────────────────────────────────────── */}
-      {/* Background: near-black #1A1208 */}
-      <section className="bg-m2p-ink pt-2 pb-8 md:pt-3 md:pb-10">
-        <div className="max-w-6xl mx-auto px-6">
-          {/* Manny logo — top-left of hero */}
-          <div className="flex items-center gap-3 mb-2">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/manny-avatar.png"
-              alt="Manny"
-              width={80}
-              height={80}
-              style={{ borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
-            />
-            <BrandWordmark variant="onDark" className="text-lg" />
+      <section className="relative overflow-hidden bg-m2p-ink pt-3 pb-10 md:pt-5 md:pb-14">
+        <div className="pointer-events-none absolute -right-20 -top-28 h-[22rem] w-[22rem] rounded-full bg-[#f05a28]/15 blur-[80px]" aria-hidden />
+        <div className="pointer-events-none absolute -bottom-32 -left-16 h-[18rem] w-[18rem] rounded-full bg-[#4cd964]/10 blur-[70px]" aria-hidden />
+        <div
+          className="pointer-events-none absolute inset-0 opacity-40"
+          style={{
+            background: "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(255,255,255,0.07), transparent 55%)",
+          }}
+          aria-hidden
+        />
+        <div className="relative max-w-6xl mx-auto px-6">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="shrink-0 rounded-full bg-gradient-to-br from-white/25 to-white/[0.06] p-[3px] shadow-[0_8px_32px_rgba(0,0,0,0.35)] ring-1 ring-white/10">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/manny-avatar.png"
+                alt="Manny"
+                width={80}
+                height={80}
+                className="rounded-full"
+                style={{ objectFit: "cover", display: "block" }}
+              />
+            </div>
+            <BrandWordmark variant="onDark" className="text-lg sm:text-xl" />
           </div>
-          <div className="flex flex-col lg:flex-row items-center gap-4 lg:gap-8">
-            {/* LEFT — text content */}
-            <div className="flex-[1.1] w-full lg:w-auto order-2 lg:order-1 text-center">
+          <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+            <div className="flex-[1.1] w-full lg:w-auto order-2 lg:order-1 text-center lg:text-left">
               <h1 className="font-bebas text-m2p-ivory leading-none tracking-wide mb-4">
                 <span
-                  className="block"
+                  className="block drop-shadow-[0_2px_24px_rgba(0,0,0,0.35)]"
                   style={{ fontSize: "clamp(3rem, 7vw, 6rem)" }}
                 >
                   KDP PDF <span className="text-m2p-live">Checker</span>
                 </span>
                 <span
-                  className="block text-m2p-ivory/80"
-                  style={{ fontSize: "clamp(1.4rem, 3.2vw, 2.5rem)", marginTop: "0.5rem", lineHeight: 1.15 }}
+                  className="block text-m2p-ivory/85 text-balance"
+                  style={{ fontSize: "clamp(1.35rem, 3vw, 2.35rem)", marginTop: "0.5rem", lineHeight: 1.18 }}
                 >
-                  Find Formatting Errors<br />
-                  Before Amazon Rejects Your Book
+                  Find formatting errors before Amazon rejects your book
                 </span>
               </h1>
-              <p className="text-m2p-ivory/90 text-lg max-w-xl mx-auto mb-1 leading-relaxed">
-                Check your PDF before you upload to KDP.<br />
-                See every issue — page by page — in minutes.
+              <p className="text-m2p-ivory/88 text-lg max-w-xl mx-auto lg:mx-0 mb-2 leading-relaxed text-balance">
+                Check your PDF before you upload to KDP. See every issue — page by page — in minutes.
               </p>
-              <p className="text-m2p-live text-sm italic mb-5">
+              <p className="text-m2p-live/95 text-sm font-medium mb-6 max-w-xl mx-auto lg:mx-0">
                 Already rejected? We show you exactly why.
               </p>
-              <div className="flex justify-center mb-5">
+              <div className="flex justify-center lg:justify-start">
                 <Link
                   href="/kdp-pdf-checker"
-                  className="bg-m2p-orange hover:bg-m2p-orange-hover text-white font-bold text-base px-8 py-4 rounded-xl shadow-[0_4px_24px_rgba(240,90,40,0.45)] hover:-translate-y-0.5 transition-all uppercase tracking-wide"
+                  className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-b from-[#ff7a4a] to-m2p-orange px-8 py-4 text-base font-bold text-white shadow-[0_8px_32px_rgba(240,90,40,0.5)] ring-1 ring-white/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(240,90,40,0.55)] hover:brightness-[1.03] active:translate-y-0"
                 >
-                  Check My PDF for KDP Errors — $9
+                  Check my PDF — $9
                 </Link>
               </div>
             </div>
-            {/* RIGHT — hero video / demo loop */}
             <div className="flex-1 flex flex-col items-center w-full lg:w-auto order-1 lg:order-2">
-              <HeroDemo />
+              <div className="w-full max-w-[min(100%,420px)] lg:max-w-none rounded-2xl bg-gradient-to-b from-white/[0.06] to-transparent p-1 ring-1 ring-white/10 shadow-[0_24px_80px_-20px_rgba(0,0,0,0.55)]">
+                <HeroDemo />
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* ─── SECTION 2 — PAIN BLOCK ────────────────────────────────────── */}
-      {/* Background: ivory #FAF7EE */}
-      <section className="bg-m2p-ivory py-10 text-center">
-        <div className="max-w-3xl mx-auto px-6">
-          <p className="text-m2p-ink text-xl md:text-2xl leading-relaxed mb-3">
-            Stop guessing if your PDF will pass.
-          </p>
-          <p className="text-m2p-ink text-xl md:text-2xl leading-relaxed mb-3">
-            KDP doesn&apos;t tell you what&apos;s wrong until after you submit.
-          </p>
-          <p className="text-m2p-orange font-bold text-xl md:text-2xl leading-relaxed">
-            We do — before you upload.
-          </p>
+      <section className="relative border-t border-white/70 bg-gradient-to-b from-[#FAF7EE] via-m2p-ivory to-[#F0E9DC] py-14 text-center">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#1A6B2A]/20 to-transparent" aria-hidden />
+        <div className="relative mx-auto max-w-3xl px-6">
+          <div className="mx-auto max-w-2xl rounded-3xl border border-black/[0.06] bg-white/50 px-6 py-8 shadow-[0_16px_48px_-24px_rgba(26,18,8,0.18)] backdrop-blur-sm md:px-10">
+            <p className="text-m2p-ink text-xl font-medium leading-relaxed md:text-2xl">
+              Stop guessing if your PDF will pass.
+            </p>
+            <p className="mt-4 text-m2p-ink/90 text-xl leading-relaxed md:text-2xl">
+              KDP doesn&apos;t tell you what&apos;s wrong until after you submit.
+            </p>
+            <p className="mt-5 font-bebas text-2xl text-m2p-orange md:text-3xl tracking-wide">
+              We do — before you upload.
+            </p>
+          </div>
         </div>
       </section>
 
       {/* ─── SECTION 3 — HOW IT WORKS ──────────────────────────────────── */}
-      {/* Background: near-black #1A1208 */}
-      <section id="how-it-works" className="bg-m2p-ink py-12 text-center">
-        <div className="max-w-4xl mx-auto px-6">
-          <p className="font-bebas text-m2p-orange mb-2 uppercase tracking-[0.1em] text-sm">
-            THE PROCESS
+      <section
+        id="how-it-works"
+        className="relative overflow-hidden py-16 text-center"
+        style={{
+          background: "linear-gradient(180deg, #12100c 0%, #1A1208 40%, #0f0e0b 100%)",
+        }}
+      >
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,rgba(240,90,40,0.08),transparent)]" aria-hidden />
+        <div className="relative mx-auto max-w-4xl px-6">
+          <p className="mb-1 text-xs font-semibold tracking-tight text-m2p-orange/90">
+            The process
           </p>
           <h2
-            className="font-bebas text-m2p-ivory leading-tight mb-8"
+            className="font-bebas text-m2p-ivory leading-tight mb-10 drop-shadow-sm"
             style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}
           >
-            HOW IT WORKS
+            How it works
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl mx-auto">
+          <div className="mx-auto grid max-w-3xl grid-cols-1 gap-5 md:grid-cols-3 md:gap-6">
             {[
               {
                 num: "01",
@@ -137,13 +152,13 @@ export default function Home() {
             ].map((step) => (
               <div
                 key={step.num}
-                className="bg-white/5 border border-white/10 rounded-2xl px-6 py-8 text-center"
+                className="rounded-2xl border border-white/[0.09] bg-white/[0.04] px-5 py-8 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-sm transition-all duration-300 hover:border-white/15 hover:bg-white/[0.06]"
               >
-                <div className="font-bebas text-5xl text-m2p-orange leading-none mb-3">
+                <div className="font-bebas text-5xl leading-none text-m2p-orange/95 mb-3 tabular-nums">
                   {step.num}
                 </div>
-                <h3 className="font-bebas text-m2p-ivory text-xl mb-3">{step.title}</h3>
-                <p className="text-m2p-ivory/70 text-sm leading-relaxed">{step.body}</p>
+                <h3 className="font-bebas text-xl text-m2p-ivory mb-3">{step.title}</h3>
+                <p className="text-sm leading-relaxed text-m2p-ivory/72">{step.body}</p>
               </div>
             ))}
           </div>
@@ -151,16 +166,15 @@ export default function Home() {
       </section>
 
       {/* ─── SECTION 4 — FEATURE OUTCOMES ─────────────────────────────── */}
-      {/* Background: ivory #FAF7EE */}
-      <section className="bg-m2p-ivory py-10 text-center">
-        <div className="max-w-3xl mx-auto px-6">
-          <h2 className="font-bebas text-m2p-ink leading-tight mb-6" style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
-            <span className="block">Everything Amazon KDP Checks</span>
-            <span className="block text-m2p-orange" style={{ fontSize: "clamp(1.25rem, 2.5vw, 2rem)", marginTop: "0.2rem" }}>
-              Before You Upload
+      <section className="border-t border-black/[0.04] bg-gradient-to-b from-[#F7F2E8] to-m2p-ivory py-14 text-center">
+        <div className="mx-auto max-w-3xl px-6">
+          <h2 className="font-bebas text-m2p-ink leading-tight mb-8" style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
+            <span className="block text-balance">Everything Amazon KDP checks</span>
+            <span className="mt-1 block text-m2p-orange" style={{ fontSize: "clamp(1.25rem, 2.5vw, 2rem)" }}>
+              before you upload
             </span>
           </h2>
-          <ul className="space-y-3 text-left max-w-xl mx-auto">
+          <ul className="mx-auto max-w-xl space-y-3 text-left">
             {[
               "Know your trim size is KDP-approved before you submit",
               "Catch margin violations that trigger instant KDP rejection",
@@ -168,11 +182,14 @@ export default function Home() {
               "Confirm your fonts will print correctly on every page",
               "Verify bleed, page count, and file size are within KDP limits",
             ].map((outcome) => (
-              <li key={outcome} className="flex items-start gap-4">
-                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-m2p-orange text-white flex items-center justify-center text-xs font-bold mt-0.5">
+              <li
+                key={outcome}
+                className="flex items-start gap-4 rounded-2xl border border-black/[0.05] bg-white/60 px-4 py-3 shadow-[0_4px_24px_-12px_rgba(26,18,8,0.12)] backdrop-blur-[2px] transition-colors hover:border-[#1A6B2A]/15"
+              >
+                <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-m2p-orange to-[#d94e20] text-xs font-bold text-white shadow-sm ring-2 ring-white">
                   ✓
                 </span>
-                <span className="text-m2p-ink text-base leading-relaxed">{outcome}</span>
+                <span className="text-base leading-relaxed text-m2p-ink/95 pt-0.5">{outcome}</span>
               </li>
             ))}
           </ul>
@@ -180,62 +197,63 @@ export default function Home() {
       </section>
 
       {/* ─── SECTION 4B — TESTIMONIALS ─────────────────────────────────── */}
-      {/* Background: ivory #FAF7EE */}
       <section className="bg-m2p-ivory py-20 text-center">
-        <div className="max-w-4xl mx-auto px-6">
-          <p className="font-bebas text-m2p-orange mb-2 uppercase tracking-[0.1em] text-sm">
-            WHAT AUTHORS SAY
+        <div className="mx-auto max-w-4xl px-6">
+          <p className="mb-1 text-xs font-semibold tracking-tight text-m2p-orange">
+            What authors say
           </p>
-          <h2 className="font-bebas text-m2p-ink leading-tight mb-12" style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
-            <span className="block">Real Authors.</span>
-            <span className="block text-m2p-orange" style={{ fontSize: "clamp(1.25rem, 2.5vw, 2rem)", marginTop: "0.2rem" }}>
-              Real Results.
+          <h2 className="font-bebas text-m2p-ink leading-tight mb-10" style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
+            <span className="block">Real authors.</span>
+            <span className="mt-1 block text-m2p-orange" style={{ fontSize: "clamp(1.25rem, 2.5vw, 2rem)" }}>
+              Real results.
             </span>
           </h2>
-          <TestimonialsCarousel />
+          <div className="rounded-3xl border border-black/[0.05] bg-white/40 p-1 shadow-[0_20px_60px_-28px_rgba(26,18,8,0.15)] backdrop-blur-sm sm:p-2">
+            <TestimonialsCarousel />
+          </div>
         </div>
       </section>
 
       {/* ─── SECTION 5 — TOOLS GRID ─────────────────────────────────────── */}
-      {/* Background: white — distinct from ivory sections */}
-      <section id="tools" className="bg-white py-20 text-center">
-        <div className="max-w-6xl mx-auto px-6">
-          <p className="font-bebas text-m2p-orange mb-2 uppercase tracking-[0.1em] text-sm">
-            OUR TOOLS
+      <section id="tools" className="bg-gradient-to-b from-white via-[#FAFAF8] to-white py-20 text-center">
+        <div className="mx-auto max-w-6xl px-6">
+          <p className="mb-1 text-xs font-semibold tracking-tight text-m2p-orange">
+            Our tools
           </p>
           <h2
-            className="font-bebas text-m2p-ink leading-tight"
+            className="font-bebas text-m2p-ink leading-tight text-balance"
             style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}
           >
-            EVERYTHING AN INDIE AUTHOR NEEDS. NOTHING THEY DON&apos;T.
+            Everything an indie author needs. Nothing they don&apos;t.
           </h2>
-          <p className="text-base text-m2p-muted max-w-lg mx-auto mt-3 mb-12">
+          <p className="mx-auto mt-3 max-w-lg text-base text-m2p-muted mb-12">
             PDF tools first — browser-based, built for KDP. More formats and platforms coming soon.
           </p>
 
           {/* Print Ready Check — featured top card */}
-          <div className="max-w-md mx-auto mb-10">
-            <div className="bg-m2p-ivory border-2 border-m2p-orange rounded-2xl p-7 text-center relative shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all">
-              <div className="absolute top-4 right-4 flex gap-2">
+          <div className="mx-auto mb-12 max-w-md">
+            <div className="relative overflow-hidden rounded-3xl border-2 border-m2p-orange/90 bg-gradient-to-br from-m2p-ivory via-white to-[#E8F5E9]/40 p-8 text-center shadow-[0_20px_50px_-20px_rgba(240,90,40,0.35)] ring-1 ring-black/[0.04] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_28px_64px_-24px_rgba(240,90,40,0.42)]">
+              <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-m2p-orange/10 blur-2xl" aria-hidden />
+              <div className="absolute right-4 top-4 z-10 flex gap-2">
                 <ToolBadge status="live" />
               </div>
-              <div className="text-4xl mb-3">🎯</div>
-              <h3 className="font-bebas text-xl text-m2p-ink mb-2">Print Ready Check</h3>
-              <p className="text-sm text-m2p-muted">
+              <div className="relative z-[1] text-4xl mb-3">🎯</div>
+              <h3 className="relative z-[1] font-bebas text-xl text-m2p-ink mb-2">Print Ready Check</h3>
+              <p className="relative z-[1] text-sm text-m2p-muted leading-relaxed">
                 Upload your PDF and get a full KDP compliance report. Margins, page size, bleed — flagged
                 with exact page numbers and an annotated PDF.
               </p>
               <Link
                 href="/kdp-pdf-checker"
-                className="text-m2p-orange font-semibold text-sm mt-4 inline-block hover:underline"
+                className="relative z-[1] mt-5 inline-flex items-center gap-1 text-sm font-bold text-m2p-orange transition-colors hover:text-m2p-orange-hover"
               >
-                → Check My PDF — $9
+                Check my PDF — $9 <span aria-hidden>→</span>
               </Link>
             </div>
           </div>
 
           {/* Free tools grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl mx-auto">
+          <div className="mx-auto grid max-w-5xl grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
             {[
               {
                 icon: "🗜️",
@@ -296,26 +314,27 @@ export default function Home() {
             ].map((tool) => (
               <div
                 key={tool.title}
-                className="bg-m2p-ivory rounded-2xl p-7 text-center relative shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all border-2" style={{ borderColor: "#2D6A2D" }}
+                className="group relative overflow-hidden rounded-2xl border-2 border-[#2D6A2D]/30 bg-gradient-to-b from-m2p-ivory to-white p-7 text-center shadow-[0_10px_36px_-14px_rgba(45,106,45,0.18)] ring-1 ring-black/[0.03] transition-all duration-300 hover:-translate-y-1 hover:border-[#2D6A2D]/50 hover:shadow-[0_18px_48px_-16px_rgba(45,106,45,0.25)]"
               >
-                <div className="absolute top-4 right-4">
+                <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-[#2D6A2D]/[0.06] blur-xl transition-opacity group-hover:opacity-100" aria-hidden />
+                <div className="absolute right-4 top-4 z-10">
                   <ToolBadge status="free" />
                 </div>
-                <div className="text-4xl mb-3">{tool.icon}</div>
-                <h3 className="font-bebas text-xl text-m2p-ink mb-2">{tool.title}</h3>
-                <p className="text-sm text-m2p-muted">{tool.desc}</p>
+                <div className="relative text-4xl mb-3 drop-shadow-sm">{tool.icon}</div>
+                <h3 className="relative font-bebas text-xl text-m2p-ink mb-2">{tool.title}</h3>
+                <p className="relative text-sm text-m2p-muted leading-relaxed">{tool.desc}</p>
                 <Link
                   href={tool.href}
-                  className="text-m2p-orange font-semibold text-sm mt-4 inline-block hover:underline"
+                  className="relative mt-4 inline-flex items-center gap-1 text-sm font-bold text-m2p-orange transition-colors hover:text-m2p-orange-hover"
                 >
-                  {tool.cta}
+                  {tool.cta.replace(/^→\s*/, "")} <span aria-hidden>→</span>
                 </Link>
               </div>
             ))}
 
             {/* Coming soon card — no link, no interaction */}
-            <div className="bg-m2p-ivory rounded-2xl p-7 text-center relative shadow-sm border-2 opacity-60 cursor-default select-none" style={{ borderColor: "#B0A898" }}>
-              <div className="absolute top-4 right-4">
+            <div className="relative cursor-default select-none overflow-hidden rounded-2xl border-2 border-[#B0A898]/60 bg-m2p-ivory/80 p-7 text-center opacity-70 shadow-sm ring-1 ring-black/[0.03]">
+              <div className="absolute right-4 top-4 z-10">
                 <ToolBadge status="coming-soon" />
               </div>
               <div className="text-4xl mb-3">🔢</div>
@@ -330,26 +349,35 @@ export default function Home() {
       </section>
 
       {/* ─── SECTION 6 — PRICING / SCAN PACKS ─────────────────────────── */}
-      {/* Background: near-black #1A1208 */}
-      <section id="pricing" className="py-20 text-center" style={{ backgroundColor: "#1A3A2A" }}>
-        <div className="max-w-6xl mx-auto px-6">
-          <p className="font-bebas text-m2p-orange mb-2 uppercase tracking-[0.1em] text-sm">
-            PRICING
+      <section
+        id="pricing"
+        className="relative overflow-hidden py-20 text-center"
+        style={{
+          background: "linear-gradient(165deg, #0f2419 0%, #1A3A2A 45%, #142a1f 100%)",
+        }}
+      >
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_0%,rgba(240,90,40,0.12),transparent)]" aria-hidden />
+        <div className="relative mx-auto max-w-6xl px-6">
+          <p className="mb-1 text-xs font-semibold tracking-tight text-m2p-orange">
+            Pricing
           </p>
           <h2
             className="font-bebas text-m2p-ivory leading-tight mb-3"
             style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}
           >
-            Choose Your Scan Pack
+            Choose your scan pack
           </h2>
-          <p className="text-m2p-ivory/70 text-base max-w-md mx-auto mb-12">
+          <p className="mx-auto mb-12 max-w-md text-base text-m2p-ivory/70">
             Start simple or save more as you go. Credits never expire. No subscription.
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 max-w-5xl mx-auto">
+          <div className="mx-auto grid max-w-5xl grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
 
             {/* Card 1 — Single Scan (LIVE) */}
-            <div className="border-2 border-m2p-orange rounded-2xl p-6 text-center flex flex-col relative" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
+            <div
+              className="relative flex flex-col rounded-2xl border-2 border-m2p-orange p-6 text-center shadow-[0_16px_48px_-20px_rgba(0,0,0,0.45)] ring-1 ring-white/5 backdrop-blur-sm transition-transform duration-300 hover:-translate-y-0.5"
+              style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.11) 0%, rgba(255,255,255,0.05) 100%)" }}
+            >
               <div className="mb-3">
                 <span className="inline-block bg-m2p-live text-m2p-ink text-xs font-bold tracking-widest uppercase px-3 py-1.5 rounded-full shadow-[0_0_8px_rgba(76,217,100,0.5)]">
                   LIVE
@@ -366,14 +394,17 @@ export default function Home() {
               </ul>
               <Link
                 href="/kdp-pdf-checker"
-                className="block bg-m2p-orange hover:bg-m2p-orange-hover text-white font-bold px-5 py-3 rounded-xl text-sm transition-colors shadow-[0_4px_16px_rgba(240,90,40,0.35)]"
+                className="block rounded-xl bg-gradient-to-b from-[#ff7a4a] to-m2p-orange px-5 py-3 text-sm font-bold text-white shadow-[0_6px_24px_rgba(240,90,40,0.4)] ring-1 ring-white/15 transition-all hover:brightness-[1.05]"
               >
-                Check My PDF for KDP Errors — $9
+                Check my PDF — $9
               </Link>
             </div>
 
             {/* Card 2 — Author Pack */}
-            <div className="border-2 border-m2p-orange/40 rounded-2xl p-6 text-center flex flex-col relative" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
+            <div
+              className="relative flex flex-col rounded-2xl border-2 border-m2p-orange/45 p-6 text-center shadow-[0_12px_40px_-18px_rgba(0,0,0,0.4)] ring-1 ring-white/5 backdrop-blur-sm transition-transform duration-300 hover:-translate-y-0.5"
+              style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.11) 0%, rgba(255,255,255,0.05) 100%)" }}
+            >
               <div className="mb-3 flex flex-wrap gap-2 justify-center">
                 <span className="inline-block bg-m2p-live text-m2p-ink text-xs font-bold tracking-widest uppercase px-3 py-1.5 rounded-full shadow-[0_0_8px_rgba(76,217,100,0.5)]">
                   LIVE
@@ -399,7 +430,10 @@ export default function Home() {
             </div>
 
             {/* Card 3 — Indie Publisher */}
-            <div className="border border-white/10 rounded-2xl p-6 text-center flex flex-col relative" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
+            <div
+              className="relative flex flex-col rounded-2xl border border-white/12 p-6 text-center shadow-lg shadow-black/20 ring-1 ring-white/5 backdrop-blur-sm transition-transform duration-300 hover:-translate-y-0.5"
+              style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.04) 100%)" }}
+            >
               <div className="mb-3">
                 <span className="inline-block bg-m2p-live text-m2p-ink text-xs font-bold tracking-widest uppercase px-3 py-1.5 rounded-full shadow-[0_0_8px_rgba(76,217,100,0.5)]">
                   LIVE
@@ -422,7 +456,10 @@ export default function Home() {
             </div>
 
             {/* Card 4 — Pro / Studio */}
-            <div className="border border-white/10 rounded-2xl p-6 text-center flex flex-col relative" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
+            <div
+              className="relative flex flex-col rounded-2xl border border-white/12 p-6 text-center shadow-lg shadow-black/20 ring-1 ring-white/5 backdrop-blur-sm transition-transform duration-300 hover:-translate-y-0.5"
+              style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.04) 100%)" }}
+            >
               <div className="mb-3">
                 <span className="inline-block bg-m2p-live text-m2p-ink text-xs font-bold tracking-widest uppercase px-3 py-1.5 rounded-full shadow-[0_0_8px_rgba(76,217,100,0.5)]">
                   LIVE
@@ -445,82 +482,87 @@ export default function Home() {
             </div>
           </div>
 
-          <p className="text-m2p-ivory/50 text-sm mt-8">
+          <p className="mt-8 text-sm text-m2p-ivory/50">
             Credits never expire. No subscription. Use when you need.
           </p>
         </div>
       </section>
 
       {/* ─── SECTION 7 — SECONDARY CTA ─────────────────────────────────── */}
-      {/* Background: orange #F05A28 */}
-      <section className="bg-m2p-orange py-20 text-center">
-        <div className="max-w-3xl mx-auto px-6">
+      <section className="relative overflow-hidden bg-gradient-to-br from-m2p-orange via-[#e84e22] to-[#c43d18] py-20 text-center">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_70%_20%,rgba(255,255,255,0.15),transparent)]" aria-hidden />
+        <div className="relative mx-auto max-w-3xl px-6">
           <h2
-            className="font-bebas text-white leading-tight mb-4"
+            className="font-bebas text-white leading-tight mb-4 drop-shadow-md text-balance"
             style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)", textWrap: "balance" } as React.CSSProperties}
           >
-            Ready to Stop KDP Rejections Before They Happen?
+            Ready to stop KDP rejections before they happen?
           </h2>
-          <p className="text-white/85 text-lg max-w-lg mx-auto mb-10">
+          <p className="mx-auto mb-10 max-w-lg text-lg text-white/90">
             Thousands of KDP rejections happen every day. Most are avoidable.
           </p>
           <Link
             href="/kdp-pdf-checker"
-            className="inline-block bg-white text-m2p-orange font-bold text-lg px-10 py-4 rounded-xl hover:scale-[1.02] transition-transform shadow-xl"
+            className="inline-block rounded-2xl bg-white px-10 py-4 text-lg font-bold text-m2p-orange shadow-[0_12px_40px_rgba(0,0,0,0.2)] ring-2 ring-white/30 transition-all hover:scale-[1.02] hover:shadow-[0_16px_48px_rgba(0,0,0,0.25)]"
           >
-            Scan My PDF for KDP Errors — $9
+            Scan my PDF — $9
           </Link>
         </div>
       </section>
 
       {/* ─── SECTION 7B — AFFILIATE CTA ─────────────────────────────────── */}
-      {/* Background: dark green #1A3A2A */}
-      <section className="py-14 text-center" style={{ backgroundColor: "#1A3A2A" }}>
-        <div className="max-w-3xl mx-auto px-6">
-          <span className="inline-block mb-4 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest"
-            style={{ background: "rgba(255,255,255,0.12)", color: "#fff" }}>
-            Earn With Us
+      <section
+        className="relative overflow-hidden py-16 text-center"
+        style={{
+          background: "linear-gradient(180deg, #152e22 0%, #1A3A2A 50%, #122018 100%)",
+        }}
+      >
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_80%_100%,rgba(76,217,100,0.08),transparent)]" aria-hidden />
+        <div className="relative mx-auto max-w-3xl px-6">
+          <span
+            className="mb-4 inline-block rounded-full border border-white/10 px-4 py-1.5 text-xs font-semibold tracking-tight text-white/95"
+            style={{ background: "rgba(255,255,255,0.1)" }}
+          >
+            Earn with us
           </span>
           <h2
-            className="font-bebas text-m2p-ivory leading-tight mb-3"
+            className="font-bebas text-m2p-ivory leading-tight mb-3 text-balance"
             style={{ fontSize: "clamp(1.75rem, 3.5vw, 2.75rem)" }}
           >
-            Refer Authors. Earn 40% on Every Pack Sale.
+            Refer authors. Earn 40% on every pack sale.
           </h2>
-          <p className="text-m2p-ivory/65 text-base max-w-lg mx-auto mb-8">
+          <p className="mx-auto mb-8 max-w-lg text-base text-m2p-ivory/65 leading-relaxed">
             Share your link. Earn up to $31.60 per pack sale — with a 12-month attribution cookie and monthly PayPal payouts. The best partner deal in the KDP space.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Link
               href="/partners/apply"
-              className="inline-block bg-m2p-green hover:opacity-90 text-white font-bold px-8 py-3 rounded-xl text-sm transition-opacity"
+              className="inline-block rounded-xl bg-[#2D6A2D] px-8 py-3 text-sm font-bold text-white shadow-[0_6px_24px_rgba(45,106,45,0.35)] ring-1 ring-white/10 transition-all hover:bg-[#256035]"
             >
-              Become a Partner →
+              Become a partner →
             </Link>
             <Link
               href="/partners"
-              className="inline-block border border-m2p-ivory/30 text-m2p-ivory/70 hover:text-m2p-ivory hover:border-m2p-ivory/60 font-bold px-8 py-3 rounded-xl text-sm transition-colors"
+              className="inline-block rounded-xl border border-m2p-ivory/35 px-8 py-3 text-sm font-bold text-m2p-ivory/75 transition-colors hover:border-m2p-ivory/55 hover:text-m2p-ivory"
             >
-              My Dashboard
+              My dashboard
             </Link>
           </div>
         </div>
       </section>
 
       {/* ─── SECTION 8 — PUBLISHING BEYOND AMAZON ──────────────────────── */}
-      {/* Background: sage #E8F0E8 */}
-      <section className="py-20 text-center" style={{ backgroundColor: "#E8F0E8" }}>
-        <div className="max-w-4xl mx-auto px-6">
+      <section className="border-t border-[#1A1208]/8 bg-gradient-to-b from-[#E8F0E8] via-[#E2EBE2] to-[#DCE8DC] py-20 text-center">
+        <div className="mx-auto max-w-4xl px-6">
           <p
-            className="font-bebas mb-2 uppercase tracking-[0.1em]"
-            style={{ color: "#1A1208", fontSize: "clamp(1rem, 2vw, 1.25rem)" }}
+            className="mb-2 text-xs font-semibold tracking-tight text-[#2D6A2D]"
           >
-            KDP is just the beginning.
+            KDP is just the beginning
           </p>
-          <h2 className="font-bebas leading-tight mb-4" style={{ color: "#1A1208", fontSize: "clamp(2rem, 4vw, 3rem)" }}>
-            <span className="block">Publishing Beyond Amazon</span>
-            <span className="block" style={{ fontSize: "clamp(1.25rem, 2.5vw, 2rem)", opacity: 0.75, marginTop: "0.2rem" }}>
-              Tools for Every Platform
+          <h2 className="font-bebas leading-tight mb-4 text-[#1A1208]" style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
+            <span className="block text-balance">Publishing beyond Amazon</span>
+            <span className="mt-1 block opacity-80" style={{ fontSize: "clamp(1.25rem, 2.5vw, 2rem)" }}>
+              Tools for every platform
             </span>
           </h2>
           <p className="text-[#1A1208]/70 text-base max-w-2xl mx-auto mb-8">
@@ -541,7 +583,7 @@ export default function Home() {
           </div>
 
           {/* Platform badges */}
-          <div className="flex flex-wrap gap-3 justify-center mb-12">
+          <div className="mb-12 flex flex-wrap justify-center gap-3">
             {[
               "IngramSpark Checker",
               "Barnes & Noble Press",
@@ -549,11 +591,11 @@ export default function Home() {
             ].map((platform) => (
               <span
                 key={platform}
-                className="inline-flex items-center gap-2 rounded-full border border-[#1A1208]/20 bg-white/60 px-4 py-2 text-sm font-medium text-[#1A1208]/70"
+                className="inline-flex items-center gap-2 rounded-full border border-[#1A1208]/12 bg-white/70 px-4 py-2.5 text-sm font-medium text-[#1A1208]/75 shadow-[0_4px_20px_-8px_rgba(26,18,8,0.12)] backdrop-blur-sm"
               >
                 {platform}
-                <span className="text-xs font-bold text-[#2D6A2D] tracking-widest uppercase">
-                  COMING SOON
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#2D6A2D]">
+                  Soon
                 </span>
               </span>
             ))}
