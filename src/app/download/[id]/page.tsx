@@ -872,15 +872,10 @@ export default function DownloadPage() {
                   {shareToken && (
                     <div className="mt-4 rounded-lg border border-m2p-border bg-white p-5">
                       <p className="font-semibold text-m2p-ink mb-0.5">
-                        {(() => {
-                          const score = calculatedScore ?? report?.readinessScore100 ?? 0;
-                          return score >= 70
-                            ? "Your file is ready — share it with other authors"
-                            : "This file needs work — help others check theirs first";
-                        })()}
+                        Know another author who should check their PDF?
                       </p>
                       <p className="text-sm text-m2p-muted mb-3">
-                        When someone checks their file from your link, you get a free scan.
+                        Share your personal link — when they run a scan, you earn a free one.
                       </p>
                       <div className="flex items-center gap-2">
                         <input
@@ -893,11 +888,11 @@ export default function DownloadPage() {
                           onClick={handleCopyShareEarnLink}
                           className="shrink-0 rounded-lg bg-m2p-orange text-white px-4 py-2 text-sm font-semibold hover:bg-m2p-orange-hover transition-colors"
                         >
-                          {shareCopied ? "Copied!" : "Copy link"}
+                          {shareCopied ? "Copied! ✓" : "Copy link"}
                         </button>
                       </div>
                       <p className="text-xs text-m2p-muted mt-2">
-                        Sign in to track your credits →{" "}
+                        Track your referrals →{" "}
                         <a href="/dashboard" className="text-m2p-orange hover:underline">Dashboard</a>
                       </p>
                     </div>
