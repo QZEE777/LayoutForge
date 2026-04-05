@@ -164,6 +164,11 @@ export default function DownloadPage() {
   /** Checker UI: readiness / approval % from issues only (not engine-stored scores). */
   const [calculatedScore, setCalculatedScore] = useState<number | null>(null);
 
+  // Scan context from URL params (set by checker upload page)
+  const scanBookType  = searchParams.get("bk") ?? "paperback";   // paperback | hardcover
+  const scanBleed     = searchParams.get("bl") === "1";           // true = with bleed
+  const scanColorMode = searchParams.get("cm") ?? "bw";           // bw | color
+
   const isDocx = report?.outputType === "docx";
   const isEpub = isEpubFlow || report?.outputType === "epub";
   const isChecker = isCheckerFlow || report?.outputType === "checker";
@@ -578,6 +583,32 @@ export default function DownloadPage() {
                       {report.scanDate && report.fileNameScanned && " · "}
                       {report.fileNameScanned && cleanFilenameForDisplay(report.fileNameScanned)}
                     </p>
+                  )}
+
+                  {/* Scan context badge — shows what the user declared before uploading */}
+                  {isChecker && (scanBookType !== "paperback" || scanBleed || scanColorMode !== "bw") && (
+                    <div className="mb-4 flex flex-wrap gap-2 items-center">
+                      <span className="text-xs text-m2p-muted font-medium">Scan context:</span>
+                      <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold bg-m2p-ivory border border-m2p-border text-m2p-ink">
+                        {scanBookType === "hardcover" ? "📕 Hardcover" : "📖 Paperback"}
+                      </span>
+                      <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold bg-m2p-ivory border border-m2p-border text-m2p-ink">
+                        {scanBleed ? "🩸 With bleed" : "⬜ No bleed"}
+                      </span>
+                      <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold bg-m2p-ivory border border-m2p-border text-m2p-ink">
+                        {scanColorMode === "color" ? "🎨 Full color" : "⚫ B&W"}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Bleed context note — if user said no-bleed, downgrade bleed warnings */}
+                  {isChecker && !scanBleed && report.issuesEnriched?.some(
+                    (i) => /bleed|trim.*outside|does not extend/i.test(i.originalMessage)
+                  ) && (
+                    <div className="mb-4 flex items-start gap-2.5 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">
+                      <span className="shrink-0 mt-0.5">ℹ️</span>
+                      <p>You indicated <strong>no bleed</strong> — bleed-related issues below are expected for your book type and can be ignored if you do not intend full-bleed images or backgrounds.</p>
+                    </div>
                   )}
                   {(() => {
                     const s = calculatedScore ?? report.readinessScore100 ?? report.readiness_score ?? null;

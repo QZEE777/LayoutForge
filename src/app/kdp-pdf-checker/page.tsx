@@ -87,10 +87,63 @@ function FaqAccordion({ items }: { items: { q: string; a: string }[] }) {
   );
 }
 
+// ── Scan context types ────────────────────────────────────────────────────────
+
+export type BookType   = "paperback" | "hardcover";
+export type BleedMode  = "no-bleed" | "bleed";
+export type ColorMode  = "bw" | "color";
+
+export interface ScanContext {
+  bookType:  BookType;
+  bleedMode: BleedMode;
+  colorMode: ColorMode;
+}
+
+// ── Chip picker helper ────────────────────────────────────────────────────────
+
+function ChipGroup<T extends string>({
+  label, options, value, onChange,
+}: {
+  label: string;
+  options: { value: T; label: string; icon: string }[];
+  value: T;
+  onChange: (v: T) => void;
+}) {
+  return (
+    <div>
+      <p className="text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: "#9B8E7E" }}>
+        {label}
+      </p>
+      <div className="flex gap-2">
+        {options.map((opt) => {
+          const active = opt.value === value;
+          return (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => onChange(opt.value)}
+              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition-all"
+              style={{
+                background: active ? "#f05a28" : "rgba(0,0,0,0.04)",
+                color: active ? "#fff" : "#6B6151",
+                border: `1.5px solid ${active ? "#f05a28" : "rgba(0,0,0,0.1)"}`,
+              }}
+            >
+              <span>{opt.icon}</span>
+              {opt.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ── Upload Widget ─────────────────────────────────────────────────────────────
 
 function UploadWidget({
   file, isDragging, uploading, checkElapsedSec, error,
+  scanContext, onScanContextChange,
   onDragOver, onDragLeave, onDrop, onFileSelect, onSubmit, onClear,
 }: {
   file: File | null;
@@ -98,6 +151,8 @@ function UploadWidget({
   uploading: boolean;
   checkElapsedSec: number;
   error: string | null;
+  scanContext: ScanContext;
+  onScanContextChange: (ctx: ScanContext) => void;
   onDragOver: (e: React.DragEvent) => void;
   onDragLeave: (e: React.DragEvent) => void;
   onDrop: (e: React.DragEvent) => void;
@@ -220,6 +275,40 @@ function UploadWidget({
           </div>
         )}
 
+        {/* ── Scan context pickers ── */}
+        <div className="mb-4 space-y-3 rounded-xl p-4" style={{ background: "rgba(0,0,0,0.03)", border: "1px solid rgba(0,0,0,0.07)" }}>
+          <p className="text-xs font-bold uppercase tracking-wide" style={{ color: "#6B6151" }}>
+            Tell us about your book <span style={{ color: "#C4B5A0", fontWeight: 400 }}>— helps us give you the right warnings</span>
+          </p>
+          <ChipGroup<BookType>
+            label="Book type"
+            value={scanContext.bookType}
+            onChange={(v) => onScanContextChange({ ...scanContext, bookType: v })}
+            options={[
+              { value: "paperback", label: "Paperback", icon: "📖" },
+              { value: "hardcover", label: "Hardcover", icon: "📕" },
+            ]}
+          />
+          <ChipGroup<BleedMode>
+            label="Bleed"
+            value={scanContext.bleedMode}
+            onChange={(v) => onScanContextChange({ ...scanContext, bleedMode: v })}
+            options={[
+              { value: "no-bleed", label: "No bleed", icon: "⬜" },
+              { value: "bleed",    label: "With bleed", icon: "🩸" },
+            ]}
+          />
+          <ChipGroup<ColorMode>
+            label="Interior"
+            value={scanContext.colorMode}
+            onChange={(v) => onScanContextChange({ ...scanContext, colorMode: v })}
+            options={[
+              { value: "bw",    label: "Black & white", icon: "⚫" },
+              { value: "color", label: "Full color",    icon: "🎨" },
+            ]}
+          />
+        </div>
+
         {/* CTA button */}
         <div className="flex gap-3">
           <button
@@ -263,6 +352,11 @@ export default function KdpPdfCheckerPage() {
   const [uploading, setUploading]         = useState(false);
   const [checkElapsedSec, setCheckElapsedSec] = useState(0);
   const [error, setError]                 = useState<string | null>(null);
+  const [scanContext, setScanContext]     = useState<ScanContext>({
+    bookType:  "paperback",
+    bleedMode: "no-bleed",
+    colorMode: "bw",
+  });
 
   // ── Share token attribution — set cookie + localStorage on ?sh= param ───────
   useEffect(() => {
@@ -353,7 +447,8 @@ export default function KdpPdfCheckerPage() {
       try { saveData = (await saveRes.json()) as typeof saveData; }
       catch { throw new Error("Could not start check. Try again."); }
       if (!saveRes.ok) throw new Error(saveData.message || saveData.error || "Could not save report.");
-      if (saveData.id) { router.push(`/download/${saveData.id}?source=checker`); return; }
+      const ctxParams = `&bk=${scanContext.bookType}&bl=${scanContext.bleedMode === "bleed" ? "1" : "0"}&cm=${scanContext.colorMode}`;
+      if (saveData.id) { router.push(`/download/${saveData.id}?source=checker${ctxParams}`); return; }
       if (saveData.checkId) {
         const checkId = saveData.checkId;
         const deadline = Date.now() + 5 * 60 * 1000;
@@ -363,7 +458,7 @@ export default function KdpPdfCheckerPage() {
           let statusData: { status?: string; downloadId?: string; error?: string };
           try { statusData = (await statusRes.json()) as typeof statusData; } catch { continue; }
           if (statusData.status === "done" && statusData.downloadId) {
-            router.push(`/download/${statusData.downloadId}?source=checker`); return;
+            router.push(`/download/${statusData.downloadId}?source=checker${ctxParams}`); return;
           }
           if (statusData.status === "failed") throw new Error(statusData.error || "Check failed.");
         }
@@ -377,7 +472,7 @@ export default function KdpPdfCheckerPage() {
     } finally {
       setUploading(false);
     }
-  }, [file, router]);
+  }, [file, router, scanContext]);
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -474,6 +569,8 @@ export default function KdpPdfCheckerPage() {
                 uploading={uploading}
                 checkElapsedSec={checkElapsedSec}
                 error={error}
+                scanContext={scanContext}
+                onScanContextChange={setScanContext}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
@@ -677,6 +774,8 @@ export default function KdpPdfCheckerPage() {
             uploading={uploading}
             checkElapsedSec={checkElapsedSec}
             error={error}
+            scanContext={scanContext}
+            onScanContextChange={setScanContext}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
