@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
 const THIRTY_DAYS = 60 * 60 * 24 * 30;
@@ -104,7 +105,17 @@ export function GoLandingClient({ checkoutUrl, refCode, partnerName }: Props) {
         </div>
 
         {/* Checkout card — desktop only */}
-        <div className="hidden lg:block bg-white border border-m2p-border rounded-2xl p-6 shadow-md">
+        <div className="hidden lg:block">
+          <div className="flex justify-center mb-4">
+            <Image
+              src="/MANNY AVATAR.png"
+              alt="Manny"
+              width={130}
+              height={130}
+              className="rounded-full"
+            />
+          </div>
+        <div className="bg-white border border-m2p-border rounded-2xl p-6 shadow-md">
           <div className="flex justify-between items-center mb-4">
             <span className="font-bold text-sm text-m2p-ink">KDP PDF Checker</span>
             <div className="text-right">
@@ -123,6 +134,7 @@ export function GoLandingClient({ checkoutUrl, refCode, partnerName }: Props) {
           >
             Check My PDF →
           </a>
+        </div>
         </div>
       </section>
 
