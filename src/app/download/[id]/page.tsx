@@ -466,54 +466,137 @@ export default function DownloadPage() {
           const totalIssues = uniqueIssues.size;
           const criticalCount = Array.from(uniqueIssues.values()).filter((d) => d === "hard" || d === "very-hard").length;
           const risk = report.riskLevel ?? (score === null ? null : score >= 75 ? "Low" : score >= 50 ? "Medium" : "High");
-          const riskColor = risk === "Low" ? "#4cd964" : risk === "Medium" ? "#f0a028" : "#e03d3d";
-          const riskIcon = risk === "Low" ? "✅" : risk === "Medium" ? "⚠️" : "🔴";
-          const borderColor = gradeInfo?.color ?? "#f05a28";
+          const riskColor = risk === "Low" ? "#4CE87A" : risk === "Medium" ? "#f0a028" : "#FF6A2B";
+          const riskIcon = risk === "Low" ? "✓" : risk === "Medium" ? "⚠" : "✕";
+          const headerGradient =
+            risk === "Low"
+              ? "linear-gradient(180deg, #1A6B2A 0%, #0D3D18 100%)"
+              : risk === "Medium"
+                ? "linear-gradient(180deg, #6B3800 0%, #3D2200 100%)"
+                : "linear-gradient(180deg, #D65A2F 0%, #C14A27 100%)";
+          const scoreHeroColor =
+            risk === "Low" ? "#0D3D18" : risk === "Medium" ? "#5C3D00" : "#8B2F00";
+          const statusLine =
+            risk === "Low"
+              ? "Ready for KDP upload"
+              : risk === "Medium"
+                ? "Close — fix warnings before upload"
+                : "Fix before you upload";
+          const accentLime = "#C5E83A";
+          const subLime = "#A8D878";
 
           return (
-            <div className="rounded-xl border-2 mb-6 overflow-hidden" style={{ borderColor }}>
-              <div className="px-5 py-3 flex items-center justify-between" style={{ background: borderColor }}>
-                <span className="text-white font-bold text-sm tracking-wide">SCAN COMPLETE</span>
-                <span className="text-white text-xs opacity-80">✅ Verified by manu2print</span>
+            <div
+              className="rounded-2xl mb-6 overflow-hidden border border-black/[0.08] shadow-[0_24px_48px_-12px_rgba(13,61,24,0.35)]"
+              style={{ borderColor: risk === "Low" ? "rgba(26,107,42,0.35)" : risk === "Medium" ? "rgba(107,56,0,0.35)" : "rgba(214,90,47,0.4)" }}
+            >
+              <div
+                className="px-5 py-3.5 flex items-center justify-between gap-3"
+                style={{ background: headerGradient }}
+              >
+                <span className="text-white font-black text-[11px] sm:text-xs tracking-[0.2em]">
+                  SCAN COMPLETE
+                </span>
+                <span className="text-[10px] sm:text-[11px] font-bold tracking-wide text-white/95 whitespace-nowrap">
+                  <span className="opacity-90">Verified by </span>
+                  <span style={{ color: "#FF7A45" }}>manu</span>
+                  <span className="text-white/95">2</span>
+                  <span style={{ color: accentLime }}>print</span>
+                </span>
               </div>
-              <div className="bg-white/95 px-5 py-5">
-                <div className="flex items-center gap-6">
+              <div
+                className="px-5 sm:px-6 py-6"
+                style={{ background: "linear-gradient(180deg, #FAF7EE 0%, #F2EBDF 100%)" }}
+              >
+                <div className="flex flex-col sm:flex-row sm:items-stretch gap-6">
                   {gradeInfo && (
-                    <div className="shrink-0 w-20 h-20 rounded-full flex flex-col items-center justify-center border-4 text-center" style={{ borderColor: gradeInfo.color }}>
-                      <span className="text-3xl font-black leading-none" style={{ color: gradeInfo.color }}>{gradeInfo.letter}</span>
-                      <span className="font-semibold leading-tight mt-0.5 px-1" style={{ color: gradeInfo.color, fontSize: "0.6rem" }}>{gradeInfo.label}</span>
+                    <div className="shrink-0 flex justify-center sm:justify-start">
+                      <div
+                        className="w-24 h-24 sm:w-28 sm:h-28 rounded-full flex flex-col items-center justify-center text-center shadow-[0_8px_24px_-4px_rgba(13,61,24,0.25)] ring-2 ring-white/80"
+                        style={{
+                          borderWidth: 4,
+                          borderStyle: "solid",
+                          borderColor: gradeInfo.color,
+                          background: "linear-gradient(145deg, #ffffff 0%, #FAF7EE 100%)",
+                        }}
+                      >
+                        <span className="text-4xl sm:text-5xl font-black leading-none" style={{ color: gradeInfo.color }}>
+                          {gradeInfo.letter}
+                        </span>
+                        <span
+                          className="font-bold leading-tight mt-1 px-1 uppercase tracking-wide"
+                          style={{ color: gradeInfo.color, fontSize: "0.55rem" }}
+                        >
+                          {gradeInfo.label}
+                        </span>
+                      </div>
                     </div>
                   )}
-                  <div className="flex-1 space-y-2.5">
+                  <div className="flex-1 min-w-0 flex flex-col justify-center">
                     {score !== null && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-m2p-muted">Readiness score</span>
-                        <span className="font-bold text-m2p-ink">{score}/100</span>
-                      </div>
-                    )}
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-m2p-muted">Issues found</span>
-                      <span className="font-bold" style={{ color: totalIssues === 0 ? "#4cd964" : "#f05a28" }}>
-                        {totalIssues} issue{totalIssues !== 1 ? "s" : ""}
-                      </span>
-                    </div>
-                    {criticalCount > 0 && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-m2p-muted">Critical (hard to fix)</span>
-                        <span className="font-bold text-red-500">{criticalCount}</span>
-                      </div>
-                    )}
-                    {risk && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-m2p-muted">KDP rejection risk</span>
-                        <span className="font-bold text-sm" style={{ color: riskColor }}>{riskIcon} {risk}</span>
-                      </div>
+                      <>
+                        <p className="text-[10px] font-bold tracking-[0.14em] uppercase text-m2p-muted/90 mb-1">
+                          Readiness score
+                        </p>
+                        <div className="flex items-baseline gap-2 flex-wrap">
+                          <span
+                            className="text-[3.5rem] sm:text-6xl font-black tabular-nums leading-none tracking-tight"
+                            style={{ color: scoreHeroColor }}
+                          >
+                            {score}
+                          </span>
+                          <span className="text-2xl sm:text-3xl font-bold text-m2p-ink/25">/100</span>
+                        </div>
+                        <p className="mt-2 text-sm sm:text-base font-bold" style={{ color: risk === "Low" ? subLime : riskColor }}>
+                          {statusLine}
+                        </p>
+                      </>
                     )}
                   </div>
                 </div>
-                <p className="mt-4 text-xs text-m2p-muted text-center border-t border-m2p-border pt-3 leading-relaxed" style={{ textWrap: "balance" } as React.CSSProperties}>
-                  Unlock below to see every issue, which pages are affected, how to fix each one<br />and your annotated PDF.
-                </p>
+
+                <div
+                  className="mt-6 space-y-0 rounded-xl overflow-hidden border border-m2p-border/40 bg-white/60 backdrop-blur-[2px]"
+                  style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.6)" }}
+                >
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-m2p-border/30">
+                    <span className="text-[11px] font-bold tracking-[0.08em] uppercase text-m2p-muted">Issues found</span>
+                    <span className="font-black" style={{ color: totalIssues === 0 ? "#2D6A2D" : "#f05a28" }}>
+                      {totalIssues} issue{totalIssues !== 1 ? "s" : ""}
+                    </span>
+                  </div>
+                  {criticalCount > 0 && (
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-m2p-border/30">
+                      <span className="text-[11px] font-bold tracking-[0.08em] uppercase text-m2p-muted">Critical (hard to fix)</span>
+                      <span className="font-black text-red-600">{criticalCount}</span>
+                    </div>
+                  )}
+                  {risk && (
+                    <div className="flex items-center justify-between px-4 py-3">
+                      <span className="text-[11px] font-bold tracking-[0.08em] uppercase text-m2p-muted">KDP rejection risk</span>
+                      <span className="font-black text-sm flex items-center gap-1.5" style={{ color: riskColor }}>
+                        <span className="opacity-90">{riskIcon}</span> {risk}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                <div
+                  className="mt-5 rounded-xl px-4 py-3.5 text-center"
+                  style={{
+                    background: "rgba(13, 61, 24, 0.14)",
+                    border: "1px solid rgba(26, 107, 42, 0.2)",
+                  }}
+                >
+                  <p
+                    className="text-sm font-bold leading-snug text-m2p-ink"
+                    style={{ textWrap: "balance" } as React.CSSProperties}
+                  >
+                    Unlock below for every issue, affected pages, fix steps
+                    <span className="text-m2p-muted font-semibold"> — </span>
+                    and your annotated PDF.
+                  </p>
+                </div>
               </div>
             </div>
           );
@@ -785,12 +868,36 @@ export default function DownloadPage() {
                     </div>
                   )}
                   {report.kdpReady && (
-                    <div className="mt-6 p-5 rounded-lg border-2 border-green-500 bg-green-50/80 text-m2p-ink">
-                      <p className="font-bold text-green-800 mb-2">✅ Verified by <span className="text-m2p-live">manu2print</span></p>
-                      <p className="font-semibold text-green-800 mb-1">KDP Compliance Scan: PASSED</p>
-                      <p className="text-sm mb-1">File: {cleanFilenameForDisplay(report.fileNameScanned ?? "")}</p>
-                      <p className="text-sm mb-1">Date: {report.scanDate ? new Date(report.scanDate).toLocaleString() : "—"}</p>
-                      <p className="text-sm font-medium text-green-800">This file meets KDP print specifications.</p>
+                    <div
+                      className="mt-6 rounded-xl overflow-hidden border border-[#1A6B2A]/45 shadow-[0_12px_32px_-8px_rgba(13,61,24,0.45)]"
+                      style={{ background: "linear-gradient(180deg, #143d1f 0%, #0a2412 100%)" }}
+                    >
+                      <div className="px-5 py-5 sm:px-6">
+                        <p className="text-white/95 text-sm font-bold mb-3 flex flex-wrap items-center gap-x-1">
+                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#C5E83A]/20 text-[#C5E83A] text-xs font-black mr-1">
+                            ✓
+                          </span>
+                          <span className="text-white/80">Verified by</span>{" "}
+                          <span className="text-[#FF7A45]">manu</span>
+                          <span className="text-[#FAF7EE]">2</span>
+                          <span className="text-[#C5E83A]">print</span>
+                        </p>
+                        <p className="text-lg sm:text-xl font-black tracking-tight text-white mb-1 leading-tight">
+                          KDP COMPLIANCE SCAN: <span className="text-[#C5E83A]">PASSED</span>
+                        </p>
+                        <div className="h-px w-16 rounded-full bg-[#C5E83A]/50 my-3" aria-hidden />
+                        <p className="text-sm text-white/75 mb-1">
+                          <span className="text-white/50 font-semibold uppercase text-[10px] tracking-wider">File</span>{" "}
+                          {cleanFilenameForDisplay(report.fileNameScanned ?? "")}
+                        </p>
+                        <p className="text-sm text-white/75 mb-4">
+                          <span className="text-white/50 font-semibold uppercase text-[10px] tracking-wider">Date</span>{" "}
+                          {report.scanDate ? new Date(report.scanDate).toLocaleString() : "—"}
+                        </p>
+                        <p className="text-sm font-bold text-[#A8D878] leading-snug">
+                          This file meets KDP print specifications.
+                        </p>
+                      </div>
                     </div>
                   )}
                 </div>
