@@ -40,8 +40,8 @@ export default function Home() {
             <img
               src="/manny-avatar.png"
               alt="Manny"
-              width={100}
-              height={100}
+              width={80}
+              height={80}
               style={{ borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
             />
             <BrandWordmark variant="onDark" className="text-lg" />
