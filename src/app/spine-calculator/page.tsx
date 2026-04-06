@@ -24,7 +24,7 @@ function clampPages(n: number): number {
 
 const INCH_TO_MM = 25.4;
 const SPINE_TEXT_MIN = 0.75; // KDP minimum spine width for spine text
-const MAX_SPINE_INCHES = MAX_PAGES * 0.0025; // widest possible (cream paper, 828 pages)
+const MAX_SPINE_INCHES = MAX_PAGES * Math.max(...Object.values(SPINE_PER_PAGE)); // widest possible across supported paper types
 
 function Tooltip({ text }: { text: string }) {
   return (
@@ -99,7 +99,12 @@ export default function SpineCalculatorPage() {
                 min={MIN_PAGES}
                 max={MAX_PAGES}
                 value={pageCount}
-                onChange={(e) => { setPageCount(e.target.valueAsNumber ?? MIN_PAGES); markInteracted(); }}
+                onChange={(e) => {
+                  const next = e.target.valueAsNumber;
+                  setPageCount(Number.isFinite(next) ? next : MIN_PAGES);
+                  markInteracted();
+                }}
+                onBlur={() => setPageCount(clampPages(pageCount))}
                 className="w-full rounded-lg border border-m2p-border px-4 py-2.5 bg-m2p-ivory text-sm text-m2p-ink focus:outline-none focus:ring-2 focus:ring-m2p-orange"
               />
               <p className="text-xs text-m2p-muted mt-1">KDP range: {MIN_PAGES}–{MAX_PAGES} pages.</p>
@@ -192,7 +197,7 @@ export default function SpineCalculatorPage() {
                 <span>0&quot;</span>
                 <span
                   className="text-m2p-orange font-medium"
-                  style={{ marginLeft: `${spineTextThresholdPct - 5}%` }}
+                  style={{ transform: `translateX(${Math.max(-20, Math.min(20, spineTextThresholdPct - 50))}%)` }}
                 >
                   0.75&quot; min for text
                 </span>

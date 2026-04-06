@@ -34,6 +34,7 @@ export default function TrimSizeComparisonPage() {
 
   const pages = useMemo(() => clampPages(pageCount), [pageCount]);
   const listPriceNum = useMemo(() => safeListPrice(listPrice), [listPrice]);
+  const hasListPriceInput = listPrice.trim().length > 0;
   const rate = useMemo(() => ROYALTY_RATES.find((r) => r.id === rateId)?.value ?? 0.6, [rateId]);
 
   const rows = useMemo(
@@ -41,9 +42,14 @@ export default function TrimSizeComparisonPage() {
       ROYALTY_TRIM_SIZES.map((trim) => {
         const printCost = getPrintCostUsd(trim.id as RoyaltyTrimId, pages);
         const royalty = getRoyaltyUsd(listPriceNum, printCost, rate);
-        return { trim, printCost, royalty };
+        const breakEven = Math.ceil((printCost / rate) * 100) / 100;
+        return { trim, printCost, royalty, breakEven };
       }),
     [pages, listPriceNum, rate]
+  );
+  const lowestBreakEven = useMemo(
+    () => Math.min(...rows.map((r) => r.breakEven)),
+    [rows]
   );
 
   return (
@@ -90,8 +96,15 @@ export default function TrimSizeComparisonPage() {
                 placeholder="9.99"
                 value={listPrice}
                 onChange={(e) => { setListPrice(e.target.value); markInteracted(); }}
+                onBlur={() => {
+                  if (!hasListPriceInput) return;
+                  setListPrice(listPriceNum.toFixed(2));
+                }}
                 className="w-full rounded-lg border border-m2p-border px-4 py-2.5 bg-m2p-ivory text-sm text-m2p-ink focus:outline-none focus:ring-2 focus:ring-m2p-orange"
               />
+              <p className="text-xs text-m2p-muted mt-1">
+                Lowest break-even at {rateId}% royalty: <span className="font-semibold text-m2p-ink">${lowestBreakEven.toFixed(2)}</span>
+              </p>
             </div>
             <div>
               <label className="block text-sm font-medium text-m2p-ink mb-2">Royalty rate</label>
@@ -116,14 +129,16 @@ export default function TrimSizeComparisonPage() {
                 <tr className="border-b border-m2p-border bg-m2p-ivory/60">
                   <th className="text-left py-3 px-4 text-m2p-ink font-medium">Trim size</th>
                   <th className="text-right py-3 px-4 text-m2p-ink font-medium">Print cost</th>
+                  <th className="text-right py-3 px-4 text-m2p-ink font-medium">Break-even</th>
                   <th className="text-right py-3 px-4 text-m2p-ink font-medium">Royalty / sale</th>
                 </tr>
               </thead>
               <tbody>
-                {rows.map(({ trim, printCost, royalty }) => (
+                {rows.map(({ trim, printCost, royalty, breakEven }) => (
                   <tr key={trim.id} className="border-b border-m2p-border last:border-0 hover:bg-m2p-ivory/40 transition-colors">
                     <td className="py-3 px-4 text-m2p-ink font-medium">{trim.name}</td>
                     <td className="py-3 px-4 text-right text-m2p-muted">${printCost.toFixed(2)}</td>
+                    <td className="py-3 px-4 text-right text-m2p-muted">${breakEven.toFixed(2)}</td>
                     <td className="py-3 px-4 text-right text-m2p-orange font-semibold">${royalty.toFixed(2)}</td>
                   </tr>
                 ))}
@@ -131,6 +146,17 @@ export default function TrimSizeComparisonPage() {
             </table>
           </div>
         </div>
+
+        {listPriceNum > 0 && listPriceNum < lowestBreakEven && (
+          <p className="text-xs text-amber-600 text-center mb-5">
+            Current list price is below break-even for all shown trims at {rateId}% royalty.
+          </p>
+        )}
+        {!hasListPriceInput && (
+          <p className="text-xs text-m2p-muted text-center mb-5">
+            Enter a list price to compare royalties across trim sizes.
+          </p>
+        )}
 
         <p className="text-xs text-m2p-muted mb-5 text-center">
           B&amp;W white paper, US marketplace estimates. Actual KDP costs may vary. No data sent to server.
