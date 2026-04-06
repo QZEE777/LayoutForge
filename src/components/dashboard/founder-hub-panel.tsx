@@ -48,8 +48,8 @@ export function FounderHubPanel() {
           For founder campaigns, account support, or giveaway setup, contact the founder inbox.
         </p>
         <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-          <a href="mailto:founders@manu2print.com" className="d-cta d-cta-md inline-flex items-center justify-center">
-            Email founders@manu2print.com
+          <a href="mailto:hello@manu2print.com" className="d-cta d-cta-md inline-flex items-center justify-center">
+            Email hello@manu2print.com
           </a>
           <Link href="/founders" className="d-btn-outline inline-flex items-center justify-center gap-1.5">
             Founder program page
