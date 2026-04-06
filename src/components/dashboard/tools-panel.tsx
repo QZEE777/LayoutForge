@@ -1,7 +1,7 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Wrench } from "lucide-react";
 import Link from "next/link";
 
 interface Tool {
@@ -30,10 +30,25 @@ const FREE_TOOLS: Tool[] = [
 
 export function ToolsPanel() {
   return (
-    <div className="mx-auto max-w-5xl space-y-5">
-      <p className="text-sm font-medium leading-relaxed" style={{ color: "var(--d-fg-muted)" }}>
-        Every tool below is free — no payment or account required.
-      </p>
+    <div className="d-animate-in mx-auto max-w-5xl space-y-5">
+      <div className="d-hero-intro">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+          <div className="min-w-0 flex-1 text-center sm:text-left">
+            <p className="font-bebas text-2xl tracking-wide text-[var(--d-fg)]">Tools</p>
+            <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--d-fg-muted)" }}>
+              Every tool below is free — no payment or account required.
+            </p>
+          </div>
+          <div
+            className="flex h-16 w-16 shrink-0 items-center justify-center self-center rounded-2xl shadow-md sm:self-start"
+            style={{
+              background: "linear-gradient(145deg, rgba(240,90,40,0.15), rgba(76,217,100,0.12))",
+            }}
+          >
+            <Wrench className="h-8 w-8" style={{ color: "var(--d-primary)" }} />
+          </div>
+        </div>
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {FREE_TOOLS.map((tool) => (

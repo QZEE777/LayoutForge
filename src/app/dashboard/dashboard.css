@@ -204,3 +204,33 @@
   border-color: rgba(240, 90, 40, 0.45);
   box-shadow: 0 0 0 3px rgba(240, 90, 40, 0.12);
 }
+
+/* Tab intros (Tools / Earn / Settings) — soft brand wash */
+.m2p-dash .d-hero-intro {
+  border-radius: 1rem;
+  border: 1px solid rgba(240, 90, 40, 0.14);
+  background: linear-gradient(
+    135deg,
+    #ffffff 0%,
+    var(--d-wash-orange) 38%,
+    rgba(232, 246, 236, 0.42) 100%
+  );
+  box-shadow: 0 4px 28px -14px rgba(26, 18, 8, 0.1);
+  padding: 1.25rem 1.35rem;
+}
+@media (min-width: 640px) {
+  .m2p-dash .d-hero-intro {
+    padding: 1.5rem 1.75rem;
+  }
+}
+
+/* Purchase history expanded panel (settings) */
+.m2p-dash .d-purchase-inline {
+  border-top-color: var(--d-border);
+  background: linear-gradient(
+    180deg,
+    rgba(247, 244, 237, 0.97) 0%,
+    var(--d-wash-orange) 48%,
+    rgba(232, 246, 236, 0.28) 100%
+  );
+}

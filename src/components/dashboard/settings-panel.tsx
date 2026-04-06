@@ -61,7 +61,7 @@ function PurchaseHistoryInline({ data }: { data: AccountPortalData }) {
   const deductions = credits.ledger.filter((r) => r.credits < 0);
 
   return (
-    <div className="space-y-5 border-t px-3 py-4 sm:px-4" style={{ borderColor: "var(--d-border)", background: "var(--d-muted)" }}>
+    <div className="d-purchase-inline space-y-5 border-t px-3 py-4 sm:px-4" style={{ borderColor: "var(--d-border)" }}>
       <div
         className="flex flex-col gap-3 rounded-xl border p-4 sm:flex-row sm:items-center sm:justify-between"
         style={{ borderColor: "var(--d-border-strong)", background: "var(--d-card)" }}
@@ -271,7 +271,13 @@ export function SettingsPanel({
   }, [loadPurchaseHistory, purchaseData, purchaseLoading]);
 
   return (
-    <div className="mx-auto max-w-xl space-y-5">
+    <div className="d-animate-in mx-auto max-w-2xl space-y-5">
+      <div className="d-hero-intro">
+        <p className="font-bebas text-2xl tracking-wide text-[var(--d-fg)]">Account</p>
+        <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--d-fg-muted)" }}>
+          Profile, receipts, and help — all in one place.
+        </p>
+      </div>
       <Card className="d-card-hero border-[var(--d-border-strong)] p-6">
         <h3 className="font-semibold flex items-center gap-2 mb-5" style={{ color: "var(--d-fg)" }}>
           <User className="w-4 h-4" style={{ color: "var(--d-fg-muted)" }} />

@@ -110,18 +110,28 @@ export function EarnPanel({ affiliate, stats }: Props) {
           onClose={() => setModalDismissed(true)}
         />
 
-      <div className="mx-auto max-w-2xl space-y-5">
+      <div className="d-animate-in mx-auto max-w-3xl space-y-5">
 
         {/* 7-day banner fallback after modal is dismissed */}
         {atThreshold && <PartnerUpgradeBanner />}
 
-        <div className="space-y-1 pb-0.5 text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--d-primary)" }}>
-            Earn
-          </p>
-          <p className="mx-auto max-w-md text-sm leading-relaxed" style={{ color: "var(--d-fg-muted)" }}>
-            Share your checker link. Each qualifying referral counts toward free scans and Partner status.
-          </p>
+        <div className="d-hero-intro">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+            <div className="min-w-0 flex-1 text-center sm:text-left">
+              <p className="font-bebas text-2xl tracking-wide text-[var(--d-fg)]">Earn</p>
+              <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--d-fg-muted)" }}>
+                Share your checker link. Each qualifying referral counts toward free scans and Partner status.
+              </p>
+            </div>
+            <div
+              className="flex h-16 w-16 shrink-0 items-center justify-center self-center rounded-2xl shadow-md sm:self-start"
+              style={{
+                background: "linear-gradient(145deg, rgba(76,217,100,0.2), rgba(240,90,40,0.08))",
+              }}
+            >
+              <Gift className="h-8 w-8" style={{ color: "var(--d-primary)" }} />
+            </div>
+          </div>
         </div>
 
         {/* Share-to-earn card — shown to all non-partners */}
@@ -328,14 +338,24 @@ export function EarnPanel({ affiliate, stats }: Props) {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-5">
-      <div className="space-y-1 pb-0.5 text-center sm:text-left">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--d-primary)" }}>
-          Partner dashboard
-        </p>
-        <p className="mx-auto max-w-xl text-sm leading-relaxed sm:mx-0" style={{ color: "var(--d-fg-muted)" }}>
-          Track earnings, copy your payout link, and use scan credits at checkout.
-        </p>
+    <div className="d-animate-in mx-auto max-w-3xl space-y-5">
+      <div className="d-hero-intro">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+          <div className="min-w-0 flex-1 text-center sm:text-left">
+            <p className="font-bebas text-2xl tracking-wide text-[var(--d-fg)]">Partner dashboard</p>
+            <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--d-fg-muted)" }}>
+              Track earnings, copy your payout link, and use scan credits at checkout.
+            </p>
+          </div>
+          <div
+            className="flex h-16 w-16 shrink-0 items-center justify-center self-center rounded-2xl shadow-md sm:self-start"
+            style={{
+              background: "linear-gradient(145deg, rgba(240,90,40,0.12), rgba(76,217,100,0.14))",
+            }}
+          >
+            <TrendingUp className="h-8 w-8" style={{ color: "var(--d-primary)" }} />
+          </div>
+        </div>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
         {[
