@@ -114,7 +114,7 @@ export default function FoundersPage() {
             <p className="mb-3 font-bebas text-sm tracking-[0.18em] uppercase text-brand-gold">Founder Circle</p>
             <div className="mb-6 flex justify-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-gold shadow-[0_0_0_5px_rgba(245,166,35,0.14)]">
-                <span className="font-bebas text-3xl text-brand-bg">m</span>
+                <span className="font-bebas text-xl tracking-wide text-brand-bg">M2P</span>
               </div>
             </div>
             <h1 className="mb-4 font-bebas text-4xl font-normal tracking-wide text-brand-cream sm:text-5xl md:text-6xl">

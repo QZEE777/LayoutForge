@@ -4,8 +4,22 @@ import { createClient } from "@supabase/supabase-js";
 const PRIMARY_PLATFORMS = ["YouTube", "TikTok", "Instagram", "Facebook", "Blog or Website", "Podcast", "Other"];
 const FOLLOWER_COUNTS = ["1,000–5,000", "5,000–25,000", "25,000–100,000", "100,000+"];
 const PUBLISHING_OPTIONS = [
-  "Amazon KDP", "IngramSpark", "Draft2Digital", "Etsy", "Gumroad", "Lulu",
-  "Barnes & Noble Press", "Kobo", "Smashwords", "PublishDrive", "Other",
+  // Current founders form values
+  "Amazon KDP (print)",
+  "Kindle eBooks",
+  "Both KDP & Kindle",
+  "Other",
+  // Legacy-safe values to avoid breaking old submissions
+  "Amazon KDP",
+  "IngramSpark",
+  "Draft2Digital",
+  "Etsy",
+  "Gumroad",
+  "Lulu",
+  "Barnes & Noble Press",
+  "Kobo",
+  "Smashwords",
+  "PublishDrive",
 ];
 
 function isValidPrimaryPlatform(v: string) {
