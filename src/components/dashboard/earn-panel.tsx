@@ -33,6 +33,7 @@ interface ShareTokenData {
 interface Props {
   affiliate: Affiliate | null;
   stats: AffiliateStats | null;
+  isFounder?: boolean;
 }
 
 const APP_URL = "https://www.manu2print.com";
@@ -40,7 +41,7 @@ const PARTNER_THRESHOLD = 3;
 
 function fmt(cents: number) { return `$${(cents / 100).toFixed(2)}`; }
 
-export function EarnPanel({ affiliate, stats }: Props) {
+export function EarnPanel({ affiliate, stats, isFounder = false }: Props) {
   const [copied, setCopied] = useState(false);
   const [shareData, setShareData] = useState<ShareTokenData | null>(null);
   const [shareLinkCopied, setShareLinkCopied] = useState(false);
@@ -133,6 +134,18 @@ export function EarnPanel({ affiliate, stats }: Props) {
             </div>
           </div>
         </div>
+        {isFounder && (
+          <div
+            className="rounded-xl border px-4 py-3 text-xs font-semibold"
+            style={{
+              borderColor: "rgba(240,90,40,0.2)",
+              background: "linear-gradient(90deg, rgba(254,240,235,0.7) 0%, rgba(232,246,236,0.45) 100%)",
+              color: "var(--d-fg)",
+            }}
+          >
+            Founder status active - lifetime access enabled. Monthly giveaway credits are being rolled out.
+          </div>
+        )}
 
         {/* Share-to-earn card — shown to all non-partners */}
         <Card className="d-card-hero overflow-hidden border-[var(--d-border-strong)]">
@@ -357,6 +370,18 @@ export function EarnPanel({ affiliate, stats }: Props) {
           </div>
         </div>
       </div>
+      {isFounder && (
+        <div
+          className="rounded-xl border px-4 py-3 text-xs font-semibold"
+          style={{
+            borderColor: "rgba(240,90,40,0.2)",
+            background: "linear-gradient(90deg, rgba(254,240,235,0.7) 0%, rgba(232,246,236,0.45) 100%)",
+            color: "var(--d-fg)",
+          }}
+        >
+          Founder status active - lifetime access enabled. Monthly giveaway credits are being rolled out.
+        </div>
+      )}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
         {[
           { icon: DollarSign, label: "Total earned",    value: stats ? fmt(stats.totalEarned)    : "—", color: "#F05A28", bg: "rgba(240,90,40,0.1)" },

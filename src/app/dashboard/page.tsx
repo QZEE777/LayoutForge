@@ -59,6 +59,7 @@ export default function DashboardPage() {
   const [summary, setSummary]         = useState<Summary | null>(null);
   const [affiliate, setAffiliate]     = useState<Affiliate | null | undefined>(undefined);
   const [affStats, setAffStats]       = useState<AffiliateStats | null>(null);
+  const [isFounder, setIsFounder]     = useState(false);
   const [firstName, setFirstName]       = useState("");
   const [avatarUrl, setAvatarUrl]       = useState<string | undefined>(undefined);
   const [avatarUploading, setAvatarUploading] = useState(false);
@@ -82,7 +83,7 @@ export default function DashboardPage() {
       const [summaryRes, affiliateRes, profileRes] = await Promise.all([
         fetch("/api/dashboard/summary"),
         fetch("/api/affiliates/me"),
-        client.from("profiles").select("first_name, avatar_url").eq("id", u.id).maybeSingle(),
+        client.from("profiles").select("first_name, avatar_url, is_founder").eq("id", u.id).maybeSingle(),
       ]);
 
       if (summaryRes.ok) {
@@ -100,6 +101,7 @@ export default function DashboardPage() {
 
       if (profileRes.data?.first_name) setFirstName(profileRes.data.first_name);
       if (profileRes.data?.avatar_url)  setAvatarUrl(profileRes.data.avatar_url);
+      setIsFounder(Boolean(profileRes.data?.is_founder));
     })();
   }, [router]);
 
@@ -191,6 +193,7 @@ export default function DashboardPage() {
         setSidebarOpen={setSidebarOpen}
         user={userInfo}
         isPartner={affiliate?.status === "active"}
+        isFounder={isFounder}
       />
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
@@ -224,6 +227,7 @@ export default function DashboardPage() {
               <EarnPanel
                 affiliate={affiliate === undefined ? null : affiliate}
                 stats={affStats}
+                isFounder={isFounder}
               />
             </>
           )}

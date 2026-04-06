@@ -15,6 +15,7 @@ interface SidebarProps {
   setSidebarOpen: (o: boolean) => void;
   user: { name: string; email: string; scansRemaining: number };
   isPartner?: boolean;
+  isFounder?: boolean;
 }
 
 const lowerNavItems: { id: Exclude<ActiveView, "upload" | "history">; label: string; icon: React.ElementType; badge?: string }[] = [
@@ -29,7 +30,7 @@ const partnerLowerNav: { id: Exclude<ActiveView, "upload" | "history">; label: s
   { id: "settings", label: "Settings", icon: Settings },
 ];
 
-export function DashboardSidebar({ activeView, setActiveView, sidebarOpen, setSidebarOpen, user, isPartner }: SidebarProps) {
+export function DashboardSidebar({ activeView, setActiveView, sidebarOpen, setSidebarOpen, user, isPartner, isFounder }: SidebarProps) {
   const initials = user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
   const restItems = isPartner ? partnerLowerNav : lowerNavItems;
 
@@ -173,9 +174,19 @@ export function DashboardSidebar({ activeView, setActiveView, sidebarOpen, setSi
               {initials}
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold truncate" style={{ color: "var(--d-fg)" }}>
-                {user.name}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-semibold truncate" style={{ color: "var(--d-fg)" }}>
+                  {user.name}
+                </p>
+                {isFounder && (
+                  <span
+                    className="shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide"
+                    style={{ background: "rgba(240,90,40,0.14)", color: "var(--d-primary)" }}
+                  >
+                    Founder
+                  </span>
+                )}
+              </div>
               <p className="text-xs truncate" style={{ color: "var(--d-fg-muted)" }}>
                 {user.email}
               </p>
