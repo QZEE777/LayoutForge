@@ -1,8 +1,7 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Gift, DollarSign, Users, TrendingUp, Copy, Check, ExternalLink, Share2, Clock } from "lucide-react";
+import { Gift, DollarSign, Users, TrendingUp, Copy, Check, ExternalLink, Share2, Clock, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { PartnerUpgradeModal, PartnerUpgradeBanner } from "@/components/dashboard/partner-upgrade-modal";
@@ -111,75 +110,113 @@ export function EarnPanel({ affiliate, stats }: Props) {
           onClose={() => setModalDismissed(true)}
         />
 
-      <div className="max-w-2xl mx-auto space-y-5">
+      <div className="mx-auto max-w-2xl space-y-5">
 
         {/* 7-day banner fallback after modal is dismissed */}
         {atThreshold && <PartnerUpgradeBanner />}
 
+        <div className="space-y-1 pb-0.5 text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--d-primary)" }}>
+            Earn
+          </p>
+          <p className="mx-auto max-w-md text-sm leading-relaxed" style={{ color: "var(--d-fg-muted)" }}>
+            Share your checker link. Each qualifying referral counts toward free scans and Partner status.
+          </p>
+        </div>
+
         {/* Share-to-earn card — shown to all non-partners */}
         <Card className="d-card-elevated overflow-hidden border-[var(--d-border-strong)]">
-          <div className="p-6" style={{ borderBottom: "1px solid var(--d-border)" }}>
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(76,217,100,0.12)" }}>
-                <Share2 className="w-5 h-5" style={{ color: "#4cd964" }} />
+          <div
+            className="relative px-5 pb-5 pt-6 sm:px-6"
+            style={{
+              background: atThreshold
+                ? "linear-gradient(160deg, rgba(76,217,100,0.12) 0%, rgba(255,248,244,0.95) 45%, var(--d-card) 100%)"
+                : "linear-gradient(160deg, rgba(240,90,40,0.08) 0%, rgba(255,248,244,0.9) 40%, var(--d-card) 100%)",
+            }}
+          >
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-5">
+              <div
+                className="mx-auto flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-sm sm:mx-0 sm:h-11 sm:w-11"
+                style={{
+                  background: atThreshold ? "rgba(76,217,100,0.2)" : "rgba(76,217,100,0.14)",
+                }}
+              >
+                <Share2 className="h-6 w-6 sm:h-5 sm:w-5" style={{ color: atThreshold ? "#2d8f47" : "#4cd964" }} />
               </div>
-              <div className="flex-1">
-                <p className="font-semibold mb-0.5" style={{ color: "var(--d-fg)" }}>
+              <div className="min-w-0 flex-1 text-center sm:text-left">
+                <p className="mb-1 text-base font-bold sm:text-lg" style={{ color: "var(--d-fg)" }}>
                   {atThreshold
-                    ? "You're ready to earn cash commissions"
-                    : "Share your result. Earn free scans."}
+                    ? "You are ready for cash commissions"
+                    : "Share your result, earn free scans"}
                 </p>
-                <p className="text-sm" style={{ color: "var(--d-fg-muted)" }}>
+                <p className="text-sm leading-relaxed" style={{ color: "var(--d-fg-muted)" }}>
                   {atThreshold
-                    ? "You've referred enough people to unlock Partner mode — earn 30–40% cash on every sale."
+                    ? "You have referred enough people to unlock Partner mode — earn 30–40% cash on every sale."
                     : "When someone checks their file from your link, you get a free scan."}
                 </p>
               </div>
             </div>
 
-            {/* Progress bar */}
-            <div className="mt-4">
-              <div className="flex justify-between text-xs mb-1.5" style={{ color: "var(--d-fg-muted)" }}>
-                <span>{progress} of {PARTNER_THRESHOLD} toward Partner status</span>
+            <div className="mt-6">
+              <div className="mb-2 flex flex-wrap items-end justify-between gap-2">
+                <div className="text-center sm:text-left">
+                  <p
+                    className="text-3xl font-black tabular-nums leading-none tracking-tight"
+                    style={{ color: atThreshold ? "#2d8f47" : "var(--d-primary)" }}
+                  >
+                    {progress}
+                    <span className="text-lg font-bold" style={{ color: "var(--d-fg-muted)" }}>
+                      /{PARTNER_THRESHOLD}
+                    </span>
+                  </p>
+                  <p className="mt-1 text-xs font-medium" style={{ color: "var(--d-fg-muted)" }}>
+                    conversions toward Partner
+                  </p>
+                </div>
                 {pending > 0 && (
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
+                  <span
+                    className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold"
+                    style={{ background: "var(--d-muted)", color: "var(--d-fg-muted)" }}
+                  >
+                    <Clock className="h-3.5 w-3.5 shrink-0" />
                     {pending} pending
                   </span>
                 )}
               </div>
-              <div className="w-full rounded-full h-2" style={{ background: "var(--d-border)" }}>
+              <div className="h-2.5 w-full overflow-hidden rounded-full" style={{ background: "var(--d-border)" }}>
                 <div
-                  className="h-2 rounded-full transition-all"
+                  className="h-full rounded-full transition-[width] duration-500 ease-out"
                   style={{
                     width: `${(progress / PARTNER_THRESHOLD) * 100}%`,
-                    background: atThreshold ? "#4cd964" : "#F05A28",
+                    background: atThreshold
+                      ? "linear-gradient(90deg, #34d399, #4cd964)"
+                      : "linear-gradient(90deg, #ff7a4a, #F05A28)",
+                    boxShadow: atThreshold ? "0 0 12px rgba(76,217,100,0.35)" : "0 0 12px rgba(240,90,40,0.2)",
                   }}
                 />
               </div>
             </div>
+          </div>
 
-            {/* Share link */}
-            <div className="mt-4">
+          <div className="space-y-4 border-t px-5 py-5 sm:px-6" style={{ borderColor: "var(--d-border)" }}>
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--d-fg-muted)" }}>
+                Your share link
+              </p>
               {shareData ? (
-                <div className="flex items-center gap-2">
-                  <input
-                    readOnly
-                    value={shareLink}
-                    className="flex-1 rounded-lg border px-3 py-2 text-xs font-mono truncate"
-                    style={{ borderColor: "var(--d-border)", background: "var(--d-muted)", color: "var(--d-fg-muted)" }}
-                  />
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
+                  <input readOnly value={shareLink} className="d-field-mono min-w-0 flex-1 truncate" />
                   <button
                     type="button"
                     onClick={copyShareLink}
                     className={
                       shareLinkCopied
-                        ? "flex shrink-0 items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-500 px-3 py-2 text-sm font-semibold text-white shadow-sm"
-                        : "d-cta d-cta-md flex shrink-0 items-center gap-1.5"
+                        ? "d-btn-outline-success flex shrink-0 items-center justify-center gap-1.5 sm:w-auto sm:min-w-[7.5rem]"
+                        : "d-cta d-cta-md flex shrink-0 items-center justify-center gap-1.5 sm:w-auto sm:min-w-[7.5rem]"
                     }
                   >
                     {shareLinkCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                    {shareLinkCopied ? "Copied!" : "Copy"}
+                    {shareLinkCopied ? "Copied" : "Copy"}
                   </button>
                 </div>
               ) : (
@@ -190,8 +227,21 @@ export function EarnPanel({ affiliate, stats }: Props) {
             </div>
 
             {atThreshold && (
-              <div className="mt-4 rounded-lg p-3 text-sm" style={{ background: "rgba(76,217,100,0.08)", border: "1px solid rgba(76,217,100,0.2)", color: "#4cd964" }}>
-                🎉 Ready to earn cash — activate Partner mode to unlock commissions.
+              <div
+                className="flex items-start gap-3 rounded-xl border p-3.5 text-sm leading-snug"
+                style={{
+                  background: "rgba(76,217,100,0.07)",
+                  borderColor: "rgba(76,217,100,0.22)",
+                  color: "var(--d-fg)",
+                }}
+              >
+                <Sparkles className="mt-0.5 h-5 w-5 shrink-0" style={{ color: "#2d8f47" }} />
+                <span>
+                  <span className="font-semibold" style={{ color: "#2d8f47" }}>
+                    Ready for cash earnings.
+                  </span>{" "}
+                  Activate Partner mode to unlock commissions on every sale.
+                </span>
               </div>
             )}
           </div>
@@ -217,13 +267,17 @@ export function EarnPanel({ affiliate, stats }: Props) {
           </div>
           <div className="grid grid-cols-3 divide-x border-t" style={{ borderColor: "var(--d-border)" }}>
             {[
-              { value: "30–40%", label: "Commission Rate" },
-              { value: "$0",     label: "Minimum Payout" },
-              { value: "Lifetime", label: "Cookie Duration" },
+              { value: "30–40%", label: "Commission rate" },
+              { value: "$0",     label: "Minimum payout" },
+              { value: "Lifetime", label: "Cookie duration" },
             ].map(({ value, label }) => (
-              <div key={label} className="p-5 text-center">
-                <div className="text-2xl font-bold mb-0.5" style={{ color: "var(--d-primary)" }}>{value}</div>
-                <p className="text-xs" style={{ color: "var(--d-fg-muted)" }}>{label}</p>
+              <div key={label} className="min-w-0 px-2 py-4 text-center sm:p-5">
+                <div className="mb-0.5 text-lg font-bold tabular-nums sm:text-2xl" style={{ color: "var(--d-primary)" }}>
+                  {value}
+                </div>
+                <p className="text-[10px] leading-tight sm:text-xs" style={{ color: "var(--d-fg-muted)" }}>
+                  {label}
+                </p>
               </div>
             ))}
           </div>
@@ -275,6 +329,14 @@ export function EarnPanel({ affiliate, stats }: Props) {
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
+      <div className="space-y-1 pb-0.5 text-center sm:text-left">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--d-primary)" }}>
+          Partner dashboard
+        </p>
+        <p className="mx-auto max-w-xl text-sm leading-relaxed sm:mx-0" style={{ color: "var(--d-fg-muted)" }}>
+          Track earnings, copy your payout link, and use scan credits at checkout.
+        </p>
+      </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
         {[
           { icon: DollarSign, label: "Total earned",    value: stats ? fmt(stats.totalEarned)    : "—", color: "#F05A28", bg: "rgba(240,90,40,0.1)" },
@@ -297,49 +359,61 @@ export function EarnPanel({ affiliate, stats }: Props) {
       </div>
 
       <Card className="d-card-elevated border-[var(--d-border-strong)] p-5">
-        <h3 className="mb-3 font-bold" style={{ color: "var(--d-fg)" }}>Your referral link</h3>
+        <h3 className="mb-1 font-bold" style={{ color: "var(--d-fg)" }}>Your referral link</h3>
+        <p className="mb-4 text-xs" style={{ color: "var(--d-fg-muted)" }}>
+          Copy and share anywhere you talk to authors — social, email, or your site.
+        </p>
         {affiliate.ls_affiliate_code ? (
           <>
-            {/* LS payout link — primary */}
-            <p className="text-xs font-semibold mb-1.5" style={{ color: "#10b981" }}>
-              ✓ Payout link — share this one to earn commissions
+            <p className="mb-2 text-xs font-semibold" style={{ color: "#059669" }}>
+              Payout link — share this URL to earn commissions
             </p>
-            <div className="flex gap-2 mb-3">
-              <Input
-                value={`https://manu2print.lemonsqueezy.com/?aff=${affiliate.ls_affiliate_code}`}
+            <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-stretch">
+              <input
                 readOnly
-                className="font-mono text-sm"
+                value={`https://manu2print.lemonsqueezy.com/?aff=${affiliate.ls_affiliate_code}`}
+                className="d-field-mono min-w-0 flex-1"
               />
               <button
+                type="button"
                 onClick={() => {
                   navigator.clipboard.writeText(`https://manu2print.lemonsqueezy.com/?aff=${affiliate.ls_affiliate_code}`);
                   setCopied(true);
                   setTimeout(() => setCopied(false), 2000);
                 }}
-                className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold border transition-all shrink-0"
-                style={{ borderColor: "var(--d-border)", color: copied ? "#10b981" : "var(--d-fg)", background: "var(--d-card)" }}>
-                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                {copied ? "Copied!" : "Copy"}
+                className={
+                  copied
+                    ? "d-btn-outline-success flex shrink-0 items-center justify-center gap-2 sm:min-w-[7.5rem]"
+                    : "d-btn-outline flex shrink-0 items-center justify-center gap-2 sm:min-w-[7.5rem]"
+                }
+              >
+                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                {copied ? "Copied" : "Copy"}
               </button>
             </div>
-            <p className="text-xs mb-3" style={{ color: "var(--d-fg-muted)" }}>
-              Earn 30% on $9 singles · 40% on packs. LemonSqueezy pays you automatically at $25.
+            <p className="mb-0 text-xs leading-relaxed" style={{ color: "var(--d-fg-muted)" }}>
+              30% on $9 singles · 40% on packs. Lemon Squeezy pays you automatically at $25.
             </p>
           </>
         ) : (
           <>
-            <div className="flex gap-2 mb-2">
-              <Input value={referralLink} readOnly className="font-mono text-sm" />
+            <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-stretch">
+              <input readOnly value={referralLink} className="d-field-mono min-w-0 flex-1" />
               <button
+                type="button"
                 onClick={copyLink}
-                className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold border transition-all shrink-0"
-                style={{ borderColor: "var(--d-border)", color: copied ? "#10b981" : "var(--d-fg)", background: "var(--d-card)" }}>
-                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                {copied ? "Copied!" : "Copy"}
+                className={
+                  copied
+                    ? "d-btn-outline-success flex shrink-0 items-center justify-center gap-2 sm:min-w-[7.5rem]"
+                    : "d-btn-outline flex shrink-0 items-center justify-center gap-2 sm:min-w-[7.5rem]"
+                }
+              >
+                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                {copied ? "Copied" : "Copy"}
               </button>
             </div>
-            <p className="text-xs p-2 rounded-lg mb-1" style={{ color: "#92400e", background: "#fef3c7" }}>
-              ⏳ Your LemonSqueezy payout link is being set up. Check your email from LemonSqueezy or contact us at hello@manu2print.com.
+            <p className="rounded-lg p-2.5 text-xs leading-relaxed" style={{ color: "#92400e", background: "#fef3c7" }}>
+              Your Lemon Squeezy payout link is being set up. Check your email from Lemon Squeezy or contact hello@manu2print.com.
             </p>
           </>
         )}

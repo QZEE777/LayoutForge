@@ -53,7 +53,7 @@ export function PartnerUpgradeModal({ visible, onClose }: Props) {
   return (
     // Backdrop
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
       style={{ background: "rgba(0,0,0,0.65)", backdropFilter: "blur(4px)" }}
       onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
     >
@@ -110,18 +110,13 @@ export function PartnerUpgradeModal({ visible, onClose }: Props) {
         <div className="p-6 space-y-3">
           <Link
             href="/partners/apply"
-            className="flex items-center justify-center gap-2 w-full rounded-xl py-3 font-semibold text-white text-sm"
-            style={{ background: "#F05A28" }}
+            className="d-cta d-cta-lg flex w-full items-center justify-center gap-2"
             onClick={handleClose}
           >
             Activate Partner Mode
-            <ExternalLink className="w-4 h-4" />
+            <ExternalLink className="h-4 w-4 shrink-0" />
           </Link>
-          <button
-            onClick={handleClose}
-            className="w-full py-2.5 text-sm rounded-xl font-medium transition-colors"
-            style={{ color: "var(--d-fg-muted)", background: "var(--d-muted)" }}
-          >
+          <button type="button" onClick={handleClose} className="d-btn-outline w-full py-2.5 text-sm">
             Maybe later
           </button>
         </div>
@@ -147,17 +142,21 @@ export function PartnerUpgradeBanner() {
 
   return (
     <div
-      className="flex items-center justify-between gap-4 rounded-xl px-4 py-3 mb-1"
-      style={{ background: "rgba(76,217,100,0.08)", border: "1px solid rgba(76,217,100,0.2)" }}
+      className="mb-1 flex flex-col gap-3 rounded-xl border px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+      style={{
+        background: "linear-gradient(135deg, rgba(76,217,100,0.1) 0%, rgba(240,90,40,0.06) 100%)",
+        borderColor: "rgba(76,217,100,0.28)",
+      }}
     >
-      <p className="text-sm font-medium" style={{ color: "#4cd964" }}>
-        🚀 You&rsquo;re eligible for Partner mode — earn cash on every referral.
+      <p className="min-w-0 text-sm font-medium leading-snug" style={{ color: "var(--d-fg)" }}>
+        <span className="font-semibold" style={{ color: "#2d8f47" }}>
+          Partner eligible.
+        </span>{" "}
+        <span style={{ color: "var(--d-fg-muted)" }}>
+          Earn cash on every referral — activate when you&rsquo;re ready.
+        </span>
       </p>
-      <Link
-        href="/partners/apply"
-        className="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg text-white"
-        style={{ background: "#4cd964", color: "#0a2e0a" }}
-      >
+      <Link href="/partners/apply" className="d-cta d-cta-md shrink-0 justify-center sm:w-auto">
         Activate
       </Link>
     </div>
