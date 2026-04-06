@@ -5,21 +5,10 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabaseClient";
 import type { User } from "@supabase/supabase-js";
 
-const GOLD = "#F5A623";
-const WARM_WHITE = "#FAF7F2";
-
 type NavTheme = "dark" | "light";
 
 export default function AuthNav({ theme = "dark" }: { theme?: NavTheme }) {
   const isLight = theme === "light";
-  const textColor = isLight ? "text-m2p-ink" : "";
-  const muteColor = isLight ? "text-m2p-muted" : "";
-  const linkStyle = isLight ? undefined : { color: WARM_WHITE };
-  const btnStyle = isLight ? undefined : { backgroundColor: "#F05A28", color: "white" };
-  const borderStyleInline = isLight ? undefined : { borderColor: "#2A2420", color: "#a8a29e" };
-  const avatarBg = isLight ? "bg-m2p-orange/20 text-m2p-orange" : "";
-  const avatarStyle = isLight ? undefined : { backgroundColor: "rgba(245,166,35,0.25)", color: GOLD };
-  const loadingStyle = isLight ? undefined : { color: WARM_WHITE };
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
@@ -44,10 +33,7 @@ export default function AuthNav({ theme = "dark" }: { theme?: NavTheme }) {
 
   if (loading) {
     return (
-      <div
-        className={`rounded-lg px-4 py-2 text-sm font-medium opacity-70 ${isLight ? "text-m2p-muted" : ""}`}
-        style={loadingStyle}
-      >
+      <div className={`rounded-lg px-4 py-2 text-sm font-medium opacity-70 ${isLight ? "text-m2p-muted" : "text-m2p-ivory/90"}`}>
         …
       </div>
     );
@@ -59,30 +45,34 @@ export default function AuthNav({ theme = "dark" }: { theme?: NavTheme }) {
     return (
       <div className="flex items-center gap-3">
         <span
-          className={`hidden sm:inline text-sm truncate max-w-[160px] ${muteColor}`}
-          style={isLight ? undefined : { color: "#a8a29e" }}
+          className={`hidden max-w-[160px] truncate text-sm sm:inline ${isLight ? "text-m2p-muted" : "text-m2p-ivory/70"}`}
           title={email}
         >
           {email}
         </span>
         <span
-          className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium flex-shrink-0 ${avatarBg}`}
-          style={avatarStyle}
+          className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-medium ${
+            isLight ? "bg-m2p-orange/20 text-m2p-orange" : "bg-m2p-orange/20 text-m2p-ivory"
+          }`}
         >
           {initial}
         </span>
         <Link
           href="/dashboard"
-          className={`rounded-lg px-3 py-2 text-sm font-medium transition-opacity hover:opacity-90 ${textColor}`}
-          style={linkStyle}
+          className={`rounded-lg px-3 py-2 text-sm font-medium transition-opacity hover:opacity-90 ${
+            isLight ? "text-m2p-ink" : "text-m2p-ivory"
+          }`}
         >
           Dashboard
         </Link>
         <button
           type="button"
           onClick={handleSignOut}
-          className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${isLight ? "hover:bg-soft-white border-amazon-navy/20 text-amazon-navy" : "hover:bg-white/5"} ${muteColor}`}
-          style={borderStyleInline}
+          className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+            isLight
+              ? "border-m2p-border text-m2p-muted hover:bg-m2p-ivory-alt hover:text-m2p-ink"
+              : "border-m2p-ivory/20 text-m2p-ivory/80 hover:bg-white/5"
+          }`}
         >
           Sign Out
         </button>
@@ -94,15 +84,17 @@ export default function AuthNav({ theme = "dark" }: { theme?: NavTheme }) {
     <div className="flex items-center gap-2">
       <Link
         href="/auth"
-        className={`rounded-lg px-3 py-2 text-sm font-medium transition-opacity hover:opacity-90 ${textColor}`}
-        style={linkStyle}
+        className={`rounded-lg px-3 py-2 text-sm font-medium transition-opacity hover:opacity-90 ${
+          isLight ? "text-m2p-ink" : "text-m2p-ivory"
+        }`}
       >
         Sign In
       </Link>
       <Link
         href="/auth"
-        className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors hover:opacity-90 ${isLight ? "bg-brave text-white hover:bg-brave/90" : ""}`}
-        style={btnStyle}
+        className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors hover:opacity-90 ${
+          isLight ? "bg-m2p-orange text-white hover:bg-m2p-orange-hover" : "bg-m2p-orange text-white hover:bg-m2p-orange-hover"
+        }`}
       >
         Get Started
       </Link>

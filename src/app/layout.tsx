@@ -55,8 +55,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${bebasNeue.variable} ${playfair.variable} ${inter.variable}`}>
       <head>
-        {/* eslint-disable-next-line @next/next/no-page-custom-font -- App Router: layout wraps all pages; next/font vars also used. */}
-        <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
         {/* Block AI training crawlers from indexing content for model training */}
         <meta name="robots" content="noai, noimageai" />
         {/* Favicons */}
@@ -72,7 +70,7 @@ export default function RootLayout({
         />
         <script src="https://lmsqueezy.com/affiliate.js" defer />
       </head>
-      <body className="antialiased bg-ivory text-amazon-navy font-sans">
+      <body className="antialiased bg-m2p-ivory text-m2p-ink font-sans">
         <ToolPagesBanner />
         {children}
         {/* Crisp chat widget — disabled until Manny AI backend is ready */}

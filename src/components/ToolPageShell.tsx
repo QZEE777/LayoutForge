@@ -12,15 +12,15 @@ export default function ToolPageShell({ children }: ToolPageShellProps) {
   return (
     <div className="min-h-screen flex flex-col bg-m2p-ivory">
       {/* Minimal tool nav */}
-      <header className="border-b border-m2p-border bg-m2p-ivory">
+      <header className="m2p-surface-1 border-x-0 border-t-0">
         <div className="mx-auto max-w-4xl px-6 py-3 flex items-center justify-between">
           {/* Logo: Manny + wordmark */}
           <Link href="/" className="flex items-center gap-2.5">
             <Image
-              src="/MANNY AVATAR.png"
+              src="/manny-avatar.png"
               alt="Manny"
-              width={120}
-              height={120}
+              width={44}
+              height={44}
               className="rounded-full"
             />
             <BrandWordmark variant="onLight" className="text-lg" />
@@ -29,13 +29,13 @@ export default function ToolPageShell({ children }: ToolPageShellProps) {
           <div className="flex items-center gap-4">
             <Link
               href="/"
-              className="text-sm text-m2p-muted hover:text-m2p-orange transition-colors"
+              className="m2p-link-nav"
             >
               Home
             </Link>
             <Link
               href="/kdp-pdf-checker"
-              className="inline-flex items-center rounded-full bg-m2p-orange px-4 py-1.5 text-xs font-bold text-white hover:bg-m2p-orange-hover transition-colors"
+              className="inline-flex items-center rounded-full bg-m2p-orange px-4 py-1.5 text-xs font-bold text-white transition-colors hover:bg-m2p-orange-hover"
             >
               Check My PDF — $9
             </Link>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { BrandWordmark } from "@/components/BrandWordmark";
 
 export default function SiteFooter() {
@@ -7,13 +8,12 @@ export default function SiteFooter() {
       <div className="max-w-6xl mx-auto px-6 py-10 text-center">
         {/* Logo — matches navbar: Manny avatar + wordmark */}
         <Link href="/" className="inline-flex items-center gap-2 justify-center">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src="/manny-avatar.png"
             alt="Manny"
             width={48}
             height={48}
-            style={{ flexShrink: 0, display: "block", borderRadius: "50%", objectFit: "cover" }}
+            className="rounded-full"
           />
           <BrandWordmark variant="onDark" className="text-xl" />
         </Link>
