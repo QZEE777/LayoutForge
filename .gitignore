@@ -21,6 +21,9 @@ node_modules/
 .DS_Store
 *.pem
 
+# TypeScript incremental cache (local only; never commit)
+*.tsbuildinfo
+
 # Debug
 npm-debug.log*
 yarn-debug.log*
@@ -50,6 +53,5 @@ secrets/
 data/uploads/
 
 # kdp-preflight-engine frontend build artifacts (Vite)
-kdp-preflight-engine/frontend/tsconfig.node.tsbuildinfo
 kdp-preflight-engine/frontend/vite.config.d.ts
 kdp-preflight-engine/frontend/vite.config.js
