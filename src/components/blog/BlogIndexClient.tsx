@@ -16,6 +16,14 @@ const AFFILIATE_PICKS = [
   { label: "Publisher Rocket (keywords)", href: "#" },
 ];
 
+const TAG_STYLE: Record<string, { chip: string; bar: string }> = {
+  kdp: { chip: "bg-emerald-50 text-emerald-700 border-emerald-200", bar: "from-emerald-400 to-emerald-600" },
+  formatting: { chip: "bg-orange-50 text-orange-700 border-orange-200", bar: "from-orange-400 to-orange-600" },
+  rejection: { chip: "bg-rose-50 text-rose-700 border-rose-200", bar: "from-rose-400 to-rose-600" },
+  margins: { chip: "bg-sky-50 text-sky-700 border-sky-200", bar: "from-sky-400 to-sky-600" },
+  launch: { chip: "bg-violet-50 text-violet-700 border-violet-200", bar: "from-violet-400 to-violet-600" },
+};
+
 export default function BlogIndexClient({ posts, allTags }: Props) {
   const [activeTag, setActiveTag] = useState<string>("all");
   const [activeType, setActiveType] = useState<"all" | "article" | "video" | "hybrid">("all");
@@ -32,6 +40,9 @@ export default function BlogIndexClient({ posts, allTags }: Props) {
   const featured = filtered[0] ?? null;
   const list = filtered.slice(1);
   const readTime = (text: string) => `${Math.max(2, Math.round(text.split(" ").length / 140))} min read`;
+  const primaryTag = (post: BlogPost) => (post.tags?.[0] ?? "kdp").toLowerCase();
+  const chipClassFor = (tag: string) => TAG_STYLE[tag]?.chip ?? "bg-m2p-orange-soft text-m2p-ink border-m2p-border";
+  const barClassFor = (tag: string) => TAG_STYLE[tag]?.bar ?? "from-[#ff7a4a] to-[#f05a28]";
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-12">
@@ -128,6 +139,15 @@ export default function BlogIndexClient({ posts, allTags }: Props) {
               </div>
               <div className="p-6">
                 <p className="text-m2p-muted">{featured.excerpt}</p>
+                {(featured.tags?.length ?? 0) > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {featured.tags!.slice(0, 3).map((t) => (
+                      <span key={t} className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${chipClassFor(t.toLowerCase())}`}>
+                        #{t}
+                      </span>
+                    ))}
+                  </div>
+                )}
                 <p className="mt-3 text-xs text-m2p-muted">
                   {new Date(featured.publishedAt).toLocaleDateString(undefined, {
                     year: "numeric",
@@ -152,6 +172,7 @@ export default function BlogIndexClient({ posts, allTags }: Props) {
                   idx % 5 === 0 ? "sm:col-span-2" : ""
                 }`}
               >
+                <div className={`mb-3 h-1.5 w-20 rounded-full bg-gradient-to-r ${barClassFor(primaryTag(post))}`} />
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <h3 className="text-lg font-semibold text-m2p-ink">{post.title}</h3>
                   <time className="text-xs text-m2p-muted" dateTime={post.publishedAt}>
@@ -165,7 +186,7 @@ export default function BlogIndexClient({ posts, allTags }: Props) {
                     {(post.contentType ?? "article").toUpperCase()}
                   </span>
                   {(post.tags ?? []).slice(0, 3).map((t) => (
-                    <span key={t} className="inline-flex items-center rounded-full border border-m2p-border px-2.5 py-0.5 text-[11px] font-medium text-m2p-muted">
+                    <span key={t} className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${chipClassFor(t.toLowerCase())}`}>
                       #{t}
                     </span>
                   ))}
