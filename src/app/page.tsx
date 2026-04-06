@@ -57,7 +57,7 @@ export default function Home() {
           </div>
           <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
             <div className="flex-[1.1] w-full lg:w-auto order-2 lg:order-1 text-center lg:text-left">
-              <h1 className="font-bebas text-m2p-ivory leading-none tracking-wide mb-4">
+              <h1 className="font-bebas text-white leading-none tracking-wide mb-4">
                 <span
                   className="block drop-shadow-[0_2px_24px_rgba(0,0,0,0.35)]"
                   style={{ fontSize: "clamp(3rem, 7vw, 6rem)" }}
@@ -65,16 +65,17 @@ export default function Home() {
                   KDP PDF <span className="text-m2p-live">Checker</span>
                 </span>
                 <span
-                  className="block text-m2p-ivory/85 text-balance"
+                  className="block text-white/90 text-balance"
                   style={{ fontSize: "clamp(1.35rem, 3vw, 2.35rem)", marginTop: "0.5rem", lineHeight: 1.18 }}
                 >
                   Find formatting errors before Amazon rejects your book
                 </span>
               </h1>
-              <p className="text-m2p-ivory/88 text-lg max-w-xl mx-auto lg:mx-0 mb-2 leading-relaxed text-balance">
+              {/* text-white/* — not text-m2p-ivory/* so body color (black in light mode) never leaks on dark hero */}
+              <p className="text-lg text-white/90 max-w-xl mx-auto lg:mx-0 mb-2 leading-relaxed text-balance">
                 Check your PDF before you upload to KDP. See every issue — page by page — in minutes.
               </p>
-              <p className="text-m2p-live/95 text-sm font-medium mb-6 max-w-xl mx-auto lg:mx-0">
+              <p className="text-m2p-live text-sm font-medium mb-6 max-w-xl mx-auto lg:mx-0">
                 Already rejected? We show you exactly why.
               </p>
               <div className="flex justify-center lg:justify-start">
