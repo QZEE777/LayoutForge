@@ -12,7 +12,7 @@ export default function TermsPage() {
           <h1 className="font-bebas text-m2p-ink leading-tight mb-2 text-[clamp(2rem,4vw,3rem)]">
             TERMS &amp; CONDITIONS
           </h1>
-          <p className="text-sm text-[#6B6151] mb-10" >Last updated: March 24, 2025</p>
+          <p className="text-sm text-[#6B6151] mb-10" >Last updated: April 6, 2026</p>
 
           <div className="prose prose-sm max-w-none space-y-8 [&_h2]:text-m2p-ink [&_p]:text-[#6B6151] [&_a]:text-m2p-orange [&_a]:hover:underline" >
           <section>
@@ -39,7 +39,10 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-semibold text-m2p-ink mt-6 mb-2">4. Payment and subscriptions</h2>
             <p className="text-[#6B6151]">
-              Payments for paid tools and bundles are processed by Lemon Squeezy (“Merchant”). Their terms and payment policies apply to transactions. Refunds are handled in accordance with our <Link href="/refunds" className="text-m2p-orange hover:underline">Refund Policy</Link> and the Merchant’s policy. By purchasing, you agree to the Merchant’s terms and our refund terms.
+              Payments for paid tools and bundles are processed by Lemon Squeezy (“Merchant”). Their terms and payment
+              policies apply to transactions. manu2print is a digital service and does not guarantee acceptance by Amazon KDP
+              or any other platform. By purchasing, you agree to our{" "}
+              <Link href="/refunds" className="text-m2p-orange hover:underline">Refund Policy</Link> and the Merchant&apos;s terms.
             </p>
           </section>
 
@@ -81,8 +84,15 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-semibold text-m2p-ink mt-6 mb-2">10. Refunds</h2>
             <p className="text-[#6B6151]">
-              Refund eligibility and process are set out in our <Link href="/refunds" className="text-m2p-orange hover:underline">Refund Policy</Link>. Requests are handled in line with that policy and the Merchant’s procedures.
+              Refund eligibility and process are set out in our{" "}
+              <Link href="/refunds" className="text-m2p-orange hover:underline">Refund Policy</Link>. In summary:
             </p>
+            <ul className="list-disc pl-5 text-[#6B6151] mt-2 space-y-1">
+              <li>single-scan refunds are generally approved for technical non-delivery or duplicate charges,</li>
+              <li>single scans are generally non-refundable once the report is delivered,</li>
+              <li>credit bundles may be refunded for unused credits within the policy window, and</li>
+              <li>refunds may reverse related affiliate/partner commissions.</li>
+            </ul>
           </section>
 
           <section>
