@@ -64,7 +64,6 @@ export async function GET(
   // Derive base from the incoming request so images resolve in dev + production
   const reqUrl    = new URL(req.url);
   const base      = process.env.NEXT_PUBLIC_SITE_URL ?? `${reqUrl.protocol}//${reqUrl.host}`;
-  const avatarUrl = `${base}/manny-avatar.png`;
 
   // ── Canvas sizes ───────────────────────────────────────────────────────────
   const W = isPortrait ? 1080 : 1200;
@@ -87,8 +86,8 @@ export async function GET(
     // ── Dynamic values ────────────────────────────────────────────────────
     const gradTop    = isPass ? "#1A6B2A" : "#C95A31";
     const gradBottom = isPass ? "#0D3D18" : "#8E3A1F";
-    const glossTop   = isPass ? "rgba(255,255,255,0.10)" : "rgba(255,220,195,0.16)";
-    const glossBottom= isPass ? "rgba(255,255,255,0.00)" : "rgba(255,255,255,0.02)";
+    const glossTop   = isPass ? "rgba(255,255,255,0.12)" : "rgba(255,220,195,0.20)";
+    const glossBottom= isPass ? "rgba(255,255,255,0.00)" : "rgba(255,255,255,0.03)";
     const stateWord  = isPass ? "PASS"    : "FAIL";
     const stateColor = isPass ? "#C5E83A" : "#FF6A2B";  // yellow-green for PASS, orange for FAIL
     const statusText = isPass ? "Ready for KDP upload" : "Fix before you upload";
@@ -131,6 +130,17 @@ export async function GET(
               position: "absolute",
               inset: 0,
               background: `linear-gradient(120deg, ${glossTop} 0%, ${glossBottom} 42%, rgba(0,0,0,0.00) 75%)`,
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: 120,
+              left: -120,
+              width: 1320,
+              height: 220,
+              transform: "rotate(-8deg)",
+              background: "linear-gradient(90deg, rgba(255,255,255,0.00) 0%, rgba(255,255,255,0.12) 36%, rgba(255,255,255,0.04) 66%, rgba(255,255,255,0.00) 100%)",
             }}
           />
           <div
@@ -218,7 +228,7 @@ export async function GET(
               }}>
                 <div style={{
                   width: 54, height: 54, borderRadius: "50%",
-                  background: c.ok === null ? "rgba(255,255,255,0.30)" : c.ok ? "#2ECC71" : "#888888",
+                  background: c.ok === null ? "rgba(255,255,255,0.30)" : c.ok ? "#2ECC71" : "#D88A2C",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   flexShrink: 0,
                   border: "1.5px solid rgba(255,255,255,0.35)",
@@ -261,16 +271,19 @@ export async function GET(
             gap: 20, margin: "28px 50px 0",
           }}>
             <div style={{ height: 2, width: 80, background: "rgba(255,255,255,0.40)", borderRadius: 1 }} />
-            <span style={{ fontSize: 44, fontWeight: 900, color: "#FFFFFF" }}>
-              manu2print.com
+            <span style={{ fontSize: 44, fontWeight: 900, color: "#FFFFFF", display: "flex", alignItems: "center", gap: 0 }}>
+              <span style={{ color: "#F8E9DA" }}>manu</span>
+              <span style={{ color: "#FF7A45" }}>2</span>
+              <span style={{ color: "#C5E83A" }}>print</span>
+              <span style={{ color: "rgba(255,255,255,0.9)" }}>.com</span>
             </span>
             <div style={{ height: 2, width: 80, background: "rgba(255,255,255,0.40)", borderRadius: 1 }} />
           </div>
 
           {/* ── 6. FOOTER ─────────────────────────────────────────── */}
-          <div style={{ display: "flex", justifyContent: "center", margin: "14px 50px 0" }}>
-            <span style={{ fontSize: 26, color: "rgba(255,255,255,0.60)" }}>
-              #KDP  #IndieAuthor  #SelfPublishing
+          <div style={{ display: "flex", justifyContent: "center", margin: "12px 50px 0", paddingBottom: 26 }}>
+            <span style={{ fontSize: 24, color: "rgba(255,255,255,0.64)" }}>
+              KDP • Indie Author • Self Publishing
             </span>
           </div>
 
@@ -334,8 +347,6 @@ export async function GET(
           borderBottom: "1px solid rgba(255,255,255,0.12)",
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={avatarUrl} alt="" style={{ width: 56, height: 56, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.3)" }} />
             <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
               <span style={{ fontSize: 30, fontWeight: 900, lineHeight: 1 }}>
                 <span style={{ color: brandManu }}>manu</span>
