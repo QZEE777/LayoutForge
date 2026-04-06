@@ -13,6 +13,7 @@ import { ScanHistoryPanel } from "@/components/dashboard/scan-history-panel";
 import { ToolsPanel } from "@/components/dashboard/tools-panel";
 import { EarnPanel } from "@/components/dashboard/earn-panel";
 import { SettingsPanel } from "@/components/dashboard/settings-panel";
+import { FounderHubPanel } from "@/components/dashboard/founder-hub-panel";
 
 type Scan = {
   id: string;
@@ -68,7 +69,7 @@ export default function DashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [tab, setTab]                 = useState<ActiveView>(() => {
     const t = searchParams.get("tab");
-    if (t === "earn" || t === "settings" || t === "history" || t === "tools") return t;
+    if (t === "earn" || t === "settings" || t === "history" || t === "tools" || t === "founder") return t;
     return "upload";
   });
 
@@ -106,6 +107,10 @@ export default function DashboardPage() {
   }, [router]);
 
   // Keep ?tab= in sync when switching views (shareable / refresh-safe)
+  useEffect(() => {
+    if (!isFounder && tab === "founder") setTab("upload");
+  }, [isFounder, tab]);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     const path = "/dashboard";
@@ -246,6 +251,7 @@ export default function DashboardPage() {
               initialExpandPurchaseHistory={expandOrdersFromUrl}
             />
           )}
+          {tab === "founder" && isFounder && <FounderHubPanel />}
         </main>
       </div>
     </div>

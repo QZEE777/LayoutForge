@@ -2,11 +2,11 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { Upload, History, Wrench, Gift, Settings, X } from "lucide-react";
+import { Upload, History, Wrench, Gift, Settings, Crown, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BrandWordmark } from "@/components/BrandWordmark";
 
-export type ActiveView = "upload" | "history" | "tools" | "earn" | "settings";
+export type ActiveView = "upload" | "history" | "tools" | "earn" | "founder" | "settings";
 
 interface SidebarProps {
   activeView: ActiveView;
@@ -18,13 +18,15 @@ interface SidebarProps {
   isFounder?: boolean;
 }
 
-const lowerNavItems: { id: Exclude<ActiveView, "upload" | "history">; label: string; icon: React.ElementType; badge?: string }[] = [
+type SecondaryView = Exclude<ActiveView, "upload" | "history">;
+
+const lowerNavItems: { id: SecondaryView; label: string; icon: React.ElementType; badge?: string }[] = [
   { id: "tools", label: "Free Tools", icon: Wrench },
   { id: "earn", label: "Earn 30–40%", icon: Gift, badge: "New" },
   { id: "settings", label: "Settings", icon: Settings },
 ];
 
-const partnerLowerNav: { id: Exclude<ActiveView, "upload" | "history">; label: string; icon: React.ElementType; badge?: string }[] = [
+const partnerLowerNav: { id: SecondaryView; label: string; icon: React.ElementType; badge?: string }[] = [
   { id: "tools", label: "Free Tools", icon: Wrench },
   { id: "earn", label: "Partner Dashboard", icon: Gift },
   { id: "settings", label: "Settings", icon: Settings },
@@ -32,7 +34,10 @@ const partnerLowerNav: { id: Exclude<ActiveView, "upload" | "history">; label: s
 
 export function DashboardSidebar({ activeView, setActiveView, sidebarOpen, setSidebarOpen, user, isPartner, isFounder }: SidebarProps) {
   const initials = user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
-  const restItems = isPartner ? partnerLowerNav : lowerNavItems;
+  const restItems = isPartner ? [...partnerLowerNav] : [...lowerNavItems];
+  if (isFounder) {
+    restItems.splice(restItems.length - 1, 0, { id: "founder", label: "Founder Hub", icon: Crown, badge: "VIP" });
+  }
 
   const go = (v: ActiveView) => {
     setActiveView(v);

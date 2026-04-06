@@ -10,6 +10,7 @@ const viewMeta: Record<ActiveView, { title: string; subtitle: string }> = {
   history:  { title: "My Scans",          subtitle: "Full list of PDF checks and download links" },
   tools:    { title: "Free Tools",        subtitle: "Helpful utilities for indie authors — no payment required" },
   earn:     { title: "Partner Program",   subtitle: "Earn 30–40% commission on every referral" },
+  founder:  { title: "Founder Hub",       subtitle: "VIP founder resources, support path, and campaign tools" },
   settings: { title: "Settings",          subtitle: "Manage your account and preferences" },
 };
 
