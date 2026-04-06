@@ -85,13 +85,15 @@ export async function GET(
     const fontFamily = antonFont ? '"Anton", sans-serif' : "system-ui, sans-serif";
 
     // ── Dynamic values ────────────────────────────────────────────────────
-    const gradTop    = isPass ? "#1A6B2A" : "#D65A2F";
-    const gradBottom = isPass ? "#0D3D18" : "#C14A27";
+    const gradTop    = isPass ? "#1A6B2A" : "#C95A31";
+    const gradBottom = isPass ? "#0D3D18" : "#8E3A1F";
+    const glossTop   = isPass ? "rgba(255,255,255,0.10)" : "rgba(255,220,195,0.16)";
+    const glossBottom= isPass ? "rgba(255,255,255,0.00)" : "rgba(255,255,255,0.02)";
     const stateWord  = isPass ? "PASS"    : "FAIL";
     const stateColor = isPass ? "#C5E83A" : "#FF6A2B";  // yellow-green for PASS, orange for FAIL
     const statusText = isPass ? "Ready for KDP upload" : "Fix before you upload";
-    const statusColor= isPass ? "#A8D878"              : "#00FF66";
-    const msgBg      = isPass ? "rgba(0,0,0,0.22)"    : "rgba(0,0,0,0.20)";
+    const statusColor= isPass ? "#C5E83A"              : "#5BEE8D";
+    const msgBg      = isPass ? "rgba(8,30,12,0.42)"   : "rgba(63,24,13,0.44)";
     const msgLines   = isPass
       ? [
           "Checked this before uploading.",
@@ -123,11 +125,41 @@ export async function GET(
             overflow: "hidden",
           }}
         >
+          {/* Metallic/gloss overlays for premium depth */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: `linear-gradient(120deg, ${glossTop} 0%, ${glossBottom} 42%, rgba(0,0,0,0.00) 75%)`,
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: -160,
+              right: -220,
+              width: 760,
+              height: 760,
+              borderRadius: "50%",
+              background: "radial-gradient(circle, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.00) 68%)",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              left: 26,
+              right: 26,
+              top: 26,
+              bottom: 26,
+              borderRadius: 34,
+              border: "1px solid rgba(255,255,255,0.18)",
+            }}
+          />
 
           {/* ── 1. HEADLINE ───────────────────────────────────────── */}
           <div style={{
             display: "flex", flexDirection: "column", alignItems: "center",
-            margin: "70px 50px 0",
+            margin: "76px 50px 0",
           }}>
             <span style={{ fontSize: 90, fontWeight: 900, color: "#FFFFFF", lineHeight: 1.0 }}>
               THIS WOULD
@@ -148,7 +180,7 @@ export async function GET(
           {/* ── 2. SCORE — no background box, sits on gradient ────── */}
           <div style={{
             display: "flex", flexDirection: "column", alignItems: "center",
-            margin: "16px 50px 0",
+            margin: "12px 50px 0",
           }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
               <span style={{ fontSize: 240, fontWeight: 900, color: "#FFFFFF", lineHeight: 0.9 }}>
@@ -166,25 +198,30 @@ export async function GET(
           {/* ── Divider ───────────────────────────────────────────── */}
           <div style={{
             height: 1, background: "rgba(255,255,255,0.25)",
-            margin: "24px 50px 0",
+            margin: "20px 70px 0",
           }} />
 
           {/* ── 3. CHECKLIST — centered as a group ────────────────── */}
           <div style={{
             display: "flex", flexDirection: "column", alignItems: "center",
             margin: "20px 50px 0",
-            gap: 16,
+            gap: 14,
           }}>
             {checks.map((c) => (
               <div key={c.label} style={{
                 display: "flex", alignItems: "center", gap: 22,
-                width: 380,
+                width: 440,
+                background: "rgba(0,0,0,0.16)",
+                borderRadius: 18,
+                border: "1px solid rgba(255,255,255,0.18)",
+                padding: "10px 16px",
               }}>
                 <div style={{
                   width: 54, height: 54, borderRadius: "50%",
                   background: c.ok === null ? "rgba(255,255,255,0.30)" : c.ok ? "#2ECC71" : "#888888",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   flexShrink: 0,
+                  border: "1.5px solid rgba(255,255,255,0.35)",
                 }}>
                   <span style={{ fontSize: 32, fontWeight: 900, color: "#FFFFFF", lineHeight: 1 }}>
                     {c.ok === null ? "?" : c.ok ? "✓" : "✕"}
@@ -201,11 +238,12 @@ export async function GET(
           <div style={{
             display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
             background: msgBg,
-            borderRadius: 20,
+            borderRadius: 24,
             margin: "24px 50px 0",
             padding: "22px 36px",
             flexShrink: 0,
             gap: 0,
+            border: "1.5px solid rgba(255,255,255,0.2)",
           }}>
             {msgLines.map((line, i) => (
               <span key={i} style={{
@@ -264,10 +302,28 @@ export async function GET(
         height: 630,
         display: "flex",
         flexDirection: "column",
-        background: `linear-gradient(135deg, ${bgTop} 0%, ${bgBottom} 100%)`,
+        background: `linear-gradient(135deg, ${bgTop} 0%, ${bgBottom} 58%, #6f2d18 100%)`,
         fontFamily: "system-ui, sans-serif",
         overflow: "hidden",
       }}>
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "linear-gradient(120deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.00) 45%)",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            left: 20,
+            right: 20,
+            top: 20,
+            bottom: 20,
+            borderRadius: 28,
+            border: "1px solid rgba(255,255,255,0.16)",
+          }}
+        />
 
         {/* Top bar */}
         <div style={{
