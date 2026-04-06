@@ -35,10 +35,19 @@ export default function PdfCompressPage() {
     }
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (doneBlobUrl) URL.revokeObjectURL(doneBlobUrl);
+    };
+  }, [doneBlobUrl]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     setError(null);
-    setDoneBlobUrl(null);
+    setDoneBlobUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
     if (!f) {
       setFile(null);
       return;
@@ -75,7 +84,10 @@ export default function PdfCompressPage() {
     }
 
     setError(null);
-    setDoneBlobUrl(null);
+    setDoneBlobUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
     setCompressing(true);
     setProgress(0);
 
@@ -107,7 +119,10 @@ export default function PdfCompressPage() {
       });
       setProgress(95);
       const url = URL.createObjectURL(blob);
-      setDoneBlobUrl(url);
+      setDoneBlobUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return url;
+      });
       setOriginalSize(file.size);
       setCompressedSize(blob.size);
       const base = file.name.replace(/\.pdf$/i, "") || "document";
@@ -122,15 +137,17 @@ export default function PdfCompressPage() {
   }, [file, email, leadCaptured, quality]);
 
   const handleReset = useCallback(() => {
-    if (doneBlobUrl) URL.revokeObjectURL(doneBlobUrl);
-    setDoneBlobUrl(null);
+    setDoneBlobUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
     setOutputName("");
     setOriginalSize(null);
     setCompressedSize(null);
     setFile(null);
     if (!leadCaptured) setEmail("");
     setError(null);
-  }, [doneBlobUrl, leadCaptured]);
+  }, [leadCaptured]);
 
   return (
     <ToolPageShell>

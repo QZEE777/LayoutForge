@@ -6,7 +6,9 @@
 
 import { PDFDocument } from "pdf-lib";
 
-const PDFJS_VERSION = "4.10.38";
+// Use the local worker so the tool remains client-side reliable
+// even if third-party CDNs are blocked or slow.
+const PDF_WORKER_SRC = "/pdf.worker.min.js";
 
 export type PdfProfile = "web" | "print";
 
@@ -33,7 +35,7 @@ export async function compressPdfInBrowser(
   }
 
   const { getDocument, GlobalWorkerOptions } = await import("pdfjs-dist");
-  GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.min.mjs`;
+  GlobalWorkerOptions.workerSrc = PDF_WORKER_SRC;
 
   const arrayBuffer = await file.arrayBuffer();
   const loadingTask = getDocument({ data: arrayBuffer });

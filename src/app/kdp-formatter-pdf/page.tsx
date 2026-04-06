@@ -1,7 +1,6 @@
 "use client";
 
-// TODO: Manny watermark to be added to generated PDF output
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { truncateFilenameMiddle, formatFileSize } from "@/lib/formatFileName";
@@ -53,7 +52,10 @@ export default function KdpFormatterPdfPage() {
       }
       setError(null);
       setFile(droppedFile);
-      setDoneBlobUrl(null);
+      setDoneBlobUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return null;
+      });
     },
     [validateFile]
   );
@@ -70,7 +72,10 @@ export default function KdpFormatterPdfPage() {
       }
       setError(null);
       setFile(selected);
-      setDoneBlobUrl(null);
+      setDoneBlobUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return null;
+      });
     },
     [validateFile]
   );
@@ -80,14 +85,20 @@ export default function KdpFormatterPdfPage() {
     setProcessing(true);
     setProgress(0);
     setError(null);
-    setDoneBlobUrl(null);
+    setDoneBlobUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
     try {
       const blob = await compressPdfInBrowser(file, {
         profile: "print",
         onProgress: (page, total) => setProgress(Math.round((100 * page) / total)),
       });
       const url = URL.createObjectURL(blob);
-      setDoneBlobUrl(url);
+      setDoneBlobUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return url;
+      });
       const base = file.name.replace(/\.pdf$/i, "") || "document";
       setOutputName(`${base}-optimized.pdf`);
       setProgress(100);
@@ -100,11 +111,19 @@ export default function KdpFormatterPdfPage() {
   }, [file]);
 
   const handleReset = useCallback(() => {
-    if (doneBlobUrl) URL.revokeObjectURL(doneBlobUrl);
-    setDoneBlobUrl(null);
+    setDoneBlobUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
     setOutputName("");
     setFile(null);
     setError(null);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (doneBlobUrl) URL.revokeObjectURL(doneBlobUrl);
+    };
   }, [doneBlobUrl]);
 
   return (
@@ -141,7 +160,7 @@ export default function KdpFormatterPdfPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-m2p-ink">PDF Print Optimizer</h1>
           <p className="mt-2 text-m2p-muted">Shrink or print-optimize your PDF. FREE. Runs in your browser—your file never leaves your device. PDF only, up to {MAX_MB} MB.</p>
-          <p className="mt-2 text-m2p-muted text-sm">If you design in Canva and export PDF, that PDF is your interior — use <Link href="/kdp-pdf-checker" className="text-amber-300 hover:text-amber-200 underline">Print Ready Check</Link> to verify. This optimizer is for smaller/crisper copies, not for replacing that PDF.</p>
+          <p className="mt-2 text-m2p-muted text-sm">If you design in Canva and export PDF, that PDF is your interior — use <Link href="/kdp-pdf-checker" className="text-m2p-orange hover:text-m2p-orange-hover underline">Print Ready Check</Link> to verify. This optimizer is for smaller/crisper copies, not for replacing that PDF.</p>
         </div>
 
         {doneBlobUrl ? (
@@ -226,7 +245,7 @@ export default function KdpFormatterPdfPage() {
               <div className="mt-4 rounded-xl bg-red-500/10 border border-red-500/30 p-4 text-sm text-red-400">
                 {error}
                 <p className="mt-2">
-                  <Link href="/pdf-compress" className="text-amber-300 hover:text-m2p-orange underline">
+                  <Link href="/pdf-compress" className="text-m2p-orange hover:text-m2p-orange-hover underline">
                     Try our free PDF Compressor for large files →
                   </Link>
                 </p>
