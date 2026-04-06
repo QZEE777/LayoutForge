@@ -29,11 +29,24 @@ export default function PageCountEstimatorPage() {
     () => sanitizeWordCount(wordCountInput === "" ? 0 : Number(wordCountInput.replace(/\D/g, ""))),
     [wordCountInput]
   );
+  const rawWordCount = useMemo(
+    () => (wordCountInput === "" ? 0 : Number(wordCountInput.replace(/\D/g, ""))),
+    [wordCountInput]
+  );
+  const hasWordCountInput = wordCountInput.trim().length > 0;
+  const wasWordCountClamped = rawWordCount > MAX_WORDS;
   const safeTrimId = useMemo(() => (isValidTrimId(trimId) ? trimId : "6x9"), [trimId]);
   const estimatedPages = useMemo(
     () => estimatePageCount(wordCount, safeTrimId, fontSize),
     [wordCount, safeTrimId, fontSize]
   );
+  const estimatedPageRange = useMemo(() => {
+    const estimates = FONT_OPTIONS.map((size) => estimatePageCount(wordCount, safeTrimId, size));
+    return {
+      min: Math.min(...estimates),
+      max: Math.max(...estimates),
+    };
+  }, [wordCount, safeTrimId]);
 
   const inRange =
     estimatedPages >= KDP_PAGE_LIMITS.minPages &&
@@ -71,9 +84,18 @@ export default function PageCountEstimatorPage() {
                 placeholder="50000"
                 value={wordCountInput}
                 onChange={(e) => { setWordCountInput(e.target.value.replace(/\D/g, "").slice(0, 10)); setHasInteracted(true); }}
+                onBlur={() => {
+                  if (!hasWordCountInput) return;
+                  setWordCountInput(String(wordCount));
+                }}
                 className="w-full rounded-lg border border-m2p-border px-4 py-2.5 bg-m2p-ivory text-sm text-m2p-ink focus:outline-none focus:ring-2 focus:ring-m2p-orange"
               />
               <p className="text-xs text-m2p-muted mt-1">Numbers only, max {MAX_WORDS.toLocaleString()} words.</p>
+              {wasWordCountClamped && (
+                <p className="text-xs text-amber-600 mt-1">
+                  Input capped at {MAX_WORDS.toLocaleString()} words for estimator stability.
+                </p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-m2p-ink mb-2">Trim size</label>
@@ -115,6 +137,12 @@ export default function PageCountEstimatorPage() {
             <span className="font-bebas text-5xl text-m2p-orange leading-none">{estimatedPages}</span>
             <span className="text-m2p-muted text-sm">pages</span>
           </div>
+          <p className="text-xs text-m2p-muted mb-2">
+            Range by font size (10–12pt): <span className="font-medium text-m2p-ink">{estimatedPageRange.min}–{estimatedPageRange.max} pages</span>
+          </p>
+          <p className="text-xs text-m2p-muted mb-2">
+            Production planning tip: add ~6–12 pages for front/back matter before setting price and cover.
+          </p>
           {inRange ? (
             <p className="text-xs text-green-700 mb-2">
               Within KDP range ({KDP_PAGE_LIMITS.minPages}–{KDP_PAGE_LIMITS.maxPages} pages).
@@ -122,6 +150,11 @@ export default function PageCountEstimatorPage() {
           ) : (
             <p className="text-xs text-amber-600 mb-2">
               Outside KDP range ({KDP_PAGE_LIMITS.minPages}–{KDP_PAGE_LIMITS.maxPages} pages) — adjust word count or trim size.
+            </p>
+          )}
+          {!hasWordCountInput && (
+            <p className="text-xs text-m2p-muted mb-2">
+              Enter word count to get a realistic estimate.
             </p>
           )}
           <p className="text-xs text-m2p-muted">
