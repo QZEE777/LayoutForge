@@ -4,6 +4,9 @@ export type BlogPost = {
   excerpt: string;
   publishedAt: string; // ISO date string
   tags?: string[];
+  contentType?: "article" | "video" | "hybrid";
+  videoUrl?: string;
+  videoCaption?: string;
   content: Array<
     | { type: "p"; text: string }
     | { type: "h2"; text: string }
@@ -19,6 +22,7 @@ const POSTS: BlogPost[] = [
       "Amazon's rejection emails are frustratingly vague. Here's what they actually mean — and how to fix each issue before you re-upload.",
     publishedAt: "2026-03-25",
     tags: ["kdp", "formatting", "rejection"],
+    contentType: "article",
     content: [
       {
         type: "p",
@@ -53,6 +57,7 @@ const POSTS: BlogPost[] = [
       "The exact margin sizes KDP requires for interior manuscripts — and why getting them wrong is the #1 cause of rejection.",
     publishedAt: "2026-03-22",
     tags: ["kdp", "margins", "formatting"],
+    contentType: "article",
     content: [
       {
         type: "p",
@@ -95,6 +100,7 @@ const POSTS: BlogPost[] = [
       "What we’re building, who it’s for, and how we think about shipping safe tools for KDP authors.",
     publishedAt: "2026-03-18",
     tags: ["launch", "kdp"],
+    contentType: "article",
     content: [
       {
         type: "p",
@@ -125,5 +131,28 @@ export function getAllPosts(): BlogPost[] {
 
 export function getPostBySlug(slug: string): BlogPost | null {
   return POSTS.find((p) => p.slug === slug) ?? null;
+}
+
+export function getAllBlogTags(): string[] {
+  const tags = new Set<string>();
+  for (const post of POSTS) {
+    for (const tag of post.tags ?? []) tags.add(tag);
+  }
+  return Array.from(tags).sort((a, b) => a.localeCompare(b));
+}
+
+export function getRelatedPosts(slug: string, limit = 3): BlogPost[] {
+  const post = getPostBySlug(slug);
+  if (!post) return [];
+  const tagSet = new Set(post.tags ?? []);
+  return getAllPosts()
+    .filter((p) => p.slug !== slug)
+    .map((p) => ({
+      post: p,
+      score: (p.tags ?? []).reduce((n, t) => n + (tagSet.has(t) ? 1 : 0), 0),
+    }))
+    .sort((a, b) => b.score - a.score || new Date(b.post.publishedAt).getTime() - new Date(a.post.publishedAt).getTime())
+    .slice(0, limit)
+    .map((x) => x.post);
 }
 
