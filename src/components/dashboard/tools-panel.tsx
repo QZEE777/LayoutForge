@@ -15,7 +15,7 @@ interface Tool {
 
 // Free tools from platformTools.ts — linked to real routes
 const FREE_TOOLS: Tool[] = [
-  { id: "pdf-compress",           title: "PDF Compressor",            description: "Shrink PDFs up to 50 MB. No account needed.",              href: "/pdf-compress",            iconPath: "M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4 4m0 0l-4-4m4 4V4" },
+  { id: "pdf-compress",           title: "PDF Compressor",            description: "Shrink or print-optimize PDFs in your browser. No upload.", href: "/pdf-compress",            iconPath: "M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4 4m0 0l-4-4m4 4V4" },
   { id: "royalty-calculator",     title: "KDP Royalty Calculator",     description: "Estimate earnings by page count, trim, and list price.",   href: "/royalty-calculator",      iconPath: "M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" },
   { id: "page-count-estimator",   title: "Page Count Estimator",       description: "Estimate interior pages from word count and trim size.",   href: "/page-count-estimator",    iconPath: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" },
   { id: "trim-size-comparison",   title: "Trim Size Comparison",       description: "Compare print cost and royalty across trim sizes.",        href: "/trim-size-comparison",    iconPath: "M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7" },
@@ -25,7 +25,6 @@ const FREE_TOOLS: Tool[] = [
   { id: "banned-keyword-checker", title: "Banned Keyword Checker",     description: "Spot risky words before publishing.",                      href: "/banned-keyword-checker",  iconPath: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" },
   { id: "kids-trim-guide",        title: "Kids Book Trim Guide",       description: "Trim sizes for picture books and children's titles.",       href: "/kids-trim-guide",         iconPath: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253", comingSoon: true },
   { id: "journals-guide",         title: "Journals & Coloring Guide",  description: "Tips for journals, workbooks, coloring and puzzle books.", href: "/journals-coloring-puzzle-guide", iconPath: "M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z", comingSoon: true },
-  { id: "pdf-optimizer",          title: "PDF Print Optimizer",        description: "Optimize your PDF for print-on-demand.",                   href: "/kdp-formatter-pdf",       iconPath: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
 ];
 
 export function ToolsPanel() {

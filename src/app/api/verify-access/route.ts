@@ -7,7 +7,9 @@ export async function POST(req: Request) {
     const downloadId = typeof body?.downloadId === "string" ? body.downloadId.trim() : "";
     const tool = typeof body?.tool === "string" ? body.tool.trim() : "";
 
-    if (tool === "kdp-formatter-pdf") return NextResponse.json({ access: true, type: "free" });
+    if (tool === "pdf-compress" || tool === "kdp-formatter-pdf") {
+      return NextResponse.json({ access: true, type: "free" });
+    }
 
     // Check payment_confirmed flag on this specific download (UUID-keyed, not spoofable)
     if (downloadId) {

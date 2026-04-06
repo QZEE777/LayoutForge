@@ -156,12 +156,18 @@ export default function PdfCompressPage() {
           Free PDF Compressor for KDP Authors
         </h1>
         <p className="text-m2p-muted text-sm leading-relaxed mb-3 text-center">
-          Compress your PDF directly in your browser — your file never leaves your device.
-          Reduce file size for faster uploads and sharing.
+          Compress or print-optimize your PDF in the browser — your file never leaves your device.
+          Choose <strong className="font-medium text-m2p-ink">Better (crisper text)</strong> for a smaller, sharper copy, or <strong className="font-medium text-m2p-ink">Smaller file</strong> for maximum reduction.
+        </p>
+        <p className="text-m2p-muted text-sm mb-3 text-center">
+          From Canva, InDesign, or Word? Use this for sharing and preview. If your Canva export is your KDP interior, verify it with{" "}
+          <Link href="/kdp-pdf-checker" className="text-m2p-orange hover:text-m2p-orange-hover font-medium">
+            Print Ready Check
+          </Link>{" "}
+          — this tool does not replace your print master PDF.
         </p>
         <p className="text-m2p-muted text-sm mb-5 text-center">
-          Designed in Canva, InDesign, or Word? Compress your working file here —
-          then check your final PDF before publishing.
+          Compress your working file here, then run a compliance check on your final upload file before publishing.
         </p>
 
         {doneBlobUrl ? (

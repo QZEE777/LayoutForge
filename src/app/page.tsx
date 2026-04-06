@@ -263,7 +263,7 @@ export default function Home() {
               {
                 icon: "🗜️",
                 title: "PDF Compressor",
-                desc: "Shrink your PDF directly in the browser — your file never leaves your device. Compress working files from Canva, InDesign, or Word before sharing.",
+                desc: "Shrink or print-optimize your PDF in the browser — no upload. Use for sharing and preview; keep your high-res original for KDP.",
                 href: "/pdf-compress",
                 cta: "→ Compress PDF",
               },

@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
       { source: "/keyword-research", destination: "/", permanent: true },
       { source: "/epub-maker", destination: "/", permanent: true },
       { source: "/tools/pdf-compress", destination: "/pdf-compress", permanent: true },
+      { source: "/kdp-formatter-pdf", destination: "/pdf-compress", permanent: true },
+      { source: "/kdp-formatter-pdf/:path*", destination: "/pdf-compress", permanent: true },
       { source: "/affiliates",       destination: "/partners",       permanent: true },
       { source: "/affiliates/apply", destination: "/partners/apply", permanent: true },
     ];

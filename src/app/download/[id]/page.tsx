@@ -388,7 +388,7 @@ export default function DownloadPage() {
     return (
       <div className="min-h-screen bg-m2p-ivory text-m2p-ink p-8">
         <p className="text-red-400">Invalid file ID.</p>
-        <Link href={isFormatReviewFlow ? "/kdp-format-review" : isCheckerFlow ? "/kdp-pdf-checker" : isEpubFlow ? "/epub-maker" : isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"} className="mt-4 block text-m2p-orange hover:text-white">
+        <Link href={isFormatReviewFlow ? "/kdp-format-review" : isCheckerFlow ? "/kdp-pdf-checker" : isEpubFlow ? "/epub-maker" : isPdfFlow ? "/pdf-compress" : "/kdp-formatter"} className="mt-4 block text-m2p-orange hover:text-white">
           Upload a file
         </Link>
       </div>
@@ -404,7 +404,7 @@ export default function DownloadPage() {
             <BrandWordmark variant="onLight" className="text-xl" />
           </Link>
           <Link
-            href={isFormatReview ? "/kdp-format-review" : isChecker ? "/kdp-pdf-checker" : isEpub ? "/epub-maker" : isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"}
+            href={isFormatReview ? "/kdp-format-review" : isChecker ? "/kdp-pdf-checker" : isEpub ? "/epub-maker" : isPdfFlow ? "/pdf-compress" : "/kdp-formatter"}
             className="text-sm font-semibold text-m2p-muted hover:text-m2p-orange transition-colors"
           >
             New upload
@@ -636,7 +636,7 @@ export default function DownloadPage() {
 
         {report && (
         <PaymentGate
-          tool={isFormatReview ? "kdp-format-review" : isChecker ? "kdp-pdf-checker" : isEpub ? "epub-maker" : isPdfFlow ? "kdp-formatter-pdf" : "kdp-formatter"}
+          tool={isFormatReview ? "kdp-format-review" : isChecker ? "kdp-pdf-checker" : isEpub ? "epub-maker" : isPdfFlow ? "pdf-compress" : "kdp-formatter"}
           downloadId={id}
           hideChildrenUntilUnlocked
         >
@@ -1599,7 +1599,7 @@ export default function DownloadPage() {
           </button>
           )}
           <Link
-            href={isFormatReview ? "/kdp-format-review" : isChecker ? "/kdp-pdf-checker" : isEpub ? "/epub-maker" : isPdfFlow ? "/kdp-formatter-pdf" : "/kdp-formatter"}
+            href={isFormatReview ? "/kdp-format-review" : isChecker ? "/kdp-pdf-checker" : isEpub ? "/epub-maker" : isPdfFlow ? "/pdf-compress" : "/kdp-formatter"}
             className="flex-1 border border-white/20 hover:border-m2p-orange text-white font-medium py-3 px-6 rounded-lg text-center"
           >
             {isFormatReview ? "Review Another" : isChecker ? "Check Another PDF" : isEpub ? "Create Another EPUB" : "Format Another"}
