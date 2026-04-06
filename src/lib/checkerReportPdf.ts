@@ -184,10 +184,15 @@ export async function generateCheckerReportPdf(
     y -= 8;
   }
 
-  // Upsell
-  if (report.upsellBridge) {
+  // Upsell / CTA line (guard against retired "coming soon" copy)
+  const sanitizedUpsellBridge =
+    report.upsellBridge &&
+    !/coming soon|waitlist|formatter/i.test(report.upsellBridge)
+      ? report.upsellBridge
+      : "";
+  if (sanitizedUpsellBridge) {
     nextPageIfNeeded(LINE_HEIGHT * 2);
-    drawLine(report.upsellBridge, { size: FONT_SIZE_SM });
+    drawLine(sanitizedUpsellBridge, { size: FONT_SIZE_SM });
   }
 
   addFooter(page, font, MARGIN);

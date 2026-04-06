@@ -461,6 +461,7 @@ export interface ChecklistSpecInput {
   pageCount?: number;
   errorCount: number;
   warningCount: number;
+  hasTrimIssues?: boolean;
   hasMarginIssues?: boolean;
   hasBleedIssues?: boolean;
   hasFontIssues?: boolean;
@@ -468,10 +469,13 @@ export interface ChecklistSpecInput {
 }
 
 export function buildUploadChecklist(input: ChecklistSpecInput): ChecklistItem[] {
+  const trimStatus: "pass" | "warning" | "fail" = input.hasTrimIssues
+    ? "fail"
+    : (input.trimMatchKDP ? "pass" : isMeaningfulTrimDetected(input.trimDetected) ? "fail" : "warning");
   return [
     {
       check: "Trim size matches KDP",
-      status: input.trimMatchKDP ? "pass" : isMeaningfulTrimDetected(input.trimDetected) ? "fail" : "warning",
+      status: trimStatus,
     },
     {
       check: "Page count (24–828)",
@@ -515,18 +519,22 @@ export interface SpecTableInput {
   recommendedGutterInches?: number;
   errorCount: number;
   warningCount: number;
+  hasTrimIssues?: boolean;
   hasMarginIssues?: boolean;
   hasBleedIssues?: boolean;
   hasFontIssues?: boolean;
 }
 
 export function buildSpecTable(input: SpecTableInput): SpecRow[] {
+  const trimStatus: "pass" | "warning" | "fail" = input.hasTrimIssues
+    ? "fail"
+    : (input.trimMatchKDP ? "pass" : isMeaningfulTrimDetected(input.trimDetected) ? "fail" : "warning");
   return [
     {
       requirement: "Trim size",
       yourFile: input.trimDetected ?? "—",
       kdpRequired: "Standard KDP size",
-      status: input.trimMatchKDP ? "pass" : isMeaningfulTrimDetected(input.trimDetected) ? "fail" : "warning",
+      status: trimStatus,
     },
     {
       requirement: "Page count",
@@ -570,11 +578,12 @@ export function buildSpecTable(input: SpecTableInput): SpecRow[] {
 function detectIssueCategories(
   errors: Array<{ rule_id: string; message: string }>,
   warnings: Array<{ rule_id: string; message: string }>
-): { hasMarginIssues: boolean; hasBleedIssues: boolean; hasFontIssues: boolean; hasTransparencyIssues: boolean } {
+): { hasTrimIssues: boolean; hasMarginIssues: boolean; hasBleedIssues: boolean; hasFontIssues: boolean; hasTransparencyIssues: boolean } {
   const all = [...errors, ...warnings];
   const combined = all.map((i) => `${i.rule_id} ${i.message}`.toLowerCase()).join(" ");
   const allRuleIds = all.map((i) => i.rule_id.toUpperCase());
   return {
+    hasTrimIssues:         /trim size|page size|not.*kdp.*size|mixed.*size|inconsistent.*size|trim profile/.test(combined) || allRuleIds.some(r => ["ALLOWED_TRIM_SIZES","CONSISTENT_TRIM","MIXED_PAGE_SIZES","KDP_TRIM_PROFILE","TRIM_BOX","HARDCOVER_TRIM_SIZE"].includes(r)),
     hasMarginIssues:       /margin|gutter|inner|outer|safe\s*area/.test(combined) || allRuleIds.some(r => ["GUTTER_MARGIN","OUTSIDE_MARGIN_MIN","TOP_MARGIN_MIN","BOTTOM_MARGIN_MIN","SAFE_ZONE","TEXT_OUTSIDE_TRIM"].includes(r)),
     hasBleedIssues:        /bleed|trim\s*outside|crop/.test(combined) || allRuleIds.some(r => ["BLEED_VALIDATION","IMAGE_BLEED"].includes(r)),
     hasFontIssues:         /font|embed|subset/.test(combined) || allRuleIds.some(r => ["EMBEDDED_FONTS","RESTRICTED_FONT_EMBEDDING","MIN_FONT_SIZE"].includes(r)),
@@ -790,7 +799,8 @@ export function enrichCheckerReport(
   const categoryMessages = preflight ? messagesForCategoryDetection(preflight) : null;
   const categories = categoryMessages
     ? detectIssueCategories(categoryMessages.errors, categoryMessages.warnings)
-    : { hasMarginIssues: false, hasBleedIssues: false, hasFontIssues: false, hasTransparencyIssues: false };
+    : { hasTrimIssues: false, hasMarginIssues: false, hasBleedIssues: false, hasFontIssues: false, hasTransparencyIssues: false };
+  const normalizedTrimMatchKDP = categories.hasTrimIssues ? false : !!report.trimMatchKDP;
 
   // Build enriched issues with tool-specific fix instructions
   let issuesEnriched: EnrichedIssue[];
@@ -841,6 +851,7 @@ export function enrichCheckerReport(
 
   return {
     ...report,
+    trimMatchKDP:       normalizedTrimMatchKDP,
     scanDate:           new Date().toISOString(),
     fileNameScanned:    fileNameScanned || "document.pdf",
     kdpPassProbability: score,
@@ -852,7 +863,7 @@ export function enrichCheckerReport(
     kdpReady:           errorCount === 0,
     issuesEnriched,
     uploadChecklist: buildUploadChecklist({
-      trimMatchKDP:         report.trimMatchKDP,
+      trimMatchKDP:         normalizedTrimMatchKDP,
       trimDetected:         report.trimDetected,
       pageCount:            report.pageCount,
       errorCount,
@@ -861,7 +872,7 @@ export function enrichCheckerReport(
     }),
     specTable: buildSpecTable({
       trimDetected:            report.trimDetected,
-      trimMatchKDP:            report.trimMatchKDP,
+      trimMatchKDP:            normalizedTrimMatchKDP,
       kdpTrimName:             report.kdpTrimName,
       pageCount:               report.pageCount,
       fileSizeMB:              report.fileSizeMB,

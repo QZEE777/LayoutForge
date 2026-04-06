@@ -1023,10 +1023,11 @@ export default function DownloadPage() {
       </div>
       ${bodyContent}
       <div style="margin-top:32px; padding:24px; background:#FEF0EB; border-radius:12px; text-align:center; border:1px solid #F05A28;">
-        <p style="font-size:18px; font-weight:bold; color:#1A1208; margin-bottom:8px;">Want to fix these issues automatically?</p>
-        <p style="color:#6B6151; margin-bottom:16px;">KDP PDF Formatter is coming soon — upload once, get a print-ready PDF instantly.</p>
-        <p style="margin-bottom:16px;"><a href="https://manu2print.com" style="background:#F05A28; color:white; padding:12px 24px; border-radius:8px; text-decoration:none; font-weight:bold;">Join the Waitlist → manu2print.com</a></p>
-        <p style="color:#6B6151; font-size:13px;">💰 Earn 30% commission — <a href="https://manu2print.com/partners" style="color:#F05A28;">become a partner</a></p>
+        <p style="font-size:18px; font-weight:bold; color:#1A1208; margin-bottom:8px;">Next step: upload-ready confidence</p>
+        <p style="color:#6B6151; margin-bottom:12px;">Apply the fixes in this report, export a fresh PDF from your layout app, then run one final check before uploading to KDP.</p>
+        <p style="color:#6B6151; margin-bottom:16px;">Need a second opinion? Share this report with your formatter, designer, or editor so they can fix issues page by page.</p>
+        <p style="margin-bottom:16px;"><a href="https://manu2print.com/kdp-pdf-checker" style="background:#F05A28; color:white; padding:12px 24px; border-radius:8px; text-decoration:none; font-weight:bold;">Run final KDP check → manu2print.com/kdp-pdf-checker</a></p>
+        <p style="color:#6B6151; font-size:13px;">Want to earn scan credits by referring authors? <a href="https://manu2print.com/partners" style="color:#F05A28;">Become a partner</a></p>
       </div>
       <div class="footer">© manu2print — Built for indie authors</div>
     </body>

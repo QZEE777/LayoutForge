@@ -245,7 +245,7 @@ export async function POST(request: NextRequest) {
           return terms.some((t) => hay.includes(t));
         });
 
-      const trimOk: boolean = report.trimMatchKDP;
+      const trimOk: boolean = !!enrichedReport.trimMatchKDP;
       const marginsOk: boolean = !hasIssueMatching(["margin", "safe zone", "safe_zone", "gutter"]);
       const bleedOk: boolean = !hasIssueMatching(["bleed"]);
       const fontsOk: boolean = !hasIssueMatching(["font", "embed", "subsett"]);
