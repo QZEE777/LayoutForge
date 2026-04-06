@@ -235,8 +235,12 @@ export default function AdminPage() {
         totalCreditsUsed: data.totalCreditsUsed ?? 0,
       });
       const paymentRows = data.recentPayments || [];
-      setPayments(paymentRows.filter((p: { payment_type?: string | null }) => p.payment_type !== "credit"));
-      setCreditRedemptions(paymentRows.filter((p: { payment_type?: string | null }) => p.payment_type === "credit"));
+      const isCreditRow = (paymentType?: string | null) => {
+        const v = (paymentType ?? "").toLowerCase();
+        return v === "credit" || v === "credit_used" || v.startsWith("credit_");
+      };
+      setPayments(paymentRows.filter((p: { payment_type?: string | null }) => !isCreditRow(p.payment_type)));
+      setCreditRedemptions(paymentRows.filter((p: { payment_type?: string | null }) => isCreditRow(p.payment_type)));
       setSubscriptions(data.subscriptions || []);
       setBetaAccess(data.betaUsage || []);
       setLatestPaymentAt(data.latestPaymentAt ?? null);
