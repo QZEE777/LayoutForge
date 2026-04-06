@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { BlogPost } from "@/lib/blog";
+import Image from "next/image";
 
 type Props = {
   posts: BlogPost[];
@@ -33,14 +34,24 @@ export default function BlogIndexClient({ posts, allTags }: Props) {
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-12">
-      <div className="mb-8">
-        <h1 className="font-bebas text-4xl tracking-wide text-m2p-ink">Blog</h1>
+      <div className="mb-8 rounded-3xl border border-[#2A1B0D]/10 bg-gradient-to-b from-white to-[#fffaf5] p-5 shadow-[0_20px_60px_-35px_rgba(26,18,8,0.3)] sm:p-6">
+        <div className="overflow-hidden rounded-2xl border border-white/20 shadow-[0_18px_50px_-30px_rgba(26,18,8,0.8)]">
+          <Image
+            src="/blog-hero-placeholder.svg"
+            alt="Blog editorial desk hero placeholder"
+            width={1600}
+            height={560}
+            className="h-auto w-full object-cover"
+            priority
+          />
+        </div>
+        <h1 className="mt-5 font-bebas text-4xl tracking-wide text-m2p-ink sm:text-5xl">Blog</h1>
         <p className="mt-2 text-m2p-muted">
           Product updates, KDP notes, and what we&apos;re shipping next.
         </p>
       </div>
 
-      <div className="mb-6 flex flex-wrap items-center gap-2">
+      <div className="mb-6 flex flex-wrap items-center gap-2 rounded-2xl border border-m2p-border bg-white/90 p-3 shadow-[0_8px_26px_-20px_rgba(26,18,8,0.4)]">
         <span className="text-xs font-semibold uppercase tracking-wide text-m2p-muted">Type</span>
         {(["all", "article", "video", "hybrid"] as const).map((t) => (
           <button
@@ -58,7 +69,7 @@ export default function BlogIndexClient({ posts, allTags }: Props) {
         ))}
       </div>
 
-      <div className="mb-8 flex flex-wrap items-center gap-2">
+      <div className="mb-8 flex flex-wrap items-center gap-2 rounded-2xl border border-m2p-border bg-white/90 p-3 shadow-[0_8px_26px_-20px_rgba(26,18,8,0.4)]">
         <span className="text-xs font-semibold uppercase tracking-wide text-m2p-muted">Topics</span>
         <button
           type="button"
@@ -92,7 +103,7 @@ export default function BlogIndexClient({ posts, allTags }: Props) {
           {featured ? (
             <Link
               href={`/blog/${featured.slug}`}
-              className="mb-6 block rounded-2xl border border-m2p-border bg-white p-6 transition hover:border-m2p-orange/40 hover:shadow-sm"
+              className="mb-6 block rounded-2xl border border-m2p-border bg-white p-6 transition hover:-translate-y-0.5 hover:border-m2p-orange/40 hover:shadow-[0_20px_45px_-28px_rgba(240,90,40,0.45)]"
             >
               <p className="text-[11px] font-semibold uppercase tracking-wide text-m2p-orange">Featured</p>
               <h2 className="mt-2 text-2xl font-semibold text-m2p-ink">{featured.title}</h2>
@@ -118,7 +129,7 @@ export default function BlogIndexClient({ posts, allTags }: Props) {
               <Link
                 key={post.slug}
                 href={`/blog/${post.slug}`}
-                className="block rounded-2xl border border-m2p-border bg-white p-5 transition hover:border-m2p-orange/40 hover:shadow-sm"
+                className="block rounded-2xl border border-m2p-border bg-white p-5 transition hover:-translate-y-0.5 hover:border-m2p-orange/40 hover:shadow-[0_20px_45px_-30px_rgba(26,18,8,0.28)]"
               >
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <h3 className="text-lg font-semibold text-m2p-ink">{post.title}</h3>
@@ -143,7 +154,7 @@ export default function BlogIndexClient({ posts, allTags }: Props) {
         </div>
 
         <aside className="space-y-4 lg:sticky lg:top-24 lg:h-fit">
-          <div className="rounded-2xl border border-m2p-border bg-white p-4">
+          <div className="rounded-2xl border border-m2p-border bg-white/95 p-4 shadow-[0_18px_36px_-28px_rgba(26,18,8,0.35)] backdrop-blur-sm">
             <p className="text-xs font-semibold uppercase tracking-wide text-m2p-muted">Start Here</p>
             <p className="mt-2 text-sm text-m2p-muted">
               New to KDP formatting? Start with margin rules, then run a PDF check before upload.
@@ -153,7 +164,7 @@ export default function BlogIndexClient({ posts, allTags }: Props) {
             </Link>
           </div>
 
-          <div className="rounded-2xl border border-m2p-border bg-white p-4">
+          <div className="rounded-2xl border border-m2p-border bg-white/95 p-4 shadow-[0_18px_36px_-28px_rgba(26,18,8,0.35)] backdrop-blur-sm">
             <p className="text-xs font-semibold uppercase tracking-wide text-m2p-muted">Creator Affiliate Picks</p>
             <ul className="mt-2 space-y-2">
               {AFFILIATE_PICKS.map((pick) => (
@@ -169,7 +180,7 @@ export default function BlogIndexClient({ posts, allTags }: Props) {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-m2p-border bg-white p-4">
+          <div className="rounded-2xl border border-m2p-border bg-white/95 p-4 shadow-[0_18px_36px_-28px_rgba(26,18,8,0.35)] backdrop-blur-sm">
             <p className="text-xs font-semibold uppercase tracking-wide text-m2p-muted">Video + Social</p>
             <p className="mt-2 text-sm text-m2p-muted">
               Video-first posts are supported. New posts are prepared for LinkedIn, Facebook, and Instagram distribution.

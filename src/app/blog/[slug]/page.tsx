@@ -39,7 +39,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
         <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px]">
           <div>
-            <header>
+            <header className="rounded-3xl border border-m2p-border bg-white p-6 shadow-[0_24px_52px_-34px_rgba(26,18,8,0.35)]">
               <h1 className="font-bebas text-4xl tracking-wide text-m2p-ink">
                 {post.title}
               </h1>
@@ -87,7 +87,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               </div>
             )}
 
-            <div className="mt-8 space-y-5">
+            <div className="mt-8 space-y-5 rounded-3xl border border-m2p-border bg-white p-6 shadow-[0_24px_52px_-34px_rgba(26,18,8,0.3)]">
               {post.content.map((block, idx) => {
                 if (block.type === "h2") {
                   return (
@@ -117,7 +117,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </div>
 
           <aside className="space-y-4 lg:sticky lg:top-24 lg:h-fit">
-            <div className="rounded-2xl border border-m2p-border bg-white p-4">
+            <div className="rounded-2xl border border-m2p-border bg-white/95 p-4 shadow-[0_18px_36px_-28px_rgba(26,18,8,0.35)]">
               <p className="text-xs font-semibold uppercase tracking-wide text-m2p-muted">Next action</p>
               <p className="mt-2 text-sm text-m2p-muted">
                 Run a checker scan before your next upload and fix issues page-by-page.
@@ -128,7 +128,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             </div>
 
             {related.length > 0 && (
-              <div className="rounded-2xl border border-m2p-border bg-white p-4">
+              <div className="rounded-2xl border border-m2p-border bg-white/95 p-4 shadow-[0_18px_36px_-28px_rgba(26,18,8,0.35)]">
                 <p className="text-xs font-semibold uppercase tracking-wide text-m2p-muted">Related posts</p>
                 <div className="mt-2 space-y-2">
                   {related.map((r) => (
@@ -140,7 +140,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               </div>
             )}
 
-            <div className="rounded-2xl border border-m2p-border bg-white p-4">
+            <div className="rounded-2xl border border-m2p-border bg-white/95 p-4 shadow-[0_18px_36px_-28px_rgba(26,18,8,0.35)]">
               <p className="text-xs font-semibold uppercase tracking-wide text-m2p-muted">Affiliate note</p>
               <p className="mt-2 text-[11px] leading-relaxed text-m2p-muted">
                 Some tool recommendations on this blog may contain affiliate links. We only recommend tools that are relevant to KDP authors.

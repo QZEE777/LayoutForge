@@ -1,0 +1,34 @@
+<svg width="1600" height="560" viewBox="0 0 1600 560" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1600" y2="560" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1A1208"/>
+      <stop offset="0.55" stop-color="#23170B"/>
+      <stop offset="1" stop-color="#2A1B0D"/>
+    </linearGradient>
+    <radialGradient id="glowA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(400 120) rotate(18) scale(420 240)">
+      <stop stop-color="#F05A28" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#F05A28" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1180 200) rotate(-6) scale(460 300)">
+      <stop stop-color="#4CD964" stop-opacity="0.38"/>
+      <stop offset="1" stop-color="#4CD964" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="560" rx="32" fill="url(#bg)"/>
+  <rect width="1600" height="560" rx="32" fill="url(#glowA)"/>
+  <rect width="1600" height="560" rx="32" fill="url(#glowB)"/>
+  <g opacity="0.14">
+    <path d="M40 442H1560" stroke="white"/>
+    <path d="M40 392H1560" stroke="white"/>
+    <path d="M40 342H1560" stroke="white"/>
+    <path d="M40 292H1560" stroke="white"/>
+    <path d="M40 242H1560" stroke="white"/>
+    <path d="M40 192H1560" stroke="white"/>
+    <path d="M40 142H1560" stroke="white"/>
+  </g>
+  <text x="92" y="178" fill="#FAF7EE" font-family="Inter, Arial, sans-serif" font-size="24" letter-spacing="2">M2P EDITORIAL DESK</text>
+  <text x="92" y="262" fill="#FAF7EE" font-family="Inter, Arial, sans-serif" font-size="74" font-weight="800">KDP notes that ship</text>
+  <text x="92" y="326" fill="#F0DFD1" font-family="Inter, Arial, sans-serif" font-size="32">with clarity, proof, and practical next steps.</text>
+  <rect x="92" y="374" width="286" height="56" rx="28" fill="#F05A28"/>
+  <text x="126" y="409" fill="#FFFFFF" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700">Placeholder Hero</text>
+</svg>
