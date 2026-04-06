@@ -30,6 +30,7 @@ export default function RoyaltyCalculatorPage() {
     const n = parseFloat(listPrice.replace(/,/g, "."));
     return Number.isFinite(n) && n >= 0 ? n : 0;
   }, [listPrice]);
+  const hasListPriceInput = listPrice.trim().length > 0;
 
   const pages = useMemo(() => {
     const n = Math.round(Number(pageCount));
@@ -38,6 +39,10 @@ export default function RoyaltyCalculatorPage() {
 
   const rate = useMemo(() => ROYALTY_RATES.find((r) => r.id === rateId)?.value ?? 0.6, [rateId]);
   const printCost = useMemo(() => getPrintCostUsd(trimId, pages, paperColorId), [trimId, pages, paperColorId]);
+  const breakEvenPrice = useMemo(() => {
+    if (rate <= 0) return 0;
+    return Math.ceil((printCost / rate) * 100) / 100;
+  }, [printCost, rate]);
   const royalty = useMemo(
     () => getRoyaltyUsd(listPriceNum, printCost, rate),
     [listPriceNum, printCost, rate]
@@ -120,8 +125,15 @@ export default function RoyaltyCalculatorPage() {
                 placeholder="9.99"
                 value={listPrice}
                 onChange={(e) => { setListPrice(e.target.value); markInteracted(); }}
+                onBlur={() => {
+                  if (!hasListPriceInput) return;
+                  setListPrice(listPriceNum.toFixed(2));
+                }}
                 className="w-full rounded-lg border border-m2p-border px-4 py-2.5 bg-m2p-ivory text-sm text-m2p-ink focus:outline-none focus:ring-2 focus:ring-m2p-orange"
               />
+              <p className="text-xs text-m2p-muted mt-1">
+                Break-even at {rateId}% royalty: <span className="font-semibold text-m2p-ink">${breakEvenPrice.toFixed(2)}</span>
+              </p>
             </div>
             <div>
               <label className="block text-sm font-medium text-m2p-ink mb-2">Royalty rate</label>
@@ -155,14 +167,23 @@ export default function RoyaltyCalculatorPage() {
               <dt className="text-m2p-muted">List price</dt>
               <dd className="text-m2p-ink font-medium">${listPriceNum.toFixed(2)}</dd>
             </div>
+            <div className="flex justify-between">
+              <dt className="text-m2p-muted">Break-even price ({rateId}%)</dt>
+              <dd className="text-m2p-ink font-medium">${breakEvenPrice.toFixed(2)}</dd>
+            </div>
             <div className="flex justify-between pt-2 border-t border-m2p-border">
               <dt className="text-m2p-ink font-medium">Royalty per sale</dt>
               <dd className="text-m2p-orange font-bold text-lg">${royalty.toFixed(2)}</dd>
             </div>
           </dl>
-          {listPriceNum > 0 && listPriceNum < printCost && (
+          {listPriceNum > 0 && listPriceNum < breakEvenPrice && (
             <p className="mt-3 text-sm text-amber-600">
-              List price is below estimated print cost — increase price to earn a royalty.
+              List price is below break-even for the selected royalty rate — increase price to earn a royalty.
+            </p>
+          )}
+          {!hasListPriceInput && (
+            <p className="mt-3 text-xs text-m2p-muted">
+              Enter a list price to see your expected royalty per sale.
             </p>
           )}
         </div>
