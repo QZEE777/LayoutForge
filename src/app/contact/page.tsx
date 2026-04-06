@@ -1,5 +1,10 @@
 import SiteShell from "@/components/SiteShell";
 
+export const metadata = {
+  title: "Contact — manu2print",
+  description: "Contact manu2print for support, billing, or partnerships.",
+};
+
 export default function ContactPage() {
   return (
     <SiteShell>
@@ -11,8 +16,16 @@ export default function ContactPage() {
           <h1 className="font-bebas text-m2p-ink leading-tight mb-6 text-[clamp(2rem,4vw,3rem)]">
             CONTACT
           </h1>
-          <p className="text-m2p-muted max-w-2xl" >
-            Get in touch for support or partnerships. Content coming soon.
+          <p className="text-m2p-muted max-w-2xl mb-4">
+            For support, billing, partnerships, or anything else — email us and we&apos;ll get back to you.
+          </p>
+          <p className="text-lg font-semibold text-m2p-ink">
+            <a
+              href="mailto:hello@manu2print.com"
+              className="text-m2p-orange hover:underline"
+            >
+              hello@manu2print.com
+            </a>
           </p>
         </div>
       </section>
