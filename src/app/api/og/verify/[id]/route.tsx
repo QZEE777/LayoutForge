@@ -166,10 +166,33 @@ export async function GET(
             }}
           />
 
+          {/* ── Top brandmark ─────────────────────────────────────── */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 18,
+              position: "absolute",
+              left: 50,
+              right: 50,
+              top: 42,
+            }}
+          >
+            <div style={{ height: 2, width: 86, background: "rgba(255,255,255,0.34)", borderRadius: 1 }} />
+            <span style={{ fontSize: 40, fontWeight: 900, color: "#FFFFFF", display: "flex", alignItems: "center", gap: 0 }}>
+              <span style={{ color: "#F8E9DA" }}>manu</span>
+              <span style={{ color: "#FF7A45" }}>2</span>
+              <span style={{ color: "#C5E83A" }}>print</span>
+              <span style={{ color: "rgba(255,255,255,0.9)" }}>.com</span>
+            </span>
+            <div style={{ height: 2, width: 86, background: "rgba(255,255,255,0.34)", borderRadius: 1 }} />
+          </div>
+
           {/* ── 1. HEADLINE ───────────────────────────────────────── */}
           <div style={{
             display: "flex", flexDirection: "column", alignItems: "center",
-            margin: "76px 50px 0",
+            margin: "118px 50px 0",
           }}>
             <span style={{ fontSize: 90, fontWeight: 900, color: "#FFFFFF", lineHeight: 1.0 }}>
               THIS WOULD
@@ -265,26 +288,7 @@ export async function GET(
             ))}
           </div>
 
-          {/* ── 5. CTA — with — decorators ────────────────────────── */}
-          <div style={{
-            display: "flex", alignItems: "center", justifyContent: "center",
-            gap: 20,
-            position: "absolute",
-            left: 50,
-            right: 50,
-            bottom: 78,
-          }}>
-            <div style={{ height: 2, width: 80, background: "rgba(255,255,255,0.40)", borderRadius: 1 }} />
-            <span style={{ fontSize: 44, fontWeight: 900, color: "#FFFFFF", display: "flex", alignItems: "center", gap: 0 }}>
-              <span style={{ color: "#F8E9DA" }}>manu</span>
-              <span style={{ color: "#FF7A45" }}>2</span>
-              <span style={{ color: "#C5E83A" }}>print</span>
-              <span style={{ color: "rgba(255,255,255,0.9)" }}>.com</span>
-            </span>
-            <div style={{ height: 2, width: 80, background: "rgba(255,255,255,0.40)", borderRadius: 1 }} />
-          </div>
-
-          {/* ── 6. FOOTER ─────────────────────────────────────────── */}
+          {/* ── 5. FOOTER ─────────────────────────────────────────── */}
           <div
             style={{
               display: "flex",
