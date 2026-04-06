@@ -19,6 +19,11 @@
   --d-wash-orange: #fef0eb;
   --d-wash-green: #e8f6ec;
   --d-wash-ivory: #f7f4ed;
+  /* Raised panel edge — light “mirror” on top, soft lip on bottom */
+  --d-rim-light: inset 0 1px 0 rgba(255, 255, 255, 0.92);
+  --d-rim-shade: inset 0 -1px 0 rgba(26, 18, 8, 0.07);
+  --d-border-panel: rgba(26, 18, 8, 0.11);
+  --d-border-panel-strong: rgba(26, 18, 8, 0.14);
 
   background: var(--d-bg);
   background-image: var(--d-bg-main);
@@ -44,10 +49,12 @@
 /* Primary focal card — one strong surface per view */
 .m2p-dash .d-card-hero {
   border-radius: 1rem;
-  border: 1px solid rgba(240, 90, 40, 0.14);
+  border: 1px solid var(--d-border-panel-strong);
   background: var(--d-card);
   box-shadow:
-    0 1px 2px rgba(26, 18, 8, 0.05),
+    var(--d-rim-light),
+    var(--d-rim-shade),
+    0 1px 2px rgba(26, 18, 8, 0.06),
     0 18px 50px -28px rgba(240, 90, 40, 0.2),
     0 28px 64px -32px rgba(26, 18, 8, 0.14);
 }
@@ -55,9 +62,13 @@
 /* Secondary lists / side columns — lighter than hero */
 .m2p-dash .d-card-quiet {
   border-radius: 1rem;
-  border: 1px solid var(--d-border);
+  border: 1px solid var(--d-border-panel);
   background: linear-gradient(180deg, var(--d-card-soft) 0%, #ffffff 100%);
-  box-shadow: 0 1px 3px rgba(26, 18, 8, 0.05);
+  box-shadow:
+    var(--d-rim-light),
+    var(--d-rim-shade),
+    0 1px 3px rgba(26, 18, 8, 0.07),
+    0 6px 22px -14px rgba(26, 18, 8, 0.1);
 }
 
 /* Stat strips with subtle brand tint */
@@ -68,14 +79,44 @@
     var(--d-wash-ivory) 45%,
     var(--d-wash-green) 100%
   );
-  border-top: 1px solid var(--d-border);
+  border-top: 1px solid var(--d-border-panel-strong);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
 }
 
 /* Sidebar credits module */
 .m2p-dash .d-sidebar-credits {
   background: linear-gradient(145deg, #ffffff 0%, var(--d-wash-orange) 100%);
-  border: 1px solid rgba(240, 90, 40, 0.22);
-  box-shadow: 0 6px 24px -12px rgba(240, 90, 40, 0.18);
+  border: 1px solid var(--d-border-panel-strong);
+  box-shadow:
+    var(--d-rim-light),
+    var(--d-rim-shade),
+    0 6px 24px -12px rgba(240, 90, 40, 0.2);
+}
+
+/* Sidebar column + header chrome — readable frame */
+.m2p-dash .d-sidebar-shell {
+  border-right: 1px solid var(--d-border-panel-strong);
+  box-shadow:
+    inset -1px 0 0 rgba(255, 255, 255, 0.45),
+    4px 0 28px -10px rgba(26, 18, 8, 0.12);
+}
+
+.m2p-dash .d-sidebar-head {
+  border-bottom: 1px solid var(--d-border-panel-strong);
+  box-shadow: inset 0 -1px 0 rgba(26, 18, 8, 0.05);
+}
+
+.m2p-dash .d-sidebar-footer {
+  border-top: 1px solid var(--d-border-panel);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.m2p-dash .d-header-surface {
+  border-bottom: 1px solid var(--d-border-panel-strong);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 253, 250, 0.94) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 10px 28px -14px rgba(26, 18, 8, 0.1);
 }
 
 /* Optional soft entrance (apply only where safe) */
@@ -142,10 +183,13 @@
 
 /* ── Elevated surface (cards) ──────────────────────────────── */
 .m2p-dash .d-card-elevated {
+  border-radius: 1rem;
+  border: 1px solid var(--d-border-panel);
   box-shadow:
-    0 1px 2px rgba(26, 18, 8, 0.04),
+    var(--d-rim-light),
+    var(--d-rim-shade),
+    0 1px 2px rgba(26, 18, 8, 0.05),
     0 12px 40px -16px rgba(26, 18, 8, 0.12);
-  border-color: var(--d-border);
 }
 
 /* Outline / secondary button (copy, cancel) */
@@ -184,13 +228,14 @@
   width: 100%;
   min-width: 0;
   border-radius: 0.75rem;
-  border: 1.5px solid var(--d-border);
+  border: 1.5px solid var(--d-border-panel-strong);
   background: var(--d-muted);
   padding: 0.625rem 0.75rem;
   font-size: 0.75rem;
   line-height: 1.4;
   color: var(--d-fg);
   font-family: ui-monospace, monospace;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 @media (min-width: 640px) {
@@ -208,14 +253,17 @@
 /* Tab intros (Tools / Earn / Settings) — soft brand wash */
 .m2p-dash .d-hero-intro {
   border-radius: 1rem;
-  border: 1px solid rgba(240, 90, 40, 0.14);
+  border: 1px solid var(--d-border-panel-strong);
   background: linear-gradient(
     135deg,
     #ffffff 0%,
     var(--d-wash-orange) 38%,
     rgba(232, 246, 236, 0.42) 100%
   );
-  box-shadow: 0 4px 28px -14px rgba(26, 18, 8, 0.1);
+  box-shadow:
+    var(--d-rim-light),
+    var(--d-rim-shade),
+    0 4px 28px -14px rgba(26, 18, 8, 0.12);
   padding: 1.25rem 1.35rem;
 }
 @media (min-width: 640px) {
@@ -226,7 +274,8 @@
 
 /* Purchase history expanded panel (settings) */
 .m2p-dash .d-purchase-inline {
-  border-top-color: var(--d-border);
+  border-top: 1px solid var(--d-border-panel-strong);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
   background: linear-gradient(
     180deg,
     rgba(247, 244, 237, 0.97) 0%,

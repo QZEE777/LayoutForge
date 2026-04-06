@@ -49,12 +49,12 @@ export function DashboardSidebar({ activeView, setActiveView, sidebarOpen, setSi
 
       <aside
         className={cn(
-          "fixed lg:static inset-y-0 left-0 z-50 flex w-64 flex-col transition-transform duration-300 lg:translate-x-0",
-          "border-r border-[var(--d-border-strong)] bg-gradient-to-b from-white via-[#faf8f5] to-[#f3efe8] shadow-[4px_0_24px_-8px_rgba(26,18,8,0.08)]",
+          "d-sidebar-shell fixed lg:static inset-y-0 left-0 z-50 flex w-64 flex-col transition-transform duration-300 lg:translate-x-0",
+          "bg-gradient-to-b from-white via-[#faf8f5] to-[#f3efe8]",
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="flex h-16 items-center justify-between border-b border-[var(--d-border)] px-5">
+        <div className="d-sidebar-head flex h-16 items-center justify-between px-5">
           <Link
             href="/"
             className="flex items-center rounded-lg outline-none ring-offset-2 transition-opacity hover:opacity-85 focus-visible:ring-2 focus-visible:ring-[var(--d-primary)]"
@@ -68,7 +68,7 @@ export function DashboardSidebar({ activeView, setActiveView, sidebarOpen, setSi
 
         {/* Credits — summary only; primary action is the single Check PDF control below */}
         <div className="p-3">
-          <div className="d-sidebar-credits rounded-2xl p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)]">
+          <div className="d-sidebar-credits rounded-2xl p-4">
             <div className="mb-1 flex items-center justify-between">
               <span className="text-xs font-semibold" style={{ color: "var(--d-fg-muted)" }}>
                 Scan credits
@@ -164,7 +164,7 @@ export function DashboardSidebar({ activeView, setActiveView, sidebarOpen, setSi
           </ul>
         </nav>
 
-        <div className="border-t border-[var(--d-border)] bg-white/40 p-4 backdrop-blur-[2px]">
+        <div className="d-sidebar-footer bg-white/40 p-4 backdrop-blur-[2px]">
           <div className="flex items-center gap-3">
             <div
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white shadow-md ring-2 ring-white/40"

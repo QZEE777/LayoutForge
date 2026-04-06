@@ -22,14 +22,7 @@ export function DashboardHeader({ activeView, setSidebarOpen }: HeaderProps) {
   const { title, subtitle } = viewMeta[activeView];
   return (
     <header className="flex shrink-0 flex-col">
-      <div
-        className="relative flex h-[4.25rem] items-center border-b px-4 lg:px-6"
-        style={{
-          background: "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(255,253,250,0.94) 100%)",
-          borderColor: "var(--d-border)",
-          boxShadow: "0 1px 0 rgba(255,255,255,0.85), 0 10px 28px -14px rgba(26,18,8,0.07)",
-        }}
-      >
+      <div className="d-header-surface relative flex h-[4.25rem] items-center px-4 lg:px-6">
         <Button variant="ghost" size="icon" className="relative z-10 shrink-0 lg:hidden" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
           <Menu className="h-5 w-5" />
         </Button>

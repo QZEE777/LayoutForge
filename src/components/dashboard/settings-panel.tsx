@@ -61,7 +61,7 @@ function PurchaseHistoryInline({ data }: { data: AccountPortalData }) {
   const deductions = credits.ledger.filter((r) => r.credits < 0);
 
   return (
-    <div className="d-purchase-inline space-y-5 border-t px-3 py-4 sm:px-4" style={{ borderColor: "var(--d-border)" }}>
+    <div className="d-purchase-inline space-y-5 px-3 py-4 sm:px-4">
       <div
         className="flex flex-col gap-3 rounded-xl border p-4 sm:flex-row sm:items-center sm:justify-between"
         style={{ borderColor: "var(--d-border-strong)", background: "var(--d-card)" }}
