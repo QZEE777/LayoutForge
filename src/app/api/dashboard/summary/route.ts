@@ -20,15 +20,43 @@ export async function GET() {
   const { total: totalCredits, used: usedCredits, remaining } =
     await loadScanCreditBalanceForEmail(supabase, user.email);
 
-  // Get scan history from scan_nudges (email → download_id)
-  const { data: nudges } = await supabase
-    .from("scan_nudges")
-    .select("download_id, created_at")
-    .eq("email", user.email.toLowerCase())
-    .order("created_at", { ascending: false })
-    .limit(20);
+  // Build scan history from both:
+  // 1) scan_nudges (legacy + paid pre-checkout capture)
+  // 2) completed payments (includes credit_used flow via gateway_order_id)
+  const email = user.email.toLowerCase();
+  const [{ data: nudges }, { data: paymentRows }] = await Promise.all([
+    supabase
+      .from("scan_nudges")
+      .select("download_id, created_at")
+      .eq("email", email)
+      .order("created_at", { ascending: false })
+      .limit(30),
+    supabase
+      .from("payments")
+      .select("gateway_order_id, created_at, status, tool")
+      .eq("email", email)
+      .eq("status", "complete")
+      .eq("tool", "kdp_pdf_checker")
+      .not("gateway_order_id", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(30),
+  ]);
 
-  if (!nudges || nudges.length === 0) {
+  const scanRefs = [
+    ...(nudges ?? []).map((n) => ({ download_id: n.download_id, created_at: n.created_at })),
+    ...(paymentRows ?? []).map((p) => ({ download_id: p.gateway_order_id as string | null, created_at: p.created_at })),
+  ];
+
+  // De-duplicate by download_id and keep newest first
+  const deduped = new Map<string, { download_id: string; created_at: string }>();
+  for (const row of scanRefs
+    .filter((r): r is { download_id: string; created_at: string } => Boolean(r.download_id && r.created_at))
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())) {
+    if (!deduped.has(row.download_id)) deduped.set(row.download_id, row);
+  }
+  const rows = Array.from(deduped.values()).slice(0, 20);
+
+  if (rows.length === 0) {
     return NextResponse.json({
       recentScans: [],
       credits: { total: totalCredits, used: usedCredits, remaining },
@@ -38,8 +66,7 @@ export async function GET() {
   // Load metadata for each download_id (parallel, graceful failures)
   const scans = (
     await Promise.all(
-      nudges.map(async (n) => {
-        if (!n.download_id) return null;
+      rows.map(async (n) => {
         try {
           const meta = await getStored(n.download_id);
           if (!meta) return null;
