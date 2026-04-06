@@ -250,25 +250,31 @@ export async function createInteriorTemplatePdf(input: InteriorTemplateInput): P
   });
 
   // ─────────────────────────────────────────────
-  // 10. Manny avatar + branding
+  // 10. Text-only branding
   // ─────────────────────────────────────────────
-  try {
-    const mannyRes   = await fetch("/MANNY AVATAR.png");
-    const mannyBytes = await mannyRes.arrayBuffer();
-    const mannyImage = await doc.embedPng(new Uint8Array(mannyBytes));
-    const mannySize  = 26;
-    page.drawImage(mannyImage, {
-      x: safeRight - mannySize - 4, y: safeBottom + 4,
-      width: mannySize, height: mannySize, opacity: 0.55,
-    });
-  } catch { /* skip */ }
-
-  const brandText = "manu2print.com";
-  const brandSize = 6;
-  const brandW    = font.widthOfTextAtSize(brandText, brandSize);
-  page.drawText(brandText, {
-    x: safeRight - brandW - 4, y: safeBottom + 34,
-    size: brandSize, font: fontBold, color: leafGreen, opacity: 0.7,
+  const brandLine1 = "Created by";
+  const brandLine2 = "manu2print";
+  const brandLine1Size = 5.5;
+  const brandLine2Size = 6.5;
+  const brandLine1W = font.widthOfTextAtSize(brandLine1, brandLine1Size);
+  const brandLine2W = fontBold.widthOfTextAtSize(brandLine2, brandLine2Size);
+  const brandX = safeRight - Math.max(brandLine1W, brandLine2W) - 4;
+  const brandY = safeBottom + 6;
+  page.drawText(brandLine1, {
+    x: brandX,
+    y: brandY + 9,
+    size: brandLine1Size,
+    font,
+    color: darkGray,
+    opacity: 0.72,
+  });
+  page.drawText(brandLine2, {
+    x: brandX,
+    y: brandY,
+    size: brandLine2Size,
+    font: fontBold,
+    color: leafGreen,
+    opacity: 0.82,
   });
 
   // ─────────────────────────────────────────────
