@@ -76,3 +76,16 @@ input:-webkit-autofill:focus {
 html {
   scroll-behavior: smooth;
 }
+
+/* Selection on dark ink backgrounds — browser default highlight + dark text is unreadable */
+[class*="bg-m2p-ink"] ::selection,
+[class*="bg-m2p-ink"] *::selection {
+  background: rgba(76, 217, 100, 0.45);
+  color: #faf7ee;
+  -webkit-text-fill-color: #faf7ee;
+}
+[class*="bg-m2p-ink"] ::-moz-selection,
+[class*="bg-m2p-ink"] *::-moz-selection {
+  background: rgba(76, 217, 100, 0.45);
+  color: #faf7ee;
+}
