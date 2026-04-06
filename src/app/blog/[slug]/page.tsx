@@ -26,6 +26,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const post = getPostBySlug(slug);
   if (!post) notFound();
   const related = getRelatedPosts(slug, 3);
+  const readTime = `${Math.max(2, Math.round(post.content.map((b) => ("text" in b ? b.text : b.items.join(" "))).join(" ").split(" ").length / 150))} min read`;
 
   return (
     <SiteShell>
@@ -39,7 +40,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
         <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px]">
           <div>
-            <header className="rounded-3xl border border-m2p-border bg-white p-6 shadow-[0_24px_52px_-34px_rgba(26,18,8,0.35)]">
+            <header className="m2p-shimmer rounded-3xl border border-m2p-border bg-white p-6 shadow-[0_24px_52px_-34px_rgba(26,18,8,0.35)]">
               <h1 className="font-bebas text-4xl tracking-wide text-m2p-ink">
                 {post.title}
               </h1>
@@ -53,6 +54,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 </time>
                 <span className="inline-flex items-center rounded-full bg-m2p-orange-soft border border-m2p-border px-2.5 py-0.5 text-xs font-medium text-m2p-ink">
                   {(post.contentType ?? "article").toUpperCase()}
+                </span>
+                <span className="inline-flex items-center rounded-full bg-white border border-m2p-border px-2.5 py-0.5 text-xs font-medium text-m2p-muted">
+                  {readTime}
                 </span>
                 {post.tags?.length ? (
                   <div className="flex flex-wrap gap-2">
@@ -117,7 +121,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </div>
 
           <aside className="space-y-4 lg:sticky lg:top-24 lg:h-fit">
-            <div className="rounded-2xl border border-m2p-border bg-white/95 p-4 shadow-[0_18px_36px_-28px_rgba(26,18,8,0.35)]">
+            <div className="m2p-glass rounded-2xl border border-m2p-border bg-white/95 p-4 shadow-[0_18px_36px_-28px_rgba(26,18,8,0.35)]">
               <p className="text-xs font-semibold uppercase tracking-wide text-m2p-muted">Next action</p>
               <p className="mt-2 text-sm text-m2p-muted">
                 Run a checker scan before your next upload and fix issues page-by-page.
@@ -128,7 +132,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             </div>
 
             {related.length > 0 && (
-              <div className="rounded-2xl border border-m2p-border bg-white/95 p-4 shadow-[0_18px_36px_-28px_rgba(26,18,8,0.35)]">
+              <div className="m2p-glass rounded-2xl border border-m2p-border bg-white/95 p-4 shadow-[0_18px_36px_-28px_rgba(26,18,8,0.35)]">
                 <p className="text-xs font-semibold uppercase tracking-wide text-m2p-muted">Related posts</p>
                 <div className="mt-2 space-y-2">
                   {related.map((r) => (
@@ -140,7 +144,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               </div>
             )}
 
-            <div className="rounded-2xl border border-m2p-border bg-white/95 p-4 shadow-[0_18px_36px_-28px_rgba(26,18,8,0.35)]">
+            <div className="m2p-glass rounded-2xl border border-m2p-border bg-white/95 p-4 shadow-[0_18px_36px_-28px_rgba(26,18,8,0.35)]">
               <p className="text-xs font-semibold uppercase tracking-wide text-m2p-muted">Affiliate note</p>
               <p className="mt-2 text-[11px] leading-relaxed text-m2p-muted">
                 Some tool recommendations on this blog may contain affiliate links. We only recommend tools that are relevant to KDP authors.

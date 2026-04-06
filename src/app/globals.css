@@ -89,3 +89,42 @@ html {
   background: rgba(76, 217, 100, 0.45);
   color: #faf7ee;
 }
+
+/* Blog polish utilities */
+.m2p-glass {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.86) 100%);
+  backdrop-filter: blur(8px);
+}
+.m2p-card-lift {
+  transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+}
+.m2p-card-lift:hover {
+  transform: translateY(-3px);
+}
+.m2p-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.m2p-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-120%);
+  background: linear-gradient(120deg, transparent 15%, rgba(255, 255, 255, 0.28) 45%, transparent 70%);
+  animation: m2p-shine 7s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes m2p-shine {
+  0%, 65% { transform: translateX(-120%); }
+  100% { transform: translateX(120%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .m2p-card-lift,
+  .m2p-card-lift:hover {
+    transition: none;
+    transform: none;
+  }
+  .m2p-shimmer::after {
+    animation: none;
+  }
+}
