@@ -125,7 +125,7 @@ export function EarnPanel({ affiliate, stats }: Props) {
         </div>
 
         {/* Share-to-earn card — shown to all non-partners */}
-        <Card className="d-card-elevated overflow-hidden border-[var(--d-border-strong)]">
+        <Card className="d-card-hero overflow-hidden border-[var(--d-border-strong)]">
           <div
             className="relative px-5 pb-5 pt-6 sm:px-6"
             style={{
@@ -248,7 +248,7 @@ export function EarnPanel({ affiliate, stats }: Props) {
         </Card>
 
         {/* Partner program card */}
-        <Card className="d-card-elevated overflow-hidden border-[var(--d-border-strong)]">
+        <Card className="d-card-hero overflow-hidden border-[var(--d-border-strong)]">
           <div
             className="p-8 text-center lg:p-10"
             style={{ background: "linear-gradient(135deg, rgba(255,248,244,0.95) 0%, rgba(232,245,233,0.4) 100%)" }}
@@ -265,7 +265,7 @@ export function EarnPanel({ affiliate, stats }: Props) {
               <ExternalLink className="h-4 w-4" />
             </Link>
           </div>
-          <div className="grid grid-cols-3 divide-x border-t" style={{ borderColor: "var(--d-border)" }}>
+          <div className="d-surface-stats grid grid-cols-3 divide-x border-t" style={{ borderColor: "var(--d-border)" }}>
             {[
               { value: "30–40%", label: "Commission rate" },
               { value: "$0",     label: "Minimum payout" },
@@ -289,7 +289,7 @@ export function EarnPanel({ affiliate, stats }: Props) {
             { step: 2, title: "Share",    desc: "Use your unique referral link" },
             { step: 3, title: "Get paid", desc: "Automatically via LemonSqueezy" },
           ].map(({ step, title, desc }) => (
-            <Card key={step} className="d-card-elevated border-[var(--d-border-strong)] p-3 sm:p-4">
+            <Card key={step} className="d-card-quiet border-[var(--d-border-strong)] p-3 sm:p-4">
               <div className="mb-2 flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white shadow-sm" style={{ background: "linear-gradient(135deg, #ff7a4a, #f05a28)" }}>{step}</div>
               <p className="mb-0.5 text-sm font-bold" style={{ color: "var(--d-fg)" }}>{title}</p>
               <p className="text-[11px] leading-snug sm:text-xs" style={{ color: "var(--d-fg-muted)" }}>{desc}</p>
@@ -298,7 +298,7 @@ export function EarnPanel({ affiliate, stats }: Props) {
         </div>
         {/* Scan Credits — non-partner */}
         {creditBalance !== null && creditBalance.total > 0 && (
-          <Card className="d-card-elevated border-[var(--d-border-strong)] p-5">
+          <Card className="d-card-quiet border-[var(--d-border-strong)] p-5">
             <h3 className="mb-3 font-bold" style={{ color: "var(--d-fg)" }}>
               <Gift className="mr-2 inline h-4 w-4 opacity-60" />
               Scan credits
@@ -344,7 +344,7 @@ export function EarnPanel({ affiliate, stats }: Props) {
           { icon: Users,      label: "Conversions",     value: stats ? String(stats.conversions) : "—", color: "var(--d-fg-muted)", bg: "var(--d-muted)" },
           { icon: Gift,       label: "Commission rate", value: (affiliate.commission_rate && affiliate.commission_rate !== 0.3) ? `${Math.round(affiliate.commission_rate * 100)}%` : "30–40%", color: "var(--d-fg-muted)", bg: "var(--d-muted)" },
         ].map(({ icon: Icon, label, value, color, bg }) => (
-          <Card key={label} className="d-card-elevated border-[var(--d-border-strong)] p-4">
+          <Card key={label} className="d-card-quiet border-[var(--d-border-strong)] p-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: bg }}>
                 <Icon className="w-5 h-5" style={{ color }} />
@@ -358,7 +358,7 @@ export function EarnPanel({ affiliate, stats }: Props) {
         ))}
       </div>
 
-      <Card className="d-card-elevated border-[var(--d-border-strong)] p-5">
+      <Card className="d-card-hero border-[var(--d-border-strong)] p-5">
         <h3 className="mb-1 font-bold" style={{ color: "var(--d-fg)" }}>Your referral link</h3>
         <p className="mb-4 text-xs" style={{ color: "var(--d-fg-muted)" }}>
           Copy and share anywhere you talk to authors — social, email, or your site.
@@ -421,7 +421,7 @@ export function EarnPanel({ affiliate, stats }: Props) {
 
       {/* Scan Credits */}
       {creditBalance !== null && (
-        <Card className="d-card-elevated border-[var(--d-border-strong)] p-5">
+        <Card className="d-card-quiet border-[var(--d-border-strong)] p-5">
           <h3 className="mb-3 font-bold" style={{ color: "var(--d-fg)" }}>
             <Gift className="mr-2 inline h-4 w-4 opacity-60" />
             Scan credits
@@ -455,7 +455,7 @@ export function EarnPanel({ affiliate, stats }: Props) {
         </Card>
       )}
 
-      <Card className="d-card-elevated border-[var(--d-border-strong)] p-5">
+      <Card className="d-card-quiet border-[var(--d-border-strong)] p-5">
         <h3 className="mb-4 font-bold" style={{ color: "var(--d-fg)" }}>Payout details</h3>
         <div className="space-y-3 text-sm">
           <div className="flex items-center justify-between gap-4">

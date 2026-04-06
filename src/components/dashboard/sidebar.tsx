@@ -68,9 +68,7 @@ export function DashboardSidebar({ activeView, setActiveView, sidebarOpen, setSi
 
         {/* Credits — summary only; primary action is the single Check PDF control below */}
         <div className="p-3">
-          <div
-            className="rounded-2xl border border-[#f05a28]/25 bg-gradient-to-br from-[#fff8f4] to-white p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]"
-          >
+          <div className="d-sidebar-credits rounded-2xl p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)]">
             <div className="mb-1 flex items-center justify-between">
               <span className="text-xs font-semibold" style={{ color: "var(--d-fg-muted)" }}>
                 Scan credits

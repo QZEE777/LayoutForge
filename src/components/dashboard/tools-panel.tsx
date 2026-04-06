@@ -38,7 +38,7 @@ export function ToolsPanel() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {FREE_TOOLS.map((tool) => (
           <Link key={tool.id} href={tool.href} className="group block">
-            <Card className="d-card-elevated relative h-full border-[var(--d-border-strong)] p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#f05a28]/25 hover:shadow-lg">
+            <Card className="d-card-quiet relative h-full border-[var(--d-border-strong)] p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#f05a28]/25 hover:shadow-lg">
               {tool.comingSoon && (
                 <span
                   className="absolute right-3 top-3 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide"
@@ -76,8 +76,8 @@ export function ToolsPanel() {
       </div>
 
       <Card
-        className="d-card-elevated flex flex-col gap-4 border-[#f05a28]/25 p-5 sm:flex-row sm:items-center sm:justify-between"
-        style={{ background: "linear-gradient(135deg, rgba(255,248,244,0.95) 0%, rgba(232,245,233,0.35) 100%)" }}
+        className="d-card-hero flex flex-col gap-4 border-[#f05a28]/25 p-5 sm:flex-row sm:items-center sm:justify-between"
+        style={{ background: "linear-gradient(135deg, rgba(255,248,244,0.98) 0%, rgba(232,245,233,0.4) 100%)" }}
       >
         <div>
           <h3 className="mb-0.5 font-bold" style={{ color: "var(--d-fg)" }}>KDP PDF Checker</h3>

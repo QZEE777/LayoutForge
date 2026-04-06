@@ -39,7 +39,7 @@ export function ScanHistoryPanel({ scans }: Props) {
   if (scans.length === 0) {
     return (
       <div className="mx-auto max-w-2xl">
-        <Card className="d-card-elevated border-[var(--d-border-strong)] p-10 text-center sm:p-12">
+        <Card className="d-card-quiet border-[var(--d-border-strong)] p-10 text-center sm:p-12">
           <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl shadow-inner" style={{ background: "var(--d-muted)" }}>
             <FileText className="h-8 w-8" style={{ color: "var(--d-fg-muted)" }} />
           </div>
@@ -71,7 +71,7 @@ export function ScanHistoryPanel({ scans }: Props) {
           { label: "Passed",          value: passed,       icon: CheckCircle2, bg: "rgba(16,185,129,0.12)", color: "#10b981" },
           { label: "Need attention",  value: needsAttention, icon: AlertTriangle, bg: "rgba(239,68,68,0.1)", color: "#ef4444" },
         ].map(({ label, value, icon: Icon, bg, color }) => (
-          <Card key={label} className="d-card-elevated border-[var(--d-border-strong)] p-4">
+          <Card key={label} className="d-card-quiet border-[var(--d-border-strong)] p-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: bg }}>
                 <Icon className="w-5 h-5" style={{ color }} />
@@ -85,7 +85,7 @@ export function ScanHistoryPanel({ scans }: Props) {
         ))}
       </div>
 
-      <Card className="d-card-elevated overflow-hidden border-[var(--d-border-strong)]">
+      <Card className="d-card-hero overflow-hidden border-[var(--d-border-strong)]">
         <div className="border-b px-4 py-3" style={{ borderColor: "var(--d-border)" }}>
           <h2 className="font-bold" style={{ color: "var(--d-fg)" }}>Recent scans</h2>
         </div>

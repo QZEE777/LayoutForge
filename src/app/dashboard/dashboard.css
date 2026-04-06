@@ -15,12 +15,82 @@
   --d-accent: #10b981;
   --d-live: #4cd964;
   --d-danger: #ef4444;
+  /* Accent washes — use sparingly for bands / side modules */
+  --d-wash-orange: #fef0eb;
+  --d-wash-green: #e8f6ec;
+  --d-wash-ivory: #f7f4ed;
 
   background: var(--d-bg);
   background-image: var(--d-bg-main);
   color: var(--d-fg);
   min-height: 100vh;
   font-family: Inter, system-ui, sans-serif;
+}
+
+/* Brand-aligned focus (dashboard only; does not touch public pages) */
+.m2p-dash :focus-visible {
+  outline: 2px solid var(--d-primary);
+  outline-offset: 2px;
+}
+
+/* Orange → live gradient rule (header spine) */
+.m2p-dash .d-brand-rule {
+  height: 3px;
+  flex-shrink: 0;
+  background: linear-gradient(90deg, var(--d-primary) 0%, #ff7a4a 40%, var(--d-live) 100%);
+  opacity: 0.9;
+}
+
+/* Primary focal card — one strong surface per view */
+.m2p-dash .d-card-hero {
+  border-radius: 1rem;
+  border: 1px solid rgba(240, 90, 40, 0.14);
+  background: var(--d-card);
+  box-shadow:
+    0 1px 2px rgba(26, 18, 8, 0.05),
+    0 18px 50px -28px rgba(240, 90, 40, 0.2),
+    0 28px 64px -32px rgba(26, 18, 8, 0.14);
+}
+
+/* Secondary lists / side columns — lighter than hero */
+.m2p-dash .d-card-quiet {
+  border-radius: 1rem;
+  border: 1px solid var(--d-border);
+  background: linear-gradient(180deg, var(--d-card-soft) 0%, #ffffff 100%);
+  box-shadow: 0 1px 3px rgba(26, 18, 8, 0.05);
+}
+
+/* Stat strips with subtle brand tint */
+.m2p-dash .d-surface-stats {
+  background: linear-gradient(
+    90deg,
+    var(--d-wash-orange) 0%,
+    var(--d-wash-ivory) 45%,
+    var(--d-wash-green) 100%
+  );
+  border-top: 1px solid var(--d-border);
+}
+
+/* Sidebar credits module */
+.m2p-dash .d-sidebar-credits {
+  background: linear-gradient(145deg, #ffffff 0%, var(--d-wash-orange) 100%);
+  border: 1px solid rgba(240, 90, 40, 0.22);
+  box-shadow: 0 6px 24px -12px rgba(240, 90, 40, 0.18);
+}
+
+/* Optional soft entrance (apply only where safe) */
+.m2p-dash .d-animate-in {
+  animation: d-dash-fade-up 0.5s ease-out both;
+}
+@keyframes d-dash-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ── Shared CTA (orange gradient) ─────────────────────────── */

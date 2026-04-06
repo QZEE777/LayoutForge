@@ -43,11 +43,11 @@ export function UploadPanel({ scansRemaining, recentScans, onViewAllScans }: Upl
   const preview = recentScans.slice(0, MAX_INLINE);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
+    <div className="d-animate-in mx-auto max-w-6xl space-y-6">
       <div className="grid gap-6 lg:grid-cols-2 lg:gap-8 lg:items-start">
         {/* Left: primary checker CTA (only prominent “Check PDF” in main area) */}
         <div className="space-y-6">
-          <Card className="d-card-elevated overflow-hidden border-[var(--d-border-strong)]">
+          <Card className="d-card-hero overflow-hidden border-[var(--d-border-strong)]">
             <div className="p-5 sm:p-6 lg:p-7">
               <Link href="/kdp-pdf-checker" className="group block">
                 <div
@@ -83,10 +83,7 @@ export function UploadPanel({ scansRemaining, recentScans, onViewAllScans }: Upl
               </Link>
             </div>
 
-            <div
-              className="grid grid-cols-3 divide-x border-t"
-              style={{ borderColor: "var(--d-border)", background: "var(--d-muted)" }}
-            >
+            <div className="d-surface-stats grid grid-cols-3 divide-x" style={{ borderColor: "var(--d-border)" }}>
               {[
                 { icon: Zap, label: "Scan time", value: "<90s", color: "#10b981" },
                 { icon: Shield, label: "KDP rules", value: "26", color: "#F05A28" },
@@ -109,7 +106,7 @@ export function UploadPanel({ scansRemaining, recentScans, onViewAllScans }: Upl
         </div>
 
         {/* Right: recent scans — same data as My Scans, so the overview never feels empty */}
-        <Card className="d-card-elevated flex flex-col overflow-hidden border-[var(--d-border-strong)] min-h-[280px] lg:min-h-[320px]">
+        <Card className="d-card-quiet flex min-h-[280px] flex-col overflow-hidden border-[var(--d-border-strong)] lg:min-h-[320px]">
           <div
             className="flex items-center justify-between gap-2 border-b px-4 py-3"
             style={{ borderColor: "var(--d-border)" }}
@@ -225,7 +222,7 @@ export function UploadPanel({ scansRemaining, recentScans, onViewAllScans }: Upl
           ].map((item) => (
             <Card
               key={item}
-              className="d-card-elevated flex items-center gap-3 border-[var(--d-border-strong)] p-4 transition-shadow hover:shadow-md"
+              className="d-card-quiet flex items-center gap-3 border-[var(--d-border-strong)] p-4 transition-shadow duration-200 hover:border-[#f05a28]/25 hover:shadow-md"
             >
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl" style={{ background: "rgba(76,217,100,0.12)" }}>
                 <CheckCircle2 className="h-4 w-4" style={{ color: "#16a34a" }} />
@@ -238,7 +235,7 @@ export function UploadPanel({ scansRemaining, recentScans, onViewAllScans }: Upl
         </div>
       </div>
 
-      <Card className="d-card-elevated border-[var(--d-border-strong)] p-6">
+      <Card className="d-card-quiet border-[var(--d-border-strong)] p-6">
         <h2 className="mb-6 text-base font-bold" style={{ color: "var(--d-fg)" }}>
           Your publishing flow
         </h2>

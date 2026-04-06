@@ -272,7 +272,7 @@ export function SettingsPanel({
 
   return (
     <div className="mx-auto max-w-xl space-y-5">
-      <Card className="d-card-elevated border-[var(--d-border-strong)] p-6">
+      <Card className="d-card-hero border-[var(--d-border-strong)] p-6">
         <h3 className="font-semibold flex items-center gap-2 mb-5" style={{ color: "var(--d-fg)" }}>
           <User className="w-4 h-4" style={{ color: "var(--d-fg-muted)" }} />
           Profile
@@ -353,7 +353,7 @@ export function SettingsPanel({
         </form>
       </Card>
 
-      <Card className="d-card-elevated overflow-hidden border-[var(--d-border-strong)]" style={{ borderColor: "var(--d-border)" }}>
+      <Card className="d-card-quiet overflow-hidden border-[var(--d-border-strong)]" style={{ borderColor: "var(--d-border)" }}>
         <div>
           <button
             type="button"
@@ -411,7 +411,7 @@ export function SettingsPanel({
         </div>
       </Card>
 
-      <Card className="d-card-elevated border-[var(--d-border-strong)] p-5">
+      <Card className="d-card-quiet border-[var(--d-border-strong)] p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-bold" style={{ color: "var(--d-fg)" }}>

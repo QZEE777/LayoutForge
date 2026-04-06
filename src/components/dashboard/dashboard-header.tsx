@@ -21,35 +21,41 @@ interface HeaderProps {
 export function DashboardHeader({ activeView, setSidebarOpen }: HeaderProps) {
   const { title, subtitle } = viewMeta[activeView];
   return (
-    <header
-      className="relative flex h-[4.25rem] shrink-0 items-center border-b px-4 lg:px-6"
-      style={{
-        background: "linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(255,253,250,0.92) 100%)",
-        borderColor: "var(--d-border)",
-        boxShadow: "0 1px 0 rgba(255,255,255,0.8), 0 8px 24px -12px rgba(26,18,8,0.08)",
-      }}
-    >
-      <Button variant="ghost" size="icon" className="relative z-10 shrink-0 lg:hidden" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
-        <Menu className="h-5 w-5" />
-      </Button>
-      <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-14 text-center sm:px-24">
-        <h1 className="text-[15px] font-bold tracking-tight sm:text-base" style={{ color: "var(--d-fg)" }}>
-          {title}
-        </h1>
-        <p className="mt-0.5 hidden max-w-md text-[11px] leading-snug sm:block sm:text-xs" style={{ color: "var(--d-fg-muted)" }}>
-          {subtitle}
-        </p>
+    <header className="flex shrink-0 flex-col">
+      <div
+        className="relative flex h-[4.25rem] items-center border-b px-4 lg:px-6"
+        style={{
+          background: "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(255,253,250,0.94) 100%)",
+          borderColor: "var(--d-border)",
+          boxShadow: "0 1px 0 rgba(255,255,255,0.85), 0 10px 28px -14px rgba(26,18,8,0.07)",
+        }}
+      >
+        <Button variant="ghost" size="icon" className="relative z-10 shrink-0 lg:hidden" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
+          <Menu className="h-5 w-5" />
+        </Button>
+        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-14 text-center sm:px-24">
+          <h1
+            className="font-bebas text-xl leading-none tracking-wide sm:text-2xl"
+            style={{ color: "var(--d-fg)" }}
+          >
+            {title}
+          </h1>
+          <p className="mt-1 hidden max-w-md text-[11px] leading-snug sm:block sm:text-xs" style={{ color: "var(--d-fg-muted)" }}>
+            {subtitle}
+          </p>
+        </div>
+        <div className="relative z-10 ml-auto shrink-0">
+          <Link
+            href="/faq"
+            className="inline-flex items-center gap-1.5 rounded-full border border-[var(--d-border)] bg-white/90 px-3 py-1.5 text-xs font-semibold shadow-sm transition-all hover:border-[#f05a28]/35 hover:bg-[#fff8f4] hover:text-[var(--d-primary)]"
+            style={{ color: "var(--d-fg-muted)" }}
+          >
+            <HelpCircle className="h-4 w-4 shrink-0 text-[var(--d-primary)]" />
+            <span className="hidden sm:inline">Help</span>
+          </Link>
+        </div>
       </div>
-      <div className="relative z-10 ml-auto shrink-0">
-        <Link
-          href="/faq"
-          className="inline-flex items-center gap-1.5 rounded-full border border-[var(--d-border)] bg-white/90 px-3 py-1.5 text-xs font-semibold shadow-sm transition-all hover:border-[#f05a28]/35 hover:bg-[#fff8f4] hover:text-[var(--d-primary)]"
-          style={{ color: "var(--d-fg-muted)" }}
-        >
-          <HelpCircle className="h-4 w-4 shrink-0 text-[var(--d-primary)]" />
-          <span className="hidden sm:inline">Help</span>
-        </Link>
-      </div>
+      <div className="d-brand-rule" aria-hidden />
     </header>
   );
 }
