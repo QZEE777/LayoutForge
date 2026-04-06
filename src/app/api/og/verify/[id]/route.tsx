@@ -268,7 +268,11 @@ export async function GET(
           {/* ── 5. CTA — with — decorators ────────────────────────── */}
           <div style={{
             display: "flex", alignItems: "center", justifyContent: "center",
-            gap: 20, margin: "28px 50px 0",
+            gap: 20,
+            position: "absolute",
+            left: 50,
+            right: 50,
+            bottom: 78,
           }}>
             <div style={{ height: 2, width: 80, background: "rgba(255,255,255,0.40)", borderRadius: 1 }} />
             <span style={{ fontSize: 44, fontWeight: 900, color: "#FFFFFF", display: "flex", alignItems: "center", gap: 0 }}>
@@ -281,7 +285,16 @@ export async function GET(
           </div>
 
           {/* ── 6. FOOTER ─────────────────────────────────────────── */}
-          <div style={{ display: "flex", justifyContent: "center", margin: "12px 50px 0", paddingBottom: 26 }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              position: "absolute",
+              left: 50,
+              right: 50,
+              bottom: 30,
+            }}
+          >
             <span style={{ fontSize: 24, color: "rgba(255,255,255,0.64)" }}>
               KDP • Indie Author • Self Publishing
             </span>
