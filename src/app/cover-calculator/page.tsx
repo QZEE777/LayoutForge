@@ -47,6 +47,7 @@ export default function CoverCalculatorPage() {
   const [trimId, setTrimId] = useState<TrimSizeId>("6x9");
   const [hasInteracted, setHasInteracted] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
 
   const markInteracted = useCallback(() => setHasInteracted(true), []);
 
@@ -64,11 +65,14 @@ export default function CoverCalculatorPage() {
 
   const spineHasText = spineInches >= SPINE_TEXT_MIN;
 
-  const copyToClipboard = (value: string, key: string) => {
-    navigator.clipboard.writeText(value).then(() => {
+  const copyToClipboard = async (value: string, key: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
       setCopied(key);
-      setTimeout(() => setCopied(null), 2000);
-    });
+    } catch {
+      setCopied(`${key}-fail`);
+    }
+    setTimeout(() => setCopied(null), 2000);
   };
 
   const [downloading, setDownloading] = useState(false);
@@ -92,6 +96,7 @@ export default function CoverCalculatorPage() {
       paperTypeLabel: paperLabel,
     };
     setDownloading(true);
+    setDownloadError(null);
     try {
       const bytes = await createCoverTemplatePdf(params);
       const blob = new Blob([bytes], { type: "application/pdf" });
@@ -100,7 +105,9 @@ export default function CoverCalculatorPage() {
       a.href = url;
       a.download = `kdp-cover-template-${currentTrim.id}-${currentPages}p.pdf`;
       a.click();
-      URL.revokeObjectURL(url);
+      window.setTimeout(() => URL.revokeObjectURL(url), 1200);
+    } catch (err) {
+      setDownloadError(err instanceof Error ? err.message : "Could not generate template PDF. Please try again.");
     } finally {
       setDownloading(false);
     }
@@ -134,7 +141,12 @@ export default function CoverCalculatorPage() {
                 min={MIN_PAGES}
                 max={MAX_PAGES}
                 value={pageCount}
-                onChange={(e) => { setPageCount(e.target.valueAsNumber ?? MIN_PAGES); markInteracted(); }}
+                onChange={(e) => {
+                  const next = e.target.valueAsNumber;
+                  setPageCount(Number.isFinite(next) ? next : MIN_PAGES);
+                  markInteracted();
+                }}
+                onBlur={() => setPageCount(clampPages(pageCount))}
                 className="w-full rounded-lg border border-m2p-border px-4 py-2.5 bg-m2p-ivory text-sm text-m2p-ink focus:outline-none focus:ring-2 focus:ring-m2p-orange"
               />
               <p className="text-xs text-m2p-muted mt-1">KDP range: {MIN_PAGES}–{MAX_PAGES} pages.</p>
@@ -211,7 +223,7 @@ export default function CoverCalculatorPage() {
                     onClick={() => copyToClipboard(`${pixels.width} x ${pixels.height}`, "px")}
                     className="text-xs text-m2p-muted hover:text-m2p-orange border border-m2p-border rounded px-2 py-0.5 transition-colors"
                   >
-                    {copied === "px" ? "✓ Copied" : "Copy"}
+                    {copied === "px" ? "✓ Copied" : copied === "px-fail" ? "Copy failed" : "Copy"}
                   </button>
                 </dd>
               </div>
@@ -230,7 +242,7 @@ export default function CoverCalculatorPage() {
                     onClick={() => copyToClipboard(`${fullWrap.widthInches.toFixed(3)} x ${fullWrap.heightInches.toFixed(3)}`, "in")}
                     className="text-xs text-m2p-muted hover:text-m2p-orange border border-m2p-border rounded px-2 py-0.5 transition-colors"
                   >
-                    {copied === "in" ? "✓ Copied" : "Copy"}
+                    {copied === "in" ? "✓ Copied" : copied === "in-fail" ? "Copy failed" : "Copy"}
                   </button>
                 </dd>
                 <dd className="text-m2p-muted text-xs mt-0.5">
@@ -252,7 +264,7 @@ export default function CoverCalculatorPage() {
                     onClick={() => copyToClipboard(spineInches.toFixed(3), "spine")}
                     className="text-xs text-m2p-muted hover:text-m2p-orange border border-m2p-border rounded px-2 py-0.5 transition-colors"
                   >
-                    {copied === "spine" ? "✓ Copied" : "Copy"}
+                    {copied === "spine" ? "✓ Copied" : copied === "spine-fail" ? "Copy failed" : "Copy"}
                   </button>
                 </dd>
               </div>
@@ -296,6 +308,9 @@ export default function CoverCalculatorPage() {
                 <p className="text-m2p-muted text-xs mt-1.5">
                   Includes trim lines, spine guides, safe zones, bleed zone, barcode area, and dimension annotations — ready to use in Canva or InDesign.
                 </p>
+                {downloadError && (
+                  <p className="mt-2 text-xs text-amber-700">{downloadError}</p>
+                )}
               </div>
             </dl>
           )}

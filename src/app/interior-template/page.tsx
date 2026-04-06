@@ -49,6 +49,7 @@ export default function InteriorTemplatePage() {
   const [downloading, setDownloading] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
 
   const markInteracted = useCallback(() => setHasInteracted(true), []);
 
@@ -67,21 +68,34 @@ export default function InteriorTemplatePage() {
   );
 
   // Next gutter threshold
-  const nextThreshold = useMemo(
-    () => GUTTER_THRESHOLDS.find(t => t.upTo > pages && getGutterMargin(t.upTo - 1) > gutterInches),
-    [pages, gutterInches]
-  );
+  const nextThreshold = useMemo(() => {
+    let rangeStart = minPages;
+    for (let i = 0; i < GUTTER_THRESHOLDS.length; i += 1) {
+      const current = GUTTER_THRESHOLDS[i];
+      if (pages >= rangeStart && pages <= current.upTo) {
+        const next = GUTTER_THRESHOLDS[i + 1];
+        if (!next || next.gutter <= current.gutter) return null;
+        return { startsAt: current.upTo + 1, gutter: next.gutter };
+      }
+      rangeStart = current.upTo + 1;
+    }
+    return null;
+  }, [pages]);
 
-  const copyToClipboard = (value: string, key: string) => {
-    navigator.clipboard.writeText(value).then(() => {
+  const copyToClipboard = async (value: string, key: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
       setCopied(key);
-      setTimeout(() => setCopied(null), 2000);
-    });
+    } catch {
+      setCopied(`${key}-fail`);
+    }
+    setTimeout(() => setCopied(null), 2000);
   };
 
   const handleDownload = async () => {
     if (!trim) return;
     setDownloading(true);
+    setDownloadError(null);
     markInteracted();
     try {
       const bytes = await createInteriorTemplatePdf({
@@ -95,7 +109,9 @@ export default function InteriorTemplatePage() {
       a.href = url;
       a.download = `kdp-interior-template-${trimId}-${pages}p${withBleed ? "-bleed" : ""}.pdf`;
       a.click();
-      URL.revokeObjectURL(url);
+      window.setTimeout(() => URL.revokeObjectURL(url), 1200);
+    } catch (err) {
+      setDownloadError(err instanceof Error ? err.message : "Could not generate template PDF. Please try again.");
     } finally {
       setDownloading(false);
     }
@@ -147,7 +163,12 @@ export default function InteriorTemplatePage() {
                 min={minPages}
                 max={maxPages}
                 value={pageCount}
-                onChange={(e) => { setPageCount(e.target.valueAsNumber ?? minPages); markInteracted(); }}
+                onChange={(e) => {
+                  const next = e.target.valueAsNumber;
+                  setPageCount(Number.isFinite(next) ? next : minPages);
+                  markInteracted();
+                }}
+                onBlur={() => setPageCount(clampPages(pageCount))}
                 className="w-full rounded-lg border border-m2p-border px-4 py-2.5 bg-m2p-ivory text-sm text-m2p-ink focus:outline-none focus:ring-2 focus:ring-m2p-orange"
               />
               <p className="text-xs text-m2p-muted mt-1">KDP range: {minPages}–{maxPages} pages.</p>
@@ -189,7 +210,7 @@ export default function InteriorTemplatePage() {
                     onClick={() => copyToClipboard(String(gutterInches), "gutter")}
                     className="text-xs text-m2p-muted hover:text-m2p-orange border border-m2p-border rounded px-2 py-0.5 transition-colors"
                   >
-                    {copied === "gutter" ? "✓ Copied" : "Copy"}
+                    {copied === "gutter" ? "✓ Copied" : copied === "gutter-fail" ? "Copy failed" : "Copy"}
                   </button>
                 </dd>
               </div>
@@ -219,7 +240,7 @@ export default function InteriorTemplatePage() {
                     onClick={() => copyToClipboard(`${textAreaWidth.toFixed(3)} x ${textAreaHeight.toFixed(3)}`, "textarea")}
                     className="text-xs text-m2p-muted hover:text-m2p-orange border border-m2p-border rounded px-2 py-0.5 transition-colors"
                   >
-                    {copied === "textarea" ? "✓ Copied" : "Copy"}
+                    {copied === "textarea" ? "✓ Copied" : copied === "textarea-fail" ? "Copy failed" : "Copy"}
                   </button>
                 </dd>
                 <dd className="text-m2p-muted text-xs mt-0.5">
@@ -281,7 +302,7 @@ export default function InteriorTemplatePage() {
                 </dd>
                 {nextThreshold && (
                   <p className="text-xs text-amber-700 mt-2">
-                    ⚠ Gutter increases to <strong>{nextThreshold.gutter}&quot;</strong> at <strong>{GUTTER_THRESHOLDS[GUTTER_THRESHOLDS.findIndex(t => t === nextThreshold) - 1]?.upTo + 1 || 151} pages</strong> — reformat required if you cross this threshold.
+                    ⚠ Gutter increases to <strong>{nextThreshold.gutter}&quot;</strong> at <strong>{nextThreshold.startsAt} pages</strong> — reformat required if you cross this threshold.
                   </p>
                 )}
               </div>
@@ -302,6 +323,9 @@ export default function InteriorTemplatePage() {
                 <p className="text-xs text-m2p-muted mt-2">
                   Includes trim lines, margin guides, safe zone, and dimension annotations — ready to use in Canva or InDesign.
                 </p>
+                {downloadError && (
+                  <p className="mt-2 text-xs text-amber-700">{downloadError}</p>
+                )}
               </div>
             </dl>
           )}
