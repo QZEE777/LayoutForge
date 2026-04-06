@@ -348,7 +348,7 @@ export default function DownloadPage() {
     const jobId = match?.[1];
     if (!jobId) return;
     let attempts = 0;
-    const maxAttempts = 20;
+    const maxAttempts = 50;
     let intervalId: ReturnType<typeof setInterval> | null = null;
     const poll = async () => {
       attempts += 1;
@@ -380,7 +380,7 @@ export default function DownloadPage() {
     if (!report?.annotatedPdfUrl || !isCheckerFlow) return;
     if (annotatedReady || annotatedError) return;
     setAnnotatedTakingLong(false);
-    const t = setTimeout(() => setAnnotatedTakingLong(true), 90_000);
+    const t = setTimeout(() => setAnnotatedTakingLong(true), 45_000);
     return () => clearTimeout(t);
   }, [report?.annotatedPdfUrl, isCheckerFlow, annotatedReady, annotatedError]);
 

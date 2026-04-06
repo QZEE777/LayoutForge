@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 const BASE_WIDTH = 560;
+const BLANK_CHECK_SAMPLE_COUNT = 120;
 
 // Worker from public folder — do not change. import.meta.url resolution breaks in Next.js production.
 const PDF_WORKER_SRC = "/pdf.worker.min.js";
@@ -68,8 +69,9 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
     const h = canvas.height;
     if (w <= 0 || h <= 0) return;
 
-    // Sample variance across many random points.
-    const sampleCount = 25;
+    // Sample variance across deterministic grid + random points.
+    // This reduces false positives on sparse text-heavy pages.
+    const sampleCount = BLANK_CHECK_SAMPLE_COUNT;
     const data = canvas.getContext("2d")?.getImageData(0, 0, w, h)?.data;
     if (!data) return;
 
@@ -77,9 +79,22 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
     // Helper: brightness as luminance.
     const luminance = (r: number, g: number, b: number) => 0.2126 * r + 0.7152 * g + 0.0722 * b;
 
-    for (let i = 0; i < sampleCount; i++) {
-      const x = Math.floor(Math.random() * w);
-      const y = Math.floor(Math.random() * h);
+    const gridSize = 8;
+    const sampledCoordinates: Array<{ x: number; y: number }> = [];
+    for (let gy = 0; gy < gridSize; gy++) {
+      for (let gx = 0; gx < gridSize; gx++) {
+        const x = Math.min(w - 1, Math.floor(((gx + 0.5) / gridSize) * w));
+        const y = Math.min(h - 1, Math.floor(((gy + 0.5) / gridSize) * h));
+        sampledCoordinates.push({ x, y });
+      }
+    }
+    for (let i = sampledCoordinates.length; i < sampleCount; i++) {
+      sampledCoordinates.push({
+        x: Math.floor(Math.random() * w),
+        y: Math.floor(Math.random() * h),
+      });
+    }
+    for (const { x, y } of sampledCoordinates) {
       const idx = (y * w + x) * 4;
       const r = data[idx];
       const g = data[idx + 1];
@@ -93,7 +108,7 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
       samples.push(bright);
     }
 
-    if (samples.length < 10) return;
+    if (samples.length < 40) return;
 
     const mean = samples.reduce((acc, v) => acc + v, 0) / samples.length;
     const variance = samples.reduce((acc, v) => acc + (v - mean) * (v - mean), 0) / samples.length;
@@ -106,18 +121,39 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
 
     // "Meaningful paint" here means any sampled pixel that deviates
     // noticeably from the dominant brightness of the canvas.
-    const meaningfulPaintThresholdFromMean = 8;
+    const meaningfulPaintThresholdFromMean = 6;
     const meaningfulPaintCount = samples.reduce((acc, v) => acc + (Math.abs(v - mean) > meaningfulPaintThresholdFromMean ? 1 : 0), 0);
     const noMeaningfulPaint = meaningfulPaintCount === 0;
+    const definitelyHasContent = meaningfulPaintCount >= Math.max(3, Math.round(samples.length * 0.03));
 
-    if (varianceNearZero && noMeaningfulPaint && (nearWhite || nearBlack)) {
+    if (!definitelyHasContent && varianceNearZero && noMeaningfulPaint && (nearWhite || nearBlack)) {
       requestFallback("blank");
     }
   };
 
+  const getIssueOverlayRect = (bbox: number[] | null) => {
+    if (!bbox || bbox.length < 4 || !pageSize) return null;
+    const [xRaw, yRaw, wRaw, hRaw] = bbox;
+    if (![xRaw, yRaw, wRaw, hRaw].every((v) => Number.isFinite(v))) return null;
+
+    const maxWidth = pageSize.width;
+    const maxHeight = pageSize.height;
+    const x = Math.max(0, Math.min(xRaw, maxWidth));
+    const y = Math.max(0, Math.min(yRaw, maxHeight));
+    const width = Math.max(0, Math.min(wRaw, maxWidth - x));
+    const height = Math.max(0, Math.min(hRaw, maxHeight - y));
+
+    if (width < 2 || height < 2) return null;
+    return {
+      x: x * scaleX,
+      y: y * scaleY,
+      width: width * scaleX,
+      height: height * scaleY,
+    };
+  };
+
   const issuesForPage = pageIssues.filter((i) => i.page === pageNumber);
-  const hasHighlights =
-    issuesForPage.some((i) => Array.isArray(i.bbox) && i.bbox.length >= 4);
+  const hasHighlights = issuesForPage.some((i) => !!getIssueOverlayRect(i.bbox));
   const renderWidth = Math.round(BASE_WIDTH * scale);
   const scaleX = pageSize ? renderWidth / pageSize.width : 1;
   const scaleY = scaleX;
@@ -396,8 +432,8 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
               className="overflow-visible"
             >
               {issuesForPage.map((issue, idx) => {
-                if (!issue.bbox || issue.bbox.length < 4) return null;
-                const [x, y, w, h] = issue.bbox;
+                const rect = getIssueOverlayRect(issue.bbox);
+                if (!rect) return null;
                 const fixDiff = (issue.fixDifficulty ?? "").toLowerCase();
                 const sev = (issue.severity ?? "").toLowerCase();
                 const isRed =
@@ -410,14 +446,15 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
                 return (
                   <rect
                     key={`${issue.page}-${issue.rule_id}-${idx}`}
-                    x={x * scaleX}
-                    y={y * scaleY}
-                    width={w * scaleX}
-                    height={h * scaleY}
+                    x={rect.x}
+                    y={rect.y}
+                    width={rect.width}
+                    height={rect.height}
                     fill={stroke}
-                    fillOpacity={0.1}
+                    fillOpacity={0.14}
                     stroke={stroke}
-                    strokeWidth={2}
+                    strokeWidth={2.5}
+                    strokeDasharray={isGreen ? "0" : "5 3"}
                   >
                     <title>{issue.message}</title>
                   </rect>
@@ -428,7 +465,9 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
         </div>
       </div>
       {hasHighlights ? (
-        null
+        <p className="px-4 pb-3 text-xs text-center" style={{ color: "#6B6151" }}>
+          Highlight legend: solid green = easier fixes, dashed amber/red = needs extra attention.
+        </p>
       ) : (
         <p className="px-4 pb-3 text-xs text-center" style={{ color: "#6B6151" }}>
           No on-page highlights for this page.
