@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabaseClient";
 import type { User } from "@supabase/supabase-js";
@@ -203,10 +204,23 @@ export default function DashboardPage() {
           )}
           {tab === "tools" && <ToolsPanel />}
           {tab === "earn" && (
-            <EarnPanel
-              affiliate={affiliate === undefined ? null : affiliate}
-              stats={affStats}
-            />
+            <>
+              <div className="mb-4 flex justify-start">
+                <Image
+                  src="/MANNY AVATAR.png"
+                  alt="Manny"
+                  width={100}
+                  height={100}
+                  className="h-[100px] w-[100px] shrink-0 rounded-full object-cover shadow-md ring-2 ring-white/90"
+                  style={{ boxShadow: "0 8px 24px -8px rgba(26,18,8,0.2)" }}
+                  priority
+                />
+              </div>
+              <EarnPanel
+                affiliate={affiliate === undefined ? null : affiliate}
+                stats={affStats}
+              />
+            </>
           )}
           {tab === "settings" && (
             <SettingsPanel
