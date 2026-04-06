@@ -198,7 +198,11 @@ export default function DashboardPage() {
 
         <main className="flex-1 overflow-y-auto p-5 lg:p-8 lg:pl-10">
           {tab === "upload" && (
-            <UploadPanel scansRemaining={userInfo.scansRemaining} />
+            <UploadPanel
+              scansRemaining={userInfo.scansRemaining}
+              recentScans={summary?.recentScans ?? []}
+              onViewAllScans={() => setTab("history")}
+            />
           )}
           {tab === "history" && (
             <ScanHistoryPanel scans={summary?.recentScans ?? []} />

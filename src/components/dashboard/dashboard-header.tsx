@@ -6,8 +6,8 @@ import { Menu, HelpCircle } from "lucide-react";
 import Link from "next/link";
 
 const viewMeta: Record<ActiveView, { title: string; subtitle: string }> = {
-  upload:   { title: "Check Your PDF",    subtitle: "Validate against all 26 KDP rules before you publish" },
-  history:  { title: "My Scans",          subtitle: "View your previous PDF checks and reports" },
+  upload:   { title: "Overview",          subtitle: "Run a new check and open recent reports in one place" },
+  history:  { title: "My Scans",          subtitle: "Full list of PDF checks and download links" },
   tools:    { title: "Free Tools",        subtitle: "Helpful utilities for indie authors — no payment required" },
   earn:     { title: "Partner Program",   subtitle: "Earn 30–40% commission on every referral" },
   settings: { title: "Settings",          subtitle: "Manage your account and preferences" },

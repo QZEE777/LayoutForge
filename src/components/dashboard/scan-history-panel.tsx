@@ -43,13 +43,17 @@ export function ScanHistoryPanel({ scans }: Props) {
           <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl shadow-inner" style={{ background: "var(--d-muted)" }}>
             <FileText className="h-8 w-8" style={{ color: "var(--d-fg-muted)" }} />
           </div>
-          <h3 className="mb-2 text-xl font-bold" style={{ color: "var(--d-fg)" }}>No scans yet</h3>
-          <p className="mx-auto mb-6 max-w-xs text-sm leading-relaxed" style={{ color: "var(--d-fg-muted)" }}>
-            Upload your first PDF — we check all 26 KDP rules.
+          <h3 className="mb-2 text-xl font-bold" style={{ color: "var(--d-fg)" }}>No scans on this account yet</h3>
+          <p className="mx-auto mb-2 max-w-md text-sm leading-relaxed" style={{ color: "var(--d-fg-muted)" }}>
+            This list fills in when you complete a PDF check using the <strong className="font-semibold text-[var(--d-fg)]">same email</strong> as your
+            dashboard login. If you paid with another address, use the account portal under Settings → Purchase history.
+          </p>
+          <p className="mx-auto mb-6 max-w-md text-xs leading-relaxed" style={{ color: "var(--d-fg-muted)" }}>
+            Tip: use <strong className="font-semibold">Overview</strong> in the sidebar to start a scan and see a live preview of recent reports.
           </p>
           <Link href="/kdp-pdf-checker" className="d-cta d-cta-md inline-flex">
             <Upload className="h-4 w-4" />
-            Upload your first PDF
+            Go to PDF checker
           </Link>
         </Card>
       </div>
