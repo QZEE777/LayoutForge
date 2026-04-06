@@ -1,12 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-
-function isAdmin(request: Request) {
-  const raw = request.headers.get("x-admin-password") ?? "";
-  const provided = raw.trim();
-  const expected = process.env.ADMIN_PASSWORD_MANU2?.trim();
-  return Boolean(provided && expected && provided === expected);
-}
+import { checkAdminRateLimit } from "@/lib/rateLimitAdmin";
+import { requireAdminPermission } from "@/lib/adminAccess";
 
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -15,9 +10,12 @@ function getSupabase() {
   return createClient(url, key);
 }
 
-export async function GET(request: Request) {
-  if (!isAdmin(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export async function GET(request: NextRequest) {
+  const rateLimitRes = checkAdminRateLimit(request);
+  if (rateLimitRes) return rateLimitRes;
+  const auth = requireAdminPermission(request, "admin.founder_giveaways.manage");
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
   const supabase = getSupabase();
   if (!supabase) {
@@ -34,9 +32,12 @@ export async function GET(request: Request) {
   return NextResponse.json({ campaigns: data ?? [] });
 }
 
-export async function POST(request: Request) {
-  if (!isAdmin(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export async function POST(request: NextRequest) {
+  const rateLimitRes = checkAdminRateLimit(request);
+  if (rateLimitRes) return rateLimitRes;
+  const auth = requireAdminPermission(request, "admin.founder_giveaways.manage");
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
   const supabase = getSupabase();
   if (!supabase) {

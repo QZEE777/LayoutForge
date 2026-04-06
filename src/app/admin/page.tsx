@@ -90,6 +90,16 @@ export default function AdminPage() {
     created_at: string;
     gateway_order_id?: string | null;
   }>>([]);
+  const [creditRedemptions, setCreditRedemptions] = useState<Array<{
+    id: string;
+    email: string | null;
+    tool: string | null;
+    payment_type: string | null;
+    amount: number | null;
+    status: string | null;
+    created_at: string;
+    gateway_order_id?: string | null;
+  }>>([]);
   const [subscriptions, setSubscriptions] = useState<Array<{
     email: string | null;
     plan: string | null;
@@ -143,6 +153,17 @@ export default function AdminPage() {
     token: string;
   }>>([]);
   const [shareRewardsLoading, setShareRewardsLoading] = useState(false);
+  const [founderApps, setFounderApps] = useState<Array<{
+    id: string;
+    full_name: string;
+    email: string;
+    primary_platform: string;
+    follower_count: string;
+    publishing_platforms: string[];
+    status: string;
+    created_at: string;
+  }>>([]);
+  const [founderLoading, setFounderLoading] = useState(false);
   const allLeads = [
     ...formatterLeads.map((f) => ({
       date: f.created_at ?? "",
@@ -163,6 +184,10 @@ export default function AdminPage() {
 
   const paymentsPager = usePagination(payments);
   const allLeadsPager = usePagination(allLeads);
+  const creditsPager = usePagination(creditRedemptions);
+  const affiliatesPager = usePagination(affiliates);
+  const shareRewardsPager = usePagination(shareRewards);
+  const founderAppsPager = usePagination(founderApps);
 
   const [grantEmail, setGrantEmail] = useState("");
   const [grantCredits, setGrantCredits] = useState("5");
@@ -209,7 +234,9 @@ export default function AdminPage() {
         totalCreditsIssued: data.totalCreditsIssued ?? 0,
         totalCreditsUsed: data.totalCreditsUsed ?? 0,
       });
-      setPayments(data.recentPayments || []);
+      const paymentRows = data.recentPayments || [];
+      setPayments(paymentRows.filter((p: { payment_type?: string | null }) => p.payment_type !== "credit"));
+      setCreditRedemptions(paymentRows.filter((p: { payment_type?: string | null }) => p.payment_type === "credit"));
       setSubscriptions(data.subscriptions || []);
       setBetaAccess(data.betaUsage || []);
       setLatestPaymentAt(data.latestPaymentAt ?? null);
@@ -239,6 +266,15 @@ export default function AdminPage() {
         if (srRes.ok) {
           const srData = await srRes.json();
           setShareRewards(srData.rewards || []);
+        }
+      } catch {
+        /* ignore */
+      }
+      try {
+        const foundersRes = await fetch("/api/admin/founders", { headers: { "x-admin-password": pwd } });
+        if (foundersRes.ok) {
+          const foundersData = await foundersRes.json();
+          setFounderApps(foundersData.applications || []);
         }
       } catch {
         /* ignore */
@@ -274,6 +310,7 @@ export default function AdminPage() {
     setAuthed(false);
     setStats(null);
     setPayments([]);
+    setCreditRedemptions([]);
     setSubscriptions([]);
     setBetaAccess([]);
     setLatestPaymentAt(null);
@@ -282,6 +319,7 @@ export default function AdminPage() {
     setLeadsFromStorage([]);
     setAffiliates([]);
     setReferrals([]);
+    setFounderApps([]);
     setUserLookupResult(null);
     setUserLookupError(null);
     setUserLookupEmail("");
@@ -443,6 +481,26 @@ export default function AdminPage() {
     if (res.ok) {
       const data = await res.json();
       setAffiliates(data.affiliates || []);
+    }
+  };
+
+  const founderAction = async (id: string, action: "approve" | "reject") => {
+    const pwd = typeof window !== "undefined" ? sessionStorage.getItem(ADMIN_PWD_KEY) : null;
+    if (!pwd) return;
+    setFounderLoading(true);
+    try {
+      await fetch("/api/admin/founders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-admin-password": pwd },
+        body: JSON.stringify({ id, action }),
+      });
+      const res = await fetch("/api/admin/founders", { headers: { "x-admin-password": pwd } });
+      if (res.ok) {
+        const data = await res.json();
+        setFounderApps(data.applications || []);
+      }
+    } finally {
+      setFounderLoading(false);
     }
   };
 
@@ -676,6 +734,38 @@ export default function AdminPage() {
             </section>
 
             <section className="mb-10">
+              <h2 className="text-lg font-bold mb-4">Credit redemptions (tracked, not paid)</h2>
+              <div className="overflow-x-auto rounded-xl border border-m2p-border bg-m2p-ivory">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-m2p-border text-left text-soft-muted">
+                      <th className="px-4 py-3 font-medium">Date</th>
+                      <th className="px-4 py-3 font-medium">Email</th>
+                      <th className="px-4 py-3 font-medium">Tool</th>
+                      <th className="px-4 py-3 font-medium">Type</th>
+                      <th className="px-4 py-3 font-medium">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {creditsPager.slice.map((p) => (
+                      <tr key={p.id} className="border-b border-m2p-border/80">
+                        <td className="px-4 py-3">{formatDate(p.created_at)}</td>
+                        <td className="px-4 py-3">{p.email || "—"}</td>
+                        <td className="px-4 py-3">{p.tool || "—"}</td>
+                        <td className="px-4 py-3">{p.payment_type || "credit"}</td>
+                        <td className={`px-4 py-3 ${statusColor(p.status)}`}>{p.status || "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {creditRedemptions.length === 0 && (
+                  <div className="px-4 py-8 text-center text-soft-muted">No credit redemptions yet.</div>
+                )}
+                <Pager {...creditsPager} />
+              </div>
+            </section>
+
+            <section className="mb-10">
               <div className="flex items-center justify-between gap-4 mb-4">
                 <h2 className="text-lg font-bold">Recent payments</h2>
                 <button
@@ -790,6 +880,74 @@ export default function AdminPage() {
               </form>
             </section>
 
+            <section className="mb-10">
+              <div className="flex items-center justify-between gap-4 mb-2">
+                <h2 className="text-lg font-bold">Founder approvals</h2>
+                <span className="text-xs text-soft-muted">{founderLoading ? "Saving…" : ""}</span>
+              </div>
+              <p className="text-xs text-soft-muted mb-4">Approve or reject founder applications. Approving sets profile founder access by email.</p>
+              <div className="overflow-x-auto rounded-xl border border-m2p-border bg-m2p-ivory">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-m2p-border text-left text-soft-muted">
+                      <th className="px-4 py-3 font-medium">Date</th>
+                      <th className="px-4 py-3 font-medium">Name / Email</th>
+                      <th className="px-4 py-3 font-medium">Platform</th>
+                      <th className="px-4 py-3 font-medium">Followers</th>
+                      <th className="px-4 py-3 font-medium">Status</th>
+                      <th className="px-4 py-3 font-medium">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {founderAppsPager.slice.map((f) => (
+                      <tr key={f.id} className="border-b border-m2p-border/80">
+                        <td className="px-4 py-3 whitespace-nowrap">{formatDate(f.created_at)}</td>
+                        <td className="px-4 py-3">
+                          <p className="font-medium">{f.full_name}</p>
+                          <p className="text-soft-muted text-xs">{f.email}</p>
+                        </td>
+                        <td className="px-4 py-3">{f.primary_platform}</td>
+                        <td className="px-4 py-3">{f.follower_count}</td>
+                        <td className="px-4 py-3">
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                            f.status === "approved" ? "bg-green-100 text-green-700" :
+                            f.status === "pending" ? "bg-amber-100 text-amber-700" :
+                            "bg-red-100 text-red-700"
+                          }`}>{f.status}</span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex gap-2">
+                            {f.status !== "approved" && (
+                              <button
+                                onClick={() => founderAction(f.id, "approve")}
+                                disabled={founderLoading}
+                                className="text-xs bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded disabled:opacity-50"
+                              >
+                                Approve
+                              </button>
+                            )}
+                            {f.status !== "rejected" && (
+                              <button
+                                onClick={() => founderAction(f.id, "reject")}
+                                disabled={founderLoading}
+                                className="text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded disabled:opacity-50"
+                              >
+                                Reject
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {founderApps.length === 0 && (
+                  <div className="px-4 py-8 text-center text-soft-muted">No founder applications yet.</div>
+                )}
+                <Pager {...founderAppsPager} />
+              </div>
+            </section>
+
             <section id="partners" className="mb-10">
               <div className="flex items-center justify-between gap-4 mb-2">
                 <h2 className="text-lg font-bold">Partners</h2>
@@ -836,7 +994,7 @@ export default function AdminPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {affiliates.map((a) => {
+                    {affiliatesPager.slice.map((a) => {
                       const aRefs = referrals.filter((r) => r.affiliate_code === a.code);
                       const converted = aRefs.filter((r) => r.converted);
                       const totalEarned = converted.reduce((s, r) => s + (r.commission_amount ?? 0), 0);
@@ -930,6 +1088,7 @@ export default function AdminPage() {
                 {affiliates.length === 0 && (
                   <div className="px-4 py-8 text-center text-soft-muted">No affiliate applications yet.</div>
                 )}
+                <Pager {...affiliatesPager} />
               </div>
             </section>
 
@@ -956,7 +1115,7 @@ export default function AdminPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-m2p-border">
-                    {shareRewards.map((r) => (
+                    {shareRewardsPager.slice.map((r) => (
                       <tr key={r.reward_id} className="hover:bg-m2p-border/30">
                         <td className="px-4 py-3 text-xs">{r.sharer_email}</td>
                         <td className="px-4 py-3">
@@ -989,6 +1148,7 @@ export default function AdminPage() {
                 {shareRewards.length === 0 && (
                   <div className="px-4 py-8 text-center text-soft-muted">No share rewards yet.</div>
                 )}
+                <Pager {...shareRewardsPager} />
               </div>
             </section>
 

@@ -1,23 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { checkAdminRateLimit } from "@/lib/rateLimitAdmin";
-import { timingSafeEqualStrings } from "@/lib/security";
+import { requireAdminPermission } from "@/lib/adminAccess";
 
 export async function GET(request: NextRequest) {
   const rateLimitRes = checkAdminRateLimit(request);
   if (rateLimitRes) return rateLimitRes;
 
-  const raw = request.headers.get("x-admin-password") ?? "";
-  const password = raw.trim();
-  const expected = process.env.ADMIN_PASSWORD_MANU2?.trim();
-  if (!expected) {
+  if (!process.env.ADMIN_PASSWORD_MANU2?.trim()) {
     return NextResponse.json(
       { error: "Admin password not configured", code: "NOT_CONFIGURED" },
       { status: 503 }
     );
   }
-  if (!timingSafeEqualStrings(password, expected)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = requireAdminPermission(request, "admin.stats.read");
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

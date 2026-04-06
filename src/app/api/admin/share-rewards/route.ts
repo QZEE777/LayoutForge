@@ -1,15 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { timingSafeEqualStrings } from "@/lib/security";
-
-function auth(request: NextRequest): boolean {
-  const raw = request.headers.get("x-admin-password") ?? "";
-  const expected = process.env.ADMIN_PASSWORD_MANU2?.trim();
-  return !!expected && timingSafeEqualStrings(raw.trim(), expected);
-}
+import { requireAdminPermission } from "@/lib/adminAccess";
 
 export async function GET(request: NextRequest) {
-  if (!auth(request)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = requireAdminPermission(request, "admin.share_rewards.read");
+  if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
