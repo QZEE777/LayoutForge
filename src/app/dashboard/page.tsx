@@ -53,6 +53,7 @@ type AffiliateStats = {
 export default function DashboardPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const expandOrdersFromUrl = searchParams.get("orders") === "1";
 
   const [user, setUser]               = useState<User | null>(null);
   const [summary, setSummary]         = useState<Summary | null>(null);
@@ -234,6 +235,7 @@ export default function DashboardPage() {
               avatarUrl={avatarUrl}
               avatarUploading={avatarUploading}
               onAvatarChange={handleAvatarUpload}
+              initialExpandPurchaseHistory={expandOrdersFromUrl}
             />
           )}
         </main>

@@ -1,13 +1,11 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import crypto from "crypto";
+import { loadAccountPortalData } from "@/lib/accountPortalData";
 
 function signToken(email: string, code: string, expiresAt: number): string {
   const secret = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "fallback-secret";
-  return crypto
-    .createHmac("sha256", secret)
-    .update(`${email}|${code}|${expiresAt}`)
-    .digest("hex");
+  return crypto.createHmac("sha256", secret).update(`${email}|${code}|${expiresAt}`).digest("hex");
 }
 
 export async function POST(req: Request) {
@@ -30,12 +28,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });
   }
 
-  // Check expiry
   if (Date.now() > expiresAt) {
     return NextResponse.json({ error: "Code expired. Request a new one." }, { status: 400 });
   }
 
-  // Verify HMAC signature — prevents brute force / token forgery
   const expected = signToken(email, code, expiresAt);
   const valid = crypto.timingSafeEqual(
     Buffer.from(expected, "hex"),
@@ -46,59 +42,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Incorrect code." }, { status: 400 });
   }
 
-  // Fetch orders from Supabase
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-
-  const { data: payments } = await supabase
-    .from("payments")
-    .select("id, tool, payment_type, amount, status, created_at, gateway_order_id")
-    .eq("email", email)
-    .eq("status", "complete")
-    .order("created_at", { ascending: false })
-    .limit(20);
-
-  const { data: subscriptions } = await supabase
-    .from("subscriptions")
-    .select("id, plan, status, current_period_end, created_at")
-    .eq("email", email)
-    .order("created_at", { ascending: false })
-    .limit(5);
-
-  const { data: betaAccess } = await supabase
-    .from("beta_access")
-    .select("tool, created_at")
-    .eq("email", email)
-    .limit(5);
-
-  // Credit ledger
-  const now = new Date().toISOString();
-  const { data: creditRows } = await supabase
-    .from("scan_credits")
-    .select("credits, source, order_id, created_at, expires_at")
-    .eq("email", email)
-    .or(`expires_at.is.null,expires_at.gt.${now}`)
-    .order("created_at", { ascending: false })
-    .limit(50);
-
-  const credits = creditRows ?? [];
-  const creditsTotal    = credits.reduce((s, r) => s + (r.credits > 0 ? r.credits  : 0), 0);
-  const creditsUsed     = credits.reduce((s, r) => s + (r.credits < 0 ? -r.credits : 0), 0);
-  const creditsRemaining = Math.max(0, creditsTotal - creditsUsed);
-
-  return NextResponse.json({
-    ok: true,
-    email,
-    payments: payments ?? [],
-    subscriptions: subscriptions ?? [],
-    betaAccess: betaAccess ?? [],
-    credits: {
-      remaining: creditsRemaining,
-      total: creditsTotal,
-      used: creditsUsed,
-      ledger: credits,
-    },
-  });
+  try {
+    const data = await loadAccountPortalData(email);
+    return NextResponse.json({ ok: true, ...data });
+  } catch (e) {
+    console.error("[my-orders/verify]", e);
+    return NextResponse.json({ error: "Failed to load account data." }, { status: 500 });
+  }
 }
