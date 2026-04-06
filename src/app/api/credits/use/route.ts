@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-import { markDownloadPaid, getStored } from "@/lib/storage";
-import { sendDownloadLinkEmail } from "@/lib/resend";
+import { redeemScanCreditForDownload } from "@/lib/redeemScanCredit";
 import crypto from "crypto";
 
 // Must match credits/send-code exactly — same prefix, same fallback
@@ -11,14 +9,18 @@ function signToken(email: string, code: string, expiresAt: number): string {
 }
 
 export async function POST(req: Request) {
-  let email: string, code: string, token: string, expiresAt: number, downloadId: string;
+  let email: string;
+  let code: string;
+  let token: string;
+  let expiresAt: number;
+  let downloadId: string;
   try {
     const body = await req.json();
-    email      = typeof body?.email      === "string" ? body.email.trim().toLowerCase() : "";
-    code       = typeof body?.code       === "string" ? body.code.trim()                : "";
-    token      = typeof body?.token      === "string" ? body.token                      : "";
-    expiresAt  = typeof body?.expiresAt  === "number" ? body.expiresAt                  : 0;
-    downloadId = typeof body?.downloadId === "string" ? body.downloadId                 : "";
+    email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
+    code = typeof body?.code === "string" ? body.code.trim() : "";
+    token = typeof body?.token === "string" ? body.token : "";
+    expiresAt = typeof body?.expiresAt === "number" ? body.expiresAt : 0;
+    downloadId = typeof body?.downloadId === "string" ? body.downloadId : "";
   } catch {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
@@ -36,82 +38,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Incorrect code." }, { status: 400 });
   }
 
-  const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
-
-  // Idempotency: if this download is already unlocked, return success without deducting again.
-  // Prevents double-deduction if the user submits the form twice within the 10-min window.
-  const existingMeta = await getStored(downloadId).catch(() => null);
-  if (existingMeta?.payment_confirmed) {
-    const now0 = new Date().toISOString();
-    const { data: cr } = await supabase
-      .from("scan_credits").select("credits").eq("email", email)
-      .or(`expires_at.is.null,expires_at.gt.${now0}`);
-    const bal = (cr ?? []).reduce((s: number, r: { credits: number }) => s + (r.credits ?? 0), 0);
-    return NextResponse.json({ ok: true, balance: Math.max(0, bal) });
+  const result = await redeemScanCreditForDownload(email, downloadId);
+  if (!result.ok) {
+    return NextResponse.json({ error: result.error }, { status: result.status });
   }
 
-  // Check credit balance — exclude expired rows
-  const now = new Date().toISOString();
-  const { data: creditRows } = await supabase
-    .from("scan_credits")
-    .select("credits")
-    .eq("email", email)
-    .or(`expires_at.is.null,expires_at.gt.${now}`);
-
-  const balance = (creditRows ?? []).reduce((sum: number, r: { credits: number }) => sum + (r.credits ?? 0), 0);
-
-  if (balance <= 0) {
-    return NextResponse.json({ error: "No scan credits remaining. Purchase a pack to continue." }, { status: 402 });
-  }
-
-  // Deduct 1 credit (ledger entry)
-  await supabase.from("scan_credits").insert({
-    email,
-    credits: -1,
-    source: "scan_used",
-    order_id: downloadId,
-  });
-
-  // Record as a payment (for admin visibility)
-  await supabase.from("payments").insert({
-    email,
-    payment_type: "credit_used",
-    amount: 0,
-    status: "complete",
-    tool: "kdp_pdf_checker",
-    gateway: "credits",
-    gateway_order_id: downloadId,
-  });
-
-  // Mark the download as paid and send download email
-  try {
-    await markDownloadPaid(downloadId);
-  } catch (err) {
-    console.error("[credits/use] markDownloadPaid failed:", err);
-    return NextResponse.json({ error: "Failed to unlock download. Contact support." }, { status: 500 });
-  }
-
-  // Suppress nudge email — download has been unlocked
-  try {
-    await supabase
-      .from("scan_nudges")
-      .update({ sent_at: new Date().toISOString() })
-      .eq("email", email)
-      .eq("download_id", downloadId)
-      .is("sent_at", null);
-  } catch { /* best effort */ }
-
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
-  const downloadUrl = `${baseUrl}/download/${downloadId}`;
-
-  if (email) {
-    try {
-      await sendDownloadLinkEmail(email, downloadUrl);
-    } catch (err) {
-      console.error("[credits/use] sendDownloadLinkEmail failed:", err);
-      // Non-fatal — download is still unlocked
-    }
-  }
-
-  return NextResponse.json({ ok: true, balance: balance - 1 });
+  return NextResponse.json({ ok: true, balance: result.balance });
 }

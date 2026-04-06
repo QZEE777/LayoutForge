@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient as createSupabase } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabaseServer";
 import { getStored } from "@/lib/storage";
+import { loadScanCreditBalanceForEmail } from "@/lib/scanCredits";
 
 export async function GET() {
   const supabaseAuth = await createClient();
@@ -15,15 +16,9 @@ export async function GET() {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
-  // Get scan credits
-  const { data: creditsRows } = await supabase
-    .from("scan_credits")
-    .select("credits, used")
-    .eq("email", user.email.toLowerCase());
-
-  const totalCredits = (creditsRows ?? []).reduce((s, r) => s + (r.credits ?? 0), 0);
-  const usedCredits  = (creditsRows ?? []).reduce((s, r) => s + (r.used  ?? 0), 0);
-  const remaining    = Math.max(0, totalCredits - usedCredits);
+  // Scan credits — same ledger + expiry rules as /api/credits/balance (sidebar vs Earn stay in sync)
+  const { total: totalCredits, used: usedCredits, remaining } =
+    await loadScanCreditBalanceForEmail(supabase, user.email);
 
   // Get scan history from scan_nudges (email → download_id)
   const { data: nudges } = await supabase

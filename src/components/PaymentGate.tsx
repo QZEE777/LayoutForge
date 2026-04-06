@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabaseClient";
 
 const STORED_EMAIL_KEY = "manu2print_email";
 const STORED_CHECKOUT_PENDING_PREFIX = "manu2print_checkout_pending_";
@@ -65,9 +66,114 @@ export default function PaymentGate({
   const [creditExpiresAt, setCreditExpiresAt] = useState(0);
   const [creditError, setCreditError] = useState("");
 
+  /** Supabase session email — used for instant credit redeem + prefilled checkout email */
+  const [sessionSignedInEmail, setSessionSignedInEmail] = useState<string | null>(null);
+  const [sessionCreditsRemaining, setSessionCreditsRemaining] = useState<number | null>(null);
+  const [sessionRedeemLoading, setSessionRedeemLoading] = useState(false);
+  const [sessionRedeemError, setSessionRedeemError] = useState("");
+
   useEffect(() => {
     setUserEmail((prev) => (prev ? prev : getStoredEmail()));
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const supabase = createClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (cancelled || !user?.email) return;
+        const e = user.email.trim();
+        const lower = e.toLowerCase();
+        setSessionSignedInEmail(lower);
+        setUserEmail((prev) => {
+          const fromStore = getStoredEmail();
+          if (prev.trim()) return prev;
+          if (fromStore) return fromStore;
+          if (typeof window !== "undefined") localStorage.setItem(STORED_EMAIL_KEY, e);
+          return e;
+        });
+      } catch {
+        /* ignore */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!sessionSignedInEmail) {
+      setSessionCreditsRemaining(null);
+      return;
+    }
+    let cancelled = false;
+    fetch("/api/credits/balance")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: { remaining?: number } | null) => {
+        if (cancelled || !data || typeof data.remaining !== "number") return;
+        setSessionCreditsRemaining(data.remaining);
+      })
+      .catch(() => {
+        if (!cancelled) setSessionCreditsRemaining(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionSignedInEmail]);
+
+  const handleSessionCreditRedeem = useCallback(async () => {
+    if (!downloadId) return;
+    setSessionRedeemLoading(true);
+    setSessionRedeemError("");
+    setCheckoutError("");
+    try {
+      const res = await fetch("/api/credits/use-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ downloadId }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setSessionRedeemError(typeof data.error === "string" ? data.error : "Could not apply credit.");
+        return;
+      }
+      if (typeof data.balance === "number") setSessionCreditsRemaining(data.balance);
+      setState("unlocked");
+    } catch {
+      setSessionRedeemError("Network error. Try again.");
+    } finally {
+      setSessionRedeemLoading(false);
+    }
+  }, [downloadId]);
+
+  const sessionInstantCreditBlock =
+    sessionSignedInEmail &&
+    sessionCreditsRemaining !== null &&
+    sessionCreditsRemaining > 0 &&
+    downloadId ? (
+      <div className="rounded-lg border border-[#4ade80]/50 bg-black/20 px-3 py-3 text-left space-y-2">
+        <p className="text-xs text-white/90 leading-relaxed">
+          Signed in as <span className="font-semibold text-white">{sessionSignedInEmail}</span>
+          <span className="text-white/75">
+            {" "}
+            — {sessionCreditsRemaining} credit{sessionCreditsRemaining !== 1 ? "s" : ""} on this account. No email
+            code needed.
+          </span>
+        </p>
+        <button
+          type="button"
+          onClick={handleSessionCreditRedeem}
+          disabled={sessionRedeemLoading || checkoutLoading}
+          className="w-full rounded-lg px-4 py-2.5 text-sm font-semibold bg-m2p-green text-white hover:opacity-90 disabled:opacity-50"
+        >
+          {sessionRedeemLoading ? "Applying…" : "Use 1 credit now"}
+        </button>
+        {sessionRedeemError ? <p className="text-sm text-red-400">{sessionRedeemError}</p> : null}
+      </div>
+    ) : null;
 
   useEffect(() => {
     if (isProcessing) setState((s) => (s === "unlocked" ? "unlocked" : "processing"));
@@ -296,6 +402,7 @@ export default function PaymentGate({
           onChange={(e) => { setUserEmail(e.target.value); resetCredit(); }}
           className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-2 text-sm text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-m2p-orange"
         />
+        {sessionInstantCreditBlock}
         {creditStep === "code" ? (
           <div className="space-y-3">
             <p className="text-sm text-white/80">6-digit code sent — enter it to redeem your credit:</p>
@@ -389,6 +496,8 @@ export default function PaymentGate({
             onChange={(e) => { setUserEmail(e.target.value); resetCredit(); }}
             className="w-full rounded-lg border border-white/20 bg-m2p-ink/95 px-4 py-2 text-sm text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-m2p-orange"
           />
+
+          {sessionInstantCreditBlock}
 
           {/* Credit redemption flow */}
           {creditStep === "code" ? (
