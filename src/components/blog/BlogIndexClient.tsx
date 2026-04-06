@@ -104,22 +104,38 @@ export default function BlogIndexClient({ posts, allTags }: Props) {
           {featured ? (
             <Link
               href={`/blog/${featured.slug}`}
-              className="m2p-card-lift mb-6 block rounded-2xl border border-m2p-border bg-white p-6 transition hover:border-m2p-orange/40 hover:shadow-[0_20px_45px_-28px_rgba(240,90,40,0.45)]"
+              className="m2p-card-lift mb-6 block overflow-hidden rounded-3xl border border-m2p-border bg-white transition hover:border-m2p-orange/40 hover:shadow-[0_28px_58px_-30px_rgba(240,90,40,0.45)]"
             >
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-m2p-orange">Featured</p>
-              <h2 className="mt-2 text-2xl font-semibold text-m2p-ink">{featured.title}</h2>
-              <p className="mt-2 text-m2p-muted">{featured.excerpt}</p>
-              <p className="mt-3 text-xs text-m2p-muted">
-                {new Date(featured.publishedAt).toLocaleDateString(undefined, {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                })}
-                {" · "}
-                {(featured.contentType ?? "article").toUpperCase()}
-                {" · "}
-                {readTime(featured.excerpt)}
-              </p>
+              <div className="relative h-56 overflow-hidden border-b border-m2p-border">
+                <Image
+                  src="/blog-hero-placeholder.svg"
+                  alt="Featured blog visual"
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/15 to-transparent" />
+                <div className="absolute left-4 top-4">
+                  <p className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-m2p-orange">
+                    Featured
+                  </p>
+                </div>
+                <div className="absolute bottom-4 left-4 right-4">
+                  <p className="text-xs font-semibold tracking-wide text-white/90">
+                    {(featured.contentType ?? "article").toUpperCase()} · {readTime(featured.excerpt)}
+                  </p>
+                  <h2 className="mt-1 text-2xl font-semibold leading-tight text-white">{featured.title}</h2>
+                </div>
+              </div>
+              <div className="p-6">
+                <p className="text-m2p-muted">{featured.excerpt}</p>
+                <p className="mt-3 text-xs text-m2p-muted">
+                  {new Date(featured.publishedAt).toLocaleDateString(undefined, {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </p>
+              </div>
             </Link>
           ) : (
             <div className="mb-6 rounded-2xl border border-m2p-border bg-white p-6 text-sm text-m2p-muted">
@@ -127,12 +143,14 @@ export default function BlogIndexClient({ posts, allTags }: Props) {
             </div>
           )}
 
-          <div className="grid gap-4">
-            {list.map((post) => (
+          <div className="grid gap-4 sm:grid-cols-2">
+            {list.map((post, idx) => (
               <Link
                 key={post.slug}
                 href={`/blog/${post.slug}`}
-                className="m2p-card-lift block rounded-2xl border border-m2p-border bg-white p-5 transition hover:border-m2p-orange/40 hover:shadow-[0_20px_45px_-30px_rgba(26,18,8,0.28)]"
+                className={`m2p-card-lift block rounded-2xl border border-m2p-border bg-white p-5 transition hover:border-m2p-orange/40 hover:shadow-[0_20px_45px_-30px_rgba(26,18,8,0.28)] ${
+                  idx % 5 === 0 ? "sm:col-span-2" : ""
+                }`}
               >
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <h3 className="text-lg font-semibold text-m2p-ink">{post.title}</h3>
