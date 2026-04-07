@@ -3,6 +3,7 @@
 import Link from "next/link";
 import AuthNav from "@/components/AuthNav";
 import { BrandWordmark } from "@/components/BrandWordmark";
+import { NavToolsDropdown } from "@/components/NavToolsDropdown";
 
 export default function SiteNav() {
   return (
@@ -11,10 +12,8 @@ export default function SiteNav() {
         <Link href="/" className="flex items-center overflow-visible">
           <BrandWordmark variant="onLight" className="text-xl" />
         </Link>
-        <div className="flex items-center gap-4 sm:gap-6">
-          <Link href="/#tools" className="m2p-link-nav">
-            Tools
-          </Link>
+        <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+          <NavToolsDropdown />
           <Link href="/#how-it-works" className="m2p-link-nav">
             How It Works
           </Link>
