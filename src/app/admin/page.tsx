@@ -127,6 +127,9 @@ export default function AdminPage() {
     reason?: string | null;
     created_at: string;
     ls_affiliate_code?: string | null;
+    payout_coin?:       string | null;
+    payout_wallet?:     string | null;
+    payout_memo?:       string | null;
   }>>([]);
   const [referrals, setReferrals] = useState<Array<{
     id: string;
@@ -991,6 +994,13 @@ export default function AdminPage() {
                             <p className="font-medium">{a.name}</p>
                             <p className="text-soft-muted text-xs">{a.email}</p>
                             {a.website && <p className="text-m2p-orange text-xs truncate max-w-[140px]">{a.website}</p>}
+                            {a.payout_wallet && (
+                              <p className="text-xs mt-1 font-mono truncate max-w-[160px]" title={a.payout_wallet}
+                                style={{ color: "#2b6cb0" }}>
+                                ⚡ {a.payout_coin?.toUpperCase()}: {a.payout_wallet.slice(0, 12)}…
+                                {a.payout_memo && <span className="text-soft-muted"> tag:{a.payout_memo}</span>}
+                              </p>
+                            )}
                           </td>
                           <td className="px-4 py-3 font-mono text-xs">{a.code}</td>
                           <td className="px-4 py-3">

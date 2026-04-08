@@ -1,7 +1,7 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { Gift, DollarSign, Users, TrendingUp, Copy, Check, ExternalLink, Share2, Clock, Sparkles } from "lucide-react";
+import { Gift, DollarSign, Users, TrendingUp, Copy, Check, ExternalLink, Share2, Clock, Sparkles, Zap } from "lucide-react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { PartnerUpgradeModal, PartnerUpgradeBanner } from "@/components/dashboard/partner-upgrade-modal";
@@ -14,6 +14,9 @@ interface Affiliate {
   commission_rate: number | null;
   email: string;
   ls_affiliate_code?: string | null;
+  payout_coin?:   "xrp" | "xlm" | null;
+  payout_wallet?: string | null;
+  payout_memo?:   string | null;
 }
 
 interface AffiliateStats {
@@ -48,6 +51,37 @@ export function EarnPanel({ affiliate, stats, isFounder = false }: Props) {
   const [modalDismissed, setModalDismissed] = useState(false);
   const [creditBalance, setCreditBalance] = useState<{ total: number; used: number; remaining: number } | null>(null);
   const referralLink = affiliate ? `${APP_URL}/go/${affiliate.code}` : "";
+
+  // Crypto wallet opt-in state
+  const [walletCoin, setWalletCoin] = useState<"xrp" | "xlm">(affiliate?.payout_coin ?? "xrp");
+  const [walletAddress, setWalletAddress] = useState(affiliate?.payout_wallet ?? "");
+  const [walletMemo, setWalletMemo] = useState(affiliate?.payout_memo ?? "");
+  const [walletSaving, setWalletSaving] = useState(false);
+  const [walletSaved, setWalletSaved] = useState(!!affiliate?.payout_wallet);
+  const [walletError, setWalletError] = useState("");
+
+  async function saveWallet() {
+    if (!walletAddress.trim()) return;
+    setWalletSaving(true);
+    setWalletError("");
+    try {
+      const res = await fetch("/api/affiliates/payout-wallet", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ payout_coin: walletCoin, payout_wallet: walletAddress.trim(), payout_memo: walletMemo.trim() }),
+      });
+      if (res.ok) {
+        setWalletSaved(true);
+      } else {
+        const d = await res.json();
+        setWalletError(d.error ?? "Save failed");
+      }
+    } catch {
+      setWalletError("Network error");
+    } finally {
+      setWalletSaving(false);
+    }
+  }
 
   // Fetch share token data for non-partner users
   useEffect(() => {
@@ -503,6 +537,85 @@ export function EarnPanel({ affiliate, stats, isFounder = false }: Props) {
             Email us your bank details
           </a>
         </div>
+      </Card>
+
+      {/* Crypto payout opt-in */}
+      <Card className="d-card-quiet border-[var(--d-border-strong)] p-5"
+        style={{ borderColor: "rgba(99,179,237,0.35)", background: "linear-gradient(135deg, rgba(99,179,237,0.06) 0%, rgba(154,230,180,0.06) 100%)" }}
+      >
+        <div className="flex items-start gap-3 mb-4">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl" style={{ background: "rgba(99,179,237,0.15)" }}>
+            <Zap className="h-4 w-4" style={{ color: "#63b3ed" }} />
+          </div>
+          <div>
+            <p className="text-sm font-bold" style={{ color: "var(--d-fg)" }}>
+              ⚡ Crypto payouts coming — XRP &amp; XLM
+            </p>
+            <p className="mt-0.5 text-xs leading-relaxed" style={{ color: "var(--d-fg-muted)" }}>
+              Get paid in seconds, anywhere in the world. Register your wallet now and you&apos;ll be first when we go live.
+            </p>
+          </div>
+        </div>
+
+        {walletSaved ? (
+          <div className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm" style={{ background: "rgba(72,187,120,0.12)", color: "#276749" }}>
+            <Check className="h-4 w-4 shrink-0" />
+            <span>
+              <strong>{walletCoin.toUpperCase()}</strong> wallet registered — you&apos;re on the list.{" "}
+              <button className="underline text-xs" onClick={() => setWalletSaved(false)}>Update</button>
+            </span>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {/* Coin selector */}
+            <div className="flex gap-2">
+              {(["xrp", "xlm"] as const).map((coin) => (
+                <button
+                  key={coin}
+                  onClick={() => setWalletCoin(coin)}
+                  className="flex-1 rounded-lg border py-2 text-xs font-bold uppercase tracking-wider transition-colors"
+                  style={{
+                    borderColor: walletCoin === coin ? "#63b3ed" : "var(--d-border)",
+                    background:  walletCoin === coin ? "rgba(99,179,237,0.12)" : "transparent",
+                    color:       walletCoin === coin ? "#2b6cb0" : "var(--d-fg-muted)",
+                  }}
+                >
+                  {coin}
+                </button>
+              ))}
+            </div>
+
+            {/* Wallet address */}
+            <input
+              type="text"
+              placeholder={walletCoin === "xrp" ? "r... (XRP address)" : "G... (XLM address)"}
+              value={walletAddress}
+              onChange={(e) => setWalletAddress(e.target.value)}
+              className="d-field-mono w-full text-xs"
+            />
+
+            {/* Memo / destination tag (optional) */}
+            <input
+              type="text"
+              placeholder={walletCoin === "xrp" ? "Destination tag (if required)" : "Memo (if required)"}
+              value={walletMemo}
+              onChange={(e) => setWalletMemo(e.target.value)}
+              className="d-field-mono w-full text-xs"
+            />
+
+            {walletError && (
+              <p className="text-xs" style={{ color: "#e53e3e" }}>{walletError}</p>
+            )}
+
+            <button
+              onClick={saveWallet}
+              disabled={walletSaving || !walletAddress.trim()}
+              className="d-cta d-cta-md inline-flex w-full items-center justify-center gap-2 sm:w-auto disabled:opacity-50"
+            >
+              {walletSaving ? "Saving…" : "Register my wallet"}
+            </button>
+          </div>
+        )}
       </Card>
     </div>
   );
