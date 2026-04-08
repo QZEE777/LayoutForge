@@ -408,100 +408,24 @@ export function EarnPanel({ affiliate, stats, isFounder = false }: Props) {
         <p className="mb-4 text-xs" style={{ color: "var(--d-fg-muted)" }}>
           Copy and share anywhere you talk to authors — social, email, or your site.
         </p>
-        {affiliate.ls_affiliate_code ? (
-          <>
-            <p className="mb-2 text-xs font-semibold" style={{ color: "#059669" }}>
-              Payout link — share this URL to earn commissions
-            </p>
-            <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-stretch">
-              <input
-                readOnly
-                value={`https://manu2print.lemonsqueezy.com/?aff=${affiliate.ls_affiliate_code}`}
-                className="d-field-mono min-w-0 flex-1"
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  navigator.clipboard.writeText(`https://manu2print.lemonsqueezy.com/?aff=${affiliate.ls_affiliate_code}`);
-                  setCopied(true);
-                  setTimeout(() => setCopied(false), 2000);
-                }}
-                className={
-                  copied
-                    ? "d-btn-outline-success flex shrink-0 items-center justify-center gap-2 sm:min-w-[7.5rem]"
-                    : "d-btn-outline flex shrink-0 items-center justify-center gap-2 sm:min-w-[7.5rem]"
-                }
-              >
-                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                {copied ? "Copied" : "Copy"}
-              </button>
-            </div>
-            <p className="mb-0 text-xs leading-relaxed" style={{ color: "var(--d-fg-muted)" }}>
-              30% on $9 singles · 40% on packs. Lemon Squeezy pays you automatically at $25.
-            </p>
-            <p className="mt-2 text-xs leading-relaxed" style={{ color: "var(--d-fg-muted)" }}>
-              Haven&apos;t been paid before? In Lemon Squeezy, open{" "}
-              <strong style={{ color: "var(--d-fg)" }}>Settings → Payouts</strong> and connect bank or PayPal so they can
-              send your commissions.
-            </p>
-          </>
-        ) : (
-          <>
-            <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-stretch">
-              <input readOnly value={referralLink} className="d-field-mono min-w-0 flex-1" />
-              <button
-                type="button"
-                onClick={copyLink}
-                className={
-                  copied
-                    ? "d-btn-outline-success flex shrink-0 items-center justify-center gap-2 sm:min-w-[7.5rem]"
-                    : "d-btn-outline flex shrink-0 items-center justify-center gap-2 sm:min-w-[7.5rem]"
-                }
-              >
-                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                {copied ? "Copied" : "Copy"}
-              </button>
-            </div>
-            <div
-              className="rounded-xl border p-4 sm:p-5"
-              style={{
-                borderColor: "rgba(240, 90, 40, 0.22)",
-                background: "linear-gradient(180deg, rgba(255,248,244,0.98) 0%, rgba(254,240,235,0.5) 100%)",
-              }}
+          <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-stretch">
+            <input readOnly value={referralLink} className="d-field-mono min-w-0 flex-1" />
+            <button
+              type="button"
+              onClick={copyLink}
+              className={
+                copied
+                  ? "d-btn-outline-success flex shrink-0 items-center justify-center gap-2 sm:min-w-[7.5rem]"
+                  : "d-btn-outline flex shrink-0 items-center justify-center gap-2 sm:min-w-[7.5rem]"
+              }
             >
-              <p className="text-sm font-bold" style={{ color: "var(--d-fg)" }}>
-                Your commission checkout link is still connecting
-              </p>
-              <p className="mt-2 text-xs leading-relaxed" style={{ color: "var(--d-fg-muted)" }}>
-                <strong style={{ color: "var(--d-fg)" }}>Why Lemon Squeezy?</strong> We use them to run checkout and pay
-                your affiliate commissions. You need a free Lemon Squeezy account with a payout method (bank or PayPal) so
-                they can send you money — manu2print never holds your commission.
-              </p>
-              <p className="mt-2 text-xs leading-relaxed" style={{ color: "var(--d-fg-muted)" }}>
-                <strong style={{ color: "var(--d-fg)" }}>What to do:</strong> Watch for an email from Lemon Squeezy to
-                finish affiliate setup. No account yet? Create one with the same email you use here, then add payout
-                details under account settings.
-              </p>
-              <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-                <a
-                  href="https://app.lemonsqueezy.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="d-cta d-cta-md inline-flex items-center justify-center gap-2"
-                >
-                  Open Lemon Squeezy
-                  <ExternalLink className="h-4 w-4" />
-                </a>
-                <a
-                  href="mailto:hello@manu2print.com?subject=Partner%20payout%20link%20setup"
-                  className="d-btn-outline inline-flex items-center justify-center gap-2"
-                >
-                  Email support
-                </a>
-              </div>
-            </div>
-          </>
-        )}
+              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              {copied ? "Copied" : "Copy"}
+            </button>
+          </div>
+          <p className="mb-0 text-xs leading-relaxed" style={{ color: "var(--d-fg-muted)" }}>
+            30% on $9 singles · 40% on packs. We pay monthly via Wise bank transfer.
+          </p>
       </Card>
 
       {/* Scan Credits */}
@@ -557,7 +481,7 @@ export function EarnPanel({ affiliate, stats, isFounder = false }: Props) {
           </div>
           <div className="flex items-center justify-between gap-4">
             <span style={{ color: "var(--d-fg-muted)" }}>Payouts</span>
-            <span className="font-medium" style={{ color: "var(--d-fg)" }}>via LemonSqueezy</span>
+            <span className="font-medium" style={{ color: "var(--d-fg)" }}>via Wise (bank transfer)</span>
           </div>
         </div>
         <div className="mt-4 space-y-3 border-t pt-4" style={{ borderColor: "var(--d-border)" }}>
@@ -566,28 +490,17 @@ export function EarnPanel({ affiliate, stats, isFounder = false }: Props) {
           </p>
           <ul className="list-disc space-y-2 pl-4 text-xs leading-relaxed" style={{ color: "var(--d-fg-muted)" }}>
             <li>
-              Lemon Squeezy processes customer payments and sends your share when you reach the{" "}
-              <strong style={{ color: "var(--d-fg)" }}>$25 minimum</strong>. You must have a payout method on file with
-              them (bank or PayPal).
+              We pay monthly via <strong style={{ color: "var(--d-fg)" }}>Wise bank transfer</strong> — direct to your bank account, no third-party account needed.
             </li>
             <li>
-              <strong style={{ color: "var(--d-fg)" }}>New to Lemon Squeezy?</strong> Sign up free, use the same email as
-              your manu2print account if possible, then open{" "}
-              <strong style={{ color: "var(--d-fg)" }}>Settings → Payouts</strong> and connect how you want to be paid.
-            </li>
-            <li>
-              <strong style={{ color: "var(--d-fg)" }}>Already use Lemon Squeezy?</strong> Log in and confirm payouts
-              aren&apos;t paused and your details are current.
+              <strong style={{ color: "var(--d-fg)" }}>To set up your first payout:</strong> email us your bank details (account number, bank name, country) and we&apos;ll get you sorted.
             </li>
           </ul>
           <a
-            href="https://app.lemonsqueezy.com"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="mailto:hello@manu2print.com?subject=Partner%20payout%20setup"
             className="d-cta d-cta-md inline-flex w-full items-center justify-center gap-2 sm:w-auto"
           >
-            Open Lemon Squeezy dashboard
-            <ExternalLink className="h-4 w-4" />
+            Email us your bank details
           </a>
         </div>
       </Card>

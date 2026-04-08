@@ -6,7 +6,7 @@ const OG_IMAGE = "https://www.manu2print.com/api/og";
 export const metadata: Metadata = {
   title: "Partner Program — Earn 40% Commission Promoting KDP Tools | manu2print",
   description:
-    "Join the manu2print partner program. Earn 30–40% commission on every sale. Promote the KDP PDF Checker to your audience of indie authors and self-publishers. Free to join. Monthly payouts via LemonSqueezy.",
+    "Join the manu2print partner program. Earn 30–40% commission on every sale. Promote the KDP PDF Checker to your audience of indie authors and self-publishers. Free to join. Monthly payouts via Wise bank transfer.",
   keywords: [
     "KDP affiliate program",
     "self-publishing affiliate",
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Partner Program — Earn 40% Promoting KDP Tools",
     description:
-      "Refer indie authors to manu2print and earn up to $31.60 per sale. 12-month attribution cookie, no minimums, automatic payouts.",
+      "Refer indie authors to manu2print and earn up to $31.60 per sale. 12-month attribution cookie, no minimums, monthly payouts via Wise.",
     url: "https://www.manu2print.com/partners",
     type: "website",
     images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "manu2print Partner Program" }],

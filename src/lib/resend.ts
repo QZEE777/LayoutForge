@@ -307,7 +307,7 @@ export async function sendPartnerThresholdEmail(to: string) {
               </p>
               <p style="font-size: 14px; color: #4cd964; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;30% commission on every $9 single scan</p>
               <p style="font-size: 14px; color: #4cd964; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;40% commission on every pack sale — up to $31.60 per referral</p>
-              <p style="font-size: 14px; color: #4cd964; margin: 0; line-height: 1.7;">&#10003; &nbsp;Automatic payouts via LemonSqueezy — no minimum</p>
+              <p style="font-size: 14px; color: #4cd964; margin: 0; line-height: 1.7;">&#10003; &nbsp;Monthly payouts via Wise — direct to your bank, no third-party account needed</p>
             </td>
           </tr>
         </table>
@@ -357,7 +357,7 @@ export async function sendPartnerThresholdEmail(to: string) {
     "What Partner mode unlocks:",
     "✓ 30% commission on every $9 single scan",
     "✓ 40% commission on every pack sale — up to $31.60 per referral",
-    "✓ Automatic payouts via LemonSqueezy — no minimum",
+    "✓ Monthly payouts via Wise — direct to your bank, no third-party account needed",
     "",
     `Activate Partner Mode: ${applyUrl}`,
     "",
@@ -446,7 +446,7 @@ export async function sendAffiliateApprovalEmail(to: string, name: string, code:
           <tr>
             <td style="padding: 16px 20px;">
               <p style="font-size: 14px; color: #92400E; margin: 0; line-height: 1.7;">
-                <strong>One heads up:</strong> Your payout link through LemonSqueezy takes up to 48 hours to activate — that's their process, not ours. Once it's live, it'll appear in your Partner Dashboard automatically. Nothing for you to do except sit tight.<br><br>
+                <strong>One heads up on payouts:</strong> We pay monthly via Wise bank transfer — direct to your bank, no third-party account needed. Just reply to this email with your bank details (account number, bank name, country) and we&apos;ll get your first payout set up.<br><br>
                 In the meantime, nothing stops you from sharing your link <em>right now</em>. Every click counts from this moment.
               </p>
             </td>
@@ -502,7 +502,7 @@ export async function sendAffiliateApprovalEmail(to: string, name: string, code:
     "✓ Indie Pack — 40% = $15.60",
     "✓ Pro Pack — 40% = $31.60",
     "",
-    "One heads up: Your payout link through LemonSqueezy takes up to 48 hours to activate — that's their process, not ours. Once it's live, it'll appear in your Partner Dashboard automatically.",
+    "One heads up on payouts: We pay monthly via Wise bank transfer — direct to your bank, no third-party account needed. Just reply with your bank details (account number, bank name, country) and we'll get your first payout set up.",
     "In the meantime, nothing stops you from sharing your link right now. Every click counts from this moment.",
     "",
     `View your dashboard: ${dashUrl}`,
