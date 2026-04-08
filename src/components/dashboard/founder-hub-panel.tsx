@@ -1,10 +1,21 @@
 "use client";
 
-import Link from "next/link";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Crown, Gift, LifeBuoy, Sparkles, ExternalLink } from "lucide-react";
+import { Crown, Gift, LifeBuoy, Sparkles, Copy, Check } from "lucide-react";
+
+const SUPPORT_EMAIL = "hello@manu2print.com";
 
 export function FounderHubPanel() {
+  const [copied, setCopied] = useState(false);
+
+  function copyEmail() {
+    navigator.clipboard.writeText(SUPPORT_EMAIL).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
   return (
     <div className="d-animate-in mx-auto max-w-3xl space-y-5">
       <div className="d-hero-intro">
@@ -48,13 +59,10 @@ export function FounderHubPanel() {
           For founder campaigns, account support, or giveaway setup, contact the founder inbox.
         </p>
         <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-          <a href="mailto:hello@manu2print.com" className="d-cta d-cta-md inline-flex items-center justify-center">
-            Email hello@manu2print.com
-          </a>
-          <Link href="/founders" className="d-btn-outline inline-flex items-center justify-center gap-1.5">
-            Founder program page
-            <ExternalLink className="h-4 w-4" />
-          </Link>
+          <button onClick={copyEmail} className="d-cta d-cta-md inline-flex items-center justify-center gap-2">
+            {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+            {copied ? "Copied!" : SUPPORT_EMAIL}
+          </button>
         </div>
       </Card>
     </div>
