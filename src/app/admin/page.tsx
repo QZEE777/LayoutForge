@@ -128,7 +128,6 @@ export default function AdminPage() {
     created_at: string;
     ls_affiliate_code?: string | null;
   }>>([]);
-  const [lsCodeInputs, setLsCodeInputs] = useState<Record<string, string>>({});
   const [referrals, setReferrals] = useState<Array<{
     id: string;
     affiliate_code: string;
@@ -434,7 +433,7 @@ export default function AdminPage() {
         setAffiliates(data.affiliates || []);
         setReferrals(data.referrals || []);
       }
-      // Show LemonSqueezy nudge after approval
+      // Show nudge after approval
       if (action === "approve" && target) {
         setLsNudge({ name: target.name, email: target.email });
       }
@@ -471,22 +470,6 @@ export default function AdminPage() {
     setTimeout(() => setGrantStatus("idle"), 4000);
   };
 
-  const saveLsCode = async (affiliateId: string) => {
-    const pwd = typeof window !== "undefined" ? sessionStorage.getItem(ADMIN_PWD_KEY) : null;
-    const code = lsCodeInputs[affiliateId]?.trim();
-    if (!pwd || !code) return;
-    await fetch("/api/admin/affiliates", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-admin-password": pwd },
-      body: JSON.stringify({ action: "save-ls-code", id: affiliateId, ls_code: code }),
-    });
-    // Refresh list
-    const res = await fetch("/api/admin/affiliates", { headers: { "x-admin-password": pwd } });
-    if (res.ok) {
-      const data = await res.json();
-      setAffiliates(data.affiliates || []);
-    }
-  };
 
   const founderAction = async (id: string, action: "approve" | "reject") => {
     const pwd = typeof window !== "undefined" ? sessionStorage.getItem(ADMIN_PWD_KEY) : null;
@@ -962,16 +945,14 @@ export default function AdminPage() {
               {lsNudge && (
                 <div className="flex items-center justify-between gap-4 mb-4 px-4 py-3 rounded-xl bg-green-50 border border-green-200">
                   <p className="text-sm text-green-800">
-                    <strong>✓ {lsNudge.name} approved</strong> — now invite them in LemonSqueezy so they can earn commissions and get paid automatically.
+                    <strong>✓ {lsNudge.name} approved</strong> — email them to collect their bank details so you can set up their Wise payout.
                   </p>
                   <div className="flex items-center gap-2 shrink-0">
                     <a
-                      href="https://app.lemonsqueezy.com/affiliates"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      href={`mailto:${lsNudge.email}?subject=manu2print%20partner%20payout%20setup&body=Hi%2C%20your%20partner%20account%20is%20approved!%20Please%20reply%20with%20your%20bank%20details%20(account%20number%2C%20bank%20name%2C%20country)%20so%20we%20can%20set%20up%20your%20Wise%20payout.`}
                       className="text-xs bg-green-600 hover:bg-green-700 text-white font-semibold px-3 py-1.5 rounded-lg"
                     >
-                      Invite in LemonSqueezy →
+                      Email {lsNudge.name} →
                     </a>
                     <button
                       onClick={() => setLsNudge(null)}
@@ -1018,11 +999,6 @@ export default function AdminPage() {
                               a.status === "pending" ? "bg-amber-100 text-amber-700" :
                               "bg-red-100 text-red-600"
                             }`}>{a.status}</span>
-                            {a.status === "active" && !a.ls_affiliate_code && (
-                              <span className="ml-1.5 px-2 py-0.5 rounded-full text-xs font-bold bg-orange-100 text-orange-700">
-                                ⚠ No LS
-                              </span>
-                            )}
                           </td>
                           <td className="px-4 py-3">{converted.length}</td>
                           <td className="px-4 py-3">{formatAmount(totalEarned)}</td>
@@ -1057,32 +1033,6 @@ export default function AdminPage() {
                                 </button>
                               )}
                             </div>
-                            {/* LS affiliate code input — paste from LS dashboard after invite */}
-                            {a.status === "active" && (
-                              <div className="mt-2 flex items-center gap-1.5">
-                                {a.ls_affiliate_code ? (
-                                  <span className="text-xs text-green-700 bg-green-50 border border-green-200 rounded px-2 py-0.5">
-                                    LS: {a.ls_affiliate_code} ✓
-                                  </span>
-                                ) : (
-                                  <>
-                                    <input
-                                      type="text"
-                                      placeholder="Paste LS affiliate code"
-                                      value={lsCodeInputs[a.id] ?? ""}
-                                      onChange={(e) => setLsCodeInputs((prev) => ({ ...prev, [a.id]: e.target.value }))}
-                                      className="text-xs border rounded px-2 py-0.5 w-40 focus:outline-none focus:border-green-400"
-                                    />
-                                    <button
-                                      onClick={() => saveLsCode(a.id)}
-                                      className="text-xs bg-green-600 hover:bg-green-700 text-white px-2 py-0.5 rounded"
-                                    >
-                                      Save
-                                    </button>
-                                  </>
-                                )}
-                              </div>
-                            )}
                           </td>
                         </tr>
                       );
