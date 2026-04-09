@@ -46,21 +46,34 @@ export default function BlogIndexClient({ posts, allTags }: Props) {
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-12">
-      <div className="mb-8 rounded-3xl border border-[#2A1B0D]/10 bg-gradient-to-b from-white to-[#fffaf5] p-5 shadow-[0_20px_60px_-35px_rgba(26,18,8,0.3)] sm:p-6">
-        <div className="m2p-shimmer overflow-hidden rounded-2xl border border-white/20 shadow-[0_18px_50px_-30px_rgba(26,18,8,0.8)]">
-          <Image
-            src="/blog-hero-placeholder.svg"
-            alt="Blog editorial desk hero placeholder"
-            width={1600}
-            height={560}
-            className="h-auto w-full object-cover"
-            priority
-          />
+      {/* Blog hero — CSS-only, no image dependency */}
+      <div className="mb-8 relative overflow-hidden rounded-2xl shadow-[0_24px_56px_-30px_rgba(26,18,8,0.7)]"
+        style={{ background: "linear-gradient(135deg, #1A1208 0%, #23170B 55%, #2A1B0D 100%)" }}
+      >
+        {/* Orange glow — top left */}
+        <div className="absolute inset-0 pointer-events-none" style={{
+          background: "radial-gradient(ellipse 55% 70% at 22% 25%, rgba(240,90,40,0.42) 0%, transparent 100%)",
+        }} />
+        {/* Green glow — top right */}
+        <div className="absolute inset-0 pointer-events-none" style={{
+          background: "radial-gradient(ellipse 50% 65% at 80% 30%, rgba(76,217,100,0.30) 0%, transparent 100%)",
+        }} />
+        {/* Subtle horizontal rule lines */}
+        <div className="absolute inset-0 pointer-events-none" style={{
+          backgroundImage: "repeating-linear-gradient(to bottom, transparent, transparent 49px, rgba(255,255,255,0.06) 49px, rgba(255,255,255,0.06) 50px)",
+        }} />
+        {/* Content */}
+        <div className="relative px-8 py-12 sm:px-12 sm:py-16">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: "rgba(250,247,238,0.40)" }}>
+            M2P · Editorial Desk
+          </p>
+          <h1 className="mt-3 font-bebas text-5xl tracking-wide sm:text-6xl" style={{ color: "#FAF7EE" }}>
+            KDP notes that ship
+          </h1>
+          <p className="mt-3 max-w-lg text-base leading-relaxed sm:text-lg" style={{ color: "rgba(240,223,209,0.72)" }}>
+            Clarity, proof, and practical next steps — straight from the build.
+          </p>
         </div>
-        <h1 className="mt-5 font-bebas text-4xl tracking-wide text-m2p-ink sm:text-5xl">Editorial Desk</h1>
-        <p className="mt-2 text-m2p-muted">
-          Product updates, KDP notes, and what we&apos;re shipping next.
-        </p>
       </div>
 
       <div className="mb-6 flex flex-wrap items-center gap-2 rounded-2xl border border-m2p-border bg-white/90 p-3 shadow-[0_8px_26px_-20px_rgba(26,18,8,0.4)]">
