@@ -21,18 +21,18 @@ _SEVERITY_COLORS: dict[str, tuple[float, float, float]] = {
     "critical": (1.0, 0.0, 0.0),
     "error":    (1.0, 0.0, 0.0),
     "advanced": (1.0, 0.0, 0.0),
-    "moderate": (1.0, 0.8, 0.0),
-    "warning":  (1.0, 0.8, 0.0),
-    "easy":     (0.2, 0.7, 0.2),
-    "minor":    (0.2, 0.7, 0.2),
+    "moderate": (1.0, 0.6, 0.0),
+    "warning":  (1.0, 0.6, 0.0),
+    "easy":     (1.0, 0.6, 0.0),
+    "minor":    (1.0, 0.6, 0.0),
 }
 # fixDifficulty (from TypeScript enrichment) → RGB color — takes priority over severity
 _FIX_DIFFICULTY_COLORS: dict[str, tuple[float, float, float]] = {
     "advanced": (1.0, 0.0, 0.0),
-    "moderate": (1.0, 0.8, 0.0),
-    "easy":     (0.2, 0.7, 0.2),
+    "moderate": (1.0, 0.6, 0.0),
+    "easy":     (1.0, 0.6, 0.0),
 }
-_DEFAULT_COLOR: tuple[float, float, float] = (1.0, 0.8, 0.0)  # yellow fallback
+_DEFAULT_COLOR: tuple[float, float, float] = (1.0, 0.6, 0.0)  # orange fallback
 
 
 def _color_for_severity(severity: str | None) -> tuple[float, float, float]:
@@ -78,7 +78,15 @@ def annotate_pdf_inline(report: dict[str, Any], path_in: Path) -> str:
             color = _color_for_issue(issue)
             page = doc[page_index]
             rect = fitz.Rect(x, y, x + w, y + h)
-            page.draw_rect(rect, color=color, fill=color, fill_opacity=0.15, width=1.5)
+            page.draw_rect(rect, color=color, fill=None, width=2.0)
+            label = issue.get("message") or issue.get("type") or issue.get("severity") or "Issue"
+            label = label[:60]  # truncate if too long
+            page.insert_text(
+                fitz.Point(x, max(y - 4, 8)),
+                label,
+                fontsize=6,
+                color=color,
+            )
         doc.save(buf)
     finally:
         doc.close()
