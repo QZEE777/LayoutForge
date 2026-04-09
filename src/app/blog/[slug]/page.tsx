@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteShell from "@/components/SiteShell";
+import SocialLinks from "@/components/SocialLinks";
 import { getAllPosts, getPostBySlug, getRelatedPosts } from "@/lib/blog";
 
 export function generateStaticParams() {
@@ -117,6 +118,14 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   </p>
                 );
               })}
+            </div>
+            {/* Follow us */}
+            <div className="mt-8 flex flex-col items-center gap-3 rounded-2xl border border-m2p-border bg-m2p-ink px-6 py-6 text-center">
+              <p className="text-xs font-semibold uppercase tracking-widest text-m2p-ivory/50">Follow for more</p>
+              <p className="text-sm text-m2p-ivory/80">
+                Tips, tools, and KDP updates — straight to your feed.
+              </p>
+              <SocialLinks variant="dark" size="md" />
             </div>
           </div>
 

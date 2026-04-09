@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { BrandWordmark } from "@/components/BrandWordmark";
+import SocialLinks from "@/components/SocialLinks";
 
 export default function SiteFooter() {
   return (
@@ -23,6 +24,10 @@ export default function SiteFooter() {
         <p className="text-xs text-m2p-ivory/70 mt-1 italic max-w-md mx-auto">
           Always exploring new ways to help authors launch more and stress less.
         </p>
+        <div className="mt-5 flex flex-col items-center gap-2">
+          <p className="text-xs font-semibold uppercase tracking-widest text-m2p-ivory/40">Follow Us</p>
+          <SocialLinks variant="dark" size="md" />
+        </div>
       </div>
       <nav
         className="w-full py-4 px-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm border-t border-white/10"
