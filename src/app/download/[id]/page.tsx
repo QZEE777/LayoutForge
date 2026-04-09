@@ -13,6 +13,7 @@ import { difficultyLabel, cleanFilenameForDisplay, toFixDifficulty, getScoreGrad
 import { buildVerifyShareCaption } from "@/lib/shareVerifyCaption";
 
 const MAX_ISSUES_GROUP_DISPLAY = 10;
+const KDP_DISPLAY_PASS_THRESHOLD = 95;
 
 /** Download page visual tokens — design-only; print HTML uses matching hex values. */
 const DL_VIS = {
@@ -484,16 +485,14 @@ export default function DownloadPage() {
         {/* Checker pre-gate teaser — grade, score, issue count visible before payment */}
         {report && isChecker && (() => {
           const score = calculatedScore ?? report.readinessScore100 ?? report.readiness_score ?? null;
+          const isPassingScore = score !== null
+            ? score >= KDP_DISPLAY_PASS_THRESHOLD
+            : report.kdpReady === true;
           const _sg = score !== null ? getScoreGrade(score) : null;
-          const gradeColor = (g: string) =>
-            g === "A+" || g === "A" ? "#4cd964"
-            : g === "B" ? "#6bc94d"
-            : g === "C" ? "#f0a028"
-            : g === "D" ? "#f05a28"
-            : "#e03d3d";
+          const gradeColor = () => (isPassingScore ? "#4cd964" : "#f0a028");
           const gradeInfo = _sg === null ? null : {
             letter: _sg.grade,
-            color:  gradeColor(_sg.grade),
+            color:  gradeColor(),
             label:  _sg.label,
           };
 
@@ -506,20 +505,16 @@ export default function DownloadPage() {
           const risk = report.riskLevel ?? (score === null ? null : score >= 75 ? "Low" : score >= 50 ? "Medium" : "High");
           const riskColor = risk === "Low" ? "#4CE87A" : risk === "Medium" ? "#f0a028" : "#FF6A2B";
           const riskIcon = risk === "Low" ? "✓" : risk === "Medium" ? "⚠" : "✕";
-          const headerGradient =
-            risk === "Low"
-              ? "linear-gradient(180deg, #1A6B2A 0%, #0D3D18 100%)"
-              : risk === "Medium"
-                ? "linear-gradient(180deg, #6B3800 0%, #3D2200 100%)"
-                : "linear-gradient(180deg, #D65A2F 0%, #C14A27 100%)";
-          const scoreHeroColor =
-            risk === "Low" ? "#0D3D18" : risk === "Medium" ? "#5C3D00" : "#8B2F00";
+          const headerGradient = isPassingScore
+            ? "linear-gradient(180deg, #1A6B2A 0%, #0D3D18 100%)"
+            : "linear-gradient(180deg, #D65A2F 0%, #C14A27 100%)";
+          const scoreHeroColor = isPassingScore
+            ? "#2D6A2D"
+            : "#C27803";
           const statusLine =
-            risk === "Low"
+            isPassingScore
               ? "Ready for KDP upload"
-              : risk === "Medium"
-                ? "Close — fix warnings before upload"
-                : "Fix before you upload";
+              : "Close — fix warnings before upload";
           const subLime = "#A8D878";
 
           return (
@@ -760,7 +755,7 @@ export default function DownloadPage() {
                     const s = calculatedScore ?? report.readinessScore100 ?? report.readiness_score ?? null;
                     const sg = s !== null ? getScoreGrade(s) : report.scoreGrade ?? null;
                     if (!sg) return null;
-                    const col = sg.grade === "A+" || sg.grade === "A" ? "#4cd964" : sg.grade === "B" ? "#6bc94d" : sg.grade === "C" ? "#f0a028" : sg.grade === "D" ? "#f05a28" : "#e03d3d";
+                    const col = s !== null && s >= KDP_DISPLAY_PASS_THRESHOLD ? "#4cd964" : "#f0a028";
                     return (
                       <div
                         className="mb-4 flex items-center gap-4 rounded-xl border border-m2p-border/50 px-5 py-4"
@@ -1104,7 +1099,7 @@ export default function DownloadPage() {
                   {/* ── Share section ── */}
                   {(() => {
                     const shareScore  = calculatedScore ?? report?.readinessScore100 ?? 0;
-                    const shareIsPass = report?.kdpReady === true || shareScore >= 90;
+                    const shareIsPass = shareScore >= KDP_DISPLAY_PASS_THRESHOLD || (shareScore === 0 && report?.kdpReady === true);
                     const verifyLink  = `https://www.manu2print.com/verify/${id}${shareToken ? `?sh=${encodeURIComponent(shareToken)}` : ""}`;
                     const ogBase      = `/api/og/verify/${id}?p=${shareIsPass ? 1 : 0}&s=${shareScore}`;
                     const portraitUrl = `${ogBase}&format=portrait`;
@@ -1636,7 +1631,7 @@ export default function DownloadPage() {
         {isChecker && report && (() => {
           const score = calculatedScore ?? report.readinessScore100 ?? report.readiness_score ?? null;
           const hasIssues = (report.issuesEnriched?.length ?? 0) > 0;
-          if (!hasIssues && score !== null && score >= 90) return null;
+          if (!hasIssues && score !== null && score >= KDP_DISPLAY_PASS_THRESHOLD) return null;
           return (
             <div className="mt-6 rounded-xl border border-m2p-orange/30 bg-m2p-orange-soft/40 p-5 text-center">
               <p className="font-bold text-m2p-ink mb-1">Fixed your issues?</p>
