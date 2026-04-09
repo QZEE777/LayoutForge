@@ -88,13 +88,10 @@ export default function PaymentGate({
         const e = user.email.trim();
         const lower = e.toLowerCase();
         setSessionSignedInEmail(lower);
-        setUserEmail((prev) => {
-          const fromStore = getStoredEmail();
-          if (prev.trim()) return prev;
-          if (fromStore) return fromStore;
-          if (typeof window !== "undefined") localStorage.setItem(STORED_EMAIL_KEY, e);
-          return e;
-        });
+        // Signed-in identity is the source of truth for account credits.
+        // Always align the prefilled email so credit/pay flows don't drift to stale localStorage values.
+        setUserEmail(e);
+        if (typeof window !== "undefined") localStorage.setItem(STORED_EMAIL_KEY, e);
       } catch {
         /* ignore */
       }
@@ -323,8 +320,11 @@ export default function PaymentGate({
   };
 
   const handleCreditSendCode = async () => {
-    const email = userEmail.trim();
+    const email = (sessionSignedInEmail ?? userEmail.trim()).trim();
     if (!email) { setCreditError("Enter your email first."); return; }
+    if (sessionSignedInEmail) {
+      setUserEmail(sessionSignedInEmail);
+    }
     saveEmailForNextTime(email);
     // Note: no captureNudge here — credit holders shouldn't receive a "pay $9" nudge
     setCreditError("");
