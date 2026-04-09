@@ -117,7 +117,7 @@ const TOOL_FIX_MAP: Record<string, Record<string, string>> = {
     affinity_publisher:"File → Document Setup → set Page dimensions to your KDP trim size exactly.",
     vellum:            "Book Settings → Trim Size → select your size. Vellum will automatically set the correct dimensions.",
     canva:             "Create a new design → Custom Size → enter your trim dimensions exactly in inches.",
-    unknown:           "Supported KDP paperback trim sizes (16 total): 5×8\", 5.06×7.81\", 5.25×8\", 5.5×8\", 5.5×8.5\", 6×9\", 6.14×9.21\", 6.69×9.61\", 7×10\", 7.44×9.69\", 7.5×9.25\", 8×10\", 8.25×6\", 8.25×8.25\", 8.5×8.5\", 8.5×11\". Hardcover sizes differ — see KDP help. Set your document to exactly one of these sizes and re-export.",
+    unknown:           "Supported popular KDP paperback trim sizes: 5×8\", 5.5×8.5\", 6×9\", 6.14×9.21\", 6.69×9.61\", 7×10\", 8.5×11\". Set your document to exactly one of these sizes and re-export.",
   },
   LINE_WEIGHT: {
     adobe_indesign:    "Select the rule or line → Stroke panel → set Weight to at least 0.75pt. Lines thinner than 0.75pt may not print reliably on KDP's offset presses.",

@@ -58,6 +58,16 @@ export function VerifyClient({
     setTimeout(() => setShareState("idle"), 3000);
   };
 
+  const copyLinkOnly = async () => {
+    try {
+      await navigator.clipboard.writeText(shareLinkWithRef);
+    } catch {
+      /* ignore */
+    }
+    setShareState("copied");
+    setTimeout(() => setShareState("idle"), 3000);
+  };
+
   const openPopup = (url: string, name: string) => {
     window.open(
       url,
@@ -275,6 +285,40 @@ export function VerifyClient({
             <p style={{ margin: "0 0 12px", color: "rgba(255,255,255,0.86)", fontSize: 12, textAlign: "center", fontWeight: 700, letterSpacing: "0.02em" }}>
               Share link opens platform post page (or login if needed)
             </p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 10 }}>
+              <button
+                type="button"
+                onClick={copyCaption}
+                style={{
+                  background: "rgba(255,255,255,0.12)",
+                  border: "1px solid rgba(255,255,255,0.22)",
+                  color: "#fff",
+                  borderRadius: 10,
+                  padding: "10px",
+                  fontWeight: 800,
+                  fontSize: 12.5,
+                  cursor: "pointer",
+                }}
+              >
+                📋 Copy Caption + Link
+              </button>
+              <button
+                type="button"
+                onClick={copyLinkOnly}
+                style={{
+                  background: "rgba(255,255,255,0.12)",
+                  border: "1px solid rgba(255,255,255,0.22)",
+                  color: "#fff",
+                  borderRadius: 10,
+                  padding: "10px",
+                  fontWeight: 800,
+                  fontSize: 12.5,
+                  cursor: "pointer",
+                }}
+              >
+                🔗 Copy Link Only
+              </button>
+            </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
               {socialButtons.map((item) => (
                 <button

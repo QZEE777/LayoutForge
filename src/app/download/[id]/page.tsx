@@ -1012,6 +1012,17 @@ export default function DownloadPage() {
                         </button>
                       </div>
                     )}
+                    {!hasAnnotatedDownload && isChecker && !report.annotatedPdfUrl && (
+                      <div className="flex justify-center mb-3">
+                        <button
+                          type="button"
+                          disabled
+                          className="w-full sm:w-auto text-center bg-m2p-orange/45 text-white/90 px-6 py-3.5 rounded-xl font-black cursor-not-allowed inline-block"
+                        >
+                          Annotated PDF not available for this scan yet
+                        </button>
+                      </div>
+                    )}
                   <div className="flex justify-center">
                     <button
                       type="button"

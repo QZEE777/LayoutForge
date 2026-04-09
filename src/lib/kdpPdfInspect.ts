@@ -6,7 +6,7 @@ import { PDFDocument } from "pdf-lib";
 import { TRIM_SIZES } from "./kdpConfig";
 
 const PT_PER_INCH = 72;
-const TOLERANCE_INCH = 0.15;
+const TOLERANCE_INCH = 0.05;
 
 function inchesFromPt(pt: number): number {
   return Math.round((pt / PT_PER_INCH) * 100) / 100;
