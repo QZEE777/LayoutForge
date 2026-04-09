@@ -276,7 +276,7 @@ export default function DownloadPage() {
       setCopyShareStatus("fail");
       setTimeout(() => setCopyShareStatus("idle"), 2000);
     }
-  }, [id]);
+  }, [id, shareToken]);
 
   const loadReport = useCallback(() => {
     if (!id) return;

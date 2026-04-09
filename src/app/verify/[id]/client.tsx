@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { BrandWordmark } from "@/components/BrandWordmark";
 import { buildVerifyShareCaption } from "@/lib/shareVerifyCaption";
@@ -110,7 +110,7 @@ export function VerifyClient({
     onClick: () => void | Promise<void>;
     bg: string;
     border: string;
-    icon: JSX.Element;
+    icon: ReactNode;
   }> = [
     {
       label: "Facebook",
