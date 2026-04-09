@@ -1657,12 +1657,22 @@ export default function DownloadPage() {
           const hasIssues = (report.issuesEnriched?.length ?? 0) > 0;
           if (!hasIssues && score !== null && score >= KDP_DISPLAY_PASS_THRESHOLD) return null;
           return (
-            <div className="mt-6 rounded-xl border border-m2p-orange/30 bg-m2p-orange-soft/40 p-5 text-center">
-              <p className="font-bold text-m2p-ink mb-1">Fixed your issues?</p>
-              <p className="text-sm text-m2p-muted mb-4">Re-upload your corrected PDF and get a fresh compliance check.</p>
+            <div
+              className="mt-7 rounded-2xl border p-6 sm:p-7 text-center overflow-hidden"
+              style={{
+                borderColor: "rgba(240,90,40,0.45)",
+                background: "linear-gradient(160deg, rgba(255,242,233,0.95) 0%, rgba(255,255,255,0.96) 42%, rgba(255,231,214,0.92) 100%)",
+                boxShadow: "0 20px 44px -18px rgba(240,90,40,0.45), inset 0 1px 0 rgba(255,255,255,0.7)",
+              }}
+            >
+              <p className="text-[10px] font-black tracking-[0.14em] uppercase text-m2p-orange mb-2">Next action</p>
+              <p className="font-black text-2xl sm:text-3xl text-m2p-ink mb-2 leading-tight">Fixed your issues?</p>
+              <p className="text-sm sm:text-base text-m2p-muted mb-5 max-w-2xl mx-auto">
+                Re-upload your corrected PDF now and run a fresh compliance check before you publish.
+              </p>
               <Link
                 href="/kdp-pdf-checker"
-                className="inline-block bg-m2p-orange hover:opacity-90 text-white font-bold px-6 py-3 rounded-lg text-sm transition-opacity"
+                className="inline-block bg-m2p-orange hover:bg-m2p-orange-hover text-white font-black px-9 py-4 rounded-xl text-lg tracking-tight transition-all shadow-[0_14px_30px_-14px_rgba(240,90,40,0.65)] hover:shadow-[0_18px_34px_-12px_rgba(240,90,40,0.75)]"
               >
                 Re-check my PDF →
               </Link>
