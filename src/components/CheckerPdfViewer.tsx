@@ -23,6 +23,22 @@ interface CheckerPdfViewerProps {
   totalPages: number;
 }
 
+function normalizeSeverity(issue: PageIssue): "critical" | "warning" {
+  const severity = String(issue.severity ?? "").toLowerCase().trim();
+  const issueType = String(issue.rule_id ?? "").toLowerCase().trim();
+  if (severity === "critical" || severity === "error" || severity === "advanced") return "critical";
+  if (issueType.includes("margin") || issueType.includes("bleed") || issueType.includes("trim") || issueType.includes("page_size") || issueType.includes("page-size")) {
+    return "critical";
+  }
+  return "warning";
+}
+
+function makeOverlayLabel(issue: PageIssue): string {
+  const message = String(issue.message ?? "").trim();
+  if (!message) return "Issue";
+  return message.length > 60 ? `${message.slice(0, 59)}…` : message;
+}
+
 export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: totalPagesProp }: CheckerPdfViewerProps) {
   const [pageNumber, setPageNumber] = useState(1);
   const [numPages, setNumPages] = useState(totalPagesProp || 0);
@@ -435,30 +451,33 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
               {issuesForPage.map((issue, idx) => {
                 const rect = getIssueOverlayRect(issue.bbox);
                 if (!rect) return null;
-                const fixDiff = (issue.fixDifficulty ?? "").toLowerCase();
-                const sev = (issue.severity ?? "").toLowerCase();
-                const isRed =
-                  fixDiff === "advanced" ||
-                  (!fixDiff && (sev === "critical" || sev === "error" || sev === "advanced"));
-                const isGreen =
-                  fixDiff === "easy" ||
-                  (!fixDiff && (sev === "easy" || sev === "minor"));
-                const stroke = isRed ? "#FF0000" : isGreen ? "#33B233" : "#FFB800";
+                const normalized = normalizeSeverity(issue);
+                const stroke = normalized === "critical" ? "#FF0000" : "#FF8C00";
+                const label = makeOverlayLabel(issue);
+                const labelY = Math.max(rect.y - 4, 8);
                 return (
-                  <rect
-                    key={`${issue.page}-${issue.rule_id}-${idx}`}
-                    x={rect.x}
-                    y={rect.y}
-                    width={rect.width}
-                    height={rect.height}
-                    fill={stroke}
-                    fillOpacity={0.14}
-                    stroke={stroke}
-                    strokeWidth={2.5}
-                    strokeDasharray={isGreen ? "0" : "5 3"}
-                  >
-                    <title>{issue.message}</title>
-                  </rect>
+                  <g key={`${issue.page}-${issue.rule_id}-${idx}`}>
+                    <text
+                      x={rect.x}
+                      y={labelY}
+                      fill={stroke}
+                      fontSize={6}
+                      fontWeight={700}
+                    >
+                      {label}
+                    </text>
+                    <rect
+                      x={rect.x}
+                      y={rect.y}
+                      width={rect.width}
+                      height={rect.height}
+                      fill="none"
+                      stroke={stroke}
+                      strokeWidth={2}
+                    >
+                      <title>{issue.message}</title>
+                    </rect>
+                  </g>
                 );
               })}
             </svg>
@@ -467,7 +486,7 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
       </div>
       {hasHighlights ? (
         <p className="px-4 pb-3 text-xs text-center" style={{ color: "#6B6151" }}>
-          Highlight legend: solid green = easier fixes, dashed amber/red = needs extra attention.
+          Highlight legend: red = critical issues, orange = warnings.
         </p>
       ) : (
         <p className="px-4 pb-3 text-xs text-center" style={{ color: "#6B6151" }}>

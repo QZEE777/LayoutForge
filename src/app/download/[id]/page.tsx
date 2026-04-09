@@ -278,7 +278,7 @@ export default function DownloadPage() {
     if (!id) return;
     setReportError(null);
     setReportLoading(true);
-    fetch(`/api/format-report?id=${encodeURIComponent(id)}`)
+    fetch(`/api/format-report?id=${encodeURIComponent(id)}&t=${Date.now()}`, { cache: "no-store" })
       .then((r) => r.json().then((data: { success?: boolean; report?: ProcessingReport; message?: string }) => ({ ok: r.ok, data })))
       .then(({ ok, data }) => {
         if (ok && data.success && data.report) {
