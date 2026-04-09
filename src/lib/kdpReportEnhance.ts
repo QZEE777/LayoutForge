@@ -243,8 +243,8 @@ const HUMAN_MAP: Array<{ pattern: RegExp; rule_ids?: string[]; human: string }> 
   },
   {
     rule_ids: ["ALLOWED_TRIM_SIZES"],
-    pattern: /trim size|not a kdp|page size|not supported/i,
-    human: "Your PDF page dimensions don't match any KDP-supported trim size. Common sizes: 5×8\", 5.5×8.5\", 6×9\", 7×10\", 8.5×11\". Your PDF must match your KDP setup exactly.",
+    pattern: /trim size|not a kdp|page size|not supported|allowed sizes|suggested closest trim/i,
+    human: "Your PDF trim size is not on KDP's supported list. Use one of the most used KDP trims: 6×9\", 5.5×8.5\", or 8.5×11\" (workbooks/journals). Re-export at the exact chosen trim size and re-upload.",
   },
   {
     rule_ids: ["CONSISTENT_TRIM", "MIXED_PAGE_SIZES"],
@@ -531,7 +531,7 @@ export function buildSpecTable(input: SpecTableInput): SpecRow[] {
     : (input.trimMatchKDP ? "pass" : isMeaningfulTrimDetected(input.trimDetected) ? "fail" : "warning");
   const kdpRequiredTrim = input.kdpTrimName
     ? input.kdpTrimName.split(" — ")[0]
-    : "KDP-supported trim size";
+    : "Use popular KDP trims: 6×9\", 5.5×8.5\", or 8.5×11\"";
   return [
     {
       requirement: "Trim size",
