@@ -50,10 +50,6 @@ export default function PaymentGate({
     const pending = localStorage.getItem(getCheckoutPendingKey(downloadId)) === "1";
     return pending ? "verifying" : "preview";
   });
-  const [showBetaInput, setShowBetaInput] = useState(false);
-  const [betaCode, setBetaCode] = useState("");
-  const [betaError, setBetaError] = useState("");
-  const [betaLoading, setBetaLoading] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
@@ -260,24 +256,6 @@ export default function PaymentGate({
     return <>{children}</>;
   }
 
-  const handleBetaSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setBetaError("");
-    setBetaLoading(true);
-    try {
-      const res = await fetch("/api/beta-verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: betaCode.trim(), tool }),
-      });
-      const data = await res.json();
-      if (data.valid) setState("unlocked");
-      else setBetaError("Invalid code. Please try again.");
-    } finally {
-      setBetaLoading(false);
-    }
-  };
-
   const saveEmailForNextTime = (email: string) => {
     const trimmed = email.trim();
     if (trimmed && typeof window !== "undefined") localStorage.setItem(STORED_EMAIL_KEY, trimmed);
@@ -461,28 +439,6 @@ export default function PaymentGate({
                 <button type="button" onClick={resetCredit} className="block mx-auto text-xs text-white/40 hover:text-white underline">Try again</button>
               </div>
             )}
-            {!showBetaInput ? (
-              <button type="button" onClick={() => setShowBetaInput(true)}
-                className="text-xs text-white/40 hover:text-white/70 underline">
-                Have a beta access code?
-              </button>
-            ) : (
-              <form onSubmit={handleBetaSubmit} className="space-y-2">
-                <input type="text" placeholder="Enter beta code" value={betaCode}
-                  onChange={(e) => { setBetaCode(e.target.value); setBetaError(""); }}
-                  className="w-full rounded-lg border border-white/20 bg-m2p-ink/95 px-4 py-2 text-sm text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-m2p-orange"
-                />
-                {betaError && <p className="text-xs text-red-400">{betaError}</p>}
-                <div className="flex gap-2 justify-center">
-                  <button type="submit" disabled={betaLoading}
-                    className="rounded-lg px-4 py-2 text-sm font-medium bg-m2p-orange text-white hover:opacity-90 disabled:opacity-60">
-                    {betaLoading ? "Checking…" : "Unlock →"}
-                  </button>
-                  <button type="button" onClick={() => setShowBetaInput(false)}
-                    className="rounded-lg px-4 py-2 text-sm text-white/60 hover:text-white">Cancel</button>
-                </div>
-              </form>
-            )}
           </>
         )}
       </div>
@@ -571,43 +527,6 @@ export default function PaymentGate({
                   )}
                   <button type="button" onClick={resetCredit} className="block mx-auto text-xs text-white/40 hover:text-white underline">Try again</button>
                 </div>
-              )}
-              <p className="text-white/70 text-sm">or</p>
-              {!showBetaInput ? (
-                <button
-                  type="button"
-                  onClick={() => setShowBetaInput(true)}
-                  className="text-sm text-m2p-orange hover:underline"
-                >
-                  Have a beta access code?
-                </button>
-              ) : (
-                <form onSubmit={handleBetaSubmit} className="space-y-2">
-                  <input
-                    type="text"
-                    placeholder="Enter beta code"
-                    value={betaCode}
-                    onChange={(e) => { setBetaCode(e.target.value); setBetaError(""); }}
-                    className="w-full rounded-lg border border-white/20 bg-m2p-ink/95 px-4 py-2 text-sm text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-m2p-orange"
-                  />
-                  <div className="flex gap-2 justify-center">
-                    <button
-                      type="submit"
-                      disabled={betaLoading}
-                      className="rounded-lg px-4 py-2 text-sm font-medium bg-m2p-orange text-white hover:bg-m2p-orange-hover disabled:opacity-60"
-                    >
-                      {betaLoading ? "Checking…" : "Unlock"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => { setShowBetaInput(false); setBetaCode(""); setBetaError(""); }}
-                      className="rounded-lg px-4 py-2 text-sm text-white/80 hover:text-white"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                  {betaError && <p className="text-sm text-red-400">{betaError}</p>}
-                </form>
               )}
             </>
           )}
