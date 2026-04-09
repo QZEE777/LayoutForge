@@ -179,6 +179,9 @@ export default function DownloadPage() {
   const scanBookType  = searchParams.get("bk") ?? "paperback";   // paperback | hardcover
   const scanBleed     = searchParams.get("bl") === "1";           // true = with bleed
   const scanColorMode = searchParams.get("cm") ?? "bw";           // bw | color
+  const hasAnnotatedDownload = Boolean(
+    report?.annotatedPdfDownloadUrl || (report?.annotatedPdfUrl && annotatedReady && !annotatedError)
+  );
 
   const isDocx = report?.outputType === "docx";
   const isEpub = isEpubFlow || report?.outputType === "epub";
@@ -724,7 +727,7 @@ export default function DownloadPage() {
                   </div>
 
                   {/* Scan context badge — shows what the user declared before uploading */}
-                  {isChecker && (scanBookType !== "paperback" || scanBleed || scanColorMode !== "bw") && (
+                  {isChecker && (
                     <div className="mb-4 flex flex-wrap gap-2 items-center">
                       <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-m2p-muted w-full sm:w-auto">Scan context</span>
                       <span className="rounded-full px-3 py-1 text-xs font-bold bg-white/80 border border-[#1A6B2A]/20 text-m2p-ink shadow-sm">
@@ -736,6 +739,11 @@ export default function DownloadPage() {
                       <span className="rounded-full px-3 py-1 text-xs font-bold bg-white/80 border border-[#1A6B2A]/20 text-m2p-ink shadow-sm">
                         {scanColorMode === "color" ? "🎨 Full color" : "⚫ B&W"}
                       </span>
+                      {report.trimDetected && (
+                        <span className="rounded-full px-3 py-1 text-xs font-bold bg-white/80 border border-[#1A6B2A]/20 text-m2p-ink shadow-sm">
+                          📏 Detected trim: {report.trimDetected}
+                        </span>
+                      )}
                     </div>
                   )}
 
@@ -972,16 +980,30 @@ export default function DownloadPage() {
                     <p className="text-sm text-m2p-ink font-semibold mb-4">
                       ⏳ Report expires in 24 hours — download now to keep a copy.
                     </p>
-                    {report.annotatedPdfDownloadUrl && (
+                    {hasAnnotatedDownload && (
                       <div className="flex justify-center mb-3">
-                        <a
-                          href={report.annotatedPdfDownloadUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-full sm:w-auto text-center bg-m2p-orange text-white px-6 py-3.5 rounded-xl font-black hover:bg-m2p-orange-hover cursor-pointer transition-all shadow-md hover:shadow-lg inline-block"
-                        >
-                          Download Annotated PDF (with highlights)
-                        </a>
+                        {report.annotatedPdfDownloadUrl ? (
+                          <a
+                            href={report.annotatedPdfDownloadUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full sm:w-auto text-center bg-m2p-orange text-white px-6 py-3.5 rounded-xl font-black hover:bg-m2p-orange-hover cursor-pointer transition-all shadow-md hover:shadow-lg inline-block"
+                          >
+                            Download Annotated PDF (with highlights)
+                          </a>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const match = report.annotatedPdfUrl?.match(/\/file\/([^/]+)\/annotated\/?$/);
+                              const jobId = match?.[1];
+                              if (jobId) window.open(`/api/kdp-annotated-pdf?job_id=${encodeURIComponent(jobId)}`, "_blank");
+                            }}
+                            className="w-full sm:w-auto text-center bg-m2p-orange text-white px-6 py-3.5 rounded-xl font-black hover:bg-m2p-orange-hover cursor-pointer transition-all shadow-md hover:shadow-lg inline-block"
+                          >
+                            Download Annotated PDF (with highlights)
+                          </button>
+                        )}
                       </div>
                     )}
                   <div className="flex justify-center">
@@ -1350,11 +1372,15 @@ export default function DownloadPage() {
         )}
 
         {/* Checker: annotated PDF download (status text now lives under viewer) */}
-        {isChecker && report?.annotatedPdfUrl && annotatedReady && !annotatedError && (
+        {isChecker && hasAnnotatedDownload && (
               <div className="mb-8 rounded-2xl p-5 border border-[#1A6B2A]/25 overflow-hidden" style={{ background: "linear-gradient(180deg, #143d1f 0%, #0a2412 100%)", boxShadow: DL_VIS.cardShadow }}>
                 <button
                   type="button"
                   onClick={() => {
+                    if (report.annotatedPdfDownloadUrl) {
+                      window.open(report.annotatedPdfDownloadUrl, "_blank", "noopener,noreferrer");
+                      return;
+                    }
                     const match = report.annotatedPdfUrl?.match(/\/file\/([^/]+)\/annotated\/?$/);
                     const jobId = match?.[1];
                     if (jobId) window.open(`/api/kdp-annotated-pdf?job_id=${encodeURIComponent(jobId)}`, "_blank");

@@ -175,6 +175,14 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
   const displayHeight = pageSize ? (pageSize.height / pageSize.width) * renderWidth : 300;
   const issuesForPage = pageIssues.filter((i) => i.page === pageNumber);
   const hasHighlights = issuesForPage.some((i) => !!getIssueOverlayRect(i.bbox));
+  const firstIssuePage = (() => {
+    const validPages = pageIssues
+      .filter((i) => Array.isArray(i.bbox) && i.bbox.length >= 4)
+      .map((i) => i.page)
+      .filter((p) => Number.isFinite(p) && p > 0)
+      .sort((a, b) => a - b);
+    return validPages.length > 0 ? validPages[0] : null;
+  })();
 
   useEffect(() => {
     let cancelled = false;
@@ -241,6 +249,15 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
       pdfDocRef.current = null;
     };
   }, [pdfUrl]);
+
+  useEffect(() => {
+    if (!pdfLoaded || numPages < 1) return;
+    if (!firstIssuePage) {
+      setPageNumber(1);
+      return;
+    }
+    setPageNumber(Math.min(Math.max(1, firstIssuePage), numPages));
+  }, [pdfLoaded, firstIssuePage, numPages]);
 
   useEffect(() => {
     if (!pdfUrl || !canvasRef.current || numPages < 1 || pageNumber < 1) return;
