@@ -133,6 +133,7 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
 
   const getIssueOverlayRect = (bbox: number[] | null) => {
     if (!bbox || bbox.length < 4 || !pageSize) return null;
+    if (!Number.isFinite(scaleX) || !Number.isFinite(scaleY)) return null;
     const [xRaw, yRaw, wRaw, hRaw] = bbox;
     if (![xRaw, yRaw, wRaw, hRaw].every((v) => Number.isFinite(v))) return null;
 
@@ -152,12 +153,12 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
     };
   };
 
-  const issuesForPage = pageIssues.filter((i) => i.page === pageNumber);
-  const hasHighlights = issuesForPage.some((i) => !!getIssueOverlayRect(i.bbox));
   const renderWidth = Math.round(BASE_WIDTH * scale);
   const scaleX = pageSize ? renderWidth / pageSize.width : 1;
   const scaleY = scaleX;
   const displayHeight = pageSize ? (pageSize.height / pageSize.width) * renderWidth : 300;
+  const issuesForPage = pageIssues.filter((i) => i.page === pageNumber);
+  const hasHighlights = issuesForPage.some((i) => !!getIssueOverlayRect(i.bbox));
 
   useEffect(() => {
     let cancelled = false;
