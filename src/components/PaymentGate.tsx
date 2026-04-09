@@ -171,6 +171,12 @@ export default function PaymentGate({
         {sessionRedeemError ? <p className="text-sm text-red-400">{sessionRedeemError}</p> : null}
       </div>
     ) : null;
+  const canUseSessionCreditInstantly = Boolean(
+    sessionSignedInEmail &&
+      sessionCreditsRemaining !== null &&
+      sessionCreditsRemaining > 0 &&
+      downloadId
+  );
 
   useEffect(() => {
     if (isProcessing) setState((s) => (s === "unlocked" ? "unlocked" : "processing"));
@@ -320,6 +326,10 @@ export default function PaymentGate({
   };
 
   const handleCreditSendCode = async () => {
+    if (canUseSessionCreditInstantly) {
+      await handleSessionCreditRedeem();
+      return;
+    }
     const email = (sessionSignedInEmail ?? userEmail.trim()).trim();
     if (!email) { setCreditError("Enter your email first."); return; }
     if (sessionSignedInEmail) {
@@ -434,10 +444,12 @@ export default function PaymentGate({
                 className="rounded-lg px-5 py-3 text-sm font-semibold bg-m2p-orange text-white hover:opacity-90 disabled:opacity-60">
                 {checkoutLoading ? "Redirecting…" : "$9 — Pay Now"}
               </button>
-              <button type="button" onClick={handleCreditSendCode} disabled={checkoutLoading}
-                className="rounded-lg px-5 py-3 text-sm font-semibold bg-m2p-green text-white hover:opacity-90 disabled:opacity-60">
-                Use a Scan Credit →
-              </button>
+              {!canUseSessionCreditInstantly && (
+                <button type="button" onClick={handleCreditSendCode} disabled={checkoutLoading}
+                  className="rounded-lg px-5 py-3 text-sm font-semibold bg-m2p-green text-white hover:opacity-90 disabled:opacity-60">
+                  Use a Scan Credit →
+                </button>
+              )}
             </div>
             {checkoutError && <p className="text-sm text-red-400">{checkoutError}</p>}
             {creditStep === "error" && creditError && (
@@ -539,14 +551,16 @@ export default function PaymentGate({
                 >
                   {checkoutLoading ? "Redirecting…" : "$9 — Pay Now"}
                 </button>
-                <button
-                  type="button"
-                  onClick={handleCreditSendCode}
-                  disabled={checkoutLoading}
-                  className="rounded-lg px-5 py-3 text-sm font-semibold bg-m2p-green text-white hover:opacity-90 disabled:opacity-60"
-                >
-                  Use a Scan Credit →
-                </button>
+                {!canUseSessionCreditInstantly && (
+                  <button
+                    type="button"
+                    onClick={handleCreditSendCode}
+                    disabled={checkoutLoading}
+                    className="rounded-lg px-5 py-3 text-sm font-semibold bg-m2p-green text-white hover:opacity-90 disabled:opacity-60"
+                  >
+                    Use a Scan Credit →
+                  </button>
+                )}
               </div>
               {checkoutError && <p className="text-sm text-red-400">{checkoutError}</p>}
               {creditStep === "error" && creditError && (
