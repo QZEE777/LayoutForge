@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabaseClient";
 
 const STORED_EMAIL_KEY = "manu2print_email";
 const STORED_CHECKOUT_PENDING_PREFIX = "manu2print_checkout_pending_";
+const CHECKER_CREDITS_PER_SCAN = 5;
 
 function getCheckoutPendingKey(downloadId: string) {
   return `${STORED_CHECKOUT_PENDING_PREFIX}${downloadId}`;
@@ -145,7 +146,7 @@ export default function PaymentGate({
   const sessionInstantCreditBlock =
     sessionSignedInEmail &&
     sessionCreditsRemaining !== null &&
-    sessionCreditsRemaining > 0 &&
+    sessionCreditsRemaining >= CHECKER_CREDITS_PER_SCAN &&
     downloadId ? (
       <div className="rounded-lg border border-[#4ade80]/50 bg-black/20 px-3 py-3 text-left space-y-2">
         <p className="text-xs text-white/90 leading-relaxed">
@@ -153,7 +154,7 @@ export default function PaymentGate({
           <span className="text-white/75">
             {" "}
             — {sessionCreditsRemaining} credit{sessionCreditsRemaining !== 1 ? "s" : ""} on this account. No email
-            code needed.
+            code needed. {CHECKER_CREDITS_PER_SCAN} credits per checker scan.
           </span>
         </p>
         <button
@@ -162,7 +163,7 @@ export default function PaymentGate({
           disabled={sessionRedeemLoading || checkoutLoading}
           className="w-full rounded-lg px-4 py-2.5 text-sm font-semibold bg-m2p-green text-white hover:opacity-90 disabled:opacity-50"
         >
-          {sessionRedeemLoading ? "Applying…" : "Use 1 credit now"}
+          {sessionRedeemLoading ? "Applying…" : `Use ${CHECKER_CREDITS_PER_SCAN} credits now`}
         </button>
         {sessionRedeemError ? <p className="text-sm text-red-400">{sessionRedeemError}</p> : null}
       </div>
@@ -170,7 +171,7 @@ export default function PaymentGate({
   const canUseSessionCreditInstantly = Boolean(
     sessionSignedInEmail &&
       sessionCreditsRemaining !== null &&
-      sessionCreditsRemaining > 0 &&
+      sessionCreditsRemaining >= CHECKER_CREDITS_PER_SCAN &&
       downloadId
   );
 
@@ -327,7 +328,7 @@ export default function PaymentGate({
       if (!res.ok) { setCreditError(data.error ?? "Failed to send code."); setCreditStep("error"); return; }
       if (!data.token) {
         // No credits on that email — don't reveal, just show no-credits message
-        setCreditError("No scan credits found for that email. Buy a pack to get credits.");
+        setCreditError(`Not enough scan credits on that email. ${CHECKER_CREDITS_PER_SCAN} credits are required per scan.`);
         setCreditStep("error");
         return;
       }
@@ -429,11 +430,12 @@ export default function PaymentGate({
                 </button>
               )}
             </div>
+            <p className="text-xs text-white/60">Includes 2 checker scans (10 credits total, 5 per scan).</p>
             {checkoutError && <p className="text-sm text-red-400">{checkoutError}</p>}
             {creditStep === "error" && creditError && (
               <div className="space-y-2">
                 <p className="text-sm text-red-400">{creditError}</p>
-                {creditError.includes("No scan credits") && (
+                {creditError.toLowerCase().includes("not enough scan credits") && (
                   <Link href="/#pricing" className="text-xs text-m2p-orange hover:underline">Buy a pack →</Link>
                 )}
                 <button type="button" onClick={resetCredit} className="block mx-auto text-xs text-white/40 hover:text-white underline">Try again</button>
@@ -518,11 +520,12 @@ export default function PaymentGate({
                   </button>
                 )}
               </div>
+              <p className="text-xs text-white/70">Includes 2 checker scans (10 credits total, 5 per scan).</p>
               {checkoutError && <p className="text-sm text-red-400">{checkoutError}</p>}
               {creditStep === "error" && creditError && (
                 <div className="space-y-2">
                   <p className="text-sm text-red-400">{creditError}</p>
-                  {creditError.includes("No scan credits") && (
+                  {creditError.toLowerCase().includes("not enough scan credits") && (
                     <Link href="/#pricing" className="text-xs text-m2p-orange hover:underline">Buy a pack →</Link>
                   )}
                   <button type="button" onClick={resetCredit} className="block mx-auto text-xs text-white/40 hover:text-white underline">Try again</button>

@@ -1001,6 +1001,17 @@ export default function DownloadPage() {
                         )}
                       </div>
                     )}
+                    {!hasAnnotatedDownload && isChecker && report.annotatedPdfUrl && (
+                      <div className="flex justify-center mb-3">
+                        <button
+                          type="button"
+                          disabled
+                          className="w-full sm:w-auto text-center bg-m2p-orange/50 text-white/90 px-6 py-3.5 rounded-xl font-black cursor-not-allowed inline-block"
+                        >
+                          Annotated PDF preparing...
+                        </button>
+                      </div>
+                    )}
                   <div className="flex justify-center">
                     <button
                       type="button"
@@ -1619,12 +1630,14 @@ export default function DownloadPage() {
             {isEpub ? "Download EPUB" : isDocx ? "Download Review DOCX" : "Download PDF"}
           </button>
           )}
-          <Link
-            href={isFormatReview ? "/kdp-format-review" : isChecker ? "/kdp-pdf-checker" : isEpub ? "/epub-maker" : isPdfFlow ? "/pdf-compress" : "/kdp-formatter"}
-            className="flex-1 border border-white/20 hover:border-m2p-orange text-white font-medium py-3 px-6 rounded-lg text-center"
-          >
-            {isFormatReview ? "Review Another" : isChecker ? "Check Another PDF" : isEpub ? "Create Another EPUB" : "Format Another"}
-          </Link>
+          {!isChecker && (
+            <Link
+              href={isFormatReview ? "/kdp-format-review" : isEpub ? "/epub-maker" : isPdfFlow ? "/pdf-compress" : "/kdp-formatter"}
+              className="flex-1 border border-white/20 hover:border-m2p-orange text-white font-medium py-3 px-6 rounded-lg text-center"
+            >
+              {isFormatReview ? "Review Another" : isEpub ? "Create Another EPUB" : "Format Another"}
+            </Link>
+          )}
         </div>
 
         {/* Checker: re-check CTA when issues exist */}

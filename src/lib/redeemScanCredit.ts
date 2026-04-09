@@ -7,8 +7,10 @@ export type RedeemScanCreditResult =
   | { ok: true; balance: number; alreadyUnlocked?: boolean }
   | { ok: false; error: string; status: number };
 
+export const CHECKER_CREDITS_PER_SCAN = 5;
+
 /**
- * Deduct one scan credit and unlock a checker download. Shared by OTP and session routes.
+ * Deduct checker scan credits and unlock a checker download. Shared by OTP and session routes.
  */
 export async function redeemScanCreditForDownload(
   emailRaw: string,
@@ -34,17 +36,17 @@ export async function redeemScanCreditForDownload(
   }
 
   const { remaining: balanceBefore } = await loadScanCreditBalanceForEmail(supabase, email);
-  if (balanceBefore <= 0) {
+  if (balanceBefore < CHECKER_CREDITS_PER_SCAN) {
     return {
       ok: false,
-      error: "No scan credits remaining. Purchase a pack to continue.",
+      error: `Not enough scan credits. ${CHECKER_CREDITS_PER_SCAN} credits are required per scan.`,
       status: 402,
     };
   }
 
   const { error: insertErr } = await supabase.from("scan_credits").insert({
     email,
-    credits: -1,
+    credits: -CHECKER_CREDITS_PER_SCAN,
     source: "scan_used",
     order_id: downloadId,
   });
@@ -105,5 +107,5 @@ export async function redeemScanCreditForDownload(
     console.error("[redeemScanCredit] sendDownloadLinkEmail failed:", err);
   }
 
-  return { ok: true, balance: balanceBefore - 1 };
+  return { ok: true, balance: Math.max(0, balanceBefore - CHECKER_CREDITS_PER_SCAN) };
 }

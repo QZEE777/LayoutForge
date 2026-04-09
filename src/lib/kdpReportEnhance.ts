@@ -529,11 +529,14 @@ export function buildSpecTable(input: SpecTableInput): SpecRow[] {
   const trimStatus: "pass" | "warning" | "fail" = input.hasTrimIssues
     ? "fail"
     : (input.trimMatchKDP ? "pass" : isMeaningfulTrimDetected(input.trimDetected) ? "fail" : "warning");
+  const kdpRequiredTrim = input.kdpTrimName
+    ? input.kdpTrimName.split(" — ")[0]
+    : "KDP-supported trim size";
   return [
     {
       requirement: "Trim size",
       yourFile: input.trimDetected ?? "—",
-      kdpRequired: "Standard KDP size",
+      kdpRequired: kdpRequiredTrim,
       status: trimStatus,
     },
     {

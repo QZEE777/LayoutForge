@@ -3,6 +3,7 @@ import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 import { markDownloadPaid, updateMeta } from "@/lib/storage";
 import { sendDownloadLinkEmail, sendPartnerThresholdEmail, sendPackPurchaseEmail } from "@/lib/resend";
+import { CHECKER_CREDITS_PER_SCAN } from "@/lib/redeemScanCredit";
 
 export async function POST(req: Request) {
   const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
@@ -105,13 +106,15 @@ export async function POST(req: Request) {
         gateway: "lemonsqueezy",
         gateway_order_id: orderId,
       });
-      // Add scan credits for pack purchases
+      // Add scan credits for pack purchases + checker single-use bundle
       const PACK_CREDITS: Record<string, number> = {
+        single_use: 10,
         author_pack: 3,
         indie_pack: 10,
         pro_pack: 25,
       };
       const PACK_NAMES: Record<string, string> = {
+        single_use: "Checker Bundle (2 scans)",
         author_pack: "Author Pack (3 credits)",
         indie_pack:  "Indie Pack (10 credits)",
         pro_pack:    "Pro Pack (25 credits)",
@@ -122,20 +125,32 @@ export async function POST(req: Request) {
             email: email.toLowerCase(),
             credits: PACK_CREDITS[priceType],
             source: priceType,
-            order_id: orderId,
+            order_id: `${orderId}:grant`,
           });
+          // For checker single-use, consume one scan block immediately for this unlocked report.
+          // User still keeps remaining credits for one free re-check.
+          if (priceType === "single_use" && downloadId) {
+            await supabase.from("scan_credits").insert({
+              email: email.toLowerCase(),
+              credits: -CHECKER_CREDITS_PER_SCAN,
+              source: "scan_used",
+              order_id: `${orderId}:initial_scan`,
+            });
+          }
         } catch (err) {
           console.error("[webhooks/lemonsqueezy] scan_credits insert failed:", err);
         }
-        // Send pack confirmation email
-        try {
-          await sendPackPurchaseEmail(email, {
-            credits: PACK_CREDITS[priceType],
-            packName: PACK_NAMES[priceType] ?? priceType,
-            name: buyerName,
-          });
-        } catch (err) {
-          console.error("[webhooks/lemonsqueezy] sendPackPurchaseEmail failed:", err);
+        // Send pack confirmation email for explicit packs only.
+        if (priceType !== "single_use") {
+          try {
+            await sendPackPurchaseEmail(email, {
+              credits: PACK_CREDITS[priceType],
+              packName: PACK_NAMES[priceType] ?? priceType,
+              name: buyerName,
+            });
+          } catch (err) {
+            console.error("[webhooks/lemonsqueezy] sendPackPurchaseEmail failed:", err);
+          }
         }
       }
 

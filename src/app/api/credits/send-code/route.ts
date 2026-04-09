@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import crypto from "crypto";
+import { CHECKER_CREDITS_PER_SCAN } from "@/lib/redeemScanCredit";
 
 const OTP_RATE_LIMIT   = 5;                // max sends per window
 const OTP_WINDOW_MS    = 15 * 60 * 1000;  // 15-minute window
@@ -63,8 +64,8 @@ export async function POST(req: Request) {
 
   const balance = (creditRows ?? []).reduce((sum, r) => sum + (r.credits ?? 0), 0);
 
-  // Always return ok — don't reveal whether this email has credits
-  if (balance <= 0) return NextResponse.json({ ok: true, token: null });
+  // Always return ok — don't reveal whether this email has enough credits
+  if (balance < CHECKER_CREDITS_PER_SCAN) return NextResponse.json({ ok: true, token: null });
 
   const now      = Date.now();
   const code     = generateCode();

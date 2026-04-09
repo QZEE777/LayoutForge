@@ -85,7 +85,7 @@ export async function POST(req: Request) {
         receiptButtonText: isPack ? "View My Credits" : "Download Your Manuscript",
         receiptThankYouNote: isPack
           ? "Thank you! Your scan credits have been added to your account."
-          : "Thank you! Click the button above to download your formatted manuscript.",
+          : "Thank you! Your checker purchase includes 2 scans (10 credits total, 5 per scan).",
       },
     });
 
