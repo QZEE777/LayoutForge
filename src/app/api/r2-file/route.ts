@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { getStored } from "@/lib/storage";
 import { supabase } from "@/lib/supabase";
 
 export const runtime = "nodejs";
@@ -12,10 +11,6 @@ export const dynamic = "force-dynamic";
 
 function isUuid(s: string) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
-}
-
-function isAllowedR2Key(key: string) {
-  return /^uploads\/[0-9a-fA-F-]+\.pdf$/.test(key);
 }
 
 async function resolvePreviewKeyById(id: string): Promise<string | null> {
@@ -29,14 +24,6 @@ async function resolvePreviewKeyById(id: string): Promise<string | null> {
     return `uploads/${jobId}.pdf`;
   }
 
-  // TODO(security): remove this compatibility path once all metadata uses id-based preview.
-  const meta = await getStored(id);
-  const source = meta?.processingReport?.pdfSourceUrl;
-  const match = typeof source === "string" ? source.match(/[?&]key=([^&]+)/) : null;
-  if (match?.[1]) {
-    const key = decodeURIComponent(match[1]);
-    if (isAllowedR2Key(key)) return key;
-  }
   return null;
 }
 
@@ -46,25 +33,10 @@ async function resolvePreviewKeyById(id: string): Promise<string | null> {
  */
 export async function GET(request: NextRequest) {
   try {
-    // Prevent indefinite hangs when upstream/r2 is slow/unresponsive.
-    const requestAbort = new AbortController();
-    const requestTimeoutMs = 25_000;
-    const requestTimeout = setTimeout(() => requestAbort.abort(), requestTimeoutMs);
-
     const id = request.nextUrl.searchParams.get("id")?.trim() ?? "";
-    const keyLegacy = request.nextUrl.searchParams.get("key")?.trim() ?? "";
-    let key = "";
-    if (id) {
-      if (!isUuid(id)) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
-      const resolved = await resolvePreviewKeyById(id);
-      if (!resolved) return NextResponse.json({ error: "Preview not found" }, { status: 404 });
-      key = resolved;
-    } else if (keyLegacy && isAllowedR2Key(keyLegacy)) {
-      // Compatibility only; caller must migrate to id-based route.
-      key = keyLegacy;
-    } else {
-      return NextResponse.json({ error: "Invalid request" }, { status: 400 });
-    }
+    if (!id || !isUuid(id)) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+    const key = await resolvePreviewKeyById(id);
+    if (!key) return NextResponse.json({ error: "Preview not found" }, { status: 404 });
 
     const endpoint =
       process.env.R2_ENDPOINT ||
@@ -92,20 +64,16 @@ export async function GET(request: NextRequest) {
       credentials: { accessKeyId, secretAccessKey },
     });
 
-    try {
-      const signedUrl = await getSignedUrl(
-        s3,
-        new GetObjectCommand({
-          Bucket: bucket,
-          Key: key,
-        }),
-        { expiresIn: 300 }
-      );
+    const signedUrl = await getSignedUrl(
+      s3,
+      new GetObjectCommand({
+        Bucket: bucket,
+        Key: key,
+      }),
+      { expiresIn: 300 }
+    );
 
-      return NextResponse.json({ url: signedUrl });
-    } finally {
-      clearTimeout(requestTimeout);
-    }
+    return NextResponse.json({ url: signedUrl });
   } catch (e) {
     console.error("[r2-file]", e);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });

@@ -1,9 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStored } from "@/lib/storage";
+import { getStored, normalizeAnnotatedPdfStatus } from "@/lib/storage";
 import { supabase } from "@/lib/supabase";
+import { normalizeIssueSeverity, type NormalizedIssueSeverity } from "@/lib/kdpReportEnhance";
 
 type PublicCheckerReport = {
+  id: string;
+  source: "checker";
   outputType: "checker";
+  verdict: "pass" | "needs-fixes";
+  score?: number;
+  blockerCount: number;
+  warningCount: number;
+  infoCount: number;
+  issueCount: number;
+  annotationStatus: ReturnType<typeof normalizeAnnotatedPdfStatus>;
   outputFilename?: string;
   issues: string[];
   chaptersDetected: number;
@@ -45,8 +55,6 @@ type PublicCheckerReport = {
   estimatedFixHours?: number;
   upsellBridge?: string;
   advisoryNotices?: Array<{ rule_id: string; message: string; severity: "info" | "warning" }>;
-  score?: number;
-  verdict?: "pass" | "needs-fixes";
 };
 
 function toCanonicalScore(report: Record<string, unknown>): number | undefined {
@@ -57,11 +65,45 @@ function toCanonicalScore(report: Record<string, unknown>): number | undefined {
 }
 
 /** Returns sanitized public payload for Tool #1 (never spread raw metadata). */
-function sanitizeCheckerReport(reportLike: Record<string, unknown>, outputFilename?: string): PublicCheckerReport {
+function sanitizeCheckerReport(
+  id: string,
+  reportLike: Record<string, unknown>,
+  outputFilename?: string,
+  annotationStatusRaw?: string,
+  sentAt?: number
+): PublicCheckerReport {
   const score = toCanonicalScore(reportLike);
   const readinessScore100 = score ?? (typeof reportLike.readinessScore100 === "number" ? reportLike.readinessScore100 : undefined);
+  const pageIssues: Array<{ page: number; rule_id: string; severity: string; message: string; bbox: number[] | null }> =
+    Array.isArray(reportLike.page_issues)
+      ? (reportLike.page_issues as Array<{ page: number; rule_id: string; severity: string; message: string; bbox: number[] | null }>)
+      : [];
+  const severities: NormalizedIssueSeverity[] =
+    pageIssues.length > 0
+      ? pageIssues.map((i) => normalizeIssueSeverity({ severity: i.severity, rule_id: i.rule_id, message: i.message }))
+      : Array.isArray(reportLike.issuesEnriched)
+        ? (reportLike.issuesEnriched as Array<{ severity?: string; rule_id?: string; originalMessage?: string; humanMessage?: string }>).map((i) =>
+            normalizeIssueSeverity({ severity: i.severity, rule_id: i.rule_id, message: i.originalMessage ?? i.humanMessage })
+          )
+        : [];
+  const blockerCount = severities.filter((s) => s === "blocker").length;
+  const warningCount = severities.filter((s) => s === "warning").length;
+  const infoCount = severities.filter((s) => s === "info").length;
+  const issueCount = pageIssues.length > 0 ? pageIssues.length : severities.length;
+  const annotationStatus = normalizeAnnotatedPdfStatus(annotationStatusRaw, sentAt);
+  const verdict: PublicCheckerReport["verdict"] =
+    blockerCount > 0 ? "needs-fixes" : "pass";
   return {
+    id,
+    source: "checker",
     outputType: "checker",
+    verdict,
+    score,
+    blockerCount,
+    warningCount,
+    infoCount,
+    issueCount,
+    annotationStatus,
     outputFilename,
     issues: Array.isArray(reportLike.issues) ? (reportLike.issues as string[]) : [],
     chaptersDetected: typeof reportLike.chaptersDetected === "number" ? reportLike.chaptersDetected : 0,
@@ -74,7 +116,7 @@ function sanitizeCheckerReport(reportLike: Record<string, unknown>, outputFilena
     recommendations: Array.isArray(reportLike.recommendations) ? (reportLike.recommendations as string[]) : undefined,
     fileSizeMB: typeof reportLike.fileSizeMB === "number" ? reportLike.fileSizeMB : undefined,
     recommendedGutterInches: typeof reportLike.recommendedGutterInches === "number" ? reportLike.recommendedGutterInches : undefined,
-    page_issues: Array.isArray(reportLike.page_issues) ? (reportLike.page_issues as PublicCheckerReport["page_issues"]) : undefined,
+    page_issues: issueCount > 0 ? pageIssues : undefined,
     hasPdfPreview: !!reportLike.hasPdfPreview,
     pdfSourceUrl: typeof reportLike.pdfSourceUrl === "string" ? reportLike.pdfSourceUrl : undefined,
     annotatedPdfUrl: typeof reportLike.annotatedPdfUrl === "string" ? reportLike.annotatedPdfUrl : undefined,
@@ -96,8 +138,6 @@ function sanitizeCheckerReport(reportLike: Record<string, unknown>, outputFilena
     estimatedFixHours: typeof reportLike.estimatedFixHours === "number" ? reportLike.estimatedFixHours : undefined,
     upsellBridge: typeof reportLike.upsellBridge === "string" ? reportLike.upsellBridge : undefined,
     advisoryNotices: Array.isArray(reportLike.advisoryNotices) ? (reportLike.advisoryNotices as PublicCheckerReport["advisoryNotices"]) : undefined,
-    score,
-    verdict: (typeof score === "number" ? (score >= 95 ? "pass" : "needs-fixes") : (reportLike.kdpReady ? "pass" : "needs-fixes")),
   };
 }
 
@@ -108,13 +148,16 @@ async function buildReportFromStored(meta: Awaited<ReturnType<typeof getStored>>
   const report = processing
     ? (processing.outputType === "checker"
       ? sanitizeCheckerReport(
+          meta.id,
           {
             ...processing,
             annotatedPdfUrl: meta.annotatedPdfUrl ?? processing.annotatedPdfUrl,
             annotatedPdfDownloadUrl: meta.annotatedPdfDownloadUrl ?? processing.annotatedPdfDownloadUrl,
             annotatedPdfStatus: meta.annotatedPdfStatus ?? processing.annotatedPdfStatus,
           },
-          meta.outputFilename
+          meta.outputFilename,
+          (meta.annotatedPdfStatus ?? processing.annotatedPdfStatus) as string | undefined,
+          meta.annotatedEmailSentAt
         )
       : {
           ...processing,

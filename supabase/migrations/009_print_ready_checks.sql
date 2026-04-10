@@ -7,6 +7,10 @@ CREATE TABLE IF NOT EXISTS print_ready_checks (
   status text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'done', 'failed')),
   result_download_id uuid,
   error_message text,
+  retry_count integer NOT NULL DEFAULT 0,
+  started_at timestamptz,
+  finished_at timestamptz,
+  last_error text,
   created_at timestamptz DEFAULT now() NOT NULL,
   updated_at timestamptz DEFAULT now() NOT NULL
 );

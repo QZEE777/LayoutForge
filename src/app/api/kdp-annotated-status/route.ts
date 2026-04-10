@@ -1,4 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+import { normalizeAnnotatedPdfStatus } from "@/lib/storage";
+
+function normalizeEngineAnnotatedStatus(raw: unknown): ReturnType<typeof normalizeAnnotatedPdfStatus> {
+  const s = String(raw ?? "").toLowerCase().trim();
+  if (s === "ready" || s === "completed" || s === "done") return "ready";
+  if (s === "processing" || s === "running" || s === "pending") return "processing";
+  if (s === "queued") return "queued";
+  if (s === "error" || s === "failed") return "error";
+  return normalizeAnnotatedPdfStatus(s);
+}
 
 export async function GET(request: NextRequest) {
   const baseUrl = process.env.KDP_PREFLIGHT_API_URL?.trim();
@@ -15,9 +25,9 @@ export async function GET(request: NextRequest) {
     if (!res.ok) {
       return NextResponse.json({ error: "Engine unreachable" }, { status: 503 });
     }
-    const data = await res.json();
+    const data = (await res.json()) as { status?: string };
     // Read-only endpoint by design: do not mutate metadata or trigger emails here.
-    return NextResponse.json(data);
+    return NextResponse.json({ status: normalizeEngineAnnotatedStatus(data?.status) });
   } catch {
     return NextResponse.json({ error: "Engine unreachable" }, { status: 503 });
   }

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStored, updateMeta } from "@/lib/storage";
+import { getStored, normalizeAnnotatedPdfStatus, updateAnnotatedState } from "@/lib/storage";
 import { sendAnnotatedEmailIfReady } from "@/lib/annotatedEmail";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -31,19 +31,25 @@ export async function POST(req: NextRequest) {
 
     const meta = await getStored(id);
     if (!meta) return NextResponse.json({ error: "Not found" }, { status: 404 });
-    if (meta.annotatedEmailSentAt) return NextResponse.json({ success: true, sentNow: true });
+    const normalized = normalizeAnnotatedPdfStatus(meta.annotatedPdfStatus, meta.annotatedEmailSentAt);
+    if (normalized === "delivered") {
+      return NextResponse.json({ success: true, sentNow: true, status: "delivered" });
+    }
     if (meta.annotatedEmail && meta.annotatedEmail !== email) {
       return NextResponse.json({ error: "Annotated email already set for this report." }, { status: 409 });
     }
 
-    const updates: Parameters<typeof updateMeta>[1] = {
+    await updateAnnotatedState(id, {
+      status: normalized === "ready" ? "ready" : "queued",
       annotatedEmail: meta.annotatedEmail ?? email,
-      annotatedEmailRequestedAt: meta.annotatedEmailRequestedAt ?? Date.now(),
-    };
-    if (!meta.leadEmail) updates.leadEmail = email;
-    await updateMeta(id, updates);
+      markRequested: true,
+    });
     const sentNow = await sendAnnotatedEmailIfReady(id);
-    return NextResponse.json({ success: true, sentNow });
+    if (sentNow) {
+      await updateAnnotatedState(id, { status: "delivered", markSent: true });
+      return NextResponse.json({ success: true, sentNow: true, status: "delivered" });
+    }
+    return NextResponse.json({ success: true, sentNow: false, status: normalized === "ready" ? "ready" : "queued" });
   } catch (e) {
     console.error("[checker-annotated-email]", e);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });

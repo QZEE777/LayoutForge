@@ -9,6 +9,26 @@ const UPLOAD_DIR = process.env.VERCEL
   : path.join(process.cwd(), "data", "uploads");
 
 const MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 hours
+export type AnnotatedPdfStatus =
+  | "not_requested"
+  | "queued"
+  | "processing"
+  | "ready"
+  | "delivered"
+  | "error";
+
+export function normalizeAnnotatedPdfStatus(status?: string | null, sentAt?: number | null): AnnotatedPdfStatus {
+  if (sentAt != null && Number.isFinite(sentAt)) return "delivered";
+  const s = (status ?? "").toLowerCase().trim();
+  if (s === "not_requested" || s === "queued" || s === "processing" || s === "ready" || s === "delivered" || s === "error") {
+    return s;
+  }
+  if (!s) return "not_requested";
+  if (s === "pending" || s === "requested") return "queued";
+  if (s === "done" || s === "completed") return "ready";
+  if (s === "failed") return "error";
+  return "processing";
+}
 
 export interface StoredManuscript {
   id: string;
@@ -227,6 +247,31 @@ export async function updateMeta(
     // If meta doesn't exist yet, create it
     await saveMeta({ id, originalName: "", mimeType: "", storedPath: "", createdAt: Date.now(), ...definedUpdates });
   }
+}
+
+/** Tool #1 helper for deterministic annotation/email state updates. */
+export async function updateAnnotatedState(
+  id: string,
+  patch: {
+    status?: AnnotatedPdfStatus;
+    annotatedPdfUrl?: string;
+    annotatedPdfDownloadUrl?: string;
+    annotatedEmail?: string;
+    markRequested?: boolean;
+    markSent?: boolean;
+  }
+): Promise<void> {
+  const existing = await getStored(id);
+  if (!existing) throw new Error("Metadata not found");
+  const nextStatus = patch.status ?? normalizeAnnotatedPdfStatus(existing.annotatedPdfStatus, existing.annotatedEmailSentAt);
+  await updateMeta(id, {
+    annotatedPdfStatus: nextStatus,
+    ...(patch.annotatedPdfUrl !== undefined ? { annotatedPdfUrl: patch.annotatedPdfUrl } : {}),
+    ...(patch.annotatedPdfDownloadUrl !== undefined ? { annotatedPdfDownloadUrl: patch.annotatedPdfDownloadUrl } : {}),
+    ...(patch.annotatedEmail !== undefined ? { annotatedEmail: patch.annotatedEmail } : {}),
+    ...(patch.markRequested ? { annotatedEmailRequestedAt: existing.annotatedEmailRequestedAt ?? Date.now() } : {}),
+    ...(patch.markSent ? { annotatedEmailSentAt: existing.annotatedEmailSentAt ?? Date.now(), annotatedPdfStatus: "delivered" } : {}),
+  });
 }
 
 /** Mark a download as paid/unlocked after successful payment (used by Lemon Squeezy webhook). */

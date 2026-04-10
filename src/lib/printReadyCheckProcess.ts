@@ -4,7 +4,7 @@
  * Requires: getFileByKey, saveUpload, updateMeta, supabase, enrichCheckerReport, getGutterInches.
  */
 import { PDFDocument } from "pdf-lib";
-import { saveUpload, updateMeta, type StoredManuscript } from "./storage";
+import { saveUpload, updateMeta, updateAnnotatedState, type StoredManuscript } from "./storage";
 import { getSignedDownloadUrl, getFileByKey, getSignedUrlForKey } from "./r2Storage";
 import { getGutterInches } from "./kdpConfig";
 import { inspectPdfBufferForChecker } from "./kdpPdfInspect";
@@ -271,8 +271,8 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
   }
 
   try {
-    await updateMeta(stored.id, {
-      annotatedPdfStatus: "processing",
+    await updateAnnotatedState(stored.id, {
+      status: "processing",
       annotatedPdfUrl: `${url}/file/${encodeURIComponent(renderJobId)}/annotated`,
     });
     const annotateRes = await fetch(`${url}/annotate/${encodeURIComponent(renderJobId)}`, {
@@ -294,7 +294,7 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
       if (annotateData.r2_key && process.env.USE_R2 === "true") {
         try {
           const annotatedPdfDownloadUrl = await getSignedUrlForKey(annotateData.r2_key);
-          await updateMeta(stored.id, { annotatedPdfDownloadUrl, annotatedPdfStatus: "ready" });
+          await updateAnnotatedState(stored.id, { status: "ready", annotatedPdfDownloadUrl });
           await sendAnnotatedEmailIfReady(stored.id).catch((err) => {
             console.error("[printReadyCheckProcess] annotate email send error:", err);
           });
@@ -304,11 +304,11 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
       }
     } else {
       console.error("[printReadyCheckProcess] annotate engine returned", annotateRes.status);
-      await updateMeta(stored.id, { annotatedPdfStatus: "error" }).catch(() => {});
+      await updateAnnotatedState(stored.id, { status: "error" }).catch(() => {});
     }
   } catch (e) {
     console.error("[printReadyCheckProcess] annotate trigger error:", e);
-    await updateMeta(stored.id, { annotatedPdfStatus: "error" }).catch(() => {});
+    await updateAnnotatedState(stored.id, { status: "error" }).catch(() => {});
   }
 
   if (process.env.USE_R2 === "true" && stored?.storedPath) {

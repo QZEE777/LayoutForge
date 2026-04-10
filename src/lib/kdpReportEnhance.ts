@@ -14,6 +14,28 @@ import {
 } from "./kdpConfig";
 
 export type FixDifficulty = "easy" | "moderate" | "advanced";
+export type NormalizedIssueSeverity = "blocker" | "warning" | "info";
+
+export function normalizeIssueSeverity(input: {
+  severity?: string;
+  rule_id?: string;
+  message?: string;
+}): NormalizedIssueSeverity {
+  const severity = (input.severity ?? "").toLowerCase();
+  const rule = (input.rule_id ?? "").toLowerCase();
+  const message = (input.message ?? "").toLowerCase();
+  if (severity === "warning" || severity === "minor") return "warning";
+  if (severity === "info") return "info";
+  if (
+    severity === "error" ||
+    severity === "critical" ||
+    severity === "advanced" ||
+    /trim|bleed|margin|gutter|font|embed|transparency|interactive|image_resolution|image_color_mode/.test(`${rule} ${message}`)
+  ) {
+    return "blocker";
+  }
+  return "warning";
+}
 
 export interface EnrichedIssue {
   originalMessage: string;

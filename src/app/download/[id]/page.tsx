@@ -90,6 +90,8 @@ function formatPages(pages: number[]): string {
 }
 
 interface ProcessingReport {
+  id?: string;
+  source?: "checker";
   pagesGenerated?: number;
   chaptersDetected: number;
   sectionsDetected?: number;
@@ -116,11 +118,16 @@ interface ProcessingReport {
   pdfSourceUrl?: string;
   annotatedPdfUrl?: string;
   annotatedPdfStatus?: string;
+  annotationStatus?: "not_requested" | "queued" | "processing" | "ready" | "delivered" | "error";
   annotatedPdfDownloadUrl?: string;
   annotatedEmailRequested?: boolean;
   annotatedEmailSent?: boolean;
   score?: number;
   verdict?: "pass" | "needs-fixes";
+  blockerCount?: number;
+  warningCount?: number;
+  infoCount?: number;
+  issueCount?: number;
   /** Format review report */
   formatReviewSections?: Array<{ title: string; issues?: string[]; recommendations?: string[]; content?: string }>;
   summary?: string;
@@ -184,8 +191,9 @@ export default function DownloadPage() {
   const scanBookType  = searchParams.get("bk") ?? "paperback";   // paperback | hardcover
   const scanBleed     = searchParams.get("bl") === "1";           // true = with bleed
   const scanColorMode = searchParams.get("cm") ?? "bw";           // bw | color
+  const annotationStatus = report?.annotationStatus ?? "not_requested";
   const hasAnnotatedDownload = Boolean(
-    report?.annotatedPdfDownloadUrl || (report?.annotatedPdfUrl && annotatedReady && !annotatedError)
+    report?.annotatedPdfDownloadUrl || (report?.annotatedPdfUrl && (annotationStatus === "ready" || annotationStatus === "delivered" || (annotatedReady && !annotatedError)))
   );
   const hasActionablePageIssues = (report?.page_issues?.length ?? 0) > 0;
 
@@ -295,7 +303,8 @@ export default function DownloadPage() {
           setReport(raw);
           setAnnotatedEmailInput("");
           setReportError(null);
-          if (raw.annotatedPdfStatus === "ready") setAnnotatedReady(true);
+          if (raw.annotationStatus === "ready" || raw.annotationStatus === "delivered") setAnnotatedReady(true);
+          if (raw.annotationStatus === "error") setAnnotatedError(true);
           if (raw.annotatedPdfUrl) {
             setAnnotatedWaitStartedAt((prev) => prev ?? Date.now());
           }
@@ -305,8 +314,9 @@ export default function DownloadPage() {
             if (jobId) {
               fetch(`/api/kdp-annotated-status?job_id=${encodeURIComponent(jobId)}`)
                 .then((res) => res.json())
-                .then((statusData: { status?: string }) => {
-                  if (statusData.status === "ready") setAnnotatedReady(true);
+                .then((statusData: { status?: "queued" | "processing" | "ready" | "delivered" | "error" }) => {
+                  if (statusData.status === "ready" || statusData.status === "delivered") setAnnotatedReady(true);
+                  if (statusData.status === "error") setAnnotatedError(true);
                 })
                 .catch(() => {});
             }
@@ -338,8 +348,8 @@ export default function DownloadPage() {
       attempts += 1;
       try {
         const res = await fetch(`/api/kdp-annotated-status?job_id=${encodeURIComponent(jobId)}`);
-        const data = await res.json() as { status?: string };
-        if (data.status === "ready") {
+        const data = await res.json() as { status?: "queued" | "processing" | "ready" | "delivered" | "error" };
+        if (data.status === "ready" || data.status === "delivered") {
           setAnnotatedReady(true);
           if (intervalId) clearInterval(intervalId);
           return;
@@ -358,15 +368,15 @@ export default function DownloadPage() {
     poll();
     intervalId = setInterval(poll, 3000);
     return () => { if (intervalId) clearInterval(intervalId); };
-  }, [report?.annotatedPdfUrl, isCheckerFlow, annotatedReady, annotatedError, id]);
+  }, [report?.annotatedPdfUrl, isCheckerFlow, annotatedReady, annotatedError, id, annotationStatus]);
 
   useEffect(() => {
     if (!report?.annotatedPdfUrl || !isCheckerFlow) return;
-    if (annotatedReady || annotatedError) return;
+    if (annotationStatus === "ready" || annotationStatus === "delivered" || annotationStatus === "error" || annotatedReady || annotatedError) return;
     setAnnotatedTakingLong(false);
     const t = setTimeout(() => setAnnotatedTakingLong(true), 45_000);
     return () => clearTimeout(t);
-  }, [report?.annotatedPdfUrl, isCheckerFlow, annotatedReady, annotatedError]);
+  }, [report?.annotatedPdfUrl, isCheckerFlow, annotatedReady, annotatedError, annotationStatus]);
 
   const handleAnnotatedEmailOptIn = useCallback(async () => {
     const email = annotatedEmailInput.trim().toLowerCase();
@@ -381,10 +391,11 @@ export default function DownloadPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, email }),
       });
-      const data = (await res.json()) as { success?: boolean; sentNow?: boolean };
+      const data = (await res.json()) as { success?: boolean; sentNow?: boolean; status?: "queued" | "ready" | "delivered" | "error" };
       if (res.ok && data?.success) {
-        setAnnotatedEmailStatus(data.sentNow ? "sent" : "queued");
-        setReport((prev) => (prev ? { ...prev, annotatedEmailRequested: true, annotatedEmailSent: !!data.sentNow } : prev));
+        const next = data.status === "delivered" || data.sentNow ? "sent" : "queued";
+        setAnnotatedEmailStatus(next);
+        setReport((prev) => (prev ? { ...prev, annotatedEmailRequested: true, annotatedEmailSent: next === "sent", annotationStatus: data.status ?? "queued" } : prev));
       } else {
         setAnnotatedEmailStatus("error");
       }
@@ -758,6 +769,16 @@ export default function DownloadPage() {
                       Readiness{" "}
                       <span className="text-[#0D3D18]">{report.score ?? report.readinessScore100 ?? report.readiness_score}</span>
                       <span className="text-m2p-muted text-xl font-bold">/100</span>
+                    </p>
+                  )}
+                  {report.verdict && (
+                    <p className="mb-2 text-xs font-bold tracking-[0.12em] uppercase text-m2p-muted">
+                      Verdict: <span className={report.verdict === "pass" ? "text-[#2D6A2D]" : "text-[#c2410c]"}>{report.verdict === "pass" ? "KDP Ready" : "Needs Fixes"}</span>
+                    </p>
+                  )}
+                  {typeof report.blockerCount === "number" && (
+                    <p className="mb-3 text-xs text-m2p-muted">
+                      Blockers {report.blockerCount} · Warnings {report.warningCount ?? 0} · Info {report.infoCount ?? 0}
                     </p>
                   )}
                   {((report.score ?? report.readinessScore100 ?? report.readiness_score) != null && report.riskLevel) && (

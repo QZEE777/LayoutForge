@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
+type QueueStatus = "queued" | "processing" | "done" | "failed";
+
 /**
  * GET /api/print-ready-check-status?checkId=xxx
  * Returns { status: 'pending' | 'processing' | 'done' | 'failed', downloadId?, error? }.
@@ -37,19 +39,25 @@ export async function GET(request: NextRequest) {
     }
     console.log("[print-ready-check-status] row:", row);
 
+    const normalizedStatus: QueueStatus =
+      row.status === "pending" ? "queued" :
+      row.status === "processing" ? "processing" :
+      row.status === "done" ? "done" :
+      "failed";
+
     const payload: {
       success: true;
-      status: string;
+      status: QueueStatus;
       downloadId?: string;
       error?: string;
     } = {
       success: true,
-      status: row.status ?? "pending",
+      status: normalizedStatus,
     };
-    if (row.status === "done" && row.result_download_id) {
+    if (normalizedStatus === "done" && row.result_download_id) {
       payload.downloadId = row.result_download_id;
     }
-    if (row.status === "failed" && row.error_message) {
+    if (normalizedStatus === "failed" && row.error_message) {
       payload.error = row.error_message;
     }
 

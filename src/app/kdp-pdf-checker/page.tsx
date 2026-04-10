@@ -476,15 +476,15 @@ export default function KdpPdfCheckerPage() {
         while (Date.now() < deadline) {
           await new Promise((r) => setTimeout(r, waitMs));
           const statusRes = await fetch(`/api/print-ready-check-status?checkId=${encodeURIComponent(checkId)}`);
-          let statusData: { status?: string; downloadId?: string; error?: string };
+          let statusData: { status?: "queued" | "processing" | "done" | "failed"; downloadId?: string; error?: string; message?: string };
           try { statusData = (await statusRes.json()) as typeof statusData; } catch { continue; }
           if (statusData.status === "done" && statusData.downloadId) {
             router.push(`/download/${statusData.downloadId}?source=checker${ctxParams}`); return;
           }
-          if (statusData.status === "failed") throw new Error(statusData.error || "Check failed.");
+          if (statusData.status === "failed") throw new Error(statusData.error || statusData.message || "Check failed.");
           waitMs = Math.min(MAX_WAIT_MS, Math.round(waitMs * 1.4));
         }
-        throw new Error("Check is taking longer than expected. Please try again.");
+        throw new Error("Check timed out. Your file is likely still processing - please re-open the checker in a minute.");
       }
       throw new Error("No report ID returned.");
     } catch (err) {

@@ -62,25 +62,30 @@ function getPreflightUrl(): string {
 }
 
 async function processOne(supabase: ReturnType<typeof createClient>): Promise<boolean> {
+  console.info("[worker] claim_attempt");
   const { data, error } = await supabase.rpc("claim_print_ready_check");
 
   if (error) {
-    console.error("[worker] claim_print_ready_check RPC failed:", error.message);
+    console.error("[worker] claim_failed", { error: error.message });
     throw error;
   }
 
   // Supabase RPC RETURNS TABLE: single row comes back as object, not array. Normalize to array.
   const raw = data as PrintReadyCheckRow | PrintReadyCheckRow[] | null | undefined;
   const rows = Array.isArray(raw) ? raw : raw != null && typeof raw === "object" && "id" in raw ? [raw] : [];
-  if (!rows.length) return false;
+  if (!rows.length) {
+    console.info("[worker] claim_empty");
+    return false;
+  }
 
   const row = rows[0];
   const checkId = row.id;
   const fileKey = resolveCheckerPdfR2Key(row);
   const ourJobId = row.our_job_id;
   const fileSizeMB = row.file_size_mb != null ? Number(row.file_size_mb) : undefined;
+  console.info("[worker] claim_success", { checkId, ourJobId });
   const startedAt = Date.now();
-  console.info("[worker] job_start", { checkId, ourJobId, fileKey, fileSizeMB });
+  console.info("[worker] processing_start", { checkId, ourJobId, fileKey, fileSizeMB });
 
   try {
     const baseUrl = getPreflightUrl();
@@ -102,10 +107,12 @@ async function processOne(supabase: ReturnType<typeof createClient>): Promise<bo
         status: "done",
         result_download_id: downloadId,
         error_message: null,
+        last_error: null,
+        finished_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })
       .eq("id", checkId);
-    console.info("[worker] job_success", { checkId, ourJobId, elapsedMs: Date.now() - startedAt, downloadId });
+    console.info("[worker] processing_success", { checkId, ourJobId, duration_ms: Date.now() - startedAt, downloadId });
 
   } catch (e) {
     const err = e;
@@ -118,10 +125,12 @@ async function processOne(supabase: ReturnType<typeof createClient>): Promise<bo
       .update({
         status: "failed",
         error_message: msg,
+        last_error: msg,
+        finished_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })
       .eq("id", checkId);
-    console.error("[worker] job_failed", { checkId, ourJobId, elapsedMs: Date.now() - startedAt, error: msg });
+    console.error("[worker] processing_failed", { checkId, ourJobId, duration_ms: Date.now() - startedAt, error: msg });
   }
 
   return true;

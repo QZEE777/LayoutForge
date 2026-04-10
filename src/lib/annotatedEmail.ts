@@ -1,4 +1,4 @@
-import { getStored, updateMeta } from "@/lib/storage";
+import { getStored, normalizeAnnotatedPdfStatus, updateAnnotatedState } from "@/lib/storage";
 import { sendAnnotatedPdfReadyEmail } from "@/lib/resend";
 
 function extractJobId(annotatedUrl?: string): string | null {
@@ -12,7 +12,7 @@ export async function sendAnnotatedEmailIfReady(downloadId: string): Promise<boo
   if (!meta) return false;
   if (!meta.annotatedEmail) return false;
   if (meta.annotatedEmailSentAt) return false;
-  if (meta.annotatedPdfStatus !== "ready") return false;
+  if (normalizeAnnotatedPdfStatus(meta.annotatedPdfStatus, meta.annotatedEmailSentAt) !== "ready") return false;
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com";
   const jobId = extractJobId(meta.annotatedPdfUrl);
@@ -22,7 +22,7 @@ export async function sendAnnotatedEmailIfReady(downloadId: string): Promise<boo
   const annotatedUrl = meta.annotatedPdfDownloadUrl || fallbackUrl;
 
   await sendAnnotatedPdfReadyEmail(meta.annotatedEmail, annotatedUrl);
-  await updateMeta(downloadId, { annotatedEmailSentAt: Date.now() });
+  await updateAnnotatedState(downloadId, { status: "delivered", markSent: true });
   return true;
 }
 
