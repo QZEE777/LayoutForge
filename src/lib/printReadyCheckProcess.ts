@@ -95,6 +95,30 @@ export interface RunPrintReadyCheckParams {
 const PREFLIGHT_STATUS_DEADLINE_MS = 840000; // 14 min for large PDFs
 
 const STATUS_POLL_TIMEOUT_MS = 10_000;
+const R2_READ_RETRIES = 5;
+const R2_READ_RETRY_DELAY_MS = 1_500;
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function computeScoreFromIssues(issues: Array<{ fixDifficulty?: string; humanMessage?: string; severity?: string }>): number {
+  // Count unique issue types so one repeated rule across many pages doesn't force a false 5/100.
+  const uniqueByMessage = new Map<string, { fixDifficulty?: string; severity?: string }>();
+  for (const i of issues) {
+    const key = (i.humanMessage ?? "").trim() || `${i.fixDifficulty ?? ""}|${i.severity ?? ""}`;
+    if (!uniqueByMessage.has(key)) {
+      uniqueByMessage.set(key, { fixDifficulty: i.fixDifficulty, severity: i.severity });
+    }
+  }
+  const unique = Array.from(uniqueByMessage.values());
+  const criticalCount = unique.filter((i) => i.fixDifficulty === "advanced" || i.severity === "critical" || i.severity === "error").length;
+  const moderateCount = unique.filter((i) => i.fixDifficulty === "moderate").length;
+  const easyCount = unique.length - criticalCount - moderateCount;
+  return unique.length === 0
+    ? 95
+    : Math.max(5, Math.min(100, 100 - criticalCount * 15 - moderateCount * 8 - easyCount * 3));
+}
 
 export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Promise<{ downloadId: string }> {
   const { fileKey, ourJobId, fileSizeMB, baseUrl } = params;
@@ -104,15 +128,30 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
   console.info("[printReadyCheckProcess] start", { ourJobId, fileKey, fileSizeMB });
 
   let pdfBuffer: Buffer;
-  try {
-    pdfBuffer = await getFileByKey(fileKey);
-  } catch (e) {
-    console.error("[printReadyCheckProcess] R2 getFileByKey error:", e instanceof Error ? e.stack : e);
-    const msg = e instanceof Error ? e.message : String(e);
-    if (msg.includes("getFileByKey") || msg.includes("R2")) {
-      throw new Error("File not found in storage. The upload may not have completed — please try again.");
+  {
+    let lastErr: unknown = null;
+    let loaded: Buffer | null = null;
+    for (let attempt = 1; attempt <= R2_READ_RETRIES; attempt++) {
+      try {
+        loaded = await getFileByKey(fileKey);
+        break;
+      } catch (e) {
+        lastErr = e;
+        console.warn("[printReadyCheckProcess] R2 getFileByKey retry", { ourJobId, fileKey, attempt, max: R2_READ_RETRIES });
+        if (attempt < R2_READ_RETRIES) {
+          await sleep(R2_READ_RETRY_DELAY_MS);
+        }
+      }
     }
-    throw e;
+    if (!loaded) {
+      console.error("[printReadyCheckProcess] R2 getFileByKey error:", lastErr instanceof Error ? lastErr.stack : lastErr);
+      const msg = lastErr instanceof Error ? lastErr.message : String(lastErr);
+      if (msg.includes("getFileByKey") || msg.includes("R2")) {
+        throw new Error("File not found in storage. The upload may not have completed — please try again.");
+      }
+      throw lastErr;
+    }
+    pdfBuffer = loaded;
   }
   const inspect = await inspectPdfBufferForChecker(pdfBuffer);
 
@@ -216,13 +255,11 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
   const enrichedReport = enrichCheckerReport(report, "Uploaded PDF", preflight ?? undefined);
 
   const issues = enrichedReport.issuesEnriched ?? [];
-  const criticalCount = issues.filter((i: { fixDifficulty?: string }) => i.fixDifficulty === "advanced").length;
-  const moderateCount = issues.filter((i: { fixDifficulty?: string }) => i.fixDifficulty === "moderate").length;
-  const easyCount = issues.length - criticalCount - moderateCount;
-  const calculatedScore =
-    issues.length === 0
-      ? 95
-      : Math.max(5, Math.min(100, 100 - criticalCount * 15 - moderateCount * 5 - easyCount * 2));
+  const engineScore =
+    typeof preflight?.readiness_score === "number" && Number.isFinite(preflight.readiness_score)
+      ? Math.round(preflight.readiness_score)
+      : null;
+  const calculatedScore = engineScore ?? computeScoreFromIssues(issues);
   enrichedReport.readinessScore100 = calculatedScore;
   enrichedReport.kdpPassProbability = calculatedScore;
 
