@@ -541,10 +541,13 @@ export function buildSpecTable(input: SpecTableInput): SpecRow[] {
   const kdpRequiredTrim = input.kdpTrimName
     ? input.kdpTrimName.split(" — ")[0]
     : "Use popular KDP trims: 6×9\", 5.5×8.5\", or 8.5×11\"";
+  const yourFileTrim = input.trimMatchKDP && input.kdpTrimName
+    ? input.kdpTrimName.split(" — ")[0]
+    : (input.trimDetected ?? "—");
   return [
     {
       requirement: "Trim size",
-      yourFile: input.trimDetected ?? "—",
+      yourFile: yourFileTrim,
       kdpRequired: kdpRequiredTrim,
       status: trimStatus,
     },

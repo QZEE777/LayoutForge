@@ -117,6 +117,10 @@ interface ProcessingReport {
   annotatedPdfUrl?: string;
   annotatedPdfStatus?: string;
   annotatedPdfDownloadUrl?: string;
+  leadEmail?: string;
+  annotatedEmail?: string;
+  annotatedEmailRequestedAt?: number;
+  annotatedEmailSentAt?: number;
   /** Format review report */
   formatReviewSections?: Array<{ title: string; issues?: string[]; recommendations?: string[]; content?: string }>;
   summary?: string;
@@ -173,6 +177,8 @@ export default function DownloadPage() {
   const [annotatedError, setAnnotatedError] = useState(false);
   const [annotatedWaitStartedAt, setAnnotatedWaitStartedAt] = useState<number | null>(null);
   const [annotatedTakingLong, setAnnotatedTakingLong] = useState(false);
+  const [annotatedEmailInput, setAnnotatedEmailInput] = useState("");
+  const [annotatedEmailStatus, setAnnotatedEmailStatus] = useState<"idle" | "saving" | "queued" | "sent" | "error">("idle");
   /** Checker UI: readiness / approval % from issues only (not engine-stored scores). */
   const [calculatedScore, setCalculatedScore] = useState<number | null>(null);
 
@@ -183,6 +189,7 @@ export default function DownloadPage() {
   const hasAnnotatedDownload = Boolean(
     report?.annotatedPdfDownloadUrl || (report?.annotatedPdfUrl && annotatedReady && !annotatedError)
   );
+  const hasActionablePageIssues = (report?.page_issues?.length ?? 0) > 0;
 
   const isDocx = report?.outputType === "docx";
   const isEpub = isEpubFlow || report?.outputType === "epub";
@@ -312,6 +319,7 @@ export default function DownloadPage() {
             setCalculatedScore(null);
           }
           setReport(raw);
+          setAnnotatedEmailInput(raw.annotatedEmail ?? raw.leadEmail ?? "");
           setReportError(null);
           if (raw.annotatedPdfStatus === "ready") setAnnotatedReady(true);
           if (raw.annotatedPdfUrl) {
@@ -321,7 +329,7 @@ export default function DownloadPage() {
             const match = raw.annotatedPdfUrl.match(/\/file\/([^/]+)\/annotated\/?$/);
             const jobId = match?.[1];
             if (jobId) {
-              fetch(`/api/kdp-annotated-status?job_id=${encodeURIComponent(jobId)}`)
+              fetch(`/api/kdp-annotated-status?job_id=${encodeURIComponent(jobId)}&download_id=${encodeURIComponent(id)}`)
                 .then((res) => res.json())
                 .then((statusData: { status?: string }) => {
                   if (statusData.status === "ready") setAnnotatedReady(true);
@@ -357,7 +365,7 @@ export default function DownloadPage() {
     const poll = async () => {
       attempts += 1;
       try {
-        const res = await fetch(`/api/kdp-annotated-status?job_id=${encodeURIComponent(jobId)}`);
+        const res = await fetch(`/api/kdp-annotated-status?job_id=${encodeURIComponent(jobId)}&download_id=${encodeURIComponent(id)}`);
         const data = await res.json() as { status?: string };
         if (data.status === "ready") {
           setAnnotatedReady(true);
@@ -378,7 +386,7 @@ export default function DownloadPage() {
     poll();
     intervalId = setInterval(poll, 3000);
     return () => { if (intervalId) clearInterval(intervalId); };
-  }, [report?.annotatedPdfUrl, isCheckerFlow, annotatedReady, annotatedError]);
+  }, [report?.annotatedPdfUrl, isCheckerFlow, annotatedReady, annotatedError, id]);
 
   useEffect(() => {
     if (!report?.annotatedPdfUrl || !isCheckerFlow) return;
@@ -387,6 +395,48 @@ export default function DownloadPage() {
     const t = setTimeout(() => setAnnotatedTakingLong(true), 45_000);
     return () => clearTimeout(t);
   }, [report?.annotatedPdfUrl, isCheckerFlow, annotatedReady, annotatedError]);
+
+  useEffect(() => {
+    if (!isChecker || !hasActionablePageIssues || !report) return;
+    if (report.annotatedEmailRequestedAt || report.annotatedEmailSentAt) return;
+    const knownEmail = report.annotatedEmail ?? report.leadEmail;
+    if (!knownEmail) return;
+    fetch("/api/checker-annotated-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, email: knownEmail }),
+    })
+      .then((r) => r.json())
+      .then((d: { success?: boolean; sentNow?: boolean }) => {
+        if (d?.success) setAnnotatedEmailStatus(d.sentNow ? "sent" : "queued");
+      })
+      .catch(() => {});
+  }, [isChecker, hasActionablePageIssues, report, id]);
+
+  const handleAnnotatedEmailOptIn = useCallback(async () => {
+    const email = annotatedEmailInput.trim().toLowerCase();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setAnnotatedEmailStatus("error");
+      return;
+    }
+    setAnnotatedEmailStatus("saving");
+    try {
+      const res = await fetch("/api/checker-annotated-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, email }),
+      });
+      const data = (await res.json()) as { success?: boolean; sentNow?: boolean };
+      if (res.ok && data?.success) {
+        setAnnotatedEmailStatus(data.sentNow ? "sent" : "queued");
+        setReport((prev) => (prev ? { ...prev, annotatedEmail: email, annotatedEmailRequestedAt: Date.now() } : prev));
+      } else {
+        setAnnotatedEmailStatus("error");
+      }
+    } catch {
+      setAnnotatedEmailStatus("error");
+    }
+  }, [annotatedEmailInput, id]);
 
   if (!id) {
     return (
@@ -657,7 +707,7 @@ export default function DownloadPage() {
               passThreshold={KDP_DISPLAY_PASS_THRESHOLD}
             />
             {/* Annotated preview status sits directly under the viewer for checker reports */}
-            {isChecker && report.annotatedPdfUrl && (
+            {isChecker && hasActionablePageIssues && report.annotatedPdfUrl && (
               <>
                 {annotatedError ? (
                   <p className="mt-4 text-sm italic text-center" style={{ color: "#F05A28" }}>
@@ -677,7 +727,7 @@ export default function DownloadPage() {
             </div>
           </div>
         )}
-        {report?.outputType === "checker" && !report.hasPdfPreview && (
+        {report?.outputType === "checker" && !report.hasPdfPreview && hasActionablePageIssues && (
           <p className="mb-6 text-sm text-center" style={{ color: "#F05A28" }}>
             Annotated preview not available for this file.
           </p>
@@ -977,7 +1027,7 @@ export default function DownloadPage() {
                     <p className="text-sm text-m2p-ink font-semibold mb-4">
                       ⏳ Report expires in 24 hours — download now to keep a copy.
                     </p>
-                    {hasAnnotatedDownload && (
+                    {hasActionablePageIssues && hasAnnotatedDownload && (
                       <div className="flex justify-center mb-3">
                         {report.annotatedPdfDownloadUrl ? (
                           <a
@@ -1003,7 +1053,7 @@ export default function DownloadPage() {
                         )}
                       </div>
                     )}
-                    {!hasAnnotatedDownload && isChecker && report.annotatedPdfUrl && (
+                    {!hasAnnotatedDownload && isChecker && hasActionablePageIssues && report.annotatedPdfUrl && (
                       <div className="flex justify-center mb-3">
                         <button
                           type="button"
@@ -1014,7 +1064,7 @@ export default function DownloadPage() {
                         </button>
                       </div>
                     )}
-                    {!hasAnnotatedDownload && isChecker && !report.annotatedPdfUrl && (
+                    {!hasAnnotatedDownload && isChecker && hasActionablePageIssues && !report.annotatedPdfUrl && (
                       <div className="flex justify-center mb-3">
                         <button
                           type="button"
@@ -1024,6 +1074,49 @@ export default function DownloadPage() {
                           Annotated PDF not available for this scan yet
                         </button>
                       </div>
+                    )}
+                    {isChecker && hasActionablePageIssues && !hasAnnotatedDownload && !(report.annotatedEmailRequestedAt || report.annotatedEmailSentAt) && (
+                      <div className="mt-3 rounded-xl border border-[#1A6B2A]/20 bg-white/75 p-4 text-left">
+                        <p className="text-sm font-semibold text-m2p-ink mb-2">
+                          Get the annotated PDF by email when ready
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <input
+                            type="email"
+                            placeholder="you@example.com"
+                            value={annotatedEmailInput}
+                            onChange={(e) => {
+                              setAnnotatedEmailInput(e.target.value);
+                              if (annotatedEmailStatus === "error") setAnnotatedEmailStatus("idle");
+                            }}
+                            className="flex-1 rounded-lg border border-m2p-border/70 bg-white px-3 py-2 text-sm text-m2p-ink"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleAnnotatedEmailOptIn}
+                            disabled={annotatedEmailStatus === "saving"}
+                            className="rounded-lg bg-m2p-orange text-white px-4 py-2 text-sm font-bold disabled:opacity-60"
+                          >
+                            {annotatedEmailStatus === "saving" ? "Saving..." : "Email me when ready"}
+                          </button>
+                        </div>
+                        {annotatedEmailStatus === "queued" && (
+                          <p className="mt-2 text-xs text-[#1A6B2A]">Queued. We&apos;ll auto-send when annotation is ready.</p>
+                        )}
+                        {annotatedEmailStatus === "sent" && (
+                          <p className="mt-2 text-xs text-[#1A6B2A]">Sent. Check your inbox for the annotated PDF link.</p>
+                        )}
+                        {annotatedEmailStatus === "error" && (
+                          <p className="mt-2 text-xs text-[#F05A28]">Enter a valid email and try again.</p>
+                        )}
+                      </div>
+                    )}
+                    {isChecker && hasActionablePageIssues && !hasAnnotatedDownload && (report.annotatedEmailRequestedAt || report.annotatedEmailSentAt) && (
+                      <p className="mt-3 text-xs text-center text-[#1A6B2A]">
+                        {report.annotatedEmailSentAt
+                          ? "Annotated PDF email sent. Check your inbox."
+                          : "Annotated PDF email queued. We will send it automatically when ready."}
+                      </p>
                     )}
                   <div className="flex justify-center">
                     <button
@@ -1391,7 +1484,7 @@ export default function DownloadPage() {
         )}
 
         {/* Checker: annotated PDF download (status text now lives under viewer) */}
-        {isChecker && hasAnnotatedDownload && (
+        {isChecker && hasActionablePageIssues && hasAnnotatedDownload && (
               <div className="mb-8 rounded-2xl p-5 border border-[#1A6B2A]/25 overflow-hidden" style={{ background: "linear-gradient(180deg, #143d1f 0%, #0a2412 100%)", boxShadow: DL_VIS.cardShadow }}>
                 <button
                   type="button"

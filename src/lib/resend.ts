@@ -821,3 +821,44 @@ export async function sendWelcomeEmail(to: string, downloadUrl: string) {
   if (error) throw error;
   return data;
 }
+
+export async function sendAnnotatedPdfReadyEmail(to: string, annotatedUrl: string) {
+  const resend = new Resend(process.env.RESEND_API_KEY ?? "");
+  const safeUrl = escapeHtmlAttr(annotatedUrl);
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com";
+  const toolsUrl = `${appUrl}/#tools`;
+  const affiliateUrl = `${appUrl}/partners`;
+
+  const html = `
+<!DOCTYPE html><html><head><meta charset="utf-8"></head>
+<body style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;padding:24px;background:#FAF7EE;color:#1A1208;">
+  <p style="font-size:24px;font-weight:900;margin:0 0 12px;"><span style="color:#F05A28;">manu</span><span style="color:#4cd964;">2print</span></p>
+  <p style="font-size:22px;font-weight:800;margin:0 0 10px;">Your annotated PDF is ready.</p>
+  <p style="font-size:15px;line-height:1.7;color:#3a3020;margin:0 0 18px;">You can download the highlighted file now and fix issues page by page.</p>
+  <p style="margin:0 0 22px;">
+    <a href="${safeUrl}" style="background:#F05A28;color:#fff;text-decoration:none;padding:14px 22px;border-radius:10px;font-weight:800;display:inline-block;">Download Annotated PDF →</a>
+  </p>
+  <p style="font-size:14px;color:#6B6151;line-height:1.7;margin:0 0 4px;">Want more? Try our free tools: <a href="${toolsUrl}" style="color:#F05A28;">manu2print.com</a></p>
+  <p style="font-size:14px;color:#6B6151;line-height:1.7;margin:0;">Love the product? Become an affiliate: <a href="${affiliateUrl}" style="color:#F05A28;">Join here</a></p>
+</body></html>`.trim();
+
+  const text = [
+    "Your annotated PDF is ready.",
+    "",
+    `Download: ${annotatedUrl}`,
+    "",
+    `Try our free tools: ${toolsUrl}`,
+    `Become an affiliate: ${affiliateUrl}`,
+  ].join("\n");
+
+  const { data, error } = await resend.emails.send({
+    from: FROM_MANNY,
+    replyTo: REPLY_TO,
+    to,
+    subject: "Your annotated PDF is ready",
+    html,
+    text,
+  });
+  if (error) throw error;
+  return data;
+}

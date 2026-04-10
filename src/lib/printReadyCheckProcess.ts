@@ -10,6 +10,7 @@ import { getGutterInches } from "./kdpConfig";
 import { inspectPdfBufferForChecker } from "./kdpPdfInspect";
 import { supabase } from "./supabase";
 import { enrichCheckerReport } from "./kdpReportEnhance";
+import { sendAnnotatedEmailIfReady } from "./annotatedEmail";
 
 const DEFAULT_PREFLIGHT_BASE_URL = "https://kdp-preflight-engine-production.up.railway.app";
 
@@ -288,6 +289,9 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
         try {
           const annotatedPdfDownloadUrl = await getSignedUrlForKey(annotateData.r2_key);
           await updateMeta(stored.id, { annotatedPdfDownloadUrl, annotatedPdfStatus: "ready" });
+          await sendAnnotatedEmailIfReady(stored.id).catch((err) => {
+            console.error("[printReadyCheckProcess] annotate email send error:", err);
+          });
         } catch (e) {
           console.error("[printReadyCheckProcess] annotate signed url error:", e);
         }

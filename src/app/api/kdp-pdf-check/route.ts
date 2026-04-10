@@ -8,6 +8,7 @@ import { getGutterInches } from "@/lib/kdpConfig";
 import { enrichCheckerReport, cleanFilenameForDisplay } from "@/lib/kdpReportEnhance";
 import { supabase } from "@/lib/supabase";
 import { findKdpTrim, trimBoxSizeInches } from "@/lib/kdpPdfInspect";
+import { sendAnnotatedEmailIfReady } from "@/lib/annotatedEmail";
 
 const PREFLIGHT_POLL_MS = 2000;
 const PREFLIGHT_MAX_WAIT_MS = 55000;
@@ -305,6 +306,9 @@ export async function POST(request: NextRequest) {
             try {
               const annotatedPdfDownloadUrl = await getSignedUrlForKey(annotateData.r2_key);
               await updateMeta(stored.id, { annotatedPdfDownloadUrl, annotatedPdfStatus: "ready" });
+              await sendAnnotatedEmailIfReady(stored.id).catch((err) => {
+                console.error("[annotate email send]", err);
+              });
             } catch (e) {
               console.error("[annotate signed url]", e);
             }

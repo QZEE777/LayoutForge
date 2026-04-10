@@ -440,7 +440,8 @@ export default function CheckerPdfViewer({
 
   return (
     <div className="rounded-lg bg-[#24241a] border border-white/10 overflow-hidden">
-      <div className="flex flex-wrap items-center gap-3 p-3 border-b border-white/10 bg-black/20">
+      <div className="p-3 border-b border-white/10 bg-black/20">
+        <div className="flex flex-wrap items-center gap-3">
         <button
           type="button"
           onClick={() => setPageNumber((p) => Math.max(1, p - 1))}
@@ -473,10 +474,11 @@ export default function CheckerPdfViewer({
           />
           <span className="w-8">{Math.round(scale * 100)}%</span>
         </label>
-        <div className="ml-auto">
+        </div>
+        <div className="mt-2 flex justify-center">
           {showReadyMessage ? (
             <span
-              className="font-bebas text-sm sm:text-base tracking-wide uppercase"
+              className="text-center font-bebas text-sm sm:text-base tracking-wide uppercase"
               style={{ color: "#4cd964" }}
             >
               {readinessScore != null
@@ -484,7 +486,7 @@ export default function CheckerPdfViewer({
                 : "READY FOR KDP. CHECK REPORT FOR MINOR FIXES."}
             </span>
           ) : (
-            <div className="flex items-center gap-2 flex-wrap justify-end">
+            <div className="flex items-center gap-2 flex-wrap justify-center">
               <span className="text-xs font-semibold tracking-wide uppercase text-white/80">
                 Error Pages: <span className="text-[#F4E3D7]">{issuePagesLabel}</span>
               </span>
@@ -565,7 +567,7 @@ export default function CheckerPdfViewer({
           Highlight legend: red = critical issues, orange = warnings.
         </p>
       ) : (
-        <p className="px-4 pb-3 text-xs text-center" style={{ color: "#6B6151" }}>
+        <p className="px-4 pb-3 text-xs text-center" style={{ color: "#F05A28" }}>
           No on-page highlights for this page.
         </p>
       )}

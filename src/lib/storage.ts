@@ -41,6 +41,10 @@ export interface StoredManuscript {
   /** Pre-signed download URL for annotated PDF (when USE_R2). */
   annotatedPdfDownloadUrl?: string;
   annotatedPdfStatus?: string;
+  /** Email delivery state for annotated checker PDF. */
+  annotatedEmail?: string;
+  annotatedEmailRequestedAt?: number;
+  annotatedEmailSentAt?: number;
   // KDP format processing report (pages, chapters, issues, etc.)
   processingReport?: {
     pagesGenerated?: number;
