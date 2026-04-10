@@ -95,8 +95,8 @@ export interface RunPrintReadyCheckParams {
 const PREFLIGHT_STATUS_DEADLINE_MS = 840000; // 14 min for large PDFs
 
 const STATUS_POLL_TIMEOUT_MS = 10_000;
-const R2_READ_RETRIES = 5;
-const R2_READ_RETRY_DELAY_MS = 1_500;
+const R2_READ_RETRIES = 30;
+const R2_READ_RETRY_DELAY_MS = 2_000;
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));

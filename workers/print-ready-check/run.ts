@@ -9,7 +9,9 @@ import { createClient } from "@supabase/supabase-js";
 // Relative import so worker runs with tsx from repo root without path mapping
 import { runPrintReadyCheck } from "../../src/lib/printReadyCheckProcess";
 
-const POLL_INTERVAL_MS = 12_000;
+const NO_JOB_BACKOFF_MS = 2_500;
+const ERROR_BACKOFF_MS = 12_000;
+const WORKER_CONCURRENCY = 3;
 
 interface PrintReadyCheckRow {
   id: string;
@@ -61,12 +63,12 @@ function getPreflightUrl(): string {
   return url;
 }
 
-async function processOne(supabase: ReturnType<typeof createClient>): Promise<boolean> {
-  console.info("[worker] claim_attempt");
+async function processOne(supabase: ReturnType<typeof createClient>, workerId: number): Promise<boolean> {
+  console.info("[worker] claim_attempt", { workerId });
   const { data, error } = await supabase.rpc("claim_print_ready_check");
 
   if (error) {
-    console.error("[worker] claim_failed", { error: error.message });
+    console.error("[worker] claim_failed", { workerId, error: error.message });
     throw error;
   }
 
@@ -74,7 +76,7 @@ async function processOne(supabase: ReturnType<typeof createClient>): Promise<bo
   const raw = data as PrintReadyCheckRow | PrintReadyCheckRow[] | null | undefined;
   const rows = Array.isArray(raw) ? raw : raw != null && typeof raw === "object" && "id" in raw ? [raw] : [];
   if (!rows.length) {
-    console.info("[worker] claim_empty");
+    console.info("[worker] claim_empty", { workerId });
     return false;
   }
 
@@ -83,9 +85,9 @@ async function processOne(supabase: ReturnType<typeof createClient>): Promise<bo
   const fileKey = resolveCheckerPdfR2Key(row);
   const ourJobId = row.our_job_id;
   const fileSizeMB = row.file_size_mb != null ? Number(row.file_size_mb) : undefined;
-  console.info("[worker] claim_success", { checkId, ourJobId });
+  console.info("[worker] claim_success", { workerId, checkId, ourJobId });
   const startedAt = Date.now();
-  console.info("[worker] processing_start", { checkId, ourJobId, fileKey, fileSizeMB });
+  console.info("[worker] processing_start", { workerId, checkId, ourJobId, fileKey, fileSizeMB });
 
   try {
     const baseUrl = getPreflightUrl();
@@ -112,13 +114,28 @@ async function processOne(supabase: ReturnType<typeof createClient>): Promise<bo
         updated_at: new Date().toISOString(),
       })
       .eq("id", checkId);
-    console.info("[worker] processing_success", { checkId, ourJobId, duration_ms: Date.now() - startedAt, downloadId });
+    console.info("[worker] processing_success", { workerId, checkId, ourJobId, duration_ms: Date.now() - startedAt, downloadId });
 
   } catch (e) {
     const err = e;
     const msg = err instanceof Error ? err.message : String(err);
 
-    console.error("[worker] check", checkId, "failed:", err instanceof Error ? err.stack : err);
+    console.error("[worker] check_failed", { workerId, checkId, error: err instanceof Error ? err.stack : err });
+
+    // Transient storage race guard: requeue once storage becomes readable instead of hard-failing.
+    if (msg.includes("File not found in storage")) {
+      await supabase
+        .from("print_ready_checks")
+        .update({
+          status: "pending",
+          error_message: null,
+          last_error: msg,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", checkId);
+      console.warn("[worker] processing_requeued", { workerId, checkId, ourJobId, reason: "storage_not_ready" });
+      return true;
+    }
 
     await supabase
       .from("print_ready_checks")
@@ -130,26 +147,32 @@ async function processOne(supabase: ReturnType<typeof createClient>): Promise<bo
         updated_at: new Date().toISOString(),
       })
       .eq("id", checkId);
-    console.error("[worker] processing_failed", { checkId, ourJobId, duration_ms: Date.now() - startedAt, error: msg });
+    console.error("[worker] processing_failed", { workerId, checkId, ourJobId, duration_ms: Date.now() - startedAt, error: msg });
   }
 
   return true;
 }
 
+async function workerLoop(supabase: ReturnType<typeof createClient>, workerId: number) {
+  while (true) {
+    try {
+      const had = await processOne(supabase, workerId);
+      if (!had) {
+        await new Promise((r) => setTimeout(r, NO_JOB_BACKOFF_MS));
+      }
+    } catch (e) {
+      console.error("[worker] worker_error", { workerId, error: e instanceof Error ? e.stack : e });
+      await new Promise((r) => setTimeout(r, ERROR_BACKOFF_MS));
+    }
+  }
+}
+
 async function main() {
   const supabase = getSupabase();
   getPreflightUrl();
-  while (true) {
-    try {
-      const had = await processOne(supabase);
-      if (!had) {
-        await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
-      }
-    } catch (e) {
-      console.error("[worker] poll error:", e);
-      await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
-    }
-  }
+  await Promise.all(
+    Array.from({ length: WORKER_CONCURRENCY }, (_, i) => workerLoop(supabase, i))
+  );
 }
 
 main();
