@@ -222,7 +222,7 @@ function UploadWidget({
         </div>
         <div className="text-right">
           <p className="text-2xl font-black" style={{ color: "#f05a28" }}>$9</p>
-          <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>one-time</p>
+          <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>10 credits</p>
         </div>
       </div>
 
@@ -538,7 +538,7 @@ export default function KdpPdfCheckerPage() {
               <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide mb-6"
                 style={{ background: "rgba(240,90,40,0.08)", color: "#f05a28", border: "1px solid rgba(240,90,40,0.15)" }}>
                 <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#f05a28" }} />
-                $9 · One time · Results in ~90 seconds
+                $9 · 10 credits · Results in ~90 seconds
               </div>
 
               <h1 className="font-black leading-tight mb-4"
