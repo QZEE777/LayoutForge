@@ -469,9 +469,14 @@ export interface ChecklistSpecInput {
 }
 
 export function buildUploadChecklist(input: ChecklistSpecInput): ChecklistItem[] {
-  const trimStatus: "pass" | "warning" | "fail" = input.hasTrimIssues
-    ? "fail"
-    : (input.trimMatchKDP ? "pass" : isMeaningfulTrimDetected(input.trimDetected) ? "fail" : "warning");
+  // Geometric trim match (TrimBox vs KDP list) wins over noisy preflight trim-related rules.
+  const trimStatus: "pass" | "warning" | "fail" = input.trimMatchKDP
+    ? "pass"
+    : input.hasTrimIssues
+      ? "fail"
+      : isMeaningfulTrimDetected(input.trimDetected)
+        ? "fail"
+        : "warning";
   return [
     {
       check: "Trim size matches KDP",
@@ -526,9 +531,13 @@ export interface SpecTableInput {
 }
 
 export function buildSpecTable(input: SpecTableInput): SpecRow[] {
-  const trimStatus: "pass" | "warning" | "fail" = input.hasTrimIssues
-    ? "fail"
-    : (input.trimMatchKDP ? "pass" : isMeaningfulTrimDetected(input.trimDetected) ? "fail" : "warning");
+  const trimStatus: "pass" | "warning" | "fail" = input.trimMatchKDP
+    ? "pass"
+    : input.hasTrimIssues
+      ? "fail"
+      : isMeaningfulTrimDetected(input.trimDetected)
+        ? "fail"
+        : "warning";
   const kdpRequiredTrim = input.kdpTrimName
     ? input.kdpTrimName.split(" — ")[0]
     : "Use popular KDP trims: 6×9\", 5.5×8.5\", or 8.5×11\"";
@@ -803,7 +812,7 @@ export function enrichCheckerReport(
   const categories = categoryMessages
     ? detectIssueCategories(categoryMessages.errors, categoryMessages.warnings)
     : { hasTrimIssues: false, hasMarginIssues: false, hasBleedIssues: false, hasFontIssues: false, hasTransparencyIssues: false };
-  const normalizedTrimMatchKDP = categories.hasTrimIssues ? false : !!report.trimMatchKDP;
+  const normalizedTrimMatchKDP = !!report.trimMatchKDP;
 
   // Build enriched issues with tool-specific fix instructions
   let issuesEnriched: EnrichedIssue[];

@@ -4,27 +4,13 @@ import { PDFDocument } from "pdf-lib";
 export const maxDuration = 120;
 import { saveUpload, updateMeta, type StoredManuscript } from "@/lib/storage";
 import { getSignedDownloadUrl, getSignedUrlForKey } from "@/lib/r2Storage";
-import { TRIM_SIZES, getGutterInches } from "@/lib/kdpConfig";
+import { getGutterInches } from "@/lib/kdpConfig";
 import { enrichCheckerReport, cleanFilenameForDisplay, toFixDifficulty } from "@/lib/kdpReportEnhance";
 import { supabase } from "@/lib/supabase";
+import { findKdpTrim, trimBoxSizeInches } from "@/lib/kdpPdfInspect";
 
-const PT_PER_INCH = 72;
-const TOLERANCE_INCH = 0.05; // allow 0.05" variance on each dimension (tight — KDP requires exact match)
 const PREFLIGHT_POLL_MS = 2000;
 const PREFLIGHT_MAX_WAIT_MS = 55000;
-
-function inchesFromPt(pt: number): number {
-  return Math.round((pt / PT_PER_INCH) * 100) / 100;
-}
-
-function findKdpTrim(widthIn: number, heightIn: number): { id: string; name: string } | null {
-  for (const t of TRIM_SIZES) {
-    const wOk = Math.abs(widthIn - t.widthInches) <= TOLERANCE_INCH;
-    const hOk = Math.abs(heightIn - t.heightInches) <= TOLERANCE_INCH;
-    if (wOk && hOk) return { id: t.id, name: t.name };
-  }
-  return null;
-}
 
 /** Preflight API report shape (GET /report/{job_id}). */
 interface PreflightReport {
@@ -107,15 +93,10 @@ function buildReportFromPreflight(
   };
 }
 
-function buildBasicReport(
-  doc: { getPageCount: () => number; getPage: (i: number) => { getSize: () => { width: number; height: number } } },
-  buffer: Buffer
-) {
+function buildBasicReport(doc: PDFDocument, buffer: Buffer) {
   const pageCount = doc.getPageCount();
   const firstPage = doc.getPage(0);
-  const { width: wPt, height: hPt } = firstPage.getSize();
-  const widthIn = inchesFromPt(wPt);
-  const heightIn = inchesFromPt(hPt);
+  const { widthIn, heightIn } = trimBoxSizeInches(firstPage);
   const kdpTrim = findKdpTrim(widthIn, heightIn);
   const issues: string[] = [];
   const recommendations: string[] = [];
@@ -190,9 +171,7 @@ export async function POST(request: NextRequest) {
     }
 
     const firstPage = doc.getPage(0);
-    const { width: wPt, height: hPt } = firstPage.getSize();
-    const widthIn = inchesFromPt(wPt);
-    const heightIn = inchesFromPt(hPt);
+    const { widthIn, heightIn } = trimBoxSizeInches(firstPage);
     const kdpTrim = findKdpTrim(widthIn, heightIn);
 
     const preflightUrl = process.env.KDP_PREFLIGHT_API_URL;
