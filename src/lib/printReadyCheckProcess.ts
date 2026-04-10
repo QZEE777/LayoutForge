@@ -7,7 +7,6 @@ import { PDFDocument } from "pdf-lib";
 import { saveUpload, updateMeta, type StoredManuscript } from "./storage";
 import { getSignedDownloadUrl, getFileByKey, getSignedUrlForKey } from "./r2Storage";
 import { getGutterInches } from "./kdpConfig";
-import { toFixDifficulty } from "./kdpReportEnhance";
 import { inspectPdfBufferForChecker } from "./kdpPdfInspect";
 import { supabase } from "./supabase";
 import { enrichCheckerReport } from "./kdpReportEnhance";
@@ -270,8 +269,11 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         page_issues: (preflight?.page_issues ?? report.page_issues ?? []).map((issue) => ({
-          ...issue,
-          fixDifficulty: toFixDifficulty(issue.rule_id, issue.message),
+          page: issue.page,
+          rule_id: issue.rule_id,
+          severity: issue.severity,
+          message: issue.message,
+          bbox: issue.bbox ?? null,
         })),
       }),
       signal: AbortSignal.timeout(120000),

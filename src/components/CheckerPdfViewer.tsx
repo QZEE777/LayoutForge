@@ -21,6 +21,7 @@ interface CheckerPdfViewerProps {
   pdfUrl: string;
   pageIssues: PageIssue[];
   totalPages: number;
+  requestedPage?: number | null;
 }
 
 function normalizeSeverity(issue: PageIssue): "critical" | "warning" {
@@ -39,7 +40,7 @@ function makeOverlayLabel(issue: PageIssue): string {
   return message.length > 60 ? `${message.slice(0, 59)}…` : message;
 }
 
-export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: totalPagesProp }: CheckerPdfViewerProps) {
+export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: totalPagesProp, requestedPage = null }: CheckerPdfViewerProps) {
   const [pageNumber, setPageNumber] = useState(1);
   const [numPages, setNumPages] = useState(totalPagesProp || 0);
   const [scale, setScale] = useState(1);
@@ -258,6 +259,12 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
     }
     setPageNumber(Math.min(Math.max(1, firstIssuePage), numPages));
   }, [pdfLoaded, firstIssuePage, numPages]);
+
+  useEffect(() => {
+    if (!pdfLoaded || numPages < 1 || requestedPage == null) return;
+    const target = Math.min(Math.max(1, requestedPage), numPages);
+    setPageNumber(target);
+  }, [requestedPage, pdfLoaded, numPages]);
 
   useEffect(() => {
     if (!pdfUrl || !canvasRef.current || numPages < 1 || pageNumber < 1) return;

@@ -173,6 +173,7 @@ export default function DownloadPage() {
   const [annotatedError, setAnnotatedError] = useState(false);
   const [annotatedWaitStartedAt, setAnnotatedWaitStartedAt] = useState<number | null>(null);
   const [annotatedTakingLong, setAnnotatedTakingLong] = useState(false);
+  const [requestedViewerPage, setRequestedViewerPage] = useState<number | null>(null);
   /** Checker UI: readiness / approval % from issues only (not engine-stored scores). */
   const [calculatedScore, setCalculatedScore] = useState<number | null>(null);
 
@@ -653,6 +654,7 @@ export default function DownloadPage() {
                 fixDifficulty: issue.fixDifficulty ?? toFixDifficulty(issue.rule_id, issue.message),
               }))}
               totalPages={report.pageCount ?? 0}
+              requestedPage={requestedViewerPage}
             />
             {/* Annotated preview status sits directly under the viewer for checker reports */}
             {isChecker && report.annotatedPdfUrl && (
@@ -907,6 +909,15 @@ export default function DownloadPage() {
                                 <span className="text-m2p-ink font-medium">{item.message}</span>
                                 {item.pages.length > 0 ? <span className="text-m2p-muted">{formatPages(item.pages)}</span> : ""}
                               </div>
+                              {item.pages.length > 0 && report?.hasPdfPreview && report?.pdfSourceUrl && (
+                                <button
+                                  type="button"
+                                  onClick={() => setRequestedViewerPage(item.pages[0])}
+                                  className="mt-2 text-xs font-semibold text-[#1A6B2A] hover:text-[#0D3D18] underline underline-offset-2"
+                                >
+                                  Jump to page {item.pages[0]} in viewer
+                                </button>
+                              )}
                               {item.toolFixInstruction && (
                                 <p className="mt-2 text-xs text-m2p-muted border-t border-m2p-border/50 pt-2 leading-relaxed">
                                   <span className="font-semibold text-m2p-ink">How to fix: </span>
@@ -1669,6 +1680,7 @@ export default function DownloadPage() {
               <p className="font-black text-2xl sm:text-3xl text-m2p-ink mb-2 leading-tight">Fixed your issues?</p>
               <p className="text-sm sm:text-base text-m2p-muted mb-5 max-w-2xl mx-auto">
                 Re-upload your corrected PDF now and run a fresh compliance check before you publish.
+                <span className="block mt-1.5 font-semibold text-m2p-ink">Each re-check uses 5 scan credits.</span>
               </p>
               <Link
                 href="/kdp-pdf-checker"

@@ -5,7 +5,7 @@ export const maxDuration = 120;
 import { saveUpload, updateMeta, type StoredManuscript } from "@/lib/storage";
 import { getSignedDownloadUrl, getSignedUrlForKey } from "@/lib/r2Storage";
 import { getGutterInches } from "@/lib/kdpConfig";
-import { enrichCheckerReport, cleanFilenameForDisplay, toFixDifficulty } from "@/lib/kdpReportEnhance";
+import { enrichCheckerReport, cleanFilenameForDisplay } from "@/lib/kdpReportEnhance";
 import { supabase } from "@/lib/supabase";
 import { findKdpTrim, trimBoxSizeInches } from "@/lib/kdpPdfInspect";
 
@@ -286,8 +286,11 @@ export async function POST(request: NextRequest) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             page_issues: (preflightReport?.page_issues ?? []).map((issue) => ({
-              ...issue,
-              fixDifficulty: toFixDifficulty(issue.rule_id, issue.message),
+              page: issue.page,
+              rule_id: issue.rule_id,
+              severity: issue.severity,
+              message: issue.message,
+              bbox: issue.bbox ?? null,
             })),
           }),
           signal: AbortSignal.timeout(120000),
