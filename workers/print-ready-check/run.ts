@@ -123,7 +123,7 @@ async function processOne(supabase: ReturnType<typeof createClient>, workerId: n
     console.error("[worker] check_failed", { workerId, checkId, error: err instanceof Error ? err.stack : err });
 
     // Transient storage race guard: requeue once storage becomes readable instead of hard-failing.
-    if (msg.includes("File not found in storage")) {
+    if (msg.includes("File not found in storage") || msg.includes("R2 getFileByKey")) {
       await supabase
         .from("print_ready_checks")
         .update({

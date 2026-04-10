@@ -6,6 +6,24 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const maxDuration = 60;
 import { supabase } from "@/lib/supabase";
+import { r2ObjectExists } from "@/lib/r2Storage";
+
+/** After client PUT, R2 can lag briefly; wait before enqueue so workers do not read a missing object. */
+const R2_VISIBLE_ATTEMPTS = 25;
+const R2_VISIBLE_DELAY_MS = 1200;
+
+async function waitUntilR2ObjectVisible(fileKey: string): Promise<boolean> {
+  try {
+    for (let attempt = 1; attempt <= R2_VISIBLE_ATTEMPTS; attempt++) {
+      if (await r2ObjectExists(fileKey)) return true;
+      await new Promise((r) => setTimeout(r, R2_VISIBLE_DELAY_MS));
+    }
+    return false;
+  } catch (e) {
+    console.warn("[kdp-pdf-check-from-preflight] R2 head unavailable; enqueue without wait", e);
+    return true;
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -54,6 +72,17 @@ export async function POST(request: NextRequest) {
       );
     }
     console.log("[kdp-pdf-check-from-preflight] enqueueing print_ready_checks:", { fileKey, jobId, fileSizeMB });
+    const visible = await waitUntilR2ObjectVisible(fileKey);
+    if (!visible) {
+      return NextResponse.json(
+        {
+          error: "Upload not ready",
+          message:
+            "File is not visible in storage yet. Wait a few seconds and try again, or re-upload the PDF.",
+        },
+        { status: 409 }
+      );
+    }
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
       return NextResponse.json(
         { error: "Server not configured", message: "Supabase is not configured." },

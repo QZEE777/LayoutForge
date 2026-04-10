@@ -6,6 +6,7 @@ import {
   S3Client,
   PutObjectCommand,
   GetObjectCommand,
+  HeadObjectCommand,
   DeleteObjectCommand,
   ListObjectsV2Command,
 } from "@aws-sdk/client-s3";
@@ -106,6 +107,27 @@ export async function getFileByKey(fullKey: string): Promise<Buffer> {
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     throw new Error(`R2 getFileByKey failed for ${key}: ${msg}`);
+  }
+}
+
+/**
+ * True if an object exists at this key (HEAD only — no body download).
+ * Used to wait for upload visibility before enqueueing checker jobs.
+ */
+export async function r2ObjectExists(fullKey: string): Promise<boolean> {
+  const key = typeof fullKey === "string" ? fullKey.trim() : "";
+  if (!key) return false;
+  try {
+    const client = getClient();
+    await client.send(new HeadObjectCommand({ Bucket: getBucket(), Key: key }));
+    return true;
+  } catch (e: unknown) {
+    const meta = e && typeof e === "object" && "$metadata" in e ? (e as { $metadata?: { httpStatusCode?: number } }).$metadata : undefined;
+    const name = e && typeof e === "object" && "name" in e ? String((e as { name?: string }).name) : "";
+    if (meta?.httpStatusCode === 404 || name === "NotFound") return false;
+    const msg = e instanceof Error ? e.message : String(e);
+    if (/404|Not Found|NoSuchKey|NotFound/i.test(msg)) return false;
+    throw e;
   }
 }
 

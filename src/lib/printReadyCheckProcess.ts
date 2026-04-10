@@ -255,9 +255,11 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
   const enrichedReport = enrichCheckerReport(report, "Uploaded PDF", preflight ?? undefined);
 
   const issues = enrichedReport.issuesEnriched ?? [];
+  // Engine sometimes sends readiness_score: 0 as a placeholder; `??` would keep 0 and wipe a sane local score.
+  const rawReadiness = preflight?.readiness_score;
   const engineScore =
-    typeof preflight?.readiness_score === "number" && Number.isFinite(preflight.readiness_score)
-      ? Math.round(preflight.readiness_score)
+    typeof rawReadiness === "number" && Number.isFinite(rawReadiness) && rawReadiness > 0
+      ? Math.round(rawReadiness)
       : null;
   const calculatedScore = engineScore ?? computeScoreFromIssues(issues);
   enrichedReport.readinessScore100 = calculatedScore;
