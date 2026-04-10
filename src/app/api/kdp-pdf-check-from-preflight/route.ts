@@ -3,29 +3,9 @@
  * Enqueue async checker job and return checkId immediately.
  */
 import { NextRequest, NextResponse } from "next/server";
-import { getFileByKey } from "@/lib/r2Storage";
-import { runPrintReadyCheck } from "@/lib/printReadyCheckProcess";
 
 export const maxDuration = 60;
 import { supabase } from "@/lib/supabase";
-
-const R2_READY_RETRIES = 6;
-const R2_READY_DELAY_MS = 1500;
-const INLINE_CHECK_MAX_FILE_MB = 25;
-
-async function waitForR2Object(fileKey: string): Promise<boolean> {
-  for (let attempt = 1; attempt <= R2_READY_RETRIES; attempt++) {
-    try {
-      await getFileByKey(fileKey);
-      return true;
-    } catch {
-      if (attempt < R2_READY_RETRIES) {
-        await new Promise((resolve) => setTimeout(resolve, R2_READY_DELAY_MS));
-      }
-    }
-  }
-  return false;
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -54,12 +34,6 @@ export async function POST(request: NextRequest) {
       );
     }
     const fileSizeMB = typeof body.fileSizeMB === "number" ? body.fileSizeMB : undefined;
-    if (fileSizeMB != null && (!Number.isFinite(fileSizeMB) || fileSizeMB <= 0 || fileSizeMB > 50)) {
-      return NextResponse.json(
-        { error: "Invalid fileSizeMB", message: "fileSizeMB must be a positive number up to 50 MB." },
-        { status: 400 }
-      );
-    }
 
     if (typeof body.fileKey !== "string" || !/^uploads\/[0-9a-fA-F-]+\.pdf$/.test(body.fileKey.trim())) {
       return NextResponse.json(
@@ -78,31 +52,6 @@ export async function POST(request: NextRequest) {
         },
         { status: 400 }
       );
-    }
-    // Ensure the uploaded object is visible in R2 before enqueueing.
-    // This prevents transient "file not found in storage" failures in async workers.
-    const fileReady = await waitForR2Object(fileKey);
-    if (!fileReady) {
-      return NextResponse.json(
-        {
-          error: "Upload not ready",
-          message: "Upload not fully available in storage yet. Please retry in a moment.",
-        },
-        { status: 409 }
-      );
-    }
-    // Fast-path fallback: process inline for normal-sized files to avoid queue-worker drift issues.
-    if (fileSizeMB != null && fileSizeMB <= INLINE_CHECK_MAX_FILE_MB) {
-      try {
-        const { downloadId } = await runPrintReadyCheck({
-          fileKey,
-          ourJobId: jobId,
-          fileSizeMB,
-        });
-        return NextResponse.json({ success: true, id: downloadId });
-      } catch (inlineErr) {
-        console.error("[kdp-pdf-check-from-preflight] inline run failed; falling back to queue", inlineErr);
-      }
     }
     console.log("[kdp-pdf-check-from-preflight] enqueueing print_ready_checks:", { fileKey, jobId, fileSizeMB });
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
