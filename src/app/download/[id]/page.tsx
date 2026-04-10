@@ -706,31 +706,8 @@ export default function DownloadPage() {
               readinessScore={calculatedScore ?? report.readinessScore100 ?? report.readiness_score ?? null}
               passThreshold={KDP_DISPLAY_PASS_THRESHOLD}
             />
-            {/* Annotated preview status sits directly under the viewer for checker reports */}
-            {isChecker && hasActionablePageIssues && report.annotatedPdfUrl && (
-              <>
-                {annotatedError ? (
-                  <p className="mt-4 text-sm italic text-center" style={{ color: "#F05A28" }}>
-                    Annotated preview not available for this file.
-                  </p>
-                ) : !annotatedReady && !annotatedTakingLong ? (
-                  <p className="mt-4 text-sm italic text-center" style={{ color: "#F05A28" }}>
-                    Annotated preview preparing…
-                  </p>
-                ) : !annotatedReady && annotatedTakingLong ? (
-                  <p className="mt-4 text-sm italic text-center" style={{ color: "#6B6151" }}>
-                    Annotated preview is taking longer than expected. You can still review the normal preview above — we’ll keep trying in the background.
-                  </p>
-                ) : null}
-              </>
-            )}
             </div>
           </div>
-        )}
-        {report?.outputType === "checker" && !report.hasPdfPreview && hasActionablePageIssues && (
-          <p className="mb-6 text-sm text-center" style={{ color: "#F05A28" }}>
-            Annotated preview not available for this file.
-          </p>
         )}
         {report?.outputType === "checker" && report.hasPdfPreview && !report.pdfSourceUrl && (
           <p className="mb-6 text-sm text-center" style={{ color: "#F05A28" }}>
@@ -1025,7 +1002,7 @@ export default function DownloadPage() {
                   >
                     <p className="text-[10px] font-black tracking-[0.12em] uppercase text-m2p-muted mb-2">Actions</p>
                     <p className="text-sm text-m2p-ink font-semibold mb-4">
-                      ⏳ Report expires in 24 hours — download now to keep a copy.
+                      ⏳ Report expires in 24 hours.
                     </p>
                     {hasActionablePageIssues && hasAnnotatedDownload && (
                       <div className="flex justify-center mb-3">
@@ -1051,17 +1028,6 @@ export default function DownloadPage() {
                             Download Annotated PDF (with highlights)
                           </button>
                         )}
-                      </div>
-                    )}
-                    {!hasAnnotatedDownload && isChecker && hasActionablePageIssues && report.annotatedPdfUrl && (
-                      <div className="flex justify-center mb-3">
-                        <button
-                          type="button"
-                          disabled
-                          className="w-full sm:w-auto text-center bg-m2p-orange/50 text-white/90 px-6 py-3.5 rounded-xl font-black cursor-not-allowed inline-block"
-                        >
-                          Annotated PDF preparing...
-                        </button>
                       </div>
                     )}
                     {!hasAnnotatedDownload && isChecker && hasActionablePageIssues && !report.annotatedPdfUrl && (

@@ -563,7 +563,7 @@ export default function CheckerPdfViewer({
         </div>
       </div>
       {hasHighlights ? (
-        <p className="px-4 pb-3 text-xs text-center" style={{ color: "#6B6151" }}>
+        <p className="px-4 pb-3 text-xs text-center" style={{ color: "#F05A28" }}>
           Highlight legend: red = critical issues, orange = warnings.
         </p>
       ) : (
