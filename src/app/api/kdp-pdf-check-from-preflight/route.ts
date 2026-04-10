@@ -3,9 +3,27 @@
  * Enqueue async checker job and return checkId immediately.
  */
 import { NextRequest, NextResponse } from "next/server";
+import { getFileByKey } from "@/lib/r2Storage";
 
 export const maxDuration = 60;
 import { supabase } from "@/lib/supabase";
+
+const R2_READY_RETRIES = 6;
+const R2_READY_DELAY_MS = 1500;
+
+async function waitForR2Object(fileKey: string): Promise<boolean> {
+  for (let attempt = 1; attempt <= R2_READY_RETRIES; attempt++) {
+    try {
+      await getFileByKey(fileKey);
+      return true;
+    } catch {
+      if (attempt < R2_READY_RETRIES) {
+        await new Promise((resolve) => setTimeout(resolve, R2_READY_DELAY_MS));
+      }
+    }
+  }
+  return false;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -57,6 +75,18 @@ export async function POST(request: NextRequest) {
             "fileKey must be uploads/{jobId}.pdf for the same jobId returned by create-upload-url (prevents wrong R2 object per job).",
         },
         { status: 400 }
+      );
+    }
+    // Ensure the uploaded object is visible in R2 before enqueueing.
+    // This prevents transient "file not found in storage" failures in async workers.
+    const fileReady = await waitForR2Object(fileKey);
+    if (!fileReady) {
+      return NextResponse.json(
+        {
+          error: "Upload not ready",
+          message: "Upload not fully available in storage yet. Please retry in a moment.",
+        },
+        { status: 409 }
       );
     }
     console.log("[kdp-pdf-check-from-preflight] enqueueing print_ready_checks:", { fileKey, jobId, fileSizeMB });
