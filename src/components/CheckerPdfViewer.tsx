@@ -22,6 +22,8 @@ interface CheckerPdfViewerProps {
   pageIssues: PageIssue[];
   totalPages: number;
   requestedPage?: number | null;
+  readinessScore?: number | null;
+  passThreshold?: number;
 }
 
 function normalizeSeverity(issue: PageIssue): "critical" | "warning" {
@@ -40,7 +42,14 @@ function makeOverlayLabel(issue: PageIssue): string {
   return message.length > 60 ? `${message.slice(0, 59)}…` : message;
 }
 
-export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: totalPagesProp, requestedPage = null }: CheckerPdfViewerProps) {
+export default function CheckerPdfViewer({
+  pdfUrl,
+  pageIssues,
+  totalPages: totalPagesProp,
+  requestedPage = null,
+  readinessScore = null,
+  passThreshold = 95,
+}: CheckerPdfViewerProps) {
   const [pageNumber, setPageNumber] = useState(1);
   const [numPages, setNumPages] = useState(totalPagesProp || 0);
   const [scale, setScale] = useState(1);
@@ -176,6 +185,19 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
   const displayHeight = pageSize ? (pageSize.height / pageSize.width) * renderWidth : 300;
   const issuesForPage = pageIssues.filter((i) => i.page === pageNumber);
   const hasHighlights = issuesForPage.some((i) => !!getIssueOverlayRect(i.bbox));
+  const issuePages = Array.from(
+    new Set(
+      pageIssues
+        .map((i) => i.page)
+        .filter((p) => Number.isFinite(p) && p > 0)
+        .sort((a, b) => a - b)
+    )
+  );
+  const showReadyMessage = issuePages.length === 0 || (readinessScore != null && readinessScore >= passThreshold);
+  const issuePagesLabel =
+    issuePages.length <= 8
+      ? issuePages.join(", ")
+      : `${issuePages.slice(0, 6).join(", ")}, ... ${issuePages[issuePages.length - 1]}`;
   const firstIssuePage = (() => {
     const validPages = pageIssues
       .filter((i) => Array.isArray(i.bbox) && i.bbox.length >= 4)
@@ -451,6 +473,36 @@ export default function CheckerPdfViewer({ pdfUrl, pageIssues, totalPages: total
           />
           <span className="w-8">{Math.round(scale * 100)}%</span>
         </label>
+        <div className="ml-auto">
+          {showReadyMessage ? (
+            <span
+              className="font-bebas text-sm sm:text-base tracking-wide uppercase"
+              style={{ color: "#4cd964" }}
+            >
+              {readinessScore != null
+                ? `READY FOR KDP - SCORE ${readinessScore}/100. CHECK REPORT FOR MINOR FIXES.`
+                : "READY FOR KDP. CHECK REPORT FOR MINOR FIXES."}
+            </span>
+          ) : (
+            <div className="flex items-center gap-2 flex-wrap justify-end">
+              <span className="text-xs font-semibold tracking-wide uppercase text-white/80">
+                Error Pages: <span className="text-[#F4E3D7]">{issuePagesLabel}</span>
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  if (issuePages.length === 0) return;
+                  const nextPage = issuePages.find((p) => p > pageNumber) ?? issuePages[0];
+                  setPageNumber(nextPage);
+                }}
+                className="font-bebas text-sm sm:text-base tracking-wide uppercase rounded px-3 py-1"
+                style={{ color: "#F05A28", background: "rgba(240,90,40,0.12)", border: "1px solid rgba(240,90,40,0.45)" }}
+              >
+                Jump To Next Error Page
+              </button>
+            </div>
+          )}
+        </div>
       </div>
       <div className="p-4 flex justify-center" style={{ minHeight: 400 }}>
         <div style={{ position: "relative", width: renderWidth }}>

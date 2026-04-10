@@ -264,6 +264,10 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
   }
 
   try {
+    await updateMeta(stored.id, {
+      annotatedPdfStatus: "processing",
+      annotatedPdfUrl: `${url}/file/${encodeURIComponent(renderJobId)}/annotated`,
+    });
     const annotateRes = await fetch(`${url}/annotate/${encodeURIComponent(renderJobId)}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -280,12 +284,10 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
     });
     if (annotateRes.ok) {
       const annotateData = (await annotateRes.json()) as { r2_key?: string; status?: string };
-      let didUpdateAnnotatedMeta = false;
       if (annotateData.r2_key && process.env.USE_R2 === "true") {
         try {
           const annotatedPdfDownloadUrl = await getSignedUrlForKey(annotateData.r2_key);
           await updateMeta(stored.id, { annotatedPdfDownloadUrl, annotatedPdfStatus: "ready" });
-          didUpdateAnnotatedMeta = true;
         } catch (e) {
           console.error("[printReadyCheckProcess] annotate signed url error:", e);
         }

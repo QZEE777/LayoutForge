@@ -173,7 +173,6 @@ export default function DownloadPage() {
   const [annotatedError, setAnnotatedError] = useState(false);
   const [annotatedWaitStartedAt, setAnnotatedWaitStartedAt] = useState<number | null>(null);
   const [annotatedTakingLong, setAnnotatedTakingLong] = useState(false);
-  const [requestedViewerPage, setRequestedViewerPage] = useState<number | null>(null);
   /** Checker UI: readiness / approval % from issues only (not engine-stored scores). */
   const [calculatedScore, setCalculatedScore] = useState<number | null>(null);
 
@@ -654,7 +653,8 @@ export default function DownloadPage() {
                 fixDifficulty: issue.fixDifficulty ?? toFixDifficulty(issue.rule_id, issue.message),
               }))}
               totalPages={report.pageCount ?? 0}
-              requestedPage={requestedViewerPage}
+              readinessScore={calculatedScore ?? report.readinessScore100 ?? report.readiness_score ?? null}
+              passThreshold={KDP_DISPLAY_PASS_THRESHOLD}
             />
             {/* Annotated preview status sits directly under the viewer for checker reports */}
             {isChecker && report.annotatedPdfUrl && (
@@ -909,15 +909,6 @@ export default function DownloadPage() {
                                 <span className="text-m2p-ink font-medium">{item.message}</span>
                                 {item.pages.length > 0 ? <span className="text-m2p-muted">{formatPages(item.pages)}</span> : ""}
                               </div>
-                              {item.pages.length > 0 && report?.hasPdfPreview && report?.pdfSourceUrl && (
-                                <button
-                                  type="button"
-                                  onClick={() => setRequestedViewerPage(item.pages[0])}
-                                  className="mt-2 text-xs font-semibold text-[#1A6B2A] hover:text-[#0D3D18] underline underline-offset-2"
-                                >
-                                  Jump to page {item.pages[0]} in viewer
-                                </button>
-                              )}
                               {item.toolFixInstruction && (
                                 <p className="mt-2 text-xs text-m2p-muted border-t border-m2p-border/50 pt-2 leading-relaxed">
                                   <span className="font-semibold text-m2p-ink">How to fix: </span>

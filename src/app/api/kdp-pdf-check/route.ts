@@ -281,6 +281,10 @@ export async function POST(request: NextRequest) {
 
     if (engineBaseUrl && annotateJobId) {
       try {
+        await updateMeta(stored.id, {
+          annotatedPdfStatus: "processing",
+          annotatedPdfUrl: `${engineBaseUrl}/file/${encodeURIComponent(annotateJobId)}/annotated`,
+        });
         const annotateRes = await fetch(`${engineBaseUrl}/annotate/${annotateJobId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
