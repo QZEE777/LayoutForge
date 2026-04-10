@@ -363,6 +363,7 @@ export default function KdpPdfCheckerPage() {
   const [uploading, setUploading]         = useState(false);
   const [checkElapsedSec, setCheckElapsedSec] = useState(0);
   const [error, setError]                 = useState<string | null>(null);
+  const [showLandingHeader, setShowLandingHeader] = useState(true);
   const [scanContext, setScanContext]     = useState<ScanContext>({
     bookType:  "paperback",
     bleedMode: "no-bleed",
@@ -400,6 +401,13 @@ export default function KdpPdfCheckerPage() {
     const id = window.setInterval(() => setCheckElapsedSec((n) => n + 1), 1000);
     return () => window.clearInterval(id);
   }, [uploading]);
+
+  useEffect(() => {
+    const onScroll = () => setShowLandingHeader(window.scrollY < 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const validateFile = useCallback((f: File): string | null => {
     const ext = f.name.toLowerCase().slice(f.name.lastIndexOf("."));
@@ -496,22 +504,24 @@ export default function KdpPdfCheckerPage() {
       {/* ══════════════════════════════════════════════════════════
           HEADER — logo only (trust signal, not navigation)
       ══════════════════════════════════════════════════════════ */}
-      <header
-        id="checker-top"
-        className="sticky top-0 z-20 border-b border-[#1A6B2A]/10 bg-[#FAF7EE]/75 backdrop-blur-md"
-      >
-        <div className="mx-auto max-w-5xl px-6 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
-          <Link href="/" className="flex items-center gap-3 shrink-0 min-w-0">
-            <Image src="/MANNY AVATAR.png" alt="manu2print" width={70} height={70} className="h-[70px] w-[70px] shrink-0 rounded-full object-cover" />
-            <BrandWordmark variant="onLight" className="text-lg sm:text-xl" />
-          </Link>
-          <Link href="/dashboard"
-            className="text-xs font-medium hover:opacity-70 transition-opacity shrink-0"
-            style={{ color: "#9B8E7E" }}>
-            Already purchased? View dashboard →
-          </Link>
-        </div>
-      </header>
+      {showLandingHeader && (
+        <header
+          id="checker-top"
+          className="sticky top-0 z-20 border-b border-[#1A6B2A]/10 bg-[#FAF7EE]/75 backdrop-blur-md"
+        >
+          <div className="mx-auto max-w-5xl px-6 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+            <Link href="/" className="flex items-center gap-3 shrink-0 min-w-0">
+              <Image src="/MANNY AVATAR.png" alt="manu2print" width={70} height={70} className="h-[70px] w-[70px] shrink-0 rounded-full object-cover" />
+              <BrandWordmark variant="onLight" className="text-lg sm:text-xl" />
+            </Link>
+            <Link href="/dashboard"
+              className="text-xs font-medium hover:opacity-70 transition-opacity shrink-0"
+              style={{ color: "#9B8E7E" }}>
+              Already purchased? View dashboard →
+            </Link>
+          </div>
+        </header>
+      )}
 
       {/* ══════════════════════════════════════════════════════════
           HERO — headline + upload widget
