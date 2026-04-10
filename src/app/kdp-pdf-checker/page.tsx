@@ -471,8 +471,10 @@ export default function KdpPdfCheckerPage() {
       if (saveData.checkId) {
         const checkId = saveData.checkId;
         const deadline = Date.now() + 5 * 60 * 1000;
+        let waitMs = 2500;
+        const MAX_WAIT_MS = 10000;
         while (Date.now() < deadline) {
-          await new Promise((r) => setTimeout(r, 2500));
+          await new Promise((r) => setTimeout(r, waitMs));
           const statusRes = await fetch(`/api/print-ready-check-status?checkId=${encodeURIComponent(checkId)}`);
           let statusData: { status?: string; downloadId?: string; error?: string };
           try { statusData = (await statusRes.json()) as typeof statusData; } catch { continue; }
@@ -480,6 +482,7 @@ export default function KdpPdfCheckerPage() {
             router.push(`/download/${statusData.downloadId}?source=checker${ctxParams}`); return;
           }
           if (statusData.status === "failed") throw new Error(statusData.error || "Check failed.");
+          waitMs = Math.min(MAX_WAIT_MS, Math.round(waitMs * 1.4));
         }
         throw new Error("Check is taking longer than expected. Please try again.");
       }

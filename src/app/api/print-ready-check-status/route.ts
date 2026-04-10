@@ -14,6 +14,12 @@ export async function GET(request: NextRequest) {
         { status: 400 }
       );
     }
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(checkId)) {
+      return NextResponse.json(
+        { error: "Invalid checkId", message: "checkId must be a valid UUID." },
+        { status: 400 }
+      );
+    }
     console.log("[print-ready-check-status] lookup:", { checkId });
 
     const { data: row, error } = await supabase
@@ -32,10 +38,12 @@ export async function GET(request: NextRequest) {
     console.log("[print-ready-check-status] row:", row);
 
     const payload: {
+      success: true;
       status: string;
       downloadId?: string;
       error?: string;
     } = {
+      success: true,
       status: row.status ?? "pending",
     };
     if (row.status === "done" && row.result_download_id) {

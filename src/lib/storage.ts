@@ -191,24 +191,41 @@ export async function updateMeta(
   id: string,
   updates: Partial<StoredManuscript>
 ): Promise<void> {
+  // NOTE: This is still read-merge-write and not atomic across concurrent writers.
+  // TODO(cto-hardening): add versioned compare-and-swap metadata writes for true concurrency safety.
+  const definedUpdates = Object.fromEntries(
+    Object.entries(updates).filter(([, v]) => v !== undefined)
+  ) as Partial<StoredManuscript>;
+  const mergeMeta = (existing: StoredManuscript): StoredManuscript => {
+    const merged: StoredManuscript = { ...existing, ...definedUpdates };
+    if (existing.processingReport && definedUpdates.processingReport) {
+      merged.processingReport = { ...existing.processingReport, ...definedUpdates.processingReport };
+    }
+    return merged;
+  };
   if (USE_R2) {
     try {
       const existing = (await r2.getMetadata(id)) as StoredManuscript;
-      const merged = { ...existing, ...updates };
+      const merged = mergeMeta(existing);
       await r2.saveMetadata(id, merged);
-    } catch {
-      await r2.saveMetadata(id, { id, originalName: "", mimeType: "", storedPath: "", createdAt: Date.now(), ...updates });
+    } catch (e) {
+      // Fail closed to avoid accidental metadata clobber when remote read fails.
+      console.error("[storage.updateMeta] R2 metadata read failed; update aborted", {
+        id,
+        error: e instanceof Error ? e.message : String(e),
+      });
+      throw e;
     }
     return;
   }
   const metaPath = path.join(UPLOAD_DIR, `${id}.meta.json`);
   try {
     const existing = JSON.parse(await fs.readFile(metaPath, "utf-8")) as StoredManuscript;
-    const merged = { ...existing, ...updates };
+    const merged = mergeMeta(existing);
     await fs.writeFile(metaPath, JSON.stringify(merged), "utf-8");
   } catch {
     // If meta doesn't exist yet, create it
-    await saveMeta({ id, originalName: "", mimeType: "", storedPath: "", createdAt: Date.now(), ...updates });
+    await saveMeta({ id, originalName: "", mimeType: "", storedPath: "", createdAt: Date.now(), ...definedUpdates });
   }
 }
 

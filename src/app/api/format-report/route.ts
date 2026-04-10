@@ -2,21 +2,124 @@ import { NextRequest, NextResponse } from "next/server";
 import { getStored } from "@/lib/storage";
 import { supabase } from "@/lib/supabase";
 
+type PublicCheckerReport = {
+  outputType: "checker";
+  outputFilename?: string;
+  issues: string[];
+  chaptersDetected: number;
+  fontUsed: string;
+  trimSize: string;
+  pageCount?: number;
+  trimDetected?: string;
+  trimMatchKDP?: boolean;
+  kdpTrimName?: string | null;
+  recommendations?: string[];
+  fileSizeMB?: number;
+  recommendedGutterInches?: number;
+  page_issues?: Array<{ page: number; rule_id: string; severity: string; message: string; bbox: number[] | null }>;
+  hasPdfPreview?: boolean;
+  pdfSourceUrl?: string;
+  annotatedPdfUrl?: string;
+  annotatedPdfStatus?: string;
+  annotatedPdfDownloadUrl?: string;
+  scanDate?: string;
+  fileNameScanned?: string;
+  kdpPassProbability?: number;
+  riskLevel?: "Low" | "Medium" | "High";
+  readinessScore100?: number;
+  readiness_score?: number;
+  highRiskPageNumbers?: number[];
+  kdpReady?: boolean;
+  issuesEnriched?: Array<{
+    originalMessage: string;
+    humanMessage: string;
+    toolFixInstruction?: string;
+    fixDifficulty: string;
+    page?: number;
+    severity?: string;
+  }>;
+  scoreGrade?: { grade: string; label: string; description: string };
+  creationTool?: string;
+  uploadChecklist?: Array<{ check: string; status: "pass" | "warning" | "fail" }>;
+  specTable?: Array<{ requirement: string; yourFile: string; kdpRequired: string; status: "pass" | "warning" | "fail" }>;
+  estimatedFixHours?: number;
+  upsellBridge?: string;
+  advisoryNotices?: Array<{ rule_id: string; message: string; severity: "info" | "warning" }>;
+  score?: number;
+  verdict?: "pass" | "needs-fixes";
+};
+
+function toCanonicalScore(report: Record<string, unknown>): number | undefined {
+  const candidate = [report.readinessScore100, report.readiness_score, report.kdpPassProbability]
+    .map((n) => (typeof n === "number" && Number.isFinite(n) ? Math.round(n) : undefined))
+    .find((n) => typeof n === "number");
+  return candidate;
+}
+
+/** Returns sanitized public payload for Tool #1 (never spread raw metadata). */
+function sanitizeCheckerReport(reportLike: Record<string, unknown>, outputFilename?: string): PublicCheckerReport {
+  const score = toCanonicalScore(reportLike);
+  const readinessScore100 = score ?? (typeof reportLike.readinessScore100 === "number" ? reportLike.readinessScore100 : undefined);
+  return {
+    outputType: "checker",
+    outputFilename,
+    issues: Array.isArray(reportLike.issues) ? (reportLike.issues as string[]) : [],
+    chaptersDetected: typeof reportLike.chaptersDetected === "number" ? reportLike.chaptersDetected : 0,
+    fontUsed: typeof reportLike.fontUsed === "string" ? reportLike.fontUsed : "",
+    trimSize: typeof reportLike.trimSize === "string" ? reportLike.trimSize : "",
+    pageCount: typeof reportLike.pageCount === "number" ? reportLike.pageCount : undefined,
+    trimDetected: typeof reportLike.trimDetected === "string" ? reportLike.trimDetected : undefined,
+    trimMatchKDP: typeof reportLike.trimMatchKDP === "boolean" ? reportLike.trimMatchKDP : undefined,
+    kdpTrimName: typeof reportLike.kdpTrimName === "string" || reportLike.kdpTrimName == null ? (reportLike.kdpTrimName as string | null | undefined) : undefined,
+    recommendations: Array.isArray(reportLike.recommendations) ? (reportLike.recommendations as string[]) : undefined,
+    fileSizeMB: typeof reportLike.fileSizeMB === "number" ? reportLike.fileSizeMB : undefined,
+    recommendedGutterInches: typeof reportLike.recommendedGutterInches === "number" ? reportLike.recommendedGutterInches : undefined,
+    page_issues: Array.isArray(reportLike.page_issues) ? (reportLike.page_issues as PublicCheckerReport["page_issues"]) : undefined,
+    hasPdfPreview: !!reportLike.hasPdfPreview,
+    pdfSourceUrl: typeof reportLike.pdfSourceUrl === "string" ? reportLike.pdfSourceUrl : undefined,
+    annotatedPdfUrl: typeof reportLike.annotatedPdfUrl === "string" ? reportLike.annotatedPdfUrl : undefined,
+    annotatedPdfStatus: typeof reportLike.annotatedPdfStatus === "string" ? reportLike.annotatedPdfStatus : undefined,
+    annotatedPdfDownloadUrl: typeof reportLike.annotatedPdfDownloadUrl === "string" ? reportLike.annotatedPdfDownloadUrl : undefined,
+    scanDate: typeof reportLike.scanDate === "string" ? reportLike.scanDate : undefined,
+    fileNameScanned: typeof reportLike.fileNameScanned === "string" ? reportLike.fileNameScanned : undefined,
+    kdpPassProbability: typeof reportLike.kdpPassProbability === "number" ? reportLike.kdpPassProbability : undefined,
+    riskLevel: reportLike.riskLevel as PublicCheckerReport["riskLevel"] | undefined,
+    readinessScore100,
+    readiness_score: readinessScore100,
+    highRiskPageNumbers: Array.isArray(reportLike.highRiskPageNumbers) ? (reportLike.highRiskPageNumbers as number[]) : undefined,
+    kdpReady: typeof reportLike.kdpReady === "boolean" ? reportLike.kdpReady : undefined,
+    issuesEnriched: Array.isArray(reportLike.issuesEnriched) ? (reportLike.issuesEnriched as PublicCheckerReport["issuesEnriched"]) : undefined,
+    scoreGrade: (reportLike.scoreGrade as PublicCheckerReport["scoreGrade"]) ?? undefined,
+    creationTool: typeof reportLike.creationTool === "string" ? reportLike.creationTool : undefined,
+    uploadChecklist: Array.isArray(reportLike.uploadChecklist) ? (reportLike.uploadChecklist as PublicCheckerReport["uploadChecklist"]) : undefined,
+    specTable: Array.isArray(reportLike.specTable) ? (reportLike.specTable as PublicCheckerReport["specTable"]) : undefined,
+    estimatedFixHours: typeof reportLike.estimatedFixHours === "number" ? reportLike.estimatedFixHours : undefined,
+    upsellBridge: typeof reportLike.upsellBridge === "string" ? reportLike.upsellBridge : undefined,
+    advisoryNotices: Array.isArray(reportLike.advisoryNotices) ? (reportLike.advisoryNotices as PublicCheckerReport["advisoryNotices"]) : undefined,
+    score,
+    verdict: (typeof score === "number" ? (score >= 95 ? "pass" : "needs-fixes") : (reportLike.kdpReady ? "pass" : "needs-fixes")),
+  };
+}
+
 async function buildReportFromStored(meta: Awaited<ReturnType<typeof getStored>>) {
   if (!meta) return null;
+  const processing = meta.processingReport as Record<string, unknown> | undefined;
 
-  const report = meta.processingReport
-    ? {
-        ...meta.processingReport,
-        outputFilename: meta.outputFilename,
-        ...(meta.leadEmail != null && { leadEmail: meta.leadEmail }),
-        ...(meta.annotatedPdfUrl != null && { annotatedPdfUrl: meta.annotatedPdfUrl }),
-        ...(meta.annotatedPdfDownloadUrl != null && { annotatedPdfDownloadUrl: meta.annotatedPdfDownloadUrl }),
-        ...(meta.annotatedPdfStatus != null && { annotatedPdfStatus: meta.annotatedPdfStatus }),
-        ...(meta.annotatedEmail != null && { annotatedEmail: meta.annotatedEmail }),
-        ...(meta.annotatedEmailRequestedAt != null && { annotatedEmailRequestedAt: meta.annotatedEmailRequestedAt }),
-        ...(meta.annotatedEmailSentAt != null && { annotatedEmailSentAt: meta.annotatedEmailSentAt }),
-      }
+  const report = processing
+    ? (processing.outputType === "checker"
+      ? sanitizeCheckerReport(
+          {
+            ...processing,
+            annotatedPdfUrl: meta.annotatedPdfUrl ?? processing.annotatedPdfUrl,
+            annotatedPdfDownloadUrl: meta.annotatedPdfDownloadUrl ?? processing.annotatedPdfDownloadUrl,
+            annotatedPdfStatus: meta.annotatedPdfStatus ?? processing.annotatedPdfStatus,
+          },
+          meta.outputFilename
+        )
+      : {
+          ...processing,
+          outputFilename: meta.outputFilename,
+        })
     : meta.outputFilename
       ? {
           chaptersDetected: 0,

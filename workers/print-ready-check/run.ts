@@ -79,6 +79,8 @@ async function processOne(supabase: ReturnType<typeof createClient>): Promise<bo
   const fileKey = resolveCheckerPdfR2Key(row);
   const ourJobId = row.our_job_id;
   const fileSizeMB = row.file_size_mb != null ? Number(row.file_size_mb) : undefined;
+  const startedAt = Date.now();
+  console.info("[worker] job_start", { checkId, ourJobId, fileKey, fileSizeMB });
 
   try {
     const baseUrl = getPreflightUrl();
@@ -103,6 +105,7 @@ async function processOne(supabase: ReturnType<typeof createClient>): Promise<bo
         updated_at: new Date().toISOString(),
       })
       .eq("id", checkId);
+    console.info("[worker] job_success", { checkId, ourJobId, elapsedMs: Date.now() - startedAt, downloadId });
 
   } catch (e) {
     const err = e;
@@ -118,6 +121,7 @@ async function processOne(supabase: ReturnType<typeof createClient>): Promise<bo
         updated_at: new Date().toISOString(),
       })
       .eq("id", checkId);
+    console.error("[worker] job_failed", { checkId, ourJobId, elapsedMs: Date.now() - startedAt, error: msg });
   }
 
   return true;

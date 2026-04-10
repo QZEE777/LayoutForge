@@ -117,10 +117,10 @@ interface ProcessingReport {
   annotatedPdfUrl?: string;
   annotatedPdfStatus?: string;
   annotatedPdfDownloadUrl?: string;
-  leadEmail?: string;
-  annotatedEmail?: string;
-  annotatedEmailRequestedAt?: number;
-  annotatedEmailSentAt?: number;
+  annotatedEmailRequested?: boolean;
+  annotatedEmailSent?: boolean;
+  score?: number;
+  verdict?: "pass" | "needs-fixes";
   /** Format review report */
   formatReviewSections?: Array<{ title: string; issues?: string[]; recommendations?: string[]; content?: string }>;
   summary?: string;
@@ -179,8 +179,6 @@ export default function DownloadPage() {
   const [annotatedTakingLong, setAnnotatedTakingLong] = useState(false);
   const [annotatedEmailInput, setAnnotatedEmailInput] = useState("");
   const [annotatedEmailStatus, setAnnotatedEmailStatus] = useState<"idle" | "saving" | "queued" | "sent" | "error">("idle");
-  /** Checker UI: readiness / approval % from issues only (not engine-stored scores). */
-  const [calculatedScore, setCalculatedScore] = useState<number | null>(null);
 
   // Scan context from URL params (set by checker upload page)
   const scanBookType  = searchParams.get("bk") ?? "paperback";   // paperback | hardcover
@@ -294,32 +292,8 @@ export default function DownloadPage() {
       .then(({ ok, data }) => {
         if (ok && data.success && data.report) {
           const raw = data.report as ProcessingReport;
-          if (raw.outputType === "checker") {
-            const issues = data.report?.issuesEnriched ?? [];
-            // Deduplicate by humanMessage so that the same issue type on many pages
-            // counts as ONE issue (prevents score always bottoming out at 5).
-            const uniqueByMessage = new Map<string, { fixDifficulty?: string; severity?: string }>();
-            for (const i of issues) {
-              if (!uniqueByMessage.has(i.humanMessage)) {
-                uniqueByMessage.set(i.humanMessage, { fixDifficulty: i.fixDifficulty, severity: i.severity });
-              }
-            }
-            const unique = Array.from(uniqueByMessage.values());
-            const criticalCount = unique.filter(
-              (i) => i.fixDifficulty === "advanced" || i.severity === "critical" || i.severity === "error"
-            ).length;
-            const moderateCount = unique.filter((i) => i.fixDifficulty === "moderate").length;
-            const easyCount = unique.length - criticalCount - moderateCount;
-            const nextCalculatedScore =
-              unique.length === 0
-                ? 95
-                : Math.max(5, Math.min(100, 100 - criticalCount * 15 - moderateCount * 8 - easyCount * 3));
-            setCalculatedScore(nextCalculatedScore);
-          } else {
-            setCalculatedScore(null);
-          }
           setReport(raw);
-          setAnnotatedEmailInput(raw.annotatedEmail ?? raw.leadEmail ?? "");
+          setAnnotatedEmailInput("");
           setReportError(null);
           if (raw.annotatedPdfStatus === "ready") setAnnotatedReady(true);
           if (raw.annotatedPdfUrl) {
@@ -329,7 +303,7 @@ export default function DownloadPage() {
             const match = raw.annotatedPdfUrl.match(/\/file\/([^/]+)\/annotated\/?$/);
             const jobId = match?.[1];
             if (jobId) {
-              fetch(`/api/kdp-annotated-status?job_id=${encodeURIComponent(jobId)}&download_id=${encodeURIComponent(id)}`)
+              fetch(`/api/kdp-annotated-status?job_id=${encodeURIComponent(jobId)}`)
                 .then((res) => res.json())
                 .then((statusData: { status?: string }) => {
                   if (statusData.status === "ready") setAnnotatedReady(true);
@@ -338,12 +312,10 @@ export default function DownloadPage() {
             }
           }
         } else {
-          setCalculatedScore(null);
           setReportError(data?.message ?? "Report not available.");
         }
       })
       .catch(() => {
-        setCalculatedScore(null);
         setReportError("Could not load report. Try again or refresh.");
       })
       .finally(() => setReportLoading(false));
@@ -365,7 +337,7 @@ export default function DownloadPage() {
     const poll = async () => {
       attempts += 1;
       try {
-        const res = await fetch(`/api/kdp-annotated-status?job_id=${encodeURIComponent(jobId)}&download_id=${encodeURIComponent(id)}`);
+        const res = await fetch(`/api/kdp-annotated-status?job_id=${encodeURIComponent(jobId)}`);
         const data = await res.json() as { status?: string };
         if (data.status === "ready") {
           setAnnotatedReady(true);
@@ -396,23 +368,6 @@ export default function DownloadPage() {
     return () => clearTimeout(t);
   }, [report?.annotatedPdfUrl, isCheckerFlow, annotatedReady, annotatedError]);
 
-  useEffect(() => {
-    if (!isChecker || !hasActionablePageIssues || !report) return;
-    if (report.annotatedEmailRequestedAt || report.annotatedEmailSentAt) return;
-    const knownEmail = report.annotatedEmail ?? report.leadEmail;
-    if (!knownEmail) return;
-    fetch("/api/checker-annotated-email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, email: knownEmail }),
-    })
-      .then((r) => r.json())
-      .then((d: { success?: boolean; sentNow?: boolean }) => {
-        if (d?.success) setAnnotatedEmailStatus(d.sentNow ? "sent" : "queued");
-      })
-      .catch(() => {});
-  }, [isChecker, hasActionablePageIssues, report, id]);
-
   const handleAnnotatedEmailOptIn = useCallback(async () => {
     const email = annotatedEmailInput.trim().toLowerCase();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -429,7 +384,7 @@ export default function DownloadPage() {
       const data = (await res.json()) as { success?: boolean; sentNow?: boolean };
       if (res.ok && data?.success) {
         setAnnotatedEmailStatus(data.sentNow ? "sent" : "queued");
-        setReport((prev) => (prev ? { ...prev, annotatedEmail: email, annotatedEmailRequestedAt: Date.now() } : prev));
+        setReport((prev) => (prev ? { ...prev, annotatedEmailRequested: true, annotatedEmailSent: !!data.sentNow } : prev));
       } else {
         setAnnotatedEmailStatus("error");
       }
@@ -534,7 +489,7 @@ export default function DownloadPage() {
 
         {/* Checker pre-gate teaser — grade, score, issue count visible before payment */}
         {report && isChecker && (() => {
-          const score = calculatedScore ?? report.readinessScore100 ?? report.readiness_score ?? null;
+          const score = report.score ?? report.readinessScore100 ?? report.readiness_score ?? null;
           const isPassingScore = score !== null
             ? score >= KDP_DISPLAY_PASS_THRESHOLD
             : report.kdpReady === true;
@@ -703,7 +658,7 @@ export default function DownloadPage() {
                 fixDifficulty: issue.fixDifficulty ?? toFixDifficulty(issue.rule_id, issue.message),
               }))}
               totalPages={report.pageCount ?? 0}
-              readinessScore={calculatedScore ?? report.readinessScore100 ?? report.readiness_score ?? null}
+              readinessScore={report.score ?? report.readinessScore100 ?? report.readiness_score ?? null}
               passThreshold={KDP_DISPLAY_PASS_THRESHOLD}
             />
             </div>
@@ -781,7 +736,7 @@ export default function DownloadPage() {
                     </div>
                   )}
                   {(() => {
-                    const s = calculatedScore ?? report.readinessScore100 ?? report.readiness_score ?? null;
+                    const s = report.score ?? report.readinessScore100 ?? report.readiness_score ?? null;
                     const sg = s !== null ? getScoreGrade(s) : report.scoreGrade ?? null;
                     if (!sg) return null;
                     const col = s !== null && s >= KDP_DISPLAY_PASS_THRESHOLD ? "#4cd964" : "#f0a028";
@@ -798,17 +753,17 @@ export default function DownloadPage() {
                       </div>
                     );
                   })()}
-                  {(calculatedScore ?? report.readinessScore100) != null && (
+                  {(report.score ?? report.readinessScore100 ?? report.readiness_score) != null && (
                     <p className="mb-2 text-2xl sm:text-3xl font-black text-m2p-ink tabular-nums">
                       Readiness{" "}
-                      <span className="text-[#0D3D18]">{calculatedScore ?? report.readinessScore100}</span>
+                      <span className="text-[#0D3D18]">{report.score ?? report.readinessScore100 ?? report.readiness_score}</span>
                       <span className="text-m2p-muted text-xl font-bold">/100</span>
                     </p>
                   )}
-                  {((calculatedScore ?? report.readinessScore100) != null && report.riskLevel) && (
+                  {((report.score ?? report.readinessScore100 ?? report.readiness_score) != null && report.riskLevel) && (
                     <p className="mb-3 text-sm font-bold text-m2p-ink flex flex-wrap items-center gap-x-2">
                       <span className="text-m2p-muted font-semibold">KDP approval likelihood</span>
-                      <span className="tabular-nums">{calculatedScore ?? report.readinessScore100}%</span>
+                      <span className="tabular-nums">{report.score ?? report.readinessScore100 ?? report.readiness_score}%</span>
                       <span className="text-m2p-border">·</span>
                       <span className="text-m2p-muted font-semibold">Risk</span>
                       <span className="font-black" style={{ color: report.riskLevel === "Low" ? "#2D6A2D" : report.riskLevel === "Medium" ? "#c27803" : "#c2410c" }}>{report.riskLevel}</span>
@@ -1041,7 +996,7 @@ export default function DownloadPage() {
                         </button>
                       </div>
                     )}
-                    {isChecker && hasActionablePageIssues && !hasAnnotatedDownload && !(report.annotatedEmailRequestedAt || report.annotatedEmailSentAt) && (
+                    {isChecker && hasActionablePageIssues && !hasAnnotatedDownload && !(report.annotatedEmailRequested || report.annotatedEmailSent) && (
                       <div className="mt-3 rounded-xl border border-[#1A6B2A]/20 bg-white/75 p-4 text-left">
                         <p className="text-sm font-semibold text-m2p-ink mb-2">
                           Get the annotated PDF by email when ready
@@ -1077,9 +1032,9 @@ export default function DownloadPage() {
                         )}
                       </div>
                     )}
-                    {isChecker && hasActionablePageIssues && !hasAnnotatedDownload && (report.annotatedEmailRequestedAt || report.annotatedEmailSentAt) && (
+                    {isChecker && hasActionablePageIssues && !hasAnnotatedDownload && (report.annotatedEmailRequested || report.annotatedEmailSent) && (
                       <p className="mt-3 text-xs text-center text-[#1A6B2A]">
-                        {report.annotatedEmailSentAt
+                        {report.annotatedEmailSent
                           ? "Annotated PDF email sent. Check your inbox."
                           : "Annotated PDF email queued. We will send it automatically when ready."}
                       </p>
@@ -1181,7 +1136,7 @@ export default function DownloadPage() {
 
                   {/* ── Share section ── */}
                   {(() => {
-                    const shareScore  = calculatedScore ?? report?.readinessScore100 ?? 0;
+                    const shareScore  = report?.score ?? report?.readinessScore100 ?? report?.readiness_score ?? 0;
                     const shareIsPass = shareScore >= KDP_DISPLAY_PASS_THRESHOLD || (shareScore === 0 && report?.kdpReady === true);
                     const verifyLink  = `https://www.manu2print.com/verify/${id}${shareToken ? `?sh=${encodeURIComponent(shareToken)}` : ""}`;
                     const ogBase      = `/api/og/verify/${id}?p=${shareIsPass ? 1 : 0}&s=${shareScore}`;
@@ -1714,7 +1669,7 @@ export default function DownloadPage() {
 
         {/* Checker: re-check CTA when issues exist */}
         {isChecker && report && (() => {
-          const score = calculatedScore ?? report.readinessScore100 ?? report.readiness_score ?? null;
+          const score = report.score ?? report.readinessScore100 ?? report.readiness_score ?? null;
           const hasIssues = (report.issuesEnriched?.length ?? 0) > 0;
           if (!hasIssues && score !== null && score >= KDP_DISPLAY_PASS_THRESHOLD) return null;
           return (

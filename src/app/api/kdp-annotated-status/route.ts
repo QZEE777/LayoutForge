@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sendAnnotatedEmailIfReady } from "@/lib/annotatedEmail";
-import { updateMeta } from "@/lib/storage";
 
 export async function GET(request: NextRequest) {
   const baseUrl = process.env.KDP_PREFLIGHT_API_URL?.trim();
@@ -18,11 +16,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Engine unreachable" }, { status: 503 });
     }
     const data = await res.json();
-    const downloadId = request.nextUrl.searchParams.get("download_id");
-    if (downloadId && data?.status === "ready") {
-      await updateMeta(downloadId, { annotatedPdfStatus: "ready" }).catch(() => {});
-      await sendAnnotatedEmailIfReady(downloadId).catch(() => {});
-    }
+    // Read-only endpoint by design: do not mutate metadata or trigger emails here.
     return NextResponse.json(data);
   } catch {
     return NextResponse.json({ error: "Engine unreachable" }, { status: 503 });

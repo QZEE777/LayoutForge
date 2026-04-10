@@ -100,6 +100,8 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
   const { fileKey, ourJobId, fileSizeMB, baseUrl } = params;
   const envUrl = process.env.KDP_PREFLIGHT_API_URL?.trim();
   const url = (envUrl || baseUrl || DEFAULT_PREFLIGHT_BASE_URL).replace(/\/$/, "");
+  const startedAt = Date.now();
+  console.info("[printReadyCheckProcess] start", { ourJobId, fileKey, fileSizeMB });
 
   let pdfBuffer: Buffer;
   try {
@@ -136,6 +138,7 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
   if (!renderJobId) {
     throw new Error("No job_id from preflight.");
   }
+  console.info("[printReadyCheckProcess] preflight upload accepted", { ourJobId, renderJobId });
 
   const deadline = Date.now() + PREFLIGHT_STATUS_DEADLINE_MS;
   let completed = false;
@@ -176,6 +179,7 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
   if (!completed) {
     throw new Error("Preflight is taking longer than expected. Try a smaller file, use our free PDF Compressor to shrink it, or try again later.");
   }
+  console.info("[printReadyCheckProcess] preflight completed", { ourJobId, renderJobId });
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 60000);
@@ -209,7 +213,6 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
     report.recommendedGutterInches = getGutterInches(report.pageCount);
   }
   report.hasPdfPreview = true;
-  report.pdfSourceUrl = `/api/r2-file?key=${encodeURIComponent(fileKey)}`;
   const enrichedReport = enrichCheckerReport(report, "Uploaded PDF", preflight ?? undefined);
 
   const issues = enrichedReport.issuesEnriched ?? [];
@@ -227,7 +230,10 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
   doc.addPage([612, 792]);
   const minimalPdf = Buffer.from(await doc.save());
   const stored = await saveUpload(minimalPdf, "preflight-report.pdf", "application/pdf");
-  await updateMeta(stored.id, { processingReport: enrichedReport as StoredManuscript["processingReport"] });
+  report.pdfSourceUrl = `/api/r2-file?id=${encodeURIComponent(stored.id)}`;
+  await updateMeta(stored.id, {
+    processingReport: { ...(enrichedReport as object), pdfSourceUrl: report.pdfSourceUrl } as StoredManuscript["processingReport"],
+  });
 
   try {
     const issuesCount = enrichedReport?.issuesEnriched?.length ?? report?.issues?.length ?? 0;
@@ -298,9 +304,11 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
       }
     } else {
       console.error("[printReadyCheckProcess] annotate engine returned", annotateRes.status);
+      await updateMeta(stored.id, { annotatedPdfStatus: "error" }).catch(() => {});
     }
   } catch (e) {
     console.error("[printReadyCheckProcess] annotate trigger error:", e);
+    await updateMeta(stored.id, { annotatedPdfStatus: "error" }).catch(() => {});
   }
 
   if (process.env.USE_R2 === "true" && stored?.storedPath) {
@@ -315,5 +323,6 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
     }
   }
 
+  console.info("[printReadyCheckProcess] done", { ourJobId, downloadId: stored.id, elapsedMs: Date.now() - startedAt });
   return { downloadId: stored.id };
 }

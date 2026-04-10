@@ -227,7 +227,7 @@ export default function CheckerPdfViewer({
       const pdfjsLib = await import("pdfjs-dist");
       pdfjsLib.GlobalWorkerOptions.workerSrc = PDF_WORKER_SRC;
 
-      // `/api/r2-file?key=...` now returns JSON: { url: presignedR2GetUrl }
+      // `/api/r2-file?id=...` returns JSON: { url: presignedR2GetUrl }
       const res = await fetch(pdfUrl, { cache: "no-store" });
       if (!res.ok) {
         throw new Error(`Failed to get signed PDF URL (${res.status})`);

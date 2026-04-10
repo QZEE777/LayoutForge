@@ -34,6 +34,12 @@ export async function POST(request: NextRequest) {
       );
     }
     const fileSizeMB = typeof body.fileSizeMB === "number" ? body.fileSizeMB : undefined;
+    if (fileSizeMB != null && (!Number.isFinite(fileSizeMB) || fileSizeMB <= 0 || fileSizeMB > 10)) {
+      return NextResponse.json(
+        { error: "Invalid fileSizeMB", message: "fileSizeMB must be a positive number up to 10 MB." },
+        { status: 400 }
+      );
+    }
 
     if (typeof body.fileKey !== "string" || !/^uploads\/[0-9a-fA-F-]+\.pdf$/.test(body.fileKey.trim())) {
       return NextResponse.json(
