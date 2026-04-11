@@ -161,6 +161,8 @@ interface ProcessingReport {
   estimatedFixHours?: number;
   upsellBridge?: string;
   advisoryNotices?: Array<{ rule_id: string; message: string; severity: "info" | "warning" }>;
+  /** KDP trim id from checker upload when author picked an intended size. */
+  intendedKdpTrimId?: string;
 }
 
 /** Hero / gradients: never "pass" visuals when server says needs-fixes (checklist/spec can fail without blockers). */
