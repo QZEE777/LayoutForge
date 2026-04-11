@@ -500,39 +500,6 @@ export default function KdpPdfCheckerPage() {
         method: "PUT", body: file, headers: { "Content-Type": "application/pdf" },
       });
       if (!uploadRes.ok) throw new Error("R2 upload failed");
-      const confirmRes = await fetch("/api/confirm-checker-r2-upload", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jobId, fileKey }),
-      });
-      if (!confirmRes.ok) {
-        let cmsg = "Could not confirm the file in storage.";
-        try {
-          const cj = (await confirmRes.json()) as { message?: string };
-          if (typeof cj.message === "string") cmsg = cj.message;
-        } catch {
-          /* ignore */
-        }
-        if (confirmRes.status === 409) {
-          await new Promise((r) => setTimeout(r, 1500));
-          const confirm2 = await fetch("/api/confirm-checker-r2-upload", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ jobId, fileKey }),
-          });
-          if (!confirm2.ok) {
-            try {
-              const cj2 = (await confirm2.json()) as { message?: string };
-              if (typeof cj2.message === "string") cmsg = cj2.message;
-            } catch {
-              /* ignore */
-            }
-            throw new Error(cmsg);
-          }
-        } else {
-          throw new Error(cmsg);
-        }
-      }
       const saveBody = JSON.stringify({
         jobId,
         fileKey,
@@ -555,7 +522,7 @@ export default function KdpPdfCheckerPage() {
         throw new Error("Could not start check. Try again.");
       }
       if (!saveRes.ok && saveRes.status === 409) {
-        await new Promise((r) => setTimeout(r, 2200));
+        await new Promise((r) => setTimeout(r, 2500));
         saveRes = await postPreflight();
         try {
           saveData = (await saveRes.json()) as typeof saveData;

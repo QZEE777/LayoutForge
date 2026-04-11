@@ -5,7 +5,7 @@
  */
 import { PDFDocument } from "pdf-lib";
 import { saveUpload, updateMeta, updateAnnotatedState, type StoredManuscript } from "./storage";
-import { getSignedDownloadUrl, getFileByKey, getSignedUrlForKey, waitForR2ObjectKey } from "./r2Storage";
+import { getSignedDownloadUrl, getFileByKey, getSignedUrlForKey } from "./r2Storage";
 import { getGutterInches } from "./kdpConfig";
 import { inspectPdfBufferForChecker } from "./kdpPdfInspect";
 import { supabase } from "./supabase";
@@ -100,8 +100,10 @@ export interface RunPrintReadyCheckParams {
 const PREFLIGHT_STATUS_DEADLINE_MS = 840000; // 14 min for large PDFs
 
 const STATUS_POLL_TIMEOUT_MS = 10_000;
-const R2_READ_RETRIES = 50;
-const R2_READ_RETRY_DELAY_MS = 1_500;
+
+/** Same read path as first successful attempt; spacing covers R2 propagation after HEAD-visible. */
+const R2_GET_ATTEMPTS = 20;
+const R2_GET_DELAY_MS = 2_000;
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -138,36 +140,29 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
 
   let pdfBuffer: Buffer;
   {
-    try {
-      const visible = await waitForR2ObjectKey(fileKey, { attempts: 50, delayMs: 750 });
-      if (!visible) {
-        console.warn("[printReadyCheckProcess] R2 HEAD never saw object before GET", { ourJobId, fileKey });
-      }
-    } catch (e) {
-      console.warn("[printReadyCheckProcess] R2 waitForR2ObjectKey error (continuing to GET retries)", e);
-    }
-
     let lastErr: unknown = null;
     let loaded: Buffer | null = null;
-    for (let attempt = 1; attempt <= R2_READ_RETRIES; attempt++) {
+    for (let attempt = 1; attempt <= R2_GET_ATTEMPTS; attempt++) {
       try {
-        loaded = await getFileByKey(fileKey);
-        break;
+        const buf = await getFileByKey(fileKey);
+        if (buf.length > 0) {
+          loaded = buf;
+          break;
+        }
+        lastErr = new Error("R2 returned empty body");
       } catch (e) {
         lastErr = e;
-        console.warn("[printReadyCheckProcess] R2 getFileByKey retry", { ourJobId, fileKey, attempt, max: R2_READ_RETRIES });
-        if (attempt < R2_READ_RETRIES) {
-          await sleep(R2_READ_RETRY_DELAY_MS);
-        }
+        console.warn("[printReadyCheckProcess] R2 getFileByKey attempt", { ourJobId, fileKey, attempt, max: R2_GET_ATTEMPTS });
+      }
+      if (attempt < R2_GET_ATTEMPTS) {
+        await sleep(R2_GET_DELAY_MS);
       }
     }
     if (!loaded) {
-      console.error("[printReadyCheckProcess] R2 getFileByKey error:", lastErr instanceof Error ? lastErr.stack : lastErr);
-      const msg = lastErr instanceof Error ? lastErr.message : String(lastErr);
-      if (msg.includes("getFileByKey") || msg.includes("R2")) {
-        throw new Error("File not found in storage. The upload may not have completed — please try again.");
-      }
-      throw lastErr;
+      console.error("[printReadyCheckProcess] R2 getFileByKey exhausted:", lastErr instanceof Error ? lastErr.stack : lastErr);
+      throw new Error(
+        "We could not read your PDF from storage after several tries. Wait 10 seconds and tap Check My PDF again. (R2_READ_RETRY_EXHAUSTED)",
+      );
     }
     pdfBuffer = loaded;
   }

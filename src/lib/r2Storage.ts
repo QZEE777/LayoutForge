@@ -111,72 +111,25 @@ export async function getFileByKey(fullKey: string): Promise<Buffer> {
 }
 
 /**
- * True if an object exists at this key (HEAD only — no body download).
- * Used to wait for upload visibility before enqueueing checker jobs.
+ * Poll until HEAD sees a positive-sized object at this key (browser PUT → R2).
+ * Cheap vs downloading the full PDF on every attempt; pairs with getFileByKey retries on the worker.
  */
-export async function r2ObjectExists(fullKey: string): Promise<boolean> {
-  const key = typeof fullKey === "string" ? fullKey.trim() : "";
-  if (!key) return false;
-  try {
-    const client = getClient();
-    await client.send(new HeadObjectCommand({ Bucket: getBucket(), Key: key }));
-    return true;
-  } catch (e: unknown) {
-    const meta = e && typeof e === "object" && "$metadata" in e ? (e as { $metadata?: { httpStatusCode?: number } }).$metadata : undefined;
-    const name = e && typeof e === "object" && "name" in e ? String((e as { name?: string }).name) : "";
-    if (meta?.httpStatusCode === 404 || name === "NotFound") return false;
-    const msg = e instanceof Error ? e.message : String(e);
-    if (/404|Not Found|NoSuchKey|NotFound/i.test(msg)) return false;
-    throw e;
-  }
-}
-
-/**
- * True if we can read at least one byte (same GET path the worker uses). HEAD alone
- * can succeed before GET is consistent for some edge timings.
- */
-export async function r2ObjectFirstByteReadable(fullKey: string): Promise<boolean> {
-  const key = typeof fullKey === "string" ? fullKey.trim() : "";
-  if (!key) return false;
-  try {
-    const client = getClient();
-    const res = await client.send(
-      new GetObjectCommand({
-        Bucket: getBucket(),
-        Key: key,
-        Range: "bytes=0-0",
-      }),
-    );
-    if (!res.Body) return false;
-    for await (const _chunk of res.Body as AsyncIterable<Uint8Array>) {
-      break;
-    }
-    return true;
-  } catch (e: unknown) {
-    const meta = e && typeof e === "object" && "$metadata" in e ? (e as { $metadata?: { httpStatusCode?: number } }).$metadata : undefined;
-    const name = e && typeof e === "object" && "name" in e ? String((e as { name?: string }).name) : "";
-    if (meta?.httpStatusCode === 404 || meta?.httpStatusCode === 416 || name === "NotFound") return false;
-    const msg = e instanceof Error ? e.message : String(e);
-    if (/404|Not Found|NoSuchKey|NotFound/i.test(msg)) return false;
-    throw e;
-  }
-}
-
-/**
- * Poll until the object is readable via GET (browser PUT → R2; matches worker download).
- * Returns false if the object never appears (missing or repeated transient errors).
- */
-export async function waitForR2ObjectKey(
+export async function waitForCheckerPdfHead(
   fullKey: string,
   opts?: { attempts?: number; delayMs?: number },
 ): Promise<boolean> {
-  const attempts = Math.max(1, opts?.attempts ?? 55);
-  const delayMs = Math.max(100, opts?.delayMs ?? 800);
+  const key = typeof fullKey === "string" ? fullKey.trim() : "";
+  if (!key) return false;
+  const attempts = Math.max(1, opts?.attempts ?? 40);
+  const delayMs = Math.max(250, opts?.delayMs ?? 900);
+  const client = getClient();
   for (let attempt = 1; attempt <= attempts; attempt++) {
     try {
-      if (await r2ObjectFirstByteReadable(fullKey)) return true;
+      const head = await client.send(new HeadObjectCommand({ Bucket: getBucket(), Key: key }));
+      const len = Number(head.ContentLength ?? 0);
+      if (len > 0) return true;
     } catch {
-      // network / throttling — retry
+      /* not visible yet */
     }
     if (attempt < attempts) {
       await new Promise((r) => setTimeout(r, delayMs));

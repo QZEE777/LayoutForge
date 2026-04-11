@@ -12,9 +12,7 @@ import { createClient } from "@supabase/supabase-js";
 // Relative import so worker runs with tsx from repo root without path mapping
 import { runPrintReadyCheck } from "../../src/lib/printReadyCheckProcess";
 
-const NO_JOB_BACKOFF_MS = 2_500;
-const ERROR_BACKOFF_MS = 12_000;
-const WORKER_CONCURRENCY = 3;
+const POLL_INTERVAL_MS = 12_000;
 
 function isPrintReadyWorkerEnabled(): boolean {
   const v = process.env.PRINT_READY_CHECK_WORKER_ENABLED?.trim().toLowerCase();
@@ -73,12 +71,12 @@ function getPreflightUrl(): string {
   return url;
 }
 
-async function processOne(supabase: ReturnType<typeof createClient>, workerId: number): Promise<boolean> {
-  console.info("[worker] claim_attempt", { workerId });
+async function processOne(supabase: ReturnType<typeof createClient>): Promise<boolean> {
+  console.info("[worker] claim_attempt");
   const { data, error } = await supabase.rpc("claim_print_ready_check");
 
   if (error) {
-    console.error("[worker] claim_failed", { workerId, error: error.message });
+    console.error("[worker] claim_failed", { error: error.message });
     throw error;
   }
 
@@ -86,7 +84,7 @@ async function processOne(supabase: ReturnType<typeof createClient>, workerId: n
   const raw = data as PrintReadyCheckRow | PrintReadyCheckRow[] | null | undefined;
   const rows = Array.isArray(raw) ? raw : raw != null && typeof raw === "object" && "id" in raw ? [raw] : [];
   if (!rows.length) {
-    console.info("[worker] claim_empty", { workerId });
+    console.info("[worker] claim_empty");
     return false;
   }
 
@@ -97,9 +95,9 @@ async function processOne(supabase: ReturnType<typeof createClient>, workerId: n
   const fileSizeMB = row.file_size_mb != null ? Number(row.file_size_mb) : undefined;
   const intendedTrimId =
     typeof row.intended_trim_id === "string" && row.intended_trim_id.trim() ? row.intended_trim_id.trim() : null;
-  console.info("[worker] claim_success", { workerId, checkId, ourJobId });
+  console.info("[worker] claim_success", { checkId, ourJobId });
   const startedAt = Date.now();
-  console.info("[worker] processing_start", { workerId, checkId, ourJobId, fileKey, fileSizeMB, intendedTrimId });
+  console.info("[worker] processing_start", { checkId, ourJobId, fileKey, fileSizeMB, intendedTrimId });
 
   try {
     const baseUrl = getPreflightUrl();
@@ -127,17 +125,16 @@ async function processOne(supabase: ReturnType<typeof createClient>, workerId: n
         updated_at: new Date().toISOString(),
       })
       .eq("id", checkId);
-    console.info("[worker] processing_success", { workerId, checkId, ourJobId, duration_ms: Date.now() - startedAt, downloadId });
-
+    console.info("[worker] processing_success", { checkId, ourJobId, duration_ms: Date.now() - startedAt, downloadId });
   } catch (e) {
     const err = e;
     const msg = err instanceof Error ? err.message : String(err);
 
-    console.error("[worker] check_failed", { workerId, checkId, error: err instanceof Error ? err.stack : err });
+    console.error("[worker] check", checkId, "failed:", err instanceof Error ? err.stack : err);
 
-    // Transient R2 read failures: requeue so another attempt can succeed after propagation.
+    // Transient R2 / propagation: put job back on the queue instead of failing the user permanently.
     const storageTransient =
-      msg.includes("File not found in storage") ||
+      msg.includes("R2_READ_RETRY_EXHAUSTED") ||
       msg.includes("getFileByKey") ||
       msg.includes("NoSuchKey") ||
       msg.includes("empty or invalid key") ||
@@ -152,7 +149,7 @@ async function processOne(supabase: ReturnType<typeof createClient>, workerId: n
           updated_at: new Date().toISOString(),
         })
         .eq("id", checkId);
-      console.warn("[worker] processing_requeued", { workerId, checkId, ourJobId, reason: "storage_not_ready" });
+      console.warn("[worker] processing_requeued", { checkId, ourJobId, reason: "storage_transient" });
       return true;
     }
 
@@ -166,24 +163,10 @@ async function processOne(supabase: ReturnType<typeof createClient>, workerId: n
         updated_at: new Date().toISOString(),
       })
       .eq("id", checkId);
-    console.error("[worker] processing_failed", { workerId, checkId, ourJobId, duration_ms: Date.now() - startedAt, error: msg });
+    console.error("[worker] processing_failed", { checkId, ourJobId, duration_ms: Date.now() - startedAt, error: msg });
   }
 
   return true;
-}
-
-async function workerLoop(supabase: ReturnType<typeof createClient>, workerId: number) {
-  while (true) {
-    try {
-      const had = await processOne(supabase, workerId);
-      if (!had) {
-        await new Promise((r) => setTimeout(r, NO_JOB_BACKOFF_MS));
-      }
-    } catch (e) {
-      console.error("[worker] worker_error", { workerId, error: e instanceof Error ? e.stack : e });
-      await new Promise((r) => setTimeout(r, ERROR_BACKOFF_MS));
-    }
-  }
 }
 
 async function main() {
@@ -196,9 +179,17 @@ async function main() {
   }
   const supabase = getSupabase();
   getPreflightUrl();
-  await Promise.all(
-    Array.from({ length: WORKER_CONCURRENCY }, (_, i) => workerLoop(supabase, i))
-  );
+  while (true) {
+    try {
+      const had = await processOne(supabase);
+      if (!had) {
+        await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
+      }
+    } catch (e) {
+      console.error("[worker] poll error:", e);
+      await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
+    }
+  }
 }
 
 main();
