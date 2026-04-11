@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStored, normalizeAnnotatedPdfStatus, updateAnnotatedState } from "@/lib/storage";
 import { sendAnnotatedEmailIfReady } from "@/lib/annotatedEmail";
+import { createClient } from "@/lib/supabaseServer";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -18,9 +19,30 @@ export async function POST(req: NextRequest) {
     }
     const body = (await req.json().catch(() => null)) as { id?: string; email?: string } | null;
     const id = body?.id?.trim();
-    const email = body?.email?.trim().toLowerCase();
+    const bodyEmail = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
+
+    const supabaseAuth = await createClient();
+    const {
+      data: { user },
+    } = await supabaseAuth.auth.getUser();
+    const sessionEmail = user?.email?.trim().toLowerCase() ?? "";
+
+    let email = bodyEmail;
+    if (sessionEmail) {
+      if (email && email !== sessionEmail) {
+        return NextResponse.json(
+          { error: "Email mismatch", message: "Use the email on your signed-in account, or sign out to use a different address." },
+          { status: 403 },
+        );
+      }
+      email = sessionEmail;
+    }
+
     if (!id || !email) {
-      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing fields", message: sessionEmail ? "Missing report id." : "Send your email address, or sign in to use your account email." },
+        { status: 400 },
+      );
     }
     if (!UUID_RE.test(id)) {
       return NextResponse.json({ error: "Invalid id" }, { status: 400 });

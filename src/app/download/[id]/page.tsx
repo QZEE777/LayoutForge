@@ -2,7 +2,7 @@
 "use client";
 
 // TODO: Manny watermark to be added to generated PDF output
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -11,6 +11,7 @@ import PaymentGate from "@/components/PaymentGate";
 import CheckerPdfViewer from "@/components/CheckerPdfViewer";
 import { difficultyLabel, cleanFilenameForDisplay, toFixDifficulty, getScoreGrade, type FixDifficulty } from "@/lib/kdpReportEnhance";
 import { buildVerifyShareCaption } from "@/lib/shareVerifyCaption";
+import { createClient as createBrowserSupabase } from "@/lib/supabaseClient";
 
 const MAX_ISSUES_GROUP_DISPLAY = 10;
 const KDP_DISPLAY_PASS_THRESHOLD = 95;
@@ -195,6 +196,11 @@ export default function DownloadPage() {
   const [annotatedTakingLong, setAnnotatedTakingLong] = useState(false);
   const [annotatedEmailInput, setAnnotatedEmailInput] = useState("");
   const [annotatedEmailStatus, setAnnotatedEmailStatus] = useState<"idle" | "saving" | "queued" | "sent" | "error">("idle");
+  /** `undefined` = still resolving auth; `null` = guest; string = signed-in account email */
+  const [authEmail, setAuthEmail] = useState<string | null | undefined>(undefined);
+  const annotatedAutoInFlightRef = useRef(false);
+  /** One automatic enqueue per download id (guests rely on the form; failures use Retry). */
+  const annotatedAutoAttemptedRef = useRef(false);
 
   // Scan context from URL params (set by checker upload page)
   const scanBookType  = searchParams.get("bk") ?? "paperback";   // paperback | hardcover
@@ -276,6 +282,23 @@ export default function DownloadPage() {
       .catch(() => {});
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    createBrowserSupabase()
+      .auth.getUser()
+      .then(({ data: { user } }) => {
+        if (cancelled) return;
+        const e = user?.email?.trim().toLowerCase();
+        setAuthEmail(e && e.length > 0 ? e : null);
+      })
+      .catch(() => {
+        if (!cancelled) setAuthEmail(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const handleCopyShareEarnLink = useCallback(async () => {
     if (!shareToken) return;
     const url = `https://www.manu2print.com/kdp-pdf-checker?sh=${shareToken}`;
@@ -311,6 +334,7 @@ export default function DownloadPage() {
           const raw = data.report as ProcessingReport;
           setReport(raw);
           setAnnotatedEmailInput("");
+          setAnnotatedEmailStatus("idle");
           setReportError(null);
           if (raw.annotationStatus === "ready" || raw.annotationStatus === "delivered") setAnnotatedReady(true);
           if (raw.annotationStatus === "error") setAnnotatedError(true);
@@ -387,31 +411,89 @@ export default function DownloadPage() {
     return () => clearTimeout(t);
   }, [report?.annotatedPdfUrl, isCheckerFlow, annotatedReady, annotatedError, annotationStatus]);
 
-  const handleAnnotatedEmailOptIn = useCallback(async () => {
-    const email = annotatedEmailInput.trim().toLowerCase();
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  const postCheckerAnnotatedEmail = useCallback(async (email: string): Promise<boolean> => {
+    const normalized = email.trim().toLowerCase();
+    if (!normalized || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) {
       setAnnotatedEmailStatus("error");
-      return;
+      return false;
     }
     setAnnotatedEmailStatus("saving");
     try {
       const res = await fetch("/api/checker-annotated-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, email }),
+        body: JSON.stringify({ id, email: normalized }),
       });
-      const data = (await res.json()) as { success?: boolean; sentNow?: boolean; status?: "queued" | "ready" | "delivered" | "error" };
+      const data = (await res.json()) as {
+        success?: boolean;
+        sentNow?: boolean;
+        status?: "queued" | "ready" | "delivered" | "error";
+      };
       if (res.ok && data?.success) {
         const next = data.status === "delivered" || data.sentNow ? "sent" : "queued";
         setAnnotatedEmailStatus(next);
-        setReport((prev) => (prev ? { ...prev, annotatedEmailRequested: true, annotatedEmailSent: next === "sent", annotationStatus: data.status ?? "queued" } : prev));
-      } else {
-        setAnnotatedEmailStatus("error");
+        setReport((prev) =>
+          prev
+            ? {
+                ...prev,
+                annotatedEmailRequested: true,
+                annotatedEmailSent: next === "sent",
+                annotationStatus: data.status ?? "queued",
+              }
+            : prev,
+        );
+        return true;
       }
+      setAnnotatedEmailStatus("error");
+      return false;
     } catch {
       setAnnotatedEmailStatus("error");
+      return false;
     }
-  }, [annotatedEmailInput, id]);
+  }, [id]);
+
+  const submitCheckerAnnotatedEmail = useCallback(async () => {
+    await postCheckerAnnotatedEmail(annotatedEmailInput);
+  }, [annotatedEmailInput, postCheckerAnnotatedEmail]);
+
+  useEffect(() => {
+    annotatedAutoAttemptedRef.current = false;
+  }, [id]);
+
+  useEffect(() => {
+    if (authEmail === undefined || authEmail === null || !id) return;
+    if (!isCheckerFlow) return;
+    if (!report || (report.page_issues?.length ?? 0) === 0) return;
+    const dl = Boolean(
+      report.annotatedPdfDownloadUrl ||
+        (report.annotatedPdfUrl &&
+          (report.annotationStatus === "ready" ||
+            report.annotationStatus === "delivered" ||
+            (annotatedReady && !annotatedError))),
+    );
+    if (dl) return;
+    if (report.annotatedEmailRequested || report.annotatedEmailSent) return;
+    if (annotatedAutoAttemptedRef.current) return;
+    if (annotatedAutoInFlightRef.current) return;
+    annotatedAutoAttemptedRef.current = true;
+    annotatedAutoInFlightRef.current = true;
+    void postCheckerAnnotatedEmail(authEmail).finally(() => {
+      annotatedAutoInFlightRef.current = false;
+    });
+  }, [
+    authEmail,
+    id,
+    isCheckerFlow,
+    postCheckerAnnotatedEmail,
+    report?.annotatedEmailRequested,
+    report?.annotatedEmailSent,
+    report?.annotatedPdfDownloadUrl,
+    report?.annotatedPdfUrl,
+    report?.annotationStatus,
+    report?.page_issues?.length,
+    annotatedReady,
+    annotatedError,
+  ]);
 
   if (!id) {
     return (
@@ -1001,6 +1083,9 @@ export default function DownloadPage() {
                     <p className="text-sm text-m2p-ink font-semibold mb-4">
                       ⏳ Report expires in 24 hours.
                     </p>
+                    {authEmail === undefined && isChecker && (
+                      <p className="text-xs text-m2p-muted mb-3">Checking your account…</p>
+                    )}
                     {hasActionablePageIssues && hasAnnotatedDownload && (
                       <div className="flex justify-center mb-3">
                         {report.annotatedPdfDownloadUrl ? (
@@ -1038,42 +1123,76 @@ export default function DownloadPage() {
                         </button>
                       </div>
                     )}
-                    {isChecker && hasActionablePageIssues && !hasAnnotatedDownload && !(report.annotatedEmailRequested || report.annotatedEmailSent) && (
-                      <div className="mt-3 rounded-xl border border-[#1A6B2A]/20 bg-white/75 p-4 text-left">
-                        <p className="text-sm font-semibold text-m2p-ink mb-2">
-                          Get the annotated PDF by email when ready
-                        </p>
-                        <div className="flex flex-col sm:flex-row gap-2">
-                          <input
-                            type="email"
-                            placeholder="you@example.com"
-                            value={annotatedEmailInput}
-                            onChange={(e) => {
-                              setAnnotatedEmailInput(e.target.value);
-                              if (annotatedEmailStatus === "error") setAnnotatedEmailStatus("idle");
-                            }}
-                            className="flex-1 rounded-lg border border-m2p-border/70 bg-white px-3 py-2 text-sm text-m2p-ink"
-                          />
-                          <button
-                            type="button"
-                            onClick={handleAnnotatedEmailOptIn}
-                            disabled={annotatedEmailStatus === "saving"}
-                            className="rounded-lg bg-m2p-orange text-white px-4 py-2 text-sm font-bold disabled:opacity-60"
-                          >
-                            {annotatedEmailStatus === "saving" ? "Saving..." : "Email me when ready"}
-                          </button>
+                    {typeof authEmail === "string" &&
+                      authEmail.length > 0 &&
+                      isChecker &&
+                      hasActionablePageIssues &&
+                      !hasAnnotatedDownload &&
+                      !(report.annotatedEmailRequested || report.annotatedEmailSent) && (
+                        <div className="mt-3 rounded-xl border border-[#1A6B2A]/20 bg-white/75 p-4 text-left">
+                          <p className="text-sm font-semibold text-m2p-ink">
+                            Signed in — we&apos;ll email your annotated PDF to{" "}
+                            <span className="text-m2p-orange break-all">{authEmail}</span> when it&apos;s ready.
+                          </p>
+                          {annotatedEmailStatus === "saving" && (
+                            <p className="mt-2 text-xs text-m2p-muted">Saving your preference…</p>
+                          )}
+                          {annotatedEmailStatus === "error" && (
+                            <div className="mt-3">
+                              <p className="text-xs text-[#F05A28] mb-2">
+                                Could not save automatically. Check your connection, or sign out to enter a different email.
+                              </p>
+                              <button
+                                type="button"
+                                onClick={() => void postCheckerAnnotatedEmail(authEmail)}
+                                className="rounded-lg bg-m2p-orange text-white px-4 py-2 text-sm font-bold"
+                              >
+                                Retry
+                              </button>
+                            </div>
+                          )}
                         </div>
-                        {annotatedEmailStatus === "queued" && (
-                          <p className="mt-2 text-xs text-[#1A6B2A]">Queued. We&apos;ll auto-send when annotation is ready.</p>
-                        )}
-                        {annotatedEmailStatus === "sent" && (
-                          <p className="mt-2 text-xs text-[#1A6B2A]">Sent. Check your inbox for the annotated PDF link.</p>
-                        )}
-                        {annotatedEmailStatus === "error" && (
-                          <p className="mt-2 text-xs text-[#F05A28]">Enter a valid email and try again.</p>
-                        )}
-                      </div>
-                    )}
+                      )}
+                    {authEmail === null &&
+                      isChecker &&
+                      hasActionablePageIssues &&
+                      !hasAnnotatedDownload &&
+                      !(report.annotatedEmailRequested || report.annotatedEmailSent) && (
+                        <div className="mt-3 rounded-xl border border-[#1A6B2A]/20 bg-white/75 p-4 text-left">
+                          <p className="text-sm font-semibold text-m2p-ink mb-2">
+                            Get the annotated PDF by email when ready
+                          </p>
+                          <div className="flex flex-col sm:flex-row gap-2">
+                            <input
+                              type="email"
+                              placeholder="you@example.com"
+                              value={annotatedEmailInput}
+                              onChange={(e) => {
+                                setAnnotatedEmailInput(e.target.value);
+                                if (annotatedEmailStatus === "error") setAnnotatedEmailStatus("idle");
+                              }}
+                              className="flex-1 rounded-lg border border-m2p-border/70 bg-white px-3 py-2 text-sm text-m2p-ink"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => void submitCheckerAnnotatedEmail()}
+                              disabled={annotatedEmailStatus === "saving"}
+                              className="rounded-lg bg-m2p-orange text-white px-4 py-2 text-sm font-bold disabled:opacity-60"
+                            >
+                              {annotatedEmailStatus === "saving" ? "Saving..." : "Email me when ready"}
+                            </button>
+                          </div>
+                          {annotatedEmailStatus === "queued" && (
+                            <p className="mt-2 text-xs text-[#1A6B2A]">Queued. We&apos;ll auto-send when annotation is ready.</p>
+                          )}
+                          {annotatedEmailStatus === "sent" && (
+                            <p className="mt-2 text-xs text-[#1A6B2A]">Sent. Check your inbox for the annotated PDF link.</p>
+                          )}
+                          {annotatedEmailStatus === "error" && (
+                            <p className="mt-2 text-xs text-[#F05A28]">Enter a valid email and try again.</p>
+                          )}
+                        </div>
+                      )}
                     {isChecker && hasActionablePageIssues && !hasAnnotatedDownload && (report.annotatedEmailRequested || report.annotatedEmailSent) && (
                       <p className="mt-3 text-xs text-center text-[#1A6B2A]">
                         {report.annotatedEmailSent
@@ -1081,7 +1200,7 @@ export default function DownloadPage() {
                           : "Annotated PDF email queued. We will send it automatically when ready."}
                       </p>
                     )}
-                  <div className="flex justify-center">
+                  <div className="flex justify-center mt-8 pt-1 border-t border-m2p-border/30">
                     <button
                       type="button"
                       onClick={() => {

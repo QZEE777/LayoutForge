@@ -57,6 +57,8 @@ type PublicCheckerReport = {
   advisoryNotices?: Array<{ rule_id: string; message: string; severity: "info" | "warning" }>;
   /** KDP trim id chosen on upload (e.g. 8.5x11); spec table compares against this when set. */
   intendedKdpTrimId?: string;
+  annotatedEmailRequested?: boolean;
+  annotatedEmailSent?: boolean;
 };
 
 function toCanonicalScore(report: Record<string, unknown>): number | undefined {
@@ -171,6 +173,9 @@ function sanitizeCheckerReport(
       typeof reportLike.intendedKdpTrimId === "string" && reportLike.intendedKdpTrimId.trim()
         ? reportLike.intendedKdpTrimId.trim()
         : undefined,
+    annotatedEmailRequested:
+      typeof reportLike.annotatedEmailRequested === "boolean" ? reportLike.annotatedEmailRequested : undefined,
+    annotatedEmailSent: typeof reportLike.annotatedEmailSent === "boolean" ? reportLike.annotatedEmailSent : undefined,
   };
 }
 
@@ -187,6 +192,8 @@ async function buildReportFromStored(meta: Awaited<ReturnType<typeof getStored>>
             annotatedPdfUrl: meta.annotatedPdfUrl ?? processing.annotatedPdfUrl,
             annotatedPdfDownloadUrl: meta.annotatedPdfDownloadUrl ?? processing.annotatedPdfDownloadUrl,
             annotatedPdfStatus: meta.annotatedPdfStatus ?? processing.annotatedPdfStatus,
+            annotatedEmailRequested: !!meta.annotatedEmailRequestedAt,
+            annotatedEmailSent: !!meta.annotatedEmailSentAt,
           },
           meta.outputFilename,
           (meta.annotatedPdfStatus ?? processing.annotatedPdfStatus) as string | undefined,
