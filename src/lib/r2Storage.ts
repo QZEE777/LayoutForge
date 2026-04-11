@@ -132,6 +132,29 @@ export async function r2ObjectExists(fullKey: string): Promise<boolean> {
 }
 
 /**
+ * Poll HEAD until the object is visible (browser PUT → R2 can lag vs worker GET).
+ * Returns false if the object never appears (missing or repeated transient errors).
+ */
+export async function waitForR2ObjectKey(
+  fullKey: string,
+  opts?: { attempts?: number; delayMs?: number },
+): Promise<boolean> {
+  const attempts = Math.max(1, opts?.attempts ?? 40);
+  const delayMs = Math.max(100, opts?.delayMs ?? 900);
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      if (await r2ObjectExists(fullKey)) return true;
+    } catch {
+      // network / throttling — retry
+    }
+    if (attempt < attempts) {
+      await new Promise((r) => setTimeout(r, delayMs));
+    }
+  }
+  return false;
+}
+
+/**
  * Download a file from R2.
  * @param id - Job/document id
  * @param filename - Filename (e.g. "abc123.pdf")

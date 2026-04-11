@@ -184,7 +184,7 @@ export function GoLandingClient({ checkoutUrl, refCode, partnerName }: Props) {
 
           <h1 className="text-4xl lg:text-5xl xl:text-[3.25rem] font-black leading-[1.08] mb-5 text-balance">
             Your PDF looks right.{" "}
-            <span className="text-m2p-orange">KDP will still reject it.</span>
+            <span className="text-m2p-orange">Will KDP still reject it?</span>
           </h1>
 
           <p className="text-base leading-relaxed text-m2p-muted max-w-lg mb-8 text-pretty">

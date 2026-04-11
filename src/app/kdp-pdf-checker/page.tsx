@@ -249,6 +249,8 @@ function UploadWidget({
           className={`relative rounded-xl border-2 border-dashed p-10 text-center transition-all cursor-pointer mb-4 ${
             isDragging
               ? "border-orange-400 bg-orange-50"
+              : file && error
+              ? "border-amber-400 bg-amber-50"
               : file
               ? "border-green-400 bg-green-50"
               : "border-gray-200 bg-gray-50 hover:border-orange-300"
@@ -266,8 +268,11 @@ function UploadWidget({
               <p className="font-semibold text-sm" style={{ color: "#1A1208" }}>
                 {cleanFilenameForDisplay(file.name)}
               </p>
-              <p className="text-xs mt-1" style={{ color: "#2d8a3e" }}>
-                {formatFileSize(file.size)} · ready to scan ✓
+              <p className="text-xs mt-1" style={{ color: error ? "#b45309" : "#2d8a3e" }}>
+                {formatFileSize(file.size)}
+                {error
+                  ? " · tap Check My PDF again (last scan did not finish)"
+                  : " · selected — tap Check My PDF to upload & scan"}
               </p>
             </div>
           ) : (
@@ -380,7 +385,9 @@ function UploadWidget({
 
         <p className="text-center text-xs mt-3" style={{ color: "#9B8E7E" }}>
           {file
-            ? "✓ File ready · score in ~90 seconds · $9 to unlock full report"
+            ? error
+              ? "Fix the message above, then tap Check again — your file stays selected."
+              : "After upload: score in ~90 seconds · $9 unlocks the full report"
             : "Score is free. $9 unlocks the full annotated report."}
         </p>
       </div>
@@ -493,21 +500,36 @@ export default function KdpPdfCheckerPage() {
         method: "PUT", body: file, headers: { "Content-Type": "application/pdf" },
       });
       if (!uploadRes.ok) throw new Error("R2 upload failed");
-      const saveRes = await fetch("/api/kdp-pdf-check-from-preflight", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          jobId,
-          fileKey,
-          fileSizeMB: Math.round(fileSizeMB * 100) / 100,
-          ...(scanContext.intendedTrimId.trim()
-            ? { intendedTrimId: scanContext.intendedTrimId.trim() }
-            : {}),
-        }),
+      const saveBody = JSON.stringify({
+        jobId,
+        fileKey,
+        fileSizeMB: Math.round(fileSizeMB * 100) / 100,
+        ...(scanContext.intendedTrimId.trim()
+          ? { intendedTrimId: scanContext.intendedTrimId.trim() }
+          : {}),
       });
+      const postPreflight = () =>
+        fetch("/api/kdp-pdf-check-from-preflight", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: saveBody,
+        });
+      let saveRes = await postPreflight();
       let saveData: { success?: boolean; checkId?: string; id?: string; error?: string; message?: string };
-      try { saveData = (await saveRes.json()) as typeof saveData; }
-      catch { throw new Error("Could not start check. Try again."); }
+      try {
+        saveData = (await saveRes.json()) as typeof saveData;
+      } catch {
+        throw new Error("Could not start check. Try again.");
+      }
+      if (!saveRes.ok && saveRes.status === 409) {
+        await new Promise((r) => setTimeout(r, 2200));
+        saveRes = await postPreflight();
+        try {
+          saveData = (await saveRes.json()) as typeof saveData;
+        } catch {
+          throw new Error("Could not start check. Try again.");
+        }
+      }
       if (!saveRes.ok) throw new Error(saveData.message || saveData.error || "Could not save report.");
       const ctxParams = `&bk=${scanContext.bookType}&bl=${scanContext.bleedMode === "bleed" ? "1" : "0"}&cm=${scanContext.colorMode}`;
       if (saveData.id) { router.push(`/download/${saveData.id}?source=checker${ctxParams}`); return; }
@@ -587,7 +609,7 @@ export default function KdpPdfCheckerPage() {
               <h1 className="font-black leading-tight mb-4"
                 style={{ color: "#1A1208", fontSize: "clamp(2rem,4vw,2.8rem)", letterSpacing: "-0.025em", textWrap: "balance" } as React.CSSProperties}>
                 Your PDF looks right.{" "}
-                <span style={{ color: "#f05a28" }}>KDP will still reject it.</span>
+                <span style={{ color: "#f05a28" }}>Will KDP still reject it?</span>
               </h1>
 
               <p className="text-base font-semibold mb-4" style={{ color: "#3a3020" }}>

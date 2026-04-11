@@ -5,7 +5,7 @@
  */
 import { PDFDocument } from "pdf-lib";
 import { saveUpload, updateMeta, updateAnnotatedState, type StoredManuscript } from "./storage";
-import { getSignedDownloadUrl, getFileByKey, getSignedUrlForKey } from "./r2Storage";
+import { getSignedDownloadUrl, getFileByKey, getSignedUrlForKey, waitForR2ObjectKey } from "./r2Storage";
 import { getGutterInches } from "./kdpConfig";
 import { inspectPdfBufferForChecker } from "./kdpPdfInspect";
 import { supabase } from "./supabase";
@@ -138,6 +138,15 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
 
   let pdfBuffer: Buffer;
   {
+    try {
+      const visible = await waitForR2ObjectKey(fileKey, { attempts: 35, delayMs: 1000 });
+      if (!visible) {
+        console.warn("[printReadyCheckProcess] R2 HEAD never saw object before GET", { ourJobId, fileKey });
+      }
+    } catch (e) {
+      console.warn("[printReadyCheckProcess] R2 waitForR2ObjectKey error (continuing to GET retries)", e);
+    }
+
     let lastErr: unknown = null;
     let loaded: Buffer | null = null;
     for (let attempt = 1; attempt <= R2_READ_RETRIES; attempt++) {
