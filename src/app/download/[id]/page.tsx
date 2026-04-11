@@ -163,6 +163,13 @@ interface ProcessingReport {
   advisoryNotices?: Array<{ rule_id: string; message: string; severity: "info" | "warning" }>;
 }
 
+/** Hero / gradients: never "pass" visuals when server says needs-fixes (checklist/spec can fail without blockers). */
+function checkerHeroLooksPassing(report: ProcessingReport, score: number | null): boolean {
+  if (report.verdict === "needs-fixes") return false;
+  if (score !== null) return score >= KDP_DISPLAY_PASS_THRESHOLD;
+  return report.kdpReady === true;
+}
+
 export default function DownloadPage() {
   const params = useParams();
   const searchParams = useSearchParams();
@@ -501,10 +508,13 @@ export default function DownloadPage() {
         {/* Checker pre-gate teaser — grade, score, issue count visible before payment */}
         {report && isChecker && (() => {
           const score = report.score ?? report.readinessScore100 ?? report.readiness_score ?? null;
-          const isPassingScore = score !== null
-            ? score >= KDP_DISPLAY_PASS_THRESHOLD
-            : report.kdpReady === true;
-          const _sg = score !== null ? getScoreGrade(score) : null;
+          const isPassingScore = checkerHeroLooksPassing(report, score);
+          const _sg =
+            report.verdict === "needs-fixes" && report.scoreGrade
+              ? report.scoreGrade
+              : score !== null
+                ? getScoreGrade(score)
+                : report.scoreGrade ?? null;
           const gradeColor = () => (isPassingScore ? "#4cd964" : "#f0a028");
           const gradeInfo = _sg === null ? null : {
             letter: _sg.grade,
@@ -671,6 +681,7 @@ export default function DownloadPage() {
               totalPages={report.pageCount ?? 0}
               readinessScore={report.score ?? report.readinessScore100 ?? report.readiness_score ?? null}
               passThreshold={KDP_DISPLAY_PASS_THRESHOLD}
+              verdict={report.verdict ?? null}
             />
             </div>
           </div>
@@ -748,9 +759,17 @@ export default function DownloadPage() {
                   )}
                   {(() => {
                     const s = report.score ?? report.readinessScore100 ?? report.readiness_score ?? null;
-                    const sg = s !== null ? getScoreGrade(s) : report.scoreGrade ?? null;
+                    const sg =
+                      report.verdict === "needs-fixes" && report.scoreGrade
+                        ? report.scoreGrade
+                        : s !== null
+                          ? getScoreGrade(s)
+                          : report.scoreGrade ?? null;
                     if (!sg) return null;
-                    const col = s !== null && s >= KDP_DISPLAY_PASS_THRESHOLD ? "#4cd964" : "#f0a028";
+                    const col =
+                      report.verdict !== "needs-fixes" && s !== null && s >= KDP_DISPLAY_PASS_THRESHOLD
+                        ? "#4cd964"
+                        : "#f0a028";
                     return (
                       <div
                         className="mb-4 flex items-center gap-4 rounded-xl border border-m2p-border/50 px-5 py-4"
@@ -939,7 +958,7 @@ export default function DownloadPage() {
                       </ul>
                     </div>
                   )}
-                  {report.kdpReady && (
+                  {report.kdpReady && report.verdict !== "needs-fixes" && (
                     <div
                       className="mt-6 rounded-xl overflow-hidden border border-[#1A6B2A]/45 shadow-[0_12px_32px_-8px_rgba(13,61,24,0.45)]"
                       style={{ background: "linear-gradient(180deg, #143d1f 0%, #0a2412 100%)" }}
@@ -1158,7 +1177,9 @@ export default function DownloadPage() {
                   {/* ── Share section ── */}
                   {(() => {
                     const shareScore  = report?.score ?? report?.readinessScore100 ?? report?.readiness_score ?? 0;
-                    const shareIsPass = shareScore >= KDP_DISPLAY_PASS_THRESHOLD || (shareScore === 0 && report?.kdpReady === true);
+                    const shareIsPass =
+                      report?.verdict !== "needs-fixes" &&
+                      (shareScore >= KDP_DISPLAY_PASS_THRESHOLD || (shareScore === 0 && report?.kdpReady === true));
                     const verifyLink  = `https://www.manu2print.com/verify/${id}${shareToken ? `?sh=${encodeURIComponent(shareToken)}` : ""}`;
                     const ogBase      = `/api/og/verify/${id}?p=${shareIsPass ? 1 : 0}&s=${shareScore}`;
                     const portraitUrl = `${ogBase}&format=portrait`;

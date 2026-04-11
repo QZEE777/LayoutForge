@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStored, normalizeAnnotatedPdfStatus } from "@/lib/storage";
 import { supabase } from "@/lib/supabase";
-import { normalizeIssueSeverity, type NormalizedIssueSeverity } from "@/lib/kdpReportEnhance";
+import { getScoreGrade, normalizeIssueSeverity, type NormalizedIssueSeverity } from "@/lib/kdpReportEnhance";
 
 type PublicCheckerReport = {
   id: string;
@@ -64,6 +64,23 @@ function toCanonicalScore(report: Record<string, unknown>): number | undefined {
   return candidate;
 }
 
+/** Checklist / spec rows can show KDP-hard fails while issue severities stayed "warning" — fold into verdict. */
+function hasUploadOrSpecHardFail(reportLike: Record<string, unknown>): boolean {
+  const checklist = reportLike.uploadChecklist;
+  if (Array.isArray(checklist)) {
+    for (const row of checklist) {
+      if (row && typeof row === "object" && (row as { status?: string }).status === "fail") return true;
+    }
+  }
+  const spec = reportLike.specTable;
+  if (Array.isArray(spec)) {
+    for (const row of spec) {
+      if (row && typeof row === "object" && (row as { status?: string }).status === "fail") return true;
+    }
+  }
+  return false;
+}
+
 /** Returns sanitized public payload for Tool #1 (never spread raw metadata). */
 function sanitizeCheckerReport(
   id: string,
@@ -91,8 +108,18 @@ function sanitizeCheckerReport(
   const infoCount = severities.filter((s) => s === "info").length;
   const issueCount = pageIssues.length > 0 ? pageIssues.length : severities.length;
   const annotationStatus = normalizeAnnotatedPdfStatus(annotationStatusRaw, sentAt);
+  const structuralFail = hasUploadOrSpecHardFail(reportLike);
   const verdict: PublicCheckerReport["verdict"] =
-    blockerCount > 0 ? "needs-fixes" : "pass";
+    blockerCount > 0 || structuralFail ? "needs-fixes" : "pass";
+
+  let scoreGradeOut = (reportLike.scoreGrade as PublicCheckerReport["scoreGrade"]) ?? undefined;
+  if (verdict === "needs-fixes") {
+    const base = typeof score === "number" && Number.isFinite(score) ? score : 70;
+    scoreGradeOut = getScoreGrade(Math.min(base, 84));
+  } else if (!scoreGradeOut && typeof score === "number" && Number.isFinite(score)) {
+    scoreGradeOut = getScoreGrade(score);
+  }
+
   return {
     id,
     source: "checker",
@@ -129,9 +156,9 @@ function sanitizeCheckerReport(
     readinessScore100,
     readiness_score: readinessScore100,
     highRiskPageNumbers: Array.isArray(reportLike.highRiskPageNumbers) ? (reportLike.highRiskPageNumbers as number[]) : undefined,
-    kdpReady: typeof reportLike.kdpReady === "boolean" ? reportLike.kdpReady : undefined,
+    kdpReady: verdict === "pass",
     issuesEnriched: Array.isArray(reportLike.issuesEnriched) ? (reportLike.issuesEnriched as PublicCheckerReport["issuesEnriched"]) : undefined,
-    scoreGrade: (reportLike.scoreGrade as PublicCheckerReport["scoreGrade"]) ?? undefined,
+    scoreGrade: scoreGradeOut,
     creationTool: typeof reportLike.creationTool === "string" ? reportLike.creationTool : undefined,
     uploadChecklist: Array.isArray(reportLike.uploadChecklist) ? (reportLike.uploadChecklist as PublicCheckerReport["uploadChecklist"]) : undefined,
     specTable: Array.isArray(reportLike.specTable) ? (reportLike.specTable as PublicCheckerReport["specTable"]) : undefined,

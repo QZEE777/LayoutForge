@@ -24,6 +24,8 @@ interface CheckerPdfViewerProps {
   requestedPage?: number | null;
   readinessScore?: number | null;
   passThreshold?: number;
+  /** Server verdict: when needs-fixes, never show the green "ready for KDP" strip even if score is high. */
+  verdict?: "pass" | "needs-fixes" | null;
 }
 
 function normalizeSeverity(issue: PageIssue): "critical" | "warning" {
@@ -49,6 +51,7 @@ export default function CheckerPdfViewer({
   requestedPage = null,
   readinessScore = null,
   passThreshold = 95,
+  verdict = null,
 }: CheckerPdfViewerProps) {
   const [pageNumber, setPageNumber] = useState(1);
   const [numPages, setNumPages] = useState(totalPagesProp || 0);
@@ -193,7 +196,10 @@ export default function CheckerPdfViewer({
         .sort((a, b) => a - b)
     )
   );
-  const showReadyMessage = issuePages.length === 0 || (readinessScore != null && readinessScore >= passThreshold);
+  const verdictAllowsReadyStrip = verdict !== "needs-fixes";
+  const showReadyMessage =
+    verdictAllowsReadyStrip &&
+    (issuePages.length === 0 || (readinessScore != null && readinessScore >= passThreshold));
   const issuePagesLabel =
     issuePages.length <= 8
       ? issuePages.join(", ")
