@@ -25,13 +25,24 @@ export function normalizeIssueSeverity(input: {
   const severity = (input.severity ?? "").toLowerCase();
   const rule = (input.rule_id ?? "").toLowerCase();
   const message = (input.message ?? "").toLowerCase();
+  const haystack = `${rule} ${message}`;
   if (severity === "warning" || severity === "minor") return "warning";
   if (severity === "info") return "info";
+  if (severity === "critical" || severity === "advanced") return "blocker";
+  // Preflight marks many per-page layout checks as "error" — rollup as warnings unless likely KDP rejection.
+  if (severity === "error") {
+    if (
+      /unembed|not embedded|font not|subset|type\s*3|transparency|flatten|interactive|form field|rgb text|invalid color|below\s+\d+\s*dpi|resolution too low|color space not allowed|encryption|password/i.test(
+        haystack,
+      )
+    ) {
+      return "blocker";
+    }
+    return "warning";
+  }
   if (
-    severity === "error" ||
-    severity === "critical" ||
-    severity === "advanced" ||
-    /trim|bleed|margin|gutter|font|embed|transparency|interactive|image_resolution|image_color_mode/.test(`${rule} ${message}`)
+    /unembed|not embedded|type\s*3|transparency|interactive|form field/.test(haystack) ||
+    (/font|embed/.test(haystack) && /not|missing|unembed/i.test(haystack))
   ) {
     return "blocker";
   }
@@ -481,6 +492,10 @@ function isMeaningfulTrimDetected(trimDetected?: string | null): boolean {
 export interface ChecklistSpecInput {
   trimMatchKDP?: boolean;
   trimDetected?: string;
+  trimWidthIn?: number;
+  trimHeightIn?: number;
+  /** When set, trim row uses same geometry vs declared trim as spec table (avoids checklist/spec drift). */
+  intendedKdpTrimId?: string | null;
   pageCount?: number;
   errorCount: number;
   warningCount: number;
@@ -492,14 +507,30 @@ export interface ChecklistSpecInput {
 }
 
 export function buildUploadChecklist(input: ChecklistSpecInput): ChecklistItem[] {
-  // Geometric trim match (TrimBox vs KDP list) wins over noisy preflight trim-related rules.
-  const trimStatus: "pass" | "warning" | "fail" = input.trimMatchKDP
-    ? "pass"
-    : input.hasTrimIssues
-      ? "fail"
-      : isMeaningfulTrimDetected(input.trimDetected)
+  const intendedDef = input.intendedKdpTrimId ? getKdpTrimDefinitionById(input.intendedKdpTrimId) : null;
+  const hasDims =
+    typeof input.trimWidthIn === "number" &&
+    Number.isFinite(input.trimWidthIn) &&
+    typeof input.trimHeightIn === "number" &&
+    Number.isFinite(input.trimHeightIn);
+  const geometryMatchesIntended =
+    !!intendedDef &&
+    hasDims &&
+    dimensionsMatchIntendedTrim(input.trimWidthIn!, input.trimHeightIn!, intendedDef.w, intendedDef.h);
+
+  let trimStatus: "pass" | "warning" | "fail";
+  if (intendedDef && hasDims) {
+    trimStatus = geometryMatchesIntended ? "pass" : "fail";
+  } else {
+    // Geometric trim match (TrimBox vs KDP list) wins over noisy preflight trim-related rules.
+    trimStatus = input.trimMatchKDP
+      ? "pass"
+      : input.hasTrimIssues
         ? "fail"
-        : "warning";
+        : isMeaningfulTrimDetected(input.trimDetected)
+          ? "fail"
+          : "warning";
+  }
   return [
     {
       check: "Trim size matches KDP",
@@ -930,6 +961,9 @@ export function enrichCheckerReport(
     uploadChecklist: buildUploadChecklist({
       trimMatchKDP:         normalizedTrimMatchKDP,
       trimDetected:         report.trimDetected,
+      trimWidthIn:          report.trimWidthIn,
+      trimHeightIn:         report.trimHeightIn,
+      intendedKdpTrimId:    enrichOptions?.intendedKdpTrimId?.trim() || null,
       pageCount:            report.pageCount,
       errorCount,
       warningCount,

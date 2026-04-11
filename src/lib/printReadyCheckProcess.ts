@@ -10,7 +10,7 @@ import { getGutterInches } from "./kdpConfig";
 import { inspectPdfBufferForChecker } from "./kdpPdfInspect";
 import { supabase } from "./supabase";
 import { dimensionsMatchIntendedTrim, getKdpTrimDefinitionById } from "./kdpIntendedTrim";
-import { enrichCheckerReport } from "./kdpReportEnhance";
+import { enrichCheckerReport, getRiskLevel, getScoreGrade } from "./kdpReportEnhance";
 import { sendAnnotatedEmailIfReady } from "./annotatedEmail";
 
 const DEFAULT_PREFLIGHT_BASE_URL = "https://kdp-preflight-engine-production.up.railway.app";
@@ -117,8 +117,12 @@ function computeScoreFromIssues(issues: Array<{ fixDifficulty?: string; humanMes
     }
   }
   const unique = Array.from(uniqueByMessage.values());
-  const criticalCount = unique.filter((i) => i.fixDifficulty === "advanced" || i.severity === "critical" || i.severity === "error").length;
-  const moderateCount = unique.filter((i) => i.fixDifficulty === "moderate").length;
+  const criticalCount = unique.filter((i) => i.fixDifficulty === "advanced" || i.severity === "critical").length;
+  const moderateCount = unique.filter(
+    (i) =>
+      !(i.fixDifficulty === "advanced" || i.severity === "critical") &&
+      (i.fixDifficulty === "moderate" || i.severity === "error"),
+  ).length;
   const easyCount = unique.length - criticalCount - moderateCount;
   return unique.length === 0
     ? 95
@@ -261,11 +265,11 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
   const tid = typeof intendedTrimId === "string" ? intendedTrimId.trim() : "";
   const intendedDef = tid ? getKdpTrimDefinitionById(tid) : null;
   if (intendedDef && inspect) {
-    if (dimensionsMatchIntendedTrim(inspect.trimWidthIn, inspect.trimHeightIn, intendedDef.w, intendedDef.h)) {
-      report.trimMatchKDP = true;
-      report.kdpTrimName = intendedDef.catalogName;
-      report.trimSize = tid;
-    }
+    const match = dimensionsMatchIntendedTrim(inspect.trimWidthIn, inspect.trimHeightIn, intendedDef.w, intendedDef.h);
+    // Declared trim wins: do not leave trimMatchKDP true from catalog match to a *different* KDP size.
+    report.trimMatchKDP = match;
+    report.kdpTrimName = intendedDef.catalogName;
+    report.trimSize = tid;
   }
   report.hasPdfPreview = true;
   const enrichedReport = enrichCheckerReport(report, "Uploaded PDF", preflight ?? undefined, undefined, undefined, "unknown", {
@@ -279,9 +283,17 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
     typeof rawReadiness === "number" && Number.isFinite(rawReadiness) && rawReadiness > 0
       ? Math.round(rawReadiness)
       : null;
-  const calculatedScore = engineScore ?? computeScoreFromIssues(issues);
+  const fromIssues = computeScoreFromIssues(issues);
+  let calculatedScore = engineScore != null ? Math.min(engineScore, fromIssues) : fromIssues;
+  const pageIssueLen = preflight?.page_issues?.length ?? 0;
+  if (pageIssueLen > 12) {
+    const pen = Math.min(58, 10 + Math.floor((pageIssueLen - 12) / 3));
+    calculatedScore = Math.max(5, calculatedScore - pen);
+  }
   enrichedReport.readinessScore100 = calculatedScore;
   enrichedReport.kdpPassProbability = calculatedScore;
+  enrichedReport.scoreGrade = getScoreGrade(calculatedScore);
+  enrichedReport.riskLevel = getRiskLevel(calculatedScore);
 
   const doc = await PDFDocument.create();
   doc.addPage([612, 792]);
