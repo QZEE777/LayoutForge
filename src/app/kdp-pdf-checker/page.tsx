@@ -9,6 +9,7 @@ import { BrandWordmark } from "@/components/BrandWordmark";
 import { formatFileSize } from "@/lib/formatFileName";
 import { cleanFilenameForDisplay } from "@/lib/kdpReportEnhance";
 import { ErrorRecovery } from "@/components/ErrorRecovery";
+import { CHECKER_MAX_UPLOAD_BYTES, CHECKER_MAX_UPLOAD_MB } from "@/lib/checkerUploadLimits";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -285,7 +286,9 @@ function UploadWidget({
                 Drop your PDF here
               </p>
               <p className="text-xs mt-1" style={{ color: "#9B8E7E" }}>or click to browse</p>
-              <p className="text-xs mt-3" style={{ color: "#C4B5A0" }}>PDF files only · any size</p>
+              <p className="text-xs mt-3" style={{ color: "#C4B5A0" }}>
+                PDF files only · up to {CHECKER_MAX_UPLOAD_MB} MB
+              </p>
             </div>
           )}
         </div>
@@ -456,6 +459,9 @@ export default function KdpPdfCheckerPage() {
     const ext = f.name.toLowerCase().slice(f.name.lastIndexOf("."));
     if (ext !== ".pdf") return "This tool accepts PDF files only.";
     if (f.size === 0) return "File is empty. Please choose a non-empty PDF.";
+    if (f.size > CHECKER_MAX_UPLOAD_BYTES) {
+      return `This file is ${formatFileSize(f.size)}. The checker accepts PDFs up to ${CHECKER_MAX_UPLOAD_MB} MB — try our free PDF Compressor or reduce image resolution, then export again.`;
+    }
     return null;
   }, []);
 

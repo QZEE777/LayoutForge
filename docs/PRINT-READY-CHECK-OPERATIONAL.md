@@ -49,9 +49,9 @@ Preflight engine (running, URL set)
 
 ### 4. All checker uploads use async path (no sync through Vercel)
 
-- **What it is:** In `src/app/kdp-pdf-checker/page.tsx`, `SERVER_MAX_MB = 0` means every upload goes: R2 (presigned) → API enqueues row → worker runs preflight → frontend polls status. No file is sent through Vercel’s sync route, so no 504 from Vercel timeout.
-- **Check:** In code, `SERVER_MAX_MB === 0`. If it was set to 1 (or higher), small files used the sync path and could hit 504 on Hobby/Pro when preflight was slow.
-- **Tradeoff:** Small files take a few seconds (polling) instead of “instant” sync; that’s acceptable and avoids the timeout loop.
+- **What it is:** The checker page always uses: presigned **R2 PUT** → `POST /api/kdp-pdf-check-from-preflight` → poll status → download. The PDF never goes through Vercel’s body in the primary flow, so no 504 from Vercel timeout on large files.
+- **Check:** `handleSubmit` in `src/app/kdp-pdf-checker/page.tsx` should only call `create-upload-url` + R2 + enqueue (not `POST /api/kdp-pdf-check` with FormData for real checks).
+- **Tradeoff:** Every scan uses polling (a few seconds) instead of a sync shortcut; that avoids the timeout loop.
 
 ### 5. R2 same on Vercel and worker
 
@@ -69,6 +69,6 @@ Preflight engine (running, URL set)
 1. Is **preflight** up? (`KDP_PREFLIGHT_API_URL` set, `/health` returns OK.)  
 2. Are **migrations 009 + 010** applied?  
 3. Is the **worker** running and claiming jobs? (Railway logs.)  
-4. Is **SERVER_MAX_MB = 0** so we never use sync? (No 504 from Vercel.)
+4. Does the checker UI still use **only** the R2 + enqueue path? (No full-PDF sync through Vercel for production checks.)
 
 If all four are yes and it still fails, use `print_ready_checks.error_message` and worker logs for the exact error.

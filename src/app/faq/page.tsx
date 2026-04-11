@@ -108,7 +108,7 @@ export default function FAQPage() {
             />
             <FaqItem
               q="What is the maximum file size?"
-              a="50 MB. Most manuscript PDFs are well under this. If yours is over 50 MB, try reducing image resolution (300 DPI is enough for KDP print) or compressing images before re-exporting."
+              a="For the KDP PDF Checker: up to 100 MB. Most manuscript PDFs are well under that. If yours is still too large, try reducing image resolution (300 DPI is enough for KDP print), compressing images, or our free PDF Compressor before re-exporting."
             />
             <FaqItem
               q="How do I export a PDF from Word for KDP?"
@@ -128,7 +128,7 @@ export default function FAQPage() {
             />
             <FaqItem
               q="My upload is stuck or shows an error. What do I do?"
-              a="Make sure the file is a real PDF (not renamed from another format), under 50 MB, and that your internet connection is stable. Try a different browser if the issue persists. If it still won't upload, contact us."
+              a="Make sure the file is a real PDF (not renamed from another format), under 100 MB for the checker, and that your internet connection is stable. Try a different browser if the issue persists. If it still won't upload, contact us."
             />
           </section>
 

@@ -9,6 +9,7 @@ import { enrichCheckerReport, cleanFilenameForDisplay } from "@/lib/kdpReportEnh
 import { supabase } from "@/lib/supabase";
 import { findKdpTrim, trimBoxSizeInches } from "@/lib/kdpPdfInspect";
 import { sendAnnotatedEmailIfReady } from "@/lib/annotatedEmail";
+import { CHECKER_MAX_UPLOAD_MB } from "@/lib/checkerUploadLimits";
 
 const PREFLIGHT_POLL_MS = 2000;
 const PREFLIGHT_MAX_WAIT_MS = 55000;
@@ -158,7 +159,7 @@ export async function POST(request: NextRequest) {
         message: "This file is too large to scan. Please compress it first using our free PDF Compressor, then try again.",
       }, { status: 400 });
     }
-    const MAX_MB = 50;
+    const MAX_MB = CHECKER_MAX_UPLOAD_MB;
     if (buffer.length > MAX_MB * 1024 * 1024) {
       return NextResponse.json({ error: "File too large", message: `File must be smaller than ${MAX_MB}MB.` }, { status: 400 });
     }

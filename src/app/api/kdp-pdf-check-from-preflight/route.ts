@@ -8,6 +8,7 @@ export const maxDuration = 90;
 import { supabase } from "@/lib/supabase";
 import { isValidIntendedTrimId } from "@/lib/kdpIntendedTrim";
 import { waitForCheckerPdfHead } from "@/lib/r2Storage";
+import { CHECKER_MAX_UPLOAD_MB } from "@/lib/checkerUploadLimits";
 
 export async function POST(request: NextRequest) {
   try {
@@ -36,9 +37,15 @@ export async function POST(request: NextRequest) {
       );
     }
     const fileSizeMB = typeof body.fileSizeMB === "number" ? body.fileSizeMB : undefined;
-    if (fileSizeMB != null && (!Number.isFinite(fileSizeMB) || fileSizeMB <= 0 || fileSizeMB > 50)) {
+    if (
+      fileSizeMB != null &&
+      (!Number.isFinite(fileSizeMB) || fileSizeMB <= 0 || fileSizeMB > CHECKER_MAX_UPLOAD_MB)
+    ) {
       return NextResponse.json(
-        { error: "Invalid fileSizeMB", message: "fileSizeMB must be a positive number up to 50 MB." },
+        {
+          error: "Invalid fileSizeMB",
+          message: `fileSizeMB must be a positive number up to ${CHECKER_MAX_UPLOAD_MB} MB.`,
+        },
         { status: 400 }
       );
     }

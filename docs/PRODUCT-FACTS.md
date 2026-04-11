@@ -18,7 +18,7 @@ Short, updatable reference. Pass this (or the current version) into the support 
 | **PDF uploads** (Compressor, PDF Print Optimizer, keyword/description PDF) | Max **50 MB**. PDF only. |
 | **Print Ready Check (KDP PDF Checker)** | Max **100 MB**. PDF only. |
 | **DOCX uploads** (KDP Formatter, 7 Keyword Research DOCX, Description Generator DOCX) | Max **50 MB**. DOCX only. |
-| **KDP PDF (final)** | KDP allows up to 650 MB; we check up to 50 MB. Page count max **828** for KDP. |
+| **KDP PDF (final)** | KDP allows up to 650 MB; Print Ready Check accepts interiors up to **100 MB**. Page count max **828** for KDP. |
 
 ---
 
@@ -50,7 +50,7 @@ Short, updatable reference. Pass this (or the current version) into the support 
 
 ## Common fixes
 
-- **Upload fails / “won’t upload”** — Usually file too large (>50 MB) or wrong format. Use standard PDF or DOCX; re-export if needed; keep images ~300 DPI for print.
+- **Upload fails / “won’t upload”** — Often wrong format or file over the tool limit (most PDF/DOCX tools: 50 MB; **KDP PDF Checker:** 100 MB). Use standard PDF or DOCX; re-export if needed; keep images ~300 DPI for print.
 - **Wrong format error** — DOCX tools accept only .docx; PDF tools accept only .pdf. Export from the app (e.g. Word “Save As” DOCX, or “Export as PDF”).
 - **Description generator** — DOCX version: DOCX only. PDF version: PDF only. Check the tool page for which input it expects.
 

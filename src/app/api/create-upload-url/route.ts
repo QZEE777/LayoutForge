@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { CHECKER_MAX_UPLOAD_BYTES, CHECKER_MAX_UPLOAD_MB } from '@/lib/checkerUploadLimits';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,16 +42,18 @@ export async function POST(request: NextRequest) {
 
     const body = (await request.json().catch(() => null)) as { fileSize?: unknown } | null;
     const fileSize = typeof body?.fileSize === "number" ? body.fileSize : NaN;
-    const MAX_UPLOAD_BYTES = 50 * 1024 * 1024; // Allow larger checker manuscripts while still bounded.
     if (!Number.isFinite(fileSize) || fileSize <= 0) {
       return NextResponse.json(
         { error: "Invalid file size", message: "Provide a positive fileSize in bytes." },
         { status: 400, headers: NO_STORE_HEADERS }
       );
     }
-    if (fileSize > MAX_UPLOAD_BYTES) {
+    if (fileSize > CHECKER_MAX_UPLOAD_BYTES) {
       return NextResponse.json(
-        { error: "File too large", message: "Checker uploads are limited to 50MB." },
+        {
+          error: "File too large",
+          message: `Checker uploads are limited to ${CHECKER_MAX_UPLOAD_MB}MB.`,
+        },
         { status: 400, headers: NO_STORE_HEADERS }
       );
     }
