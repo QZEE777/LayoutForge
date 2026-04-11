@@ -3,6 +3,9 @@
  * Run from repo root: npx tsx workers/print-ready-check/run.ts
  * Requires: NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, KDP_PREFLIGHT_API_URL,
  *   R2_ENDPOINT, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME, USE_R2 (optional).
+ *
+ * Only ONE process per Supabase project should claim jobs. If another Railway service uses this
+ * same repo but must not consume the queue, set PRINT_READY_CHECK_WORKER_ENABLED=false there.
  */
 import "dotenv/config";
 import { createClient } from "@supabase/supabase-js";
@@ -12,6 +15,12 @@ import { runPrintReadyCheck } from "../../src/lib/printReadyCheckProcess";
 const NO_JOB_BACKOFF_MS = 2_500;
 const ERROR_BACKOFF_MS = 12_000;
 const WORKER_CONCURRENCY = 3;
+
+function isPrintReadyWorkerEnabled(): boolean {
+  const v = process.env.PRINT_READY_CHECK_WORKER_ENABLED?.trim().toLowerCase();
+  if (v == null || v === "") return true;
+  return v !== "0" && v !== "false" && v !== "no" && v !== "off";
+}
 
 interface PrintReadyCheckRow {
   id: string;
@@ -178,6 +187,13 @@ async function workerLoop(supabase: ReturnType<typeof createClient>, workerId: n
 }
 
 async function main() {
+  if (!isPrintReadyWorkerEnabled()) {
+    console.info(
+      "[worker] PRINT_READY_CHECK_WORKER_ENABLED is false — exiting without claiming jobs. " +
+        "Use this on duplicate Railway services that deploy the same repo but must not share the print_ready_checks queue.",
+    );
+    process.exit(0);
+  }
   const supabase = getSupabase();
   getPreflightUrl();
   await Promise.all(
