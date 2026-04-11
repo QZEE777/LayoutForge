@@ -20,6 +20,7 @@ interface PrintReadyCheckRow {
   fileKey?: string | null;
   our_job_id: string;
   file_size_mb: number | null;
+  intended_trim_id?: string | null;
 }
 
 const UUID_RE =
@@ -85,9 +86,11 @@ async function processOne(supabase: ReturnType<typeof createClient>, workerId: n
   const fileKey = resolveCheckerPdfR2Key(row);
   const ourJobId = row.our_job_id;
   const fileSizeMB = row.file_size_mb != null ? Number(row.file_size_mb) : undefined;
+  const intendedTrimId =
+    typeof row.intended_trim_id === "string" && row.intended_trim_id.trim() ? row.intended_trim_id.trim() : null;
   console.info("[worker] claim_success", { workerId, checkId, ourJobId });
   const startedAt = Date.now();
-  console.info("[worker] processing_start", { workerId, checkId, ourJobId, fileKey, fileSizeMB });
+  console.info("[worker] processing_start", { workerId, checkId, ourJobId, fileKey, fileSizeMB, intendedTrimId });
 
   try {
     const baseUrl = getPreflightUrl();
@@ -96,6 +99,7 @@ async function processOne(supabase: ReturnType<typeof createClient>, workerId: n
       fileKey,
       ourJobId,
       fileSizeMB,
+      intendedTrimId,
       baseUrl,
     });
 

@@ -4,6 +4,7 @@
  * fix difficulty labels, upload checklist, spec table.
  */
 
+import { dimensionsMatchIntendedTrim, getKdpTrimDefinitionById } from "./kdpIntendedTrim";
 import {
   getGutterInches,
   MIN_SPINE_TEXT_PAGES,
@@ -539,8 +540,12 @@ export function buildUploadChecklist(input: ChecklistSpecInput): ChecklistItem[]
 
 export interface SpecTableInput {
   trimDetected?: string;
+  trimWidthIn?: number;
+  trimHeightIn?: number;
   trimMatchKDP?: boolean;
   kdpTrimName?: string | null;
+  /** Optional declared trim from checker UI — spec "KDP required" row uses this as the comparison target. */
+  intendedKdpTrimId?: string | null;
   pageCount?: number;
   fileSizeMB?: number;
   recommendedGutterInches?: number;
@@ -553,19 +558,36 @@ export interface SpecTableInput {
 }
 
 export function buildSpecTable(input: SpecTableInput): SpecRow[] {
-  const trimStatus: "pass" | "warning" | "fail" = input.trimMatchKDP
-    ? "pass"
-    : input.hasTrimIssues
-      ? "fail"
-      : isMeaningfulTrimDetected(input.trimDetected)
+  const intendedDef = input.intendedKdpTrimId ? getKdpTrimDefinitionById(input.intendedKdpTrimId) : null;
+  const hasDims =
+    typeof input.trimWidthIn === "number" &&
+    Number.isFinite(input.trimWidthIn) &&
+    typeof input.trimHeightIn === "number" &&
+    Number.isFinite(input.trimHeightIn);
+  const geometryMatchesIntended =
+    !!intendedDef &&
+    hasDims &&
+    dimensionsMatchIntendedTrim(input.trimWidthIn!, input.trimHeightIn!, intendedDef.w, intendedDef.h);
+
+  let trimStatus: "pass" | "warning" | "fail";
+  if (intendedDef) {
+    trimStatus = geometryMatchesIntended ? "pass" : "fail";
+  } else {
+    trimStatus = input.trimMatchKDP
+      ? "pass"
+      : input.hasTrimIssues
         ? "fail"
-        : "warning";
-  const kdpRequiredTrim = input.kdpTrimName
-    ? input.kdpTrimName.split(" — ")[0]
-    : "Use popular KDP trims: 6×9\", 5.5×8.5\", or 8.5×11\"";
-  const yourFileTrim = input.trimMatchKDP && input.kdpTrimName
-    ? input.kdpTrimName.split(" — ")[0]
-    : (input.trimDetected ?? "—");
+        : isMeaningfulTrimDetected(input.trimDetected)
+          ? "fail"
+          : "warning";
+  }
+
+  const kdpRequiredTrim = intendedDef
+    ? `${intendedDef.labelShort} (KDP trim you selected for this scan)`
+    : input.kdpTrimName
+      ? input.kdpTrimName.split(" — ")[0]
+      : "Use popular KDP trims: 6×9\", 5.5×8.5\", or 8.5×11\"";
+  const yourFileTrim = input.trimDetected ?? "—";
   return [
     {
       requirement: "Trim size",
@@ -684,6 +706,9 @@ export interface CheckerReportBase {
   trimSize: string;
   pageCount?: number;
   trimDetected?: string;
+  /** First-page TrimBox in inches (when inspect ran). */
+  trimWidthIn?: number;
+  trimHeightIn?: number;
   trimMatchKDP?: boolean;
   kdpTrimName?: string | null;
   fileSizeMB?: number;
@@ -713,6 +738,8 @@ export interface EnrichedCheckerReport extends CheckerReportBase {
   specTable: SpecRow[];
   estimatedFixHours: number;
   advisoryNotices: AdvisoryNotice[];
+  /** KDP trim id from checker upload (e.g. 8.5x11), if author selected one. */
+  intendedKdpTrimId?: string;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -817,6 +844,7 @@ export function enrichCheckerReport(
   engineReadinessScore?: number,
   engineApprovalLikelihood?: number,
   creationTool = "unknown",
+  enrichOptions?: { intendedKdpTrimId?: string | null },
 ): EnrichedCheckerReport {
   let errorCount: number;
   let warningCount: number;
@@ -909,8 +937,11 @@ export function enrichCheckerReport(
     }),
     specTable: buildSpecTable({
       trimDetected:            report.trimDetected,
+      trimWidthIn:             report.trimWidthIn,
+      trimHeightIn:             report.trimHeightIn,
       trimMatchKDP:            normalizedTrimMatchKDP,
       kdpTrimName:             report.kdpTrimName,
+      intendedKdpTrimId:       enrichOptions?.intendedKdpTrimId?.trim() || null,
       pageCount:               report.pageCount,
       fileSizeMB:              report.fileSizeMB,
       recommendedGutterInches: report.recommendedGutterInches,
@@ -920,5 +951,8 @@ export function enrichCheckerReport(
     }),
     estimatedFixHours: estimateFixMinutes(issuesEnriched) / 60,
     advisoryNotices:   buildAdvisoryNotices(report),
+    ...(enrichOptions?.intendedKdpTrimId?.trim()
+      ? { intendedKdpTrimId: enrichOptions.intendedKdpTrimId.trim() }
+      : {}),
   };
 }

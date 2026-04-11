@@ -55,6 +55,8 @@ type PublicCheckerReport = {
   estimatedFixHours?: number;
   upsellBridge?: string;
   advisoryNotices?: Array<{ rule_id: string; message: string; severity: "info" | "warning" }>;
+  /** KDP trim id chosen on upload (e.g. 8.5x11); spec table compares against this when set. */
+  intendedKdpTrimId?: string;
 };
 
 function toCanonicalScore(report: Record<string, unknown>): number | undefined {
@@ -165,6 +167,10 @@ function sanitizeCheckerReport(
     estimatedFixHours: typeof reportLike.estimatedFixHours === "number" ? reportLike.estimatedFixHours : undefined,
     upsellBridge: typeof reportLike.upsellBridge === "string" ? reportLike.upsellBridge : undefined,
     advisoryNotices: Array.isArray(reportLike.advisoryNotices) ? (reportLike.advisoryNotices as PublicCheckerReport["advisoryNotices"]) : undefined,
+    intendedKdpTrimId:
+      typeof reportLike.intendedKdpTrimId === "string" && reportLike.intendedKdpTrimId.trim()
+        ? reportLike.intendedKdpTrimId.trim()
+        : undefined,
   };
 }
 

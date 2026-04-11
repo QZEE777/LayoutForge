@@ -41,6 +41,9 @@ export function trimBoxSizeInches(page: PDFPage): { widthIn: number; heightIn: n
 export interface CheckerPdfInspectResult {
   pageCount: number;
   trimDetected: string;
+  /** First-page TrimBox dimensions in inches (portrait orientation as stored in PDF). */
+  trimWidthIn: number;
+  trimHeightIn: number;
   trimMatchKDP: boolean;
   kdpTrimName: string | null;
   trimSize: string;
@@ -60,6 +63,8 @@ export async function inspectPdfBufferForChecker(buffer: Buffer): Promise<Checke
     return {
       pageCount,
       trimDetected: `${widthIn}" × ${heightIn}"`,
+      trimWidthIn: widthIn,
+      trimHeightIn: heightIn,
       trimMatchKDP: !!kdpTrim,
       kdpTrimName: kdpTrim?.name ?? null,
       trimSize: kdpTrim ? kdpTrim.id : `${widthIn}x${heightIn}`,

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { HARDCOVER_TRIM_SIZES, TRIM_SIZES } from "@/lib/kdpConfig";
 import { BrandWordmark } from "@/components/BrandWordmark";
 import { formatFileSize } from "@/lib/formatFileName";
 import { cleanFilenameForDisplay } from "@/lib/kdpReportEnhance";
@@ -102,6 +103,19 @@ export interface ScanContext {
   bookType:  BookType;
   bleedMode: BleedMode;
   colorMode: ColorMode;
+  /** Optional KDP trim id (TRIM_SIZES / HARDCOVER id); empty = detect from PDF only. */
+  intendedTrimId: string;
+}
+
+const PAPERBACK_INTENDED_IDS = ["5x8", "5.5x8.5", "6x9", "6.14x9.21", "8.5x11", "8.5x8.5", "7x10", "8x10"] as const;
+const HARDCOVER_INTENDED_IDS = ["hc-5.5x8.5", "hc-6x9", "hc-6.14x9.21", "hc-7x10", "hc-8.5x11"] as const;
+
+function labelForKdpTrimId(id: string): string {
+  const pb = TRIM_SIZES.find((t) => t.id === id);
+  if (pb) return pb.name;
+  const hc = HARDCOVER_TRIM_SIZES.find((t) => t.id === id);
+  if (hc) return hc.name;
+  return id;
 }
 
 // ── Chip picker helper ────────────────────────────────────────────────────────
@@ -294,7 +308,7 @@ function UploadWidget({
           <ChipGroup<BookType>
             label="Book type"
             value={scanContext.bookType}
-            onChange={(v) => onScanContextChange({ ...scanContext, bookType: v })}
+            onChange={(v) => onScanContextChange({ ...scanContext, bookType: v, intendedTrimId: "" })}
             options={[
               { value: "paperback", label: "Paperback", icon: "📖" },
               { value: "hardcover", label: "Hardcover", icon: "📕" },
@@ -318,6 +332,27 @@ function UploadWidget({
               { value: "color", label: "Full color",    icon: "🎨" },
             ]}
           />
+          <div className="mt-3">
+            <label className="block text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: "#9B8E7E" }}>
+              Intended interior trim <span className="font-normal normal-case opacity-80">(optional)</span>
+            </label>
+            <select
+              className="w-full rounded-lg border px-3 py-2.5 text-sm font-medium bg-white"
+              style={{ borderColor: "rgba(0,0,0,0.12)", color: "#1A1208" }}
+              value={scanContext.intendedTrimId}
+              onChange={(e) => onScanContextChange({ ...scanContext, intendedTrimId: e.target.value })}
+            >
+              <option value="">Detect from PDF only</option>
+              {(scanContext.bookType === "hardcover" ? HARDCOVER_INTENDED_IDS : PAPERBACK_INTENDED_IDS).map((id) => (
+                <option key={id} value={id}>
+                  {labelForKdpTrimId(id)}
+                </option>
+              ))}
+            </select>
+            <p className="text-[10px] mt-1.5 leading-snug text-center" style={{ color: "#9B8E7E" }}>
+              If your PDF is a standard KDP size (for example US Letter 8.5×11), pick it so the report compares your file to that trim.
+            </p>
+          </div>
         </div>
 
         {/* CTA button */}
@@ -366,6 +401,7 @@ export default function KdpPdfCheckerPage() {
   const [showLandingHeader, setShowLandingHeader] = useState(true);
   const [scanContext, setScanContext]     = useState<ScanContext>({
     bookType:  "paperback",
+    intendedTrimId: "",
     bleedMode: "no-bleed",
     colorMode: "bw",
   });
@@ -460,7 +496,14 @@ export default function KdpPdfCheckerPage() {
       const saveRes = await fetch("/api/kdp-pdf-check-from-preflight", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jobId, fileKey, fileSizeMB: Math.round(fileSizeMB * 100) / 100 }),
+        body: JSON.stringify({
+          jobId,
+          fileKey,
+          fileSizeMB: Math.round(fileSizeMB * 100) / 100,
+          ...(scanContext.intendedTrimId.trim()
+            ? { intendedTrimId: scanContext.intendedTrimId.trim() }
+            : {}),
+        }),
       });
       let saveData: { success?: boolean; checkId?: string; id?: string; error?: string; message?: string };
       try { saveData = (await saveRes.json()) as typeof saveData; }

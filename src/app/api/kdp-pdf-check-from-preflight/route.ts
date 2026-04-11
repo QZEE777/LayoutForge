@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 export const maxDuration = 60;
 import { supabase } from "@/lib/supabase";
 import { r2ObjectExists } from "@/lib/r2Storage";
+import { isValidIntendedTrimId } from "@/lib/kdpIntendedTrim";
 
 /** After client PUT, R2 can lag briefly; wait before enqueue so workers do not read a missing object. */
 const R2_VISIBLE_ATTEMPTS = 25;
@@ -28,7 +29,7 @@ async function waitUntilR2ObjectVisible(fileKey: string): Promise<boolean> {
 export async function POST(request: NextRequest) {
   try {
     console.log("[kdp-pdf-check-from-preflight] start");
-    let body: { jobId?: string; fileKey?: string; fileSizeMB?: number };
+    let body: { jobId?: string; fileKey?: string; fileSizeMB?: number; intendedTrimId?: string | null };
     try {
       body = await request.json();
     } catch {
@@ -52,6 +53,19 @@ export async function POST(request: NextRequest) {
       );
     }
     const fileSizeMB = typeof body.fileSizeMB === "number" ? body.fileSizeMB : undefined;
+
+    const rawIntended = body.intendedTrimId;
+    let intended_trim_id: string | null = null;
+    if (rawIntended != null && String(rawIntended).trim() !== "") {
+      const tid = String(rawIntended).trim();
+      if (!isValidIntendedTrimId(tid)) {
+        return NextResponse.json(
+          { error: "Invalid intendedTrimId", message: "intendedTrimId must be a known KDP trim id or omitted." },
+          { status: 400 }
+        );
+      }
+      intended_trim_id = tid;
+    }
 
     if (typeof body.fileKey !== "string" || !/^uploads\/[0-9a-fA-F-]+\.pdf$/.test(body.fileKey.trim())) {
       return NextResponse.json(
@@ -96,6 +110,7 @@ export async function POST(request: NextRequest) {
         our_job_id: jobId,
         file_size_mb: fileSizeMB ?? null,
         status: "pending",
+        intended_trim_id,
       })
       .select("id")
       .single();

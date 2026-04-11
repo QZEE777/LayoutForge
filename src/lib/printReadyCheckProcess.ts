@@ -9,6 +9,7 @@ import { getSignedDownloadUrl, getFileByKey, getSignedUrlForKey } from "./r2Stor
 import { getGutterInches } from "./kdpConfig";
 import { inspectPdfBufferForChecker } from "./kdpPdfInspect";
 import { supabase } from "./supabase";
+import { dimensionsMatchIntendedTrim, getKdpTrimDefinitionById } from "./kdpIntendedTrim";
 import { enrichCheckerReport } from "./kdpReportEnhance";
 import { sendAnnotatedEmailIfReady } from "./annotatedEmail";
 
@@ -40,6 +41,8 @@ interface CheckerReport {
   page_issues: Array<{ page: number; rule_id: string; severity: string; message: string; bbox: number[] | null }>;
   hasPdfPreview?: boolean;
   pdfSourceUrl?: string;
+  trimWidthIn?: number;
+  trimHeightIn?: number;
 }
 
 function buildReportFromPreflightOnly(preflight: PreflightReport | null | undefined, fileSizeMB?: number): CheckerReport {
@@ -82,6 +85,8 @@ export interface RunPrintReadyCheckParams {
   fileKey: string;
   ourJobId: string;
   fileSizeMB?: number;
+  /** Optional KDP trim id from checker UI (e.g. 8.5x11, hc-6x9). Compared to detected TrimBox with normal tolerance. */
+  intendedTrimId?: string | null;
   /** Optional override. If omitted, uses process.env.KDP_PREFLIGHT_API_URL with fallback to DEFAULT_PREFLIGHT_BASE_URL. */
   baseUrl?: string;
 }
@@ -121,7 +126,7 @@ function computeScoreFromIssues(issues: Array<{ fixDifficulty?: string; humanMes
 }
 
 export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Promise<{ downloadId: string }> {
-  const { fileKey, ourJobId, fileSizeMB, baseUrl } = params;
+  const { fileKey, ourJobId, fileSizeMB, intendedTrimId, baseUrl } = params;
   const envUrl = process.env.KDP_PREFLIGHT_API_URL?.trim();
   const url = (envUrl || baseUrl || DEFAULT_PREFLIGHT_BASE_URL).replace(/\/$/, "");
   const startedAt = Date.now();
@@ -246,13 +251,26 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
     const fromPreflight = report.pageCount;
     report.pageCount = Math.max(fromPreflight, inspect.pageCount);
     report.trimDetected = inspect.trimDetected;
+    report.trimWidthIn = inspect.trimWidthIn;
+    report.trimHeightIn = inspect.trimHeightIn;
     report.trimMatchKDP = inspect.trimMatchKDP;
     report.kdpTrimName = inspect.kdpTrimName;
     report.trimSize = inspect.trimSize;
     report.recommendedGutterInches = getGutterInches(report.pageCount);
   }
+  const tid = typeof intendedTrimId === "string" ? intendedTrimId.trim() : "";
+  const intendedDef = tid ? getKdpTrimDefinitionById(tid) : null;
+  if (intendedDef && inspect) {
+    if (dimensionsMatchIntendedTrim(inspect.trimWidthIn, inspect.trimHeightIn, intendedDef.w, intendedDef.h)) {
+      report.trimMatchKDP = true;
+      report.kdpTrimName = intendedDef.catalogName;
+      report.trimSize = tid;
+    }
+  }
   report.hasPdfPreview = true;
-  const enrichedReport = enrichCheckerReport(report, "Uploaded PDF", preflight ?? undefined);
+  const enrichedReport = enrichCheckerReport(report, "Uploaded PDF", preflight ?? undefined, undefined, undefined, "unknown", {
+    intendedKdpTrimId: tid || null,
+  });
 
   const issues = enrichedReport.issuesEnriched ?? [];
   // Engine sometimes sends readiness_score: 0 as a placeholder; `??` would keep 0 and wipe a sane local score.
