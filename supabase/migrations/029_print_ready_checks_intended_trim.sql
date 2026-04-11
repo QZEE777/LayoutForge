@@ -1,6 +1,9 @@
 -- Optional KDP trim id from checker upload (e.g. 8.5x11) for spec-table comparison target.
 ALTER TABLE print_ready_checks ADD COLUMN IF NOT EXISTS intended_trim_id text;
 
+-- PG forbids changing RETURNS TABLE shape via CREATE OR REPLACE; drop then recreate.
+DROP FUNCTION IF EXISTS public.claim_print_ready_check();
+
 CREATE OR REPLACE FUNCTION claim_print_ready_check()
 RETURNS TABLE (
   id uuid,
@@ -31,5 +34,7 @@ AS $$
   WHERE prc.id = picked.id
   RETURNING prc.id, prc.file_key, prc.our_job_id, prc.file_size_mb, prc.intended_trim_id;
 $$;
+
+COMMENT ON FUNCTION public.claim_print_ready_check() IS 'Atomically claim one print_ready_checks job (pending or stale processing >15m). Worker calls via RPC.';
 
 COMMENT ON COLUMN print_ready_checks.intended_trim_id IS 'Optional checker UI trim id (TRIM_SIZES / HARDCOVER id); used for report spec row only.';
