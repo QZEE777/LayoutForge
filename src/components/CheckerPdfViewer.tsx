@@ -1,6 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import {
+  CHECKER_ANNOTATION_PASS_THRESHOLD,
+  CHECKER_OVERLAY_CRITICAL_HEX,
+  CHECKER_OVERLAY_WARNING_HEX,
+} from "@/lib/checkerAnnotationStyle";
 
 const BASE_WIDTH = 560;
 const BLANK_CHECK_SAMPLE_COUNT = 120;
@@ -50,7 +55,7 @@ export default function CheckerPdfViewer({
   totalPages: totalPagesProp,
   requestedPage = null,
   readinessScore = null,
-  passThreshold = 95,
+  passThreshold = CHECKER_ANNOTATION_PASS_THRESHOLD,
   verdict = null,
 }: CheckerPdfViewerProps) {
   const [pageNumber, setPageNumber] = useState(1);
@@ -536,7 +541,7 @@ export default function CheckerPdfViewer({
                 const rect = getIssueOverlayRect(issue.bbox);
                 if (!rect) return null;
                 const normalized = normalizeSeverity(issue);
-                const stroke = normalized === "critical" ? "#FF0000" : "#FF8C00";
+                const stroke = normalized === "critical" ? CHECKER_OVERLAY_CRITICAL_HEX : CHECKER_OVERLAY_WARNING_HEX;
                 const label = makeOverlayLabel(issue);
                 const labelY = Math.max(rect.y - 4, 8);
                 return (

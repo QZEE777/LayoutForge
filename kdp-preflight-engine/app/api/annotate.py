@@ -23,7 +23,11 @@ async def trigger_annotate(
 ) -> dict:
     """
     Generate annotated PDF inline (synchronous — no Celery, no Redis).
-    Caller must POST the preflight report JSON as the request body.
+    Caller POSTs JSON. Expected keys (see LayoutForge `buildCheckerAnnotateReportBody`):
+    - page_issues (required for overlays)
+    - score, total_checks, passed_checks (summary page; score matches site readiness)
+    - pass_threshold (optional, default 80; site sends 95)
+    - display_filename (optional; else server filename is shown)
     Returns {"job_id", "status": "ready", "r2_key"} on success.
     """
     if not UUID_PATTERN.match(job_id):

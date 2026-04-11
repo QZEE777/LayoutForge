@@ -12,9 +12,10 @@ import CheckerPdfViewer from "@/components/CheckerPdfViewer";
 import { difficultyLabel, cleanFilenameForDisplay, toFixDifficulty, getScoreGrade, type FixDifficulty } from "@/lib/kdpReportEnhance";
 import { buildVerifyShareCaption } from "@/lib/shareVerifyCaption";
 import { createClient as createBrowserSupabase } from "@/lib/supabaseClient";
+import { CHECKER_ANNOTATION_PASS_THRESHOLD } from "@/lib/checkerAnnotationStyle";
 
 const MAX_ISSUES_GROUP_DISPLAY = 10;
-const KDP_DISPLAY_PASS_THRESHOLD = 95;
+const KDP_DISPLAY_PASS_THRESHOLD = CHECKER_ANNOTATION_PASS_THRESHOLD;
 
 /** Download page visual tokens — design-only; print HTML uses matching hex values. */
 const DL_VIS = {

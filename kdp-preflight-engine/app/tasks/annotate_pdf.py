@@ -99,6 +99,8 @@ def _color_for_normalized(normalized: str) -> tuple[float, float, float]:
 def _draw_summary_page(doc: fitz.Document, report: dict[str, Any], filename: str) -> None:
     page = doc.new_page(pno=0, width=_A4_WIDTH, height=_A4_HEIGHT)
 
+    display_name = str(report.get("display_filename") or "").strip() or filename
+
     page.insert_text(
         fitz.Point(24, 36),
         "manu2print",
@@ -108,7 +110,7 @@ def _draw_summary_page(doc: fitz.Document, report: dict[str, Any], filename: str
     )
     page.insert_text(
         fitz.Point(_A4_WIDTH - 250, 36),
-        _truncate(filename, 40),
+        _truncate(display_name, 40),
         fontsize=8,
         fontname="helv",
         color=_GREY_TEXT,
@@ -126,7 +128,17 @@ def _draw_summary_page(doc: fitz.Document, report: dict[str, Any], filename: str
     except Exception:
         score = 0
 
-    score_color = _CRITICAL_COLOR if score < 50 else _WARNING_COLOR if score < 80 else _PASS_COLOR
+    pass_thr_raw = report.get("pass_threshold", 80)
+    try:
+        pass_threshold = int(float(pass_thr_raw))
+    except Exception:
+        pass_threshold = 80
+    if pass_threshold < 50 or pass_threshold > 99:
+        pass_threshold = 80
+
+    score_color = (
+        _CRITICAL_COLOR if score < 50 else _WARNING_COLOR if score < pass_threshold else _PASS_COLOR
+    )
 
     center = fitz.Point(297, 200)
     radius = 45
@@ -151,7 +163,7 @@ def _draw_summary_page(doc: fitz.Document, report: dict[str, Any], filename: str
         align=1,
     )
 
-    is_pass = score >= 80
+    is_pass = score >= pass_threshold
     page.insert_textbox(
         fitz.Rect(0, 270, _A4_WIDTH, 295),
         "PASS" if is_pass else "FAIL",

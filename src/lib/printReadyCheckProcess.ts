@@ -12,6 +12,7 @@ import { supabase } from "./supabase";
 import { dimensionsMatchIntendedTrim, getKdpTrimDefinitionById } from "./kdpIntendedTrim";
 import { enrichCheckerReport, getRiskLevel, getScoreGrade } from "./kdpReportEnhance";
 import { sendAnnotatedEmailIfReady } from "./annotatedEmail";
+import { buildCheckerAnnotateReportBody } from "./checkerAnnotatePayload";
 
 const DEFAULT_PREFLIGHT_BASE_URL = "https://kdp-preflight-engine-production.up.railway.app";
 
@@ -348,18 +349,23 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
       status: "processing",
       annotatedPdfUrl: `${url}/file/${encodeURIComponent(renderJobId)}/annotated`,
     });
+    const pageIssuesForAnnotate = (preflight?.page_issues ?? report.page_issues ?? []).map((issue) => ({
+      page: issue.page,
+      rule_id: issue.rule_id,
+      severity: issue.severity,
+      message: issue.message,
+      bbox: issue.bbox ?? null,
+    }));
+    const annotateBody = buildCheckerAnnotateReportBody({
+      pageIssues: pageIssuesForAnnotate,
+      readinessScore100: calculatedScore,
+      preflightSummary: preflight?.summary ?? null,
+      displayFilename: enrichedReport.fileNameScanned ?? "Uploaded PDF",
+    });
     const annotateRes = await fetch(`${url}/annotate/${encodeURIComponent(renderJobId)}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        page_issues: (preflight?.page_issues ?? report.page_issues ?? []).map((issue) => ({
-          page: issue.page,
-          rule_id: issue.rule_id,
-          severity: issue.severity,
-          message: issue.message,
-          bbox: issue.bbox ?? null,
-        })),
-      }),
+      body: JSON.stringify(annotateBody),
       signal: AbortSignal.timeout(120000),
     });
     if (annotateRes.ok) {

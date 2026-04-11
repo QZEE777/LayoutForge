@@ -10,6 +10,7 @@ import { supabase } from "@/lib/supabase";
 import { findKdpTrim, trimBoxSizeInches } from "@/lib/kdpPdfInspect";
 import { sendAnnotatedEmailIfReady } from "@/lib/annotatedEmail";
 import { CHECKER_MAX_UPLOAD_MB } from "@/lib/checkerUploadLimits";
+import { buildCheckerAnnotateReportBody } from "@/lib/checkerAnnotatePayload";
 
 const PREFLIGHT_POLL_MS = 2000;
 const PREFLIGHT_MAX_WAIT_MS = 55000;
@@ -287,18 +288,22 @@ export async function POST(request: NextRequest) {
           annotatedPdfStatus: "processing",
           annotatedPdfUrl: `${engineBaseUrl}/file/${encodeURIComponent(annotateJobId)}/annotated`,
         });
+        const annotateBody = buildCheckerAnnotateReportBody({
+          pageIssues: (preflightReport?.page_issues ?? []).map((issue) => ({
+            page: issue.page,
+            rule_id: issue.rule_id,
+            severity: issue.severity,
+            message: issue.message,
+            bbox: issue.bbox ?? null,
+          })),
+          readinessScore100: enrichedReport.readinessScore100 ?? 0,
+          preflightSummary: preflightReport?.summary ?? null,
+          displayFilename: enrichedReport.fileNameScanned ?? null,
+        });
         const annotateRes = await fetch(`${engineBaseUrl}/annotate/${annotateJobId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            page_issues: (preflightReport?.page_issues ?? []).map((issue) => ({
-              page: issue.page,
-              rule_id: issue.rule_id,
-              severity: issue.severity,
-              message: issue.message,
-              bbox: issue.bbox ?? null,
-            })),
-          }),
+          body: JSON.stringify(annotateBody),
           signal: AbortSignal.timeout(120000),
         });
         if (annotateRes.ok) {
