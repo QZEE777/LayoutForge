@@ -132,18 +132,49 @@ export async function r2ObjectExists(fullKey: string): Promise<boolean> {
 }
 
 /**
- * Poll HEAD until the object is visible (browser PUT → R2 can lag vs worker GET).
+ * True if we can read at least one byte (same GET path the worker uses). HEAD alone
+ * can succeed before GET is consistent for some edge timings.
+ */
+export async function r2ObjectFirstByteReadable(fullKey: string): Promise<boolean> {
+  const key = typeof fullKey === "string" ? fullKey.trim() : "";
+  if (!key) return false;
+  try {
+    const client = getClient();
+    const res = await client.send(
+      new GetObjectCommand({
+        Bucket: getBucket(),
+        Key: key,
+        Range: "bytes=0-0",
+      }),
+    );
+    if (!res.Body) return false;
+    for await (const _chunk of res.Body as AsyncIterable<Uint8Array>) {
+      break;
+    }
+    return true;
+  } catch (e: unknown) {
+    const meta = e && typeof e === "object" && "$metadata" in e ? (e as { $metadata?: { httpStatusCode?: number } }).$metadata : undefined;
+    const name = e && typeof e === "object" && "name" in e ? String((e as { name?: string }).name) : "";
+    if (meta?.httpStatusCode === 404 || meta?.httpStatusCode === 416 || name === "NotFound") return false;
+    const msg = e instanceof Error ? e.message : String(e);
+    if (/404|Not Found|NoSuchKey|NotFound/i.test(msg)) return false;
+    throw e;
+  }
+}
+
+/**
+ * Poll until the object is readable via GET (browser PUT → R2; matches worker download).
  * Returns false if the object never appears (missing or repeated transient errors).
  */
 export async function waitForR2ObjectKey(
   fullKey: string,
   opts?: { attempts?: number; delayMs?: number },
 ): Promise<boolean> {
-  const attempts = Math.max(1, opts?.attempts ?? 40);
-  const delayMs = Math.max(100, opts?.delayMs ?? 900);
+  const attempts = Math.max(1, opts?.attempts ?? 55);
+  const delayMs = Math.max(100, opts?.delayMs ?? 800);
   for (let attempt = 1; attempt <= attempts; attempt++) {
     try {
-      if (await r2ObjectExists(fullKey)) return true;
+      if (await r2ObjectFirstByteReadable(fullKey)) return true;
     } catch {
       // network / throttling — retry
     }

@@ -20,8 +20,8 @@ export default function SiteNav() {
           <Link href="/#pricing" className="m2p-link-nav">
             Pricing
           </Link>
-          <Link href="/about" className="m2p-link-nav">
-            About
+          <Link href="/blog" className="m2p-link-nav">
+            Blog
           </Link>
           <Link href="/partners/apply" className="m2p-link-nav text-m2p-live hover:opacity-80">
             Earn 40%

@@ -100,8 +100,8 @@ export interface RunPrintReadyCheckParams {
 const PREFLIGHT_STATUS_DEADLINE_MS = 840000; // 14 min for large PDFs
 
 const STATUS_POLL_TIMEOUT_MS = 10_000;
-const R2_READ_RETRIES = 30;
-const R2_READ_RETRY_DELAY_MS = 2_000;
+const R2_READ_RETRIES = 50;
+const R2_READ_RETRY_DELAY_MS = 1_500;
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -139,7 +139,7 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
   let pdfBuffer: Buffer;
   {
     try {
-      const visible = await waitForR2ObjectKey(fileKey, { attempts: 35, delayMs: 1000 });
+      const visible = await waitForR2ObjectKey(fileKey, { attempts: 50, delayMs: 750 });
       if (!visible) {
         console.warn("[printReadyCheckProcess] R2 HEAD never saw object before GET", { ourJobId, fileKey });
       }

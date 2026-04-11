@@ -36,7 +36,7 @@ export default function SiteFooter() {
         <Link href="/legal" className="text-m2p-ivory/70 hover:text-m2p-orange transition-colors">Legal</Link>
         <Link href="/terms" className="text-m2p-ivory/70 hover:text-m2p-orange transition-colors">Terms &amp; Conditions</Link>
         <Link href="/privacy" className="text-m2p-ivory/70 hover:text-m2p-orange transition-colors">Privacy Policy</Link>
-        <Link href="/about" className="text-m2p-ivory/70 hover:text-m2p-orange transition-colors">About</Link>
+        <Link href="/blog" className="text-m2p-ivory/70 hover:text-m2p-orange transition-colors">Blog</Link>
         <Link href="/blog" className="text-m2p-ivory/70 hover:text-m2p-orange transition-colors">Blog</Link>
         <Link href="/founders" className="text-m2p-ivory/70 hover:text-m2p-orange transition-colors">Founders</Link>
         <Link href="/partners/apply" className="text-m2p-orange font-semibold hover:opacity-80 transition-opacity">Partner Program</Link>

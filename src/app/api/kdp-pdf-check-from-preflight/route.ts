@@ -10,8 +10,8 @@ import { waitForR2ObjectKey } from "@/lib/r2Storage";
 import { isValidIntendedTrimId } from "@/lib/kdpIntendedTrim";
 
 /** After client PUT, R2 can lag; wait before enqueue so workers do not read a missing object. */
-const R2_VISIBLE_ATTEMPTS = 35;
-const R2_VISIBLE_DELAY_MS = 1000;
+const R2_VISIBLE_ATTEMPTS = 55;
+const R2_VISIBLE_DELAY_MS = 800;
 
 export async function POST(request: NextRequest) {
   try {
