@@ -2,7 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { sendAnnotatedEmailIfReady } from "@/lib/annotatedEmail";
 import { getStored, normalizeAnnotatedPdfStatus } from "@/lib/storage";
 import { supabase } from "@/lib/supabase";
-import { getScoreGrade, normalizeIssueSeverity, type NormalizedIssueSeverity } from "@/lib/kdpReportEnhance";
+import {
+  getScoreGrade,
+  normalizeIssueSeverity,
+  canonicalCheckerReadinessScore,
+  type CheckerReadinessFields,
+  type NormalizedIssueSeverity,
+} from "@/lib/kdpReportEnhance";
 
 type PublicCheckerReport = {
   id: string;
@@ -62,13 +68,6 @@ type PublicCheckerReport = {
   annotatedEmailSent?: boolean;
 };
 
-function toCanonicalScore(report: Record<string, unknown>): number | undefined {
-  const candidate = [report.readinessScore100, report.readiness_score, report.kdpPassProbability]
-    .map((n) => (typeof n === "number" && Number.isFinite(n) ? Math.round(n) : undefined))
-    .find((n) => typeof n === "number");
-  return candidate;
-}
-
 /** Checklist / spec rows can show KDP-hard fails while issue severities stayed "warning" — fold into verdict. */
 function hasUploadOrSpecHardFail(reportLike: Record<string, unknown>): boolean {
   const checklist = reportLike.uploadChecklist;
@@ -94,7 +93,7 @@ function sanitizeCheckerReport(
   annotationStatusRaw?: string,
   sentAt?: number
 ): PublicCheckerReport {
-  const score = toCanonicalScore(reportLike);
+  const score = canonicalCheckerReadinessScore(reportLike as CheckerReadinessFields) ?? undefined;
   const readinessScore100 = score ?? (typeof reportLike.readinessScore100 === "number" ? reportLike.readinessScore100 : undefined);
   const pageIssues: Array<{ page: number; rule_id: string; severity: string; message: string; bbox: number[] | null }> =
     Array.isArray(reportLike.page_issues)

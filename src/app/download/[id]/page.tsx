@@ -9,7 +9,14 @@ import Image from "next/image";
 import { BrandWordmark } from "@/components/BrandWordmark";
 import PaymentGate from "@/components/PaymentGate";
 import CheckerPdfViewer from "@/components/CheckerPdfViewer";
-import { difficultyLabel, cleanFilenameForDisplay, toFixDifficulty, getScoreGrade, type FixDifficulty } from "@/lib/kdpReportEnhance";
+import {
+  difficultyLabel,
+  cleanFilenameForDisplay,
+  toFixDifficulty,
+  getScoreGrade,
+  canonicalCheckerReadinessScore,
+  type FixDifficulty,
+} from "@/lib/kdpReportEnhance";
 import { buildVerifyShareCaption } from "@/lib/shareVerifyCaption";
 import { createClient as createBrowserSupabase } from "@/lib/supabaseClient";
 import { CHECKER_ANNOTATION_PASS_THRESHOLD } from "@/lib/checkerAnnotationStyle";
@@ -651,7 +658,7 @@ export default function DownloadPage() {
 
         {/* Checker pre-gate teaser — grade, score, issue count visible before payment */}
         {report && isChecker && (() => {
-          const score = report.score ?? report.readinessScore100 ?? report.readiness_score ?? null;
+          const score = canonicalCheckerReadinessScore(report);
           const isPassingScore = checkerHeroLooksPassing(report, score);
           const _sg =
             report.verdict === "needs-fixes" && report.scoreGrade
@@ -823,7 +830,7 @@ export default function DownloadPage() {
                 fixDifficulty: issue.fixDifficulty ?? toFixDifficulty(issue.rule_id, issue.message),
               }))}
               totalPages={report.pageCount ?? 0}
-              readinessScore={report.score ?? report.readinessScore100 ?? report.readiness_score ?? null}
+              readinessScore={canonicalCheckerReadinessScore(report)}
               passThreshold={KDP_DISPLAY_PASS_THRESHOLD}
               verdict={report.verdict ?? null}
             />
@@ -902,7 +909,7 @@ export default function DownloadPage() {
                     </div>
                   )}
                   {(() => {
-                    const s = report.score ?? report.readinessScore100 ?? report.readiness_score ?? null;
+                    const s = canonicalCheckerReadinessScore(report);
                     const sg =
                       report.verdict === "needs-fixes" && report.scoreGrade
                         ? report.scoreGrade
@@ -910,10 +917,7 @@ export default function DownloadPage() {
                           ? getScoreGrade(s)
                           : report.scoreGrade ?? null;
                     if (!sg) return null;
-                    const col =
-                      report.verdict !== "needs-fixes" && s !== null && s >= KDP_DISPLAY_PASS_THRESHOLD
-                        ? "#4cd964"
-                        : "#f0a028";
+                    const col = checkerHeroLooksPassing(report, s) ? "#4cd964" : "#f0a028";
                     return (
                       <div
                         className="mb-4 flex items-center gap-4 rounded-xl border border-m2p-border/50 px-5 py-4"
@@ -927,10 +931,10 @@ export default function DownloadPage() {
                       </div>
                     );
                   })()}
-                  {(report.score ?? report.readinessScore100 ?? report.readiness_score) != null && (
+                  {canonicalCheckerReadinessScore(report) != null && (
                     <p className="mb-2 text-2xl sm:text-3xl font-black text-m2p-ink tabular-nums">
                       Readiness{" "}
-                      <span className="text-[#0D3D18]">{report.score ?? report.readinessScore100 ?? report.readiness_score}</span>
+                      <span className="text-[#0D3D18]">{canonicalCheckerReadinessScore(report)}</span>
                       <span className="text-m2p-muted text-xl font-bold">/100</span>
                     </p>
                   )}
@@ -944,10 +948,10 @@ export default function DownloadPage() {
                       Blockers {report.blockerCount} · Warnings {report.warningCount ?? 0} · Info {report.infoCount ?? 0}
                     </p>
                   )}
-                  {((report.score ?? report.readinessScore100 ?? report.readiness_score) != null && report.riskLevel) && (
+                  {(canonicalCheckerReadinessScore(report) != null && report.riskLevel) && (
                     <p className="mb-3 text-sm font-bold text-m2p-ink flex flex-wrap items-center gap-x-2">
                       <span className="text-m2p-muted font-semibold">KDP approval likelihood</span>
-                      <span className="tabular-nums">{report.score ?? report.readinessScore100 ?? report.readiness_score}%</span>
+                      <span className="tabular-nums">{canonicalCheckerReadinessScore(report)}%</span>
                       <span className="text-m2p-border">·</span>
                       <span className="text-m2p-muted font-semibold">Risk</span>
                       <span className="font-black" style={{ color: report.riskLevel === "Low" ? "#2D6A2D" : report.riskLevel === "Medium" ? "#c27803" : "#c2410c" }}>{report.riskLevel}</span>
@@ -1370,10 +1374,9 @@ export default function DownloadPage() {
 
                   {/* ── Share section ── */}
                   {(() => {
-                    const shareScore  = report?.score ?? report?.readinessScore100 ?? report?.readiness_score ?? 0;
-                    const shareIsPass =
-                      report?.verdict !== "needs-fixes" &&
-                      (shareScore >= KDP_DISPLAY_PASS_THRESHOLD || (shareScore === 0 && report?.kdpReady === true));
+                    const readiness = canonicalCheckerReadinessScore(report);
+                    const shareScore = readiness ?? 0;
+                    const shareIsPass = checkerHeroLooksPassing(report, readiness);
                     const verifyLink  = `https://www.manu2print.com/verify/${id}${shareToken ? `?sh=${encodeURIComponent(shareToken)}` : ""}`;
                     const ogBase      = `/api/og/verify/${id}?p=${shareIsPass ? 1 : 0}&s=${shareScore}`;
                     const portraitUrl = `${ogBase}&format=portrait`;
@@ -1905,7 +1908,7 @@ export default function DownloadPage() {
 
         {/* Checker: re-check CTA when issues exist */}
         {isChecker && report && (() => {
-          const score = report.score ?? report.readinessScore100 ?? report.readiness_score ?? null;
+          const score = canonicalCheckerReadinessScore(report);
           const hasIssues = (report.issuesEnriched?.length ?? 0) > 0;
           if (!hasIssues && score !== null && score >= KDP_DISPLAY_PASS_THRESHOLD) return null;
           return (

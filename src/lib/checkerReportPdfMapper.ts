@@ -7,6 +7,8 @@ import {
   cleanFilenameForDisplay,
   getScoreGrade,
   normalizeIssueSeverity,
+  canonicalCheckerReadinessScore,
+  type CheckerReadinessFields,
   type NormalizedIssueSeverity,
 } from "@/lib/kdpReportEnhance";
 
@@ -42,14 +44,6 @@ export interface CheckerReportData {
   }>;
   filename: string;
   scanDate: string;
-}
-
-function toCanonicalScore(reportLike: Record<string, unknown>): number | undefined {
-  const candidates = [reportLike.readinessScore100, reportLike.readiness_score, reportLike.kdpPassProbability];
-  for (const n of candidates) {
-    if (typeof n === "number" && Number.isFinite(n)) return Math.round(n);
-  }
-  return undefined;
 }
 
 function hasUploadOrSpecHardFail(reportLike: Record<string, unknown>): boolean {
@@ -118,8 +112,8 @@ export function buildCheckerReportPdfData(meta: StoredManuscript): CheckerReport
   const verdict: "pass" | "needs-fixes" =
     blockerCount > 0 || structuralFail ? "needs-fixes" : "pass";
 
-  const score = toCanonicalScore(raw);
-  const scoreNum = typeof score === "number" && Number.isFinite(score) ? score : 0;
+  const score = canonicalCheckerReadinessScore(raw as CheckerReadinessFields);
+  const scoreNum = score ?? 0;
 
   let scoreGrade = raw.scoreGrade as { grade: string; label: string; description: string } | undefined;
   if (verdict === "needs-fixes") {

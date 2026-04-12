@@ -17,6 +17,28 @@ import {
 export type FixDifficulty = "easy" | "moderate" | "advanced";
 export type NormalizedIssueSeverity = "blocker" | "warning" | "info";
 
+/** Fields that may carry the 0–100 readiness value on checker reports (client or API). */
+export type CheckerReadinessFields = {
+  score?: number;
+  readinessScore100?: number;
+  readiness_score?: number;
+  kdpPassProbability?: number;
+};
+
+/**
+ * Single readiness number for UI + PDF viewer strip.
+ * Matches `/api/format-report` checker sanitize: prefer API `score`, else readinessScore100 → readiness_score → kdpPassProbability.
+ */
+export function canonicalCheckerReadinessScore(report: CheckerReadinessFields): number | null {
+  if (typeof report.score === "number" && Number.isFinite(report.score)) {
+    return Math.round(report.score);
+  }
+  for (const n of [report.readinessScore100, report.readiness_score, report.kdpPassProbability]) {
+    if (typeof n === "number" && Number.isFinite(n)) return Math.round(n);
+  }
+  return null;
+}
+
 export function normalizeIssueSeverity(input: {
   severity?: string;
   rule_id?: string;
