@@ -1,0 +1,25 @@
+---
+description: Ordered plan to upscale KDP checker annotations (engine → metrics → UI → PDF → marketing)
+globs: docs/CHECKER-ANNOTATION-PIPELINE.md,src/components/CheckerPdfViewer.tsx,src/lib/checkerAnnotatePayload.ts,src/lib/printReadyCheckProcess.ts
+alwaysApply: false
+---
+
+# Checker annotation — upscale build order
+
+When improving Tool #1 (KDP PDF Checker) annotations, follow this **practical order** (do not skip upstream for UI rewrites):
+
+1. **Engine bbox / defaults** — preflight: coverage and fallback geometry for `page_issues`.
+2. **Metrics** — observability: bbox coverage %, PDF.js vs iframe fallback rate.
+3. **List ↔ canvas** — download page: click issue → jump page + highlight.
+4. **PDF polish** — engine annotated file: summary, bookmarks, copy.
+5. **Marketing assets** — honest copy, screenshots, sample PDFs.
+
+**Rationale:** Increases coverage, trust, and perceived quality **without** rewriting `CheckerPdfViewer` first. The viewer already renders what it receives; missing overlays are primarily a **data (bbox) quality** problem.
+
+## Step 1 execution notes (engine)
+
+- Single normalization pass after rules assemble `page_issues`: **only fill `bbox == null`**, never overwrite non-null bboxes.
+- **Rule-keyed defaults** (examples): margin/gutter → inner content inset vs `MediaBox`; bleed → outer band; trim/page_size → full-page or trim-box relative region; font/image rules → optional heuristics (first text block / image xref bounds) when extractable.
+- **Contract:** output bbox remains `[x, y, width, height]` in PDF points, same as `docs/CHECKER-ANNOTATION-PIPELINE.md` and `kdp-preflight-engine` docs.
+- **Tests:** golden PDFs per `rule_id` with/without native bbox; assert annotate + report both receive enriched list.
+- **Deploy:** ship engine before relying on new coverage in LayoutForge copy.
