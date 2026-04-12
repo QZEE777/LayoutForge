@@ -5,8 +5,9 @@ alwaysApply: true
 
 # manu2print Project – Working Style
 
-- **User**: Ideas person; input is minimal by design.
-- **AI (coder)**: Implements and maintains the product; do everything you can without asking.
+- **Team:** Two people — **you** (direction, product, accounts) and **the AI** (implementation). No separate eng team in the loop unless you add one.
+- **User**: Ideas person; input is minimal by design. You run **dashboard deploys** when needed (e.g. Railway: **KDP preflight engine**, **print-ready worker**) after `main` updates — the AI cannot click deploy for you.
+- **AI (coder)**: Implements and maintains the product; do everything you can without asking. Explain tradeoffs **simply**; preserve **product integrity** (limits, retention copy, security) over quick hacks.
 - **Ship LIVE.** We build for the live platform (Vercel/domain). Localhost is for testing only. See `manu2print-ship-live.mdc`.
 - Only ask when a real decision is needed (e.g. API keys, business/UX choices, spend).
 - **Keyword generator (7 Keyword Research)** and **Amazon Description Generator** are confirmed working.

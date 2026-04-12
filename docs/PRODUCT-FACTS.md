@@ -19,6 +19,7 @@ Short, updatable reference. Pass this (or the current version) into the support 
 | **Print Ready Check (KDP PDF Checker)** | Max **100 MB**. PDF only. |
 | **DOCX uploads** (KDP Formatter, 7 Keyword Research DOCX, Description Generator DOCX) | Max **50 MB**. DOCX only. |
 | **KDP PDF (final)** | KDP allows up to 650 MB; Print Ready Check accepts interiors up to **100 MB**. Page count max **828** for KDP. |
+| **Download links** (checker report, annotated PDF presigned URLs) | **24 hours** — save files locally; use https://www.manu2print.com/resend-link if the link expired. |
 
 ---
 

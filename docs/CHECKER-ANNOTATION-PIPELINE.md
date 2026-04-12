@@ -46,6 +46,10 @@ Built by `src/lib/checkerAnnotatePayload.ts` → `buildCheckerAnnotateReportBody
 3. **Preview** uses **original** PDF via `pdfSourceUrl` → `/api/r2-file?id=…` + **overlays** from `format-report` `page_issues` (same severities as annotate).
 4. **Download / email** use the **same** R2 annotated file (`annotatedPdfDownloadUrl`). Email is a **link**, not an attachment (`sendAnnotatedPdfReadyEmail`).
 
+## Download link lifetime (reports + annotated)
+
+Presigned GET URLs use **`DOWNLOAD_SIGNED_URL_EXPIRES_SECONDS`** in `src/lib/r2Storage.ts` (**24 hours**). Customer-facing copy (download page, `resend.ts` emails, FAQ) should stay aligned with that constant.
+
 ## Deploy notes
 
 - **LayoutForge** (Vercel): ships TS changes (`checkerAnnotatePayload`, worker bundle via Railway worker from same repo).

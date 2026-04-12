@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { DOWNLOAD_SIGNED_URL_EXPIRES_SECONDS } from "./r2Storage";
 
 const FROM         = "noreply@manu2print.com";
 const FROM_MANNY   = "Manny from manu2print <manny@manu2print.com>";
@@ -77,7 +78,7 @@ export async function sendDownloadLinkEmail(to: string, downloadUrl: string, nam
         </table>
 
         <p style="font-size: 13px; color: #6B6151; margin: 0 0 6px;">
-          ⚠️ <strong>Save this link</strong> — your file is available for <strong>24 hours</strong>.
+          ⚠️ <strong>Save this link</strong> — your file is available for <strong>${Math.round(DOWNLOAD_SIGNED_URL_EXPIRES_SECONDS / 3600)} hours</strong>.
           Lost it? <a href="${resendUrl}" style="color: #F05A28;">Get it resent here.</a>
         </p>
 
@@ -116,7 +117,7 @@ export async function sendDownloadLinkEmail(to: string, downloadUrl: string, nam
     "✓ Plain-English fix instructions for each issue",
     "✓ Annotated PDF with issues highlighted visually",
     "",
-    "⚠ Save this link — your file is available for 24 hours.",
+    `⚠ Save this link — your file is available for ${Math.round(DOWNLOAD_SIGNED_URL_EXPIRES_SECONDS / 3600)} hours.`,
     "Lost it? Visit https://www.manu2print.com/resend-link",
     "",
     "Got questions about your results? Just reply — I read every one.",
@@ -838,6 +839,7 @@ export async function sendAnnotatedPdfReadyEmail(to: string, annotatedUrl: strin
   <p style="margin:0 0 22px;">
     <a href="${safeUrl}" style="background:#F05A28;color:#fff;text-decoration:none;padding:14px 22px;border-radius:10px;font-weight:800;display:inline-block;">Download Annotated PDF →</a>
   </p>
+  <p style="font-size:13px;color:#6B6151;line-height:1.6;margin:0 0 18px;">⚠️ <strong>This link expires in ${Math.round(DOWNLOAD_SIGNED_URL_EXPIRES_SECONDS / 3600)} hours</strong> — download and save the PDF to your computer.</p>
   <p style="font-size:14px;color:#6B6151;line-height:1.7;margin:0 0 4px;">Want more? Try our free tools: <a href="${toolsUrl}" style="color:#F05A28;">manu2print.com</a></p>
   <p style="font-size:14px;color:#6B6151;line-height:1.7;margin:0;">Love the product? Become an affiliate: <a href="${affiliateUrl}" style="color:#F05A28;">Join here</a></p>
 </body></html>`.trim();
@@ -846,6 +848,8 @@ export async function sendAnnotatedPdfReadyEmail(to: string, annotatedUrl: strin
     "Your annotated PDF is ready.",
     "",
     `Download: ${annotatedUrl}`,
+    "",
+    `This link expires in ${Math.round(DOWNLOAD_SIGNED_URL_EXPIRES_SECONDS / 3600)} hours — save the PDF to your computer.`,
     "",
     `Try our free tools: ${toolsUrl}`,
     `Become an affiliate: ${affiliateUrl}`,

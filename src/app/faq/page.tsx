@@ -71,7 +71,11 @@ export default function FAQPage() {
             />
             <FaqItem
               q="What is the annotated PDF?"
-              a="After the scan, you get a downloadable annotated PDF — your actual book with color-coded highlights on every problem page. Red highlights show critical issues (will cause rejection). Orange shows warnings. Green shows what passed. You see exactly which page has the problem and what it is."
+              a="After the scan, you get a downloadable annotated PDF — your manuscript with red and orange highlights on problem areas. Red = critical (likely rejection). Orange = warnings. The PDF also includes a summary page with your score. On-page highlights are red/orange only (not green boxes on every page)."
+            />
+            <FaqItem
+              q="How long is my download link valid?"
+              a="Report and annotated-PDF download links work for 24 hours. Open the link, download everything you need, and save files to your computer. After that, use the resend-link page if you still have access to the email address you used."
             />
             <FaqItem
               q="What does the grade (A+, B, C, F) mean?"

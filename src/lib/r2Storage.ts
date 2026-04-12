@@ -12,7 +12,10 @@ import {
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
-const DEFAULT_SIGNED_URL_EXPIRES = 172800; // 48 hours
+/** Presigned GET for report PDF, annotated PDF, etc. — keep in sync with emails / FAQ copy. */
+export const DOWNLOAD_SIGNED_URL_EXPIRES_SECONDS = 24 * 60 * 60; // 24 hours
+
+const DEFAULT_SIGNED_URL_EXPIRES = DOWNLOAD_SIGNED_URL_EXPIRES_SECONDS;
 
 function getClient(): S3Client {
   const endpoint =
@@ -181,7 +184,7 @@ export async function getMetadata(id: string): Promise<object> {
  * Get a pre-signed URL for downloading a file.
  * @param id - Job/document id
  * @param filename - Filename (e.g. "abc123.pdf")
- * @param expiresInSeconds - URL validity (default 172800 = 48 hours)
+ * @param expiresInSeconds - URL validity (default 86400 = 24 hours)
  * @returns Pre-signed GET URL
  */
 export async function getSignedDownloadUrl(
