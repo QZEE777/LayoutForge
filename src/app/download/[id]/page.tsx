@@ -181,39 +181,6 @@ function checkerHeroLooksPassing(report: ProcessingReport, score: number | null)
   return report.kdpReady === true;
 }
 
-function parseContentDispositionFilename(header: string | null): string | null {
-  if (!header) return null;
-  const utf8 = header.match(/filename\*=UTF-8''([^;\s]+)/i);
-  if (utf8?.[1]) {
-    try {
-      return decodeURIComponent(utf8[1].replace(/\+/g, "%20"));
-    } catch {
-      return utf8[1];
-    }
-  }
-  const quoted = header.match(/filename="([^"]+)"/i);
-  if (quoted?.[1]) return quoted[1];
-  const plain = header.match(/filename=([^;\s]+)/i);
-  if (plain?.[1]) return plain[1].replace(/^["']|["']$/g, "");
-  return null;
-}
-
-/** Always a distinct name so this file is never confused with the user's interior PDF or the annotated PDF. */
-function complianceSummaryPdfDownloadName(report: ProcessingReport): string {
-  const base = cleanFilenameForDisplay(report.fileNameScanned || "scan");
-  const ascii = base
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^\x20-\x7E]+/g, "_")
-    .replace(/["'`\\/%]+/g, "")
-    .replace(/\s+/g, "_")
-    .replace(/[^A-Za-z0-9._-]+/g, "_")
-    .replace(/_+/g, "_")
-    .replace(/^_|_$/g, "")
-    .slice(0, 100) || "scan";
-  return `KDP_Compliance_Report_${ascii}.pdf`;
-}
-
 export default function DownloadPage() {
   const params = useParams();
   const searchParams = useSearchParams();
@@ -237,8 +204,6 @@ export default function DownloadPage() {
   const [annotatedTakingLong, setAnnotatedTakingLong] = useState(false);
   const [annotatedEmailInput, setAnnotatedEmailInput] = useState("");
   const [annotatedEmailStatus, setAnnotatedEmailStatus] = useState<"idle" | "saving" | "queued" | "sent" | "error">("idle");
-  const [compliancePdfLoading, setCompliancePdfLoading] = useState(false);
-  const [compliancePdfError, setCompliancePdfError] = useState<string | null>(null);
   /** `undefined` = still resolving auth; `null` = guest; string = signed-in account email */
   const [authEmail, setAuthEmail] = useState<string | null | undefined>(undefined);
   const annotatedAutoInFlightRef = useRef(false);
@@ -285,55 +250,6 @@ export default function DownloadPage() {
       setDownloadError(err instanceof Error ? err.message : "Download failed");
     }
   }, [id, downloadFilename]);
-
-  const handleDownloadCompliancePdf = useCallback(async () => {
-    if (!id) return;
-    setCompliancePdfError(null);
-    setCompliancePdfLoading(true);
-    try {
-      const res = await fetch(`/api/checker-report-pdf/${encodeURIComponent(id)}`, {
-        credentials: "same-origin",
-        cache: "no-store",
-      });
-      if (res.status === 402) {
-        setCompliancePdfError(
-          "Payment required. If you just completed checkout, wait a few seconds and try again, or refresh this page.",
-        );
-        return;
-      }
-      if (res.status === 404) {
-        setCompliancePdfError("Report not found or expired.");
-        return;
-      }
-      if (!res.ok) {
-        setCompliancePdfError("Could not generate the PDF. Try again in a moment.");
-        return;
-      }
-      const blob = await res.blob();
-      const head = new Uint8Array(await blob.slice(0, 5).arrayBuffer());
-      const isPdf = head[0] === 0x25 && head[1] === 0x50 && head[2] === 0x44 && head[3] === 0x46;
-      if (!isPdf) {
-        setCompliancePdfError("Server did not return a valid PDF. Try again or refresh the page.");
-        return;
-      }
-      const filename =
-        report && report.outputType === "checker"
-          ? complianceSummaryPdfDownloadName(report)
-          : parseContentDispositionFilename(res.headers.get("Content-Disposition")) ?? "KDP_Compliance_Report.pdf";
-      const blobUrl = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = blobUrl;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(blobUrl);
-      document.body.removeChild(a);
-    } catch {
-      setCompliancePdfError("Download failed. Check your connection and try again.");
-    } finally {
-      setCompliancePdfLoading(false);
-    }
-  }, [id, report]);
 
   const handleCopyForAIReview = useCallback(async () => {
     if (!report?.formatReviewText) return;
@@ -1289,26 +1205,13 @@ export default function DownloadPage() {
                           : "Annotated PDF email queued. We will send it automatically when ready."}
                       </p>
                     )}
-                  {compliancePdfError && (
-                    <p className="mt-4 text-sm text-center text-[#b91c1c]" role="alert">
-                      {compliancePdfError}
-                    </p>
-                  )}
                   <div className="mt-8 pt-1 border-t border-m2p-border/30">
                     <p className="text-xs text-m2p-muted text-center max-w-lg mx-auto mb-3 leading-relaxed">
-                      <span className="font-semibold text-m2p-ink">Two different PDFs:</span>{" "}
-                      <strong>Compliance summary</strong> below is a short manu2print report (scores, checklist, fixes) — not your interior file.{" "}
-                      <strong>Annotated PDF</strong> (when available) is still your book PDF with issue highlights on the pages.
+                      Save this scan as a PDF: use <span className="font-semibold text-m2p-ink">Print or save as PDF</span> below and choose{" "}
+                      <span className="font-semibold text-m2p-ink">Save as PDF</span> in the print dialog. For your manuscript with on-page highlights, use{" "}
+                      <span className="font-semibold text-m2p-ink">Annotated PDF</span> when available.
                     </p>
-                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                    <button
-                      type="button"
-                      disabled={compliancePdfLoading}
-                      onClick={() => void handleDownloadCompliancePdf()}
-                      className="w-full sm:w-auto text-center bg-m2p-orange text-white px-6 py-3.5 rounded-xl font-black hover:bg-m2p-orange-hover cursor-pointer transition-all shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed inline-block"
-                    >
-                      {compliancePdfLoading ? "Preparing PDF…" : "Download compliance summary (PDF)"}
-                    </button>
+                    <div className="flex justify-center">
                     <button
                       type="button"
                       onClick={() => {
@@ -1366,7 +1269,7 @@ export default function DownloadPage() {
                     }}
                       className="w-full sm:w-auto border-2 border-[#1A6B2A] bg-transparent text-[#0D3D18] px-6 py-3.5 rounded-xl font-black hover:bg-[#1A6B2A]/8 cursor-pointer transition-all"
                     >
-                      Print report
+                      Print or save as PDF
                     </button>
                     </div>
                   </div>
