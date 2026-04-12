@@ -4,6 +4,7 @@ Includes KDP Rejection Risk Score (0–100) with letter grade.
 """
 from __future__ import annotations
 
+from app.core.bbox_enrichment import ensure_issue_bboxes
 from app.schemas import PageIssue, ScoreGrade, ValidationReport, ValidationSummary
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -126,6 +127,7 @@ def build_report(
     file_hash: str = "",
     file_size: int = 0,
     creation_tool: str = "unknown",
+    page_geometry: dict[int, dict] | None = None,
 ) -> ValidationReport:
     """Build ValidationReport from rule outputs."""
     status = "FAIL" if errors else "PASS"
@@ -133,26 +135,42 @@ def build_report(
     approval_likelihood = readiness_score
     score_grade = get_score_grade(readiness_score)
 
-    all_issues: list[PageIssue] = []
+    err_dicts: list[dict] = []
     for e in errors:
-        all_issues.append(PageIssue(
-            page=e["page"],
-            rule_id=e["rule_id"],
-            severity=e["severity"],
-            message=e["message"],
-            bbox=bbox_to_xywh(e.get("bbox")),
-        ))
+        err_dicts.append({
+            "page": e["page"],
+            "rule_id": e["rule_id"],
+            "severity": e["severity"],
+            "message": e["message"],
+            "bbox": bbox_to_xywh(e.get("bbox")),
+        })
+    warn_dicts: list[dict] = []
     for w in warnings:
-        all_issues.append(PageIssue(
-            page=w["page"],
-            rule_id=w["rule_id"],
-            severity=w["severity"],
-            message=w["message"],
-            bbox=bbox_to_xywh(w.get("bbox")),
-        ))
+        warn_dicts.append({
+            "page": w["page"],
+            "rule_id": w["rule_id"],
+            "severity": w["severity"],
+            "message": w["message"],
+            "bbox": bbox_to_xywh(w.get("bbox")),
+        })
 
-    err_issues  = [PageIssue(page=e["page"], rule_id=e["rule_id"], severity=e["severity"], message=e["message"], bbox=bbox_to_xywh(e.get("bbox"))) for e in errors]
-    warn_issues = [PageIssue(page=w["page"], rule_id=w["rule_id"], severity=w["severity"], message=w["message"], bbox=bbox_to_xywh(w.get("bbox"))) for w in warnings]
+    merged = err_dicts + warn_dicts
+    merged_enriched = ensure_issue_bboxes(merged, page_geometry or {})
+    err_enriched = merged_enriched[: len(err_dicts)]
+    warn_enriched = merged_enriched[len(err_dicts) :]
+
+    def _to_page_issue(d: dict) -> PageIssue:
+        return PageIssue(
+            page=d["page"],
+            rule_id=d["rule_id"],
+            severity=d["severity"],
+            message=d["message"],
+            bbox=d.get("bbox"),
+        )
+
+    err_issues = [_to_page_issue(d) for d in err_enriched]
+    warn_issues = [_to_page_issue(d) for d in warn_enriched]
+    all_issues: list[PageIssue] = err_issues + warn_issues
 
     summary = ValidationSummary(
         total_pages=page_count,

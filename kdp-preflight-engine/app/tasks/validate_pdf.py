@@ -14,6 +14,7 @@ from app.config import settings
 from app.core.document_analyzer import analyze_document
 from app.core.kdp_rules_engine import RULESET_VERSION, run_validation
 from app.core.pdf_parser import ActiveContentError, ResourceLimitError
+from app.core.bbox_enrichment import build_page_geometry_from_analysis
 from app.core.validation_report import build_report
 from app.job_store import get_report, set_report, set_status
 from app.schemas import ValidationReport
@@ -65,6 +66,7 @@ def validate_pdf_task(self, job_id: str, file_path: str) -> dict:
         page_count = doc["analysis"]["page_count"]
         creation_tool = doc["analysis"].get("creation_tool", "unknown")
         errors, warnings, rules_checked = run_validation(doc)
+        page_geometry = build_page_geometry_from_analysis(doc)
         report = build_report(
             page_count,
             errors,
@@ -74,6 +76,7 @@ def validate_pdf_task(self, job_id: str, file_path: str) -> dict:
             file_hash=file_hash,
             file_size=file_size,
             creation_tool=creation_tool,
+            page_geometry=page_geometry,
         )
         set_report(job_id, report)
         set_status(job_id, "completed", None)

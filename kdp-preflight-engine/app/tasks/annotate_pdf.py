@@ -14,6 +14,7 @@ import fitz
 import structlog
 
 from app.config import settings
+from app.core.bbox_enrichment import build_page_geometry_from_pdf_path, ensure_issue_bboxes
 
 logger = structlog.get_logger(__name__)
 
@@ -268,6 +269,9 @@ def annotate_pdf_inline(report: dict[str, Any], path_in: Path) -> str:
 
     page_issues_raw = report.get("page_issues")
     page_issues: list[dict[str, Any]] = page_issues_raw if isinstance(page_issues_raw, list) else []
+    page_geom = build_page_geometry_from_pdf_path(path_in)
+    page_issues_plain = [dict(issue) for issue in page_issues]
+    page_issues = ensure_issue_bboxes(page_issues_plain, page_geom)
     page_issues_map: dict[int, list[dict[str, Any]]] = {}
     for issue in page_issues:
         try:
