@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import crypto from "crypto";
+import { AFFILIATE_OTP_SUBJECT } from "@/lib/emailSubjects";
 
 const rateLimit = new Map<string, { count: number; resetAt: number }>();
 
@@ -66,7 +67,7 @@ export async function POST(req: Request) {
     await resend.emails.send({
       from: "noreply@manu2print.com",
       to: email,
-      subject: "Your affiliate dashboard code — manu2print",
+      subject: AFFILIATE_OTP_SUBJECT,
       html,
       text: `Your manu2print affiliate verification code: ${code}\n\nExpires in 10 minutes.\n\n— manu2print.com`,
     });

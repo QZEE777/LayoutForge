@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import crypto from "crypto";
 import { CHECKER_CREDITS_PER_SCAN } from "@/lib/redeemScanCredit";
+import { SCAN_CREDIT_OTP_SUBJECT } from "@/lib/emailSubjects";
 
 const OTP_RATE_LIMIT   = 5;                // max sends per window
 const OTP_WINDOW_MS    = 15 * 60 * 1000;  // 15-minute window
@@ -88,7 +89,7 @@ export async function POST(req: Request) {
     await resend.emails.send({
       from: "noreply@manu2print.com",
       to: email,
-      subject: "Your scan credit verification code — manu2print",
+      subject: SCAN_CREDIT_OTP_SUBJECT,
       html,
       text: `Your manu2print scan credit code: ${code}\n\nExpires in 10 minutes.\n\n— manu2print.com`,
     });

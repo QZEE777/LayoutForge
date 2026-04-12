@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { sendShareCreditAwardedEmail } from "@/lib/resend";
 import { Resend } from "resend";
+import { cronFailureEmailSubject } from "@/lib/emailSubjects";
 
 async function alertCronFailure(reason: string) {
   try {
@@ -9,7 +10,10 @@ async function alertCronFailure(reason: string) {
     await resend.emails.send({
       from: "noreply@manu2print.com",
       to: "hello@manu2print.com",
-      subject: `⚠️ Cron failure: release-share-credits — ${new Date().toISOString().slice(0, 10)}`,
+      subject: cronFailureEmailSubject(
+        "release-share-credits",
+        new Date().toISOString().slice(0, 10)
+      ),
       text: `The daily share-credit release cron failed.\n\nReason: ${reason}\n\nCheck Vercel logs immediately.\n\n— manu2print cron monitor`,
     });
   } catch {

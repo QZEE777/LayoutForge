@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import crypto from "crypto";
+import { MY_ORDERS_OTP_SUBJECT } from "@/lib/emailSubjects";
 
 const OTP_RATE_LIMIT = 5;
 const OTP_WINDOW_MS  = 15 * 60 * 1000;
@@ -109,7 +110,7 @@ export async function POST(req: Request) {
     await resend.emails.send({
       from: "noreply@manu2print.com",
       to: email,
-      subject: "Your manu2print verification code",
+      subject: MY_ORDERS_OTP_SUBJECT,
       html,
       text: `Your manu2print verification code: ${code}\n\nExpires in 10 minutes.\n\n— manu2print.com`,
     });

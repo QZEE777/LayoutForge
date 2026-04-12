@@ -1,10 +1,19 @@
 import { Resend } from "resend";
 import { DOWNLOAD_SIGNED_URL_EXPIRES_SECONDS } from "./r2Storage";
+import { logEmailSend } from "./logEmailSend";
+import {
+  affiliateApprovalSubject,
+  ANNOTATED_PDF_SUBJECT,
+  downloadLinkReportSubject,
+  packPurchaseSubject,
+  PARTNER_THRESHOLD_SUBJECT,
+  shareCreditAwardedSubject,
+  WELCOME_EMAIL_SUBJECT,
+} from "./emailSubjects";
 
 const FROM         = "noreply@manu2print.com";
 const FROM_MANNY   = "Manny from manu2print <manny@manu2print.com>";
 const REPLY_TO     = "hello@manu2print.com";
-const SUBJECT = "Your KDP PDF Check — Download Ready";
 
 function escapeHtmlAttr(s: string): string {
   return s
@@ -20,6 +29,7 @@ export async function sendDownloadLinkEmail(to: string, downloadUrl: string, nam
   const resendUrl = escapeHtmlAttr("https://www.manu2print.com/resend-link");
   const firstName = name ? name.split(" ")[0] : "";
   const greeting = firstName ? `Hey ${firstName} —` : "You're in.";
+  const subjectLine = downloadLinkReportSubject(firstName || undefined);
 
   const html = `
 <!DOCTYPE html>
@@ -129,14 +139,19 @@ export async function sendDownloadLinkEmail(to: string, downloadUrl: string, nam
     from: FROM_MANNY,
     replyTo: REPLY_TO,
     to,
-    subject: firstName
-      ? `${firstName} — your full KDP report is ready`
-      : "You're in — your full KDP report is ready",
+    subject: subjectLine,
     html,
     text,
   });
 
   if (error) throw error;
+  await logEmailSend({
+    recipientEmail: to,
+    eventType: "download_link",
+    subject: subjectLine,
+    resendMessageId: data?.id,
+    metadata: { has_first_name: Boolean(firstName) },
+  });
   return data;
 }
 
@@ -252,7 +267,7 @@ export async function sendShareCreditAwardedEmail(
     from: FROM_MANNY,
     replyTo: REPLY_TO,
     to,
-    subject: `Your referral came through — +${opts.credits} free ${creditWord} added`,
+    subject: shareCreditAwardedSubject(opts.credits, creditWord),
     html,
     text,
   });
@@ -371,7 +386,7 @@ export async function sendPartnerThresholdEmail(to: string) {
     from: FROM_MANNY,
     replyTo: REPLY_TO,
     to,
-    subject: "You've hit the threshold — Partner mode is yours to activate",
+    subject: PARTNER_THRESHOLD_SUBJECT,
     html,
     text,
   });
@@ -517,7 +532,7 @@ export async function sendAffiliateApprovalEmail(to: string, name: string, code:
     from: FROM_MANNY,
     replyTo: REPLY_TO,
     to,
-    subject: `You're approved, ${firstName} — welcome to the manu2print partner program`,
+    subject: affiliateApprovalSubject(firstName),
     html,
     text,
   });
@@ -651,13 +666,18 @@ export async function sendPackPurchaseEmail(
     "— Manny, manu2print.com",
   ].join("\n");
 
+  const packSubject = packPurchaseSubject(
+    opts.name ? opts.name.split(" ")[0] : undefined,
+    opts.packName,
+    opts.credits,
+    creditWord
+  );
+
   const { data, error } = await resend.emails.send({
     from: FROM_MANNY,
     replyTo: REPLY_TO,
     to,
-    subject: firstName
-      ? `${firstName} — ${opts.packName} confirmed, ${opts.credits} ${creditWord} loaded`
-      : `${opts.packName} confirmed — ${opts.credits} ${creditWord} loaded and ready`,
+    subject: packSubject,
     html,
     text,
   });
@@ -814,12 +834,18 @@ export async function sendWelcomeEmail(to: string, downloadUrl: string) {
     from: FROM_MANNY,
     replyTo: REPLY_TO,
     to,
-    subject: "Your KDP readiness report is waiting — here's what we found",
+    subject: WELCOME_EMAIL_SUBJECT,
     html,
     text,
   });
 
   if (error) throw error;
+  await logEmailSend({
+    recipientEmail: to,
+    eventType: "welcome",
+    subject: WELCOME_EMAIL_SUBJECT,
+    resendMessageId: data?.id,
+  });
   return data;
 }
 
@@ -859,7 +885,7 @@ export async function sendAnnotatedPdfReadyEmail(to: string, annotatedUrl: strin
     from: FROM_MANNY,
     replyTo: REPLY_TO,
     to,
-    subject: "Your annotated PDF is ready",
+    subject: ANNOTATED_PDF_SUBJECT,
     html,
     text,
   });

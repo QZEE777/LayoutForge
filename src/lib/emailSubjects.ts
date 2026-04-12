@@ -1,0 +1,62 @@
+/**
+ * Single source of truth for outbound email subjects and subject hints echoed in bodies.
+ */
+
+/**
+ * Default subject for sendDownloadLinkEmail when buyer name is absent — keep resend-help
+ * copy aligned so users search for text that matches the real confirmation email.
+ * (When `name` is provided, the live subject is personalized; see downloadLinkReportSubject.)
+ */
+export const DOWNLOAD_LINK_DEFAULT_SUBJECT_HINT =
+  "You're in — your full KDP report is ready";
+
+export const RESEND_HELP_SUBJECT = "Your manu2print download link";
+
+export function downloadLinkReportSubject(firstName: string | undefined): string {
+  return firstName
+    ? `${firstName} — your full KDP report is ready`
+    : DOWNLOAD_LINK_DEFAULT_SUBJECT_HINT;
+}
+
+export function shareCreditAwardedSubject(credits: number, creditWord: string): string {
+  return `Your referral came through — +${credits} free ${creditWord} added`;
+}
+
+export const PARTNER_THRESHOLD_SUBJECT =
+  "You've hit the threshold — Partner mode is yours to activate";
+
+export function affiliateApprovalSubject(firstName: string): string {
+  return `You're approved, ${firstName} — welcome to the manu2print partner program`;
+}
+
+export function packPurchaseSubject(
+  firstName: string | undefined,
+  packName: string,
+  credits: number,
+  creditWord: string
+): string {
+  return firstName
+    ? `${firstName} — ${packName} confirmed, ${credits} ${creditWord} loaded`
+    : `${packName} confirmed — ${credits} ${creditWord} loaded and ready`;
+}
+
+export const WELCOME_EMAIL_SUBJECT =
+  "Your KDP readiness report is waiting — here's what we found";
+
+export const ANNOTATED_PDF_SUBJECT = "Your annotated PDF is ready";
+
+export const SCAN_NUDGE_SUBJECT = "Your KDP report is still waiting — manu2print";
+
+export function cronFailureEmailSubject(
+  cronName: "send-scan-nudges" | "release-share-credits",
+  dateIsoYmd: string
+): string {
+  return `⚠️ Cron failure: ${cronName} — ${dateIsoYmd}`;
+}
+
+export const SCAN_CREDIT_OTP_SUBJECT =
+  "Your scan credit verification code — manu2print";
+
+export const MY_ORDERS_OTP_SUBJECT = "Your manu2print verification code";
+
+export const AFFILIATE_OTP_SUBJECT = "Your affiliate dashboard code — manu2print";

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { sendDownloadLinkEmail } from "@/lib/resend";
+import { DOWNLOAD_LINK_DEFAULT_SUBJECT_HINT, RESEND_HELP_SUBJECT } from "@/lib/emailSubjects";
 
 // Rate limit: max 3 requests per email per hour (in-memory, resets on redeploy)
 const attempts = new Map<string, { count: number; resetAt: number }>();
@@ -94,7 +94,7 @@ async function sendResendHelpEmail(to: string, appUrl: string) {
       <td style="padding: 32px 0 16px;">
         <p style="font-size: 17px; font-weight: 600; margin: 0 0 12px;">Download link help</p>
         <p style="font-size: 15px; line-height: 1.7; color: #3a3020; margin: 0 0 16px;">
-          We found a purchase on your account. Your download link was sent in your original order confirmation email — please check your inbox (and spam folder) for an email with subject <strong>&ldquo;Your KDP PDF Check — Download Ready&rdquo;</strong>.
+          We found a purchase on your account. Your download link was sent in your original order confirmation email — please check your inbox (and spam folder) for an email with subject <strong>&ldquo;${DOWNLOAD_LINK_DEFAULT_SUBJECT_HINT}&rdquo;</strong>.
         </p>
         <p style="font-size: 15px; line-height: 1.7; color: #3a3020; margin: 0 0 28px;">
           If your file has expired (files are stored for 24 hours), please upload your PDF again at the link below — your purchase history is on file and we&apos;ll honour it.
@@ -122,14 +122,14 @@ async function sendResendHelpEmail(to: string, appUrl: string) {
   await resend.emails.send({
     from: "noreply@manu2print.com",
     to,
-    subject: "Your manu2print download link",
+    subject: RESEND_HELP_SUBJECT,
     html,
     text: [
       "Download link help",
       "",
       "We found a purchase on your account.",
       "",
-      "Your download link was sent in your original order confirmation — check your inbox for 'Your KDP PDF Check — Download Ready'.",
+      `Your download link was sent in your original order confirmation — check your inbox for '${DOWNLOAD_LINK_DEFAULT_SUBJECT_HINT}'.`,
       "",
       "If your file has expired (files are stored 24 hours), upload your PDF again at:",
       `${process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com"}/kdp-pdf-checker`,

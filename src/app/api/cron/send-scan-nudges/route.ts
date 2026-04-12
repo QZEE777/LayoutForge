@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
+import { cronFailureEmailSubject, SCAN_NUDGE_SUBJECT } from "@/lib/emailSubjects";
 
 async function alertCronFailure(reason: string) {
   try {
@@ -8,7 +9,10 @@ async function alertCronFailure(reason: string) {
     await resend.emails.send({
       from: "noreply@manu2print.com",
       to: "hello@manu2print.com",
-      subject: `⚠️ Cron failure: send-scan-nudges — ${new Date().toISOString().slice(0, 10)}`,
+      subject: cronFailureEmailSubject(
+        "send-scan-nudges",
+        new Date().toISOString().slice(0, 10)
+      ),
       text: `The daily scan-nudge cron failed.\n\nReason: ${reason}\n\nCheck Vercel logs immediately.\n\n— manu2print cron monitor`,
     });
   } catch { /* ignore — Vercel logs still capture the error */ }
@@ -65,7 +69,7 @@ export async function GET(req: NextRequest) {
       await resend.emails.send({
         from: "noreply@manu2print.com",
         to: nudge.email,
-        subject: "Your KDP report is still waiting — manu2print",
+        subject: SCAN_NUDGE_SUBJECT,
         html: `
 <!DOCTYPE html><html><head><meta charset="utf-8"></head>
 <body style="font-family:system-ui,sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;background:#FAF7EE;color:#1A1208;">
