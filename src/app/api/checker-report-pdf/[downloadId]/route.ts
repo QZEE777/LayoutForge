@@ -68,7 +68,7 @@ export async function GET(
   }
 
   const safe = sanitizeFilenameBase(reportData.filename);
-  const disposition = `attachment; filename="KDP_Report_${safe}.pdf"`;
+  const disposition = `attachment; filename="KDP_Compliance_Report_${safe}.pdf"`;
 
   return new Response(new Uint8Array(pdfBuffer), {
     status: 200,

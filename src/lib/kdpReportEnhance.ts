@@ -4,7 +4,11 @@
  * fix difficulty labels, upload checklist, spec table.
  */
 
-import { dimensionsMatchIntendedTrim, getKdpTrimDefinitionById } from "./kdpIntendedTrim";
+import {
+  dimensionsMatchIntendedTrim,
+  getKdpTrimDefinitionById,
+  INTENDED_TRIM_MATCH_TOLERANCE_IN,
+} from "./kdpIntendedTrim";
 import {
   getGutterInches,
   MIN_SPINE_TEXT_PAGES,
@@ -640,7 +644,14 @@ export function buildSpecTable(input: SpecTableInput): SpecRow[] {
     : input.kdpTrimName
       ? input.kdpTrimName.split(" — ")[0]
       : "Use popular KDP trims: 6×9\", 5.5×8.5\", or 8.5×11\"";
-  const yourFileTrim = input.trimDetected ?? "—";
+  const detectedTrim = input.trimDetected ?? "—";
+  /** Measured trim can differ slightly from catalog inches while still passing (±tol). Avoid "pass" looking wrong vs catalog row. */
+  const yourFileTrim =
+    intendedDef && geometryMatchesIntended && detectedTrim !== "—"
+      ? `${detectedTrim} (measured — OK within ±${INTENDED_TRIM_MATCH_TOLERANCE_IN}" of ${intendedDef.labelShort})`
+      : intendedDef && !geometryMatchesIntended && hasDims && detectedTrim !== "—"
+        ? `${detectedTrim} (does not match selected ${intendedDef.labelShort} within ±${INTENDED_TRIM_MATCH_TOLERANCE_IN}")`
+        : detectedTrim;
   return [
     {
       requirement: "Trim size",

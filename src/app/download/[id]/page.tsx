@@ -198,6 +198,22 @@ function parseContentDispositionFilename(header: string | null): string | null {
   return null;
 }
 
+/** Always a distinct name so this file is never confused with the user's interior PDF or the annotated PDF. */
+function complianceSummaryPdfDownloadName(report: ProcessingReport): string {
+  const base = cleanFilenameForDisplay(report.fileNameScanned || "scan");
+  const ascii = base
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^\x20-\x7E]+/g, "_")
+    .replace(/["'`\\/%]+/g, "")
+    .replace(/\s+/g, "_")
+    .replace(/[^A-Za-z0-9._-]+/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^_|_$/g, "")
+    .slice(0, 100) || "scan";
+  return `KDP_Compliance_Report_${ascii}.pdf`;
+}
+
 export default function DownloadPage() {
   const params = useParams();
   const searchParams = useSearchParams();
@@ -294,7 +310,16 @@ export default function DownloadPage() {
         return;
       }
       const blob = await res.blob();
-      const filename = parseContentDispositionFilename(res.headers.get("Content-Disposition")) ?? "KDP_Report.pdf";
+      const head = new Uint8Array(await blob.slice(0, 5).arrayBuffer());
+      const isPdf = head[0] === 0x25 && head[1] === 0x50 && head[2] === 0x44 && head[3] === 0x46;
+      if (!isPdf) {
+        setCompliancePdfError("Server did not return a valid PDF. Try again or refresh the page.");
+        return;
+      }
+      const filename =
+        report && report.outputType === "checker"
+          ? complianceSummaryPdfDownloadName(report)
+          : parseContentDispositionFilename(res.headers.get("Content-Disposition")) ?? "KDP_Compliance_Report.pdf";
       const blobUrl = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = blobUrl;
@@ -308,7 +333,7 @@ export default function DownloadPage() {
     } finally {
       setCompliancePdfLoading(false);
     }
-  }, [id]);
+  }, [id, report]);
 
   const handleCopyForAIReview = useCallback(async () => {
     if (!report?.formatReviewText) return;
@@ -1269,14 +1294,20 @@ export default function DownloadPage() {
                       {compliancePdfError}
                     </p>
                   )}
-                  <div className="flex flex-col sm:flex-row gap-3 justify-center mt-8 pt-1 border-t border-m2p-border/30">
+                  <div className="mt-8 pt-1 border-t border-m2p-border/30">
+                    <p className="text-xs text-m2p-muted text-center max-w-lg mx-auto mb-3 leading-relaxed">
+                      <span className="font-semibold text-m2p-ink">Two different PDFs:</span>{" "}
+                      <strong>Compliance summary</strong> below is a short manu2print report (scores, checklist, fixes) — not your interior file.{" "}
+                      <strong>Annotated PDF</strong> (when available) is still your book PDF with issue highlights on the pages.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
                     <button
                       type="button"
                       disabled={compliancePdfLoading}
                       onClick={() => void handleDownloadCompliancePdf()}
                       className="w-full sm:w-auto text-center bg-m2p-orange text-white px-6 py-3.5 rounded-xl font-black hover:bg-m2p-orange-hover cursor-pointer transition-all shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed inline-block"
                     >
-                      {compliancePdfLoading ? "Preparing PDF…" : "Download PDF report"}
+                      {compliancePdfLoading ? "Preparing PDF…" : "Download compliance summary (PDF)"}
                     </button>
                     <button
                       type="button"
@@ -1337,7 +1368,7 @@ export default function DownloadPage() {
                     >
                       Print report
                     </button>
-                  </div>
+                    </div>
                   </div>
                   {/* Share-to-earn CTA — shown to authenticated users with a token */}
                   {shareToken && (
@@ -1465,6 +1496,7 @@ export default function DownloadPage() {
                       </div>
                     );
                   })()}
+                  </div>
                 </div>
               </>
             )}
