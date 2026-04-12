@@ -10,7 +10,11 @@ export type EmailLogEventType =
   | "share_credit"
   | "pack_purchase"
   | "partner_threshold"
-  | "affiliate_approval";
+  | "affiliate_approval"
+  | "post_scan"
+  | "post_purchase"
+  | "blog_notification"
+  | "expiry_warning";
 
 export async function logEmailSend(params: {
   recipientEmail: string;

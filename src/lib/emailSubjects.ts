@@ -47,12 +47,11 @@ export const ANNOTATED_PDF_SUBJECT = "Your annotated PDF is ready";
 
 export const SCAN_NUDGE_SUBJECT = "Your KDP report is still waiting — manu2print";
 
-export function cronFailureEmailSubject(
-  cronName: "send-scan-nudges" | "release-share-credits",
-  dateIsoYmd: string
-): string {
+export function cronFailureEmailSubject(cronName: string, dateIsoYmd: string): string {
   return `⚠️ Cron failure: ${cronName} — ${dateIsoYmd}`;
 }
+
+export const EXPIRY_WARNING_SUBJECT = "⏰ Your KDP report expires in 2 hours — manu2print";
 
 export const SCAN_CREDIT_OTP_SUBJECT =
   "Your scan credit verification code — manu2print";

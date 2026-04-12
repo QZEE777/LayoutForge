@@ -7,6 +7,18 @@
     {
       "path": "/api/cron/send-scan-nudges",
       "schedule": "0 10 * * *"
+    },
+    {
+      "path": "/api/cron/send-post-purchase-emails",
+      "schedule": "0 11 * * *"
+    },
+    {
+      "path": "/api/cron/send-blog-notifications",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/send-expiry-warnings",
+      "schedule": "0 * * * *"
     }
   ]
 }

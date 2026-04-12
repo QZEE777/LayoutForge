@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { enqueuePostScanNurtureEmail } from "@/lib/postScanNurtureEmail";
 
 type QueueStatus = "queued" | "processing" | "done" | "failed";
 
@@ -56,6 +57,7 @@ export async function GET(request: NextRequest) {
     };
     if (normalizedStatus === "done" && row.result_download_id) {
       payload.downloadId = row.result_download_id;
+      enqueuePostScanNurtureEmail(row.result_download_id);
     }
     if (normalizedStatus === "failed" && row.error_message) {
       payload.error = row.error_message;

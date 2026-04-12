@@ -10,6 +10,7 @@ import {
   shareCreditAwardedSubject,
   WELCOME_EMAIL_SUBJECT,
 } from "./emailSubjects";
+import { MARKETING_UNSUBSCRIBE_FOOTER_TEXT } from "./emailMarketingFooter";
 
 const FROM         = "noreply@manu2print.com";
 const FROM_MANNY   = "Manny from manu2print <manny@manu2print.com>";
@@ -886,6 +887,29 @@ export async function sendAnnotatedPdfReadyEmail(to: string, annotatedUrl: strin
     replyTo: REPLY_TO,
     to,
     subject: ANNOTATED_PDF_SUBJECT,
+    html,
+    text,
+  });
+  if (error) throw error;
+  return data;
+}
+
+/** Lifecycle / marketing emails (Manny + reply-to; appends unsubscribe footer to text if missing). */
+export async function sendMarketingHtmlEmail(
+  to: string,
+  subject: string,
+  html: string,
+  textBody: string
+) {
+  const resend = new Resend(process.env.RESEND_API_KEY ?? "");
+  const text = textBody.trim().toLowerCase().includes("unsubscribe")
+    ? textBody
+    : `${textBody}\n\n${MARKETING_UNSUBSCRIBE_FOOTER_TEXT}`;
+  const { data, error } = await resend.emails.send({
+    from: FROM_MANNY,
+    replyTo: REPLY_TO,
+    to,
+    subject,
     html,
     text,
   });

@@ -105,6 +105,7 @@ export async function POST(req: Request) {
         tool,
         gateway: "lemonsqueezy",
         gateway_order_id: orderId,
+        download_id: downloadId || null,
       });
       // Add scan credits for pack purchases + checker single-use bundle
       const PACK_CREDITS: Record<string, number> = {
@@ -328,6 +329,13 @@ export async function POST(req: Request) {
       try {
         const downloadUrl = `${process.env.NEXT_PUBLIC_APP_URL}/download/${downloadId}`;
         await sendDownloadLinkEmail(email, downloadUrl, buyerName);
+        if (orderId && supabaseUrl && supabaseKey) {
+          const sb = createClient(supabaseUrl, supabaseKey);
+          await sb
+            .from("payments")
+            .update({ download_ttl_anchor_at: new Date().toISOString() })
+            .eq("gateway_order_id", orderId);
+        }
       } catch (err) {
         console.error("[webhooks/lemonsqueezy] sendDownloadLinkEmail failed:", err);
       }

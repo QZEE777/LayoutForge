@@ -3,6 +3,8 @@ export type BlogPost = {
   title: string;
   excerpt: string;
   publishedAt: string; // ISO date string
+  /** When false, cron may email platform_notifications subscribers once. */
+  notified?: boolean;
   tags?: string[];
   contentType?: "article" | "video" | "hybrid";
   videoUrl?: string;
@@ -21,6 +23,7 @@ const POSTS: BlogPost[] = [
     excerpt:
       "Amazon's rejection emails are frustratingly vague. Here's what they actually mean — and how to fix each issue before you re-upload.",
     publishedAt: "2026-03-25",
+    notified: true,
     tags: ["kdp", "formatting", "rejection"],
     contentType: "article",
     content: [
@@ -56,6 +59,7 @@ const POSTS: BlogPost[] = [
     excerpt:
       "The exact margin sizes KDP requires for interior manuscripts — and why getting them wrong is the #1 cause of rejection.",
     publishedAt: "2026-03-22",
+    notified: true,
     tags: ["kdp", "margins", "formatting"],
     contentType: "article",
     content: [
@@ -99,6 +103,7 @@ const POSTS: BlogPost[] = [
     excerpt:
       "What we’re building, who it’s for, and how we think about shipping safe tools for KDP authors.",
     publishedAt: "2026-03-18",
+    notified: true,
     tags: ["launch", "kdp"],
     contentType: "article",
     content: [
