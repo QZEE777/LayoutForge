@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { sendAnnotatedEmailIfReady } from "@/lib/annotatedEmail";
 import { getStored, normalizeAnnotatedPdfStatus } from "@/lib/storage";
 import { supabase } from "@/lib/supabase";
 import { getScoreGrade, normalizeIssueSeverity, type NormalizedIssueSeverity } from "@/lib/kdpReportEnhance";
@@ -272,6 +273,18 @@ export async function GET(request: NextRequest) {
     // payment_confirmed independently, but no need to leak the filename to unpaid callers.
     const isPaid = meta?.payment_confirmed === true;
     const safeReport = isPaid ? report : { ...report, outputFilename: undefined };
+
+    // Checker: if the user queued "email when ready" before annotation finished, the inline
+    // completion handler may have missed. Cron also covers gaps — poll here nudges send when ready.
+    if (
+      meta &&
+      (safeReport as { outputType?: string }).outputType === "checker" &&
+      meta.annotatedEmail &&
+      !meta.annotatedEmailSentAt &&
+      normalizeAnnotatedPdfStatus(meta.annotatedPdfStatus, meta.annotatedEmailSentAt) === "ready"
+    ) {
+      void sendAnnotatedEmailIfReady(meta.id).catch(() => {});
+    }
 
     return NextResponse.json({
       success: true,
