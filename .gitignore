@@ -55,3 +55,4 @@ data/uploads/
 # kdp-preflight-engine frontend build artifacts (Vite)
 kdp-preflight-engine/frontend/vite.config.d.ts
 kdp-preflight-engine/frontend/vite.config.js
+.vercel

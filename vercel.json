@@ -18,7 +18,7 @@
     },
     {
       "path": "/api/cron/send-expiry-warnings",
-      "schedule": "0 * * * *"
+      "schedule": "0 15 * * *"
     }
   ]
 }
