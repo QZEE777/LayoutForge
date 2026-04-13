@@ -235,7 +235,7 @@ export default function Home() {
             PDF tools first — browser-based, built for KDP. More formats and platforms coming soon.
           </p>
 
-          {/* Print Ready Check — featured top card */}
+          {/* KDP PDF Checker — featured top card */}
           <div className="mx-auto mb-12 max-w-md">
             <div className="relative overflow-hidden rounded-3xl border-2 border-m2p-orange/90 bg-gradient-to-br from-m2p-ivory via-white to-[#E8F5E9]/40 p-8 text-center shadow-[0_20px_50px_-20px_rgba(240,90,40,0.35)] ring-1 ring-black/[0.04] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_28px_64px_-24px_rgba(240,90,40,0.42)]">
               <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-m2p-orange/10 blur-2xl" aria-hidden />
@@ -243,7 +243,7 @@ export default function Home() {
                 <ToolBadge status="live" />
               </div>
               <div className="relative z-[1] text-4xl mb-3">🎯</div>
-              <h3 className="relative z-[1] font-bebas text-xl text-m2p-ink mb-2">Print Ready Check</h3>
+              <h3 className="relative z-[1] font-bebas text-xl text-m2p-ink mb-2">KDP PDF CHECKER</h3>
               <p className="relative z-[1] text-sm text-m2p-muted leading-relaxed">
                 Upload your PDF and get a full KDP compliance report. Margins, page size, bleed — flagged
                 with exact page numbers and an annotated PDF.
