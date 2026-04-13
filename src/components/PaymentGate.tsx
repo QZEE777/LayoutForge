@@ -154,7 +154,7 @@ export default function PaymentGate({
           <span className="text-white/75">
             {" "}
             — {sessionCreditsRemaining} credit{sessionCreditsRemaining !== 1 ? "s" : ""} on this account. No email
-            code needed. {CHECKER_CREDITS_PER_SCAN} credits per checker scan.
+            code needed. {CHECKER_CREDITS_PER_SCAN} credit{CHECKER_CREDITS_PER_SCAN !== 1 ? "s" : ""} per checker scan.
           </span>
         </p>
         <button
@@ -163,7 +163,7 @@ export default function PaymentGate({
           disabled={sessionRedeemLoading || checkoutLoading}
           className="w-full rounded-lg px-4 py-2.5 text-sm font-semibold bg-m2p-green text-white hover:opacity-90 disabled:opacity-50"
         >
-          {sessionRedeemLoading ? "Applying…" : `Use ${CHECKER_CREDITS_PER_SCAN} credits now`}
+          {sessionRedeemLoading ? "Applying…" : `Use ${CHECKER_CREDITS_PER_SCAN} credit${CHECKER_CREDITS_PER_SCAN !== 1 ? "s" : ""} now`}
         </button>
         {sessionRedeemError ? <p className="text-sm text-red-400">{sessionRedeemError}</p> : null}
       </div>
