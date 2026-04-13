@@ -4,7 +4,7 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import ToolBadge from "@/components/ToolBadge";
 import PlatformWaitlistForm from "@/components/PlatformWaitlistForm";
-import HeroDemo from "@/components/HeroDemo";
+import HeroVideo from "@/components/HeroVideo";
 import TestimonialsCarousel from "@/components/TestimonialsCarousel";
 import PackBuyButton from "@/components/PackBuyButton";
 
@@ -89,7 +89,7 @@ export default function Home() {
             </div>
             <div className="flex-1 flex flex-col items-center w-full lg:w-auto order-1 lg:order-2">
               <div className="w-full max-w-[min(100%,420px)] lg:max-w-none rounded-2xl bg-gradient-to-b from-white/[0.06] to-transparent p-1 ring-1 ring-white/10 shadow-[0_24px_80px_-20px_rgba(0,0,0,0.55)]">
-                <HeroDemo />
+                <HeroVideo />
               </div>
             </div>
           </div>

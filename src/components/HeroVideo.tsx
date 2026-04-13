@@ -1,73 +1,55 @@
 "use client";
 
-/**
- * HeroVideo — right-column hero section video loop.
- *
- * TO ACTIVATE:
- *   1. Record your Loom demo (upload → scan → grade card → annotated PDF)
- *   2. Export as MP4 (no audio needed for loop)
- *   3. Drop file into /public/hero-demo.mp4
- *   4. Set SHOW_PLACEHOLDER = false below
- *
- * The placeholder renders at the same dimensions so layout is preserved.
- */
+import { useRef, useState } from "react";
 
-const SHOW_PLACEHOLDER = true; // ← flip to false when video is ready
-const VIDEO_SRC = "/hero-demo.mp4";
+const VIDEO_SRC = "/hero-demo.mp4.mp4";
 
 export default function HeroVideo() {
-  if (!SHOW_PLACEHOLDER) {
-    return (
-      <div className="w-full rounded-2xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.5)] border border-white/10">
-        <video
-          src={VIDEO_SRC}
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="w-full h-auto block"
-        />
-      </div>
-    );
-  }
+  const [activated, setActivated] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  // ─── PLACEHOLDER ────────────────────────────────────────────────────────────
+  const handleActivate = async () => {
+    setActivated(true);
+    // Start playback immediately after explicit user click.
+    requestAnimationFrame(() => {
+      videoRef.current?.play().catch(() => {
+        // If browser blocks first play attempt, controls still allow manual play.
+      });
+    });
+  };
+
   return (
-    <div
-      className="w-full rounded-2xl border border-white/10 shadow-[0_8px_40px_rgba(0,0,0,0.5)] flex flex-col items-center justify-center gap-6"
-      style={{ minHeight: 380, background: "rgba(255,255,255,0.04)" }}
-    >
-      {/* Play icon */}
-      <div
-        className="flex items-center justify-center rounded-full border-2 border-m2p-orange"
-        style={{ width: 88, height: 88, background: "rgba(240,90,40,0.12)" }}
-      >
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
-          <polygon points="6,4 20,12 6,20" fill="#F05A28" />
-        </svg>
-      </div>
-      {/* Label */}
-      <div className="text-center px-8">
-        <p className="text-m2p-ivory font-bebas text-3xl tracking-wide">
-          Demo coming soon
-        </p>
-        <p className="text-m2p-ivory/40 text-sm mt-2">
-          Upload → Scan → Grade → Annotated PDF
-        </p>
-      </div>
-      {/* Mock scan lines */}
-      <div className="w-4/5 space-y-3 px-2">
-        {[85, 60, 75, 45, 90].map((w, i) => (
-          <div key={i} className="h-2 rounded-full bg-white/10 overflow-hidden">
-            <div
-              className="h-full rounded-full"
-              style={{
-                width: `${w}%`,
-                background: i === 0 ? "#4cd964" : i === 3 ? "#F05A28" : "rgba(255,255,255,0.2)",
-              }}
-            />
-          </div>
-        ))}
+    <div className="w-full rounded-2xl overflow-hidden border border-white/10 shadow-[0_8px_40px_rgba(0,0,0,0.5)] bg-black">
+      <div className="relative aspect-video w-full">
+        <video
+          ref={videoRef}
+          src={VIDEO_SRC}
+          controls
+          playsInline
+          preload={activated ? "metadata" : "none"}
+          className="h-full w-full object-contain"
+        />
+        {!activated && (
+          <button
+            type="button"
+            onClick={handleActivate}
+            className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black/55 text-white transition hover:bg-black/45"
+            aria-label="Play PDF checker demo video"
+          >
+            <span
+              className="flex items-center justify-center rounded-full border-2 border-m2p-orange"
+              style={{ width: 88, height: 88, background: "rgba(240,90,40,0.12)" }}
+            >
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+                <polygon points="6,4 20,12 6,20" fill="#F05A28" />
+              </svg>
+            </span>
+            <span className="text-center px-8">
+              <span className="block text-m2p-ivory font-bebas text-3xl tracking-wide">Play demo video</span>
+              <span className="block text-m2p-ivory/70 text-sm mt-1">Click to start with audio</span>
+            </span>
+          </button>
+        )}
       </div>
     </div>
   );
