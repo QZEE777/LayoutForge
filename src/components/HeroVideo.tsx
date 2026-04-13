@@ -3,13 +3,31 @@
 import { useRef, useState } from "react";
 
 const VIDEO_SRC = "/hero-demo.mp4.mp4";
+const END_CTA_SECONDS = 6;
 
 export default function HeroVideo() {
   const [activated, setActivated] = useState(false);
+  const [showEndCta, setShowEndCta] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  const updateEndCtaVisibility = () => {
+    const video = videoRef.current;
+    if (!video || !activated) {
+      setShowEndCta(false);
+      return;
+    }
+    const duration = video.duration;
+    if (!Number.isFinite(duration) || duration <= 0) {
+      setShowEndCta(false);
+      return;
+    }
+    const remaining = duration - video.currentTime;
+    setShowEndCta(remaining <= END_CTA_SECONDS && remaining > 0.25);
+  };
 
   const handleActivate = async () => {
     setActivated(true);
+    setShowEndCta(false);
     // Start playback immediately after explicit user click.
     requestAnimationFrame(() => {
       videoRef.current?.play().catch(() => {
@@ -21,19 +39,33 @@ export default function HeroVideo() {
   return (
     <div className="w-full rounded-2xl overflow-hidden border border-white/10 shadow-[0_8px_40px_rgba(0,0,0,0.5)] bg-black">
       <div className="relative w-full min-h-[300px] sm:min-h-[340px] lg:min-h-[380px]">
-        <div className="pointer-events-none absolute left-1/2 top-3 z-20 -translate-x-1/2">
-          <p className="font-bebas text-2xl uppercase tracking-[0.08em] text-m2p-orange sm:text-3xl">
-            HOW IT WORKS
-          </p>
-        </div>
+        {!activated && (
+          <div className="pointer-events-none absolute left-1/2 top-3 z-20 -translate-x-1/2">
+            <p className="font-bebas text-2xl uppercase tracking-[0.08em] text-m2p-orange sm:text-3xl">
+              HOW IT WORKS
+            </p>
+          </div>
+        )}
         <video
           ref={videoRef}
           src={VIDEO_SRC}
           controls
           playsInline
           preload={activated ? "metadata" : "none"}
+          onTimeUpdate={updateEndCtaVisibility}
+          onSeeked={updateEndCtaVisibility}
+          onPlay={updateEndCtaVisibility}
+          onEnded={() => setShowEndCta(false)}
           className="h-full w-full object-contain"
         />
+        {activated && showEndCta && (
+          <a
+            href="/kdp-pdf-checker"
+            className="absolute left-1/2 top-4 z-30 -translate-x-1/2 rounded-xl bg-black/90 px-5 py-2.5 text-center font-bebas text-xl uppercase tracking-[0.06em] text-m2p-orange shadow-[0_6px_20px_rgba(0,0,0,0.45)] ring-1 ring-m2p-orange/70 transition hover:brightness-110"
+          >
+            Check my PDF
+          </a>
+        )}
         {!activated && (
           <button
             type="button"
