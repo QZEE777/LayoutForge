@@ -286,6 +286,42 @@ export default function DownloadPage() {
     .logo-two { color: #1A1208; font-weight: 900; font-size: 22px; }
     .logo-print { color: #4cd964; font-weight: 900; font-size: 22px; }
     .watermark { position: fixed; bottom: 20px; right: 20px; width: 100px; height: 100px; opacity: 0.08; pointer-events: none; z-index: -1; }
+    /* Cloned report uses Tailwind class names; this window has no app CSS — restore flex layout for print/PDF */
+    .flex { display: flex; }
+    .inline-flex { display: inline-flex; }
+    .flex-col { flex-direction: column; }
+    .flex-row { flex-direction: row; }
+    .flex-wrap { flex-wrap: wrap; }
+    .flex-nowrap { flex-wrap: nowrap; }
+    .items-center { align-items: center; }
+    .items-start { align-items: flex-start; }
+    .items-end { align-items: flex-end; }
+    .items-baseline { align-items: baseline; }
+    .items-stretch { align-items: stretch; }
+    .justify-center { justify-content: center; }
+    .justify-between { justify-content: space-between; }
+    .justify-start { justify-content: flex-start; }
+    .shrink-0,
+    .flex-shrink-0 { flex-shrink: 0; }
+    .flex-1 { flex: 1 1 0%; min-width: 0; }
+    .min-w-0 { min-width: 0; }
+    .gap-1 { gap: 0.25rem; }
+    .gap-1\\.5 { gap: 0.375rem; }
+    .gap-2 { gap: 0.5rem; }
+    .gap-3 { gap: 0.75rem; }
+    .gap-4 { gap: 1rem; }
+    .gap-6 { gap: 1.5rem; }
+    .gap-x-1 { column-gap: 0.25rem; }
+    .gap-x-1\\.5 { column-gap: 0.375rem; }
+    .gap-x-2 { column-gap: 0.5rem; }
+    .gap-y-0 { row-gap: 0; }
+    @media (min-width: 640px) {
+      .sm\\:flex-row { flex-direction: row; }
+      .sm\\:items-end { align-items: flex-end; }
+      .sm\\:items-stretch { align-items: stretch; }
+      .sm\\:justify-start { justify-content: flex-start; }
+      .sm\\:justify-between { justify-content: space-between; }
+    }
     table { width: 100%; border-collapse: collapse; margin: 14px 0; border-radius: 8px; overflow: hidden; }
     th { background: linear-gradient(180deg, #1A6B2A 0%, #0D3D18 100%); color: #fff; padding: 9px 10px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
     td { padding: 9px 10px; border: 1px solid #E0D8C4; background: rgba(255,255,255,0.92); vertical-align: top; }
@@ -889,24 +925,161 @@ export default function DownloadPage() {
                     )}
                   </div>
 
-                  {/* Scan context badge — shows what the user declared before uploading */}
+                  {/* Top summary: table layout + inline flex so grade/icons never orphan (print window has no Tailwind) */}
                   {isChecker && (
-                    <div className="mb-4 flex flex-wrap gap-2 items-center">
-                      <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-m2p-muted w-full sm:w-auto">Scan context</span>
-                      <span className="rounded-full px-3 py-1 text-xs font-bold bg-white/80 border border-[#1A6B2A]/20 text-m2p-ink shadow-sm">
-                        {scanBookType === "hardcover" ? "📕 Hardcover" : "📖 Paperback"}
-                      </span>
-                      <span className="rounded-full px-3 py-1 text-xs font-bold bg-white/80 border border-[#1A6B2A]/20 text-m2p-ink shadow-sm">
-                        {scanBleed ? "🩸 With bleed" : "⬜ No bleed"}
-                      </span>
-                      <span className="rounded-full px-3 py-1 text-xs font-bold bg-white/80 border border-[#1A6B2A]/20 text-m2p-ink shadow-sm">
-                        {scanColorMode === "color" ? "🎨 Full color" : "⚫ B&W"}
-                      </span>
-                      {report.trimDetected && (
-                        <span className="rounded-full px-3 py-1 text-xs font-bold bg-white/80 border border-[#1A6B2A]/20 text-m2p-ink shadow-sm">
-                          📏 Detected trim: {report.trimDetected}
-                        </span>
-                      )}
+                    <div className="mb-4 rounded-xl border border-m2p-border/50 overflow-hidden bg-white/85 shadow-sm">
+                      <table className="w-full text-sm border-collapse">
+                        <tbody>
+                          <tr className="border-b border-m2p-border/30 align-top">
+                            <th
+                              scope="row"
+                              className="py-3 px-3 text-left text-[10px] font-black uppercase tracking-wider text-m2p-muted w-[min(32%,10rem)] max-w-[11rem] border-r border-m2p-border/25 bg-m2p-ivory/55 align-top"
+                            >
+                              Scan context
+                            </th>
+                            <td className="py-3 px-3">
+                              <div
+                                className="flex flex-wrap gap-2 items-center"
+                                style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.5rem" }}
+                              >
+                                <span className="rounded-full px-3 py-1 text-xs font-bold bg-white/90 border border-[#1A6B2A]/20 text-m2p-ink shadow-sm whitespace-nowrap">
+                                  {scanBookType === "hardcover" ? "📕 Hardcover" : "📖 Paperback"}
+                                </span>
+                                <span className="rounded-full px-3 py-1 text-xs font-bold bg-white/90 border border-[#1A6B2A]/20 text-m2p-ink shadow-sm whitespace-nowrap">
+                                  {scanBleed ? "🩸 With bleed" : "⬜ No bleed"}
+                                </span>
+                                <span className="rounded-full px-3 py-1 text-xs font-bold bg-white/90 border border-[#1A6B2A]/20 text-m2p-ink shadow-sm whitespace-nowrap">
+                                  {scanColorMode === "color" ? "🎨 Full color" : "⚫ B&W"}
+                                </span>
+                                {report.trimDetected && (
+                                  <span className="rounded-full px-3 py-1 text-xs font-bold bg-white/90 border border-[#1A6B2A]/20 text-m2p-ink shadow-sm">
+                                    📏 Detected trim: {report.trimDetected}
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                          {(() => {
+                            const s = canonicalCheckerReadinessScore(report);
+                            const sg =
+                              report.verdict === "needs-fixes" && report.scoreGrade
+                                ? report.scoreGrade
+                                : s !== null
+                                  ? getScoreGrade(s)
+                                  : report.scoreGrade ?? null;
+                            if (!sg) return null;
+                            const col = checkerHeroLooksPassing(report, s) ? "#4cd964" : "#f0a028";
+                            return (
+                              <tr className="border-b border-m2p-border/30 align-top">
+                                <th
+                                  scope="row"
+                                  className="py-3 px-3 text-left text-[10px] font-black uppercase tracking-wider text-m2p-muted border-r border-m2p-border/25 bg-m2p-ivory/55 align-middle"
+                                >
+                                  Grade & summary
+                                </th>
+                                <td className="py-3 px-3" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(250,247,238,0.98) 100%)" }}>
+                                  <div
+                                    className="flex flex-nowrap items-center gap-4"
+                                    style={{ display: "flex", flexWrap: "nowrap", alignItems: "center", gap: "1rem" }}
+                                  >
+                                    <div
+                                      className="shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-full flex flex-col items-center justify-center text-center border-4 shadow-md ring-2 ring-white/90"
+                                      style={{
+                                        borderColor: col,
+                                        background: "linear-gradient(145deg, #ffffff 0%, #FAF7EE 100%)",
+                                      }}
+                                    >
+                                      <span
+                                        className="text-3xl sm:text-4xl font-bebas leading-none tabular-nums"
+                                        style={{ color: col, lineHeight: 1, flexShrink: 0 }}
+                                      >
+                                        {sg.grade}
+                                      </span>
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                      <p className="font-black text-m2p-ink text-base sm:text-lg leading-tight">{sg.label}</p>
+                                      <p className="text-xs text-m2p-muted mt-0.5 leading-snug">{sg.description}</p>
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })()}
+                          {canonicalCheckerReadinessScore(report) != null && (
+                            <tr className="border-b border-m2p-border/30">
+                              <th
+                                scope="row"
+                                className="py-2.5 px-3 text-left text-[10px] font-black uppercase tracking-wider text-m2p-muted border-r border-m2p-border/25 bg-m2p-ivory/55 align-middle whitespace-nowrap"
+                              >
+                                Readiness
+                              </th>
+                              <td className="py-2.5 px-3 font-black text-m2p-ink text-lg sm:text-xl tabular-nums">
+                                <span className="text-[#0D3D18]">{canonicalCheckerReadinessScore(report)}</span>
+                                <span className="text-m2p-muted text-sm font-bold"> /100</span>
+                              </td>
+                            </tr>
+                          )}
+                          {report.verdict && (
+                            <tr className="border-b border-m2p-border/30">
+                              <th
+                                scope="row"
+                                className="py-2.5 px-3 text-left text-[10px] font-black uppercase tracking-wider text-m2p-muted border-r border-m2p-border/25 bg-m2p-ivory/55 align-middle"
+                              >
+                                Verdict
+                              </th>
+                              <td className="py-2.5 px-3 text-sm font-bold">
+                                <span className={report.verdict === "pass" ? "text-[#2D6A2D]" : "text-[#c2410c]"}>
+                                  {report.verdict === "pass" ? "KDP Ready" : "Needs Fixes"}
+                                </span>
+                              </td>
+                            </tr>
+                          )}
+                          {typeof report.blockerCount === "number" && (
+                            <tr className="border-b border-m2p-border/30">
+                              <th
+                                scope="row"
+                                className="py-2.5 px-3 text-left text-[10px] font-black uppercase tracking-wider text-m2p-muted border-r border-m2p-border/25 bg-m2p-ivory/55 align-middle"
+                              >
+                                Issue counts
+                              </th>
+                              <td className="py-2.5 px-3 text-xs text-m2p-ink font-semibold tabular-nums whitespace-nowrap">
+                                Blockers {report.blockerCount} · Warnings {report.warningCount ?? 0} · Info {report.infoCount ?? 0}
+                              </td>
+                            </tr>
+                          )}
+                          {canonicalCheckerReadinessScore(report) != null && report.riskLevel && (
+                            <tr className="border-b border-m2p-border/30">
+                              <th
+                                scope="row"
+                                className="py-2.5 px-3 text-left text-[10px] font-black uppercase tracking-wider text-m2p-muted border-r border-m2p-border/25 bg-m2p-ivory/55 align-middle"
+                              >
+                                Approval & risk
+                              </th>
+                              <td className="py-2.5 px-3 text-sm font-bold text-m2p-ink">
+                                <span className="inline-flex flex-wrap items-baseline gap-x-2 gap-y-1" style={{ display: "inline-flex", flexWrap: "wrap", alignItems: "baseline", columnGap: "0.5rem" }}>
+                                  <span className="text-m2p-muted font-semibold">Likelihood</span>
+                                  <span className="tabular-nums">{canonicalCheckerReadinessScore(report)}%</span>
+                                  <span className="text-m2p-border">·</span>
+                                  <span className="text-m2p-muted font-semibold">Risk</span>
+                                  <span
+                                    className="font-black whitespace-nowrap"
+                                    style={{
+                                      color:
+                                        report.riskLevel === "Low"
+                                          ? "#2D6A2D"
+                                          : report.riskLevel === "Medium"
+                                            ? "#c27803"
+                                            : "#c2410c",
+                                    }}
+                                  >
+                                    {report.riskLevel}
+                                  </span>
+                                </span>
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
                     </div>
                   )}
 
@@ -914,59 +1087,15 @@ export default function DownloadPage() {
                   {isChecker && !scanBleed && report.issuesEnriched?.some(
                     (i) => /bleed|trim.*outside|does not extend/i.test(i.originalMessage)
                   ) && (
-                    <div className="mb-4 flex items-start gap-3 rounded-xl border border-blue-200/80 bg-blue-50/90 pl-4 pr-4 py-3 text-sm text-blue-950 border-l-[4px] border-l-blue-600">
-                      <span className="shrink-0 mt-0.5">ℹ️</span>
-                      <p>You indicated <strong>no bleed</strong> — bleed-related issues below are expected for your book type and can be ignored if you do not intend full-bleed images or backgrounds.</p>
+                    <div
+                      className="mb-4 flex items-start gap-3 rounded-xl border border-blue-200/80 bg-blue-50/90 pl-4 pr-4 py-3 text-sm text-blue-950 border-l-[4px] border-l-blue-600"
+                      style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem" }}
+                    >
+                      <span className="shrink-0 mt-0.5" aria-hidden>ℹ️</span>
+                      <p className="min-w-0 leading-relaxed">
+                        You indicated <strong>no bleed</strong> — bleed-related issues below are expected for your book type and can be ignored if you do not intend full-bleed images or backgrounds.
+                      </p>
                     </div>
-                  )}
-                  {(() => {
-                    const s = canonicalCheckerReadinessScore(report);
-                    const sg =
-                      report.verdict === "needs-fixes" && report.scoreGrade
-                        ? report.scoreGrade
-                        : s !== null
-                          ? getScoreGrade(s)
-                          : report.scoreGrade ?? null;
-                    if (!sg) return null;
-                    const col = checkerHeroLooksPassing(report, s) ? "#4cd964" : "#f0a028";
-                    return (
-                      <div
-                        className="mb-4 flex items-center gap-4 rounded-xl border border-m2p-border/50 px-5 py-4"
-                        style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(250,247,238,0.95) 100%)", boxShadow: DL_VIS.innerShadow }}
-                      >
-                        <span className="text-5xl sm:text-6xl font-bebas leading-none tabular-nums" style={{ color: col }}>{sg.grade}</span>
-                        <div>
-                          <p className="font-black text-m2p-ink text-lg leading-tight">{sg.label}</p>
-                          <p className="text-sm text-m2p-muted mt-0.5 leading-snug">{sg.description}</p>
-                        </div>
-                      </div>
-                    );
-                  })()}
-                  {canonicalCheckerReadinessScore(report) != null && (
-                    <p className="mb-2 text-2xl sm:text-3xl font-black text-m2p-ink tabular-nums">
-                      Readiness{" "}
-                      <span className="text-[#0D3D18]">{canonicalCheckerReadinessScore(report)}</span>
-                      <span className="text-m2p-muted text-xl font-bold">/100</span>
-                    </p>
-                  )}
-                  {report.verdict && (
-                    <p className="mb-2 text-xs font-bold tracking-[0.12em] uppercase text-m2p-muted">
-                      Verdict: <span className={report.verdict === "pass" ? "text-[#2D6A2D]" : "text-[#c2410c]"}>{report.verdict === "pass" ? "KDP Ready" : "Needs Fixes"}</span>
-                    </p>
-                  )}
-                  {typeof report.blockerCount === "number" && (
-                    <p className="mb-3 text-xs text-m2p-muted">
-                      Blockers {report.blockerCount} · Warnings {report.warningCount ?? 0} · Info {report.infoCount ?? 0}
-                    </p>
-                  )}
-                  {(canonicalCheckerReadinessScore(report) != null && report.riskLevel) && (
-                    <p className="mb-3 text-sm font-bold text-m2p-ink flex flex-wrap items-center gap-x-2">
-                      <span className="text-m2p-muted font-semibold">KDP approval likelihood</span>
-                      <span className="tabular-nums">{canonicalCheckerReadinessScore(report)}%</span>
-                      <span className="text-m2p-border">·</span>
-                      <span className="text-m2p-muted font-semibold">Risk</span>
-                      <span className="font-black" style={{ color: report.riskLevel === "Low" ? "#2D6A2D" : report.riskLevel === "Medium" ? "#c27803" : "#c2410c" }}>{report.riskLevel}</span>
-                    </p>
                   )}
                   {report.creationTool && report.creationTool !== "unknown" && (
                     <p className="mb-4 text-sm text-m2p-muted">
@@ -994,18 +1123,26 @@ export default function DownloadPage() {
                               ? "border-amber-200 bg-amber-50/95 text-amber-950 border-l-amber-500"
                               : "border-blue-200 bg-blue-50/95 text-blue-950 border-l-blue-600"
                           }`}
+                          style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem" }}
                         >
-                          <span className="shrink-0 mt-0.5">{notice.severity === "warning" ? "⚠️" : "ℹ️"}</span>
-                          <p className="leading-relaxed">{notice.message}</p>
+                          <span className="shrink-0 mt-0.5" aria-hidden>
+                            {notice.severity === "warning" ? "⚠️" : "ℹ️"}
+                          </span>
+                          <p className="min-w-0 leading-relaxed">{notice.message}</p>
                         </div>
                       ))}
                     </div>
                   )}
 
                   {/* Item 5: Title matches cover — static reminder for all checker reports */}
-                  <div className="mb-4 flex items-start gap-3 rounded-xl border border-m2p-border/60 bg-gradient-to-br from-white to-m2p-ivory/80 px-4 py-3 text-sm text-m2p-ink border-l-[4px] border-l-[#2D6A2D] shadow-sm">
-                    <span className="shrink-0 mt-0.5">📋</span>
-                    <div>
+                  <div
+                    className="mb-4 flex items-start gap-3 rounded-xl border border-m2p-border/60 bg-gradient-to-br from-white to-m2p-ivory/80 px-4 py-3 text-sm text-m2p-ink border-l-[4px] border-l-[#2D6A2D] shadow-sm"
+                    style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem" }}
+                  >
+                    <span className="shrink-0 mt-0.5" aria-hidden>
+                      📋
+                    </span>
+                    <div className="min-w-0">
                       <p className="font-bold mb-0.5">Reminder: verify your cover title matches your interior</p>
                       <p className="text-m2p-muted text-xs leading-relaxed">
                         This scan checks your interior PDF only. Before uploading to KDP, confirm that the title, subtitle, and author name on your cover file exactly match your interior title page — including spelling, punctuation, and capitalization. Mismatches are a common KDP rejection reason.
@@ -1037,10 +1174,15 @@ export default function DownloadPage() {
                             <div
                               key={i}
                               className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-sm font-semibold shadow-sm transition-shadow hover:shadow-md ${statusStyles[item.status]}`}
+                              style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}
                             >
-                              <span>{statusIcon[item.status]}</span>
-                              <span className="flex-1">{checkLabel}</span>
-                              <span className="text-xs uppercase tracking-wide opacity-70">{item.status}</span>
+                              <span className="shrink-0" aria-hidden>
+                                {statusIcon[item.status]}
+                              </span>
+                              <span className="flex-1 min-w-0">{checkLabel}</span>
+                              <span className="shrink-0 text-xs uppercase tracking-wide opacity-70 whitespace-nowrap">
+                                {item.status}
+                              </span>
                             </div>
                           );
                         })}
