@@ -59,12 +59,14 @@ export default function HeroVideo() {
           className="h-full w-full object-contain"
         />
         {activated && showEndCta && (
-          <a
-            href="/kdp-pdf-checker"
-            className="absolute left-1/2 top-4 z-30 -translate-x-1/2 rounded-xl bg-black/90 px-5 py-2.5 text-center font-bebas text-xl uppercase tracking-[0.06em] text-m2p-orange shadow-[0_6px_20px_rgba(0,0,0,0.45)] ring-1 ring-m2p-orange/70 transition hover:brightness-110"
-          >
-            Check my PDF
-          </a>
+          <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center px-4">
+            <a
+              href="/kdp-pdf-checker"
+              className="pointer-events-auto rounded-2xl bg-black/92 px-8 py-4 text-center font-bebas text-4xl uppercase tracking-[0.08em] text-m2p-orange shadow-[0_10px_30px_rgba(0,0,0,0.55)] ring-2 ring-m2p-orange/85 sm:text-5xl"
+            >
+              Check my PDF
+            </a>
+          </div>
         )}
         {!activated && (
           <button
