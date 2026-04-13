@@ -181,23 +181,6 @@ function checkerHeroLooksPassing(report: ProcessingReport, score: number | null)
   return report.kdpReady === true;
 }
 
-function parseContentDispositionFilename(header: string | null): string | null {
-  if (!header) return null;
-  const utf8 = header.match(/filename\*=UTF-8''([^;\s]+)/i);
-  if (utf8?.[1]) {
-    try {
-      return decodeURIComponent(utf8[1].replace(/\+/g, "%20"));
-    } catch {
-      return utf8[1];
-    }
-  }
-  const quoted = header.match(/filename="([^"]+)"/i);
-  if (quoted?.[1]) return quoted[1];
-  const plain = header.match(/filename=([^;\s]+)/i);
-  if (plain?.[1]) return plain[1].replace(/^["']|["']$/g, "");
-  return null;
-}
-
 export default function DownloadPage() {
   const params = useParams();
   const searchParams = useSearchParams();
@@ -221,8 +204,6 @@ export default function DownloadPage() {
   const [annotatedTakingLong, setAnnotatedTakingLong] = useState(false);
   const [annotatedEmailInput, setAnnotatedEmailInput] = useState("");
   const [annotatedEmailStatus, setAnnotatedEmailStatus] = useState<"idle" | "saving" | "queued" | "sent" | "error">("idle");
-  const [fullReportPdfLoading, setFullReportPdfLoading] = useState(false);
-  const [fullReportPdfError, setFullReportPdfError] = useState<string | null>(null);
   /** `undefined` = still resolving auth; `null` = guest; string = signed-in account email */
   const [authEmail, setAuthEmail] = useState<string | null | undefined>(undefined);
   const annotatedAutoInFlightRef = useRef(false);
@@ -270,52 +251,75 @@ export default function DownloadPage() {
     }
   }, [id, downloadFilename]);
 
-  const handleDownloadFullReportPdf = useCallback(async () => {
-    if (!id) return;
-    setFullReportPdfError(null);
-    setFullReportPdfLoading(true);
-    try {
-      const res = await fetch(`/api/checker-report-pdf/${encodeURIComponent(id)}`, {
-        credentials: "same-origin",
-        cache: "no-store",
-      });
-      if (res.status === 402) {
-        setFullReportPdfError(
-          "Payment required. If you just completed checkout, wait a few seconds and try again, or refresh this page.",
-        );
-        return;
-      }
-      if (res.status === 404) {
-        setFullReportPdfError("Report not found or expired.");
-        return;
-      }
-      if (!res.ok) {
-        setFullReportPdfError("Could not generate the PDF. Try again in a moment.");
-        return;
-      }
-      const blob = await res.blob();
-      const head = new Uint8Array(await blob.slice(0, 5).arrayBuffer());
-      const isPdf = head[0] === 0x25 && head[1] === 0x50 && head[2] === 0x44 && head[3] === 0x46;
-      if (!isPdf) {
-        setFullReportPdfError("Server did not return a valid PDF. Try again or refresh the page.");
-        return;
-      }
-      const filename =
-        parseContentDispositionFilename(res.headers.get("Content-Disposition")) ?? "KDP_Compliance_Report.pdf";
-      const blobUrl = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = blobUrl;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(blobUrl);
-      document.body.removeChild(a);
-    } catch {
-      setFullReportPdfError("Download failed. Check your connection and try again.");
-    } finally {
-      setFullReportPdfLoading(false);
+  /** Same layout as this page: opens print dialog → “Save as PDF”. Avoids server PDF that repeats every finding across many pages. */
+  const handlePrintFullReportAsPdf = useCallback(() => {
+    const content = document.getElementById("report-content");
+    if (!content) return;
+    const clone = content.cloneNode(true) as HTMLElement;
+    if (clone.firstElementChild) clone.firstElementChild.remove();
+    const bodyContent = clone.innerHTML;
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    printWindow.document.write(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>KDP Compliance Report — manu2print</title>
+  <style>
+    @page { size: letter; margin: 14mm 12mm; }
+    * { box-sizing: border-box; }
+    html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body {
+      font-family: system-ui, "Segoe UI", Inter, sans-serif;
+      padding: 0;
+      max-width: 820px;
+      margin: 0 auto;
+      background: #fff;
+      color: #1A1208;
+      font-size: 12.5px;
+      line-height: 1.45;
     }
-  }, [id]);
+    .header { margin-bottom: 22px; padding-bottom: 14px; border-bottom: 2px solid rgba(26,107,42,0.2); }
+    .logo-manu { color: #F05A28; font-weight: 900; font-size: 22px; }
+    .logo-two { color: #1A1208; font-weight: 900; font-size: 22px; }
+    .logo-print { color: #4cd964; font-weight: 900; font-size: 22px; }
+    .watermark { position: fixed; bottom: 20px; right: 20px; width: 100px; height: 100px; opacity: 0.08; pointer-events: none; z-index: -1; }
+    table { width: 100%; border-collapse: collapse; margin: 14px 0; border-radius: 8px; overflow: hidden; }
+    th { background: linear-gradient(180deg, #1A6B2A 0%, #0D3D18 100%); color: #fff; padding: 9px 10px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
+    td { padding: 9px 10px; border: 1px solid #E0D8C4; background: rgba(255,255,255,0.92); vertical-align: top; }
+    tr:nth-child(even) td { background: rgba(250,247,238,0.95); }
+    .footer { margin-top: 36px; text-align: center; color: #6B6151; font-size: 11px; border-top: 1px solid #E0D8C4; padding-top: 14px; }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: #fff !important; }
+    }
+  </style>
+</head>
+<body>
+  <img src="${origin}/MANNY%20AVATAR.png" class="watermark" alt="" />
+  <div class="header">
+    <span class="logo-manu">manu</span><span class="logo-two">2</span><span class="logo-print">print</span>
+  </div>
+  ${bodyContent}
+  <div style="margin-top:28px; padding:22px; background:#FEF0EB; border-radius:12px; text-align:center; border:1px solid #F05A28;">
+    <p style="font-size:16px; font-weight:bold; color:#1A1208; margin-bottom:8px;">Next step: upload-ready confidence</p>
+    <p style="color:#6B6151; margin-bottom:10px;">Apply the fixes in this report, export a fresh PDF from your layout app, then run one final check before uploading to KDP.</p>
+    <p style="color:#6B6151; margin-bottom:14px;">Need a second opinion? Share this report with your formatter, designer, or editor so they can fix issues page by page.</p>
+    <p style="margin-bottom:14px;"><a href="https://manu2print.com/kdp-pdf-checker" style="background:#F05A28; color:white; padding:11px 22px; border-radius:8px; text-decoration:none; font-weight:bold;">Run final KDP check → manu2print.com/kdp-pdf-checker</a></p>
+    <p style="color:#6B6151; font-size:12px;">Want to earn scan credits by referring authors? <a href="https://manu2print.com/partners" style="color:#F05A28;">Become a partner</a></p>
+  </div>
+  <div class="footer">© manu2print — Built for indie authors</div>
+</body>
+</html>
+`);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+    }, 300);
+  }, []);
 
   const handleCopyForAIReview = useCallback(async () => {
     if (!report?.formatReviewText) return;
@@ -1273,22 +1277,17 @@ export default function DownloadPage() {
                     )}
                   <div className="mt-8 pt-1 border-t border-m2p-border/30">
                     <p className="text-xs text-m2p-muted text-center max-w-lg mx-auto mb-3 leading-relaxed">
-                      <span className="font-semibold text-m2p-ink">Full report PDF</span> is generated on our servers from this scan (paginated for sharing). For your interior with on-page highlights, use{" "}
+                      <span className="font-semibold text-m2p-ink">Save this report as PDF</span> using the button below, then choose{" "}
+                      <span className="font-semibold text-m2p-ink">Save as PDF</span> in the print dialog. It matches what you see on this page (same summary layout — not a separate long document). For on-page highlights, use{" "}
                       <span className="font-semibold text-m2p-ink">Annotated PDF</span> when available.
                     </p>
-                    {fullReportPdfError && (
-                      <p className="mb-3 text-sm text-center text-[#b91c1c]" role="alert">
-                        {fullReportPdfError}
-                      </p>
-                    )}
                     <div className="flex justify-center">
                     <button
                       type="button"
-                      disabled={fullReportPdfLoading}
-                      onClick={() => void handleDownloadFullReportPdf()}
-                      className="w-full sm:w-auto text-center bg-m2p-orange text-white px-6 py-3.5 rounded-xl font-black hover:bg-m2p-orange-hover cursor-pointer transition-all shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed inline-block"
+                      onClick={handlePrintFullReportAsPdf}
+                      className="w-full sm:w-auto text-center bg-m2p-orange text-white px-6 py-3.5 rounded-xl font-black hover:bg-m2p-orange-hover cursor-pointer transition-all shadow-md hover:shadow-lg inline-block"
                     >
-                      {fullReportPdfLoading ? "Preparing PDF…" : "Download Full Report (PDF)"}
+                      Download Full Report (PDF)
                     </button>
                     </div>
                   </div>
