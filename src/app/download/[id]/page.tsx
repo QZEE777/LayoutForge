@@ -978,41 +978,15 @@ export default function DownloadPage() {
                                   Grade & summary
                                 </th>
                                 <td className="py-3 px-3" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(250,247,238,0.98) 100%)" }}>
-                                  {/* table-row layout: print/PDF engines cannot orphan the grade circle from the headline (flex alone was still breaking) */}
-                                  <div style={{ display: "table", width: "100%", tableLayout: "fixed" }}>
-                                    <div style={{ display: "table-row" }}>
-                                      <div
-                                        style={{
-                                          display: "table-cell",
-                                          width: "4.75rem",
-                                          verticalAlign: "middle",
-                                          paddingRight: "14px",
-                                        }}
-                                      >
-                                        <div
-                                          className="w-14 h-14 sm:w-16 sm:h-16 rounded-full text-center border-4 shadow-md ring-2 ring-white/90 mx-auto sm:mx-0"
-                                          style={{
-                                            borderColor: col,
-                                            background: "linear-gradient(145deg, #ffffff 0%, #FAF7EE 100%)",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                          }}
-                                        >
-                                          <span
-                                            className="text-3xl sm:text-4xl font-bebas leading-none tabular-nums"
-                                            style={{ color: col, lineHeight: 1 }}
-                                          >
-                                            {sg.grade}
-                                          </span>
-                                        </div>
-                                      </div>
-                                      <div style={{ display: "table-cell", verticalAlign: "middle", minWidth: 0 }}>
-                                        <p className="font-black text-m2p-ink text-base sm:text-lg leading-tight">{sg.label}</p>
-                                        <p className="text-xs text-m2p-muted mt-0.5 leading-snug">{sg.description}</p>
-                                      </div>
-                                    </div>
-                                  </div>
+                                  {/* Text-only: no grade circle (print/PDF layout was still breaking with icons) */}
+                                  <p className="font-black text-m2p-ink text-base sm:text-lg leading-snug m-0">
+                                    <span className="font-bebas tabular-nums tracking-tight" style={{ color: col }}>
+                                      Grade {sg.grade}
+                                    </span>
+                                    <span className="text-m2p-border font-semibold mx-2 select-none">·</span>
+                                    <span>{sg.label}</span>
+                                  </p>
+                                  <p className="text-xs text-m2p-muted mt-1.5 leading-snug m-0">{sg.description}</p>
                                 </td>
                               </tr>
                             );
@@ -1099,19 +1073,10 @@ export default function DownloadPage() {
                   {isChecker && !scanBleed && report.issuesEnriched?.some(
                     (i) => /bleed|trim.*outside|does not extend/i.test(i.originalMessage)
                   ) && (
-                    <div className="mb-4 rounded-xl border border-blue-200/80 bg-blue-50/90 pl-4 pr-4 py-3 text-sm text-blue-950 border-l-[4px] border-l-blue-600">
-                      <div style={{ display: "table", width: "100%", tableLayout: "fixed" }}>
-                        <div style={{ display: "table-row" }}>
-                          <div style={{ display: "table-cell", width: "2.25rem", verticalAlign: "top", paddingTop: "2px" }} aria-hidden>
-                            <span className="text-lg leading-none">ℹ️</span>
-                          </div>
-                          <div style={{ display: "table-cell", verticalAlign: "top", minWidth: 0 }}>
-                            <p className="leading-relaxed m-0">
-                              You indicated <strong>no bleed</strong> — bleed-related issues below are expected for your book type and can be ignored if you do not intend full-bleed images or backgrounds.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
+                    <div className="mb-4 rounded-xl border border-blue-200/80 bg-blue-50/90 px-4 py-3 text-sm text-blue-950 border-l-[4px] border-l-blue-600">
+                      <p className="leading-relaxed m-0">
+                        You indicated <strong>no bleed</strong> — bleed-related issues below are expected for your book type and can be ignored if you do not intend full-bleed images or backgrounds.
+                      </p>
                     </div>
                   )}
                   {report.creationTool && report.creationTool !== "unknown" && (
@@ -1141,18 +1106,7 @@ export default function DownloadPage() {
                               : "border-blue-200 bg-blue-50/95 text-blue-950 border-l-blue-600"
                           }`}
                         >
-                          <div style={{ display: "table", width: "100%", tableLayout: "fixed" }}>
-                            <div style={{ display: "table-row" }}>
-                              <div style={{ display: "table-cell", width: "2.25rem", verticalAlign: "top", paddingTop: "2px" }} aria-hidden>
-                                <span className="text-lg leading-none">
-                                  {notice.severity === "warning" ? "⚠️" : "ℹ️"}
-                                </span>
-                              </div>
-                              <div style={{ display: "table-cell", verticalAlign: "top", minWidth: 0 }}>
-                                <p className="leading-relaxed m-0">{notice.message}</p>
-                              </div>
-                            </div>
-                          </div>
+                          <p className="leading-relaxed m-0">{notice.message}</p>
                         </div>
                       ))}
                     </div>
@@ -1160,19 +1114,10 @@ export default function DownloadPage() {
 
                   {/* Item 5: Title matches cover — static reminder for all checker reports */}
                   <div className="mb-4 rounded-xl border border-m2p-border/60 bg-gradient-to-br from-white to-m2p-ivory/80 px-4 py-3 text-sm text-m2p-ink border-l-[4px] border-l-[#2D6A2D] shadow-sm">
-                    <div style={{ display: "table", width: "100%", tableLayout: "fixed" }}>
-                      <div style={{ display: "table-row" }}>
-                        <div style={{ display: "table-cell", width: "2.25rem", verticalAlign: "top", paddingTop: "2px" }} aria-hidden>
-                          <span className="text-lg leading-none">📋</span>
-                        </div>
-                        <div style={{ display: "table-cell", verticalAlign: "top", minWidth: 0 }}>
-                          <p className="font-bold mb-0.5">Reminder: verify your cover title matches your interior</p>
-                          <p className="text-m2p-muted text-xs leading-relaxed">
-                            This scan checks your interior PDF only. Before uploading to KDP, confirm that the title, subtitle, and author name on your cover file exactly match your interior title page — including spelling, punctuation, and capitalization. Mismatches are a common KDP rejection reason.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
+                    <p className="font-bold mb-0.5 m-0">Reminder: verify your cover title matches your interior</p>
+                    <p className="text-m2p-muted text-xs leading-relaxed m-0 mt-1">
+                      This scan checks your interior PDF only. Before uploading to KDP, confirm that the title, subtitle, and author name on your cover file exactly match your interior title page — including spelling, punctuation, and capitalization. Mismatches are a common KDP rejection reason.
+                    </p>
                   </div>
                   {report.uploadChecklist && report.uploadChecklist.length > 0 && (
                     <div className="mb-4">
@@ -1184,11 +1129,6 @@ export default function DownloadPage() {
                             warning: "bg-amber-50 border-amber-200 text-amber-800",
                             fail: "bg-red-50 border-red-200 text-red-800",
                           } as const;
-                          const statusIcon = {
-                            pass: "✅",
-                            warning: "⚠️",
-                            fail: "❌",
-                          } as const;
                           const checkLabel =
                             item.check === "No critical errors" || item.check === "Critical errors found"
                               ? item.status === "pass"
@@ -1199,32 +1139,18 @@ export default function DownloadPage() {
                             <div
                               key={i}
                               className={`rounded-xl border px-4 py-3 text-sm font-semibold shadow-sm transition-shadow hover:shadow-md ${statusStyles[item.status]}`}
+                              style={{
+                                display: "flex",
+                                flexWrap: "wrap",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                gap: "0.5rem 1rem",
+                              }}
                             >
-                              <div style={{ display: "table", width: "100%", tableLayout: "fixed" }}>
-                                <div style={{ display: "table-row" }}>
-                                  <div
-                                    style={{ display: "table-cell", width: "2.25rem", verticalAlign: "middle" }}
-                                    aria-hidden
-                                  >
-                                    <span className="text-base leading-none">{statusIcon[item.status]}</span>
-                                  </div>
-                                  <div style={{ display: "table-cell", verticalAlign: "middle", minWidth: 0 }}>
-                                    {checkLabel}
-                                  </div>
-                                  <div
-                                    style={{
-                                      display: "table-cell",
-                                      width: "4.5rem",
-                                      verticalAlign: "middle",
-                                      textAlign: "right",
-                                      whiteSpace: "nowrap",
-                                    }}
-                                    className="text-xs uppercase tracking-wide opacity-70"
-                                  >
-                                    {item.status}
-                                  </div>
-                                </div>
-                              </div>
+                              <span className="min-w-0 flex-1">{checkLabel}</span>
+                              <span className="text-xs uppercase tracking-wide opacity-80 whitespace-nowrap shrink-0">
+                                {item.status}
+                              </span>
                             </div>
                           );
                         })}
