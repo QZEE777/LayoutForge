@@ -378,7 +378,7 @@ export default function Home() {
 
           <div className="mx-auto grid max-w-5xl grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
 
-            {/* Card 1 — Single Scan (LIVE) */}
+            {/* Card 1 — 2-Scan Starter (LIVE) */}
             <div
               className="relative flex flex-col rounded-2xl border-2 border-m2p-orange p-6 text-center shadow-[0_16px_48px_-20px_rgba(0,0,0,0.45)] ring-1 ring-white/5 backdrop-blur-sm transition-transform duration-300 hover:-translate-y-0.5"
               style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.11) 0%, rgba(255,255,255,0.05) 100%)" }}
@@ -388,11 +388,11 @@ export default function Home() {
                   LIVE
                 </span>
               </div>
-              <h3 className="font-bebas text-m2p-ivory text-2xl mb-1">Single Scan</h3>
+              <h3 className="font-bebas text-m2p-ivory text-2xl mb-1">2-Scan Pack</h3>
               <div className="font-bebas text-5xl text-m2p-orange leading-none mb-2">$9</div>
-              <p className="text-m2p-ivory/60 text-sm mb-5">Perfect for one manuscript</p>
+              <p className="text-m2p-ivory/60 text-sm mb-5">Perfect for one manuscript + one re-check</p>
               <ul className="text-left space-y-2 text-sm text-m2p-ivory/80 mb-6 flex-1">
-                <li>✓ 1 KDP compliance scan</li>
+                <li>✓ 2 KDP compliance scans</li>
                 <li>✓ Annotated PDF with highlights</li>
                 <li>✓ Full compliance report</li>
                 <li>✓ 26 rules checked</li>
@@ -436,7 +436,7 @@ export default function Home() {
 
             {/* Card 3 — Indie Publisher */}
             <div
-              className="relative flex flex-col rounded-2xl border border-white/12 p-6 text-center shadow-lg shadow-black/20 ring-1 ring-white/5 backdrop-blur-sm transition-transform duration-300 hover:-translate-y-0.5"
+              className="relative flex flex-col rounded-2xl border-2 border-m2p-orange/45 p-6 text-center shadow-lg shadow-black/20 ring-1 ring-white/5 backdrop-blur-sm transition-transform duration-300 hover:-translate-y-0.5"
               style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.04) 100%)" }}
             >
               <div className="mb-3">
@@ -462,7 +462,7 @@ export default function Home() {
 
             {/* Card 4 — Pro / Studio */}
             <div
-              className="relative flex flex-col rounded-2xl border border-white/12 p-6 text-center shadow-lg shadow-black/20 ring-1 ring-white/5 backdrop-blur-sm transition-transform duration-300 hover:-translate-y-0.5"
+              className="relative flex flex-col rounded-2xl border-2 border-m2p-orange/45 p-6 text-center shadow-lg shadow-black/20 ring-1 ring-white/5 backdrop-blur-sm transition-transform duration-300 hover:-translate-y-0.5"
               style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.04) 100%)" }}
             >
               <div className="mb-3">
