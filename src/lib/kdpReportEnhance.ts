@@ -641,9 +641,7 @@ export function buildSpecTable(input: SpecTableInput): SpecRow[] {
 
   const kdpRequiredTrim = intendedDef
     ? `${intendedDef.labelShort} (KDP trim you selected for this scan)`
-    : input.kdpTrimName
-      ? input.kdpTrimName.split(" — ")[0]
-      : "Use popular KDP trims: 6×9\", 5.5×8.5\", or 8.5×11\"";
+    : "Use popular KDP trims: 6×9\", 5.5×8.5\", or 8.5×11\"";
   const detectedTrim = input.trimDetected ?? "—";
   /** Measured trim can differ slightly from catalog inches while still passing (±tol). Avoid "pass" looking wrong vs catalog row. */
   const yourFileTrim =
@@ -977,6 +975,34 @@ export function enrichCheckerReport(
   const score = hasEngineApproval
     ? Math.round(engineApprovalLikelihood)
     : readinessScore100;
+  const uploadChecklist = buildUploadChecklist({
+    trimMatchKDP:         normalizedTrimMatchKDP,
+    trimDetected:         report.trimDetected,
+    trimWidthIn:          report.trimWidthIn,
+    trimHeightIn:         report.trimHeightIn,
+    intendedKdpTrimId:    enrichOptions?.intendedKdpTrimId?.trim() || null,
+    pageCount:            report.pageCount,
+    errorCount,
+    warningCount,
+    ...categories,
+  });
+  const specTable = buildSpecTable({
+    trimDetected:            report.trimDetected,
+    trimWidthIn:             report.trimWidthIn,
+    trimHeightIn:            report.trimHeightIn,
+    trimMatchKDP:            normalizedTrimMatchKDP,
+    kdpTrimName:             report.kdpTrimName,
+    intendedKdpTrimId:       enrichOptions?.intendedKdpTrimId?.trim() || null,
+    pageCount:               report.pageCount,
+    fileSizeMB:              report.fileSizeMB,
+    recommendedGutterInches: report.recommendedGutterInches,
+    errorCount,
+    warningCount,
+    ...categories,
+  });
+  const structuralFail =
+    uploadChecklist.some((i) => i.status === "fail") ||
+    specTable.some((i) => i.status === "fail");
 
   return {
     ...report,
@@ -989,33 +1015,10 @@ export function enrichCheckerReport(
     scoreGrade:         getScoreGrade(readinessScore100),
     creationTool,
     highRiskPageNumbers: getHighRiskPageNumbers(report.page_issues),
-    kdpReady:           errorCount === 0,
+    kdpReady:           errorCount === 0 && !structuralFail,
     issuesEnriched,
-    uploadChecklist: buildUploadChecklist({
-      trimMatchKDP:         normalizedTrimMatchKDP,
-      trimDetected:         report.trimDetected,
-      trimWidthIn:          report.trimWidthIn,
-      trimHeightIn:         report.trimHeightIn,
-      intendedKdpTrimId:    enrichOptions?.intendedKdpTrimId?.trim() || null,
-      pageCount:            report.pageCount,
-      errorCount,
-      warningCount,
-      ...categories,
-    }),
-    specTable: buildSpecTable({
-      trimDetected:            report.trimDetected,
-      trimWidthIn:             report.trimWidthIn,
-      trimHeightIn:             report.trimHeightIn,
-      trimMatchKDP:            normalizedTrimMatchKDP,
-      kdpTrimName:             report.kdpTrimName,
-      intendedKdpTrimId:       enrichOptions?.intendedKdpTrimId?.trim() || null,
-      pageCount:               report.pageCount,
-      fileSizeMB:              report.fileSizeMB,
-      recommendedGutterInches: report.recommendedGutterInches,
-      errorCount,
-      warningCount,
-      ...categories,
-    }),
+    uploadChecklist,
+    specTable,
     estimatedFixHours: estimateFixMinutes(issuesEnriched) / 60,
     advisoryNotices:   buildAdvisoryNotices(report),
     ...(enrichOptions?.intendedKdpTrimId?.trim()

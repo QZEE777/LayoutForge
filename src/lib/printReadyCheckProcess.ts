@@ -10,7 +10,7 @@ import { getGutterInches } from "./kdpConfig";
 import { inspectPdfBufferForChecker } from "./kdpPdfInspect";
 import { supabase } from "./supabase";
 import { dimensionsMatchIntendedTrim, getKdpTrimDefinitionById } from "./kdpIntendedTrim";
-import { enrichCheckerReport, getRiskLevel, getScoreGrade } from "./kdpReportEnhance";
+import { enrichCheckerReport } from "./kdpReportEnhance";
 import { sendAnnotatedEmailIfReady } from "./annotatedEmail";
 import { buildCheckerAnnotateReportBody } from "./checkerAnnotatePayload";
 
@@ -20,6 +20,7 @@ export interface PreflightReport {
   status: string;
   readiness_score?: number;
   approval_likelihood?: number;
+  creation_tool?: string;
   errors: Array<{ page: number; rule_id: string; severity: string; message: string; bbox?: number[] | null }>;
   warnings: Array<{ page: number; rule_id: string; severity: string; message: string; bbox?: number[] | null }>;
   summary: { total_pages: number; error_count: number; warning_count: number; rules_checked: number };
@@ -108,28 +109,6 @@ const R2_GET_DELAY_MS = 2_000;
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function computeScoreFromIssues(issues: Array<{ fixDifficulty?: string; humanMessage?: string; severity?: string }>): number {
-  // Count unique issue types so one repeated rule across many pages doesn't force a false 5/100.
-  const uniqueByMessage = new Map<string, { fixDifficulty?: string; severity?: string }>();
-  for (const i of issues) {
-    const key = (i.humanMessage ?? "").trim() || `${i.fixDifficulty ?? ""}|${i.severity ?? ""}`;
-    if (!uniqueByMessage.has(key)) {
-      uniqueByMessage.set(key, { fixDifficulty: i.fixDifficulty, severity: i.severity });
-    }
-  }
-  const unique = Array.from(uniqueByMessage.values());
-  const criticalCount = unique.filter((i) => i.fixDifficulty === "advanced" || i.severity === "critical").length;
-  const moderateCount = unique.filter(
-    (i) =>
-      !(i.fixDifficulty === "advanced" || i.severity === "critical") &&
-      (i.fixDifficulty === "moderate" || i.severity === "error"),
-  ).length;
-  const easyCount = unique.length - criticalCount - moderateCount;
-  return unique.length === 0
-    ? 95
-    : Math.max(5, Math.min(100, 100 - criticalCount * 15 - moderateCount * 8 - easyCount * 3));
 }
 
 export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Promise<{ downloadId: string }> {
@@ -277,28 +256,31 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
     report.trimSize = tid;
   }
   report.hasPdfPreview = true;
-  const enrichedReport = enrichCheckerReport(report, "Uploaded PDF", preflight ?? undefined, undefined, undefined, "unknown", {
-    intendedKdpTrimId: tid || null,
-  });
+  const engineReadinessScore =
+    typeof preflight?.readiness_score === "number" && Number.isFinite(preflight.readiness_score) && preflight.readiness_score > 0
+      ? Math.round(preflight.readiness_score)
+      : undefined;
+  const engineApprovalLikelihood =
+    typeof preflight?.approval_likelihood === "number" && Number.isFinite(preflight.approval_likelihood) && preflight.approval_likelihood > 0
+      ? Math.round(preflight.approval_likelihood)
+      : undefined;
+  const engineCreationTool =
+    typeof preflight?.creation_tool === "string" && preflight.creation_tool.trim()
+      ? preflight.creation_tool.trim()
+      : "unknown";
 
-  const issues = enrichedReport.issuesEnriched ?? [];
-  // Engine sometimes sends readiness_score: 0 as a placeholder; `??` would keep 0 and wipe a sane local score.
-  const rawReadiness = preflight?.readiness_score;
-  const engineScore =
-    typeof rawReadiness === "number" && Number.isFinite(rawReadiness) && rawReadiness > 0
-      ? Math.round(rawReadiness)
-      : null;
-  const fromIssues = computeScoreFromIssues(issues);
-  let calculatedScore = engineScore != null ? Math.min(engineScore, fromIssues) : fromIssues;
-  const pageIssueLen = preflight?.page_issues?.length ?? 0;
-  if (pageIssueLen > 12) {
-    const pen = Math.min(58, 10 + Math.floor((pageIssueLen - 12) / 3));
-    calculatedScore = Math.max(5, calculatedScore - pen);
-  }
-  enrichedReport.readinessScore100 = calculatedScore;
-  enrichedReport.kdpPassProbability = calculatedScore;
-  enrichedReport.scoreGrade = getScoreGrade(calculatedScore);
-  enrichedReport.riskLevel = getRiskLevel(calculatedScore);
+  const enrichedReport = enrichCheckerReport(
+    report,
+    "Uploaded PDF",
+    preflight ?? undefined,
+    engineReadinessScore,
+    engineApprovalLikelihood,
+    engineCreationTool,
+    {
+    intendedKdpTrimId: tid || null,
+    }
+  );
+  const calculatedScore = enrichedReport.readinessScore100;
 
   const doc = await PDFDocument.create();
   doc.addPage([612, 792]);
