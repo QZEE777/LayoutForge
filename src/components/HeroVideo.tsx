@@ -20,7 +20,7 @@ export default function HeroVideo() {
 
   return (
     <div className="w-full rounded-2xl overflow-hidden border border-white/10 shadow-[0_8px_40px_rgba(0,0,0,0.5)] bg-black">
-      <div className="relative aspect-video w-full">
+      <div className="relative w-full min-h-[300px] sm:min-h-[340px] lg:min-h-[380px]">
         <video
           ref={videoRef}
           src={VIDEO_SRC}

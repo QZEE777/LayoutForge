@@ -88,7 +88,7 @@ export default function Home() {
               </div>
             </div>
             <div className="flex-1 flex flex-col items-center w-full lg:w-auto order-1 lg:order-2">
-              <div className="w-full max-w-[min(100%,420px)] lg:max-w-none rounded-2xl bg-gradient-to-b from-white/[0.06] to-transparent p-1 ring-1 ring-white/10 shadow-[0_24px_80px_-20px_rgba(0,0,0,0.55)]">
+              <div className="w-full max-w-[min(100%,560px)] lg:max-w-[620px] rounded-2xl bg-gradient-to-b from-white/[0.06] to-transparent p-1 ring-1 ring-white/10 shadow-[0_24px_80px_-20px_rgba(0,0,0,0.55)]">
                 <HeroVideo />
               </div>
             </div>
