@@ -925,15 +925,27 @@ export default function DownloadPage() {
                     )}
                   </div>
 
-                  {/* Top summary: table layout + inline flex so grade/icons never orphan (print window has no Tailwind) */}
+                  {/* Top summary: consistent theme by result (green pass, orange fail). */}
                   {isChecker && (
                     <div className="mb-4 rounded-xl border border-m2p-border/50 overflow-hidden bg-white/85 shadow-sm">
                       <table className="w-full text-sm border-collapse">
                         <tbody>
+                          {(() => {
+                            const summaryScore = canonicalCheckerReadinessScore(report);
+                            const summaryPass = checkerHeroLooksPassing(report, summaryScore);
+                            const summaryHeaderStyle = {
+                              background: summaryPass
+                                ? "linear-gradient(180deg, #1A6B2A 0%, #0D3D18 100%)"
+                                : "linear-gradient(180deg, #D65A2F 0%, #C14A27 100%)",
+                              color: "#fff",
+                            } as const;
+                            return (
+                              <>
                           <tr className="border-b border-m2p-border/30 align-top">
                             <th
                               scope="row"
-                              className="py-3 px-3 text-left text-[10px] font-black uppercase tracking-wider text-m2p-muted w-[min(32%,10rem)] max-w-[11rem] border-r border-m2p-border/25 bg-m2p-ivory/55 align-top"
+                              className="py-3 px-3 text-left text-[10px] font-black uppercase tracking-wider w-[min(32%,10rem)] max-w-[11rem] border-r border-m2p-border/25 align-top"
+                              style={summaryHeaderStyle}
                             >
                               Scan context
                             </th>
@@ -960,7 +972,7 @@ export default function DownloadPage() {
                             </td>
                           </tr>
                           {(() => {
-                            const s = canonicalCheckerReadinessScore(report);
+                            const s = summaryScore;
                             const sg =
                               report.verdict === "needs-fixes" && report.scoreGrade
                                 ? report.scoreGrade
@@ -973,7 +985,8 @@ export default function DownloadPage() {
                               <tr className="border-b border-m2p-border/30 align-top">
                                 <th
                                   scope="row"
-                                  className="py-3 px-3 text-left text-[10px] font-black uppercase tracking-wider text-m2p-muted border-r border-m2p-border/25 bg-m2p-ivory/55 align-middle"
+                                  className="py-3 px-3 text-left text-[10px] font-black uppercase tracking-wider border-r border-m2p-border/25 align-middle"
+                                  style={summaryHeaderStyle}
                                 >
                                   Grade & summary
                                 </th>
@@ -995,7 +1008,8 @@ export default function DownloadPage() {
                             <tr className="border-b border-m2p-border/30">
                               <th
                                 scope="row"
-                                className="py-2.5 px-3 text-left text-[10px] font-black uppercase tracking-wider text-m2p-muted border-r border-m2p-border/25 bg-m2p-ivory/55 align-middle whitespace-nowrap"
+                                className="py-2.5 px-3 text-left text-[10px] font-black uppercase tracking-wider border-r border-m2p-border/25 align-middle whitespace-nowrap"
+                                style={summaryHeaderStyle}
                               >
                                 Readiness
                               </th>
@@ -1009,7 +1023,8 @@ export default function DownloadPage() {
                             <tr className="border-b border-m2p-border/30">
                               <th
                                 scope="row"
-                                className="py-2.5 px-3 text-left text-[10px] font-black uppercase tracking-wider text-m2p-muted border-r border-m2p-border/25 bg-m2p-ivory/55 align-middle"
+                                className="py-2.5 px-3 text-left text-[10px] font-black uppercase tracking-wider border-r border-m2p-border/25 align-middle"
+                                style={summaryHeaderStyle}
                               >
                                 Verdict
                               </th>
@@ -1024,7 +1039,8 @@ export default function DownloadPage() {
                             <tr className="border-b border-m2p-border/30">
                               <th
                                 scope="row"
-                                className="py-2.5 px-3 text-left text-[10px] font-black uppercase tracking-wider text-m2p-muted border-r border-m2p-border/25 bg-m2p-ivory/55 align-middle"
+                                className="py-2.5 px-3 text-left text-[10px] font-black uppercase tracking-wider border-r border-m2p-border/25 align-middle"
+                                style={summaryHeaderStyle}
                               >
                                 Issue counts
                               </th>
@@ -1037,7 +1053,8 @@ export default function DownloadPage() {
                             <tr className="border-b border-m2p-border/30">
                               <th
                                 scope="row"
-                                className="py-2.5 px-3 text-left text-[10px] font-black uppercase tracking-wider text-m2p-muted border-r border-m2p-border/25 bg-m2p-ivory/55 align-middle"
+                                className="py-2.5 px-3 text-left text-[10px] font-black uppercase tracking-wider border-r border-m2p-border/25 align-middle"
+                                style={summaryHeaderStyle}
                               >
                                 Approval & risk
                               </th>
@@ -1064,6 +1081,9 @@ export default function DownloadPage() {
                               </td>
                             </tr>
                           )}
+                              </>
+                            );
+                          })()}
                         </tbody>
                       </table>
                     </div>
@@ -1228,34 +1248,24 @@ export default function DownloadPage() {
                     </div>
                   )}
                   {report.kdpReady && report.verdict !== "needs-fixes" && (
-                    <div
-                      className="mt-6 rounded-xl overflow-hidden border border-[#1A6B2A]/45 shadow-[0_12px_32px_-8px_rgba(13,61,24,0.45)]"
-                      style={{ background: "linear-gradient(180deg, #143d1f 0%, #0a2412 100%)" }}
-                    >
-                      <div className="px-5 py-5 sm:px-6">
-                        <p className="text-white/95 text-sm font-bold mb-3 flex flex-wrap items-center gap-x-1.5">
-                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#C5E83A]/20 text-[#C5E83A] text-xs font-black mr-0.5 shrink-0">
-                            ✓
-                          </span>
-                          <span className="text-white/80">Verified by</span>
-                          <BrandWordmark variant="onDark" className="text-sm sm:text-base" />
-                        </p>
-                        <p className="text-lg sm:text-xl font-black tracking-tight text-white mb-1 leading-tight">
-                          KDP COMPLIANCE SCAN: <span className="text-[#C5E83A]">PASSED</span>
-                        </p>
-                        <div className="h-px w-16 rounded-full bg-[#C5E83A]/50 my-3" aria-hidden />
-                        <p className="text-sm text-white/75 mb-1">
-                          <span className="text-white/50 font-semibold uppercase text-[10px] tracking-wider">File</span>{" "}
-                          {cleanFilenameForDisplay(report.fileNameScanned ?? "")}
-                        </p>
-                        <p className="text-sm text-white/75 mb-4">
-                          <span className="text-white/50 font-semibold uppercase text-[10px] tracking-wider">Date</span>{" "}
-                          {report.scanDate ? new Date(report.scanDate).toLocaleString() : "—"}
-                        </p>
-                        <p className="text-sm font-bold text-[#A8D878] leading-snug">
-                          This file meets KDP print specifications.
-                        </p>
-                      </div>
+                    <div className="mt-6 pt-4 border-t border-m2p-border/60">
+                      <p className="text-sm font-bold text-m2p-ink">
+                        Verified by manu2print
+                      </p>
+                      <p className="mt-1 text-base font-black tracking-tight text-[#1A6B2A]">
+                        KDP COMPLIANCE SCAN: PASSED
+                      </p>
+                      <p className="mt-1 text-sm text-m2p-muted">
+                        <span className="font-semibold uppercase text-[10px] tracking-wider text-m2p-muted/80">File</span>{" "}
+                        {cleanFilenameForDisplay(report.fileNameScanned ?? "")}
+                      </p>
+                      <p className="text-sm text-m2p-muted">
+                        <span className="font-semibold uppercase text-[10px] tracking-wider text-m2p-muted/80">Date</span>{" "}
+                        {report.scanDate ? new Date(report.scanDate).toLocaleString() : "—"}
+                      </p>
+                      <p className="mt-1 text-sm font-semibold text-[#1A6B2A] leading-snug">
+                        This file meets KDP print specifications.
+                      </p>
                     </div>
                   )}
                 </div>
