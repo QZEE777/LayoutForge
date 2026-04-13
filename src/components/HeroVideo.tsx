@@ -3,27 +3,11 @@
 import { useRef, useState } from "react";
 
 const VIDEO_SRC = "/hero-demo.mp4.mp4";
-const END_CTA_SECONDS = 6;
 
 export default function HeroVideo() {
   const [activated, setActivated] = useState(false);
   const [showEndCta, setShowEndCta] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-
-  const updateEndCtaVisibility = () => {
-    const video = videoRef.current;
-    if (!video || !activated) {
-      setShowEndCta(false);
-      return;
-    }
-    const duration = video.duration;
-    if (!Number.isFinite(duration) || duration <= 0) {
-      setShowEndCta(false);
-      return;
-    }
-    const remaining = duration - video.currentTime;
-    setShowEndCta(remaining <= END_CTA_SECONDS && remaining > 0.25);
-  };
 
   const handleActivate = async () => {
     setActivated(true);
@@ -52,17 +36,15 @@ export default function HeroVideo() {
           controls
           playsInline
           preload={activated ? "metadata" : "none"}
-          onTimeUpdate={updateEndCtaVisibility}
-          onSeeked={updateEndCtaVisibility}
-          onPlay={updateEndCtaVisibility}
-          onEnded={() => setShowEndCta(false)}
+          onPlay={() => setShowEndCta(false)}
+          onEnded={() => setShowEndCta(true)}
           className="h-full w-full object-contain"
         />
         {activated && showEndCta && (
           <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center px-4">
             <a
               href="/kdp-pdf-checker"
-              className="pointer-events-auto rounded-2xl bg-black/92 px-8 py-4 text-center font-bebas text-4xl uppercase tracking-[0.08em] text-m2p-orange shadow-[0_10px_30px_rgba(0,0,0,0.55)] ring-2 ring-m2p-orange/85 sm:text-5xl"
+              className="pointer-events-auto rounded-2xl bg-black px-8 py-4 text-center font-bebas text-4xl uppercase tracking-[0.08em] text-m2p-orange shadow-[0_10px_30px_rgba(0,0,0,0.55)] ring-2 ring-m2p-orange/85 sm:text-5xl"
             >
               Check my PDF
             </a>
