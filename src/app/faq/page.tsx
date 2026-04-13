@@ -144,8 +144,8 @@ export default function FAQPage() {
               a={
                 <ul className="list-disc pl-4 space-y-1">
                   <li><strong>Single scan — $9.</strong> One PDF, one full report. No subscription.</li>
-                  <li><strong>Author Pack — $19.</strong> 3 scans. Good for one book with revision rounds.</li>
-                  <li><strong>Indie Pack — $39.</strong> 10 scans. For authors with multiple titles or frequent revisions.</li>
+                  <li><strong>Author Pack — $19.</strong> 6 scans. Good for one book with revision rounds.</li>
+                  <li><strong>Indie Pack — $39.</strong> 14 scans. For authors with multiple titles or frequent revisions.</li>
                   <li><strong>Pro Pack — $79.</strong> 30 scans. For publishers, formatters, or high-volume authors.</li>
                 </ul>
               }

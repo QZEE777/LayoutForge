@@ -9,15 +9,15 @@ const PACK = {
   priceType: "author_pack",
   name: "Author Pack",
   price: 19,
-  scans: 3,
-  perScan: "6.33",
-  tagline: "Your book. Three chances to get it right.",
+  scans: 6,
+  perScan: "3.17",
+  tagline: "Your book. Six chances to get it right.",
   audience: "Perfect for indie authors publishing 1–2 books a year.",
   color: "#F05A28",
 };
 
 const INCLUDED = [
-  "3 full KDP compliance scans — use across any books",
+  "6 full KDP compliance scans — use across any books",
   "Full annotated PDF report per scan",
   "Exact page numbers for every violation",
   "Margin, trim, bleed, font & image checks",
@@ -75,7 +75,7 @@ export default function AuthorPackPage() {
               <div className="inline-flex items-center gap-2 rounded-full bg-m2p-orange/10 border border-m2p-orange/20 px-3 py-1 mb-5">
                 <span className="w-2 h-2 rounded-full bg-m2p-orange animate-pulse" />
                 <span className="text-xs font-semibold text-m2p-orange uppercase tracking-wide">
-                  3 Scans · $6.33 each · No Subscription
+                  6 Scans · $3.17 each · No Subscription
                 </span>
               </div>
 
@@ -88,7 +88,7 @@ export default function AuthorPackPage() {
                 {PACK.tagline}
               </p>
               <p className="text-m2p-muted text-sm mb-6">
-                {PACK.audience} Get <strong>3 full KDP compliance scans</strong> — use them across any books,
+                {PACK.audience} Get <strong>6 full KDP compliance scans</strong> — use them across any books,
                 any time. Check your draft, your revision, and your final file before you hit publish.
               </p>
               <p className="text-m2p-muted text-sm mb-8">
@@ -126,7 +126,7 @@ export default function AuthorPackPage() {
                 <div className="bg-m2p-ink px-6 py-4 flex items-center justify-between">
                   <div>
                     <p className="text-white font-semibold text-sm">Author Pack</p>
-                    <p className="text-white/50 text-xs">3 KDP PDF scans · use any time</p>
+                    <p className="text-white/50 text-xs">6 KDP PDF scans · use any time</p>
                   </div>
                   <div className="text-right">
                     <p className="text-m2p-orange font-bebas text-2xl">$19</p>
@@ -137,7 +137,7 @@ export default function AuthorPackPage() {
                 <div className="p-6">
                   {/* Scan count visual */}
                   <div className="flex gap-3 mb-6 justify-center">
-                    {[1, 2, 3].map((n) => (
+                    {[1, 2, 3, 4, 5, 6].map((n) => (
                       <div key={n} className="flex-1 rounded-xl border-2 border-m2p-orange/30 bg-m2p-orange/5 p-3 text-center">
                         <div className="text-2xl mb-1">📄</div>
                         <p className="text-xs text-m2p-muted font-medium">Scan {n}</p>
@@ -147,16 +147,16 @@ export default function AuthorPackPage() {
 
                   <div className="rounded-xl bg-m2p-ivory border border-m2p-border p-4 mb-5">
                     <div className="flex justify-between text-sm mb-1">
-                      <span className="text-m2p-muted">3 scans</span>
+                      <span className="text-m2p-muted">6 scans</span>
                       <span className="text-m2p-ink font-medium">$19.00</span>
                     </div>
                     <div className="flex justify-between text-xs">
                       <span className="text-m2p-muted">Per scan</span>
-                      <span className="text-m2p-green font-medium">$6.33 each</span>
+                      <span className="text-m2p-green font-medium">$3.17 each</span>
                     </div>
                     <div className="mt-2 pt-2 border-t border-m2p-border flex justify-between text-xs text-m2p-muted">
                       <span>vs. $9 single scan</span>
-                      <span className="text-m2p-green">Save 30%</span>
+                      <span className="text-m2p-green">Save 47%</span>
                     </div>
                   </div>
 
@@ -191,7 +191,7 @@ export default function AuthorPackPage() {
 
               <p className="text-center text-xs text-m2p-muted mt-4">
                 Need more scans?{" "}
-                <Link href="/indie-pack" className="text-m2p-orange hover:underline">Indie Pack (10 scans, $39) →</Link>
+                <Link href="/indie-pack" className="text-m2p-orange hover:underline">Indie Pack (14 scans, $39) →</Link>
               </p>
             </div>
           </div>
@@ -227,7 +227,7 @@ export default function AuthorPackPage() {
           <h2 className="font-bebas text-4xl text-m2p-ink tracking-wide text-center mb-10">How It Works</h2>
           <div className="grid sm:grid-cols-3 gap-6">
             {[
-              { step: "01", icon: "💳", title: "Buy the Pack", desc: "One-time $19 payment. Credits added to your account instantly." },
+              { step: "01", icon: "💳", title: "Buy the Pack", desc: "One-time $19 payment. 6 scan credits added to your account instantly." },
               { step: "02", icon: "📤", title: "Upload Your PDF", desc: "Go to the KDP PDF Checker, upload your manuscript. Your credit is deducted automatically." },
               { step: "03", icon: "📥", title: "Download & Fix", desc: "Get your annotated report in under 90 seconds. Fix the issues, publish with confidence." },
             ].map((s) => (
@@ -259,9 +259,9 @@ export default function AuthorPackPage() {
           <p className="text-xs font-bold uppercase tracking-wider text-m2p-muted mb-6">Compare all packs</p>
           <div className="grid sm:grid-cols-3 gap-4">
             {[
-              { name: "Author Pack", price: "$19", scans: "3 scans", per: "$6.33/scan", href: "/author-pack", active: true },
-              { name: "Indie Pack", price: "$39", scans: "10 scans", per: "$3.90/scan", href: "/indie-pack", active: false },
-              { name: "Pro Pack", price: "$79", scans: "25 scans", per: "$3.16/scan", href: "/pro-pack", active: false },
+              { name: "Author Pack", price: "$19", scans: "6 scans", per: "$3.17/scan", href: "/author-pack", active: true },
+              { name: "Indie Pack", price: "$39", scans: "14 scans", per: "$2.79/scan", href: "/indie-pack", active: false },
+              { name: "Pro Pack", price: "$79", scans: "30 scans", per: "$2.63/scan", href: "/pro-pack", active: false },
             ].map((p) => (
               <Link
                 key={p.name}

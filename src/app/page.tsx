@@ -420,11 +420,11 @@ export default function Home() {
               </div>
               <h3 className="font-bebas text-m2p-ivory text-2xl mb-1">Author Pack</h3>
               <div className="font-bebas text-5xl text-m2p-orange leading-none mb-1">$19</div>
-              <p className="text-m2p-orange/80 text-xs mb-1">~$6.33 per scan</p>
-              <p className="text-m2p-ivory/60 text-sm mb-5">3 scans — for revisions and versions</p>
+              <p className="text-m2p-orange/80 text-xs mb-1">~$3.17 per scan</p>
+              <p className="text-m2p-ivory/60 text-sm mb-5">6 scans — for revisions and versions</p>
               <ul className="text-left space-y-2 text-sm text-m2p-ivory/80 mb-6 flex-1">
                 <li>✓ Everything in Single</li>
-                <li>✓ 3 scan credits</li>
+                <li>✓ 6 scan credits</li>
                 <li>✓ Credits never expire</li>
               </ul>
               <PackBuyButton
@@ -446,11 +446,11 @@ export default function Home() {
               </div>
               <h3 className="font-bebas text-m2p-ivory text-2xl mb-1">Indie Publisher</h3>
               <div className="font-bebas text-5xl text-m2p-orange leading-none mb-1">$39</div>
-              <p className="text-m2p-orange/80 text-xs mb-1">~$3.90 per scan</p>
-              <p className="text-m2p-ivory/60 text-sm mb-5">10 scans — for multiple books or client work</p>
+              <p className="text-m2p-orange/80 text-xs mb-1">~$2.79 per scan</p>
+              <p className="text-m2p-ivory/60 text-sm mb-5">14 scans — for multiple books or client work</p>
               <ul className="text-left space-y-2 text-sm text-m2p-ivory/80 mb-6 flex-1">
                 <li>✓ Everything in Author</li>
-                <li>✓ 10 scan credits</li>
+                <li>✓ 14 scan credits</li>
                 <li>✓ Credits never expire</li>
               </ul>
               <PackBuyButton
@@ -472,11 +472,11 @@ export default function Home() {
               </div>
               <h3 className="font-bebas text-m2p-ivory text-2xl mb-1">Pro / Studio</h3>
               <div className="font-bebas text-5xl text-m2p-orange leading-none mb-1">$79</div>
-              <p className="text-m2p-orange/80 text-xs mb-1">~$3.16 per scan</p>
+              <p className="text-m2p-orange/80 text-xs mb-1">~$2.63 per scan</p>
               <p className="text-m2p-ivory/60 text-sm mb-5">High-volume publishing workflows</p>
               <ul className="text-left space-y-2 text-sm text-m2p-ivory/80 mb-6 flex-1">
                 <li>✓ Everything in Indie</li>
-                <li>✓ 25 scan credits</li>
+                <li>✓ 30 scan credits</li>
                 <li>✓ Credits never expire</li>
               </ul>
               <PackBuyButton

@@ -100,9 +100,9 @@ function InitialsAvatar({ name, imageUrl, size = 36 }: { name: string; imageUrl?
 
 const COMMISSIONS = [
   { product: "Single Scan",    price: "$9",  rate: "30%", earn: "$2.70", note: "Entry product" },
-  { product: "Author Pack",    price: "$19", rate: "40%", earn: "$7.60", note: "3 scans" },
-  { product: "Indie Pack",     price: "$39", rate: "40%", earn: "$15.60", note: "10 scans" },
-  { product: "Pro / Studio",   price: "$79", rate: "40%", earn: "$31.60", note: "25 scans" },
+  { product: "Author Pack",    price: "$19", rate: "40%", earn: "$7.60", note: "6 scans" },
+  { product: "Indie Pack",     price: "$39", rate: "40%", earn: "$15.60", note: "14 scans" },
+  { product: "Pro / Studio",   price: "$79", rate: "40%", earn: "$31.60", note: "30 scans" },
 ];
 
 // ── FAQ data ──────────────────────────────────────────────────────────────────

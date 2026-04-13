@@ -6,13 +6,13 @@ import Image from "next/image";
 import SiteShell from "@/components/SiteShell";
 
 const INCLUDED = [
-  "25 full KDP compliance scans — use across any books or clients",
+  "30 full KDP compliance scans — use across any books or clients",
   "Full annotated PDF report per scan",
   "Exact page numbers for every violation",
   "Margin, trim, bleed, font & image checks",
   "Plain-English fix instructions per issue",
   "Credits never expire — share across your team",
-  "Lowest per-scan rate — $3.16 each",
+  "Lowest per-scan rate — $2.63 each",
   "Ideal for book coaches, formatters & publishers",
 ];
 
@@ -33,7 +33,7 @@ const CHECKS = [
 
 const WHO_ITS_FOR = [
   { icon: "📖", title: "Book Coaches", desc: "Check every client manuscript before submission. Catch issues before you deliver." },
-  { icon: "✍️", title: "Prolific Authors", desc: "Publishing 5+ books a year? 25 scans covers multiple revisions per title." },
+  { icon: "✍️", title: "Prolific Authors", desc: "Publishing 5+ books a year? 30 scans covers multiple revisions per title." },
   { icon: "🏢", title: "Small Publishers", desc: "Run your full catalog through compliance without paying per-book prices." },
   { icon: "🖨️", title: "Formatters", desc: "Add KDP compliance to your service offering. Bill clients, absorb the cost." },
 ];
@@ -73,7 +73,7 @@ export default function ProPackPage() {
               <div className="inline-flex items-center gap-2 rounded-full bg-m2p-orange/10 border border-m2p-orange/20 px-3 py-1 mb-5">
                 <span className="w-2 h-2 rounded-full bg-m2p-orange animate-pulse" />
                 <span className="text-xs font-semibold text-m2p-orange uppercase tracking-wide">
-                  25 Scans · $3.16 each · Lowest Rate
+                  30 Scans · $2.63 each · Lowest Rate
                 </span>
               </div>
 
@@ -86,7 +86,7 @@ export default function ProPackPage() {
                 For professionals who can&apos;t afford a KDP rejection.
               </p>
               <p className="text-m2p-muted text-sm mb-6">
-                <strong>25 full KDP compliance scans</strong> at our lowest per-scan rate — $3.16 each.
+                <strong>30 full KDP compliance scans</strong> at our lowest per-scan rate — $2.63 each.
                 Whether you&apos;re a book coach checking client files, a formatter building a service offering,
                 or a prolific author with a full catalog, the Pro Pack is built for volume.
               </p>
@@ -127,7 +127,7 @@ export default function ProPackPage() {
                       <span className="text-xs font-bold text-m2p-orange">BEST VALUE</span>
                     </div>
                     <p className="text-white font-semibold text-sm">Pro Pack</p>
-                    <p className="text-white/50 text-xs">25 KDP PDF scans · use any time</p>
+                    <p className="text-white/50 text-xs">30 KDP PDF scans · use any time</p>
                   </div>
                   <div className="text-right">
                     <p className="text-m2p-orange font-bebas text-3xl">$79</p>
@@ -139,22 +139,22 @@ export default function ProPackPage() {
                   {/* Value comparison */}
                   <div className="rounded-xl bg-m2p-ivory border border-m2p-border p-4 mb-5">
                     <div className="flex justify-between text-sm mb-1">
-                      <span className="text-m2p-muted">25 scans</span>
+                      <span className="text-m2p-muted">30 scans</span>
                       <span className="text-m2p-ink font-medium">$79.00</span>
                     </div>
                     <div className="flex justify-between text-xs mb-1">
                       <span className="text-m2p-muted">Per scan</span>
-                      <span className="text-m2p-green font-medium">$3.16 each</span>
+                      <span className="text-m2p-green font-medium">$2.63 each</span>
                     </div>
                     <div className="mt-2 pt-2 border-t border-m2p-border flex justify-between text-xs text-m2p-muted">
-                      <span>vs. 25 × $9 single scans</span>
-                      <span className="text-m2p-green font-semibold">Save $146</span>
+                      <span>vs. 30 × $9 single scans</span>
+                      <span className="text-m2p-green font-semibold">Save $191</span>
                     </div>
                   </div>
 
                   {/* Scan dots grid */}
                   <div className="grid grid-cols-5 gap-1.5 mb-5">
-                    {Array.from({ length: 25 }).map((_, i) => (
+                    {Array.from({ length: 30 }).map((_, i) => (
                       <div key={i} className="rounded-lg border border-m2p-orange/30 bg-m2p-orange/5 p-1.5 text-center">
                         <div className="text-base">📄</div>
                       </div>
@@ -193,7 +193,7 @@ export default function ProPackPage() {
 
               <p className="text-center text-xs text-m2p-muted mt-4">
                 Smaller volume?{" "}
-                <Link href="/indie-pack" className="text-m2p-orange hover:underline">Indie Pack (10 scans, $39) →</Link>
+                <Link href="/indie-pack" className="text-m2p-orange hover:underline">Indie Pack (14 scans, $39) →</Link>
               </p>
             </div>
           </div>
@@ -207,7 +207,7 @@ export default function ProPackPage() {
             <h2 className="font-bebas text-4xl text-m2p-ivory tracking-wide mb-2">
               Who the <span className="text-m2p-orange">Pro Pack</span> Is For
             </h2>
-            <p className="text-m2p-ivory/60 text-sm">Volume use cases where $3.16/scan changes the math.</p>
+            <p className="text-m2p-ivory/60 text-sm">Volume use cases where $2.63/scan changes the math.</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {WHO_ITS_FOR.map((w) => (
@@ -249,7 +249,7 @@ export default function ProPackPage() {
           <h2 className="font-bebas text-4xl text-m2p-ink tracking-wide text-center mb-10">How It Works</h2>
           <div className="grid sm:grid-cols-3 gap-6">
             {[
-              { step: "01", icon: "💳", title: "Buy the Pack", desc: "One-time $79 payment. 25 scan credits added to your account instantly." },
+              { step: "01", icon: "💳", title: "Buy the Pack", desc: "One-time $79 payment. 30 scan credits added to your account instantly." },
               { step: "02", icon: "📤", title: "Upload Any PDF", desc: "Go to the KDP PDF Checker, upload any manuscript — yours or a client's. One credit per scan." },
               { step: "03", icon: "📥", title: "Download & Deliver", desc: "Full annotated report in under 90 seconds. Fix, publish, or deliver to your client." },
             ].map((s) => (
@@ -277,9 +277,9 @@ export default function ProPackPage() {
           <p className="text-xs font-bold uppercase tracking-wider text-m2p-muted mb-6">Compare all packs</p>
           <div className="grid sm:grid-cols-3 gap-4">
             {[
-              { name: "Author Pack", price: "$19", scans: "3 scans", per: "$6.33/scan", href: "/author-pack", active: false },
-              { name: "Indie Pack", price: "$39", scans: "10 scans", per: "$3.90/scan", href: "/indie-pack", active: false },
-              { name: "Pro Pack", price: "$79", scans: "25 scans", per: "$3.16/scan", href: "/pro-pack", active: true },
+              { name: "Author Pack", price: "$19", scans: "6 scans", per: "$3.17/scan", href: "/author-pack", active: false },
+              { name: "Indie Pack", price: "$39", scans: "14 scans", per: "$2.79/scan", href: "/indie-pack", active: false },
+              { name: "Pro Pack", price: "$79", scans: "30 scans", per: "$2.63/scan", href: "/pro-pack", active: true },
             ].map((p) => (
               <Link key={p.name} href={p.href} className={`rounded-xl border p-4 text-center transition-colors ${p.active ? "border-m2p-orange bg-m2p-orange/5 cursor-default" : "border-m2p-border bg-white hover:border-m2p-orange"}`}>
                 <p className="font-semibold text-m2p-ink text-sm">{p.name}</p>

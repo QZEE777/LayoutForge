@@ -48,9 +48,9 @@ function formatAmount(cents: number) {
 
 function sourceLabel(source: string) {
   const map: Record<string, string> = {
-    author_pack:  "Author Pack (3 credits)",
-    indie_pack:   "Indie Pack (10 credits)",
-    pro_pack:     "Pro Pack (25 credits)",
+    author_pack:  "Author Pack (6 credits)",
+    indie_pack:   "Indie Pack (14 credits)",
+    pro_pack:     "Pro Pack (30 credits)",
     scan_used:    "Credit used",
     share_reward: "Share reward",
   };

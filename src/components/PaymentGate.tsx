@@ -430,7 +430,7 @@ export default function PaymentGate({
                 </button>
               )}
             </div>
-            <p className="text-xs text-white/60">Includes 2 checker scans (10 credits total, 5 per scan).</p>
+            <p className="text-xs text-white/60">Includes 2 checker scans (2 credits total, 1 per scan).</p>
             {checkoutError && <p className="text-sm text-red-400">{checkoutError}</p>}
             {creditStep === "error" && creditError && (
               <div className="space-y-2">
@@ -520,7 +520,7 @@ export default function PaymentGate({
                   </button>
                 )}
               </div>
-              <p className="text-xs text-white/70">Includes 2 checker scans (10 credits total, 5 per scan).</p>
+              <p className="text-xs text-white/70">Includes 2 checker scans (2 credits total, 1 per scan).</p>
               {checkoutError && <p className="text-sm text-red-400">{checkoutError}</p>}
               {creditStep === "error" && creditError && (
                 <div className="space-y-2">
