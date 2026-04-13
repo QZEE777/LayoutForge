@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabaseClient";
 
 const STORED_EMAIL_KEY = "manu2print_email";
 const STORED_CHECKOUT_PENDING_PREFIX = "manu2print_checkout_pending_";
-const CHECKER_CREDITS_PER_SCAN = 5;
+const CHECKER_CREDITS_PER_SCAN: number = 1;
 
 function getCheckoutPendingKey(downloadId: string) {
   return `${STORED_CHECKOUT_PENDING_PREFIX}${downloadId}`;
