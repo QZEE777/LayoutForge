@@ -198,6 +198,7 @@ export default function DownloadPage() {
   // Share-to-earn state
   const [shareToken, setShareToken] = useState<string | null>(null);
   const [activePartnerCode, setActivePartnerCode] = useState<string | null>(null);
+  const [affiliateLookupDone, setAffiliateLookupDone] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
   const [annotatedReady, setAnnotatedReady] = useState(false);
   const [annotatedError, setAnnotatedError] = useState(false);
@@ -228,10 +229,10 @@ export default function DownloadPage() {
   const partnerReferralLink = activePartnerCode
     ? `https://www.manu2print.com/go/${activePartnerCode}`
     : null;
-  const shareEarnLink = partnerReferralLink ?? (shareToken ? `https://www.manu2print.com/kdp-pdf-checker?sh=${shareToken}` : null);
+  const shareEarnLink = partnerReferralLink ?? (affiliateLookupDone && shareToken ? `https://www.manu2print.com/kdp-pdf-checker?sh=${shareToken}` : null);
   const verifyAttributionQuery = activePartnerCode
     ? `?ref=${encodeURIComponent(activePartnerCode)}`
-    : shareToken
+    : affiliateLookupDone && shareToken
       ? `?sh=${encodeURIComponent(shareToken)}`
       : "";
   const downloadFilename =
@@ -420,7 +421,8 @@ export default function DownloadPage() {
           setActivePartnerCode(null);
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setAffiliateLookupDone(true));
   }, []);
 
   useEffect(() => {

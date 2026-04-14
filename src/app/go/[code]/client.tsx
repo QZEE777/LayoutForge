@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-const THIRTY_DAYS = 60 * 60 * 24 * 30;
+const TWELVE_MONTHS = 60 * 60 * 24 * 365;
 
 const TESTIMONIALS = [
   {
@@ -145,7 +145,7 @@ interface Props {
 export function GoLandingClient({ checkoutUrl, refCode, partnerName }: Props) {
   useEffect(() => {
     if (!refCode) return;
-    document.cookie = `m2p_ref=${refCode}; max-age=${THIRTY_DAYS}; path=/; SameSite=Lax`;
+    document.cookie = `m2p_ref=${refCode}; max-age=${TWELVE_MONTHS}; path=/; SameSite=Lax`;
     try { localStorage.setItem("m2p_ref", refCode); } catch { /* ignore */ }
   }, [refCode]);
 

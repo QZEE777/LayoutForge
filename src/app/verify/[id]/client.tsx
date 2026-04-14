@@ -30,12 +30,13 @@ export function VerifyClient({
   const [showSharePanel, setShowSharePanel] = useState(false);
   const [hoveredSocial, setHoveredSocial] = useState<string | null>(null);
   const [activePartnerCode, setActivePartnerCode] = useState<string | null>(null);
+  const [affiliateLookupDone, setAffiliateLookupDone] = useState(false);
 
   const isPass = statusLevel === "ready";
   const isNearly = statusLevel === "nearly";
   const attributionQuery = activePartnerCode
     ? `?ref=${encodeURIComponent(activePartnerCode)}`
-    : shToken
+    : affiliateLookupDone && shToken
       ? `?sh=${encodeURIComponent(shToken)}`
       : "";
   const shareLinkWithRef = `${verifyUrl}${attributionQuery}`;
@@ -68,7 +69,8 @@ export function VerifyClient({
           setActivePartnerCode(null);
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setAffiliateLookupDone(true));
   }, []);
 
   const copyCaption = async () => {

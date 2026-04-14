@@ -425,10 +425,10 @@ export default function KdpPdfCheckerPage() {
     if (!/^sh_[a-z0-9]{16}$/.test(sh)) return;
 
     const COOKIE_NAME = "m2p_sh";
-    const THIRTY_DAYS = 30 * 24 * 60 * 60;
+    const TWELVE_MONTHS = 60 * 60 * 24 * 365;
 
-    // Set 30-day cookie (always reset on new click = re-engagement reset)
-    document.cookie = `${COOKIE_NAME}=${sh}; max-age=${THIRTY_DAYS}; path=/; SameSite=Lax`;
+    // Set 12-month cookie (always reset on new click = re-engagement reset)
+    document.cookie = `${COOKIE_NAME}=${sh}; max-age=${TWELVE_MONTHS}; path=/; SameSite=Lax`;
 
     // localStorage fallback
     try { localStorage.setItem(COOKIE_NAME, sh); } catch { /* blocked */ }

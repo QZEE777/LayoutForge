@@ -10,12 +10,12 @@ export async function POST(req: Request) {
     const tool = typeof body?.tool === "string" ? body.tool : "";
     const downloadId = typeof body?.downloadId === "string" ? body.downloadId : "";
 
-    // Affiliate referral tracking — read from 30-day cookie (partner code, priority 1)
+    // Affiliate referral tracking — read from 12-month cookie (partner code, priority 1)
     const cookieHeader = req.headers.get("cookie") ?? "";
     const refMatch = cookieHeader.match(/(?:^|;\s*)m2p_ref=([a-zA-Z0-9_-]{3,32})/);
     const refCode = refMatch ? refMatch[1].toLowerCase() : "";
 
-    // Share-to-earn attribution — read from 30-day cookie (priority 2, only if no partner code)
+    // Share-to-earn attribution — read from 12-month cookie (priority 2, only if no partner code)
     const shMatch = cookieHeader.match(/(?:^|;\s*)m2p_sh=(sh_[a-z0-9]{16})/);
     const shareToken = (!refCode && shMatch) ? shMatch[1] : "";
 

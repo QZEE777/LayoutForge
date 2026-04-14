@@ -98,7 +98,6 @@ export async function POST(req: NextRequest) {
       .from("share_tokens")
       .update({
         last_click_at: new Date().toISOString(),
-        total_clicks:  service.rpc as unknown as number, // use raw increment below
       })
       .eq("token", token);
 

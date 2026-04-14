@@ -6,7 +6,7 @@ import { updateSession } from "@/lib/supabase/middleware";
 export async function middleware(request: NextRequest) {
   const response = await updateSession(request);
 
-  // Affiliate referral tracking — ?ref=CODE sets a 30-day cookie
+  // Affiliate referral tracking — ?ref=CODE sets a 12-month cookie
   const refCode = request.nextUrl.searchParams.get("ref");
   if (refCode && /^[a-zA-Z0-9_-]{3,32}$/.test(refCode)) {
     response.cookies.set("m2p_ref", refCode.toLowerCase(), {
