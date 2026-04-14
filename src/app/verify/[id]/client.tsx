@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { BrandWordmark } from "@/components/BrandWordmark";
 import { buildVerifyShareCaption } from "@/lib/shareVerifyCaption";
@@ -29,17 +29,23 @@ export function VerifyClient({
   const [shareState, setShareState] = useState<"idle" | "copied">("idle");
   const [showSharePanel, setShowSharePanel] = useState(false);
   const [hoveredSocial, setHoveredSocial] = useState<string | null>(null);
+  const [activePartnerCode, setActivePartnerCode] = useState<string | null>(null);
 
   const isPass = statusLevel === "ready";
   const isNearly = statusLevel === "nearly";
-  const shParam = shToken ? `?sh=${encodeURIComponent(shToken)}` : "";
-  const shareLinkWithRef = shToken ? `${verifyUrl}?sh=${encodeURIComponent(shToken)}` : verifyUrl;
-  const ctaHref = `/kdp-pdf-checker${shParam}`;
+  const attributionQuery = activePartnerCode
+    ? `?ref=${encodeURIComponent(activePartnerCode)}`
+    : shToken
+      ? `?sh=${encodeURIComponent(shToken)}`
+      : "";
+  const shareLinkWithRef = `${verifyUrl}${attributionQuery}`;
+  const ctaHref = `/kdp-pdf-checker${attributionQuery}`;
 
   const ogUrl = portraitOgPath;
 
-  const bg = isPass ? "#1a5f3f" : isNearly ? "#6B3800" : "#8B2F00";
-  const accent = isPass ? "#4CE87A" : isNearly ? "#FFA040" : "#FF8C69";
+  // Keep verify page within brand palette: green for pass, ink + orange for non-pass.
+  const bg = isPass ? "#1A6B2A" : "#1A1208";
+  const accent = isPass ? "#4CD964" : "#F05A28";
 
   const caption = buildVerifyShareCaption({
     isPass: ogIsPass,
@@ -47,6 +53,23 @@ export function VerifyClient({
     verifyUrl: shareLinkWithRef,
     issuesCount,
   });
+
+  // Active partner attribution should be source-of-truth when logged in.
+  useEffect(() => {
+    fetch("/api/affiliates/me")
+      .then((r) => r.json())
+      .then((d) => {
+        const affiliate = d?.affiliate;
+        const code = typeof affiliate?.code === "string" ? affiliate.code.trim().toLowerCase() : "";
+        const status = typeof affiliate?.status === "string" ? affiliate.status.toLowerCase() : "";
+        if (code && status === "active") {
+          setActivePartnerCode(code);
+        } else {
+          setActivePartnerCode(null);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const copyCaption = async () => {
     try {
@@ -112,7 +135,7 @@ export function VerifyClient({
 
   const openInstagram = async () => {
     await copyCaption();
-    window.open("https://www.instagram.com/", "_blank", "noopener,noreferrer");
+    window.open("https://www.instagram.com/create/select/", "_blank", "noopener,noreferrer");
   };
 
   const socialButtons: Array<{
@@ -283,7 +306,7 @@ export function VerifyClient({
             }}
           >
             <p style={{ margin: "0 0 12px", color: "rgba(255,255,255,0.86)", fontSize: 12, textAlign: "center", fontWeight: 700, letterSpacing: "0.02em" }}>
-              Share link opens platform post page (or login if needed)
+              Caption is copied first. Some platforms may open home/login before composer.
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 10 }}>
               <button
@@ -404,7 +427,7 @@ export function VerifyClient({
             🎁 Share &amp; Get Free Scans
           </p>
           <p style={{ fontSize: 13.5, color: "rgba(255,255,255,0.82)", margin: "0 0 14px", lineHeight: 1.55 }}>
-            When someone checks their PDF through your link,
+            When someone buys through your link,
             <br />
             you earn a 100% Free Scan Credit.
           </p>
