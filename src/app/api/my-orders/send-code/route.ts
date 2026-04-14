@@ -12,8 +12,7 @@ function generateCode(): string {
   return crypto.randomInt(100000, 1000000).toString();
 }
 
-function signToken(email: string, code: string, expiresAt: number): string {
-  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "fallback-secret";
+function signToken(secret: string, email: string, code: string, expiresAt: number): string {
   return crypto
     .createHmac("sha256", secret)
     .update(`${email}|${code}|${expiresAt}`)
@@ -31,6 +30,10 @@ export async function POST(req: Request) {
 
   if (!email || !email.includes("@")) {
     return NextResponse.json({ error: "Valid email required" }, { status: 400 });
+  }
+  const signingSecret = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+  if (!signingSecret) {
+    return NextResponse.json({ error: "Service unavailable" }, { status: 503 });
   }
 
   const supabase = createClient(
@@ -72,7 +75,7 @@ export async function POST(req: Request) {
   const now       = Date.now();
   const code      = generateCode();
   const expiresAt = now + OTP_EXPIRY_MS;
-  const token     = signToken(email, code, expiresAt);
+  const token     = signToken(signingSecret, email, code, expiresAt);
 
   const resend = new Resend(process.env.RESEND_API_KEY ?? "");
   const html = `

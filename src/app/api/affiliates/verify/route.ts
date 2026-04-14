@@ -2,13 +2,11 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import crypto from "crypto";
 
-function signToken(email: string, code: string, expiresAt: number): string {
-  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "fallback";
+function signToken(secret: string, email: string, code: string, expiresAt: number): string {
   return crypto.createHmac("sha256", secret).update(`aff|${email}|${code}|${expiresAt}`).digest("hex");
 }
 
-function signSessionToken(email: string, sessionExpiresAt: number): string {
-  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "fallback";
+function signSessionToken(secret: string, email: string, sessionExpiresAt: number): string {
   return crypto.createHmac("sha256", secret).update(`sess|${email}|${sessionExpiresAt}`).digest("hex");
 }
 
@@ -32,7 +30,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Code expired. Request a new one." }, { status: 400 });
   }
 
-  const expected = signToken(email, code, expiresAt);
+  const signingSecret = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+  if (!signingSecret) {
+    return NextResponse.json({ error: "Service unavailable" }, { status: 503 });
+  }
+
+  const expected = signToken(signingSecret, email, code, expiresAt);
   if (expected !== token) {
     return NextResponse.json({ error: "Incorrect code." }, { status: 400 });
   }
@@ -65,7 +68,7 @@ export async function POST(req: Request) {
   const pendingPayout = totalEarned - totalPaid;
 
   const sessionExpiresAt = Date.now() + 24 * 60 * 60 * 1000; // 24h
-  const sessionToken = signSessionToken(email, sessionExpiresAt);
+  const sessionToken = signSessionToken(signingSecret, email, sessionExpiresAt);
 
   return NextResponse.json({
     ok: true,

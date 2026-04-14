@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+import crypto from "crypto";
 
 const CRISP_WEBSITE_ID = process.env.CRISP_WEBSITE_ID ?? "bf52e45d-8fda-489e-92da-395a9d08ae72";
 const CRISP_API_IDENTIFIER = process.env.CRISP_API_IDENTIFIER ?? "";
@@ -119,13 +116,42 @@ async function sendCrispMessage(sessionId: string, content: string): Promise<voi
   });
 }
 
+function verifyCrispWebhookSignature(rawBody: string, signatureHeader: string | null, secret: string): boolean {
+  if (!signatureHeader) return false;
+  const provided = signatureHeader.trim().replace(/^sha256=/i, "");
+  const expected = crypto.createHmac("sha256", secret).update(rawBody).digest("hex");
+  try {
+    const providedBuf = Buffer.from(provided.padEnd(expected.length, "0").slice(0, expected.length), "hex");
+    const expectedBuf = Buffer.from(expected, "hex");
+    return crypto.timingSafeEqual(expectedBuf, providedBuf) && provided === expected;
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    const body = await req.json();
+    const webhookSecret = process.env.CRISP_WEBHOOK_SECRET?.trim();
+    if (!webhookSecret) {
+      return NextResponse.json({ error: "Webhook not configured" }, { status: 503 });
+    }
+
+    const rawBody = await req.text();
+    const signatureHeader = req.headers.get("x-crisp-signature");
+    if (!verifyCrispWebhookSignature(rawBody, signatureHeader, webhookSecret)) {
+      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+    }
+
+    const body = JSON.parse(rawBody) as { event?: string; data?: Record<string, unknown> };
 
     // Only handle user messages — ignore operator messages to avoid loops
     const event = body?.event;
-    const data = body?.data;
+    const data = body?.data as {
+      from?: string;
+      type?: string;
+      content?: string;
+      session_id?: string;
+    } | undefined;
 
     if (event !== "message:send") {
       return NextResponse.json({ ok: true });
@@ -138,9 +164,15 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     if (data?.type !== "text" || !data?.content) {
       return NextResponse.json({ ok: true });
     }
+    if (typeof data.session_id !== "string" || typeof data.content !== "string") {
+      return NextResponse.json({ ok: true });
+    }
 
     const sessionId: string = data.session_id;
     const userMessage: string = data.content;
+    const anthropicKey = process.env.ANTHROPIC_API_KEY?.trim();
+    if (!anthropicKey) return NextResponse.json({ ok: true });
+    const anthropic = new Anthropic({ apiKey: anthropicKey });
 
     // Respond immediately to Crisp (webhook timeout is short)
     // Fire the Claude call in the background

@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import crypto from "crypto";
 
-function verifySession(email: string, sessionExpiresAt: number, sessionToken: string): boolean {
-  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "fallback";
+function verifySession(secret: string, email: string, sessionExpiresAt: number, sessionToken: string): boolean {
   const expected = crypto
     .createHmac("sha256", secret)
     .update(`sess|${email}|${sessionExpiresAt}`)
@@ -35,7 +34,11 @@ export async function PATCH(req: Request) {
   if (!email || !sessionToken || !sessionExpiresAt) {
     return NextResponse.json({ error: "Missing auth fields" }, { status: 401 });
   }
-  if (!verifySession(email, sessionExpiresAt, sessionToken)) {
+  const signingSecret = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+  if (!signingSecret) {
+    return NextResponse.json({ error: "Service unavailable" }, { status: 503 });
+  }
+  if (!verifySession(signingSecret, email, sessionExpiresAt, sessionToken)) {
     return NextResponse.json({ error: "Session expired or invalid. Please sign in again." }, { status: 401 });
   }
 

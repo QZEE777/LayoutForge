@@ -1,31 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { listLeads } from "@/lib/storage";
 import { checkAdminRateLimit } from "@/lib/rateLimitAdmin";
-import { timingSafeEqualStrings } from "@/lib/security";
+import { requireAdminPermission } from "@/lib/adminAccess";
 
 /**
  * GET /api/admin/leads
  * Returns captured leads from storage (manuscript meta with leadEmail).
- * Auth: x-admin-password = ADMIN_PASSWORD_MANU2, or ADMIN_SECRET (Bearer / ?secret=).
+ * Auth: x-admin-password = ADMIN_PASSWORD_MANU2 (scoped via requireAdminPermission).
  */
 export async function GET(request: NextRequest) {
   const rateLimitRes = checkAdminRateLimit(request);
   if (rateLimitRes) return rateLimitRes;
 
-  const password = (request.headers.get("x-admin-password") ?? "").trim();
-  const expectedPassword = process.env.ADMIN_PASSWORD_MANU2?.trim();
-  const secret = process.env.ADMIN_SECRET;
-  const authHeader = request.headers.get("authorization");
-  const token = authHeader?.replace(/^Bearer\s+/i, "") ?? request.nextUrl.searchParams.get("secret");
-
-  const allowedByPassword = expectedPassword && timingSafeEqualStrings(password, expectedPassword);
-  const allowedBySecret = secret && typeof token === "string" && timingSafeEqualStrings(token, secret);
-  if (!allowedByPassword && !allowedBySecret) {
-    return NextResponse.json(
-      { error: "Unauthorized", message: "Invalid or missing admin auth." },
-      { status: 401 }
-    );
-  }
+  const auth = requireAdminPermission(request, "admin.leads.read");
+  if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
   try {
     const leads = await listLeads();
