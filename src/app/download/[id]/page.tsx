@@ -197,6 +197,7 @@ export default function DownloadPage() {
   const [copyShareStatus, setCopyShareStatus] = useState<"idle" | "ok" | "fail">("idle");
   // Share-to-earn state
   const [shareToken, setShareToken] = useState<string | null>(null);
+  const [activePartnerCode, setActivePartnerCode] = useState<string | null>(null);
   const [shareCopied, setShareCopied] = useState(false);
   const [annotatedReady, setAnnotatedReady] = useState(false);
   const [annotatedError, setAnnotatedError] = useState(false);
@@ -224,6 +225,15 @@ export default function DownloadPage() {
   const isEpub = isEpubFlow || report?.outputType === "epub";
   const isChecker = isCheckerFlow || report?.outputType === "checker";
   const isFormatReview = isFormatReviewFlow || report?.outputType === "format-review";
+  const partnerReferralLink = activePartnerCode
+    ? `https://www.manu2print.com/go/${activePartnerCode}`
+    : null;
+  const shareEarnLink = partnerReferralLink ?? (shareToken ? `https://www.manu2print.com/kdp-pdf-checker?sh=${shareToken}` : null);
+  const verifyAttributionQuery = activePartnerCode
+    ? `?ref=${encodeURIComponent(activePartnerCode)}`
+    : shareToken
+      ? `?sh=${encodeURIComponent(shareToken)}`
+      : "";
   const downloadFilename =
     report?.outputFilename ||
     (isDocx ? "kdp-review.docx" : isEpub ? "book.epub" : "kdp-print.pdf");
@@ -396,6 +406,23 @@ export default function DownloadPage() {
       .catch(() => {});
   }, []);
 
+  // If user is an active partner, partner referral code is source-of-truth.
+  useEffect(() => {
+    fetch("/api/affiliates/me")
+      .then((r) => r.json())
+      .then((d) => {
+        const affiliate = d?.affiliate;
+        const code = typeof affiliate?.code === "string" ? affiliate.code.trim().toLowerCase() : "";
+        const status = typeof affiliate?.status === "string" ? affiliate.status.toLowerCase() : "";
+        if (code && status === "active") {
+          setActivePartnerCode(code);
+        } else {
+          setActivePartnerCode(null);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
     createBrowserSupabase()
@@ -414,18 +441,17 @@ export default function DownloadPage() {
   }, []);
 
   const handleCopyShareEarnLink = useCallback(async () => {
-    if (!shareToken) return;
-    const url = `https://www.manu2print.com/kdp-pdf-checker?sh=${shareToken}`;
+    if (!shareEarnLink) return;
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(shareEarnLink);
       setShareCopied(true);
       setTimeout(() => setShareCopied(false), 2500);
     } catch { /* clipboard blocked */ }
-  }, [shareToken]);
+  }, [shareEarnLink]);
 
   const handleCopyVerificationLink = useCallback(async () => {
     if (!id) return;
-    const url = `https://www.manu2print.com/verify/${id}${shareToken ? `?sh=${shareToken}` : ""}`;
+    const url = `https://www.manu2print.com/verify/${id}${verifyAttributionQuery}`;
     setCopyShareStatus("idle");
     try {
       await navigator.clipboard.writeText(url);
@@ -435,7 +461,7 @@ export default function DownloadPage() {
       setCopyShareStatus("fail");
       setTimeout(() => setCopyShareStatus("idle"), 2000);
     }
-  }, [id, shareToken]);
+  }, [id, verifyAttributionQuery]);
 
   const loadReport = useCallback(() => {
     if (!id) return;
@@ -1412,7 +1438,7 @@ export default function DownloadPage() {
                     </div>
                   </div>
                   {/* Share-to-earn CTA — shown to authenticated users with a token */}
-                  {shareToken && (
+                  {shareEarnLink && (
                     <div
                       className="mt-4 rounded-2xl p-5 text-center border border-[#1A6B2A]/25"
                       style={{ background: "linear-gradient(180deg, #2D6A2D 0%, #1a4a1a 100%)", boxShadow: DL_VIS.cardShadow }}
@@ -1421,12 +1447,14 @@ export default function DownloadPage() {
                         Know another author who should check their PDF?
                       </p>
                       <p className="text-sm text-white/80 mb-4 leading-relaxed">
-                        Share your personal link — when they buy through it, you earn a free scan credit.
+                        {activePartnerCode
+                          ? "Share your partner link — purchases track directly to your partner account."
+                          : "Share your personal link — when they buy through it, you earn a free scan credit."}
                       </p>
                       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                         <input
                           readOnly
-                          value={`https://www.manu2print.com/kdp-pdf-checker?sh=${shareToken}`}
+                          value={shareEarnLink}
                           className="flex-1 rounded-xl border border-white/20 bg-black/20 px-3 py-2.5 text-xs text-white font-mono truncate"
                         />
                         <button
@@ -1449,7 +1477,7 @@ export default function DownloadPage() {
                     const readiness = canonicalCheckerReadinessScore(report);
                     const shareScore = readiness ?? 0;
                     const shareIsPass = checkerHeroLooksPassing(report, readiness);
-                    const verifyLink  = `https://www.manu2print.com/verify/${id}${shareToken ? `?sh=${encodeURIComponent(shareToken)}` : ""}`;
+                    const verifyLink  = `https://www.manu2print.com/verify/${id}${verifyAttributionQuery}`;
                     const ogBase      = `/api/og/verify/${id}?p=${shareIsPass ? 1 : 0}&s=${shareScore}`;
                     const portraitUrl = `${ogBase}&format=portrait`;
                     const shareIssues = getGroupedIssues(report).totalCount;
