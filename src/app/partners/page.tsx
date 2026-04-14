@@ -99,7 +99,7 @@ function InitialsAvatar({ name, imageUrl, size = 36 }: { name: string; imageUrl?
 // ── Commission data ───────────────────────────────────────────────────────────
 
 const COMMISSIONS = [
-  { product: "Single Scan",    price: "$9",  rate: "30%", earn: "$2.70", note: "Entry product" },
+  { product: "Single Scan",    price: "$9",  rate: "30%", earn: "$2.70", note: "2 scans included" },
   { product: "Author Pack",    price: "$19", rate: "40%", earn: "$7.60", note: "6 scans" },
   { product: "Indie Pack",     price: "$39", rate: "40%", earn: "$15.60", note: "14 scans" },
   { product: "Pro / Studio",   price: "$79", rate: "40%", earn: "$31.60", note: "30 scans" },
@@ -111,7 +111,7 @@ const FAQS = [
   { q: "Who is this for?", a: "Anyone with an audience of indie authors, self-publishers, Canva users, or KDP creators. Book coaches, YouTubers, bloggers, newsletter writers, Facebook group admins. If your audience uploads to KDP, this is relevant to them." },
   { q: "What am I promoting?", a: "The KDP PDF Checker — a tool that checks manuscript PDFs against Amazon KDP's formatting requirements before submission. It finds margin issues, font problems, bleed errors, and more — page by page, in minutes." },
   { q: "Is it free to join?", a: "Yes. Applying is free. Once approved, you get a unique referral link and access to your dashboard immediately." },
-  { q: "How does the commission work?", a: "30% on Single Scans ($9), 40% on all packs ($19/$39/$79). You earn on every sale traced to your link within a 12-month attribution window." },
+  { q: "How does the commission work?", a: "30% on Single Scan purchases ($9, includes 2 scans), 40% on all packs ($19/$39/$79). You earn on every sale traced to your link within a 12-month attribution window." },
   { q: "Do I need a large audience?", a: "No. A small engaged audience converts better than a large disengaged one. If you consistently talk to authors about the publishing process, your referrals will convert." },
   { q: "How do payouts work?", a: "Payouts are handled automatically by LemonSqueezy — our payment processor. Once approved, you'll receive a LemonSqueezy affiliate invite. You connect your own payout method (PayPal, bank transfer, or other) directly in your LemonSqueezy dashboard. We never hold or manually transfer your money." },
   { q: "How do I track performance?", a: "Your partner dashboard shows clicks, conversions, total earned, paid out, and pending balance — all updated in real time." },
@@ -222,11 +222,11 @@ function MarketingLanding({ onSignIn, onSignInClick }: { onSignIn: (email: strin
                 Partner Program — Now Open
               </span>
 
-              <h1 className="font-black leading-none mb-6"
-                style={{ color: "#fff", fontSize: "clamp(2.6rem,5vw,4rem)", letterSpacing: "-0.03em" }}>
-                Refer authors.<br />
-                <span style={{ color: "#f05a28" }}>Earn 40%</span> on every<br />
-                pack sale.
+              <h1 className="font-black mb-6 text-balance"
+                style={{ color: "#fff", fontSize: "clamp(2.35rem,4.5vw,3.7rem)", letterSpacing: "-0.03em", lineHeight: 1.05 }}>
+                Refer authors.{" "}
+                <span style={{ color: "#f05a28" }}>Earn 40%</span>{" "}
+                on every pack sale.
               </h1>
 
               <p className="text-base leading-relaxed mb-8" style={{ color: "rgba(255,255,255,0.55)", maxWidth: 460 }}>
@@ -306,11 +306,11 @@ function MarketingLanding({ onSignIn, onSignInClick }: { onSignIn: (email: strin
       ══════════════════════════════════════════════════════ */}
       <section>
         <div className="mx-auto max-w-6xl px-6 py-16 md:py-20">
-          <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#9B8E7E" }}>Why it works</p>
-          <h2 className="font-black text-3xl mb-2" style={{ color: "#1A1208", letterSpacing: "-0.02em" }}>
-            The easiest product to promote<br />in the KDP space.
+          <p className="text-xs font-bold uppercase tracking-widest mb-3 text-center" style={{ color: "#9B8E7E" }}>Why it works</p>
+          <h2 className="font-black text-3xl mb-2 text-center text-balance" style={{ color: "#1A1208", letterSpacing: "-0.02em" }}>
+            The easiest product to promote in the KDP space.
           </h2>
-          <p className="text-sm mb-10" style={{ color: "#6B5E4E" }}>
+          <p className="text-sm mb-10 text-center" style={{ color: "#6B5E4E" }}>
             Your audience has the problem. You have the solution. The conversion happens naturally.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -342,8 +342,9 @@ function MarketingLanding({ onSignIn, onSignInClick }: { onSignIn: (email: strin
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "rgba(255,255,255,0.3)" }}>The product</p>
-              <h2 className="font-black text-3xl mb-4" style={{ color: "#fff", letterSpacing: "-0.02em", lineHeight: 1.2 }}>
-                What your audience<br />actually gets.
+              <h2 className="font-black mb-4 lg:whitespace-nowrap text-balance"
+                style={{ color: "#fff", letterSpacing: "-0.02em", fontSize: "clamp(1.9rem,2.9vw,2.55rem)", lineHeight: 1.12 }}>
+                What your audience actually gets.
               </h2>
               <p className="text-base leading-relaxed mb-8" style={{ color: "rgba(255,255,255,0.45)" }}>
                 A tool that fits naturally into the publishing workflow — right before the KDP upload step. Practical, fast, and immediately useful.
