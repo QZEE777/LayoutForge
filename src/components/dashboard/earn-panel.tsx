@@ -155,7 +155,7 @@ export function EarnPanel({ affiliate, stats, isFounder = false }: Props) {
             <div className="min-w-0 flex-1 text-center sm:text-left">
               <p className="font-bebas text-2xl tracking-wide text-[var(--d-fg)]">Earn</p>
               <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--d-fg-muted)" }}>
-                Share your checker link. Each qualifying referral counts toward free scans and Partner status.
+                Share your checker link. Each qualifying purchase from your link counts toward free scans and Partner status.
               </p>
             </div>
             <div
@@ -209,7 +209,7 @@ export function EarnPanel({ affiliate, stats, isFounder = false }: Props) {
                 <p className="text-sm leading-relaxed" style={{ color: "var(--d-fg-muted)" }}>
                   {atThreshold
                     ? "You have referred enough people to unlock Partner mode — earn 30–40% cash on every sale."
-                    : "When someone checks their file from your link, you get a free scan."}
+                    : "When someone buys through your link, you get a free scan credit."}
                 </p>
               </div>
             </div>

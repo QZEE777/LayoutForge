@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 import { markDownloadPaid, updateMeta } from "@/lib/storage";
-import { sendDownloadLinkEmail, sendPartnerThresholdEmail, sendPackPurchaseEmail } from "@/lib/resend";
+import { sendDownloadLinkEmail, sendPartnerThresholdEmail, sendPackPurchaseEmail, sendSharePurchasePendingEmail } from "@/lib/resend";
 import { CHECKER_CREDITS_PER_SCAN } from "@/lib/redeemScanCredit";
 
 export async function POST(req: Request) {
@@ -272,8 +272,8 @@ export async function POST(req: Request) {
                   await supabase.rpc("increment_share_conversions_pending", { p_token: shareToken });
                 } catch { /* best effort */ }
 
-                // Partner threshold email — fires once when pending hits exactly 3
-                // Re-fetch updated token to get accurate count after increment
+                // Re-fetch updated token to get accurate counters after increment.
+                let totalReferrals: number | undefined;
                 try {
                   const PARTNER_THRESHOLD = 3;
                   const { data: updatedToken } = await supabase
@@ -283,12 +283,24 @@ export async function POST(req: Request) {
                     .maybeSingle();
 
                   if (updatedToken) {
-                    const total = (updatedToken.total_conversions ?? 0) + (updatedToken.total_conversions_pending ?? 0);
-                    if (total === PARTNER_THRESHOLD) {
+                    totalReferrals = (updatedToken.total_conversions ?? 0) + (updatedToken.total_conversions_pending ?? 0);
+                    if (totalReferrals === PARTNER_THRESHOLD) {
                       await sendPartnerThresholdEmail(sharerEmail);
                     }
                   }
                 } catch { /* best effort — email is nice-to-have, not critical */ }
+
+                // Immediate heads-up email: conversion recorded, credit pending release.
+                try {
+                  await sendSharePurchasePendingEmail(sharerEmail, {
+                    credits: 1,
+                    refundWindowClosesAt: refundWindowCloses.toISOString(),
+                    underReview: !!priorConversion,
+                    totalReferrals,
+                  });
+                } catch (emailErr) {
+                  console.error("[webhooks/lemonsqueezy] sendSharePurchasePendingEmail failed:", emailErr);
+                }
               }
             }
           }

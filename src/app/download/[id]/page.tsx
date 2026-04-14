@@ -1421,7 +1421,7 @@ export default function DownloadPage() {
                         Know another author who should check their PDF?
                       </p>
                       <p className="text-sm text-white/80 mb-4 leading-relaxed">
-                        Share your personal link — when they run a scan, you earn a free one.
+                        Share your personal link — when they buy through it, you earn a free scan credit.
                       </p>
                       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                         <input

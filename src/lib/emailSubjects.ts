@@ -22,6 +22,10 @@ export function shareCreditAwardedSubject(credits: number, creditWord: string): 
   return `Your referral came through — +${credits} free ${creditWord} added`;
 }
 
+export function sharePurchasePendingSubject(credits: number, creditWord: string): string {
+  return `Your link converted — +${credits} ${creditWord} pending`;
+}
+
 export const PARTNER_THRESHOLD_SUBJECT =
   "You've hit the threshold — Partner mode is yours to activate";
 

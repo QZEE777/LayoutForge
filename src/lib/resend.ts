@@ -8,6 +8,7 @@ import {
   packPurchaseSubject,
   PARTNER_THRESHOLD_SUBJECT,
   shareCreditAwardedSubject,
+  sharePurchasePendingSubject,
   WELCOME_EMAIL_SUBJECT,
 } from "./emailSubjects";
 import { MARKETING_UNSUBSCRIBE_FOOTER_TEXT } from "./emailMarketingFooter";
@@ -189,11 +190,11 @@ export async function sendShareCreditAwardedEmail(
       <td style="padding: 36px 32px 24px; background: #FAF7EE;">
 
         <p style="font-size: 22px; font-weight: 700; color: #1A1208; margin: 0 0 20px; line-height: 1.3;">
-          Someone you sent our way just checked their PDF.
+          Someone you referred just bought through your link.
         </p>
 
         <p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 12px;">
-          That means your share link worked — and you earned it.
+          That means your share link converted — and you earned it.
         </p>
 
         ${opts.wasHeld ? `<p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 12px;">
@@ -224,7 +225,7 @@ export async function sendShareCreditAwardedEmail(
         </table>
 
         <p style="font-size: 14px; line-height: 1.8; color: #6B6151; margin: 0 0 6px;">
-          Every person you send our way earns you another free scan. Keep sharing.
+          Every purchase through your link earns you another free scan credit. Keep sharing.
         </p>
         <p style="font-size: 14px; line-height: 1.8; color: #6B6151; margin: 0;">
           Refer 3 people total and you unlock <strong>Partner mode</strong> — real cash commissions, no minimums.
@@ -248,16 +249,17 @@ export async function sendShareCreditAwardedEmail(
 `.trim();
 
   const text = [
-    "Someone you sent our way just checked their PDF.",
+    "Someone you referred just bought through your link.",
     "",
-    "That means your share link worked — and you earned it.",
+    "That means your share link converted — and you earned it.",
     "",
     opts.wasHeld ? "This one was held briefly for review. Everything checked out — it's yours." : "",
     `+${opts.credits} free ${creditWord} added to your account. Expires ${expiryDate}.`,
     "",
     `Run a free check now: ${checkerUrl}`,
     "",
-    "Every referral = another free scan. Refer 3 people total to unlock Partner mode — real cash commissions.",
+    "Every purchase through your link can earn another free scan credit.",
+    "If you ever want to go further, 3 total referrals unlock optional Partner mode with cash commissions.",
     "",
     "Thank you for spreading the word.",
     "",
@@ -269,6 +271,119 @@ export async function sendShareCreditAwardedEmail(
     replyTo: REPLY_TO,
     to,
     subject: shareCreditAwardedSubject(opts.credits, creditWord),
+    html,
+    text,
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function sendSharePurchasePendingEmail(
+  to: string,
+  opts: {
+    credits: number;
+    refundWindowClosesAt: string;
+    underReview: boolean;
+    totalReferrals?: number;
+  }
+) {
+  const resend = new Resend(process.env.RESEND_API_KEY ?? "");
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com";
+  const accountUrl = `${appUrl}/account`;
+  const checkerUrl = `${appUrl}/kdp-pdf-checker`;
+  const safeAccountUrl = escapeHtmlAttr(accountUrl);
+  const safeCheckerUrl = escapeHtmlAttr(checkerUrl);
+  const creditWord = opts.credits === 1 ? "scan credit" : "scan credits";
+  const releaseDate = new Date(opts.refundWindowClosesAt).toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+  const progressText = typeof opts.totalReferrals === "number"
+    ? `You are now at ${opts.totalReferrals} total referral${opts.totalReferrals === 1 ? "" : "s"}.`
+    : "";
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: system-ui, sans-serif; max-width: 560px; margin: 0 auto; padding: 0; background: #FAF7EE; color: #1A1208;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 560px; margin: 0 auto;">
+    <tr>
+      <td style="background: #1A1208; padding: 24px 32px; border-radius: 12px 12px 0 0;">
+        <span style="font-size: 24px; font-weight: 700; color: #F05A28;">manu</span><span style="font-size: 24px; font-weight: 700; color: #4cd964;">2print</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 36px 32px 24px; background: #FAF7EE;">
+        <p style="font-size: 22px; font-weight: 700; color: #1A1208; margin: 0 0 18px; line-height: 1.3;">
+          Nice one — your link just converted.
+        </p>
+        <p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 12px;">
+          We tracked a purchase from your share link and queued <strong>+${opts.credits} ${creditWord}</strong> for your account.
+        </p>
+        <p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 12px;">
+          Credits are released after the refund window closes on <strong>${releaseDate}</strong>.
+        </p>
+        ${opts.underReview ? `<p style="font-size: 14px; line-height: 1.8; color: #6B6151; margin: 0 0 12px;">
+          This referral is in a short review hold first, then it releases automatically if all checks pass.
+        </p>` : ""}
+        ${progressText ? `<p style="font-size: 14px; line-height: 1.8; color: #6B6151; margin: 0 0 16px;">${progressText}</p>` : ""}
+        <table cellpadding="0" cellspacing="0" style="margin: 0 0 20px;">
+          <tr>
+            <td style="background: #F05A28; border-radius: 10px;">
+              <a href="${safeAccountUrl}" style="display: inline-block; padding: 14px 30px; color: #ffffff; text-decoration: none; font-weight: 700; font-size: 15px;">
+                View progress in dashboard &rarr;
+              </a>
+            </td>
+          </tr>
+        </table>
+        <p style="font-size: 14px; line-height: 1.8; color: #6B6151; margin: 0 0 6px;">
+          If you ever feel like sharing more, 3 total referrals unlock optional <strong>Partner mode</strong> with cash commissions.
+        </p>
+        <p style="font-size: 14px; line-height: 1.8; color: #6B6151; margin: 0;">
+          No pressure — free scan credits keep working either way.
+        </p>
+        <p style="font-size: 13px; line-height: 1.8; margin: 12px 0 0;">
+          <a href="${safeCheckerUrl}" style="color: #F05A28; text-decoration: none; font-weight: 600;">Copy/share your checker link again &rarr;</a>
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 20px 32px; border-top: 1px solid #E0D8C4; background: #FAF7EE;">
+        <p style="font-size: 12px; color: #9B8E7E; margin: 0 0 4px;">— Manny, manu2print.com</p>
+        <p style="font-size: 11px; color: #C4B9AC; margin: 0;">Thanks for helping fellow authors publish cleaner books.</p>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`.trim();
+
+  const text = [
+    "Nice one — your link just converted.",
+    "",
+    `We tracked a purchase from your share link and queued +${opts.credits} ${creditWord} for your account.`,
+    `Credits are released after the refund window closes on ${releaseDate}.`,
+    opts.underReview ? "This referral is in a short review hold first, then releases automatically." : "",
+    progressText,
+    "",
+    `View progress in dashboard: ${accountUrl}`,
+    "",
+    "If you ever feel like sharing more, 3 total referrals unlock optional Partner mode with cash commissions.",
+    "No pressure — free scan credits keep working either way.",
+    "",
+    `Checker link: ${checkerUrl}`,
+    "",
+    "— Manny, manu2print.com",
+  ].filter(Boolean).join("\n");
+
+  const { data, error } = await resend.emails.send({
+    from: FROM_MANNY,
+    replyTo: REPLY_TO,
+    to,
+    subject: sharePurchasePendingSubject(opts.credits, creditWord),
     html,
     text,
   });
