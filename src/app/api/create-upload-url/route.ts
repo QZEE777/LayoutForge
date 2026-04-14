@@ -8,6 +8,7 @@ const NO_STORE_HEADERS = {
 };
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { stripR2IncompatiblePresignedQueryParams } from '@/lib/r2Storage';
 import { v4 as uuidv4 } from 'uuid';
 
 function getR2Client() {
@@ -67,14 +68,11 @@ export async function POST(request: NextRequest) {
       ContentType: 'application/pdf',
     });
 
-    const uploadUrl = await getSignedUrl(r2.client, command, { expiresIn: 3600 });
-    const cleanUploadUrl = uploadUrl
-      .split('&')
-      .filter(param => !param.startsWith('x-amz-checksum') && !param.startsWith('x-amz-sdk-checksum'))
-      .join('&');
+    const rawUploadUrl = await getSignedUrl(r2.client, command, { expiresIn: 3600 });
+    const uploadUrl = stripR2IncompatiblePresignedQueryParams(rawUploadUrl);
 
     return NextResponse.json(
-      { uploadUrl: cleanUploadUrl, fileKey, jobId },
+      { uploadUrl, fileKey, jobId },
       { headers: NO_STORE_HEADERS }
     );
   } catch (error) {

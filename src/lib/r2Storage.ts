@@ -15,6 +15,29 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 /** Presigned GET for report PDF, annotated PDF, etc. — keep in sync with emails / FAQ copy. */
 export const DOWNLOAD_SIGNED_URL_EXPIRES_SECONDS = 24 * 60 * 60; // 24 hours
 
+/**
+ * AWS SDK v3 can add query params (e.g. x-amz-checksum-*, x-id) that Cloudflare R2 rejects.
+ * Strip them from presigned URLs before returning to browsers or storing in metadata.
+ */
+export function stripR2IncompatiblePresignedQueryParams(presignedUrl: string): string {
+  try {
+    const u = new URL(presignedUrl);
+    const keys = [...u.searchParams.keys()];
+    for (const key of keys) {
+      if (
+        key === "x-id" ||
+        key.startsWith("x-amz-checksum-") ||
+        key.startsWith("x-amz-sdk-checksum")
+      ) {
+        u.searchParams.delete(key);
+      }
+    }
+    return u.toString();
+  } catch {
+    return presignedUrl;
+  }
+}
+
 const DEFAULT_SIGNED_URL_EXPIRES = DOWNLOAD_SIGNED_URL_EXPIRES_SECONDS;
 
 function getClient(): S3Client {
@@ -199,7 +222,8 @@ export async function getSignedDownloadUrl(
       Bucket: getBucket(),
       Key: k,
     });
-    return await getSignedUrl(client, cmd, { expiresIn: expiresInSeconds });
+    const raw = await getSignedUrl(client, cmd, { expiresIn: expiresInSeconds });
+    return stripR2IncompatiblePresignedQueryParams(raw);
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     throw new Error(`R2 getSignedDownloadUrl failed for ${k}: ${msg}`);
@@ -307,7 +331,8 @@ export async function getSignedUrlForKey(
       Bucket: getBucket(),
       Key: fullKey,
     });
-    return await getSignedUrl(client, cmd, { expiresIn: expiresInSeconds });
+    const raw = await getSignedUrl(client, cmd, { expiresIn: expiresInSeconds });
+    return stripR2IncompatiblePresignedQueryParams(raw);
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     throw new Error(`R2 getSignedUrlForKey failed for ${fullKey}: ${msg}`);
