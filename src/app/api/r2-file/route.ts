@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
+import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { stripR2IncompatiblePresignedQueryParams } from "@/lib/r2Storage";
+import { createR2S3Client } from "@/lib/r2Storage";
 import { supabase } from "@/lib/supabase";
 
 export const runtime = "nodejs";
@@ -59,13 +59,12 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const s3 = new S3Client({
-      region: "auto",
+    const s3 = createR2S3Client({
       endpoint,
       credentials: { accessKeyId, secretAccessKey },
     });
 
-    const raw = await getSignedUrl(
+    const url = await getSignedUrl(
       s3,
       new GetObjectCommand({
         Bucket: bucket,
@@ -74,7 +73,7 @@ export async function GET(request: NextRequest) {
       { expiresIn: 300 }
     );
 
-    return NextResponse.json({ url: stripR2IncompatiblePresignedQueryParams(raw) });
+    return NextResponse.json({ url });
   } catch (e) {
     console.error("[r2-file]", e);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });

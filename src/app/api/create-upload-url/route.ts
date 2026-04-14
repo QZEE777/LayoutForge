@@ -6,9 +6,9 @@ export const dynamic = 'force-dynamic';
 const NO_STORE_HEADERS = {
   'Cache-Control': 'private, no-store, max-age=0, must-revalidate',
 };
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { stripR2IncompatiblePresignedQueryParams } from '@/lib/r2Storage';
+import { createR2S3Client } from '@/lib/r2Storage';
 import { v4 as uuidv4 } from 'uuid';
 
 function getR2Client() {
@@ -20,12 +20,9 @@ function getR2Client() {
     return null;
   }
   return {
-    client: new S3Client({
-      region: 'auto',
+    client: createR2S3Client({
       endpoint,
       credentials: { accessKeyId, secretAccessKey },
-      requestChecksumCalculation: 'WHEN_REQUIRED',
-      responseChecksumValidation: 'WHEN_REQUIRED',
     }),
     bucket,
   };
@@ -68,8 +65,7 @@ export async function POST(request: NextRequest) {
       ContentType: 'application/pdf',
     });
 
-    const rawUploadUrl = await getSignedUrl(r2.client, command, { expiresIn: 3600 });
-    const uploadUrl = stripR2IncompatiblePresignedQueryParams(rawUploadUrl);
+    const uploadUrl = await getSignedUrl(r2.client, command, { expiresIn: 3600 });
 
     return NextResponse.json(
       { uploadUrl, fileKey, jobId },
