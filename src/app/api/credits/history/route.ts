@@ -1,11 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { createClient as createAuthClient } from "@/lib/supabaseServer";
 
-export async function GET(req: NextRequest) {
-  const email = req.nextUrl.searchParams.get("email")?.trim().toLowerCase() ?? "";
-
-  if (!email || !email.includes("@")) {
-    return NextResponse.json({ error: "Valid email required" }, { status: 400 });
+export async function GET() {
+  const supabaseAuth = await createAuthClient();
+  const {
+    data: { user },
+  } = await supabaseAuth.auth.getUser();
+  const email = user?.email?.trim().toLowerCase() ?? "";
+  if (!email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const supabase = createClient(

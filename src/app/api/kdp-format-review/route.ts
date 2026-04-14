@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { saveUpload, updateMeta, type StoredManuscript } from "@/lib/storage";
 import { getGutterInches } from "@/lib/kdpConfig";
 import { estimatePageCount, type TrimSizeId } from "@/lib/kdpSpecs";
+import { enforceDurableRouteLimit } from "@/lib/durableRateLimit";
 
 const MAX_CHARS = 100_000;
 const ANTHROPIC_MODEL = "claude-sonnet-4-20250514";
@@ -41,6 +42,14 @@ export interface FormatReviewResult {
 
 export async function POST(request: NextRequest) {
   try {
+    const rateLimited = await enforceDurableRouteLimit({
+      req: request,
+      routeKey: "ai:kdp-format-review",
+      maxRequests: 8,
+      windowSeconds: 10 * 60,
+    });
+    if (rateLimited) return rateLimited;
+
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
       return NextResponse.json(

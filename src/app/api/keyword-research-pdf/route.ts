@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { enforceDurableRouteLimit } from "@/lib/durableRateLimit";
 
 const MAX_WORDS = 1000;
 const ANTHROPIC_MODEL = "claude-haiku-4-5-20251001";
@@ -10,6 +11,14 @@ function firstNWords(text: string, n: number): string {
 
 export async function POST(request: NextRequest) {
   try {
+    const rateLimited = await enforceDurableRouteLimit({
+      req: request,
+      routeKey: "ai:keyword-research-pdf",
+      maxRequests: 12,
+      windowSeconds: 10 * 60,
+    });
+    if (rateLimited) return rateLimited;
+
     const formData = await request.formData().catch(() => null);
     if (!formData) return NextResponse.json({ error: "Invalid request", message: "Could not read upload." }, { status: 400 });
     const file = formData.get("file");

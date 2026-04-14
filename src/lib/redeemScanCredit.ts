@@ -35,47 +35,88 @@ export async function redeemScanCreditForDownload(
     return { ok: true, balance: bal.remaining, alreadyUnlocked: true };
   }
 
-  const { remaining: balanceBefore } = await loadScanCreditBalanceForEmail(supabase, email);
-  if (balanceBefore < CHECKER_CREDITS_PER_SCAN) {
+  const { data: redeemRows, error: redeemErr } = await supabase.rpc("redeem_scan_credit_atomic", {
+    p_email: email,
+    p_download_id: downloadId,
+    p_required: CHECKER_CREDITS_PER_SCAN,
+  });
+  const redeemFallback = async (): Promise<RedeemScanCreditResult> => {
+    const { remaining: balanceBefore } = await loadScanCreditBalanceForEmail(supabase, email);
+    if (balanceBefore < CHECKER_CREDITS_PER_SCAN) {
+      return {
+        ok: false,
+        error: `Not enough scan credits. ${CHECKER_CREDITS_PER_SCAN} credits are required per scan.`,
+        status: 402,
+      };
+    }
+    const { error: insertErr } = await supabase.from("scan_credits").insert({
+      email,
+      credits: -CHECKER_CREDITS_PER_SCAN,
+      source: "scan_used",
+      order_id: downloadId,
+    });
+    if (insertErr) {
+      if (insertErr.code === "23505") {
+        const meta2 = await getStored(downloadId).catch(() => null);
+        if (meta2?.payment_confirmed) {
+          const bal = await loadScanCreditBalanceForEmail(supabase, email);
+          return { ok: true, balance: bal.remaining, alreadyUnlocked: true };
+        }
+      }
+      console.error("[redeemScanCredit] legacy insert failed:", insertErr);
+      return {
+        ok: false,
+        error: "Failed to redeem credit. Try again or contact support.",
+        status: 500,
+      };
+    }
+    return { ok: true, balance: Math.max(0, balanceBefore - CHECKER_CREDITS_PER_SCAN), alreadyUnlocked: false };
+  };
+  if (redeemErr) {
+    console.error("[redeemScanCredit] redeem_scan_credit_atomic failed, falling back:", redeemErr);
+    return redeemFallback();
+  }
+  const redeemRow = Array.isArray(redeemRows) ? redeemRows[0] : null;
+  if (!redeemRow) {
+    return redeemFallback();
+  }
+  const redeemOk = redeemRow?.ok === true;
+  const redeemReason = typeof redeemRow?.reason === "string" ? redeemRow.reason : "";
+  const remainingAfter = typeof redeemRow?.remaining === "number" ? redeemRow.remaining : 0;
+  if (!redeemOk && redeemReason === "insufficient_credits") {
     return {
       ok: false,
       error: `Not enough scan credits. ${CHECKER_CREDITS_PER_SCAN} credits are required per scan.`,
       status: 402,
     };
   }
-
-  const { error: insertErr } = await supabase.from("scan_credits").insert({
-    email,
-    credits: -CHECKER_CREDITS_PER_SCAN,
-    source: "scan_used",
-    order_id: downloadId,
-  });
-
-  if (insertErr) {
-    if (insertErr.code === "23505") {
-      const meta2 = await getStored(downloadId).catch(() => null);
-      if (meta2?.payment_confirmed) {
-        const bal = await loadScanCreditBalanceForEmail(supabase, email);
-        return { ok: true, balance: bal.remaining, alreadyUnlocked: true };
-      }
-    }
-    console.error("[redeemScanCredit] insert failed:", insertErr);
+  if (!redeemOk) {
     return {
       ok: false,
       error: "Failed to redeem credit. Try again or contact support.",
       status: 500,
     };
   }
+  const alreadyUnlocked = redeemReason === "already_unlocked";
 
-  await supabase.from("payments").insert({
-    email,
-    payment_type: "credit_used",
-    amount: 0,
-    status: "complete",
-    tool: "kdp_pdf_checker",
-    gateway: "credits",
-    gateway_order_id: downloadId,
-  });
+  const { data: existingCreditPayment } = await supabase
+    .from("payments")
+    .select("id")
+    .eq("gateway", "credits")
+    .eq("payment_type", "credit_used")
+    .eq("gateway_order_id", downloadId)
+    .maybeSingle();
+  if (!existingCreditPayment) {
+    await supabase.from("payments").insert({
+      email,
+      payment_type: "credit_used",
+      amount: 0,
+      status: "complete",
+      tool: "kdp_pdf_checker",
+      gateway: "credits",
+      gateway_order_id: downloadId,
+    });
+  }
 
   try {
     await markDownloadPaid(downloadId);
@@ -107,5 +148,5 @@ export async function redeemScanCreditForDownload(
     console.error("[redeemScanCredit] sendDownloadLinkEmail failed:", err);
   }
 
-  return { ok: true, balance: Math.max(0, balanceBefore - CHECKER_CREDITS_PER_SCAN) };
+  return { ok: true, balance: remainingAfter, alreadyUnlocked };
 }
