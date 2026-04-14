@@ -267,7 +267,9 @@ export function GoLandingClient({ checkoutUrl, refCode, partnerName }: Props) {
             It sends you back to guess. Upload → wait → rejection → guess →
             re-upload → repeat. Sometimes for days. Sometimes for weeks.
             <br />
-            <strong className="font-serif text-white">Every rejection resets your timeline.</strong>
+            <strong className="inline-block mt-2 font-extrabold tracking-tight text-white">
+              Every rejection resets your timeline.
+            </strong>
           </p>
 
           <div className="grid sm:grid-cols-2 gap-5 max-w-2xl mx-auto">
@@ -363,7 +365,12 @@ export function GoLandingClient({ checkoutUrl, refCode, partnerName }: Props) {
             <span className="text-m2p-orange">Start knowing.</span>
           </h2>
           <p className="text-base text-white/60 mb-6 text-pretty">
-            Check your file before Amazon does. No waiting. No re-uploads. No guesswork.
+            Check your file before Amazon does.
+            <span className="block mt-1 text-white/80 font-semibold tracking-tight">
+              No waiting. No re-uploads.
+              <br />
+              No guesswork.
+            </span>
           </p>
           <div className="flex flex-wrap gap-2 justify-center mb-8">
             {FOR_TAGS.map((tag) => (
