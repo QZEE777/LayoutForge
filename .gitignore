@@ -56,9 +56,3 @@ data/uploads/
 kdp-preflight-engine/frontend/vite.config.d.ts
 kdp-preflight-engine/frontend/vite.config.js
 .vercel
-
-# Local Cursor/session artifacts requested to ignore
-/.cursor/settings.json
-/docs/FUTURE-TOOLS-ROADMAP.md
-/scripts/
-/supabase/.temp/

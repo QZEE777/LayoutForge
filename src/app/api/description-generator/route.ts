@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { enforceDurableRouteLimit } from "@/lib/durableRateLimit";
 
 const ALLOWED_MIMES = [
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -34,14 +33,6 @@ function firstNWords(text: string, n: number): string {
 
 export async function POST(request: NextRequest) {
   try {
-    const rateLimited = await enforceDurableRouteLimit({
-      req: request,
-      routeKey: "ai:description-generator-docx",
-      maxRequests: 12,
-      windowSeconds: 10 * 60,
-    });
-    if (rateLimited) return rateLimited;
-
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
       return NextResponse.json(

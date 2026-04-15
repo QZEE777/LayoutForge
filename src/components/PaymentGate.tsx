@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabaseClient";
-import { CHECKER_CREDITS_PER_SCAN } from "@/lib/checkerCreditsConfig";
 
 const STORED_EMAIL_KEY = "manu2print_email";
 const STORED_CHECKOUT_PENDING_PREFIX = "manu2print_checkout_pending_";
+const CHECKER_CREDITS_PER_SCAN: number = 1;
 
 function getCheckoutPendingKey(downloadId: string) {
   return `${STORED_CHECKOUT_PENDING_PREFIX}${downloadId}`;
@@ -43,8 +43,6 @@ export default function PaymentGate({
   hideChildrenUntilUnlocked = false,
   verifyTimeoutMs = 20_000,
 }: PaymentGateProps) {
-  const previousStateRef = useRef<GateState | null>(null);
-  const unlockedScrollHandledRef = useRef(false);
   const [state, setState] = useState<GateState>(() => {
     if (isProcessing) return "processing";
     if (!downloadId) return "preview";
@@ -230,22 +228,6 @@ export default function PaymentGate({
       .finally(() => clearTimeout(timer));
     // Omit userEmail to avoid re-running on every keystroke
   }, [downloadId, tool]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    if (state !== "unlocked") {
-      previousStateRef.current = state;
-      return;
-    }
-    const previous = previousStateRef.current;
-    previousStateRef.current = state;
-    if (!hideChildrenUntilUnlocked) return;
-    if (unlockedScrollHandledRef.current) return;
-    if (previous !== "verifying" && previous !== "preview") return;
-    if (typeof window !== "undefined") {
-      window.scrollTo({ top: 0, behavior: "auto" });
-      unlockedScrollHandledRef.current = true;
-    }
-  }, [state, hideChildrenUntilUnlocked]);
 
   if (state === "processing") {
     return <>{children}</>;

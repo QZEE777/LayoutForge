@@ -147,8 +147,7 @@ function sanitizeCheckerReport(
     recommendations: Array.isArray(reportLike.recommendations) ? (reportLike.recommendations as string[]) : undefined,
     fileSizeMB: typeof reportLike.fileSizeMB === "number" ? reportLike.fileSizeMB : undefined,
     recommendedGutterInches: typeof reportLike.recommendedGutterInches === "number" ? reportLike.recommendedGutterInches : undefined,
-    // Never emit an empty array when counts come from issuesEnriched — download UI keys off page_issues.length.
-    page_issues: pageIssues.length > 0 ? pageIssues : undefined,
+    page_issues: issueCount > 0 ? pageIssues : undefined,
     hasPdfPreview: !!reportLike.hasPdfPreview,
     pdfSourceUrl: typeof reportLike.pdfSourceUrl === "string" ? reportLike.pdfSourceUrl : undefined,
     annotatedPdfUrl: typeof reportLike.annotatedPdfUrl === "string" ? reportLike.annotatedPdfUrl : undefined,
@@ -221,22 +220,6 @@ async function buildReportFromStored(meta: Awaited<ReturnType<typeof getStored>>
 
 export const maxDuration = 60;
 
-function buildUnpaidTeaserReport(report: unknown): unknown {
-  if (!report || typeof report !== "object") return report;
-  const record = report as Record<string, unknown>;
-  const {
-    outputFilename: _outputFilename,
-    pdfSourceUrl: _pdfSourceUrl,
-    annotatedPdfUrl: _annotatedPdfUrl,
-    annotatedPdfDownloadUrl: _annotatedPdfDownloadUrl,
-    reportDownloadUrl: _reportDownloadUrl,
-    page_issues: _pageIssues,
-    issuesEnriched: _issuesEnriched,
-    ...rest
-  } = record;
-  return rest;
-}
-
 export async function GET(request: NextRequest) {
   try {
     const id = request.nextUrl.searchParams.get("id");
@@ -285,9 +268,10 @@ export async function GET(request: NextRequest) {
         { status: 404 }
       );
     }
-    // Unpaid users only receive teaser report fields (no direct artifact URLs / deep issue payloads).
+    // Strip outputFilename for unpaid downloads — the download route enforces
+    // payment_confirmed independently, but no need to leak the filename to unpaid callers.
     const isPaid = meta?.payment_confirmed === true;
-    const safeReport = isPaid ? report : buildUnpaidTeaserReport(report);
+    const safeReport = isPaid ? report : { ...report, outputFilename: undefined };
 
     // Checker: if the user queued "email when ready" before annotation finished, the inline
     // completion handler may have missed. Cron also covers gaps — poll here nudges send when ready.
