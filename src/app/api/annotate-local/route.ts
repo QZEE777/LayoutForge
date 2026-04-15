@@ -24,131 +24,145 @@ type EnrichedIssue = {
   humanMessage?: string;
 };
 
-const MAX_ANNOTATIONS_PER_PAGE = 10;
+type CriticalIssue = {
+  page: number;
+  severity: "blocker" | "critical";
+  ruleId: string;
+  message: string;
+  bbox: number[] | null;
+};
+
+const MAX_ANNOTATIONS_TOTAL = 10;
 
 function isCriticalSeverity(raw?: string): boolean {
   const s = String(raw ?? "").toLowerCase().trim();
-  return s === "blocker" || s === "critical" || s === "error";
+  return s === "blocker" || s === "critical";
 }
 
-function isBroadMarginIssue(message?: string, ruleId?: string): boolean {
-  const hay = `${String(message ?? "")} ${String(ruleId ?? "")}`.toLowerCase();
-  return hay.includes("outside safe zone") || hay.includes("margin");
+function severityRank(severity: "blocker" | "critical"): number {
+  return severity === "blocker" ? 0 : 1;
 }
 
-function normalizeIssueGroups(
+function normalizeCriticalIssues(
   pageIssues: PageIssue[],
   enrichedIssues: EnrichedIssue[],
-  pageCount: number,
-): Map<number, Array<{ message: string; bbox: number[] | null }>> {
-  const byPage = new Map<number, Array<{ message: string; bbox: number[] | null }>>();
+  pageCount: number
+): CriticalIssue[] {
+  const out: CriticalIssue[] = [];
 
   for (const issue of pageIssues) {
     if (!isCriticalSeverity(issue.severity)) continue;
     const page = Number(issue.page);
     if (!Number.isFinite(page) || page < 1 || page > pageCount) continue;
-    const arr = byPage.get(page) ?? [];
-    arr.push({
+    out.push({
+      page,
+      severity: String(issue.severity).toLowerCase() === "blocker" ? "blocker" : "critical",
+      ruleId: String(issue.rule_id ?? "critical_issue").trim() || "critical_issue",
       message: issue.message?.trim() || "Formatting issue detected",
       bbox: Array.isArray(issue.bbox) && issue.bbox.length >= 4 ? issue.bbox : null,
     });
-    byPage.set(page, arr);
   }
 
-  // Fallback path: issuesEnriched contains page + message but no bbox.
-  // Keep it critical-only and only if no bbox issues were found for that page.
+  // Fallback path: enriched issues when preflight page_issues lacks entries.
   for (const issue of enrichedIssues) {
     if (!isCriticalSeverity(issue.severity)) continue;
     const page = Number(issue.page);
     if (!Number.isFinite(page) || page < 1 || page > pageCount) continue;
-    const arr = byPage.get(page) ?? [];
-    if (arr.some((i) => i.bbox)) continue;
-    arr.push({
+    out.push({
+      page,
+      severity: String(issue.severity).toLowerCase() === "blocker" ? "blocker" : "critical",
+      ruleId: String(issue.rule_id ?? "critical_issue").trim() || "critical_issue",
       message: issue.humanMessage?.trim() || "Formatting issue detected",
       bbox: null,
     });
-    byPage.set(page, arr);
   }
 
-  return byPage;
+  return out;
 }
 
 function drawIssueMarkers(
   doc: PDFDocument,
-  byPage: Map<number, Array<{ message: string; bbox: number[] | null }>>,
-) {
+  criticalIssues: CriticalIssue[],
+) : { globalBannerCount: number; boxCount: number } {
   const pages = doc.getPages();
-  for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
-    const pageNumber = pageIndex + 1;
-    const issues = byPage.get(pageNumber);
-    if (!issues || issues.length === 0) continue;
+  const pageCount = pages.length;
+  if (!pageCount) return { globalBannerCount: 0, boxCount: 0 };
 
-    const page = pages[pageIndex];
-    const { width, height } = page.getSize();
+  const bySignature = new Map<string, { issue: CriticalIssue; pages: Set<number> }>();
+  for (const issue of criticalIssues) {
+    const signature = `${issue.ruleId}::${issue.message.toLowerCase()}`;
+    const existing = bySignature.get(signature) ?? { issue, pages: new Set<number>() };
+    existing.pages.add(issue.page);
+    // Keep highest severity exemplar.
+    if (severityRank(issue.severity) < severityRank(existing.issue.severity)) existing.issue = issue;
+    bySignature.set(signature, existing);
+  }
 
-    const shouldUseSingleBanner =
-      issues.length > MAX_ANNOTATIONS_PER_PAGE ||
-      issues.filter((i) => isBroadMarginIssue(i.message)).length >= 3;
+  const globalThreshold = Math.max(1, Math.ceil(pageCount * 0.8));
+  const globalSignatures = new Set(
+    [...bySignature.entries()]
+      .filter(([, data]) => data.pages.size >= globalThreshold)
+      .map(([sig]) => sig),
+  );
 
-    if (shouldUseSingleBanner) {
-      const bannerY = Math.max(18, height - 46);
-      page.drawRectangle({
+  let globalBannerCount = 0;
+  if (globalSignatures.size > 0) {
+    const firstPage = pages[0];
+    const { width, height } = firstPage.getSize();
+    let y = Math.max(18, height - 48);
+    for (const sig of globalSignatures) {
+      const data = bySignature.get(sig);
+      if (!data) continue;
+      firstPage.drawRectangle({
         x: 18,
-        y: bannerY,
+        y,
         width: Math.max(120, width - 36),
         height: 24,
-        borderColor: rgb(0.9, 0.12, 0.12),
+        borderColor: rgb(1, 0, 0),
         borderWidth: 2,
       });
-      page.drawText("Critical issue: content outside safe zone / margins", {
+      firstPage.drawText(`WARN: Issue affects all pages: ${data.issue.message}`, {
         x: 24,
-        y: bannerY + 7,
-        size: 10,
-        color: rgb(0.8, 0.1, 0.1),
+        y: y + 7,
+        size: 9,
+        color: rgb(1, 0, 0),
       });
-      continue;
-    }
-
-    let fallbackY = height - 48;
-    const cappedIssues = issues.slice(0, MAX_ANNOTATIONS_PER_PAGE);
-    for (const issue of cappedIssues) {
-      if (issue.bbox) {
-        const [xRaw, yRaw, wRaw, hRaw] = issue.bbox;
-        const x = Math.max(0, Number(xRaw) || 0);
-        const y = Math.max(0, Number(yRaw) || 0);
-        const w = Math.max(8, Number(wRaw) || 0);
-        const h = Math.max(8, Number(hRaw) || 0);
-        page.drawRectangle({
-          x,
-          y,
-          width: Math.min(w, width - x),
-          height: Math.min(h, height - y),
-          borderColor: rgb(0.9, 0.12, 0.12),
-          borderWidth: 2,
-        });
-      } else {
-        // If bbox is unavailable, place a compact top marker with stroke only.
-        const markerWidth = Math.min(width - 36, 320);
-        const markerHeight = 20;
-        const markerY = Math.max(18, fallbackY);
-        page.drawRectangle({
-          x: 18,
-          y: markerY,
-          width: markerWidth,
-          height: markerHeight,
-          borderColor: rgb(0.9, 0.12, 0.12),
-          borderWidth: 1.5,
-        });
-        page.drawText("Critical layout issue", {
-          x: 24,
-          y: markerY + 6,
-          size: 9,
-          color: rgb(0.8, 0.1, 0.1),
-        });
-        fallbackY = markerY - 24;
-      }
+      y = Math.max(18, y - 28);
+      globalBannerCount += 1;
     }
   }
+
+  const individual = criticalIssues
+    .filter((i) => {
+      const sig = `${i.ruleId}::${i.message.toLowerCase()}`;
+      return !globalSignatures.has(sig);
+    })
+    .filter((i) => Array.isArray(i.bbox) && i.bbox.length >= 4)
+    .sort((a, b) => severityRank(a.severity) - severityRank(b.severity))
+    .slice(0, MAX_ANNOTATIONS_TOTAL);
+
+  let boxCount = 0;
+  for (const issue of individual) {
+    const page = pages[issue.page - 1];
+    if (!page || !issue.bbox) continue;
+    const { width, height } = page.getSize();
+    const [xRaw, yRaw, wRaw, hRaw] = issue.bbox;
+    const x = Math.max(0, Number(xRaw) || 0);
+    const y = Math.max(0, Number(yRaw) || 0);
+    const w = Math.max(8, Number(wRaw) || 0);
+    const h = Math.max(8, Number(hRaw) || 0);
+    page.drawRectangle({
+      x,
+      y,
+      width: Math.min(w, width - x),
+      height: Math.min(h, height - y),
+      borderColor: rgb(1, 0, 0),
+      borderWidth: 2,
+    });
+    boxCount += 1;
+  }
+
+  return { globalBannerCount, boxCount };
 }
 
 async function resolveSourcePdfKey(downloadId: string): Promise<string | null> {
@@ -191,7 +205,7 @@ export async function POST(request: NextRequest) {
     await updateAnnotatedState(downloadId, { status: "processing" });
 
     const sourcePdf = await getFileByKey(sourceKey);
-    const doc = await PDFDocument.load(sourcePdf);
+    const doc = await PDFDocument.load(sourcePdf, { updateMetadata: false });
     const pageCount = doc.getPageCount();
 
     const pageIssues = Array.isArray(meta.processingReport.page_issues)
@@ -200,9 +214,9 @@ export async function POST(request: NextRequest) {
     const enrichedIssues = Array.isArray(meta.processingReport.issuesEnriched)
       ? meta.processingReport.issuesEnriched
       : [];
-    const byPage = normalizeIssueGroups(pageIssues, enrichedIssues, pageCount);
+    const criticalIssues = normalizeCriticalIssues(pageIssues, enrichedIssues, pageCount);
 
-    drawIssueMarkers(doc, byPage);
+    const applied = drawIssueMarkers(doc, criticalIssues);
     const annotatedBytes = await doc.save();
     const annotatedBuffer = Buffer.from(annotatedBytes);
 
@@ -215,7 +229,16 @@ export async function POST(request: NextRequest) {
       annotatedPdfDownloadUrl,
     });
 
-    const sentNow = await sendAnnotatedEmailIfReady(downloadId).catch(() => false);
+    let sentNow = false;
+    // Force email send with error handling
+    try {
+      const emailResult = await sendAnnotatedEmailIfReady(downloadId);
+      sentNow = emailResult;
+      console.log("[annotate-local] Email send result:", emailResult);
+    } catch (emailError) {
+      console.error("[annotate-local] Email send failed:", emailError);
+      // Still mark as ready so user can access via download page if email fails
+    }
 
     return NextResponse.json({
       success: true,
@@ -224,7 +247,9 @@ export async function POST(request: NextRequest) {
       sentNow,
       annotatedPdfDownloadUrl,
       sourceKey,
-      markersApplied: byPage.size,
+      markersApplied: applied.boxCount + applied.globalBannerCount,
+      globalBannerCount: applied.globalBannerCount,
+      boxedIssueCount: applied.boxCount,
     });
   } catch (e) {
     console.error("[annotate-local]", e);

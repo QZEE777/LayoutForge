@@ -1310,17 +1310,6 @@ export default function DownloadPage() {
                     {authEmail === undefined && isChecker && (
                       <p className="text-xs text-m2p-muted mb-3">Checking your account…</p>
                     )}
-                    {!hasAnnotatedDownload && isChecker && hasActionablePageIssues && !report.annotatedPdfUrl && (
-                      <div className="flex justify-center mb-3">
-                        <button
-                          type="button"
-                          disabled
-                          className="w-full sm:w-auto text-center bg-m2p-orange/45 text-white/90 px-6 py-3.5 rounded-xl font-black cursor-not-allowed inline-block"
-                        >
-                          Annotated PDF not available for this scan yet
-                        </button>
-                      </div>
-                    )}
                     {typeof authEmail === "string" &&
                       authEmail.length > 0 &&
                       isChecker &&
@@ -1401,8 +1390,7 @@ export default function DownloadPage() {
                   <div className="mt-8 pt-1 border-t border-m2p-border/30">
                     <p className="text-xs text-m2p-muted text-center max-w-lg mx-auto mb-3 leading-relaxed">
                       <span className="font-semibold text-m2p-ink">Save this report as PDF</span> using the button below, then choose{" "}
-                      <span className="font-semibold text-m2p-ink">Save as PDF</span> in the print dialog. It matches what you see on this page (same summary layout — not a separate long document). For on-page highlights, use{" "}
-                      <span className="font-semibold text-m2p-ink">Annotated PDF</span> when available.
+                      <span className="font-semibold text-m2p-ink">Save as PDF</span> in the print dialog. It matches what you see on this page (same summary layout — not a separate long document).
                     </p>
                     <div className="flex justify-center">
                     <button
