@@ -221,7 +221,7 @@ export default function DownloadPage() {
   const hasAnnotatedDownload = Boolean(
     report?.annotatedPdfDownloadUrl || (report?.annotatedPdfUrl && (annotationStatus === "ready" || annotationStatus === "delivered" || (annotatedReady && !annotatedError)))
   );
-  const hasActionablePageIssues = (report?.page_issues?.length ?? 0) > 0;
+  const hasActionablePageIssues = (report?.page_issues?.length ?? 0) > 0 || (report?.issuesEnriched?.length ?? 0) > 0;
 
   const isDocx = report?.outputType === "docx";
   const isEpub = isEpubFlow || report?.outputType === "epub";
@@ -606,7 +606,7 @@ export default function DownloadPage() {
   useEffect(() => {
     if (authEmail === undefined || authEmail === null || !id) return;
     if (!isCheckerFlow) return;
-    if (!report || (report.page_issues?.length ?? 0) === 0) return;
+    if (!report || !hasActionablePageIssues) return;
     const dl = Boolean(
       report.annotatedPdfDownloadUrl ||
         (report.annotatedPdfUrl &&
@@ -633,7 +633,7 @@ export default function DownloadPage() {
     report?.annotatedPdfDownloadUrl,
     report?.annotatedPdfUrl,
     report?.annotationStatus,
-    report?.page_issues?.length,
+    hasActionablePageIssues,
     annotatedReady,
     annotatedError,
   ]);
