@@ -7,10 +7,11 @@ import { AFFILIATE_OTP_SUBJECT } from "@/lib/emailSubjects";
 const rateLimit = new Map<string, { count: number; resetAt: number }>();
 
 function generateCode(): string {
-  return crypto.randomInt(100000, 1000000).toString();
+  return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-function signToken(secret: string, email: string, code: string, expiresAt: number): string {
+function signToken(email: string, code: string, expiresAt: number): string {
+  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "fallback";
   return crypto.createHmac("sha256", secret).update(`aff|${email}|${code}|${expiresAt}`).digest("hex");
 }
 
@@ -25,10 +26,6 @@ export async function POST(req: Request) {
 
   if (!email || !email.includes("@")) {
     return NextResponse.json({ error: "Valid email required" }, { status: 400 });
-  }
-  const signingSecret = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
-  if (!signingSecret) {
-    return NextResponse.json({ error: "Service unavailable" }, { status: 503 });
   }
 
   const now = Date.now();
@@ -52,7 +49,7 @@ export async function POST(req: Request) {
 
   const code = generateCode();
   const expiresAt = now + 10 * 60 * 1000;
-  const token = signToken(signingSecret, email, code, expiresAt);
+  const token = signToken(email, code, expiresAt);
 
   const resend = new Resend(process.env.RESEND_API_KEY ?? "");
   const html = `

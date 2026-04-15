@@ -1,19 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { checkAdminRateLimit } from "@/lib/rateLimitAdmin";
-import { requireAdminPermission } from "@/lib/adminAccess";
+import { timingSafeEqualStrings } from "@/lib/security";
 
 /**
  * GET /api/admin/emails
  * Returns all rows from email_captures (Supabase), ordered by created_at desc.
- * Auth: x-admin-password = ADMIN_PASSWORD_MANU2 (scoped via requireAdminPermission).
+ * Auth: x-admin-password = ADMIN_PASSWORD_MANU2, or x-admin-key / ADMIN_SECRET.
  */
 export async function GET(request: NextRequest) {
   const rateLimitRes = checkAdminRateLimit(request);
   if (rateLimitRes) return rateLimitRes;
 
-  const auth = requireAdminPermission(request, "admin.emails.read");
-  if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
+  const password = (request.headers.get("x-admin-password") ?? "").trim();
+  const expectedPassword = process.env.ADMIN_PASSWORD_MANU2?.trim();
+  const adminKey = request.headers.get("x-admin-key");
+  const secret = process.env.ADMIN_SECRET;
+
+  const allowedByPassword = expectedPassword && timingSafeEqualStrings(password, expectedPassword);
+  const allowedBySecret = secret && typeof adminKey === "string" && timingSafeEqualStrings(adminKey, secret);
+  if (!allowedByPassword && !allowedBySecret) {
+    return NextResponse.json(
+      { error: "Unauthorized", message: "Invalid or missing admin auth." },
+      { status: 401 }
+    );
+  }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;

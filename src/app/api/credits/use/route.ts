@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { redeemScanCreditForDownload } from "@/lib/redeemScanCredit";
 import crypto from "crypto";
 
-// Must match credits/send-code exactly — same prefix and signing key.
-function signToken(secret: string, email: string, code: string, expiresAt: number): string {
+// Must match credits/send-code exactly — same prefix, same fallback
+function signToken(email: string, code: string, expiresAt: number): string {
+  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "fallback";
   return crypto.createHmac("sha256", secret).update(`cred|${email}|${code}|${expiresAt}`).digest("hex");
 }
 
@@ -32,12 +33,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Code expired. Request a new one." }, { status: 400 });
   }
 
-  const signingSecret = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
-  if (!signingSecret) {
-    return NextResponse.json({ error: "Service unavailable" }, { status: 503 });
-  }
-
-  const expected = signToken(signingSecret, email, code, expiresAt);
+  const expected = signToken(email, code, expiresAt);
   if (expected !== token) {
     return NextResponse.json({ error: "Incorrect code." }, { status: 400 });
   }
