@@ -6,7 +6,7 @@ from typing import Any
 
 from fastapi import APIRouter, Body, HTTPException
 
-from app.storage import get_local_path
+from app.storage import get_pdf_path
 from app.tasks.annotate_pdf import annotate_pdf_inline
 
 router = APIRouter()
@@ -33,7 +33,7 @@ async def trigger_annotate(
     if not UUID_PATTERN.match(job_id):
         raise HTTPException(400, "Invalid job ID.")
 
-    path_in = get_local_path(job_id)
+    path_in = get_pdf_path(job_id)
     if not path_in or not path_in.exists():
         raise HTTPException(404, "PDF not found for job. Upload first.")
 
