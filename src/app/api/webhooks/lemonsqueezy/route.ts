@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 import { markDownloadPaid, updateMeta } from "@/lib/storage";
+import { sendAnnotatedEmailIfReady } from "@/lib/annotatedEmail";
 import { sendDownloadLinkEmail, sendPartnerThresholdEmail, sendPackPurchaseEmail, sendSharePurchasePendingEmail } from "@/lib/resend";
 import { CHECKER_CREDITS_PER_SCAN } from "@/lib/redeemScanCredit";
 
@@ -317,6 +318,7 @@ export async function POST(req: Request) {
       await markDownloadPaid(downloadId);
       if (buyerEmail) {
         updateMeta(downloadId, { annotatedEmail: buyerEmail }).catch(() => {});
+        void sendAnnotatedEmailIfReady(downloadId).catch(() => {});
       }
     } catch (err) {
       console.error("[webhooks/lemonsqueezy] markDownloadPaid failed:", err);
