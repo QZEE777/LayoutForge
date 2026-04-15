@@ -4,12 +4,14 @@ from __future__ import annotations
 import re
 from typing import Any
 
+import structlog
 from fastapi import APIRouter, Body, HTTPException
 
 from app.storage import get_pdf_path
 from app.tasks.annotate_pdf import annotate_pdf_inline
 
 router = APIRouter()
+logger = structlog.get_logger(__name__)
 
 UUID_PATTERN = re.compile(
     r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
@@ -44,6 +46,8 @@ async def trigger_annotate(
     try:
         r2_key = annotate_pdf_inline(report, path_in)
     except Exception as exc:
+        logger.exception("annotate_pdf_inline_failed", job_id=job_id, error=str(exc))
         raise HTTPException(500, f"Annotation failed: {exc}") from exc
 
+    logger.info("annotate_pdf_inline_success", job_id=job_id, r2_key=r2_key)
     return {"job_id": job_id, "status": "ready", "r2_key": r2_key}
