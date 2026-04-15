@@ -605,16 +605,8 @@ export default function DownloadPage() {
 
   useEffect(() => {
     if (authEmail === undefined || authEmail === null || !id) return;
-    if (!isCheckerFlow) return;
+    if (!isChecker) return;
     if (!report || !hasActionablePageIssues) return;
-    const dl = Boolean(
-      report.annotatedPdfDownloadUrl ||
-        (report.annotatedPdfUrl &&
-          (report.annotationStatus === "ready" ||
-            report.annotationStatus === "delivered" ||
-            (annotatedReady && !annotatedError))),
-    );
-    if (dl) return;
     if (report.annotatedEmailRequested || report.annotatedEmailSent) return;
     if (annotatedAutoAttemptedRef.current) return;
     if (annotatedAutoInFlightRef.current) return;
@@ -626,16 +618,11 @@ export default function DownloadPage() {
   }, [
     authEmail,
     id,
-    isCheckerFlow,
+    isChecker,
     postCheckerAnnotatedEmail,
     report?.annotatedEmailRequested,
     report?.annotatedEmailSent,
-    report?.annotatedPdfDownloadUrl,
-    report?.annotatedPdfUrl,
-    report?.annotationStatus,
     hasActionablePageIssues,
-    annotatedReady,
-    annotatedError,
   ]);
 
   if (!id) {
@@ -1314,7 +1301,6 @@ export default function DownloadPage() {
                       authEmail.length > 0 &&
                       isChecker &&
                       hasActionablePageIssues &&
-                      !hasAnnotatedDownload &&
                       !(report.annotatedEmailRequested || report.annotatedEmailSent) && (
                         <div className="mt-3 rounded-xl border border-[#1A6B2A]/20 bg-white/75 p-4 text-left">
                           <p className="text-sm font-semibold text-m2p-ink">
@@ -1343,7 +1329,6 @@ export default function DownloadPage() {
                     {authEmail === null &&
                       isChecker &&
                       hasActionablePageIssues &&
-                      !hasAnnotatedDownload &&
                       !(report.annotatedEmailRequested || report.annotatedEmailSent) && (
                         <div className="mt-3 rounded-xl border border-[#1A6B2A]/20 bg-white/75 p-4 text-left">
                           <p className="text-sm font-semibold text-m2p-ink mb-2">
