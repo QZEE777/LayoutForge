@@ -2,12 +2,13 @@ import { createClient } from "@supabase/supabase-js";
 import { markDownloadPaid, getStored } from "@/lib/storage";
 import { sendDownloadLinkEmail } from "@/lib/resend";
 import { loadScanCreditBalanceForEmail } from "@/lib/scanCredits";
+import { CHECKER_CREDITS_PER_SCAN } from "@/lib/checkerCreditsConfig";
 
 export type RedeemScanCreditResult =
   | { ok: true; balance: number; alreadyUnlocked?: boolean }
   | { ok: false; error: string; status: number };
 
-export const CHECKER_CREDITS_PER_SCAN = 1;
+export { CHECKER_CREDITS_PER_SCAN };
 
 /**
  * Deduct checker scan credits and unlock a checker download. Shared by OTP and session routes.

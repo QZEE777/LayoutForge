@@ -147,7 +147,8 @@ function sanitizeCheckerReport(
     recommendations: Array.isArray(reportLike.recommendations) ? (reportLike.recommendations as string[]) : undefined,
     fileSizeMB: typeof reportLike.fileSizeMB === "number" ? reportLike.fileSizeMB : undefined,
     recommendedGutterInches: typeof reportLike.recommendedGutterInches === "number" ? reportLike.recommendedGutterInches : undefined,
-    page_issues: issueCount > 0 ? pageIssues : undefined,
+    // Never emit an empty array when counts come from issuesEnriched — download UI keys off page_issues.length.
+    page_issues: pageIssues.length > 0 ? pageIssues : undefined,
     hasPdfPreview: !!reportLike.hasPdfPreview,
     pdfSourceUrl: typeof reportLike.pdfSourceUrl === "string" ? reportLike.pdfSourceUrl : undefined,
     annotatedPdfUrl: typeof reportLike.annotatedPdfUrl === "string" ? reportLike.annotatedPdfUrl : undefined,

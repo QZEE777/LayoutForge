@@ -20,6 +20,7 @@ import {
 import { buildVerifyShareCaption } from "@/lib/shareVerifyCaption";
 import { createClient as createBrowserSupabase } from "@/lib/supabaseClient";
 import { CHECKER_ANNOTATION_PASS_THRESHOLD } from "@/lib/checkerAnnotationStyle";
+import { CHECKER_CREDITS_PER_SCAN } from "@/lib/checkerCreditsConfig";
 
 const MAX_ISSUES_GROUP_DISPLAY = 10;
 const KDP_DISPLAY_PASS_THRESHOLD = CHECKER_ANNOTATION_PASS_THRESHOLD;
@@ -220,7 +221,20 @@ export default function DownloadPage() {
   const hasAnnotatedDownload = Boolean(
     report?.annotatedPdfDownloadUrl || (report?.annotatedPdfUrl && (annotationStatus === "ready" || annotationStatus === "delivered" || (annotatedReady && !annotatedError)))
   );
-  const hasActionablePageIssues = (report?.page_issues?.length ?? 0) > 0;
+  /** True while annotation worker is running — show "Email me when ready" even if client only has enriched issues. */
+  const annotatedPdfPending =
+    annotationStatus === "queued" ||
+    annotationStatus === "processing" ||
+    (typeof report?.annotatedPdfStatus === "string" && ["queued", "processing"].includes(report.annotatedPdfStatus));
+  /**
+   * Must match what the report shows under "Issues" (page_issues and/or issuesEnriched).
+   * Relying on page_issues alone hid the email opt-in after API hardening when page_issues was empty but issuesEnriched was not.
+   */
+  const hasCheckerIssuesForAnnotation =
+    (report?.page_issues?.length ?? 0) > 0 ||
+    (report?.issuesEnriched?.length ?? 0) > 0 ||
+    (typeof report?.issueCount === "number" && report.issueCount > 0) ||
+    report?.verdict === "needs-fixes";
 
   const isDocx = report?.outputType === "docx";
   const isEpub = isEpubFlow || report?.outputType === "epub";
@@ -564,6 +578,7 @@ export default function DownloadPage() {
       const res = await fetch("/api/checker-annotated-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ id, email: normalized }),
       });
       const data = (await res.json()) as {
@@ -604,8 +619,8 @@ export default function DownloadPage() {
 
   useEffect(() => {
     if (authEmail === undefined || authEmail === null || !id) return;
-    if (!isCheckerFlow) return;
-    if (!report || (report.page_issues?.length ?? 0) === 0) return;
+    if (!isChecker) return;
+    if (!report || (!hasCheckerIssuesForAnnotation && !annotatedPdfPending)) return;
     const dl = Boolean(
       report.annotatedPdfDownloadUrl ||
         (report.annotatedPdfUrl &&
@@ -625,7 +640,9 @@ export default function DownloadPage() {
   }, [
     authEmail,
     id,
-    isCheckerFlow,
+    isChecker,
+    hasCheckerIssuesForAnnotation,
+    annotatedPdfPending,
     postCheckerAnnotatedEmail,
     report?.annotatedEmailRequested,
     report?.annotatedEmailSent,
@@ -633,6 +650,10 @@ export default function DownloadPage() {
     report?.annotatedPdfUrl,
     report?.annotationStatus,
     report?.page_issues?.length,
+    report?.issuesEnriched?.length,
+    report?.issueCount,
+    report?.verdict,
+    report?.annotatedPdfStatus,
     annotatedReady,
     annotatedError,
   ]);
@@ -1309,7 +1330,7 @@ export default function DownloadPage() {
                     {authEmail === undefined && isChecker && (
                       <p className="text-xs text-m2p-muted mb-3">Checking your account…</p>
                     )}
-                    {hasActionablePageIssues && hasAnnotatedDownload && (
+                    {hasCheckerIssuesForAnnotation && hasAnnotatedDownload && (
                       <div className="flex justify-center mb-3">
                         {report.annotatedPdfDownloadUrl ? (
                           <a
@@ -1335,7 +1356,10 @@ export default function DownloadPage() {
                         )}
                       </div>
                     )}
-                    {!hasAnnotatedDownload && isChecker && hasActionablePageIssues && !report.annotatedPdfUrl && (
+                    {!hasAnnotatedDownload &&
+                      isChecker &&
+                      (hasCheckerIssuesForAnnotation || annotatedPdfPending) &&
+                      !report.annotatedPdfUrl && (
                       <div className="flex justify-center mb-3">
                         <button
                           type="button"
@@ -1349,7 +1373,7 @@ export default function DownloadPage() {
                     {typeof authEmail === "string" &&
                       authEmail.length > 0 &&
                       isChecker &&
-                      hasActionablePageIssues &&
+                      (hasCheckerIssuesForAnnotation || annotatedPdfPending) &&
                       !hasAnnotatedDownload &&
                       !(report.annotatedEmailRequested || report.annotatedEmailSent) && (
                         <div className="mt-3 rounded-xl border border-[#1A6B2A]/20 bg-white/75 p-4 text-left">
@@ -1378,7 +1402,7 @@ export default function DownloadPage() {
                       )}
                     {authEmail === null &&
                       isChecker &&
-                      hasActionablePageIssues &&
+                      (hasCheckerIssuesForAnnotation || annotatedPdfPending) &&
                       !hasAnnotatedDownload &&
                       !(report.annotatedEmailRequested || report.annotatedEmailSent) && (
                         <div className="mt-3 rounded-xl border border-[#1A6B2A]/20 bg-white/75 p-4 text-left">
@@ -1416,7 +1440,10 @@ export default function DownloadPage() {
                           )}
                         </div>
                       )}
-                    {isChecker && hasActionablePageIssues && !hasAnnotatedDownload && (report.annotatedEmailRequested || report.annotatedEmailSent) && (
+                    {isChecker &&
+                      (hasCheckerIssuesForAnnotation || annotatedPdfPending) &&
+                      !hasAnnotatedDownload &&
+                      (report.annotatedEmailRequested || report.annotatedEmailSent) && (
                       <p className="mt-3 text-xs text-center text-[#1A6B2A]">
                         {report.annotatedEmailSent
                           ? "Annotated PDF email sent. Check your inbox."
@@ -1747,7 +1774,7 @@ export default function DownloadPage() {
         )}
 
         {/* Checker: annotated PDF download (status text now lives under viewer) */}
-        {isChecker && hasActionablePageIssues && hasAnnotatedDownload && (
+        {isChecker && hasCheckerIssuesForAnnotation && hasAnnotatedDownload && (
               <div className="mb-8 rounded-2xl p-5 border border-[#1A6B2A]/25 overflow-hidden" style={{ background: "linear-gradient(180deg, #143d1f 0%, #0a2412 100%)", boxShadow: DL_VIS.cardShadow }}>
                 <button
                   type="button"
@@ -2027,7 +2054,10 @@ export default function DownloadPage() {
               <p className="font-black text-2xl sm:text-3xl text-m2p-ink mb-2 leading-tight">Fixed your issues?</p>
               <p className="text-sm sm:text-base text-m2p-muted mb-5 max-w-2xl mx-auto">
                 Re-upload your corrected PDF now and run a fresh compliance check before you publish.
-                <span className="block mt-1.5 font-semibold text-m2p-ink">Each re-check uses 5 scan credits.</span>
+                <span className="block mt-1.5 font-semibold text-m2p-ink">
+                  Each re-check uses {CHECKER_CREDITS_PER_SCAN} scan credit
+                  {CHECKER_CREDITS_PER_SCAN !== 1 ? "s" : ""}.
+                </span>
               </p>
               <Link
                 href="/kdp-pdf-checker"
