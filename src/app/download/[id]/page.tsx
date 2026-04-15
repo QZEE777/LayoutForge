@@ -240,6 +240,10 @@ export default function DownloadPage() {
   const isEpub = isEpubFlow || report?.outputType === "epub";
   const isChecker = isCheckerFlow || report?.outputType === "checker";
   const isFormatReview = isFormatReviewFlow || report?.outputType === "format-review";
+  const checkerPreviewUrl =
+    isChecker && report?.outputType === "checker"
+      ? report?.pdfSourceUrl ?? `/api/r2-file?id=${encodeURIComponent(id)}`
+      : undefined;
   const partnerReferralLink = activePartnerCode
     ? `https://www.manu2print.com/go/${activePartnerCode}`
     : null;
@@ -912,7 +916,7 @@ export default function DownloadPage() {
           hideChildrenUntilUnlocked
         >
         {/* Checker: PDF viewer (always show when we have a preview PDF) */}
-        {report?.outputType === "checker" && report.hasPdfPreview && report.pdfSourceUrl && (
+        {report?.outputType === "checker" && report.hasPdfPreview && checkerPreviewUrl && (
           <div className="mb-8 rounded-2xl border border-[#1A6B2A]/15 overflow-hidden bg-white/90 shadow-[0_12px_40px_-16px_rgba(13,61,24,0.2)]">
             <div className="px-4 sm:px-5 py-3 border-b border-m2p-border/40" style={{ background: DL_VIS.forestGrad }}>
               <h2 className="text-[11px] font-black tracking-[0.18em] text-white uppercase">View issues on your PDF</h2>
@@ -920,7 +924,7 @@ export default function DownloadPage() {
             </div>
             <div className="p-3 sm:p-4">
             <CheckerPdfViewer
-              pdfUrl={report.pdfSourceUrl}
+              pdfUrl={checkerPreviewUrl}
               pageIssues={(report.page_issues ?? []).map((issue) => ({
                 ...issue,
                 fixDifficulty: issue.fixDifficulty ?? toFixDifficulty(issue.rule_id, issue.message),
@@ -933,7 +937,7 @@ export default function DownloadPage() {
             </div>
           </div>
         )}
-        {report?.outputType === "checker" && report.hasPdfPreview && !report.pdfSourceUrl && (
+        {report?.outputType === "checker" && report.hasPdfPreview && !checkerPreviewUrl && (
           <p className="mb-6 text-sm text-center" style={{ color: "#F05A28" }}>
             Preview unavailable.
           </p>
