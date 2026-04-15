@@ -20,10 +20,10 @@ import {
 import { buildVerifyShareCaption } from "@/lib/shareVerifyCaption";
 import { createClient as createBrowserSupabase } from "@/lib/supabaseClient";
 import { CHECKER_ANNOTATION_PASS_THRESHOLD } from "@/lib/checkerAnnotationStyle";
-import { CHECKER_CREDITS_PER_SCAN } from "@/lib/redeemScanCredit";
 
 const MAX_ISSUES_GROUP_DISPLAY = 10;
 const KDP_DISPLAY_PASS_THRESHOLD = CHECKER_ANNOTATION_PASS_THRESHOLD;
+const CHECKER_CREDITS_PER_SCAN = 1;
 
 /** Download page visual tokens — design-only; print HTML uses matching hex values. */
 const DL_VIS = {
