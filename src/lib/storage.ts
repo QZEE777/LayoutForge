@@ -1,4 +1,3 @@
-import "server-only";
 import fs from "fs/promises";
 import path from "path";
 import * as r2 from "./r2Storage";

@@ -1,4 +1,3 @@
-import "server-only";
 import { createClient } from "@supabase/supabase-js";
 import { markDownloadPaid, getStored } from "@/lib/storage";
 import { sendDownloadLinkEmail } from "@/lib/resend";
