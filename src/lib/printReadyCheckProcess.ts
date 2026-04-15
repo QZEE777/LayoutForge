@@ -5,14 +5,12 @@
  */
 import { PDFDocument } from "pdf-lib";
 import { saveUpload, updateMeta, updateAnnotatedState, type StoredManuscript } from "./storage";
-import { getSignedDownloadUrl, getFileByKey, getSignedUrlForKey } from "./r2Storage";
+import { getSignedDownloadUrl, getFileByKey } from "./r2Storage";
 import { getGutterInches } from "./kdpConfig";
 import { inspectPdfBufferForChecker } from "./kdpPdfInspect";
 import { supabase } from "./supabase";
 import { dimensionsMatchIntendedTrim, getKdpTrimDefinitionById } from "./kdpIntendedTrim";
 import { enrichCheckerReport } from "./kdpReportEnhance";
-import { sendAnnotatedEmailIfReady } from "./annotatedEmail";
-import { buildCheckerAnnotateReportBody } from "./checkerAnnotatePayload";
 
 const DEFAULT_PREFLIGHT_BASE_URL = "https://kdp-preflight-engine-production.up.railway.app";
 
@@ -109,6 +107,20 @@ const R2_GET_DELAY_MS = 2_000;
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function triggerLocalAnnotation(downloadId: string): Promise<void> {
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com").replace(/\/$/, "");
+  const res = await fetch(`${appUrl}/api/annotate-local`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ downloadId }),
+    signal: AbortSignal.timeout(120000),
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`annotate-local failed (${res.status}) ${body}`.trim());
+  }
 }
 
 export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Promise<{ downloadId: string }> {
@@ -331,42 +343,7 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
       status: "processing",
       annotatedPdfUrl: `${url}/file/${encodeURIComponent(renderJobId)}/annotated`,
     });
-    const pageIssuesForAnnotate = (preflight?.page_issues ?? report.page_issues ?? []).map((issue) => ({
-      page: issue.page,
-      rule_id: issue.rule_id,
-      severity: issue.severity,
-      message: issue.message,
-      bbox: issue.bbox ?? null,
-    }));
-    const annotateBody = buildCheckerAnnotateReportBody({
-      pageIssues: pageIssuesForAnnotate,
-      readinessScore100: calculatedScore,
-      preflightSummary: preflight?.summary ?? null,
-      displayFilename: enrichedReport.fileNameScanned ?? "Uploaded PDF",
-    });
-    const annotateRes = await fetch(`${url}/annotate/${encodeURIComponent(renderJobId)}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(annotateBody),
-      signal: AbortSignal.timeout(120000),
-    });
-    if (annotateRes.ok) {
-      const annotateData = (await annotateRes.json()) as { r2_key?: string; status?: string };
-      if (annotateData.r2_key && process.env.USE_R2 === "true") {
-        try {
-          const annotatedPdfDownloadUrl = await getSignedUrlForKey(annotateData.r2_key);
-          await updateAnnotatedState(stored.id, { status: "ready", annotatedPdfDownloadUrl });
-          await sendAnnotatedEmailIfReady(stored.id).catch((err) => {
-            console.error("[printReadyCheckProcess] annotate email send error:", err);
-          });
-        } catch (e) {
-          console.error("[printReadyCheckProcess] annotate signed url error:", e);
-        }
-      }
-    } else {
-      console.error("[printReadyCheckProcess] annotate engine returned", annotateRes.status);
-      await updateAnnotatedState(stored.id, { status: "error" }).catch(() => {});
-    }
+    await triggerLocalAnnotation(stored.id);
   } catch (e) {
     console.error("[printReadyCheckProcess] annotate trigger error:", e);
     await updateAnnotatedState(stored.id, { status: "error" }).catch(() => {});

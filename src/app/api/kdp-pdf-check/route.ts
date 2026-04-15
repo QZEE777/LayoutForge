@@ -3,17 +3,29 @@ import { PDFDocument } from "pdf-lib";
 
 export const maxDuration = 120;
 import { saveUpload, updateMeta, type StoredManuscript } from "@/lib/storage";
-import { getSignedDownloadUrl, getSignedUrlForKey } from "@/lib/r2Storage";
+import { getSignedDownloadUrl } from "@/lib/r2Storage";
 import { getGutterInches } from "@/lib/kdpConfig";
 import { enrichCheckerReport, cleanFilenameForDisplay } from "@/lib/kdpReportEnhance";
 import { supabase } from "@/lib/supabase";
 import { findKdpTrim, trimBoxSizeInches } from "@/lib/kdpPdfInspect";
-import { sendAnnotatedEmailIfReady } from "@/lib/annotatedEmail";
 import { CHECKER_MAX_UPLOAD_MB } from "@/lib/checkerUploadLimits";
-import { buildCheckerAnnotateReportBody } from "@/lib/checkerAnnotatePayload";
 
 const PREFLIGHT_POLL_MS = 2000;
 const PREFLIGHT_MAX_WAIT_MS = 55000;
+
+async function triggerLocalAnnotation(downloadId: string, origin: string): Promise<void> {
+  const base = origin.replace(/\/$/, "");
+  const res = await fetch(`${base}/api/annotate-local`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ downloadId }),
+    signal: AbortSignal.timeout(120000),
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`annotate-local failed (${res.status}) ${body}`.trim());
+  }
+}
 
 /** Preflight API report shape (GET /report/{job_id}). */
 interface PreflightReport {
@@ -251,80 +263,18 @@ export async function POST(request: NextRequest) {
       console.error("[kdp-pdf-check] verification_results upsert failed:", e);
     }
 
-    // Trigger annotation — for preflight path use existing job_id,
-    // for local path upload to preflight engine just to get annotations
-    const engineBaseUrl = preflightUrl?.trim() ? preflightUrl.replace(/\/$/, "") : null;
-    let annotateJobId: string | null = preflightJobId ?? null;
-
-    if (engineBaseUrl && !annotateJobId) {
-      try {
-        try {
-          await Promise.race([
-            fetch(`${engineBaseUrl}/health`, { method: "GET" }),
-            new Promise((_, reject) => setTimeout(() => reject(new Error("ping timeout")), 10000))
-          ]);
-        } catch {
-          // ping failed or timed out — engine may still be waking, continue anyway
-        }
-        const form = new FormData();
-        form.append("file", new Blob([buffer], { type: "application/pdf" }), f.name || "document.pdf");
-        const uploadRes = await fetch(`${engineBaseUrl}/upload`, {
-          method: "POST",
-          body: form,
-          signal: AbortSignal.timeout(25000)
-        });
-        if (uploadRes.ok) {
-          const uploadData = await uploadRes.json() as { job_id?: string };
-          annotateJobId = uploadData.job_id ?? null;
-        }
-      } catch (e) {
-        console.error("[kdp-pdf-check] annotation upload failed:", e);
-      }
-    }
-
-    if (engineBaseUrl && annotateJobId) {
-      try {
-        await updateMeta(stored.id, {
-          annotatedPdfStatus: "processing",
-          annotatedPdfUrl: `${engineBaseUrl}/file/${encodeURIComponent(annotateJobId)}/annotated`,
-        });
-        const annotateBody = buildCheckerAnnotateReportBody({
-          pageIssues: (preflightReport?.page_issues ?? []).map((issue) => ({
-            page: issue.page,
-            rule_id: issue.rule_id,
-            severity: issue.severity,
-            message: issue.message,
-            bbox: issue.bbox ?? null,
-          })),
-          readinessScore100: enrichedReport.readinessScore100 ?? 0,
-          preflightSummary: preflightReport?.summary ?? null,
-          displayFilename: enrichedReport.fileNameScanned ?? null,
-        });
-        const annotateRes = await fetch(`${engineBaseUrl}/annotate/${annotateJobId}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(annotateBody),
-          signal: AbortSignal.timeout(120000),
-        });
-        if (annotateRes.ok) {
-          const annotateData = (await annotateRes.json()) as { r2_key?: string; status?: string };
-          if (annotateData.r2_key && process.env.USE_R2 === "true") {
-            try {
-              const annotatedPdfDownloadUrl = await getSignedUrlForKey(annotateData.r2_key);
-              await updateMeta(stored.id, { annotatedPdfDownloadUrl, annotatedPdfStatus: "ready" });
-              await sendAnnotatedEmailIfReady(stored.id).catch((err) => {
-                console.error("[annotate email send]", err);
-              });
-            } catch (e) {
-              console.error("[annotate signed url]", e);
-            }
-          }
-        } else {
-          console.error("[annotate trigger] engine returned", annotateRes.status);
-        }
-      } catch (e) {
-        console.error("[annotate trigger]", e);
-      }
+    try {
+      const engineBaseUrl = preflightUrl?.trim() ? preflightUrl.replace(/\/$/, "") : null;
+      await updateMeta(stored.id, {
+        annotatedPdfStatus: "processing",
+        ...(engineBaseUrl && preflightJobId
+          ? { annotatedPdfUrl: `${engineBaseUrl}/file/${encodeURIComponent(preflightJobId)}/annotated` }
+          : {}),
+      });
+      await triggerLocalAnnotation(stored.id, request.nextUrl.origin);
+    } catch (e) {
+      console.error("[kdp-pdf-check] annotate-local trigger failed:", e);
+      await updateMeta(stored.id, { annotatedPdfStatus: "error" }).catch(() => {});
     }
 
     if (process.env.USE_R2 === "true" && stored.storedPath) {

@@ -106,6 +106,13 @@ function drawIssueMarkers(
 }
 
 async function resolveSourcePdfKey(downloadId: string): Promise<string | null> {
+  const meta = await getStored(downloadId);
+  const annotatedJobMatch = meta?.annotatedPdfUrl?.match(/\/file\/([^/]+)\/annotated\/?$/);
+  const annotatedJobId = annotatedJobMatch?.[1]?.trim();
+  if (annotatedJobId) {
+    return `uploads/${annotatedJobId}.pdf`;
+  }
+
   const { data: row } = await supabase
     .from("print_ready_checks")
     .select("our_job_id")
@@ -118,7 +125,6 @@ async function resolveSourcePdfKey(downloadId: string): Promise<string | null> {
   }
 
   // Fallback: use file stored on this download record.
-  const meta = await getStored(downloadId);
   if (!meta?.storedPath) return null;
   return meta.storedPath;
 }
