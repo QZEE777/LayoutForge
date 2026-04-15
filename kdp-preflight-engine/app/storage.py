@@ -3,11 +3,9 @@ Storage: save uploads to local disk or S3/R2. Returns path (local) or key (S3) f
 """
 from __future__ import annotations
 
-import tempfile
 import uuid
 from pathlib import Path
 
-import boto3
 import structlog
 
 from app.config import settings
@@ -47,34 +45,9 @@ def get_pdf_path(job_id: str) -> Path | None:
     if local is not None:
         return local
 
-    # 2. Fallback: try to fetch from S3/R2.
-    s3_key = f"{job_id}.pdf"
-    try:
-        s3 = boto3.client(
-            "s3",
-            endpoint_url=settings.s3_endpoint_url,
-            aws_access_key_id=settings.s3_access_key_id,
-            aws_secret_access_key=settings.s3_secret_access_key,
-            region_name=settings.s3_region,
-        )
-        response = s3.get_object(Bucket=settings.s3_bucket, Key=s3_key)
-        pdf_bytes = response["Body"].read()
-    except Exception as exc:
-        logger.warning("get_pdf_path_s3_miss", job_id=job_id, error=str(exc))
-        return None
-
-    # Write to a named temp file that persists until the caller is done with it.
-    # delete=False so the file survives after close(); the OS will clean it up on
-    # process exit, or the caller can unlink it explicitly.
-    tmp = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
-    try:
-        tmp.write(pdf_bytes)
-        tmp.flush()
-    finally:
-        tmp.close()
-
-    logger.info("get_pdf_path_s3_hit", job_id=job_id, tmp_path=tmp.name)
-    return Path(tmp.name)
+    # 2. Fallback: S3 disabled for debugging
+    logger.warning("get_pdf_path_local_miss", job_id=job_id)
+    return None
 
 
 def delete_local(job_id: str) -> None:
