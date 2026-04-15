@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { HARDCOVER_TRIM_SIZES, TRIM_SIZES } from "@/lib/kdpConfig";
 import { BrandWordmark } from "@/components/BrandWordmark";
 import { formatFileSize } from "@/lib/formatFileName";
