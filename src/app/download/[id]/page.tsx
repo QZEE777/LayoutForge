@@ -1310,32 +1310,6 @@ export default function DownloadPage() {
                     {authEmail === undefined && isChecker && (
                       <p className="text-xs text-m2p-muted mb-3">Checking your account…</p>
                     )}
-                    {hasActionablePageIssues && hasAnnotatedDownload && (
-                      <div className="flex justify-center mb-3">
-                        {report.annotatedPdfDownloadUrl ? (
-                          <a
-                            href={report.annotatedPdfDownloadUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-full sm:w-auto text-center bg-m2p-orange text-white px-6 py-3.5 rounded-xl font-black hover:bg-m2p-orange-hover cursor-pointer transition-all shadow-md hover:shadow-lg inline-block"
-                          >
-                            Download Annotated PDF (with highlights)
-                          </a>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const match = report.annotatedPdfUrl?.match(/\/file\/([^/]+)\/annotated\/?$/);
-                              const jobId = match?.[1];
-                              if (jobId) window.open(`/api/kdp-annotated-pdf?job_id=${encodeURIComponent(jobId)}`, "_blank");
-                            }}
-                            className="w-full sm:w-auto text-center bg-m2p-orange text-white px-6 py-3.5 rounded-xl font-black hover:bg-m2p-orange-hover cursor-pointer transition-all shadow-md hover:shadow-lg inline-block"
-                          >
-                            Download Annotated PDF (with highlights)
-                          </button>
-                        )}
-                      </div>
-                    )}
                     {!hasAnnotatedDownload && isChecker && hasActionablePageIssues && !report.annotatedPdfUrl && (
                       <div className="flex justify-center mb-3">
                         <button
@@ -1417,7 +1391,7 @@ export default function DownloadPage() {
                           )}
                         </div>
                       )}
-                    {isChecker && hasActionablePageIssues && !hasAnnotatedDownload && (report.annotatedEmailRequested || report.annotatedEmailSent) && (
+                    {isChecker && hasActionablePageIssues && (report.annotatedEmailRequested || report.annotatedEmailSent) && (
                       <p className="mt-3 text-xs text-center text-[#1A6B2A]">
                         {report.annotatedEmailSent
                           ? "Annotated PDF email sent. Check your inbox."
@@ -1745,35 +1719,6 @@ export default function DownloadPage() {
               </>
             )}
           </div>
-        )}
-
-        {/* Checker: annotated PDF download (status text now lives under viewer) */}
-        {isChecker && hasActionablePageIssues && hasAnnotatedDownload && (
-              <div className="mb-8 rounded-2xl p-5 border border-[#1A6B2A]/25 overflow-hidden" style={{ background: "linear-gradient(180deg, #143d1f 0%, #0a2412 100%)", boxShadow: DL_VIS.cardShadow }}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (report.annotatedPdfDownloadUrl) {
-                      window.open(report.annotatedPdfDownloadUrl, "_blank", "noopener,noreferrer");
-                      return;
-                    }
-                    const match = report.annotatedPdfUrl?.match(/\/file\/([^/]+)\/annotated\/?$/);
-                    const jobId = match?.[1];
-                    if (jobId) window.open(`/api/kdp-annotated-pdf?job_id=${encodeURIComponent(jobId)}`, "_blank");
-                  }}
-                  className="flex items-center gap-4 border border-white/15 rounded-xl p-4 bg-white/10 hover:bg-white/15 transition-all cursor-pointer text-left w-full"
-                >
-                  <div className="w-12 h-12 border border-[#C5E83A]/40 rounded-xl flex items-center justify-center text-[#C5E83A] flex-shrink-0 bg-black/20">
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <span className="font-black text-white text-base">Download Annotated PDF (issues highlighted)</span>
-                    <p className="text-sm text-white/65 mt-0.5">Opens in a new tab</p>
-                  </div>
-                </button>
-              </div>
         )}
 
         {/* Success message */}

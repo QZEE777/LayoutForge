@@ -11,14 +11,30 @@ export const maxDuration = 120;
 
 type PageIssue = {
   page: number;
+  severity?: string;
+  rule_id?: string;
   message?: string;
   bbox?: number[] | null;
 };
 
 type EnrichedIssue = {
   page?: number;
+  severity?: string;
+  rule_id?: string;
   humanMessage?: string;
 };
+
+const MAX_ANNOTATIONS_PER_PAGE = 10;
+
+function isCriticalSeverity(raw?: string): boolean {
+  const s = String(raw ?? "").toLowerCase().trim();
+  return s === "blocker" || s === "critical" || s === "error";
+}
+
+function isBroadMarginIssue(message?: string, ruleId?: string): boolean {
+  const hay = `${String(message ?? "")} ${String(ruleId ?? "")}`.toLowerCase();
+  return hay.includes("outside safe zone") || hay.includes("margin");
+}
 
 function normalizeIssueGroups(
   pageIssues: PageIssue[],
@@ -28,6 +44,7 @@ function normalizeIssueGroups(
   const byPage = new Map<number, Array<{ message: string; bbox: number[] | null }>>();
 
   for (const issue of pageIssues) {
+    if (!isCriticalSeverity(issue.severity)) continue;
     const page = Number(issue.page);
     if (!Number.isFinite(page) || page < 1 || page > pageCount) continue;
     const arr = byPage.get(page) ?? [];
@@ -39,10 +56,13 @@ function normalizeIssueGroups(
   }
 
   // Fallback path: issuesEnriched contains page + message but no bbox.
+  // Keep it critical-only and only if no bbox issues were found for that page.
   for (const issue of enrichedIssues) {
+    if (!isCriticalSeverity(issue.severity)) continue;
     const page = Number(issue.page);
     if (!Number.isFinite(page) || page < 1 || page > pageCount) continue;
     const arr = byPage.get(page) ?? [];
+    if (arr.some((i) => i.bbox)) continue;
     arr.push({
       message: issue.humanMessage?.trim() || "Formatting issue detected",
       bbox: null,
@@ -66,8 +86,32 @@ function drawIssueMarkers(
     const page = pages[pageIndex];
     const { width, height } = page.getSize();
 
+    const shouldUseSingleBanner =
+      issues.length > MAX_ANNOTATIONS_PER_PAGE ||
+      issues.filter((i) => isBroadMarginIssue(i.message)).length >= 3;
+
+    if (shouldUseSingleBanner) {
+      const bannerY = Math.max(18, height - 46);
+      page.drawRectangle({
+        x: 18,
+        y: bannerY,
+        width: Math.max(120, width - 36),
+        height: 24,
+        borderColor: rgb(0.9, 0.12, 0.12),
+        borderWidth: 2,
+      });
+      page.drawText("Critical issue: content outside safe zone / margins", {
+        x: 24,
+        y: bannerY + 7,
+        size: 10,
+        color: rgb(0.8, 0.1, 0.1),
+      });
+      continue;
+    }
+
     let fallbackY = height - 48;
-    for (const issue of issues) {
+    const cappedIssues = issues.slice(0, MAX_ANNOTATIONS_PER_PAGE);
+    for (const issue of cappedIssues) {
       if (issue.bbox) {
         const [xRaw, yRaw, wRaw, hRaw] = issue.bbox;
         const x = Math.max(0, Number(xRaw) || 0);
@@ -81,11 +125,9 @@ function drawIssueMarkers(
           height: Math.min(h, height - y),
           borderColor: rgb(0.9, 0.12, 0.12),
           borderWidth: 2,
-          color: rgb(1, 0.9, 0.9),
-          opacity: 0.18,
         });
       } else {
-        // If bbox is unavailable, place a compact marker ribbon near top.
+        // If bbox is unavailable, place a compact top marker with stroke only.
         const markerWidth = Math.min(width - 36, 320);
         const markerHeight = 20;
         const markerY = Math.max(18, fallbackY);
@@ -96,8 +138,12 @@ function drawIssueMarkers(
           height: markerHeight,
           borderColor: rgb(0.9, 0.12, 0.12),
           borderWidth: 1.5,
-          color: rgb(1, 0.9, 0.9),
-          opacity: 0.25,
+        });
+        page.drawText("Critical layout issue", {
+          x: 24,
+          y: markerY + 6,
+          size: 9,
+          color: rgb(0.8, 0.1, 0.1),
         });
         fallbackY = markerY - 24;
       }
