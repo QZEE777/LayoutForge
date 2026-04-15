@@ -20,6 +20,7 @@ import {
 import { buildVerifyShareCaption } from "@/lib/shareVerifyCaption";
 import { createClient as createBrowserSupabase } from "@/lib/supabaseClient";
 import { CHECKER_ANNOTATION_PASS_THRESHOLD } from "@/lib/checkerAnnotationStyle";
+import { CHECKER_CREDITS_PER_SCAN } from "@/lib/redeemScanCredit";
 
 const MAX_ISSUES_GROUP_DISPLAY = 10;
 const KDP_DISPLAY_PASS_THRESHOLD = CHECKER_ANNOTATION_PASS_THRESHOLD;
@@ -2027,7 +2028,9 @@ export default function DownloadPage() {
               <p className="font-black text-2xl sm:text-3xl text-m2p-ink mb-2 leading-tight">Fixed your issues?</p>
               <p className="text-sm sm:text-base text-m2p-muted mb-5 max-w-2xl mx-auto">
                 Re-upload your corrected PDF now and run a fresh compliance check before you publish.
-                <span className="block mt-1.5 font-semibold text-m2p-ink">Each re-check uses 5 scan credits.</span>
+                <span className="block mt-1.5 font-semibold text-m2p-ink">
+                  Each re-check uses {CHECKER_CREDITS_PER_SCAN} scan credit{CHECKER_CREDITS_PER_SCAN !== 1 ? "s" : ""}.
+                </span>
               </p>
               <Link
                 href="/kdp-pdf-checker"
