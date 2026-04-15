@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { markDownloadPaid, getStored } from "@/lib/storage";
+import { markDownloadPaid, getStored, updateMeta } from "@/lib/storage";
 import { sendDownloadLinkEmail } from "@/lib/resend";
 import { loadScanCreditBalanceForEmail } from "@/lib/scanCredits";
 
@@ -79,6 +79,7 @@ export async function redeemScanCreditForDownload(
 
   try {
     await markDownloadPaid(downloadId);
+    await updateMeta(downloadId, { annotatedEmail: email }).catch(() => {});
   } catch (err) {
     console.error("[redeemScanCredit] markDownloadPaid failed:", err);
     return {

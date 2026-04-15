@@ -70,6 +70,7 @@ export async function POST(req: Request) {
   const refCode     = typeof customData?.ref_code     === "string" ? customData.ref_code     : "";
   const shareToken  = typeof customData?.share_token  === "string" ? customData.share_token  : "";
   const email       = payload.data?.attributes?.user_email ?? "";
+  const buyerEmail  = email ? email.toLowerCase() : "";
   const buyerName   = typeof payload.data?.attributes?.user_name === "string"
     ? payload.data.attributes.user_name.trim()
     : "";
@@ -314,6 +315,9 @@ export async function POST(req: Request) {
   if (downloadId) {
     try {
       await markDownloadPaid(downloadId);
+      if (buyerEmail) {
+        updateMeta(downloadId, { annotatedEmail: buyerEmail }).catch(() => {});
+      }
     } catch (err) {
       console.error("[webhooks/lemonsqueezy] markDownloadPaid failed:", err);
     }
