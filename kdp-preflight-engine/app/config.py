@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     celery_result_backend: str | None = None  # defaults to redis_url
 
     # Storage (R2/S3 compatible)
-    storage_provider: str = "local"  # "local" | "s3" | "r2"
+    storage_provider: str = "s3"  # "local" | "s3" | "r2"
     s3_endpoint_url: str | None = None  # for R2: https://<account>.r2.cloudflarestorage.com
     s3_region: str = "auto"
     s3_bucket: str = "kdp-preflight-uploads"
