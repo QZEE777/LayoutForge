@@ -80,7 +80,7 @@ export async function redeemScanCreditForDownload(
 
   try {
     await markDownloadPaid(downloadId);
-    await updateMeta(downloadId, { annotatedEmail: email }).catch(() => {});
+    await updateMeta(downloadId, { annotatedEmail: email, leadEmail: email }).catch(() => {});
     void sendAnnotatedEmailIfReady(downloadId).catch(() => {});
   } catch (err) {
     console.error("[redeemScanCredit] markDownloadPaid failed:", err);

@@ -317,7 +317,7 @@ export async function POST(req: Request) {
     try {
       await markDownloadPaid(downloadId);
       if (buyerEmail) {
-        updateMeta(downloadId, { annotatedEmail: buyerEmail }).catch(() => {});
+        updateMeta(downloadId, { annotatedEmail: buyerEmail, leadEmail: buyerEmail }).catch(() => {});
         void sendAnnotatedEmailIfReady(downloadId).catch(() => {});
       }
     } catch (err) {
