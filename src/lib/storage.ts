@@ -56,6 +56,8 @@ export interface StoredManuscript {
   payment_confirmed?: boolean;
   /** Pre-signed R2 download URL for the report file (when USE_R2). */
   reportDownloadUrl?: string;
+  /** Original uploaded PDF key in R2 — used by annotate-local to find the source PDF. */
+  sourcePdfKey?: string;
   /** Annotated PDF from preflight engine (checker flow). */
   annotatedPdfUrl?: string;
   /** Pre-signed download URL for annotated PDF (when USE_R2). */

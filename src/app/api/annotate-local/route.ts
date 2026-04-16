@@ -177,8 +177,9 @@ async function resolveSourcePdfKey(downloadId: string): Promise<string | null> {
     return `uploads/${ourJobId.trim()}.pdf`;
   }
 
-  // Fallback: use file stored on this download record (direct /api/kdp-pdf-check path).
+  // Fallback: use sourcePdfKey saved at scan time (the original uploaded PDF in R2).
   const meta = await getStored(downloadId);
+  if (meta?.sourcePdfKey) return meta.sourcePdfKey;
   if (!meta?.storedPath) return null;
   return meta.storedPath;
 }

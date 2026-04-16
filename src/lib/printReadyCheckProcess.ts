@@ -301,6 +301,7 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
   report.pdfSourceUrl = `/api/r2-file?id=${encodeURIComponent(stored.id)}`;
   await updateMeta(stored.id, {
     processingReport: { ...(enrichedReport as object), pdfSourceUrl: report.pdfSourceUrl } as StoredManuscript["processingReport"],
+    sourcePdfKey: fileKey,
   });
 
   try {
