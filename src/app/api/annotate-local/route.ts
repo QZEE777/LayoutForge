@@ -35,7 +35,16 @@ const MAX_ANNOTATIONS_TOTAL = 30;
 
 function isAnnotatableSeverity(raw?: string): boolean {
   const s = String(raw ?? "").toLowerCase().trim();
-  return s === "blocker" || s === "critical" || s === "warning";
+  // Engine emits "ERROR"/"WARNING" (uppercase); JS normalizer maps "error" → warning.
+  // Include everything except "info" so no issues are silently dropped.
+  return s !== "" && s !== "info";
+}
+
+function normalizeAnnotationSeverity(raw?: string): "blocker" | "critical" | "warning" {
+  const s = String(raw ?? "").toLowerCase().trim();
+  if (s === "blocker") return "blocker";
+  if (s === "critical") return "critical";
+  return "warning"; // "error", "warning", anything else → warning colour
 }
 
 function severityRank(severity: "blocker" | "critical" | "warning"): number {
@@ -47,7 +56,7 @@ function severityRank(severity: "blocker" | "critical" | "warning"): number {
 function severityColor(severity: "blocker" | "critical" | "warning") {
   if (severity === "blocker") return rgb(0.86, 0.08, 0.08); // red
   if (severity === "critical") return rgb(0.94, 0.27, 0.08); // orange-red
-  return rgb(0.93, 0.53, 0.0); // amber for warnings
+  return rgb(0.93, 0.53, 0.0); // amber for warnings/errors
 }
 
 function normalizeCriticalIssues(
@@ -63,8 +72,8 @@ function normalizeCriticalIssues(
     if (!Number.isFinite(page) || page < 1 || page > pageCount) continue;
     out.push({
       page,
-      severity: String(issue.severity).toLowerCase() === "blocker" ? "blocker" : "critical",
-      ruleId: String(issue.rule_id ?? "critical_issue").trim() || "critical_issue",
+      severity: normalizeAnnotationSeverity(issue.severity),
+      ruleId: String(issue.rule_id ?? "issue").trim() || "issue",
       message: issue.message?.trim() || "Formatting issue detected",
       bbox: Array.isArray(issue.bbox) && issue.bbox.length >= 4 ? issue.bbox : null,
     });
@@ -77,8 +86,8 @@ function normalizeCriticalIssues(
     if (!Number.isFinite(page) || page < 1 || page > pageCount) continue;
     out.push({
       page,
-      severity: String(issue.severity).toLowerCase() === "blocker" ? "blocker" : "critical",
-      ruleId: String(issue.rule_id ?? "critical_issue").trim() || "critical_issue",
+      severity: normalizeAnnotationSeverity(issue.severity),
+      ruleId: String(issue.rule_id ?? "issue").trim() || "issue",
       message: issue.humanMessage?.trim() || "Formatting issue detected",
       bbox: null,
     });
