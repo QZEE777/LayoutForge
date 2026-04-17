@@ -25,21 +25,29 @@ type EnrichedIssue = {
 
 type CriticalIssue = {
   page: number;
-  severity: "blocker" | "critical";
+  severity: "blocker" | "critical" | "warning";
   ruleId: string;
   message: string;
   bbox: number[] | null;
 };
 
-const MAX_ANNOTATIONS_TOTAL = 10;
+const MAX_ANNOTATIONS_TOTAL = 30;
 
-function isCriticalSeverity(raw?: string): boolean {
+function isAnnotatableSeverity(raw?: string): boolean {
   const s = String(raw ?? "").toLowerCase().trim();
-  return s === "blocker" || s === "critical";
+  return s === "blocker" || s === "critical" || s === "warning";
 }
 
-function severityRank(severity: "blocker" | "critical"): number {
-  return severity === "blocker" ? 0 : 1;
+function severityRank(severity: "blocker" | "critical" | "warning"): number {
+  if (severity === "blocker") return 0;
+  if (severity === "critical") return 1;
+  return 2;
+}
+
+function severityColor(severity: "blocker" | "critical" | "warning") {
+  if (severity === "blocker") return rgb(0.86, 0.08, 0.08); // red
+  if (severity === "critical") return rgb(0.94, 0.27, 0.08); // orange-red
+  return rgb(0.93, 0.53, 0.0); // amber for warnings
 }
 
 function normalizeCriticalIssues(
@@ -50,7 +58,7 @@ function normalizeCriticalIssues(
   const out: CriticalIssue[] = [];
 
   for (const issue of pageIssues) {
-    if (!isCriticalSeverity(issue.severity)) continue;
+    if (!isAnnotatableSeverity(issue.severity)) continue;
     const page = Number(issue.page);
     if (!Number.isFinite(page) || page < 1 || page > pageCount) continue;
     out.push({
@@ -64,7 +72,7 @@ function normalizeCriticalIssues(
 
   // Fallback path: enriched issues when preflight page_issues lacks entries.
   for (const issue of enrichedIssues) {
-    if (!isCriticalSeverity(issue.severity)) continue;
+    if (!isAnnotatableSeverity(issue.severity)) continue;
     const page = Number(issue.page);
     if (!Number.isFinite(page) || page < 1 || page > pageCount) continue;
     out.push({
@@ -112,19 +120,20 @@ function drawIssueMarkers(
     for (const sig of globalSignatures) {
       const data = bySignature.get(sig);
       if (!data) continue;
+      const bannerColor = severityColor(data.issue.severity);
       firstPage.drawRectangle({
         x: 18,
         y,
         width: Math.max(120, width - 36),
         height: 24,
-        borderColor: rgb(1, 0, 0),
+        borderColor: bannerColor,
         borderWidth: 2,
       });
-      firstPage.drawText(`WARN: Issue affects all pages: ${data.issue.message}`, {
+      firstPage.drawText(`Issue affects all pages: ${data.issue.message}`, {
         x: 24,
         y: y + 7,
         size: 9,
-        color: rgb(1, 0, 0),
+        color: bannerColor,
       });
       y = Math.max(18, y - 28);
       globalBannerCount += 1;
@@ -155,7 +164,7 @@ function drawIssueMarkers(
       y,
       width: Math.min(w, width - x),
       height: Math.min(h, height - y),
-      borderColor: rgb(1, 0, 0),
+      borderColor: severityColor(issue.severity),
       borderWidth: 2,
     });
     boxCount += 1;
