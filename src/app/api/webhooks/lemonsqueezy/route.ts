@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 import { markDownloadPaid, updateMeta } from "@/lib/storage";
-import { sendAnnotatedEmailIfReady } from "@/lib/annotatedEmail";
-import { sendDownloadLinkEmail, sendPartnerThresholdEmail, sendPackPurchaseEmail, sendSharePurchasePendingEmail } from "@/lib/resend";
+import { sendPartnerThresholdEmail, sendPackPurchaseEmail, sendSharePurchasePendingEmail } from "@/lib/resend";
 import { CHECKER_CREDITS_PER_SCAN } from "@/lib/redeemScanCredit";
 
 export async function POST(req: Request) {
@@ -317,8 +316,7 @@ export async function POST(req: Request) {
     try {
       await markDownloadPaid(downloadId);
       if (buyerEmail) {
-        updateMeta(downloadId, { annotatedEmail: buyerEmail, leadEmail: buyerEmail }).catch(() => {});
-        void sendAnnotatedEmailIfReady(downloadId).catch(() => {});
+        updateMeta(downloadId, { leadEmail: buyerEmail }).catch(() => {});
       }
     } catch (err) {
       console.error("[webhooks/lemonsqueezy] markDownloadPaid failed:", err);
@@ -342,20 +340,16 @@ export async function POST(req: Request) {
       updateMeta(downloadId, { buyerName }).catch(() => { /* best effort */ });
     }
 
-    // Only send download email on first delivery — not on webhook retries
-    if (!alreadyProcessed && email) {
+    // Update TTL anchor on first delivery
+    if (!alreadyProcessed && orderId && supabaseUrl && supabaseKey) {
       try {
-        const downloadUrl = `${process.env.NEXT_PUBLIC_APP_URL}/download/${downloadId}`;
-        await sendDownloadLinkEmail(email, downloadUrl, buyerName);
-        if (orderId && supabaseUrl && supabaseKey) {
-          const sb = createClient(supabaseUrl, supabaseKey);
-          await sb
-            .from("payments")
-            .update({ download_ttl_anchor_at: new Date().toISOString() })
-            .eq("gateway_order_id", orderId);
-        }
+        const sb = createClient(supabaseUrl, supabaseKey);
+        await sb
+          .from("payments")
+          .update({ download_ttl_anchor_at: new Date().toISOString() })
+          .eq("gateway_order_id", orderId);
       } catch (err) {
-        console.error("[webhooks/lemonsqueezy] sendDownloadLinkEmail failed:", err);
+        console.error("[webhooks/lemonsqueezy] TTL anchor update failed:", err);
       }
     }
   }

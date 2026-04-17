@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { PDFDocument, rgb } from "pdf-lib";
 import { getStored, updateAnnotatedState } from "@/lib/storage";
 import { getFileByKey, uploadFile, getSignedDownloadUrl } from "@/lib/r2Storage";
-import { sendAnnotatedEmailIfReady } from "@/lib/annotatedEmail";
 import { supabase } from "@/lib/supabase";
 
 export const runtime = "nodejs";
@@ -230,22 +229,10 @@ export async function POST(request: NextRequest) {
       annotatedPdfDownloadUrl,
     });
 
-    let sentNow = false;
-    // Force email send with error handling
-    try {
-      const emailResult = await sendAnnotatedEmailIfReady(downloadId);
-      sentNow = emailResult;
-      console.log("[annotate-local] Email send result:", emailResult);
-    } catch (emailError) {
-      console.error("[annotate-local] Email send failed:", emailError);
-      // Still mark as ready so user can access via download page if email fails
-    }
-
     return NextResponse.json({
       success: true,
       downloadId,
-      status: sentNow ? "delivered" : "ready",
-      sentNow,
+      status: "ready",
       annotatedPdfDownloadUrl,
       sourceKey,
       markersApplied: applied.boxCount + applied.globalBannerCount,

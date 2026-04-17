@@ -1,7 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
 import { markDownloadPaid, getStored, updateMeta } from "@/lib/storage";
-import { sendDownloadLinkEmail } from "@/lib/resend";
-import { sendAnnotatedEmailIfReady } from "@/lib/annotatedEmail";
 import { loadScanCreditBalanceForEmail } from "@/lib/scanCredits";
 
 export type RedeemScanCreditResult =
@@ -80,8 +78,7 @@ export async function redeemScanCreditForDownload(
 
   try {
     await markDownloadPaid(downloadId);
-    await updateMeta(downloadId, { annotatedEmail: email, leadEmail: email }).catch(() => {});
-    void sendAnnotatedEmailIfReady(downloadId).catch(() => {});
+    await updateMeta(downloadId, { leadEmail: email }).catch(() => {});
   } catch (err) {
     console.error("[redeemScanCredit] markDownloadPaid failed:", err);
     return {
@@ -100,14 +97,6 @@ export async function redeemScanCreditForDownload(
       .is("sent_at", null);
   } catch {
     /* best effort */
-  }
-
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
-  const downloadUrl = `${baseUrl}/download/${downloadId}`;
-  try {
-    await sendDownloadLinkEmail(email, downloadUrl);
-  } catch (err) {
-    console.error("[redeemScanCredit] sendDownloadLinkEmail failed:", err);
   }
 
   return { ok: true, balance: Math.max(0, balanceBefore - CHECKER_CREDITS_PER_SCAN) };
