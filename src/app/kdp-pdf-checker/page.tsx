@@ -587,11 +587,6 @@ export default function KdpPdfCheckerPage() {
             <Link href="/" className="flex items-center gap-3 shrink-0 min-w-0">
               <BrandWordmark variant="onLight" className="text-lg sm:text-xl" />
             </Link>
-            <Link href="/dashboard"
-              className="text-xs font-medium hover:opacity-70 transition-opacity shrink-0"
-              style={{ color: "#9B8E7E" }}>
-              Already purchased? View dashboard →
-            </Link>
           </div>
         </header>
       )}
@@ -716,7 +711,7 @@ export default function KdpPdfCheckerPage() {
       {/* ══════════════════════════════════════════════════════════
           THE PROBLEM — Amazon's rejection cycle
       ══════════════════════════════════════════════════════════ */}
-      <section style={{ background: "linear-gradient(180deg, #1A1208 0%, #0f0c09 100%)" }}>
+      {false && <section style={{ background: "linear-gradient(180deg, #1A1208 0%, #0f0c09 100%)" }}>
         <div className="mx-auto max-w-5xl px-6 py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
@@ -814,12 +809,12 @@ export default function KdpPdfCheckerPage() {
             </div>
           </div>
         </div>
-      </section>
+      </section>}
 
       {/* ══════════════════════════════════════════════════════════
           26 CHECKS
       ══════════════════════════════════════════════════════════ */}
-      <section style={{ background: "linear-gradient(180deg, #14100c 0%, #1A1208 40%, #0f0c09 100%)", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+      {false && <section style={{ background: "linear-gradient(180deg, #14100c 0%, #1A1208 40%, #0f0c09 100%)", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
         <div className="mx-auto max-w-5xl px-6 pb-16">
           <div className="text-center mb-8">
             <h2 className="font-black text-3xl mb-2"
@@ -845,12 +840,12 @@ export default function KdpPdfCheckerPage() {
             ))}
           </div>
         </div>
-      </section>
+      </section>}
 
       {/* ══════════════════════════════════════════════════════════
           HOW IT WORKS
       ══════════════════════════════════════════════════════════ */}
-      <section className="border-t border-[#1A6B2A]/8" style={{ background: "linear-gradient(180deg, #FAF8F4 0%, #F5F0E8 100%)" }}>
+      {false && <section className="border-t border-[#1A6B2A]/8" style={{ background: "linear-gradient(180deg, #FAF8F4 0%, #F5F0E8 100%)" }}>
         <div className="mx-auto max-w-5xl px-6 py-16 text-center">
           <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#9B8E7E" }}>
             How it works
@@ -888,12 +883,12 @@ export default function KdpPdfCheckerPage() {
             ))}
           </div>
         </div>
-      </section>
+      </section>}
 
       {/* ══════════════════════════════════════════════════════════
           SECOND CTA — upload widget repeated
       ══════════════════════════════════════════════════════════ */}
-      <section style={{ background: "rgba(240,90,40,0.04)", borderTop: "1px solid rgba(240,90,40,0.1)", borderBottom: "1px solid rgba(240,90,40,0.1)" }}>
+      {false && <section style={{ background: "rgba(240,90,40,0.04)", borderTop: "1px solid rgba(240,90,40,0.1)", borderBottom: "1px solid rgba(240,90,40,0.1)" }}>
         <div className="mx-auto max-w-lg px-6 py-16">
           <div className="text-center mb-2">
             <a
@@ -944,12 +939,12 @@ export default function KdpPdfCheckerPage() {
             onClear={() => { setFile(null); setError(null); }}
           />
         </div>
-      </section>
+      </section>}
 
       {/* ══════════════════════════════════════════════════════════
           FAQ
       ══════════════════════════════════════════════════════════ */}
-      <section className="border-t border-black/[0.04]" style={{ background: "#FAF8F4" }}>
+      {false && <section className="border-t border-black/[0.04]" style={{ background: "#FAF8F4" }}>
         <div className="mx-auto max-w-2xl px-6 py-16">
           <p className="text-xs font-bold uppercase tracking-widest mb-3 text-center" style={{ color: "#9B8E7E" }}>
             Questions
@@ -960,7 +955,7 @@ export default function KdpPdfCheckerPage() {
           </h2>
           <FaqAccordion items={FAQS} />
         </div>
-      </section>
+      </section>}
 
       {/* ══════════════════════════════════════════════════════════
           FOOTER — minimal, legal only
