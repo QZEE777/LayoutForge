@@ -8,7 +8,7 @@ const UPLOAD_DIR = process.env.VERCEL
   ? path.join("/tmp", "uploads")
   : path.join(process.cwd(), "data", "uploads");
 
-const MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 hours
+const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days for unpaid scans
 export type AnnotatedPdfStatus =
   | "not_requested"
   | "queued"
@@ -329,6 +329,7 @@ export async function cleanupExpired(): Promise<number> {
       for (const id of ids) {
         try {
           const meta = (await r2.getMetadata(id)) as StoredManuscript;
+          if (meta.payment_confirmed) continue; // paid reports are kept permanently
           if (now - (meta.createdAt ?? 0) > MAX_AGE_MS) {
             await r2.deleteAllForId(id);
             removed++;
@@ -352,6 +353,7 @@ export async function cleanupExpired(): Promise<number> {
       try {
         const raw = await fs.readFile(metaPath, "utf-8");
         const meta = JSON.parse(raw) as StoredManuscript;
+        if (meta.payment_confirmed) continue; // paid reports are kept permanently
         if (now - meta.createdAt > MAX_AGE_MS) {
           await deleteStored(meta.id);
           removed++;

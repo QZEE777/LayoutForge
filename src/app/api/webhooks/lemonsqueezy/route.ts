@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 import { markDownloadPaid, updateMeta } from "@/lib/storage";
-import { sendPartnerThresholdEmail, sendPackPurchaseEmail, sendSharePurchasePendingEmail } from "@/lib/resend";
+import { sendPartnerThresholdEmail, sendPackPurchaseEmail, sendSharePurchasePendingEmail, sendDownloadLinkEmail } from "@/lib/resend";
 import { CHECKER_CREDITS_PER_SCAN } from "@/lib/redeemScanCredit";
 
 export async function POST(req: Request) {
@@ -320,6 +320,17 @@ export async function POST(req: Request) {
       }
     } catch (err) {
       console.error("[webhooks/lemonsqueezy] markDownloadPaid failed:", err);
+    }
+
+    // Send one delivery email — report link + annotated PDF, no expiry pressure
+    if (!alreadyProcessed && buyerEmail) {
+      try {
+        const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com").replace(/\/$/, "");
+        const reportUrl = `${appUrl}/download/${downloadId}?source=checker`;
+        await sendDownloadLinkEmail(buyerEmail, reportUrl, buyerName || undefined);
+      } catch (err) {
+        console.error("[webhooks/lemonsqueezy] sendDownloadLinkEmail failed:", err);
+      }
     }
 
     // Suppress nudge email — user has already paid

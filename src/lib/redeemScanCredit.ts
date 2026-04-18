@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { markDownloadPaid, getStored, updateMeta } from "@/lib/storage";
 import { loadScanCreditBalanceForEmail } from "@/lib/scanCredits";
+import { sendDownloadLinkEmail } from "@/lib/resend";
 
 export type RedeemScanCreditResult =
   | { ok: true; balance: number; alreadyUnlocked?: boolean }
@@ -86,6 +87,15 @@ export async function redeemScanCreditForDownload(
       error: "Failed to unlock download. Contact support.",
       status: 500,
     };
+  }
+
+  // Send one delivery email — report link, no expiry pressure (best effort)
+  try {
+    const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com").replace(/\/$/, "");
+    const reportUrl = `${appUrl}/download/${downloadId}?source=checker`;
+    await sendDownloadLinkEmail(email, reportUrl);
+  } catch (err) {
+    console.error("[redeemScanCredit] sendDownloadLinkEmail failed:", err);
   }
 
   try {

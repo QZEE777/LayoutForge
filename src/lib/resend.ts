@@ -90,8 +90,7 @@ export async function sendDownloadLinkEmail(to: string, downloadUrl: string, nam
         </table>
 
         <p style="font-size: 13px; color: #6B6151; margin: 0 0 6px;">
-          ⚠️ <strong>Save this link</strong> — your file is available for <strong>${Math.round(DOWNLOAD_SIGNED_URL_EXPIRES_SECONDS / 3600)} hours</strong>.
-          Lost it? <a href="${resendUrl}" style="color: #F05A28;">Get it resent here.</a>
+          🔖 <strong>Bookmark this link</strong> — your paid report is saved and accessible anytime you return to it.
         </p>
 
         <p style="font-size: 14px; line-height: 1.8; color: #6B6151; margin: 16px 0 0;">
@@ -129,8 +128,7 @@ export async function sendDownloadLinkEmail(to: string, downloadUrl: string, nam
     "✓ Plain-English fix instructions for each issue",
     "✓ Annotated PDF with issues highlighted visually",
     "",
-    `⚠ Save this link — your file is available for ${Math.round(DOWNLOAD_SIGNED_URL_EXPIRES_SECONDS / 3600)} hours.`,
-    "Lost it? Visit https://www.manu2print.com/resend-link",
+    "🔖 Bookmark this link — your paid report is saved and accessible anytime.",
     "",
     "Got questions about your results? Just reply — I read every one.",
     "",
