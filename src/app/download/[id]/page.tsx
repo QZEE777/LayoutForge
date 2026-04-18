@@ -1333,8 +1333,8 @@ export default function DownloadPage() {
                     </button>
                     </div>
                   </div>
-                  {/* Share-to-earn CTA — shown to authenticated users with a token */}
-                  {shareEarnLink && (
+                  {/* Share-to-earn CTA — hidden Phase 1 */}
+                  {false && shareEarnLink && (
                     <div
                       className="mt-4 rounded-2xl p-5 text-center border border-[#1A6B2A]/25"
                       style={{ background: "linear-gradient(180deg, #2D6A2D 0%, #1a4a1a 100%)", boxShadow: DL_VIS.cardShadow }}
@@ -1350,7 +1350,7 @@ export default function DownloadPage() {
                       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                         <input
                           readOnly
-                          value={shareEarnLink}
+                          value={shareEarnLink ?? ""}
                           className="flex-1 rounded-xl border border-white/20 bg-black/20 px-3 py-2.5 text-xs text-white font-mono truncate"
                         />
                         <button
@@ -1368,15 +1368,15 @@ export default function DownloadPage() {
                     </div>
                   )}
 
-                  {/* ── Share section ── */}
-                  {(() => {
-                    const readiness = canonicalCheckerReadinessScore(report);
+                  {/* ── Share section — hidden Phase 1 ── */}
+                  {false && (() => {
+                    const readiness = canonicalCheckerReadinessScore(report!);
                     const shareScore = readiness ?? 0;
-                    const shareIsPass = checkerHeroLooksPassing(report, readiness);
+                    const shareIsPass = checkerHeroLooksPassing(report!, readiness);
                     const verifyLink  = `https://www.manu2print.com/verify/${id}${verifyAttributionQuery}`;
                     const ogBase      = `/api/og/verify/${id}?p=${shareIsPass ? 1 : 0}&s=${shareScore}`;
                     const portraitUrl = `${ogBase}&format=portrait`;
-                    const shareIssues = getGroupedIssues(report).totalCount;
+                    const shareIssues = getGroupedIssues(report!).totalCount;
                     const caption     = buildVerifyShareCaption({
                       isPass: shareIsPass,
                       score: shareScore,
@@ -1910,8 +1910,8 @@ export default function DownloadPage() {
 
         {/* Public verification link (text removed per UX update) */}
 
-        {/* Micro FAQ */}
-        <div className="border border-m2p-border rounded-lg divide-y divide-m2p-border mb-6">
+        {/* Micro FAQ — hidden for checker flow */}
+        {!isChecker && <div className="border border-m2p-border rounded-lg divide-y divide-m2p-border mb-6">
           <div className="p-4">
             <p className="font-semibold text-m2p-ink mb-1">
               Q: What does this report check?
@@ -1936,7 +1936,7 @@ export default function DownloadPage() {
               A: Yes. The KDP PDF Formatter repairs formatting errors and produces a print-ready PDF for KDP upload. Coming soon.
             </p>
           </div>
-        </div>
+        </div>}
 
         {/* Storage notice (single location) */}
         <div className="mt-8 bg-m2p-orange-soft/50 border border-m2p-border rounded-lg p-4 space-y-2">
