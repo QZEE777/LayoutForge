@@ -610,27 +610,7 @@ export default function DownloadPage() {
     annotatedAutoAttemptedRef.current = false;
   }, [id]);
 
-  useEffect(() => {
-    if (authEmail === undefined || authEmail === null || !id) return;
-    if (!isChecker) return;
-    if (!report || !hasActionablePageIssues) return;
-    if (report.annotatedEmailRequested || report.annotatedEmailSent) return;
-    if (annotatedAutoAttemptedRef.current) return;
-    if (annotatedAutoInFlightRef.current) return;
-    annotatedAutoAttemptedRef.current = true;
-    annotatedAutoInFlightRef.current = true;
-    void postCheckerAnnotatedEmail(authEmail).finally(() => {
-      annotatedAutoInFlightRef.current = false;
-    });
-  }, [
-    authEmail,
-    id,
-    isChecker,
-    postCheckerAnnotatedEmail,
-    report?.annotatedEmailRequested,
-    report?.annotatedEmailSent,
-    hasActionablePageIssues,
-  ]);
+  // Auto-send annotated email removed — delivery is on-page only (single delivery email at payment)
 
   if (!id) {
     return (

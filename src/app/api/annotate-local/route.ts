@@ -138,7 +138,11 @@ function drawIssueMarkers(
         borderColor: bannerColor,
         borderWidth: 2,
       });
-      firstPage.drawText(`Issue affects all pages: ${data.issue.message}`, {
+      // Truncate text to fit within banner — ~5.5 pts per char at size 9
+      const maxChars = Math.max(20, Math.floor((width - 52) / 5.5));
+      const rawText = `Issue affects all pages: ${data.issue.message}`;
+      const bannerText = rawText.length > maxChars ? rawText.slice(0, maxChars - 1) + "…" : rawText;
+      firstPage.drawText(bannerText, {
         x: 24,
         y: y + 7,
         size: 9,

@@ -964,8 +964,8 @@ export default function KdpPdfCheckerPage() {
         <div className="mx-auto max-w-5xl px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs" style={{ color: "#C4B5A0" }}>
             © 2026 manu2print.com · KDP tools for indie authors
-            {/* secret admin link — low contrast, no underline, only we know */}
-            <Link href="/admin" className="ml-2 opacity-20 hover:opacity-40 transition-opacity select-none" tabIndex={-1} aria-hidden>·</Link>
+            {/* secret admin link */}
+            <Link href="/admin" className="ml-2 opacity-30 hover:opacity-60 transition-opacity select-none" title="admin" tabIndex={-1}>·</Link>
           </p>
           <div className="flex items-center gap-4 text-xs" style={{ color: "#9B8E7E" }}>
             <Link href="/privacy"  className="hover:opacity-70 transition-opacity">Privacy</Link>
