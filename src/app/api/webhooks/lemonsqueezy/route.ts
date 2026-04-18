@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { markDownloadPaid, updateMeta } from "@/lib/storage";
 import { sendPartnerThresholdEmail, sendPackPurchaseEmail, sendSharePurchasePendingEmail, sendDownloadLinkEmail } from "@/lib/resend";
 import { CHECKER_CREDITS_PER_SCAN } from "@/lib/redeemScanCredit";
+import { annotateCheckerPdf } from "@/lib/annotatePdf";
 
 export async function POST(req: Request) {
   const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
@@ -322,12 +323,22 @@ export async function POST(req: Request) {
       console.error("[webhooks/lemonsqueezy] markDownloadPaid failed:", err);
     }
 
-    // Send one delivery email — report link + annotated PDF, no expiry pressure
+    // Send one delivery email with annotated PDF + full report links
     if (!alreadyProcessed && buyerEmail) {
       try {
         const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com").replace(/\/$/, "");
         const reportUrl = `${appUrl}/download/${downloadId}?source=checker`;
-        await sendDownloadLinkEmail(buyerEmail, reportUrl, buyerName || undefined);
+
+        // Annotate the PDF inline so both download links are ready in the email
+        let annotatedPdfUrl: string | undefined;
+        try {
+          const annotated = await annotateCheckerPdf(downloadId);
+          annotatedPdfUrl = annotated?.annotatedPdfDownloadUrl ?? undefined;
+        } catch (annotateErr) {
+          console.error("[webhooks/lemonsqueezy] annotateCheckerPdf failed (non-fatal):", annotateErr);
+        }
+
+        await sendDownloadLinkEmail(buyerEmail, reportUrl, annotatedPdfUrl, buyerName || undefined);
       } catch (err) {
         console.error("[webhooks/lemonsqueezy] sendDownloadLinkEmail failed:", err);
       }

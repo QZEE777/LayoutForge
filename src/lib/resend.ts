@@ -25,10 +25,15 @@ function escapeHtmlAttr(s: string): string {
     .replace(/>/g, "&gt;");
 }
 
-export async function sendDownloadLinkEmail(to: string, downloadUrl: string, name?: string) {
+export async function sendDownloadLinkEmail(
+  to: string,
+  reportUrl: string,
+  annotatedPdfUrl?: string,
+  name?: string,
+) {
   const resend = new Resend(process.env.RESEND_API_KEY ?? "");
-  const safeUrl = escapeHtmlAttr(downloadUrl);
-  const resendUrl = escapeHtmlAttr("https://www.manu2print.com/resend-link");
+  const safeReportUrl = escapeHtmlAttr(reportUrl);
+  const safeAnnotatedUrl = annotatedPdfUrl ? escapeHtmlAttr(annotatedPdfUrl) : null;
   const firstName = name ? name.split(" ")[0] : "";
   const greeting = firstName ? `Hey ${firstName} —` : "You're in.";
   const subjectLine = downloadLinkReportSubject(firstName || undefined);
@@ -53,29 +58,48 @@ export async function sendDownloadLinkEmail(to: string, downloadUrl: string, nam
       <td style="padding: 36px 32px 24px; background: #FAF7EE;">
 
         <p style="font-size: 22px; font-weight: 700; color: #1A1208; margin: 0 0 16px; line-height: 1.3;">
-          ${greeting} your full report is ready.
+          ${greeting} your report is ready. Here are your downloads.
         </p>
 
-        <p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 20px;">
-          Thank you for trusting manu2print with your manuscript. Your full KDP PDF Check Report is ready — every issue, every page, every fix. Let's get your book KDP-ready.
+        <p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 24px;">
+          Your full KDP PDF Check Report is ready — every issue, every page, every fix. Two files are waiting for you below.
         </p>
 
-        <!-- CTA -->
-        <table cellpadding="0" cellspacing="0" style="margin: 32px 0;">
+        ${safeAnnotatedUrl ? `
+        <!-- CTA 1: Annotated PDF -->
+        <p style="font-size: 12px; font-weight: 700; color: #6B6151; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 8px;">Your annotated manuscript</p>
+        <table cellpadding="0" cellspacing="0" style="margin: 0 0 20px; width: 100%;">
           <tr>
-            <td style="background: #F05A28; border-radius: 10px;">
-              <a href="${safeUrl}"
-                 style="display: inline-block; padding: 16px 36px; color: #ffffff;
+            <td style="background: #1A1208; border-radius: 10px;">
+              <a href="${safeAnnotatedUrl}"
+                 style="display: block; padding: 16px 28px; color: #4cd964;
                         text-decoration: none; font-weight: 700; font-size: 16px;">
-                View &amp; Download My Report &rarr;
+                &#8595; Download Annotated PDF
               </a>
             </td>
           </tr>
         </table>
+        <p style="font-size: 12px; color: #9B8E7E; margin: 0 0 28px;">Your uploaded book with every flagged issue marked directly on the page.</p>
+        ` : ""}
+
+        <!-- CTA 2: Full Report -->
+        <p style="font-size: 12px; font-weight: 700; color: #6B6151; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 8px;">Your full diagnostic report</p>
+        <table cellpadding="0" cellspacing="0" style="margin: 0 0 20px; width: 100%;">
+          <tr>
+            <td style="background: #F05A28; border-radius: 10px;">
+              <a href="${safeReportUrl}"
+                 style="display: block; padding: 16px 28px; color: #ffffff;
+                        text-decoration: none; font-weight: 700; font-size: 16px;">
+                &#8594; View Full Report &amp; Fix Instructions
+              </a>
+            </td>
+          </tr>
+        </table>
+        <p style="font-size: 12px; color: #9B8E7E; margin: 0 0 28px;">Every issue explained in plain English — what's wrong, which page, how to fix it.</p>
 
         <!-- What's inside -->
         <table width="100%" cellpadding="0" cellspacing="0"
-               style="background: #fff; border-radius: 10px; border: 1px solid #E0D8C4; margin: 0 0 28px;">
+               style="background: #fff; border-radius: 10px; border: 1px solid #E0D8C4; margin: 0 0 24px;">
           <tr>
             <td style="padding: 20px 24px;">
               <p style="font-size: 13px; font-weight: 700; color: #1A1208; margin: 0 0 12px; text-transform: uppercase; letter-spacing: 0.05em;">
@@ -84,13 +108,13 @@ export async function sendDownloadLinkEmail(to: string, downloadUrl: string, nam
               <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;Every formatting issue flagged — bleed, margins, fonts, image resolution</p>
               <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;Exact page numbers for every problem</p>
               <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;Plain-English fix instructions for each issue</p>
-              <p style="font-size: 14px; color: #3a3020; margin: 0; line-height: 1.7;">&#10003; &nbsp;Annotated PDF with issues highlighted visually</p>
+              <p style="font-size: 14px; color: #3a3020; margin: 0; line-height: 1.7;">&#10003; &nbsp;Annotated PDF with issues highlighted directly on your pages</p>
             </td>
           </tr>
         </table>
 
         <p style="font-size: 13px; color: #6B6151; margin: 0 0 6px;">
-          🔖 <strong>Bookmark this link</strong> — your paid report is saved and accessible anytime you return to it.
+          🔖 <strong>Bookmark this email</strong> — your report and annotated PDF are saved and accessible anytime.
         </p>
 
         <p style="font-size: 14px; line-height: 1.8; color: #6B6151; margin: 16px 0 0;">
@@ -115,20 +139,29 @@ export async function sendDownloadLinkEmail(to: string, downloadUrl: string, nam
 `.trim();
 
   const text = [
-    firstName ? `Hey ${firstName} — your full report is ready.` : "You're in. Your full report is ready.",
+    firstName ? `Hey ${firstName} — your report is ready. Here are your downloads.` : "You're in. Your report is ready. Here are your downloads.",
     "",
-    "Thank you for trusting manu2print with your manuscript.",
     "Your full KDP PDF Check Report is ready — every issue, every page, every fix.",
     "",
-    `View and download your report: ${downloadUrl}`,
+    ...(annotatedPdfUrl
+      ? [
+          "DOWNLOAD 1 — Annotated Manuscript PDF",
+          `(Your book with every flagged issue marked on the page)`,
+          annotatedPdfUrl,
+          "",
+        ]
+      : []),
+    "DOWNLOAD 2 — Full Diagnostic Report",
+    "(Every issue explained in plain English — what's wrong, which page, how to fix it)",
+    reportUrl,
     "",
     "Your report includes:",
     "✓ Every formatting issue flagged — bleed, margins, fonts, image resolution",
     "✓ Exact page numbers for every problem",
     "✓ Plain-English fix instructions for each issue",
-    "✓ Annotated PDF with issues highlighted visually",
+    "✓ Annotated PDF with issues highlighted directly on your pages",
     "",
-    "🔖 Bookmark this link — your paid report is saved and accessible anytime.",
+    "🔖 Bookmark this email — your report and annotated PDF are saved and accessible anytime.",
     "",
     "Got questions about your results? Just reply — I read every one.",
     "",

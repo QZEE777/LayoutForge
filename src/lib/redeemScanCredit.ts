@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { markDownloadPaid, getStored, updateMeta } from "@/lib/storage";
 import { loadScanCreditBalanceForEmail } from "@/lib/scanCredits";
 import { sendDownloadLinkEmail } from "@/lib/resend";
+import { annotateCheckerPdf } from "@/lib/annotatePdf";
 
 export type RedeemScanCreditResult =
   | { ok: true; balance: number; alreadyUnlocked?: boolean }
@@ -89,11 +90,21 @@ export async function redeemScanCreditForDownload(
     };
   }
 
-  // Send one delivery email — report link, no expiry pressure (best effort)
+  // Send delivery email with annotated PDF + full report links (best effort)
   try {
     const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com").replace(/\/$/, "");
     const reportUrl = `${appUrl}/download/${downloadId}?source=checker`;
-    await sendDownloadLinkEmail(email, reportUrl);
+
+    // Annotate the PDF inline so both download links are ready in the email
+    let annotatedPdfUrl: string | undefined;
+    try {
+      const annotated = await annotateCheckerPdf(downloadId);
+      annotatedPdfUrl = annotated?.annotatedPdfDownloadUrl ?? undefined;
+    } catch (annotateErr) {
+      console.error("[redeemScanCredit] annotateCheckerPdf failed (non-fatal):", annotateErr);
+    }
+
+    await sendDownloadLinkEmail(email, reportUrl, annotatedPdfUrl);
   } catch (err) {
     console.error("[redeemScanCredit] sendDownloadLinkEmail failed:", err);
   }
