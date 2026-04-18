@@ -185,38 +185,38 @@ function normalizeIssues(
 // ── Geometry overlay ───────────────────────────────────────────────────────────
 
 /**
- * Draws thin guide lines on an annotated page:
- *   - Trim boundary: dashed gray border 1pt inside page edge
- *   - KDP safe text area: dashed blue-gray rectangle using KDP margin requirements
+ * Draws governing geometry guides on a page — applied to ALL pages.
  *
- * These guides are thin, low-opacity, and non-intrusive.
+ * Two visually distinct boundaries:
+ *   - Trim boundary: solid gray hairline 1pt inside page edge
+ *   - Safe text area: solid blue-gray box at KDP required margins (gutter-aware)
+ *
+ * No text labels. Guides are thin and consistent.
  */
 function drawGoverningGeometry(
-  page: PDFPage,
+  page:      PDFPage,
   pageNumber: number,
-  pageCount: number,
-  font: PDFFont,
+  pageCount:  number,
 ): void {
   const { width, height } = page.getSize();
-  const gutter       = getGutterPt(pageCount);
-  const isRightPage  = pageNumber % 2 === 1; // odd = right page, gutter on left
+  const gutter      = getGutterPt(pageCount);
+  const isRightPage = pageNumber % 2 === 1; // odd = right page, gutter on left
 
   const marginLeft  = isRightPage ? gutter         : OUTER_MARGIN_PT;
   const marginRight = isRightPage ? OUTER_MARGIN_PT : gutter;
 
-  // ── Trim boundary: thin dashed line 1pt inside page edge
+  // ── 1. Trim boundary: solid hairline, 1pt inside page edge (visually distinct from safe area)
   page.drawRectangle({
     x: 1, y: 1,
     width:  width  - 2,
     height: height - 2,
-    borderColor:      COLOR.trim,
-    borderWidth:      0.3,
-    borderOpacity:    0.40,
-    borderDashArray:  [4, 4],
-    borderDashPhase:  0,
+    borderColor:   COLOR.trim,
+    borderWidth:   0.4,
+    borderOpacity: 0.55,
+    // Solid — no dash. Visually distinct from safe-area dashes below.
   });
 
-  // ── Safe text area: KDP required margin rectangle
+  // ── 2. Safe text area: dashed blue-gray bounding box at KDP margin/gutter coordinates
   const safeX = marginLeft;
   const safeY = TOP_BOTTOM_MARGIN_PT;
   const safeW = width  - marginLeft - marginRight;
@@ -226,29 +226,11 @@ function drawGoverningGeometry(
     x: safeX, y: safeY,
     width:  safeW,
     height: safeH,
-    borderColor:      COLOR.safe,
-    borderWidth:      0.4,
-    borderOpacity:    0.32,
-    borderDashArray:  [6, 3],
-    borderDashPhase:  0,
-  });
-
-  // ── Tiny "SAFE" label — placed just outside safe area, top outer corner
-  const labelText = "SAFE AREA";
-  const labelSize = 4.5;
-  const labelW    = font.widthOfTextAtSize(labelText, labelSize);
-  const labelX    = isRightPage
-    ? Math.min(safeX + safeW + 2, width - labelW - 1)
-    : 1;
-  const labelY    = safeY + safeH - 6;
-
-  page.drawText(labelText, {
-    x:       Math.max(1, labelX),
-    y:       Math.max(safeY + 2, labelY),
-    size:    labelSize,
-    font,
-    color:   COLOR.safe,
-    opacity: 0.30,
+    borderColor:     COLOR.safe,
+    borderWidth:     0.55,
+    borderOpacity:   0.50,
+    borderDashArray: [5, 3],
+    borderDashPhase: 0,
   });
 }
 
@@ -412,103 +394,182 @@ function drawLegendPanel(
   }
 }
 
+// ── Spatial violation region derivation ───────────────────────────────────────
+
+/**
+ * For page-level spatial violations (no bbox from scanner), derives the
+ * bounding region from KDP geometry and the rule/message content.
+ * Returns [x, y, w, h] in PDF points, or null if not derivable.
+ */
+function deriveViolationBbox(
+  ruleId:    string,
+  message:   string,
+  pw:        number,
+  ph:        number,
+  pageNum:   number,
+  pageCount: number,
+): [number, number, number, number] | null {
+  const text     = `${ruleId} ${message}`.toLowerCase();
+  const gutter   = getGutterPt(pageCount);
+  const isRight  = pageNum % 2 === 1; // odd = right page
+
+  // Gutter / inner margin
+  if (/gutter|inner.?margin/.test(text)) {
+    const x = isRight ? 0 : pw - gutter;
+    return [x, 0, gutter, ph];
+  }
+
+  // Outer / side margin
+  if (/outer.?margin|outside.?margin|side.?margin/.test(text)) {
+    const x = isRight ? pw - OUTER_MARGIN_PT : 0;
+    return [x, 0, OUTER_MARGIN_PT, ph];
+  }
+
+  // Top margin / header
+  if (/top.?margin|header/.test(text)) {
+    return [0, ph - TOP_BOTTOM_MARGIN_PT, pw, TOP_BOTTOM_MARGIN_PT];
+  }
+
+  // Bottom margin / footer
+  if (/bottom.?margin|footer/.test(text)) {
+    return [0, 0, pw, TOP_BOTTOM_MARGIN_PT];
+  }
+
+  // Generic margin — highlight outer band
+  if (/margin/.test(text)) {
+    const x = isRight ? pw - OUTER_MARGIN_PT : 0;
+    return [x, 0, OUTER_MARGIN_PT, ph];
+  }
+
+  // Bleed — top strip
+  if (/bleed/.test(text)) {
+    return [0, ph - 9, pw, 9]; // 9pt = 0.125 in bleed strip
+  }
+
+  // Safe area / live area / content area
+  if (/safe.?area|live.?area|content.?area/.test(text)) {
+    const left  = isRight ? gutter         : OUTER_MARGIN_PT;
+    const right = isRight ? OUTER_MARGIN_PT : gutter;
+    return [left, TOP_BOTTOM_MARGIN_PT, pw - left - right, ph - TOP_BOTTOM_MARGIN_PT * 2];
+  }
+
+  return null;
+}
+
+// ── Marker helper ──────────────────────────────────────────────────────────────
+
+/** Draws a severity-colored filled circle with a white issue number inside. */
+function drawNumberedCircle(
+  page:   PDFPage,
+  cx:     number,
+  cy:     number,
+  col:    ReturnType<typeof rgb>,
+  num:    string,
+  font:   PDFFont,
+): void {
+  page.drawEllipse({
+    x: cx, y: cy,
+    xScale: MARKER_RADIUS,
+    yScale: MARKER_RADIUS,
+    color:   col,
+    opacity: 0.92,
+  });
+  const nw = font.widthOfTextAtSize(num, 6);
+  page.drawText(num, {
+    x: cx - nw / 2, y: cy - 2.5,
+    size: 6, font, color: COLOR.markerText, opacity: 1,
+  });
+}
+
 // ── Issue markers on page ──────────────────────────────────────────────────────
 
 /**
- * Draws numbered markers for each issue on the page.
+ * Draws violation regions and anchored numbered markers for each issue.
  *
- * Issues WITH bbox:
- *   - Thin dashed rectangle outline at the bbox location
- *   - Small filled numbered circle at the top-left corner of the bbox
+ * Issues WITH bbox (scanner-provided coordinates):
+ *   - Semi-transparent filled rectangle over the violation zone
+ *   - Solid 0.75pt border (no dash — visually distinct from geometry guides)
+ *   - Numbered marker anchored at the top-left corner of the violation bbox
  *
- * Issues WITHOUT bbox (page-level):
- *   - Stacked numbered circles in the outer margin at page top
+ * Issues WITHOUT bbox, spatial rule (derived from KDP geometry):
+ *   - Same filled+bordered region derived from margin/gutter coordinates
+ *   - Numbered marker anchored at top-left of derived region
+ *
+ * Issues WITHOUT bbox, non-spatial (font embedding, colour mode, etc.):
+ *   - Numbered marker placed at top of safe area — no floating in gutter
  */
 function drawIssueMarkersOnPage(
   page:      PDFPage,
   issues:    AnnotationIssue[],
   legendH:   number,
   pageNum:   number,
+  pageCount: number,
   font:      PDFFont,
 ): void {
   const { width, height } = page.getSize();
   const shown = issues.slice(0, MAX_LEGEND_ITEMS);
 
-  // Track outer-margin stack position for no-bbox markers
-  let marginStackY = height - TOP_BOTTOM_MARGIN_PT - MARKER_RADIUS - 2;
+  // For non-spatial page-level issues, stack markers just inside the safe area top
+  const gutter      = getGutterPt(pageCount);
+  const isRight     = pageNum % 2 === 1;
+  const safeLeft    = isRight ? gutter         : OUTER_MARGIN_PT;
+  let   nonSpatialX = safeLeft + MARKER_RADIUS + 2;
+  let   nonSpatialY = height - TOP_BOTTOM_MARGIN_PT - MARKER_RADIUS - 2;
 
   shown.forEach((issue, i) => {
-    const col     = severityColor(issue.severity);
-    const numStr  = String(i + 1);
-    const numW    = font.widthOfTextAtSize(numStr, 6);
+    const col    = severityColor(issue.severity);
+    const numStr = String(i + 1);
+
+    // Resolve violation bbox — scanner data first, then derivation
+    let bx = 0, by = 0, bw = 0, bh = 0;
+    let hasBbox = false;
 
     if (issue.bbox) {
-      const [xRaw, yRaw, wRaw, hRaw] = issue.bbox;
-      const bx = Math.max(0,        Number(xRaw) || 0);
-      const by = Math.max(legendH,  Number(yRaw) || 0);  // clamp above legend
-      const bw = Math.max(8,        Number(wRaw) || 0);
-      const bh = Math.max(8,        Number(hRaw) || 0);
+      bx = Math.max(0,       Number(issue.bbox[0]) || 0);
+      by = Math.max(legendH, Number(issue.bbox[1]) || 0);
+      bw = Math.max(8,       Number(issue.bbox[2]) || 0);
+      bh = Math.max(8,       Number(issue.bbox[3]) || 0);
+      bw = Math.min(bw, width  - bx);
+      bh = Math.min(bh, height - by);
+      hasBbox = bw > 0 && bh > 0;
+    }
 
-      const clampedW = Math.min(bw, width  - bx);
-      const clampedH = Math.min(bh, height - by);
-
-      if (clampedW > 0 && clampedH > 0) {
-        // Thin dashed outline at issue location
-        page.drawRectangle({
-          x: bx, y: by,
-          width:  clampedW,
-          height: clampedH,
-          borderColor:     col,
-          borderWidth:     0.5,
-          borderOpacity:   0.60,
-          borderDashArray: [3, 2],
-          borderDashPhase: 0,
-        });
-
-        // Numbered marker at top-left corner of bbox
-        const cx = Math.min(bx + MARKER_RADIUS + 0.5, width  - MARKER_RADIUS);
-        const cy = Math.min(by + clampedH - MARKER_RADIUS - 0.5, height - MARKER_RADIUS);
-
-        page.drawEllipse({
-          x: cx, y: cy,
-          xScale: MARKER_RADIUS,
-          yScale: MARKER_RADIUS,
-          color:   col,
-          opacity: 0.90,
-        });
-
-        page.drawText(numStr, {
-          x:       cx - numW / 2,
-          y:       cy - 2.5,
-          size:    6,
-          font,
-          color:   COLOR.markerText,
-          opacity: 1,
-        });
+    if (!hasBbox) {
+      const derived = deriveViolationBbox(
+        issue.ruleId, issue.message, width, height, pageNum, pageCount,
+      );
+      if (derived) {
+        [bx, by, bw, bh] = derived;
+        by = Math.max(legendH, by);
+        bh = Math.min(bh, height - by);
+        hasBbox = bw > 0 && bh > 0;
       }
+    }
+
+    if (hasBbox) {
+      // ── Filled violation zone: semi-transparent fill + solid border
+      page.drawRectangle({
+        x: bx, y: by,
+        width:  bw,
+        height: bh,
+        color:         col,
+        opacity:       0.10,   // subtle fill — shows the zone without obscuring content
+        borderColor:   col,
+        borderWidth:   0.75,
+        borderOpacity: 0.80,
+        // Solid border — visually distinct from dashed geometry guides
+      });
+
+      // ── Marker anchored at top-left corner of violation region
+      const cx = Math.min(bx + MARKER_RADIUS + 0.5, width  - MARKER_RADIUS);
+      const cy = Math.min(by + bh - MARKER_RADIUS - 0.5, height - MARKER_RADIUS);
+      drawNumberedCircle(page, cx, cy, col, numStr, font);
     } else {
-      // No bbox: stack marker in outer left margin area
-      const cx = MARKER_RADIUS + 1;
-      const cy = Math.max(legendH + MARKER_RADIUS + 4, marginStackY);
-
-      page.drawEllipse({
-        x: cx, y: cy,
-        xScale: MARKER_RADIUS,
-        yScale: MARKER_RADIUS,
-        color:   col,
-        opacity: 0.90,
-      });
-
-      page.drawText(numStr, {
-        x:       cx - numW / 2,
-        y:       cy - 2.5,
-        size:    6,
-        font,
-        color:   COLOR.markerText,
-        opacity: 1,
-      });
-
-      marginStackY -= (MARKER_RADIUS * 2 + 4);
+      // ── Non-spatial page-level issue: marker at top of safe area (not floating)
+      const cx = Math.min(nonSpatialX, width - MARKER_RADIUS - 2);
+      const cy = Math.max(legendH + MARKER_RADIUS + 4, nonSpatialY);
+      drawNumberedCircle(page, cx, cy, col, numStr, font);
+      nonSpatialX += (MARKER_RADIUS * 2 + 4);
     }
   });
 }
@@ -521,11 +582,21 @@ async function annotateDoc(
 ): Promise<void> {
   const pages     = doc.getPages();
   const pageCount = pages.length;
-  if (!pageCount || !allIssues.length) return;
+  if (!pageCount) return;
 
   // Embed fonts once for the whole document
   const font     = await doc.embedFont(StandardFonts.Helvetica);
   const boldFont = await doc.embedFont(StandardFonts.HelveticaBold);
+
+  // ── PASS 1: Governing geometry on EVERY page ─────────────────────────────
+  // Trim boundary and safe-area box rendered consistently across the full document.
+  for (let i = 0; i < pages.length; i++) {
+    drawGoverningGeometry(pages[i], i + 1, pageCount);
+  }
+
+  if (!allIssues.length) return;
+
+  // ── PASS 2: Issue markers + legend on pages that have issues ─────────────
 
   // De-duplicate: keep highest severity per (page, ruleId) signature
   const deduped = new Map<string, AnnotationIssue>();
@@ -548,7 +619,7 @@ async function annotateDoc(
     list.sort((a, b) => severityRank(a.severity) - severityRank(b.severity));
   }
 
-  // Sort pages by worst severity first, then annotate up to the total cap
+  // Sort pages by worst severity first, annotate up to the total cap
   const sortedPageNums = [...byPage.keys()].sort((a, b) => {
     const aW = byPage.get(a)![0].severity;
     const bW = byPage.get(b)![0].severity;
@@ -566,15 +637,12 @@ async function annotateDoc(
     const page = pages[pageNum - 1];
     if (!page) continue;
 
-    // 1. Governing geometry guides
-    drawGoverningGeometry(page, pageNum, pageCount, font);
-
-    // 2. Legend panel (must come before markers so we know the reserved height)
+    // Legend panel drawn first — establishes the reserved height at page bottom
     const legendH = getLegendHeight(issues.length);
     drawLegendPanel(page, issues, pageNum, font, boldFont);
 
-    // 3. Issue markers + bbox outlines
-    drawIssueMarkersOnPage(page, issues, legendH, pageNum, font);
+    // Violation regions + anchored markers
+    drawIssueMarkersOnPage(page, issues, legendH, pageNum, pageCount, font);
 
     remaining -= issues.length;
   }
