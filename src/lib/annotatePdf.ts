@@ -55,10 +55,15 @@ const MAX_ANNOTATIONS_TOTAL = 30;
 const MAX_LEGEND_ITEMS      = 4;   // max issues shown per page legend
 
 // Legend geometry
-const LEGEND_PADDING      = 7;  // pt top/bottom padding inside legend panel
+const LEGEND_PADDING      = 10; // pt top/bottom padding inside legend panel
 const LEGEND_HEADER_H     = 14; // pt for "PAGE N — ISSUE LEGEND" header row
-const LEGEND_ROW_H        = 18; // pt per issue row
+const LEGEND_ROW_H        = 22; // pt per issue row — increased for breathing room
 const LEGEND_OVERFLOW_H   = 12; // pt for "+ N more" overflow note
+
+// Document-level header panel (page 1 only)
+const DOC_HEADER_PADDING = 8;  // pt top/bottom padding
+const DOC_HEADER_TITLE_H = 14; // pt for title row
+const DOC_HEADER_ROW_H   = 16; // pt per global-issue row
 
 // Marker geometry
 const MARKER_RADIUS = 5; // pt — numbered circle radius
@@ -205,18 +210,18 @@ function drawGoverningGeometry(
   const marginLeft  = isRightPage ? gutter         : OUTER_MARGIN_PT;
   const marginRight = isRightPage ? OUTER_MARGIN_PT : gutter;
 
-  // ── 1. Trim boundary: solid hairline, 1pt inside page edge (visually distinct from safe area)
+  // ── 1. Trim boundary: solid hairline, slightly stronger — primary reference line
   page.drawRectangle({
     x: 1, y: 1,
     width:  width  - 2,
     height: height - 2,
     borderColor:   COLOR.trim,
-    borderWidth:   0.4,
-    borderOpacity: 0.55,
-    // Solid — no dash. Visually distinct from safe-area dashes below.
+    borderWidth:   0.5,
+    borderOpacity: 0.65,
+    // Solid — no dash. Visually dominant over safe-area dashes below.
   });
 
-  // ── 2. Safe text area: dashed blue-gray bounding box at KDP margin/gutter coordinates
+  // ── 2. Safe text area: lighter dashed box — secondary reference, recedes behind trim
   const safeX = marginLeft;
   const safeY = TOP_BOTTOM_MARGIN_PT;
   const safeW = width  - marginLeft - marginRight;
@@ -227,9 +232,9 @@ function drawGoverningGeometry(
     width:  safeW,
     height: safeH,
     borderColor:     COLOR.safe,
-    borderWidth:     0.55,
-    borderOpacity:   0.50,
-    borderDashArray: [5, 3],
+    borderWidth:     0.4,
+    borderOpacity:   0.30,
+    borderDashArray: [5, 4],
     borderDashPhase: 0,
   });
 }
@@ -456,6 +461,109 @@ function deriveViolationBbox(
   return null;
 }
 
+// ── Document-level rule detection ─────────────────────────────────────────────
+
+/**
+ * Returns true for rules that apply to the document as a whole, not a specific
+ * page location (page count, trim profile, file size, colour profile, etc.).
+ * These are pulled out of the per-page annotation loop and shown only in the
+ * page-1 header panel.
+ */
+function isDocumentLevelRule(ruleId: string, message: string): boolean {
+  const text = `${ruleId} ${message}`.toLowerCase();
+  return /page.?count|min.?page|max.?page|trim.?profile|trim.?size|trim.?match|file.?size|color.?profile|color.?space|colour.?profile|colour.?space|document.?level|global|icc.?profile|output.?intent/.test(text.replace(/\s+/g, ""));
+}
+
+// ── Document-level header panel (page 1 only) ──────────────────────────────────
+
+/**
+ * Draws a compact header panel at the top of page 1 for document-level issues.
+ * These do not correspond to any specific page location; they are shown here
+ * once and never repeated on other pages.
+ */
+function drawDocumentHeaderPanel(
+  page:     PDFPage,
+  issues:   AnnotationIssue[],
+  font:     PDFFont,
+  boldFont: PDFFont,
+): void {
+  const { width, height } = page.getSize();
+  const ph = DOC_HEADER_PADDING + DOC_HEADER_TITLE_H + issues.length * DOC_HEADER_ROW_H + DOC_HEADER_PADDING;
+  const panelY = height - ph; // bottom y-coordinate of panel
+
+  // Panel background
+  page.drawRectangle({
+    x: 0, y: panelY,
+    width, height: ph,
+    color:       COLOR.legendBg,
+    opacity:     0.93,
+    borderColor: COLOR.legendBorder,
+    borderWidth: 0.4,
+  });
+
+  // Bottom separator
+  page.drawLine({
+    start: { x: 0, y: panelY },
+    end:   { x: width, y: panelY },
+    color: COLOR.legendBorder, thickness: 0.5, opacity: 0.65,
+  });
+
+  // Title + column header
+  const titleY = height - DOC_HEADER_PADDING - DOC_HEADER_TITLE_H + 4;
+  page.drawText("DOCUMENT-LEVEL CHECKS", {
+    x: LEGEND_PADDING, y: titleY,
+    size: 6.0, font: boldFont, color: COLOR.legendHeader, opacity: 0.90,
+  });
+  const sevHdrW = boldFont.widthOfTextAtSize("SEVERITY", 5);
+  page.drawText("SEVERITY", {
+    x: width - LEGEND_PADDING - sevHdrW, y: titleY,
+    size: 5, font: boldFont, color: COLOR.legendMuted, opacity: 0.60,
+  });
+
+  // Issue rows
+  issues.forEach((issue, i) => {
+    const rowMidY = height - DOC_HEADER_PADDING - DOC_HEADER_TITLE_H - i * DOC_HEADER_ROW_H - DOC_HEADER_ROW_H / 2;
+    const textY   = rowMidY - 2;
+    const col     = severityColor(issue.severity);
+
+    // Severity dot
+    page.drawEllipse({
+      x: LEGEND_PADDING + MARKER_RADIUS - 1, y: rowMidY,
+      xScale: MARKER_RADIUS - 1.5, yScale: MARKER_RADIUS - 1.5,
+      color: col, opacity: 0.85,
+    });
+
+    const textX      = LEGEND_PADDING + MARKER_RADIUS * 2 + 3;
+    const ruleLabel  = issue.ruleId.slice(0, 22);
+    const ruleLabelW = boldFont.widthOfTextAtSize(ruleLabel, 6.0);
+
+    // Rule ID
+    page.drawText(ruleLabel, {
+      x: textX, y: textY,
+      size: 6.0, font: boldFont, color: COLOR.legendText, opacity: 0.90,
+    });
+
+    // Message (truncated)
+    const msgX     = textX + ruleLabelW + 6;
+    const maxChars = Math.max(10, Math.floor((width - msgX - 65) / 3.8));
+    const msg      = issue.message.length > maxChars
+      ? issue.message.slice(0, maxChars - 1) + "…"
+      : issue.message;
+    page.drawText(msg, {
+      x: msgX, y: textY,
+      size: 5.5, font, color: COLOR.legendMuted, opacity: 0.85,
+    });
+
+    // Severity label right-aligned
+    const sevLabel = severityLabel(issue.severity);
+    const sevW     = boldFont.widthOfTextAtSize(sevLabel, 5.5);
+    page.drawText(sevLabel, {
+      x: width - LEGEND_PADDING - sevW, y: textY,
+      size: 5.5, font: boldFont, color: col, opacity: 0.90,
+    });
+  });
+}
+
 // ── Marker helper ──────────────────────────────────────────────────────────────
 
 /** Draws a severity-colored filled circle with a white issue number inside. */
@@ -547,22 +655,33 @@ function drawIssueMarkersOnPage(
     }
 
     if (hasBbox) {
-      // ── Filled violation zone: semi-transparent fill + solid border
+      // ── Violation zone: minimal fill + restrained border
       page.drawRectangle({
         x: bx, y: by,
         width:  bw,
         height: bh,
         color:         col,
-        opacity:       0.10,   // subtle fill — shows the zone without obscuring content
+        opacity:       0.04,   // 4% fill — indicates zone without obscuring content
         borderColor:   col,
-        borderWidth:   0.75,
-        borderOpacity: 0.80,
-        // Solid border — visually distinct from dashed geometry guides
+        borderWidth:   0.50,
+        borderOpacity: 0.70,
+        // Solid border — distinct from dashed geometry guides
       });
 
-      // ── Marker anchored at top-left corner of violation region
-      const cx = Math.min(bx + MARKER_RADIUS + 0.5, width  - MARKER_RADIUS);
-      const cy = Math.min(by + bh - MARKER_RADIUS - 0.5, height - MARKER_RADIUS);
+      // ── Marker: center-edge placement, index-spread to avoid clustering
+      let cx: number, cy: number;
+      if (bh > bw * 2.0) {
+        // Tall strip (margin band, gutter): center of vertical edge, alternate sides
+        cy = by + bh / 2;
+        cx = i % 2 === 0 ? bx + MARKER_RADIUS + 1 : bx + bw - MARKER_RADIUS - 1;
+      } else {
+        // Wide or square region: top-center, horizontally spread by index
+        const spread = (i - (shown.length - 1) / 2) * (MARKER_RADIUS * 2 + 4);
+        cx = bx + bw / 2 + spread;
+        cy = by + bh - MARKER_RADIUS - 1;
+      }
+      cx = Math.max(MARKER_RADIUS + 1, Math.min(cx, width  - MARKER_RADIUS - 1));
+      cy = Math.max(legendH + MARKER_RADIUS + 1, Math.min(cy, height - MARKER_RADIUS - 1));
       drawNumberedCircle(page, cx, cy, col, numStr, font);
     } else {
       // ── Non-spatial page-level issue: marker at top of safe area (not floating)
@@ -608,15 +727,27 @@ async function annotateDoc(
     }
   }
 
-  // Group by page, sort by severity (worst first)
+  // Classify: document-level (header panel on page 1) vs per-page (markers + legend)
+  const globalIssues: AnnotationIssue[] = [];
   const byPage = new Map<number, AnnotationIssue[]>();
+
   for (const issue of deduped.values()) {
-    const list = byPage.get(issue.page) ?? [];
-    list.push(issue);
-    byPage.set(issue.page, list);
+    if (isDocumentLevelRule(issue.ruleId, issue.message)) {
+      globalIssues.push(issue);
+    } else {
+      const list = byPage.get(issue.page) ?? [];
+      list.push(issue);
+      byPage.set(issue.page, list);
+    }
   }
   for (const list of byPage.values()) {
     list.sort((a, b) => severityRank(a.severity) - severityRank(b.severity));
+  }
+
+  // Document-level issues → header panel on page 1 only
+  if (globalIssues.length > 0 && pages.length > 0) {
+    globalIssues.sort((a, b) => severityRank(a.severity) - severityRank(b.severity));
+    drawDocumentHeaderPanel(pages[0], globalIssues, font, boldFont);
   }
 
   // Sort pages by worst severity first, annotate up to the total cap
@@ -707,7 +838,9 @@ export async function annotateCheckerPdf(
     const allIssues = normalizeIssues(pageIssues, enrichedIssues, pageCount);
     await annotateDoc(doc, allIssues);
 
-    const annotatedBytes          = await doc.save();
+    // useObjectStreams: false preserves cross-reference table format,
+    // preventing glyph corruption in PDFs with custom font encoding maps.
+    const annotatedBytes          = await doc.save({ useObjectStreams: false });
     const annotatedBuffer         = Buffer.from(annotatedBytes);
     const annotatedFilename       = "annotated-local.pdf";
 
