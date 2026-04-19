@@ -3,7 +3,8 @@ import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
   const ref = request.nextUrl.searchParams.get("ref");
-  if (ref && /^[\w-]{8,}$/.test(ref)) {
+  const alreadySet = request.cookies.get("m2p_ref");
+  if (ref && !alreadySet && /^[\w-]{3,}$/.test(ref)) {
     const response = NextResponse.next();
     response.cookies.set("m2p_ref", ref, {
       path: "/",
