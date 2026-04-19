@@ -92,15 +92,16 @@ export async function redeemScanCreditForDownload(
   }
 
   // Send delivery email with annotated PDF + full report links (best effort)
+  console.log("[TRACE:1] payment-confirmed entry — starting email flow");
   try {
     const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com").replace(/\/$/, "");
     const reportUrl = `${appUrl}/download/${downloadId}?source=checker`;
 
-    // Generate annotated PDF and full report PDF in parallel; both are best-effort.
-    // Full report PDF has a hard timeout so it never blocks email delivery.
     let annotatedPdfUrl: string | undefined;
     let fullReportPdfUrl: string | undefined;
     try {
+      console.log("[TRACE:2] annotated PDF — start");
+      console.log("[TRACE:3] full report PDF — start");
       const [annotated, reportPdf] = await Promise.allSettled([
         annotateCheckerPdf(downloadId),
         Promise.race([
@@ -110,21 +111,25 @@ export async function redeemScanCreditForDownload(
       ]);
       if (annotated.status === "fulfilled") {
         annotatedPdfUrl = annotated.value?.annotatedPdfDownloadUrl ?? undefined;
+        console.log("[TRACE:2] annotated PDF — end, url:", annotatedPdfUrl ? "OK" : "null");
       } else {
-        console.error("[redeemScanCredit] annotateCheckerPdf failed (non-fatal):", annotated.reason);
+        console.error("[TRACE:2] annotated PDF — FAILED:", annotated.reason);
       }
       if (reportPdf.status === "fulfilled") {
         fullReportPdfUrl = reportPdf.value?.fullReportPdfDownloadUrl ?? undefined;
+        console.log("[TRACE:3] full report PDF — end, url:", fullReportPdfUrl ? "OK" : "null/timeout");
       } else {
-        console.error("[redeemScanCredit] generateAndStoreReportPdf failed (non-fatal):", reportPdf.reason);
+        console.error("[TRACE:3] full report PDF — FAILED:", reportPdf.reason);
       }
     } catch (err) {
-      console.error("[redeemScanCredit] PDF generation failed (non-fatal):", err);
+      console.error("[TRACE:2/3] PDF generation block threw:", err);
     }
 
+    console.log("[TRACE:4] email send — trigger, annotated:", !!annotatedPdfUrl, "report:", !!fullReportPdfUrl);
     await sendDownloadLinkEmail(email, reportUrl, annotatedPdfUrl, undefined, fullReportPdfUrl);
+    console.log("[TRACE:5] email send — SUCCESS");
   } catch (err) {
-    console.error("[redeemScanCredit] sendDownloadLinkEmail failed:", err);
+    console.error("[TRACE:5] email send — FAILED:", err);
   }
 
   try {
