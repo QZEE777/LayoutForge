@@ -105,12 +105,12 @@ export async function sendDownloadLinkEmail(
                style="background: #F2EBE0; border-radius: 10px; border: 1px solid #E0D8C4; margin: 0 0 24px;">
           <tr>
             <td style="padding: 18px 24px;">
-              <p style="font-size: 13px; font-weight: 700; color: #1A1208; margin: 0 0 6px;">Share this with another author &mdash; get a free scan.</p>
-              <p style="font-size: 12px; color: #6B6151; margin: 0 0 10px;">Copy your link:</p>
+              <p style="font-size: 13px; font-weight: 700; color: #1A1208; margin: 0 0 6px;">Share manu2print with another author &mdash; get a free scan.</p>
+              <p style="font-size: 12px; color: #6B6151; margin: 0 0 10px;">Your link:</p>
               <p style="font-size: 12px; font-family: monospace; color: #1A1208; background: #fff; border: 1px solid #E0D8C4; border-radius: 6px; padding: 8px 12px; margin: 0 0 10px; word-break: break-all;">
                 <a href="${safeShareLink}" style="color: #F05A28; text-decoration: none;">${safeShareLink}</a>
               </p>
-              <p style="font-size: 12px; color: #9B8E7E; margin: 0;">When someone runs a scan using your link, a free credit is automatically added.</p>
+              <p style="font-size: 12px; color: #9B8E7E; margin: 0;">When someone runs a scan using your link, we automatically add a free scan credit.</p>
             </td>
           </tr>
         </table>
@@ -157,10 +157,10 @@ export async function sendDownloadLinkEmail(
     "",
     ...(shareLink
       ? [
-          "Share this with another author — get a free scan.",
-          "Copy your link:",
+          "Share manu2print with another author — get a free scan.",
+          "Your link:",
           shareLink,
-          "When someone runs a scan using your link, a free credit is automatically added.",
+          "When someone runs a scan using your link, we automatically add a free scan credit.",
           "",
         ]
       : []),
