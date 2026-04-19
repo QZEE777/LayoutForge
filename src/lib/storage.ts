@@ -62,6 +62,8 @@ export interface StoredManuscript {
   annotatedPdfUrl?: string;
   /** Pre-signed download URL for annotated PDF (when USE_R2). */
   annotatedPdfDownloadUrl?: string;
+  /** Server-generated full diagnostic report PDF stored in R2 as full-report.pdf. */
+  fullReportPdfDownloadUrl?: string;
   annotatedPdfStatus?: string;
   /** Annotation engine version — cache is invalidated when this differs from ANNOTATION_VERSION. */
   annotationVersion?: string;

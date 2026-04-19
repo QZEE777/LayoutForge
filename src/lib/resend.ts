@@ -30,10 +30,12 @@ export async function sendDownloadLinkEmail(
   reportUrl: string,
   annotatedPdfUrl?: string,
   name?: string,
+  fullReportPdfUrl?: string,
 ) {
   const resend = new Resend(process.env.RESEND_API_KEY ?? "");
   const safeReportUrl = escapeHtmlAttr(reportUrl);
   const safeAnnotatedUrl = annotatedPdfUrl ? escapeHtmlAttr(annotatedPdfUrl) : null;
+  const safeFullReportPdfUrl = fullReportPdfUrl ? escapeHtmlAttr(fullReportPdfUrl) : null;
   const firstName = name ? name.split(" ")[0] : "";
   const greeting = firstName ? `Hey ${firstName} —` : "You're in.";
   const subjectLine = downloadLinkReportSubject(firstName || undefined);
@@ -82,15 +84,15 @@ export async function sendDownloadLinkEmail(
         <p style="font-size: 12px; color: #9B8E7E; margin: 0 0 28px;">Your uploaded book with every flagged issue marked directly on the page.</p>
         ` : ""}
 
-        <!-- CTA 2: Full Report -->
+        <!-- CTA 2: Full Report PDF -->
         <p style="font-size: 12px; font-weight: 700; color: #6B6151; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 8px;">Your full diagnostic report</p>
         <table cellpadding="0" cellspacing="0" style="margin: 0 0 20px; width: 100%;">
           <tr>
             <td style="background: #F05A28; border-radius: 10px;">
-              <a href="${safeReportUrl}"
+              <a href="${safeFullReportPdfUrl ?? safeReportUrl}"
                  style="display: block; padding: 16px 28px; color: #ffffff;
                         text-decoration: none; font-weight: 700; font-size: 16px;">
-                &#8594; View Full Report &amp; Fix Instructions
+                &#8595; Download Full Report PDF
               </a>
             </td>
           </tr>
@@ -151,9 +153,9 @@ export async function sendDownloadLinkEmail(
           "",
         ]
       : []),
-    "DOWNLOAD 2 — Full Diagnostic Report",
+    "DOWNLOAD 2 — Full Diagnostic Report PDF",
     "(Every issue explained in plain English — what's wrong, which page, how to fix it)",
-    reportUrl,
+    fullReportPdfUrl ?? reportUrl,
     "",
     "Your report includes:",
     "✓ Every formatting issue flagged — bleed, margins, fonts, image resolution",

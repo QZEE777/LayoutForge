@@ -3,6 +3,7 @@ import { markDownloadPaid, getStored, updateMeta } from "@/lib/storage";
 import { loadScanCreditBalanceForEmail } from "@/lib/scanCredits";
 import { sendDownloadLinkEmail } from "@/lib/resend";
 import { annotateCheckerPdf } from "@/lib/annotatePdf";
+import { generateAndStoreReportPdf } from "@/lib/generateReportPdf";
 
 export type RedeemScanCreditResult =
   | { ok: true; balance: number; alreadyUnlocked?: boolean }
@@ -95,16 +96,29 @@ export async function redeemScanCreditForDownload(
     const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com").replace(/\/$/, "");
     const reportUrl = `${appUrl}/download/${downloadId}?source=checker`;
 
-    // Annotate the PDF inline so both download links are ready in the email
+    // Generate annotated PDF and full report PDF in parallel; both are best-effort
     let annotatedPdfUrl: string | undefined;
+    let fullReportPdfUrl: string | undefined;
     try {
-      const annotated = await annotateCheckerPdf(downloadId);
-      annotatedPdfUrl = annotated?.annotatedPdfDownloadUrl ?? undefined;
-    } catch (annotateErr) {
-      console.error("[redeemScanCredit] annotateCheckerPdf failed (non-fatal):", annotateErr);
+      const [annotated, reportPdf] = await Promise.allSettled([
+        annotateCheckerPdf(downloadId),
+        generateAndStoreReportPdf(downloadId),
+      ]);
+      if (annotated.status === "fulfilled") {
+        annotatedPdfUrl = annotated.value?.annotatedPdfDownloadUrl ?? undefined;
+      } else {
+        console.error("[redeemScanCredit] annotateCheckerPdf failed (non-fatal):", annotated.reason);
+      }
+      if (reportPdf.status === "fulfilled") {
+        fullReportPdfUrl = reportPdf.value?.fullReportPdfDownloadUrl ?? undefined;
+      } else {
+        console.error("[redeemScanCredit] generateAndStoreReportPdf failed (non-fatal):", reportPdf.reason);
+      }
+    } catch (err) {
+      console.error("[redeemScanCredit] PDF generation failed (non-fatal):", err);
     }
 
-    await sendDownloadLinkEmail(email, reportUrl, annotatedPdfUrl);
+    await sendDownloadLinkEmail(email, reportUrl, annotatedPdfUrl, undefined, fullReportPdfUrl);
   } catch (err) {
     console.error("[redeemScanCredit] sendDownloadLinkEmail failed:", err);
   }
