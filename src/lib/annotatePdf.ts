@@ -53,7 +53,16 @@ const TOP_BOTTOM_MARGIN_PT = 0.50 * PT; // 36pt  — KDP min top/bottom margin
 
 // Annotation engine version — bump when aggregation or rendering logic changes.
 // Cached PDFs with a different version are re-annotated automatically.
-const ANNOTATION_VERSION = "v9";
+const ANNOTATION_VERSION = "v10";
+
+// Layout-region rules: always rendered as page-level geometry, never per-text boxes.
+// Scanner-provided bboxes for these rules are per-text-line and create red noise — ignored.
+const LAYOUT_REGION_RULES = new Set([
+  "SAFE_ZONE", "TEXT_OUTSIDE_TRIM",
+  "GUTTER_MARGIN", "OUTSIDE_MARGIN_MIN",
+  "TOP_MARGIN_MIN", "BOTTOM_MARGIN_MIN",
+  "BLEED_VALIDATION", "IMAGE_BLEED",
+]);
 
 // Annotation caps
 const MAX_ANNOTATIONS_TOTAL = 30;
@@ -912,7 +921,9 @@ function resolveIssueBbox(
   pageNum:   number,
   pageCount: number,
 ): [number, number, number, number] | null {
-  if (issue.bbox) {
+  // Layout-region rules: always use derived page-level geometry.
+  // Scanner bboxes for these rules are per-text-line and produce red noise — skip them.
+  if (!LAYOUT_REGION_RULES.has(issue.ruleId) && issue.bbox) {
     const bx = Math.max(0,       Number(issue.bbox[0]) || 0);
     const by = Math.max(legendH, Number(issue.bbox[1]) || 0);
     const bw = Math.min(Math.max(8, Number(issue.bbox[2]) || 0), width  - bx);
