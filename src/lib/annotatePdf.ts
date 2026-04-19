@@ -53,7 +53,7 @@ const TOP_BOTTOM_MARGIN_PT = 0.50 * PT; // 36pt  — KDP min top/bottom margin
 
 // Annotation engine version — bump when aggregation or rendering logic changes.
 // Cached PDFs with a different version are re-annotated automatically.
-const ANNOTATION_VERSION = "v7";
+const ANNOTATION_VERSION = "v8";
 
 // Annotation caps
 const MAX_ANNOTATIONS_TOTAL = 30;
@@ -893,15 +893,16 @@ function drawNumberedCircle(
 /**
  * Draws violation boxes and numbered markers on the page.
  *
- * Rules:
- *   - Only FAIL-severity issues get a visual box. WARNING issues appear in the
- *     legend only — no box, no marker on the page.
- *   - At most MAX_BOXES_PER_PAGE boxes are drawn. Candidates are sorted by
- *     bounding-box area (largest / most representative first).
- *   - Overlapping boxes are suppressed: if a candidate shares >50% of its area
- *     with an already-selected box, it is dropped.
- *   - Non-spatial FAIL issues (no derivable region) get a small marker circle
- *     at the top of the safe area — no box.
+ * Priority for visual boxes (max MAX_BOXES_PER_PAGE):
+ *   1. FAIL severity issues
+ *   2. SAFE_ZONE rule (always rendered, regardless of severity)
+ *   3. Largest remaining WARNING issues
+ *   INFO issues → legend only, no box, no marker.
+ *
+ * Within each priority tier, candidates are sorted by bounding-box area
+ * (largest / most representative first). Overlapping boxes are suppressed:
+ * if a candidate shares >50% of its area with an already-selected box it is
+ * dropped. At least one box is always drawn if any spatial candidate exists.
  */
 function drawIssueMarkersOnPage(
   page:      PDFPage,
@@ -921,8 +922,9 @@ function drawIssueMarkersOnPage(
   let nonSpatialY = height - TOP_BOTTOM_MARGIN_PT - MARKER_RADIUS - 2;
 
   type Candidate = {
-    issue:  AnnotationIssue;
-    legIdx: number;     // position in legend (1-based label)
+    issue:    AnnotationIssue;
+    legIdx:   number;   // 1-based legend label
+    priority: number;   // 0=FAIL, 1=SAFE_ZONE, 2=other WARNING
     bx: number; by: number; bw: number; bh: number;
     area: number;
   };
@@ -930,8 +932,13 @@ function drawIssueMarkersOnPage(
   const nonSpatial: Array<{ issue: AnnotationIssue; legIdx: number }> = [];
 
   shown.forEach((issue, i) => {
-    // WARNING and INFO → legend only, no page mark
-    if (issue.severity !== "fail") return;
+    // INFO → legend only, never a box
+    if (issue.severity === "info") return;
+
+    // Assign draw priority
+    const priority =
+      issue.severity === "fail"       ? 0 :
+      issue.ruleId   === "SAFE_ZONE"  ? 1 : 2;
 
     let bx = 0, by = 0, bw = 0, bh = 0;
     let hasBbox = false;
@@ -959,14 +966,16 @@ function drawIssueMarkersOnPage(
     }
 
     if (hasBbox) {
-      spatial.push({ issue, legIdx: i + 1, bx, by, bw, bh, area: bw * bh });
+      spatial.push({ issue, legIdx: i + 1, priority, bx, by, bw, bh, area: bw * bh });
     } else {
       nonSpatial.push({ issue, legIdx: i + 1 });
     }
   });
 
-  // Sort largest region first; suppress overlapping smaller boxes
-  spatial.sort((a, b) => b.area - a.area);
+  // Sort: priority tier first, then largest area within tier
+  spatial.sort((a, b) =>
+    a.priority !== b.priority ? a.priority - b.priority : b.area - a.area,
+  );
   const selected: Candidate[] = [];
   for (const c of spatial) {
     if (selected.length >= MAX_BOXES_PER_PAGE) break;
