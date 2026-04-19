@@ -30,12 +30,9 @@ export async function sendDownloadLinkEmail(
   reportUrl: string,
   annotatedPdfUrl?: string,
   name?: string,
-  fullReportPdfUrl?: string,
 ) {
   const resend = new Resend(process.env.RESEND_API_KEY ?? "");
-  const safeReportUrl = escapeHtmlAttr(reportUrl);
   const safeAnnotatedUrl = annotatedPdfUrl ? escapeHtmlAttr(annotatedPdfUrl) : null;
-  const safeFullReportPdfUrl = fullReportPdfUrl ? escapeHtmlAttr(fullReportPdfUrl) : null;
   const firstName = name ? name.split(" ")[0] : "";
   const greeting = firstName ? `Hey ${firstName} —` : "You're in.";
   const subjectLine = downloadLinkReportSubject(firstName || undefined);
@@ -60,15 +57,15 @@ export async function sendDownloadLinkEmail(
       <td style="padding: 36px 32px 24px; background: #FAF7EE;">
 
         <p style="font-size: 22px; font-weight: 700; color: #1A1208; margin: 0 0 16px; line-height: 1.3;">
-          ${greeting} your report is ready. Here are your downloads.
+          ${greeting} your annotated PDF is ready.
         </p>
 
         <p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 24px;">
-          Your full KDP PDF Check Report is ready — every issue, every page, every fix. Two files are waiting for you below.
+          Your manuscript has been scanned and every issue is marked directly on the page. Download it below.
         </p>
 
         ${safeAnnotatedUrl ? `
-        <!-- CTA 1: Annotated PDF -->
+        <!-- CTA: Annotated PDF -->
         <p style="font-size: 12px; font-weight: 700; color: #6B6151; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 8px;">Your annotated manuscript</p>
         <table cellpadding="0" cellspacing="0" style="margin: 0 0 20px; width: 100%;">
           <tr>
@@ -84,41 +81,24 @@ export async function sendDownloadLinkEmail(
         <p style="font-size: 12px; color: #9B8E7E; margin: 0 0 28px;">Your uploaded book with every flagged issue marked directly on the page.</p>
         ` : ""}
 
-        ${safeFullReportPdfUrl ? `
-        <!-- CTA 2: Full Report PDF -->
-        <p style="font-size: 12px; font-weight: 700; color: #6B6151; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 8px;">Your full diagnostic report</p>
-        <table cellpadding="0" cellspacing="0" style="margin: 0 0 20px; width: 100%;">
-          <tr>
-            <td style="background: #F05A28; border-radius: 10px;">
-              <a href="${safeFullReportPdfUrl}"
-                 style="display: block; padding: 16px 28px; color: #ffffff;
-                        text-decoration: none; font-weight: 700; font-size: 16px;">
-                &#8595; Download Full Report PDF
-              </a>
-            </td>
-          </tr>
-        </table>
-        <p style="font-size: 12px; color: #9B8E7E; margin: 0 0 28px;">Every issue explained in plain English — what's wrong, which page, how to fix it.</p>
-        ` : ""}
-
         <!-- What's inside -->
         <table width="100%" cellpadding="0" cellspacing="0"
                style="background: #fff; border-radius: 10px; border: 1px solid #E0D8C4; margin: 0 0 24px;">
           <tr>
             <td style="padding: 20px 24px;">
               <p style="font-size: 13px; font-weight: 700; color: #1A1208; margin: 0 0 12px; text-transform: uppercase; letter-spacing: 0.05em;">
-                Your report includes
+                Your annotated PDF includes
               </p>
               <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;Every formatting issue flagged — bleed, margins, fonts, image resolution</p>
               <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;Exact page numbers for every problem</p>
               <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;Plain-English fix instructions for each issue</p>
-              <p style="font-size: 14px; color: #3a3020; margin: 0; line-height: 1.7;">&#10003; &nbsp;Annotated PDF with issues highlighted directly on your pages</p>
+              <p style="font-size: 14px; color: #3a3020; margin: 0; line-height: 1.7;">&#10003; &nbsp;Issues highlighted directly on your pages</p>
             </td>
           </tr>
         </table>
 
         <p style="font-size: 13px; color: #6B6151; margin: 0 0 6px;">
-          🔖 <strong>Bookmark this email</strong> — your report and annotated PDF are saved and accessible anytime.
+          🔖 <strong>Bookmark this email</strong> — your annotated PDF is saved and accessible anytime.
         </p>
 
         <p style="font-size: 14px; line-height: 1.8; color: #6B6151; margin: 16px 0 0;">
@@ -143,33 +123,25 @@ export async function sendDownloadLinkEmail(
 `.trim();
 
   const text = [
-    firstName ? `Hey ${firstName} — your report is ready. Here are your downloads.` : "You're in. Your report is ready. Here are your downloads.",
+    firstName ? `Hey ${firstName} — your annotated PDF is ready.` : "You're in. Your annotated PDF is ready.",
     "",
-    "Your full KDP PDF Check Report is ready — every issue, every page, every fix.",
+    "Your manuscript has been scanned and every issue is marked directly on the page.",
     "",
     ...(annotatedPdfUrl
       ? [
-          "DOWNLOAD 1 — Annotated Manuscript PDF",
-          `(Your book with every flagged issue marked on the page)`,
+          "DOWNLOAD — Annotated Manuscript PDF",
+          "(Your book with every flagged issue marked on the page)",
           annotatedPdfUrl,
           "",
         ]
       : []),
-    ...(fullReportPdfUrl
-      ? [
-          "DOWNLOAD 2 — Full Diagnostic Report PDF",
-          "(Every issue explained in plain English — what's wrong, which page, how to fix it)",
-          fullReportPdfUrl,
-          "",
-        ]
-      : []),
-    "Your report includes:",
+    "Your annotated PDF includes:",
     "✓ Every formatting issue flagged — bleed, margins, fonts, image resolution",
     "✓ Exact page numbers for every problem",
     "✓ Plain-English fix instructions for each issue",
-    "✓ Annotated PDF with issues highlighted directly on your pages",
+    "✓ Issues highlighted directly on your pages",
     "",
-    "🔖 Bookmark this email — your report and annotated PDF are saved and accessible anytime.",
+    "🔖 Bookmark this email — your annotated PDF is saved and accessible anytime.",
     "",
     "Got questions about your results? Just reply — I read every one.",
     "",

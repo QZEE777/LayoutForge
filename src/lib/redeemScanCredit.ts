@@ -3,7 +3,6 @@ import { markDownloadPaid, getStored, updateMeta } from "@/lib/storage";
 import { loadScanCreditBalanceForEmail } from "@/lib/scanCredits";
 import { sendDownloadLinkEmail } from "@/lib/resend";
 import { annotateCheckerPdf } from "@/lib/annotatePdf";
-import { generateAndStoreReportPdf } from "@/lib/generateReportPdf";
 
 export type RedeemScanCreditResult =
   | { ok: true; balance: number; alreadyUnlocked?: boolean }
@@ -91,45 +90,22 @@ export async function redeemScanCreditForDownload(
     };
   }
 
-  // Send delivery email with annotated PDF + full report links (best effort)
-  console.log("[TRACE:1] payment-confirmed entry — starting email flow");
+  // Send delivery email with annotated PDF (best effort)
   try {
     const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com").replace(/\/$/, "");
     const reportUrl = `${appUrl}/download/${downloadId}?source=checker`;
 
     let annotatedPdfUrl: string | undefined;
-    let fullReportPdfUrl: string | undefined;
     try {
-      console.log("[TRACE:2] annotated PDF — start");
-      console.log("[TRACE:3] full report PDF — start");
-      const [annotated, reportPdf] = await Promise.allSettled([
-        annotateCheckerPdf(downloadId),
-        Promise.race([
-          generateAndStoreReportPdf(downloadId),
-          new Promise<null>((resolve) => setTimeout(() => resolve(null), 8_000)),
-        ]),
-      ]);
-      if (annotated.status === "fulfilled") {
-        annotatedPdfUrl = annotated.value?.annotatedPdfDownloadUrl ?? undefined;
-        console.log("[TRACE:2] annotated PDF — end, url:", annotatedPdfUrl ? "OK" : "null");
-      } else {
-        console.error("[TRACE:2] annotated PDF — FAILED:", annotated.reason);
-      }
-      if (reportPdf.status === "fulfilled") {
-        fullReportPdfUrl = reportPdf.value?.fullReportPdfDownloadUrl ?? undefined;
-        console.log("[TRACE:3] full report PDF — end, url:", fullReportPdfUrl ? "OK" : "null/timeout");
-      } else {
-        console.error("[TRACE:3] full report PDF — FAILED:", reportPdf.reason);
-      }
-    } catch (err) {
-      console.error("[TRACE:2/3] PDF generation block threw:", err);
+      const annotated = await annotateCheckerPdf(downloadId);
+      annotatedPdfUrl = annotated?.annotatedPdfDownloadUrl ?? undefined;
+    } catch (annotateErr) {
+      console.error("[redeemScanCredit] annotateCheckerPdf failed (non-fatal):", annotateErr);
     }
 
-    console.log("[TRACE:4] email send — trigger, annotated:", !!annotatedPdfUrl, "report:", !!fullReportPdfUrl);
-    await sendDownloadLinkEmail(email, reportUrl, annotatedPdfUrl, undefined, fullReportPdfUrl);
-    console.log("[TRACE:5] email send — SUCCESS");
+    await sendDownloadLinkEmail(email, reportUrl, annotatedPdfUrl);
   } catch (err) {
-    console.error("[TRACE:5] email send — FAILED:", err);
+    console.error("[redeemScanCredit] sendDownloadLinkEmail failed:", err);
   }
 
   try {
