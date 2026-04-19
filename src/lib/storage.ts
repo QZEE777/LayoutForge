@@ -63,6 +63,8 @@ export interface StoredManuscript {
   /** Pre-signed download URL for annotated PDF (when USE_R2). */
   annotatedPdfDownloadUrl?: string;
   annotatedPdfStatus?: string;
+  /** Annotation engine version — cache is invalidated when this differs from ANNOTATION_VERSION. */
+  annotationVersion?: string;
   /** Email delivery state for annotated checker PDF. */
   annotatedEmail?: string;
   annotatedEmailRequestedAt?: number;

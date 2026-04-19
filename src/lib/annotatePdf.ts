@@ -11,7 +11,7 @@
  */
 
 import { PDFDocument, rgb, StandardFonts, PDFFont, PDFPage } from "pdf-lib";
-import { getStored, updateAnnotatedState } from "@/lib/storage";
+import { getStored, updateAnnotatedState, updateMeta } from "@/lib/storage";
 import { getFileByKey, uploadFile, getSignedDownloadUrl } from "@/lib/r2Storage";
 import { supabase } from "@/lib/supabase";
 
@@ -40,6 +40,7 @@ type AnnotationIssue = {
   ruleId: string;
   message: string;
   bbox: number[] | null; // [x, y, w, h] in PDF points, bottom-left origin
+  affectedPages?: number[]; // populated by aggregateIssues(); length > 1 means repeated rule
 };
 
 // ── Constants ──────────────────────────────────────────────────────────────────
@@ -49,6 +50,10 @@ const PT = 72; // points per inch
 // KDP margin requirements
 const OUTER_MARGIN_PT      = 0.25 * PT; // 18pt  — KDP min outer margin
 const TOP_BOTTOM_MARGIN_PT = 0.50 * PT; // 36pt  — KDP min top/bottom margin
+
+// Annotation engine version — bump when aggregation or rendering logic changes.
+// Cached PDFs with a different version are re-annotated automatically.
+const ANNOTATION_VERSION = "v2";
 
 // Annotation caps
 const MAX_ANNOTATIONS_TOTAL = 30;
@@ -146,6 +151,40 @@ function parseValues(msg: string): { expected?: string; observed?: string } {
   };
 }
 
+// ── Page range formatting ──────────────────────────────────────────────────────
+
+/**
+ * Converts a sorted array of page numbers into a compact human-readable range string.
+ * Examples:  [3]        → "p. 3"
+ *            [1, 2, 3]  → "pp. 1–3"
+ *            [1, 3, 5]  → "pp. 1, 3, 5"
+ *            [1..20]    → "pp. 1–20  (20×)"   (collapses with count when >6 pages)
+ */
+function formatPageRange(pages: number[]): string {
+  if (pages.length === 0) return "";
+  if (pages.length === 1) return `p. ${pages[0]}`;
+
+  const runs: string[] = [];
+  let start = pages[0];
+  let prev  = pages[0];
+
+  for (let i = 1; i < pages.length; i++) {
+    if (pages[i] === prev + 1) {
+      prev = pages[i];
+    } else {
+      runs.push(start === prev ? String(start) : `${start}–${prev}`);
+      start = pages[i];
+      prev  = pages[i];
+    }
+  }
+  runs.push(start === prev ? String(start) : `${start}–${prev}`);
+
+  const rangeStr = runs.join(", ");
+  return pages.length > 6
+    ? `pp. ${rangeStr}  (${pages.length}×)`
+    : `pp. ${rangeStr}`;
+}
+
 // ── Issue normalization ────────────────────────────────────────────────────────
 
 function normalizeIssues(
@@ -185,6 +224,83 @@ function normalizeIssues(
   }
 
   return out;
+}
+
+// ── Issue aggregation (deduplication) ─────────────────────────────────────────
+
+/**
+ * Builds a stable, canonical aggregation key for an issue.
+ *
+ * Per-page rules: key = ruleId + full normalised message (exact match required).
+ *
+ * Document-level rules (trim profile, page count, file size, etc.):
+ *   The external preflight engine often fires these rules once per page and
+ *   embeds the page number in the message — e.g.
+ *     "Page 1 trim size (6×9 in) is not in KDP's allowed list."
+ *     "Page 2 trim size (6×9 in) is not in KDP's allowed list."
+ *   Without a canonical key these land in 20 separate groups.
+ *
+ *   Strategy (applied only for document-level rules):
+ *   1. If the message contains a dimension (W × H), round to 0.01 in and use
+ *      `ruleId::WxH` — absorbs page-number prefixes AND floating-point noise.
+ *   2. Otherwise, strip page-number references then normalise whitespace.
+ */
+function buildAggregationKey(issue: AnnotationIssue): string {
+  const { ruleId, message } = issue;
+
+  // Document-level rules (trim size, page count, colour profile, etc.) fire once
+  // per page but describe a document-wide condition. Key on ruleId only — message
+  // content is irrelevant and varies across pages (floating-point dimensions,
+  // embedded page numbers), which would otherwise produce 20 separate groups
+  // instead of one.
+  if (isDocumentLevelRule(ruleId, message)) {
+    return `doc::${ruleId}`;
+  }
+
+  // Per-page rules: key = ruleId + normalised message.
+  return `${ruleId}::${message.toLowerCase().replace(/\s+/g, " ").trim()}`;
+}
+
+/**
+ * Collapses repeated identical violations into a single representative entry.
+ *
+ * Groups by `buildAggregationKey` — stable across page-number variations and
+ * floating-point noise in observed dimensions. Within each group:
+ *   - Collects all affected page numbers
+ *   - Keeps the "best" representative occurrence: highest severity first,
+ *     then prefer the one with a bbox if severity is equal
+ *
+ * The `affectedPages` field on the returned issue lists all pages where the
+ * rule fired, so legend and header panels can display a page range instead
+ * of repeating the same entry 40 times.
+ */
+function aggregateIssues(issues: AnnotationIssue[]): AnnotationIssue[] {
+  const groups = new Map<string, { pages: Set<number>; best: AnnotationIssue }>();
+
+  for (const issue of issues) {
+    const key   = buildAggregationKey(issue);
+    const group = groups.get(key);
+
+    if (!group) {
+      groups.set(key, { pages: new Set([issue.page]), best: { ...issue } });
+    } else {
+      group.pages.add(issue.page);
+      // Prefer higher severity; if equal, prefer the one with a bbox
+      const newRank = severityRank(issue.severity);
+      const curRank = severityRank(group.best.severity);
+      if (
+        newRank < curRank ||
+        (newRank === curRank && issue.bbox && !group.best.bbox)
+      ) {
+        group.best = { ...issue };
+      }
+    }
+  }
+
+  return [...groups.values()].map(({ pages, best }) => ({
+    ...best,
+    affectedPages: [...pages].sort((a, b) => a - b),
+  }));
 }
 
 // ── Geometry overlay ───────────────────────────────────────────────────────────
@@ -364,10 +480,19 @@ function drawLegendPanel(
     });
 
     // Message or expected/observed — line 2
+    // When a rule repeats across pages, show the page range instead of (or alongside) values.
     const { expected, observed } = parseValues(issue.message);
+    const isRepeated = (issue.affectedPages?.length ?? 1) > 1;
     let line2Text: string;
 
-    if (expected && observed) {
+    if (isRepeated) {
+      const rangeStr = formatPageRange(issue.affectedPages!);
+      if (expected && observed) {
+        line2Text = `${rangeStr}  ·  Req: ${expected} / Found: ${observed}`;
+      } else {
+        line2Text = rangeStr;
+      }
+    } else if (expected && observed) {
       line2Text = `Required: ${expected}  ·  Observed: ${observed}`;
     } else {
       const maxChars = Math.max(20, Math.floor((width - textX - 50) / 3.8));
@@ -543,13 +668,17 @@ function drawDocumentHeaderPanel(
       size: 6.0, font: boldFont, color: COLOR.legendText, opacity: 0.90,
     });
 
-    // Message (truncated)
-    const msgX     = textX + ruleLabelW + 6;
-    const maxChars = Math.max(10, Math.floor((width - msgX - 65) / 3.8));
-    const msg      = issue.message.length > maxChars
+    // Message (truncated) — append page range suffix when repeated across pages
+    const msgX      = textX + ruleLabelW + 6;
+    const maxChars  = Math.max(10, Math.floor((width - msgX - 65) / 3.8));
+    let   msgStr    = issue.message.length > maxChars
       ? issue.message.slice(0, maxChars - 1) + "…"
       : issue.message;
-    page.drawText(msg, {
+    const affCount  = issue.affectedPages?.length ?? 1;
+    if (affCount > 1) {
+      msgStr = formatPageRange(issue.affectedPages!);
+    }
+    page.drawText(msgStr, {
       x: msgX, y: textY,
       size: 5.5, font, color: COLOR.legendMuted, opacity: 0.85,
     });
@@ -717,21 +846,14 @@ async function annotateDoc(
 
   // ── PASS 2: Issue markers + legend on pages that have issues ─────────────
 
-  // De-duplicate: keep highest severity per (page, ruleId) signature
-  const deduped = new Map<string, AnnotationIssue>();
-  for (const issue of allIssues) {
-    const sig      = `${issue.page}::${issue.ruleId}`;
-    const existing = deduped.get(sig);
-    if (!existing || severityRank(issue.severity) < severityRank(existing.severity)) {
-      deduped.set(sig, issue);
-    }
-  }
+  // Aggregate: collapse repeated identical violations into one entry with page range
+  const aggregated = aggregateIssues(allIssues);
 
   // Classify: document-level (header panel on page 1) vs per-page (markers + legend)
   const globalIssues: AnnotationIssue[] = [];
   const byPage = new Map<number, AnnotationIssue[]>();
 
-  for (const issue of deduped.values()) {
+  for (const issue of aggregated) {
     if (isDocumentLevelRule(issue.ruleId, issue.message)) {
       globalIssues.push(issue);
     } else {
@@ -814,8 +936,13 @@ export async function annotateCheckerPdf(
     if (!meta) return null;
     if (!meta.processingReport || meta.processingReport.outputType !== "checker") return null;
 
-    // Already annotated — return existing URL
-    if (meta.annotatedPdfDownloadUrl && meta.annotatedPdfStatus === "ready") {
+    // Return cached PDF only when version matches current engine version.
+    // Version mismatch means logic has changed — re-annotate and overwrite.
+    if (
+      meta.annotatedPdfDownloadUrl &&
+      meta.annotatedPdfStatus === "ready" &&
+      meta.annotationVersion === ANNOTATION_VERSION
+    ) {
       return { annotatedPdfDownloadUrl: meta.annotatedPdfDownloadUrl };
     }
 
@@ -848,6 +975,7 @@ export async function annotateCheckerPdf(
     const annotatedPdfDownloadUrl = await getSignedDownloadUrl(downloadId, annotatedFilename);
 
     await updateAnnotatedState(downloadId, { status: "ready", annotatedPdfDownloadUrl });
+    await updateMeta(downloadId, { annotationVersion: ANNOTATION_VERSION });
 
     return { annotatedPdfDownloadUrl };
   } catch (err) {
