@@ -209,6 +209,7 @@ export default function DownloadPage() {
   const [annotatedEmailStatus, setAnnotatedEmailStatus] = useState<"idle" | "saving" | "queued" | "sent" | "error">("idle");
   /** `undefined` = still resolving auth; `null` = guest; string = signed-in account email */
   const [authEmail, setAuthEmail] = useState<string | null | undefined>(undefined);
+  const [refId, setRefId] = useState<string | null>(null);
   const annotatedAutoInFlightRef = useRef(false);
   /** One automatic enqueue per download id (guests rely on the form; failures use Retry). */
   const annotatedAutoAttemptedRef = useRef(false);
@@ -407,6 +408,18 @@ export default function DownloadPage() {
       .then((d) => { if (d?.token?.token) setShareToken(d.token.token); })
       .catch(() => {});
   }, []);
+
+  // Compute stable ref_id for the scan referral share link (SHA-256 of downloadId, 12 chars)
+  useEffect(() => {
+    if (!id) return;
+    const enc = new TextEncoder();
+    crypto.subtle.digest("SHA-256", enc.encode(id))
+      .then((buf) => {
+        const hex = Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+        setRefId(hex.slice(0, 12));
+      })
+      .catch(() => {});
+  }, [id]);
 
   // If user is an active partner, partner referral code is source-of-truth.
   useEffect(() => {
@@ -1337,6 +1350,29 @@ export default function DownloadPage() {
                     </button>
                     </div>
                   </div>
+
+                  {/* Referral share block */}
+                  {refId && (
+                    <div
+                      className="mt-6 rounded-2xl p-5 border"
+                      style={{ background: "#F2EBE0", borderColor: "#E0D8C4" }}
+                    >
+                      <p className="font-bold text-sm mb-1" style={{ color: "#1A1208" }}>
+                        Share manu2print &mdash; get a free scan
+                      </p>
+                      <p className="text-xs mb-2" style={{ color: "#6B6151" }}>Your link:</p>
+                      <p
+                        className="text-xs font-mono break-all rounded-lg px-3 py-2 mb-3 border"
+                        style={{ background: "#fff", borderColor: "#E0D8C4", color: "#1A1208" }}
+                      >
+                        {`https://www.manu2print.com/kdp-pdf-checker?ref=${refId}`}
+                      </p>
+                      <p className="text-xs" style={{ color: "#9B8E7E" }}>
+                        When someone runs a scan using your link, we automatically add a free scan credit.
+                      </p>
+                    </div>
+                  )}
+
                   {/* Share-to-earn CTA — hidden Phase 1 */}
                   {false && shareEarnLink && (
                     <div
