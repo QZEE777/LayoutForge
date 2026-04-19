@@ -84,12 +84,13 @@ export async function sendDownloadLinkEmail(
         <p style="font-size: 12px; color: #9B8E7E; margin: 0 0 28px;">Your uploaded book with every flagged issue marked directly on the page.</p>
         ` : ""}
 
+        ${safeFullReportPdfUrl ? `
         <!-- CTA 2: Full Report PDF -->
         <p style="font-size: 12px; font-weight: 700; color: #6B6151; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 8px;">Your full diagnostic report</p>
         <table cellpadding="0" cellspacing="0" style="margin: 0 0 20px; width: 100%;">
           <tr>
             <td style="background: #F05A28; border-radius: 10px;">
-              <a href="${safeFullReportPdfUrl ?? safeReportUrl}"
+              <a href="${safeFullReportPdfUrl}"
                  style="display: block; padding: 16px 28px; color: #ffffff;
                         text-decoration: none; font-weight: 700; font-size: 16px;">
                 &#8595; Download Full Report PDF
@@ -98,6 +99,7 @@ export async function sendDownloadLinkEmail(
           </tr>
         </table>
         <p style="font-size: 12px; color: #9B8E7E; margin: 0 0 28px;">Every issue explained in plain English — what's wrong, which page, how to fix it.</p>
+        ` : ""}
 
         <!-- What's inside -->
         <table width="100%" cellpadding="0" cellspacing="0"
@@ -153,10 +155,14 @@ export async function sendDownloadLinkEmail(
           "",
         ]
       : []),
-    "DOWNLOAD 2 — Full Diagnostic Report PDF",
-    "(Every issue explained in plain English — what's wrong, which page, how to fix it)",
-    fullReportPdfUrl ?? reportUrl,
-    "",
+    ...(fullReportPdfUrl
+      ? [
+          "DOWNLOAD 2 — Full Diagnostic Report PDF",
+          "(Every issue explained in plain English — what's wrong, which page, how to fix it)",
+          fullReportPdfUrl,
+          "",
+        ]
+      : []),
     "Your report includes:",
     "✓ Every formatting issue flagged — bleed, margins, fonts, image resolution",
     "✓ Exact page numbers for every problem",

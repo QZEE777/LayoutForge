@@ -96,13 +96,17 @@ export async function redeemScanCreditForDownload(
     const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com").replace(/\/$/, "");
     const reportUrl = `${appUrl}/download/${downloadId}?source=checker`;
 
-    // Generate annotated PDF and full report PDF in parallel; both are best-effort
+    // Generate annotated PDF and full report PDF in parallel; both are best-effort.
+    // Full report PDF has a hard timeout so it never blocks email delivery.
     let annotatedPdfUrl: string | undefined;
     let fullReportPdfUrl: string | undefined;
     try {
       const [annotated, reportPdf] = await Promise.allSettled([
         annotateCheckerPdf(downloadId),
-        generateAndStoreReportPdf(downloadId),
+        Promise.race([
+          generateAndStoreReportPdf(downloadId),
+          new Promise<null>((resolve) => setTimeout(() => resolve(null), 8_000)),
+        ]),
       ]);
       if (annotated.status === "fulfilled") {
         annotatedPdfUrl = annotated.value?.annotatedPdfDownloadUrl ?? undefined;
