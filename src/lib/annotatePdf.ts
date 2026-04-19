@@ -53,7 +53,7 @@ const TOP_BOTTOM_MARGIN_PT = 0.50 * PT; // 36pt  — KDP min top/bottom margin
 
 // Annotation engine version — bump when aggregation or rendering logic changes.
 // Cached PDFs with a different version are re-annotated automatically.
-const ANNOTATION_VERSION = "v4";
+const ANNOTATION_VERSION = "v5";
 
 // Annotation caps
 const MAX_ANNOTATIONS_TOTAL = 30;
@@ -188,12 +188,12 @@ const RULE_SENTENCES: Record<string, string> = {
   BOTTOM_MARGIN_MIN:           "Bottom margin is too narrow - content will be cut at the bottom of the page.",
   SAFE_ZONE:                   "Content is too close to the edge - it will be cut during printing.",
   TEXT_OUTSIDE_TRIM:           "Text sits outside the trim area - it will not appear in the printed book.",
-  EMBEDDED_FONTS:              "Fonts are not embedded - KDP will substitute them and change the layout.",
-  RESTRICTED_FONT_EMBEDDING:   "A font restricts embedding - KDP will not be able to display it correctly.",
-  MIN_FONT_SIZE:               "Text is too small to print clearly - readers will not be able to read it.",
-  COLOR_PROFILE:               "Color profile is missing or incorrect - print colors will not match screen.",
-  OUTPUT_INTENT:               "Color output intent is not set - printed colors will be inaccurate.",
-  TRANSPARENCY_FLATTENING:     "Transparent layers were not flattened - some elements will not print correctly.",
+  EMBEDDED_FONTS:              "Fonts are not embedded - KDP will replace them with a default font, breaking your layout.",
+  RESTRICTED_FONT_EMBEDDING:   "A font in this file blocks embedding - text will display incorrectly in the printed book.",
+  MIN_FONT_SIZE:               "Text is too small to print - readers will not be able to read it.",
+  COLOR_PROFILE:               "No color profile detected - printed colors will differ from what you see on screen.",
+  OUTPUT_INTENT:               "Color output intent is missing - KDP cannot guarantee accurate print colors.",
+  TRANSPARENCY_FLATTENING:     "Transparent elements were not flattened - overlapping content will not print correctly.",
   PDF_VERSION:                 "PDF version is not supported - re-export at PDF 1.3 or higher.",
   ROTATED_PAGES:               "Some pages are rotated - they will print sideways.",
   EMPTY_PAGE:                  "This page appears blank - verify this is intentional before uploading.",
@@ -215,10 +215,26 @@ function getDocumentStatus(issues: AnnotationIssue[]): "fail" | "warning" | "pas
   return "pass";
 }
 
-function statusDisplay(status: "fail" | "warning" | "pass"): { text: string; color: ReturnType<typeof rgb> } {
-  if (status === "fail")    return { text: "WILL BE REJECTED BY KDP",  color: COLOR.fail };
-  if (status === "warning") return { text: "PRINT ISSUES DETECTED",    color: COLOR.warning };
-  return { text: "READY FOR UPLOAD", color: rgb(0.18, 0.55, 0.22) };
+function statusDisplay(status: "fail" | "warning" | "pass"): {
+  heading:  string;
+  subtitle: string;
+  color:    ReturnType<typeof rgb>;
+} {
+  if (status === "fail")    return {
+    heading:  "[X] WILL FAIL KDP REVIEW",
+    subtitle: "Fix these issues before uploading to avoid rejection.",
+    color:    COLOR.fail,
+  };
+  if (status === "warning") return {
+    heading:  "[!] WILL CAUSE PRINT ISSUES",
+    subtitle: "Fix these issues before uploading to avoid printing errors.",
+    color:    COLOR.warning,
+  };
+  return {
+    heading:  "[OK] READY FOR UPLOAD",
+    subtitle: "Your file meets KDP requirements. You are ready to upload.",
+    color:    rgb(0.18, 0.55, 0.22),
+  };
 }
 
 // ── Message parsing ────────────────────────────────────────────────────────────
@@ -497,16 +513,7 @@ function drawLegendPanel(
     opacity: 0.90,
   });
 
-  // ── Right-aligned column headers
-  const colSevW   = boldFont.widthOfTextAtSize("SEVERITY", 5);
-  page.drawText("SEVERITY", {
-    x:       width - LEGEND_PADDING - colSevW,
-    y:       headerY,
-    size:    5,
-    font:    boldFont,
-    color:   COLOR.legendMuted,
-    opacity: 0.60,
-  });
+  // Severity column header removed — color of each row dot communicates severity
 
   // ── Issue rows
   shown.forEach((issue, i) => {
@@ -554,16 +561,16 @@ function drawLegendPanel(
       opacity: 0.92,
     });
 
-    // SEVERITY label — line 1 right
+    // Severity tag — de-emphasised, right-aligned, communicates type without dominating
     const sevLabel = severityLabel(issue.severity);
-    const sevW     = boldFont.widthOfTextAtSize(sevLabel, 5.5);
+    const sevW     = font.widthOfTextAtSize(sevLabel, 4.5);
     page.drawText(sevLabel, {
       x:       width - LEGEND_PADDING - sevW,
       y:       line1Y,
-      size:    5.5,
-      font:    boldFont,
-      color:   col,
-      opacity: 0.90,
+      size:    4.5,
+      font,
+      color:   COLOR.legendMuted,
+      opacity: 0.35,
     });
 
     // One-sentence description — line 2
@@ -585,7 +592,7 @@ function drawLegendPanel(
 
   // ── Overflow note
   if (overflow > 0) {
-    page.drawText(`+ ${overflow} more issue${overflow > 1 ? "s" : ""} — see full report`, {
+    page.drawText(`+ ${overflow} more issue${overflow > 1 ? "s" : ""} - see full report`, {
       x:       LEGEND_PADDING,
       y:       LEGEND_PADDING - 1,
       size:    5,
@@ -673,7 +680,7 @@ function isDocumentLevelRule(ruleId: string, message: string): boolean {
 
 // ── Status banner (page 1 only) ────────────────────────────────────────────────
 
-const STATUS_BANNER_H = 16; // pt — single compact colored strip
+const STATUS_BANNER_H = 26; // pt — two-line colored strip (heading + subtitle)
 const BANNER_GAP      =  2; // pt — breathing room between banner and header panel
 
 /**
@@ -686,8 +693,8 @@ function drawStatusBanner(
   font:     PDFFont,
   boldFont: PDFFont,
 ): void {
-  const { width, height } = page.getSize();
-  const { text, color }   = statusDisplay(status);
+  const { width, height }          = page.getSize();
+  const { heading, subtitle, color } = statusDisplay(status);
 
   page.drawRectangle({
     x: 0, y: height - STATUS_BANNER_H,
@@ -696,18 +703,27 @@ function drawStatusBanner(
     opacity: 0.90,
   });
 
-  const labelW = boldFont.widthOfTextAtSize(text, 6.5);
-  page.drawText(text, {
-    x:       (width - labelW) / 2,
-    y:       height - STATUS_BANNER_H + 5,
+  // Line 1 — main status heading (bold, centered)
+  const headingW = boldFont.widthOfTextAtSize(heading, 6.5);
+  page.drawText(heading, {
+    x:       (width - headingW) / 2,
+    y:       height - 10,
     size:    6.5,
     font:    boldFont,
     color:   rgb(1, 1, 1),
     opacity: 1,
   });
 
-  // Suppress unused-var warning — font kept for API consistency
-  void font;
+  // Line 2 — subtitle (normal weight, centered, slightly smaller)
+  const subtitleW = font.widthOfTextAtSize(subtitle, 5.0);
+  page.drawText(subtitle, {
+    x:       (width - subtitleW) / 2,
+    y:       height - STATUS_BANNER_H + 5,
+    size:    5.0,
+    font,
+    color:   rgb(1, 1, 1),
+    opacity: 0.85,
+  });
 }
 
 // ── Document-level header panel (page 1 only) ──────────────────────────────────
@@ -751,11 +767,7 @@ function drawDocumentHeaderPanel(
     x: LEGEND_PADDING, y: titleY,
     size: 6.0, font: boldFont, color: COLOR.legendHeader, opacity: 0.90,
   });
-  const sevHdrW = boldFont.widthOfTextAtSize("SEVERITY", 5);
-  page.drawText("SEVERITY", {
-    x: width - LEGEND_PADDING - sevHdrW, y: titleY,
-    size: 5, font: boldFont, color: COLOR.legendMuted, opacity: 0.60,
-  });
+  // Severity column header removed — dot color communicates severity
 
   // Issue rows
   issues.forEach((issue, i) => {
@@ -793,12 +805,12 @@ function drawDocumentHeaderPanel(
       size: 5.5, font, color: COLOR.legendMuted, opacity: 0.85,
     });
 
-    // Severity label right-aligned
+    // Severity tag — de-emphasised
     const sevLabel = severityLabel(issue.severity);
-    const sevW     = boldFont.widthOfTextAtSize(sevLabel, 5.5);
+    const sevW     = font.widthOfTextAtSize(sevLabel, 4.5);
     page.drawText(sevLabel, {
       x: width - LEGEND_PADDING - sevW, y: textY,
-      size: 5.5, font: boldFont, color: col, opacity: 0.90,
+      size: 4.5, font, color: COLOR.legendMuted, opacity: 0.35,
     });
   });
 }
@@ -894,16 +906,16 @@ function drawIssueMarkersOnPage(
     }
 
     if (hasBbox) {
-      // ── Violation zone: minimal fill + restrained border
+      // ── Violation zone: very light fill + restrained border — polished, non-intrusive
       page.drawRectangle({
         x: bx, y: by,
         width:  bw,
         height: bh,
         color:         col,
-        opacity:       0.04,   // 4% fill — indicates zone without obscuring content
+        opacity:       0.025,  // 2.5% fill — barely-there tint, content stays readable
         borderColor:   col,
         borderWidth:   0.50,
-        borderOpacity: 0.70,
+        borderOpacity: 0.55,
         // Solid border — distinct from dashed geometry guides
       });
 
