@@ -50,8 +50,17 @@ export async function sendDownloadLinkEmail(
 
     <!-- Header -->
     <tr>
-      <td style="background: #1A1208; padding: 24px 32px; border-radius: 12px 12px 0 0;">
-        <span style="font-size: 24px; font-weight: 700; color: #F05A28;">manu</span><span style="font-size: 24px; font-weight: 700; color: #4cd964;">2print</span>
+      <td style="background: #1A1208; padding: 20px 32px; border-radius: 12px 12px 0 0;">
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="vertical-align: middle;">
+              <span style="font-size: 24px; font-weight: 700; color: #F05A28;">manu</span><span style="font-size: 24px; font-weight: 700; color: #4cd964;">2print</span>
+            </td>
+            <td align="right" style="vertical-align: middle;">
+              <img src="https://www.manu2print.com/MANNY%20AVATAR.png" alt="Manny" width="40" height="40" style="border-radius: 50%; display: block;" />
+            </td>
+          </tr>
+        </table>
       </td>
     </tr>
 
