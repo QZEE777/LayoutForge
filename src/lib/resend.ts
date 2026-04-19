@@ -14,7 +14,7 @@ import {
 import { MARKETING_UNSUBSCRIBE_FOOTER_TEXT } from "./emailMarketingFooter";
 
 const FROM         = "noreply@manu2print.com";
-const FROM_MANNY   = "Manny from manu2print <manny@manu2print.com>";
+const FROM_MANNY   = "Manny | manu2print <manny@manu2print.com>";
 const REPLY_TO     = "hello@manu2print.com";
 
 function escapeHtmlAttr(s: string): string {
@@ -30,12 +30,15 @@ export async function sendDownloadLinkEmail(
   reportUrl: string,
   annotatedPdfUrl?: string,
   name?: string,
+  refId?: string,
 ) {
   const resend = new Resend(process.env.RESEND_API_KEY ?? "");
   const safeAnnotatedUrl = annotatedPdfUrl ? escapeHtmlAttr(annotatedPdfUrl) : null;
-  const firstName = name ? name.split(" ")[0] : "";
-  const greeting = firstName ? `Hey ${firstName} —` : "You're in.";
-  const subjectLine = downloadLinkReportSubject(firstName || undefined);
+  const subjectLine = downloadLinkReportSubject();
+  const shareLink = refId
+    ? `https://www.manu2print.com/kdp-pdf-checker?ref=${encodeURIComponent(refId)}`
+    : null;
+  const safeShareLink = shareLink ? escapeHtmlAttr(shareLink) : null;
 
   const html = `
 <!DOCTYPE html>
@@ -57,17 +60,16 @@ export async function sendDownloadLinkEmail(
       <td style="padding: 36px 32px 24px; background: #FAF7EE;">
 
         <p style="font-size: 22px; font-weight: 700; color: #1A1208; margin: 0 0 16px; line-height: 1.3;">
-          ${greeting} your annotated PDF is ready.
+          You&rsquo;re in. Your annotated PDF is ready.
         </p>
 
         <p style="font-size: 15px; line-height: 1.8; color: #3a3020; margin: 0 0 24px;">
-          Your manuscript has been scanned and every issue is marked directly on the page. Download it below.
+          Your manuscript has been checked against KDP requirements. Every issue is marked directly on your pages so you can fix it before uploading.
         </p>
 
         ${safeAnnotatedUrl ? `
-        <!-- CTA: Annotated PDF -->
         <p style="font-size: 12px; font-weight: 700; color: #6B6151; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 8px;">Your annotated manuscript</p>
-        <table cellpadding="0" cellspacing="0" style="margin: 0 0 20px; width: 100%;">
+        <table cellpadding="0" cellspacing="0" style="margin: 0 0 8px; width: 100%;">
           <tr>
             <td style="background: #1A1208; border-radius: 10px;">
               <a href="${safeAnnotatedUrl}"
@@ -78,7 +80,7 @@ export async function sendDownloadLinkEmail(
             </td>
           </tr>
         </table>
-        <p style="font-size: 12px; color: #9B8E7E; margin: 0 0 28px;">Your uploaded book with every flagged issue marked directly on the page.</p>
+        <p style="font-size: 12px; color: #9B8E7E; margin: 0 0 28px;">Your uploaded file with every issue clearly marked on the page.</p>
         ` : ""}
 
         <!-- What's inside -->
@@ -87,22 +89,35 @@ export async function sendDownloadLinkEmail(
           <tr>
             <td style="padding: 20px 24px;">
               <p style="font-size: 13px; font-weight: 700; color: #1A1208; margin: 0 0 12px; text-transform: uppercase; letter-spacing: 0.05em;">
-                Your annotated PDF includes
+                What&rsquo;s inside your annotated PDF
               </p>
-              <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;Every formatting issue flagged — bleed, margins, fonts, image resolution</p>
-              <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;Exact page numbers for every problem</p>
-              <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;Plain-English fix instructions for each issue</p>
-              <p style="font-size: 14px; color: #3a3020; margin: 0; line-height: 1.7;">&#10003; &nbsp;Issues highlighted directly on your pages</p>
+              <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;Every formatting issue flagged &mdash; margins, bleed, fonts, image resolution</p>
+              <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;Exact page numbers for each issue</p>
+              <p style="font-size: 14px; color: #3a3020; margin: 0 0 8px; line-height: 1.7;">&#10003; &nbsp;Clear, plain-English fix guidance</p>
+              <p style="font-size: 14px; color: #3a3020; margin: 0; line-height: 1.7;">&#10003; &nbsp;Issues shown directly on your pages for fast correction</p>
             </td>
           </tr>
         </table>
 
-        <p style="font-size: 13px; color: #6B6151; margin: 0 0 6px;">
-          🔖 <strong>Bookmark this email</strong> — your annotated PDF is saved and accessible anytime.
-        </p>
+        ${safeShareLink ? `
+        <!-- Share to earn -->
+        <table width="100%" cellpadding="0" cellspacing="0"
+               style="background: #F2EBE0; border-radius: 10px; border: 1px solid #E0D8C4; margin: 0 0 24px;">
+          <tr>
+            <td style="padding: 18px 24px;">
+              <p style="font-size: 13px; font-weight: 700; color: #1A1208; margin: 0 0 6px;">Share this with another author &mdash; get a free scan.</p>
+              <p style="font-size: 12px; color: #6B6151; margin: 0 0 10px;">Copy your link:</p>
+              <p style="font-size: 12px; font-family: monospace; color: #1A1208; background: #fff; border: 1px solid #E0D8C4; border-radius: 6px; padding: 8px 12px; margin: 0 0 10px; word-break: break-all;">
+                <a href="${safeShareLink}" style="color: #F05A28; text-decoration: none;">${safeShareLink}</a>
+              </p>
+              <p style="font-size: 12px; color: #9B8E7E; margin: 0;">When someone runs a scan using your link, a free credit is automatically added.</p>
+            </td>
+          </tr>
+        </table>
+        ` : ""}
 
-        <p style="font-size: 14px; line-height: 1.8; color: #6B6151; margin: 16px 0 0;">
-          Got questions about your results? Just reply — I read every one.
+        <p style="font-size: 13px; color: #6B6151; margin: 0 0 16px;">
+          &#128278; <strong>Bookmark this email</strong> &mdash; your file stays available anytime.
         </p>
 
       </td>
@@ -111,8 +126,8 @@ export async function sendDownloadLinkEmail(
     <!-- Footer -->
     <tr>
       <td style="padding: 20px 32px; border-top: 1px solid #E0D8C4; background: #FAF7EE;">
-        <p style="font-size: 12px; color: #9B8E7E; margin: 0 0 4px;">— Manny, manu2print.com</p>
-        <p style="font-size: 11px; color: #C4B9AC; margin: 0;">Built for indie authors who want to get it right the first time.</p>
+        <p style="font-size: 12px; color: #9B8E7E; margin: 0 0 2px;">— Manny</p>
+        <p style="font-size: 11px; color: #C4B9AC; margin: 0;">manu2print.com &nbsp;|&nbsp; Built for indie authors who want to publish without setbacks.</p>
       </td>
     </tr>
 
@@ -123,29 +138,36 @@ export async function sendDownloadLinkEmail(
 `.trim();
 
   const text = [
-    firstName ? `Hey ${firstName} — your annotated PDF is ready.` : "You're in. Your annotated PDF is ready.",
+    "You're in. Your annotated PDF is ready.",
     "",
-    "Your manuscript has been scanned and every issue is marked directly on the page.",
+    "Your manuscript has been checked against KDP requirements. Every issue is marked directly on your pages so you can fix it before uploading.",
     "",
     ...(annotatedPdfUrl
       ? [
-          "DOWNLOAD — Annotated Manuscript PDF",
-          "(Your book with every flagged issue marked on the page)",
+          "Download your annotated PDF:",
           annotatedPdfUrl,
           "",
         ]
       : []),
-    "Your annotated PDF includes:",
-    "✓ Every formatting issue flagged — bleed, margins, fonts, image resolution",
-    "✓ Exact page numbers for every problem",
-    "✓ Plain-English fix instructions for each issue",
-    "✓ Issues highlighted directly on your pages",
+    "What's inside your annotated PDF:",
+    "✓ Every formatting issue flagged — margins, bleed, fonts, image resolution",
+    "✓ Exact page numbers for each issue",
+    "✓ Clear, plain-English fix guidance",
+    "✓ Issues shown directly on your pages for fast correction",
     "",
-    "🔖 Bookmark this email — your annotated PDF is saved and accessible anytime.",
+    ...(shareLink
+      ? [
+          "Share this with another author — get a free scan.",
+          "Copy your link:",
+          shareLink,
+          "When someone runs a scan using your link, a free credit is automatically added.",
+          "",
+        ]
+      : []),
+    "Bookmark this email — your file stays available anytime.",
     "",
-    "Got questions about your results? Just reply — I read every one.",
-    "",
-    "— Manny, manu2print.com",
+    "— Manny",
+    "manu2print.com | Built for indie authors who want to publish without setbacks.",
   ].join("\n");
 
   const { data, error } = await resend.emails.send({
@@ -163,7 +185,7 @@ export async function sendDownloadLinkEmail(
     eventType: "download_link",
     subject: subjectLine,
     resendMessageId: data?.id,
-    metadata: { has_first_name: Boolean(firstName) },
+    metadata: { has_first_name: Boolean(name) },
   });
   return data;
 }

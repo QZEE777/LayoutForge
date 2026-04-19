@@ -12,10 +12,8 @@ export const DOWNLOAD_LINK_DEFAULT_SUBJECT_HINT =
 
 export const RESEND_HELP_SUBJECT = "Your manu2print download link";
 
-export function downloadLinkReportSubject(firstName: string | undefined): string {
-  return firstName
-    ? `${firstName} — your full KDP report is ready`
-    : DOWNLOAD_LINK_DEFAULT_SUBJECT_HINT;
+export function downloadLinkReportSubject(_firstName?: string | undefined): string {
+  return "Your KDP report is ready — download your annotated PDF";
 }
 
 export function shareCreditAwardedSubject(credits: number, creditWord: string): string {
