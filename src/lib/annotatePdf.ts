@@ -53,7 +53,7 @@ const TOP_BOTTOM_MARGIN_PT = 0.50 * PT; // 36pt  — KDP min top/bottom margin
 
 // Annotation engine version — bump when aggregation or rendering logic changes.
 // Cached PDFs with a different version are re-annotated automatically.
-const ANNOTATION_VERSION = "v3";
+const ANNOTATION_VERSION = "v4";
 
 // Annotation caps
 const MAX_ANNOTATIONS_TOTAL = 30;
@@ -149,7 +149,7 @@ const RULE_LABELS: Record<string, string> = {
   TRIM_BOX:                    "Trim Box Missing",
   HARDCOVER_TRIM_SIZE:         "Hardcover Size Not Supported",
   BLEED_VALIDATION:            "Missing Bleed",
-  IMAGE_BLEED:                 "Image Doesn't Reach Bleed",
+  IMAGE_BLEED:                 "Image Does Not Reach Bleed",
   GUTTER_MARGIN:               "Gutter Too Narrow",
   OUTSIDE_MARGIN_MIN:          "Outer Margin Too Narrow",
   TOP_MARGIN_MIN:              "Top Margin Too Narrow",
@@ -170,35 +170,35 @@ const RULE_LABELS: Record<string, string> = {
 };
 
 const RULE_SENTENCES: Record<string, string> = {
-  ALLOWED_TRIM_SIZES:          "Trim size is not on KDP's approved list — KDP will reject this file.",
-  CONSISTENT_TRIM:             "Pages have different sizes — KDP requires all pages to be the same.",
-  MIXED_PAGE_SIZES:            "Pages have different sizes — KDP requires all pages to be the same.",
-  MIN_PAGE_COUNT:              "Not enough pages — KDP requires at least 24 pages to publish.",
-  MAX_PAGE_COUNT:              "Too many pages for this trim size — KDP will reject this file.",
-  ODD_PAGE_COUNT:              "Page count is odd — KDP will add a blank page automatically.",
-  KDP_TRIM_PROFILE:            "Trim box doesn't match the declared page size — KDP may misplace the cut.",
-  TRIM_PROFILE:                "Trim box doesn't match the declared page size — KDP may misplace the cut.",
-  TRIM_BOX:                    "PDF trim box is missing — KDP cannot determine where to cut the pages.",
-  HARDCOVER_TRIM_SIZE:         "This size is not supported for hardcover — KDP will reject this file.",
-  BLEED_VALIDATION:            "No bleed area found — a white border will appear on the printed edge.",
-  IMAGE_BLEED:                 "Image doesn't reach the bleed edge — a white gap will appear after trimming.",
-  GUTTER_MARGIN:               "Gutter is too narrow — text near the spine may disappear into the binding.",
-  OUTSIDE_MARGIN_MIN:          "Outer margin is too narrow — content may be trimmed off the edge.",
-  TOP_MARGIN_MIN:              "Top margin is too narrow — content may be cut at the top of the page.",
-  BOTTOM_MARGIN_MIN:           "Bottom margin is too narrow — content may be cut at the bottom.",
-  SAFE_ZONE:                   "Content is too close to the edge — it may be cut during printing.",
-  TEXT_OUTSIDE_TRIM:           "Text sits outside the trim area — it will not appear in the printed book.",
-  EMBEDDED_FONTS:              "Fonts are not embedded — KDP may substitute them, changing the layout.",
-  RESTRICTED_FONT_EMBEDDING:   "A font restricts embedding — KDP may not be able to display it correctly.",
-  MIN_FONT_SIZE:               "Text is too small to print clearly — readers may not be able to read it.",
-  COLOR_PROFILE:               "Color profile is missing or incorrect — print colors may not match screen.",
-  OUTPUT_INTENT:               "Color output intent is not set — printed colors may be inaccurate.",
-  TRANSPARENCY_FLATTENING:     "Transparent layers were not flattened — some elements may not print correctly.",
-  PDF_VERSION:                 "PDF version is not supported — re-export at PDF 1.3 or higher.",
-  ROTATED_PAGES:               "Some pages are rotated — they will print sideways.",
-  EMPTY_PAGE:                  "This page appears blank — confirm this is intentional before uploading.",
-  ORIENTATION_CONSISTENCY:     "Page orientations are inconsistent — KDP requires a uniform orientation.",
-  FILE_SIZE:                   "File exceeds KDP's 650MB limit — compress or reduce image resolution.",
+  ALLOWED_TRIM_SIZES:          "Trim size is not on KDP's approved list - KDP will reject this file.",
+  CONSISTENT_TRIM:             "Pages have different sizes - KDP requires all pages to match exactly.",
+  MIXED_PAGE_SIZES:            "Pages have different sizes - KDP requires all pages to match exactly.",
+  MIN_PAGE_COUNT:              "Not enough pages - KDP will reject files with fewer than 24 pages.",
+  MAX_PAGE_COUNT:              "Too many pages for this trim size - KDP will reject this file.",
+  ODD_PAGE_COUNT:              "Page count is odd - KDP will add a blank page to the end.",
+  KDP_TRIM_PROFILE:            "Trim box does not match the declared page size - pages will be cut incorrectly.",
+  TRIM_PROFILE:                "Trim box does not match the declared page size - pages will be cut incorrectly.",
+  TRIM_BOX:                    "PDF trim box is missing - KDP cannot determine where to cut the pages.",
+  HARDCOVER_TRIM_SIZE:         "This size is not supported for hardcover - KDP will reject this file.",
+  BLEED_VALIDATION:            "No bleed area found - a white border will appear on the printed edge.",
+  IMAGE_BLEED:                 "Image does not reach the bleed edge - a white gap will appear after trimming.",
+  GUTTER_MARGIN:               "Gutter is too narrow - text near the spine will be lost in the binding.",
+  OUTSIDE_MARGIN_MIN:          "Outer margin is too narrow - content will be cut during printing.",
+  TOP_MARGIN_MIN:              "Top margin is too narrow - content will be cut at the top of the page.",
+  BOTTOM_MARGIN_MIN:           "Bottom margin is too narrow - content will be cut at the bottom of the page.",
+  SAFE_ZONE:                   "Content is too close to the edge - it will be cut during printing.",
+  TEXT_OUTSIDE_TRIM:           "Text sits outside the trim area - it will not appear in the printed book.",
+  EMBEDDED_FONTS:              "Fonts are not embedded - KDP will substitute them and change the layout.",
+  RESTRICTED_FONT_EMBEDDING:   "A font restricts embedding - KDP will not be able to display it correctly.",
+  MIN_FONT_SIZE:               "Text is too small to print clearly - readers will not be able to read it.",
+  COLOR_PROFILE:               "Color profile is missing or incorrect - print colors will not match screen.",
+  OUTPUT_INTENT:               "Color output intent is not set - printed colors will be inaccurate.",
+  TRANSPARENCY_FLATTENING:     "Transparent layers were not flattened - some elements will not print correctly.",
+  PDF_VERSION:                 "PDF version is not supported - re-export at PDF 1.3 or higher.",
+  ROTATED_PAGES:               "Some pages are rotated - they will print sideways.",
+  EMPTY_PAGE:                  "This page appears blank - verify this is intentional before uploading.",
+  ORIENTATION_CONSISTENCY:     "Page orientations are inconsistent - KDP requires a uniform orientation.",
+  FILE_SIZE:                   "File exceeds KDP's 650MB limit - compress images or reduce resolution.",
 };
 
 function getIssueLabel(ruleId: string): string {
@@ -216,8 +216,8 @@ function getDocumentStatus(issues: AnnotationIssue[]): "fail" | "warning" | "pas
 }
 
 function statusDisplay(status: "fail" | "warning" | "pass"): { text: string; color: ReturnType<typeof rgb> } {
-  if (status === "fail")    return { text: "WILL FAIL KDP REVIEW",    color: COLOR.fail };
-  if (status === "warning") return { text: "WILL CAUSE PRINT ISSUES", color: COLOR.warning };
+  if (status === "fail")    return { text: "WILL BE REJECTED BY KDP",  color: COLOR.fail };
+  if (status === "warning") return { text: "PRINT ISSUES DETECTED",    color: COLOR.warning };
   return { text: "READY FOR UPLOAD", color: rgb(0.18, 0.55, 0.22) };
 }
 
@@ -542,12 +542,13 @@ function drawLegendPanel(
     // Text column starts after circle
     const textX = LEGEND_PADDING + MARKER_RADIUS * 2 + 5;
 
-    // Human-readable label (bold) — line 1 left
-    const ruleLabel = getIssueLabel(issue.ruleId);
+    // Human-readable label (bold) — line 1 left; fail items slightly larger for hierarchy
+    const ruleLabel  = getIssueLabel(issue.ruleId);
+    const labelSize  = issue.severity === "fail" ? 6.5 : 6.0;
     page.drawText(ruleLabel, {
       x:       textX,
       y:       line1Y,
-      size:    6.0,
+      size:    labelSize,
       font:    boldFont,
       color:   COLOR.legendText,
       opacity: 0.92,
@@ -672,7 +673,8 @@ function isDocumentLevelRule(ruleId: string, message: string): boolean {
 
 // ── Status banner (page 1 only) ────────────────────────────────────────────────
 
-const STATUS_BANNER_H = 14; // pt — single compact colored strip
+const STATUS_BANNER_H = 16; // pt — single compact colored strip
+const BANNER_GAP      =  2; // pt — breathing room between banner and header panel
 
 /**
  * Draws a compact one-line status strip at the very top of page 1.
@@ -697,7 +699,7 @@ function drawStatusBanner(
   const labelW = boldFont.widthOfTextAtSize(text, 6.5);
   page.drawText(text, {
     x:       (width - labelW) / 2,
-    y:       height - STATUS_BANNER_H + 4,
+    y:       height - STATUS_BANNER_H + 5,
     size:    6.5,
     font:    boldFont,
     color:   rgb(1, 1, 1),
@@ -770,12 +772,13 @@ function drawDocumentHeaderPanel(
 
     const textX      = LEGEND_PADDING + MARKER_RADIUS * 2 + 3;
     const ruleLabel  = getIssueLabel(issue.ruleId);
-    const ruleLabelW = boldFont.widthOfTextAtSize(ruleLabel, 6.0);
+    const labelSize  = issue.severity === "fail" ? 6.5 : 6.0;
+    const ruleLabelW = boldFont.widthOfTextAtSize(ruleLabel, labelSize);
 
-    // Human-readable label
+    // Human-readable label; fail items slightly larger for visual hierarchy
     page.drawText(ruleLabel, {
       x: textX, y: textY,
-      size: 6.0, font: boldFont, color: COLOR.legendText, opacity: 0.90,
+      size: labelSize, font: boldFont, color: COLOR.legendText, opacity: 0.90,
     });
 
     // One-sentence description
@@ -984,7 +987,7 @@ async function annotateDoc(
   // Document-level issues → header panel on page 1 only, below the status banner
   if (globalIssues.length > 0 && pages.length > 0) {
     globalIssues.sort((a, b) => severityRank(a.severity) - severityRank(b.severity));
-    drawDocumentHeaderPanel(pages[0], globalIssues, font, boldFont, STATUS_BANNER_H);
+    drawDocumentHeaderPanel(pages[0], globalIssues, font, boldFont, STATUS_BANNER_H + BANNER_GAP);
   }
 
   // Sort pages by worst severity first, annotate up to the total cap
