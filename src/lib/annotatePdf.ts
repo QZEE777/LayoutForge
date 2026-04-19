@@ -53,7 +53,7 @@ const TOP_BOTTOM_MARGIN_PT = 0.50 * PT; // 36pt  — KDP min top/bottom margin
 
 // Annotation engine version — bump when aggregation or rendering logic changes.
 // Cached PDFs with a different version are re-annotated automatically.
-const ANNOTATION_VERSION = "v2";
+const ANNOTATION_VERSION = "v3";
 
 // Annotation caps
 const MAX_ANNOTATIONS_TOTAL = 30;
@@ -133,6 +133,92 @@ function severityRank(s: AnnotationSeverity): number {
   if (s === "fail")    return 0;
   if (s === "warning") return 1;
   return 2;
+}
+
+// ── Human-readable labels and sentences ───────────────────────────────────────
+
+const RULE_LABELS: Record<string, string> = {
+  ALLOWED_TRIM_SIZES:          "Wrong Trim Size",
+  CONSISTENT_TRIM:             "Inconsistent Page Sizes",
+  MIXED_PAGE_SIZES:            "Mixed Page Sizes",
+  MIN_PAGE_COUNT:              "Too Few Pages",
+  MAX_PAGE_COUNT:              "Too Many Pages",
+  ODD_PAGE_COUNT:              "Odd Page Count",
+  KDP_TRIM_PROFILE:            "Trim Profile Mismatch",
+  TRIM_PROFILE:                "Trim Profile Mismatch",
+  TRIM_BOX:                    "Trim Box Missing",
+  HARDCOVER_TRIM_SIZE:         "Hardcover Size Not Supported",
+  BLEED_VALIDATION:            "Missing Bleed",
+  IMAGE_BLEED:                 "Image Doesn't Reach Bleed",
+  GUTTER_MARGIN:               "Gutter Too Narrow",
+  OUTSIDE_MARGIN_MIN:          "Outer Margin Too Narrow",
+  TOP_MARGIN_MIN:              "Top Margin Too Narrow",
+  BOTTOM_MARGIN_MIN:           "Bottom Margin Too Narrow",
+  SAFE_ZONE:                   "Content in Unsafe Area",
+  TEXT_OUTSIDE_TRIM:           "Text Outside Trim Area",
+  EMBEDDED_FONTS:              "Fonts Not Embedded",
+  RESTRICTED_FONT_EMBEDDING:   "Font Cannot Be Embedded",
+  MIN_FONT_SIZE:               "Text Too Small",
+  COLOR_PROFILE:               "Color Profile Issue",
+  OUTPUT_INTENT:               "Color Output Not Specified",
+  TRANSPARENCY_FLATTENING:     "Transparency Not Flattened",
+  PDF_VERSION:                 "Unsupported PDF Version",
+  ROTATED_PAGES:               "Rotated Pages",
+  EMPTY_PAGE:                  "Blank Page",
+  ORIENTATION_CONSISTENCY:     "Inconsistent Page Orientation",
+  FILE_SIZE:                   "File Too Large",
+};
+
+const RULE_SENTENCES: Record<string, string> = {
+  ALLOWED_TRIM_SIZES:          "Trim size is not on KDP's approved list — KDP will reject this file.",
+  CONSISTENT_TRIM:             "Pages have different sizes — KDP requires all pages to be the same.",
+  MIXED_PAGE_SIZES:            "Pages have different sizes — KDP requires all pages to be the same.",
+  MIN_PAGE_COUNT:              "Not enough pages — KDP requires at least 24 pages to publish.",
+  MAX_PAGE_COUNT:              "Too many pages for this trim size — KDP will reject this file.",
+  ODD_PAGE_COUNT:              "Page count is odd — KDP will add a blank page automatically.",
+  KDP_TRIM_PROFILE:            "Trim box doesn't match the declared page size — KDP may misplace the cut.",
+  TRIM_PROFILE:                "Trim box doesn't match the declared page size — KDP may misplace the cut.",
+  TRIM_BOX:                    "PDF trim box is missing — KDP cannot determine where to cut the pages.",
+  HARDCOVER_TRIM_SIZE:         "This size is not supported for hardcover — KDP will reject this file.",
+  BLEED_VALIDATION:            "No bleed area found — a white border will appear on the printed edge.",
+  IMAGE_BLEED:                 "Image doesn't reach the bleed edge — a white gap will appear after trimming.",
+  GUTTER_MARGIN:               "Gutter is too narrow — text near the spine may disappear into the binding.",
+  OUTSIDE_MARGIN_MIN:          "Outer margin is too narrow — content may be trimmed off the edge.",
+  TOP_MARGIN_MIN:              "Top margin is too narrow — content may be cut at the top of the page.",
+  BOTTOM_MARGIN_MIN:           "Bottom margin is too narrow — content may be cut at the bottom.",
+  SAFE_ZONE:                   "Content is too close to the edge — it may be cut during printing.",
+  TEXT_OUTSIDE_TRIM:           "Text sits outside the trim area — it will not appear in the printed book.",
+  EMBEDDED_FONTS:              "Fonts are not embedded — KDP may substitute them, changing the layout.",
+  RESTRICTED_FONT_EMBEDDING:   "A font restricts embedding — KDP may not be able to display it correctly.",
+  MIN_FONT_SIZE:               "Text is too small to print clearly — readers may not be able to read it.",
+  COLOR_PROFILE:               "Color profile is missing or incorrect — print colors may not match screen.",
+  OUTPUT_INTENT:               "Color output intent is not set — printed colors may be inaccurate.",
+  TRANSPARENCY_FLATTENING:     "Transparent layers were not flattened — some elements may not print correctly.",
+  PDF_VERSION:                 "PDF version is not supported — re-export at PDF 1.3 or higher.",
+  ROTATED_PAGES:               "Some pages are rotated — they will print sideways.",
+  EMPTY_PAGE:                  "This page appears blank — confirm this is intentional before uploading.",
+  ORIENTATION_CONSISTENCY:     "Page orientations are inconsistent — KDP requires a uniform orientation.",
+  FILE_SIZE:                   "File exceeds KDP's 650MB limit — compress or reduce image resolution.",
+};
+
+function getIssueLabel(ruleId: string): string {
+  return RULE_LABELS[ruleId] ?? ruleId.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function getIssueSentence(ruleId: string, fallback: string): string {
+  return RULE_SENTENCES[ruleId] ?? fallback;
+}
+
+function getDocumentStatus(issues: AnnotationIssue[]): "fail" | "warning" | "pass" {
+  if (issues.some(i => i.severity === "fail"))    return "fail";
+  if (issues.some(i => i.severity === "warning")) return "warning";
+  return "pass";
+}
+
+function statusDisplay(status: "fail" | "warning" | "pass"): { text: string; color: ReturnType<typeof rgb> } {
+  if (status === "fail")    return { text: "WILL FAIL KDP REVIEW",    color: COLOR.fail };
+  if (status === "warning") return { text: "WILL CAUSE PRINT ISSUES", color: COLOR.warning };
+  return { text: "READY FOR UPLOAD", color: rgb(0.18, 0.55, 0.22) };
 }
 
 // ── Message parsing ────────────────────────────────────────────────────────────
@@ -456,8 +542,8 @@ function drawLegendPanel(
     // Text column starts after circle
     const textX = LEGEND_PADDING + MARKER_RADIUS * 2 + 5;
 
-    // Rule ID (bold) — line 1 left
-    const ruleLabel = issue.ruleId.slice(0, 22);
+    // Human-readable label (bold) — line 1 left
+    const ruleLabel = getIssueLabel(issue.ruleId);
     page.drawText(ruleLabel, {
       x:       textX,
       y:       line1Y,
@@ -479,27 +565,12 @@ function drawLegendPanel(
       opacity: 0.90,
     });
 
-    // Message or expected/observed — line 2
-    // When a rule repeats across pages, show the page range instead of (or alongside) values.
-    const { expected, observed } = parseValues(issue.message);
-    const isRepeated = (issue.affectedPages?.length ?? 1) > 1;
-    let line2Text: string;
-
-    if (isRepeated) {
-      const rangeStr = formatPageRange(issue.affectedPages!);
-      if (expected && observed) {
-        line2Text = `${rangeStr}  ·  Req: ${expected} / Found: ${observed}`;
-      } else {
-        line2Text = rangeStr;
-      }
-    } else if (expected && observed) {
-      line2Text = `Required: ${expected}  ·  Observed: ${observed}`;
-    } else {
-      const maxChars = Math.max(20, Math.floor((width - textX - 50) / 3.8));
-      line2Text = issue.message.length > maxChars
-        ? issue.message.slice(0, maxChars - 1) + "…"
-        : issue.message;
-    }
+    // One-sentence description — line 2
+    const rawSentence = getIssueSentence(issue.ruleId, issue.message);
+    const maxChars    = Math.max(20, Math.floor((width - textX - 50) / 3.8));
+    const line2Text   = rawSentence.length > maxChars
+      ? rawSentence.slice(0, maxChars - 1) + "…"
+      : rawSentence;
 
     page.drawText(line2Text, {
       x:       textX,
@@ -599,22 +670,61 @@ function isDocumentLevelRule(ruleId: string, message: string): boolean {
   return /page.?count|min.?page|max.?page|trim.?profile|trim.?size|trim.?match|file.?size|color.?profile|color.?space|colour.?profile|colour.?space|document.?level|global|icc.?profile|output.?intent/.test(text.replace(/\s+/g, ""));
 }
 
-// ── Document-level header panel (page 1 only) ──────────────────────────────────
+// ── Status banner (page 1 only) ────────────────────────────────────────────────
+
+const STATUS_BANNER_H = 14; // pt — single compact colored strip
 
 /**
- * Draws a compact header panel at the top of page 1 for document-level issues.
- * These do not correspond to any specific page location; they are shown here
- * once and never repeated on other pages.
+ * Draws a compact one-line status strip at the very top of page 1.
+ * Color encodes severity: red = will fail, amber = print issues, green = ready.
  */
-function drawDocumentHeaderPanel(
+function drawStatusBanner(
   page:     PDFPage,
-  issues:   AnnotationIssue[],
+  status:   "fail" | "warning" | "pass",
   font:     PDFFont,
   boldFont: PDFFont,
 ): void {
   const { width, height } = page.getSize();
+  const { text, color }   = statusDisplay(status);
+
+  page.drawRectangle({
+    x: 0, y: height - STATUS_BANNER_H,
+    width, height: STATUS_BANNER_H,
+    color,
+    opacity: 0.90,
+  });
+
+  const labelW = boldFont.widthOfTextAtSize(text, 6.5);
+  page.drawText(text, {
+    x:       (width - labelW) / 2,
+    y:       height - STATUS_BANNER_H + 4,
+    size:    6.5,
+    font:    boldFont,
+    color:   rgb(1, 1, 1),
+    opacity: 1,
+  });
+
+  // Suppress unused-var warning — font kept for API consistency
+  void font;
+}
+
+// ── Document-level header panel (page 1 only) ──────────────────────────────────
+
+/**
+ * Draws a compact header panel at the top of page 1 for document-level issues.
+ * topOffset should equal STATUS_BANNER_H when a status banner has already been
+ * drawn so the panel starts immediately below it.
+ */
+function drawDocumentHeaderPanel(
+  page:      PDFPage,
+  issues:    AnnotationIssue[],
+  font:      PDFFont,
+  boldFont:  PDFFont,
+  topOffset: number = 0,
+): void {
+  const { width, height } = page.getSize();
   const ph = DOC_HEADER_PADDING + DOC_HEADER_TITLE_H + issues.length * DOC_HEADER_ROW_H + DOC_HEADER_PADDING;
-  const panelY = height - ph; // bottom y-coordinate of panel
+  const panelY = height - topOffset - ph; // bottom y-coordinate of panel
 
   // Panel background
   page.drawRectangle({
@@ -634,8 +744,8 @@ function drawDocumentHeaderPanel(
   });
 
   // Title + column header
-  const titleY = height - DOC_HEADER_PADDING - DOC_HEADER_TITLE_H + 4;
-  page.drawText("DOCUMENT-LEVEL CHECKS", {
+  const titleY = height - topOffset - DOC_HEADER_PADDING - DOC_HEADER_TITLE_H + 4;
+  page.drawText("DOCUMENT-WIDE ISSUES", {
     x: LEGEND_PADDING, y: titleY,
     size: 6.0, font: boldFont, color: COLOR.legendHeader, opacity: 0.90,
   });
@@ -647,7 +757,7 @@ function drawDocumentHeaderPanel(
 
   // Issue rows
   issues.forEach((issue, i) => {
-    const rowMidY = height - DOC_HEADER_PADDING - DOC_HEADER_TITLE_H - i * DOC_HEADER_ROW_H - DOC_HEADER_ROW_H / 2;
+    const rowMidY = height - topOffset - DOC_HEADER_PADDING - DOC_HEADER_TITLE_H - i * DOC_HEADER_ROW_H - DOC_HEADER_ROW_H / 2;
     const textY   = rowMidY - 2;
     const col     = severityColor(issue.severity);
 
@@ -659,25 +769,22 @@ function drawDocumentHeaderPanel(
     });
 
     const textX      = LEGEND_PADDING + MARKER_RADIUS * 2 + 3;
-    const ruleLabel  = issue.ruleId.slice(0, 22);
+    const ruleLabel  = getIssueLabel(issue.ruleId);
     const ruleLabelW = boldFont.widthOfTextAtSize(ruleLabel, 6.0);
 
-    // Rule ID
+    // Human-readable label
     page.drawText(ruleLabel, {
       x: textX, y: textY,
       size: 6.0, font: boldFont, color: COLOR.legendText, opacity: 0.90,
     });
 
-    // Message (truncated) — append page range suffix when repeated across pages
-    const msgX      = textX + ruleLabelW + 6;
-    const maxChars  = Math.max(10, Math.floor((width - msgX - 65) / 3.8));
-    let   msgStr    = issue.message.length > maxChars
-      ? issue.message.slice(0, maxChars - 1) + "…"
-      : issue.message;
-    const affCount  = issue.affectedPages?.length ?? 1;
-    if (affCount > 1) {
-      msgStr = formatPageRange(issue.affectedPages!);
-    }
+    // One-sentence description
+    const msgX     = textX + ruleLabelW + 6;
+    const maxChars = Math.max(10, Math.floor((width - msgX - 65) / 3.8));
+    const sentence = getIssueSentence(issue.ruleId, issue.message);
+    const msgStr   = sentence.length > maxChars
+      ? sentence.slice(0, maxChars - 1) + "…"
+      : sentence;
     page.drawText(msgStr, {
       x: msgX, y: textY,
       size: 5.5, font, color: COLOR.legendMuted, opacity: 0.85,
@@ -849,6 +956,9 @@ async function annotateDoc(
   // Aggregate: collapse repeated identical violations into one entry with page range
   const aggregated = aggregateIssues(allIssues);
 
+  // Overall document status — drives the banner color
+  const overallStatus = getDocumentStatus(aggregated);
+
   // Classify: document-level (header panel on page 1) vs per-page (markers + legend)
   const globalIssues: AnnotationIssue[] = [];
   const byPage = new Map<number, AnnotationIssue[]>();
@@ -866,10 +976,15 @@ async function annotateDoc(
     list.sort((a, b) => severityRank(a.severity) - severityRank(b.severity));
   }
 
-  // Document-level issues → header panel on page 1 only
+  // Status banner — compact colored strip at the very top of page 1
+  if (pages.length > 0) {
+    drawStatusBanner(pages[0], overallStatus, font, boldFont);
+  }
+
+  // Document-level issues → header panel on page 1 only, below the status banner
   if (globalIssues.length > 0 && pages.length > 0) {
     globalIssues.sort((a, b) => severityRank(a.severity) - severityRank(b.severity));
-    drawDocumentHeaderPanel(pages[0], globalIssues, font, boldFont);
+    drawDocumentHeaderPanel(pages[0], globalIssues, font, boldFont, STATUS_BANNER_H);
   }
 
   // Sort pages by worst severity first, annotate up to the total cap
