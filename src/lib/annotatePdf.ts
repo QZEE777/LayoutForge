@@ -53,7 +53,7 @@ const TOP_BOTTOM_MARGIN_PT = 0.50 * PT; // 36pt  — KDP min top/bottom margin
 
 // Annotation engine version — bump when aggregation or rendering logic changes.
 // Cached PDFs with a different version are re-annotated automatically.
-const ANNOTATION_VERSION = "v5";
+const ANNOTATION_VERSION = "v6";
 
 // Annotation caps
 const MAX_ANNOTATIONS_TOTAL = 30;
@@ -331,6 +331,24 @@ function normalizeIssues(
 // ── Issue aggregation (deduplication) ─────────────────────────────────────────
 
 /**
+ * Returns the union bounding box of all supplied [x, y, w, h] rectangles.
+ */
+function mergeBboxes(boxes: number[][]): [number, number, number, number] {
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const b of boxes) {
+    const bx = Number(b[0]) || 0;
+    const by = Number(b[1]) || 0;
+    const bw = Number(b[2]) || 0;
+    const bh = Number(b[3]) || 0;
+    minX = Math.min(minX, bx);
+    minY = Math.min(minY, by);
+    maxX = Math.max(maxX, bx + bw);
+    maxY = Math.max(maxY, by + bh);
+  }
+  return [minX, minY, maxX - minX, maxY - minY];
+}
+
+/**
  * Builds a stable, canonical aggregation key for an issue.
  *
  * Per-page rules: key = ruleId + full normalised message (exact match required).
@@ -364,45 +382,74 @@ function buildAggregationKey(issue: AnnotationIssue): string {
 }
 
 /**
- * Collapses repeated identical violations into a single representative entry.
+ * Collapses issues into one entry per (ruleId × page) for per-page rules,
+ * or one entry per ruleId for document-level rules.
  *
- * Groups by `buildAggregationKey` — stable across page-number variations and
- * floating-point noise in observed dimensions. Within each group:
- *   - Collects all affected page numbers
- *   - Keeps the "best" representative occurrence: highest severity first,
- *     then prefer the one with a bbox if severity is equal
+ * Per-page: all bboxes for the same rule on the same page are merged into a
+ * single union rectangle — prevents dozens of overlapping boxes (e.g. one per
+ * text line for SAFE_ZONE) from appearing on a single page.
  *
- * The `affectedPages` field on the returned issue lists all pages where the
- * rule fired, so legend and header panels can display a page range instead
- * of repeating the same entry 40 times.
+ * Document-level: keyed on ruleId only; all affected pages are collected.
+ *
+ * The `affectedPages` field lists all pages where the rule fired so legend
+ * and header panels can display a page range.
  */
 function aggregateIssues(issues: AnnotationIssue[]): AnnotationIssue[] {
-  const groups = new Map<string, { pages: Set<number>; best: AnnotationIssue }>();
+  type DocGroup  = { pages: Set<number>; best: AnnotationIssue };
+  type PageGroup = { pages: Set<number>; bboxes: number[][]; best: AnnotationIssue };
+
+  const docGroups  = new Map<string, DocGroup>();
+  const pageGroups = new Map<string, PageGroup>();
 
   for (const issue of issues) {
-    const key   = buildAggregationKey(issue);
-    const group = groups.get(key);
-
-    if (!group) {
-      groups.set(key, { pages: new Set([issue.page]), best: { ...issue } });
+    if (isDocumentLevelRule(issue.ruleId, issue.message)) {
+      const key   = `doc::${issue.ruleId}`;
+      const group = docGroups.get(key);
+      if (!group) {
+        docGroups.set(key, { pages: new Set([issue.page]), best: { ...issue } });
+      } else {
+        group.pages.add(issue.page);
+        const nr = severityRank(issue.severity);
+        const cr = severityRank(group.best.severity);
+        if (nr < cr || (nr === cr && issue.bbox && !group.best.bbox)) {
+          group.best = { ...issue };
+        }
+      }
     } else {
-      group.pages.add(issue.page);
-      // Prefer higher severity; if equal, prefer the one with a bbox
-      const newRank = severityRank(issue.severity);
-      const curRank = severityRank(group.best.severity);
-      if (
-        newRank < curRank ||
-        (newRank === curRank && issue.bbox && !group.best.bbox)
-      ) {
-        group.best = { ...issue };
+      // Group per-page issues by (ruleId, page) — merge all their bboxes
+      const key   = `${issue.ruleId}::p${issue.page}`;
+      const group = pageGroups.get(key);
+      if (!group) {
+        pageGroups.set(key, {
+          pages:  new Set([issue.page]),
+          bboxes: issue.bbox ? [issue.bbox] : [],
+          best:   { ...issue },
+        });
+      } else {
+        group.pages.add(issue.page);
+        if (issue.bbox) group.bboxes.push(issue.bbox);
+        const nr = severityRank(issue.severity);
+        const cr = severityRank(group.best.severity);
+        if (nr < cr) group.best = { ...issue };
       }
     }
   }
 
-  return [...groups.values()].map(({ pages, best }) => ({
-    ...best,
-    affectedPages: [...pages].sort((a, b) => a - b),
-  }));
+  const result: AnnotationIssue[] = [];
+
+  for (const { pages, best } of docGroups.values()) {
+    result.push({ ...best, affectedPages: [...pages].sort((a, b) => a - b) });
+  }
+
+  for (const { pages, bboxes, best } of pageGroups.values()) {
+    result.push({
+      ...best,
+      bbox:          bboxes.length > 0 ? mergeBboxes(bboxes) : best.bbox,
+      affectedPages: [...pages].sort((a, b) => a - b),
+    });
+  }
+
+  return result;
 }
 
 // ── Geometry overlay ───────────────────────────────────────────────────────────
