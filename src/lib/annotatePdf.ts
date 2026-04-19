@@ -53,11 +53,12 @@ const TOP_BOTTOM_MARGIN_PT = 0.50 * PT; // 36pt  — KDP min top/bottom margin
 
 // Annotation engine version — bump when aggregation or rendering logic changes.
 // Cached PDFs with a different version are re-annotated automatically.
-const ANNOTATION_VERSION = "v6";
+const ANNOTATION_VERSION = "v7";
 
 // Annotation caps
 const MAX_ANNOTATIONS_TOTAL = 30;
 const MAX_LEGEND_ITEMS      = 4;   // max issues shown per page legend
+const MAX_BOXES_PER_PAGE    = 3;   // max violation boxes drawn on any one page
 
 // Legend geometry
 const LEGEND_PADDING      = 10; // pt top/bottom padding inside legend panel
@@ -77,7 +78,7 @@ const MARKER_RADIUS = 5; // pt — numbered circle radius
 
 const COLOR = {
   // Severity — muted, professional
-  fail:    rgb(0.72, 0.12, 0.12), // muted red
+  fail:    rgb(0.62, 0.22, 0.22), // muted dusty red
   warning: rgb(0.75, 0.48, 0.06), // soft amber
   info:    rgb(0.28, 0.43, 0.63), // neutral blue-gray
 
@@ -890,19 +891,17 @@ function drawNumberedCircle(
 // ── Issue markers on page ──────────────────────────────────────────────────────
 
 /**
- * Draws violation regions and anchored numbered markers for each issue.
+ * Draws violation boxes and numbered markers on the page.
  *
- * Issues WITH bbox (scanner-provided coordinates):
- *   - Semi-transparent filled rectangle over the violation zone
- *   - Solid 0.75pt border (no dash — visually distinct from geometry guides)
- *   - Numbered marker anchored at the top-left corner of the violation bbox
- *
- * Issues WITHOUT bbox, spatial rule (derived from KDP geometry):
- *   - Same filled+bordered region derived from margin/gutter coordinates
- *   - Numbered marker anchored at top-left of derived region
- *
- * Issues WITHOUT bbox, non-spatial (font embedding, colour mode, etc.):
- *   - Numbered marker placed at top of safe area — no floating in gutter
+ * Rules:
+ *   - Only FAIL-severity issues get a visual box. WARNING issues appear in the
+ *     legend only — no box, no marker on the page.
+ *   - At most MAX_BOXES_PER_PAGE boxes are drawn. Candidates are sorted by
+ *     bounding-box area (largest / most representative first).
+ *   - Overlapping boxes are suppressed: if a candidate shares >50% of its area
+ *     with an already-selected box, it is dropped.
+ *   - Non-spatial FAIL issues (no derivable region) get a small marker circle
+ *     at the top of the safe area — no box.
  */
 function drawIssueMarkersOnPage(
   page:      PDFPage,
@@ -915,18 +914,25 @@ function drawIssueMarkersOnPage(
   const { width, height } = page.getSize();
   const shown = issues.slice(0, MAX_LEGEND_ITEMS);
 
-  // For non-spatial page-level issues, stack markers just inside the safe area top
-  const gutter      = getGutterPt(pageCount);
-  const isRight     = pageNum % 2 === 1;
-  const safeLeft    = isRight ? gutter         : OUTER_MARGIN_PT;
-  let   nonSpatialX = safeLeft + MARKER_RADIUS + 2;
-  let   nonSpatialY = height - TOP_BOTTOM_MARGIN_PT - MARKER_RADIUS - 2;
+  const gutter   = getGutterPt(pageCount);
+  const isRight  = pageNum % 2 === 1;
+  const safeLeft = isRight ? gutter : OUTER_MARGIN_PT;
+  let nonSpatialX = safeLeft + MARKER_RADIUS + 2;
+  let nonSpatialY = height - TOP_BOTTOM_MARGIN_PT - MARKER_RADIUS - 2;
+
+  type Candidate = {
+    issue:  AnnotationIssue;
+    legIdx: number;     // position in legend (1-based label)
+    bx: number; by: number; bw: number; bh: number;
+    area: number;
+  };
+  const spatial:    Candidate[] = [];
+  const nonSpatial: Array<{ issue: AnnotationIssue; legIdx: number }> = [];
 
   shown.forEach((issue, i) => {
-    const col    = severityColor(issue.severity);
-    const numStr = String(i + 1);
+    // WARNING and INFO → legend only, no page mark
+    if (issue.severity !== "fail") return;
 
-    // Resolve violation bbox — scanner data first, then derivation
     let bx = 0, by = 0, bw = 0, bh = 0;
     let hasBbox = false;
 
@@ -953,42 +959,64 @@ function drawIssueMarkersOnPage(
     }
 
     if (hasBbox) {
-      // ── Violation zone: very light fill + restrained border — polished, non-intrusive
-      page.drawRectangle({
-        x: bx, y: by,
-        width:  bw,
-        height: bh,
-        color:         col,
-        opacity:       0.025,  // 2.5% fill — barely-there tint, content stays readable
-        borderColor:   col,
-        borderWidth:   0.50,
-        borderOpacity: 0.55,
-        // Solid border — distinct from dashed geometry guides
-      });
-
-      // ── Marker: center-edge placement, index-spread to avoid clustering
-      let cx: number, cy: number;
-      if (bh > bw * 2.0) {
-        // Tall strip (margin band, gutter): center of vertical edge, alternate sides
-        cy = by + bh / 2;
-        cx = i % 2 === 0 ? bx + MARKER_RADIUS + 1 : bx + bw - MARKER_RADIUS - 1;
-      } else {
-        // Wide or square region: top-center, horizontally spread by index
-        const spread = (i - (shown.length - 1) / 2) * (MARKER_RADIUS * 2 + 4);
-        cx = bx + bw / 2 + spread;
-        cy = by + bh - MARKER_RADIUS - 1;
-      }
-      cx = Math.max(MARKER_RADIUS + 1, Math.min(cx, width  - MARKER_RADIUS - 1));
-      cy = Math.max(legendH + MARKER_RADIUS + 1, Math.min(cy, height - MARKER_RADIUS - 1));
-      drawNumberedCircle(page, cx, cy, col, numStr, font);
+      spatial.push({ issue, legIdx: i + 1, bx, by, bw, bh, area: bw * bh });
     } else {
-      // ── Non-spatial page-level issue: marker at top of safe area (not floating)
-      const cx = Math.min(nonSpatialX, width - MARKER_RADIUS - 2);
-      const cy = Math.max(legendH + MARKER_RADIUS + 4, nonSpatialY);
-      drawNumberedCircle(page, cx, cy, col, numStr, font);
-      nonSpatialX += (MARKER_RADIUS * 2 + 4);
+      nonSpatial.push({ issue, legIdx: i + 1 });
     }
   });
+
+  // Sort largest region first; suppress overlapping smaller boxes
+  spatial.sort((a, b) => b.area - a.area);
+  const selected: Candidate[] = [];
+  for (const c of spatial) {
+    if (selected.length >= MAX_BOXES_PER_PAGE) break;
+    const blocked = selected.some(s => {
+      const ix  = Math.max(c.bx, s.bx);
+      const iy  = Math.max(c.by, s.by);
+      const ix2 = Math.min(c.bx + c.bw, s.bx + s.bw);
+      const iy2 = Math.min(c.by + c.bh, s.by + s.bh);
+      if (ix2 <= ix || iy2 <= iy) return false;
+      return (ix2 - ix) * (iy2 - iy) / Math.min(c.area, s.area) > 0.50;
+    });
+    if (!blocked) selected.push(c);
+  }
+
+  // Draw selected violation boxes + markers
+  for (const { issue, legIdx, bx, by, bw, bh } of selected) {
+    const col = severityColor(issue.severity);
+
+    page.drawRectangle({
+      x: bx, y: by, width: bw, height: bh,
+      color:         col,
+      opacity:       0.03,   // 3% fill — barely-there tint
+      borderColor:   col,
+      borderWidth:   0.50,
+      borderOpacity: 0.40,
+    });
+
+    let cx: number, cy: number;
+    if (bh > bw * 2.0) {
+      // Tall strip (gutter / margin band): marker at vertical center
+      cy = by + bh / 2;
+      cx = bx + MARKER_RADIUS + 1;
+    } else {
+      // Wide or square region: top-center
+      cx = bx + bw / 2;
+      cy = by + bh - MARKER_RADIUS - 1;
+    }
+    cx = Math.max(MARKER_RADIUS + 1, Math.min(cx, width  - MARKER_RADIUS - 1));
+    cy = Math.max(legendH + MARKER_RADIUS + 1, Math.min(cy, height - MARKER_RADIUS - 1));
+    drawNumberedCircle(page, cx, cy, col, String(legIdx), font);
+  }
+
+  // Non-spatial FAIL issues: small marker only, no box
+  for (const { issue, legIdx } of nonSpatial) {
+    const col = severityColor(issue.severity);
+    const cx  = Math.min(nonSpatialX, width - MARKER_RADIUS - 2);
+    const cy  = Math.max(legendH + MARKER_RADIUS + 4, nonSpatialY);
+    drawNumberedCircle(page, cx, cy, col, String(legIdx), font);
+    nonSpatialX += (MARKER_RADIUS * 2 + 4);
+  }
 }
 
 // ── Main annotation driver ─────────────────────────────────────────────────────
