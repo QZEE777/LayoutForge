@@ -3,6 +3,12 @@ import { markDownloadPaid, getStored, updateMeta } from "@/lib/storage";
 import { loadScanCreditBalanceForEmail } from "@/lib/scanCredits";
 import { sendDownloadLinkEmail } from "@/lib/resend";
 import { annotateCheckerPdf } from "@/lib/annotatePdf";
+import crypto from "crypto";
+
+/** Stable short ref_id derived from downloadId — never equals the downloadId itself. */
+function generateRefId(downloadId: string): string {
+  return crypto.createHash("sha256").update(downloadId).digest("hex").slice(0, 12);
+}
 
 export type RedeemScanCreditResult =
   | { ok: true; balance: number; alreadyUnlocked?: boolean }
@@ -90,6 +96,13 @@ export async function redeemScanCreditForDownload(
     };
   }
 
+  // Generate stable ref_id and store in referral_credits (best effort)
+  const refId = generateRefId(downloadId);
+  void supabase.from("referral_credits").upsert(
+    { ref_id: refId, owner_ref: email, credits: 0 },
+    { onConflict: "ref_id", ignoreDuplicates: true }
+  );
+
   // Send delivery email with annotated PDF (best effort)
   try {
     const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com").replace(/\/$/, "");
@@ -103,7 +116,7 @@ export async function redeemScanCreditForDownload(
       console.error("[redeemScanCredit] annotateCheckerPdf failed (non-fatal):", annotateErr);
     }
 
-    await sendDownloadLinkEmail(email, reportUrl, annotatedPdfUrl);
+    await sendDownloadLinkEmail(email, reportUrl, annotatedPdfUrl, undefined, refId);
   } catch (err) {
     console.error("[redeemScanCredit] sendDownloadLinkEmail failed:", err);
   }
