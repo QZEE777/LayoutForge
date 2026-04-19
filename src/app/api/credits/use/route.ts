@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { redeemScanCreditForDownload } from "@/lib/redeemScanCredit";
+import { cookies } from "next/headers";
 import crypto from "crypto";
 
 // Must match credits/send-code exactly — same prefix, same fallback
@@ -38,7 +39,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Incorrect code." }, { status: 400 });
   }
 
-  const result = await redeemScanCreditForDownload(email, downloadId);
+  const cookieStore = await cookies();
+  const refCookie = cookieStore.get("m2p_ref")?.value;
+  const result = await redeemScanCreditForDownload(email, downloadId, refCookie);
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: result.status });
   }

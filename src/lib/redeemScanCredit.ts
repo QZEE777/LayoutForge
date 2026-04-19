@@ -21,7 +21,8 @@ export const CHECKER_CREDITS_PER_SCAN = 1;
  */
 export async function redeemScanCreditForDownload(
   emailRaw: string,
-  downloadId: string
+  downloadId: string,
+  refCookie?: string,
 ): Promise<RedeemScanCreditResult> {
   const email = emailRaw.trim().toLowerCase();
   if (!email || !email.includes("@")) {
@@ -94,6 +95,31 @@ export async function redeemScanCreditForDownload(
       error: "Failed to unlock download. Contact support.",
       status: 500,
     };
+  }
+
+  // Award referral credit to referring scan owner (best effort)
+  if (refCookie && refCookie !== generateRefId(downloadId)) {
+    try {
+      const { data: refRow } = await supabase
+        .from("referral_credits")
+        .select("owner_ref, credits")
+        .eq("ref_id", refCookie)
+        .single();
+      if (refRow && refRow.owner_ref && refRow.owner_ref !== email) {
+        await supabase.from("scan_credits").insert({
+          email: refRow.owner_ref,
+          credits: 1,
+          source: "referral",
+          order_id: `ref_${refCookie}_${downloadId}`,
+        });
+        await supabase
+          .from("referral_credits")
+          .update({ credits: refRow.credits + 1, updated_at: new Date().toISOString() })
+          .eq("ref_id", refCookie);
+      }
+    } catch {
+      /* non-fatal */
+    }
   }
 
   // Generate stable ref_id and store in referral_credits (best effort)

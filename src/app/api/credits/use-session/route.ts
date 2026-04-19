@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabaseServer";
 import { redeemScanCreditForDownload } from "@/lib/redeemScanCredit";
+import { cookies } from "next/headers";
 
 /**
  * Redeem one scan credit using the logged-in Supabase user email (no OTP).
@@ -28,7 +29,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing downloadId" }, { status: 400 });
   }
 
-  const result = await redeemScanCreditForDownload(email, downloadId);
+  const cookieStore = await cookies();
+  const refCookie = cookieStore.get("m2p_ref")?.value;
+  const result = await redeemScanCreditForDownload(email, downloadId, refCookie);
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: result.status });
   }
