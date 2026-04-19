@@ -610,6 +610,30 @@ export default function DownloadPage() {
     annotatedAutoAttemptedRef.current = false;
   }, [id]);
 
+  // When a checker report loads with an existing annotated PDF, silently call annotate-local.
+  // If the annotation version is current, it returns the cached URL immediately (no work done).
+  // If the version is stale, it re-annotates with the latest logic and stores the new URL.
+  useEffect(() => {
+    if (!isChecker || !report?.annotatedPdfDownloadUrl || !id) return;
+    if (annotatedAutoAttemptedRef.current) return;
+    annotatedAutoAttemptedRef.current = true;
+    if (annotatedAutoInFlightRef.current) return;
+    annotatedAutoInFlightRef.current = true;
+    fetch("/api/annotate-local", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ downloadId: id }),
+    })
+      .then((res) => res.json())
+      .then((data: { success?: boolean; annotatedPdfDownloadUrl?: string }) => {
+        if (data.success && data.annotatedPdfDownloadUrl) {
+          loadReport();
+        }
+      })
+      .catch(() => {})
+      .finally(() => { annotatedAutoInFlightRef.current = false; });
+  }, [isChecker, report?.annotatedPdfDownloadUrl, id, loadReport]);
+
   // Auto-send annotated email removed — delivery is on-page only (single delivery email at payment)
 
   if (!id) {
