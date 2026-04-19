@@ -53,7 +53,7 @@ const TOP_BOTTOM_MARGIN_PT = 0.50 * PT; // 36pt  — KDP min top/bottom margin
 
 // Annotation engine version — bump when aggregation or rendering logic changes.
 // Cached PDFs with a different version are re-annotated automatically.
-const ANNOTATION_VERSION = "v8";
+const ANNOTATION_VERSION = "v9";
 
 // Annotation caps
 const MAX_ANNOTATIONS_TOTAL = 30;
@@ -888,21 +888,150 @@ function drawNumberedCircle(
   });
 }
 
+// ── Region-based annotation ────────────────────────────────────────────────────
+
+/** A single renderable annotation region — one box, one label. */
+type AnnotationRegion = {
+  ruleId:     string;
+  severity:   AnnotationSeverity;
+  isSafeZone: boolean;
+  legIdx:     number;   // legend row number this region corresponds to (1-based)
+  bx: number; by: number; bw: number; bh: number;
+  area: number;
+};
+
+/**
+ * Resolves the bounding box for a single issue.
+ * Returns [x, y, w, h] or null if no spatial location is derivable.
+ */
+function resolveIssueBbox(
+  issue:     AnnotationIssue,
+  legendH:   number,
+  width:     number,
+  height:    number,
+  pageNum:   number,
+  pageCount: number,
+): [number, number, number, number] | null {
+  if (issue.bbox) {
+    const bx = Math.max(0,       Number(issue.bbox[0]) || 0);
+    const by = Math.max(legendH, Number(issue.bbox[1]) || 0);
+    const bw = Math.min(Math.max(8, Number(issue.bbox[2]) || 0), width  - bx);
+    const bh = Math.min(Math.max(8, Number(issue.bbox[3]) || 0), height - by);
+    if (bw > 0 && bh > 0) return [bx, by, bw, bh];
+  }
+  const derived = deriveViolationBbox(issue.ruleId, issue.message, width, height, pageNum, pageCount);
+  if (derived) {
+    const [bx, by0, bw, bh0] = derived;
+    const by = Math.max(legendH, by0);
+    const bh = Math.min(bh0, height - by);
+    if (bw > 0 && bh > 0) return [bx, by, bw, bh];
+  }
+  return null;
+}
+
+/**
+ * Builds one AnnotationRegion per logical area on the page:
+ *   - All SAFE_ZONE issues → single merged union region (always prioritised)
+ *   - Each other rule     → one region (bbox already merged by aggregateIssues)
+ * INFO issues are excluded entirely. Non-spatial issues produce no region.
+ */
+function buildPageRegions(
+  issues:    AnnotationIssue[],
+  legendH:   number,
+  width:     number,
+  height:    number,
+  pageNum:   number,
+  pageCount: number,
+): AnnotationRegion[] {
+  const regions: AnnotationRegion[] = [];
+
+  // Collect SAFE_ZONE bboxes for union merge
+  const szBboxes:   number[][]         = [];
+  let   szSeverity: AnnotationSeverity = "warning";
+  let   szLegIdx                       = 0;
+
+  issues.forEach((issue, i) => {
+    if (issue.severity === "info") return;
+
+    if (issue.ruleId === "SAFE_ZONE") {
+      const box = resolveIssueBbox(issue, legendH, width, height, pageNum, pageCount);
+      if (box) szBboxes.push(box);
+      if (severityRank(issue.severity) < severityRank(szSeverity)) szSeverity = issue.severity;
+      if (!szLegIdx) szLegIdx = i + 1;
+    } else {
+      const box = resolveIssueBbox(issue, legendH, width, height, pageNum, pageCount);
+      if (!box) return;
+      const [bx, by, bw, bh] = box;
+      regions.push({
+        ruleId: issue.ruleId, severity: issue.severity,
+        isSafeZone: false, legIdx: i + 1,
+        bx, by, bw, bh, area: bw * bh,
+      });
+    }
+  });
+
+  // SAFE_ZONE → one merged region
+  if (szBboxes.length > 0) {
+    const [bx, by, bw, bh] = mergeBboxes(szBboxes);
+    regions.unshift({
+      ruleId: "SAFE_ZONE", severity: szSeverity,
+      isSafeZone: true, legIdx: szLegIdx || 1,
+      bx, by, bw, bh, area: bw * bh,
+    });
+  }
+
+  return regions;
+}
+
+/**
+ * Selects at most maxCount regions to render.
+ *
+ * Selection order:
+ *   1. SAFE_ZONE (always included if present)
+ *   2. FAIL issues sorted by area desc
+ *   3. Remaining WARNING issues sorted by area desc
+ *
+ * A candidate is suppressed if it shares >40% of its area with an
+ * already-selected region (overlap suppression keeps the larger one).
+ */
+function selectRegions(regions: AnnotationRegion[], maxCount: number): AnnotationRegion[] {
+  const safeZone = regions.find(r => r.isSafeZone);
+  const others   = regions
+    .filter(r => !r.isSafeZone)
+    .sort((a, b) => {
+      const sd = severityRank(a.severity) - severityRank(b.severity);
+      return sd !== 0 ? sd : b.area - a.area;
+    });
+
+  const selected: AnnotationRegion[] = [];
+  if (safeZone) selected.push(safeZone);
+
+  for (const r of others) {
+    if (selected.length >= maxCount) break;
+    const blocked = selected.some(s => {
+      const ix  = Math.max(r.bx, s.bx),  iy  = Math.max(r.by, s.by);
+      const ix2 = Math.min(r.bx + r.bw, s.bx + s.bw);
+      const iy2 = Math.min(r.by + r.bh, s.by + s.bh);
+      if (ix2 <= ix || iy2 <= iy) return false;
+      return (ix2 - ix) * (iy2 - iy) / Math.min(r.area, s.area) > 0.40;
+    });
+    if (!blocked) selected.push(r);
+  }
+
+  return selected;
+}
+
 // ── Issue markers on page ──────────────────────────────────────────────────────
 
 /**
- * Draws violation boxes and numbered markers on the page.
+ * Region-based annotation renderer.
  *
- * Priority for visual boxes (max MAX_BOXES_PER_PAGE):
- *   1. FAIL severity issues
- *   2. SAFE_ZONE rule (always rendered, regardless of severity)
- *   3. Largest remaining WARNING issues
- *   INFO issues → legend only, no box, no marker.
+ * Does NOT iterate detections. Instead:
+ *   1. Builds one region per logical area (SAFE_ZONE merged into one)
+ *   2. Selects at most MAX_BOXES_PER_PAGE regions by priority + area
+ *   3. Renders ONLY those — one box + one numbered marker each
  *
- * Within each priority tier, candidates are sorted by bounding-box area
- * (largest / most representative first). Overlapping boxes are suppressed:
- * if a candidate shares >50% of its area with an already-selected box it is
- * dropped. At least one box is always drawn if any spatial candidate exists.
+ * Result: at most 3 calm, non-overlapping highlights per page.
  */
 function drawIssueMarkersOnPage(
   page:      PDFPage,
@@ -913,119 +1042,40 @@ function drawIssueMarkersOnPage(
   font:      PDFFont,
 ): void {
   const { width, height } = page.getSize();
-  const shown = issues.slice(0, MAX_LEGEND_ITEMS);
+  const shown   = issues.slice(0, MAX_LEGEND_ITEMS);
+  const regions  = buildPageRegions(shown, legendH, width, height, pageNum, pageCount);
+  const selected = selectRegions(regions, MAX_BOXES_PER_PAGE);
 
-  const gutter   = getGutterPt(pageCount);
-  const isRight  = pageNum % 2 === 1;
-  const safeLeft = isRight ? gutter : OUTER_MARGIN_PT;
-  let nonSpatialX = safeLeft + MARKER_RADIUS + 2;
-  let nonSpatialY = height - TOP_BOTTOM_MARGIN_PT - MARKER_RADIUS - 2;
+  selected.forEach((region, i) => {
+    const col = severityColor(region.severity);
 
-  type Candidate = {
-    issue:    AnnotationIssue;
-    legIdx:   number;   // 1-based legend label
-    priority: number;   // 0=FAIL, 1=SAFE_ZONE, 2=other WARNING
-    bx: number; by: number; bw: number; bh: number;
-    area: number;
-  };
-  const spatial:    Candidate[] = [];
-  const nonSpatial: Array<{ issue: AnnotationIssue; legIdx: number }> = [];
-
-  shown.forEach((issue, i) => {
-    // INFO → legend only, never a box
-    if (issue.severity === "info") return;
-
-    // Assign draw priority
-    const priority =
-      issue.severity === "fail"       ? 0 :
-      issue.ruleId   === "SAFE_ZONE"  ? 1 : 2;
-
-    let bx = 0, by = 0, bw = 0, bh = 0;
-    let hasBbox = false;
-
-    if (issue.bbox) {
-      bx = Math.max(0,       Number(issue.bbox[0]) || 0);
-      by = Math.max(legendH, Number(issue.bbox[1]) || 0);
-      bw = Math.max(8,       Number(issue.bbox[2]) || 0);
-      bh = Math.max(8,       Number(issue.bbox[3]) || 0);
-      bw = Math.min(bw, width  - bx);
-      bh = Math.min(bh, height - by);
-      hasBbox = bw > 0 && bh > 0;
-    }
-
-    if (!hasBbox) {
-      const derived = deriveViolationBbox(
-        issue.ruleId, issue.message, width, height, pageNum, pageCount,
-      );
-      if (derived) {
-        [bx, by, bw, bh] = derived;
-        by = Math.max(legendH, by);
-        bh = Math.min(bh, height - by);
-        hasBbox = bw > 0 && bh > 0;
-      }
-    }
-
-    if (hasBbox) {
-      spatial.push({ issue, legIdx: i + 1, priority, bx, by, bw, bh, area: bw * bh });
-    } else {
-      nonSpatial.push({ issue, legIdx: i + 1 });
-    }
-  });
-
-  // Sort: priority tier first, then largest area within tier
-  spatial.sort((a, b) =>
-    a.priority !== b.priority ? a.priority - b.priority : b.area - a.area,
-  );
-  const selected: Candidate[] = [];
-  for (const c of spatial) {
-    if (selected.length >= MAX_BOXES_PER_PAGE) break;
-    const blocked = selected.some(s => {
-      const ix  = Math.max(c.bx, s.bx);
-      const iy  = Math.max(c.by, s.by);
-      const ix2 = Math.min(c.bx + c.bw, s.bx + s.bw);
-      const iy2 = Math.min(c.by + c.bh, s.by + s.bh);
-      if (ix2 <= ix || iy2 <= iy) return false;
-      return (ix2 - ix) * (iy2 - iy) / Math.min(c.area, s.area) > 0.50;
-    });
-    if (!blocked) selected.push(c);
-  }
-
-  // Draw selected violation boxes + markers
-  for (const { issue, legIdx, bx, by, bw, bh } of selected) {
-    const col = severityColor(issue.severity);
-
+    // Box — thin border, no fill
     page.drawRectangle({
-      x: bx, y: by, width: bw, height: bh,
+      x: region.bx, y: region.by,
+      width:  region.bw,
+      height: region.bh,
       color:         col,
-      opacity:       0.03,   // 3% fill — barely-there tint
+      opacity:       0.02,   // 2% fill — near-invisible tint
       borderColor:   col,
       borderWidth:   0.50,
-      borderOpacity: 0.40,
+      borderOpacity: 0.38,
     });
 
+    // One numbered marker per region
     let cx: number, cy: number;
-    if (bh > bw * 2.0) {
-      // Tall strip (gutter / margin band): marker at vertical center
-      cy = by + bh / 2;
-      cx = bx + MARKER_RADIUS + 1;
+    if (region.bh > region.bw * 2.0) {
+      // Tall strip (gutter / margin band): marker at vertical midpoint
+      cy = region.by + region.bh / 2;
+      cx = region.bx + MARKER_RADIUS + 1;
     } else {
-      // Wide or square region: top-center
-      cx = bx + bw / 2;
-      cy = by + bh - MARKER_RADIUS - 1;
+      // Wide / square region: marker at top-center
+      cx = region.bx + region.bw / 2;
+      cy = region.by + region.bh - MARKER_RADIUS - 1;
     }
     cx = Math.max(MARKER_RADIUS + 1, Math.min(cx, width  - MARKER_RADIUS - 1));
     cy = Math.max(legendH + MARKER_RADIUS + 1, Math.min(cy, height - MARKER_RADIUS - 1));
-    drawNumberedCircle(page, cx, cy, col, String(legIdx), font);
-  }
-
-  // Non-spatial FAIL issues: small marker only, no box
-  for (const { issue, legIdx } of nonSpatial) {
-    const col = severityColor(issue.severity);
-    const cx  = Math.min(nonSpatialX, width - MARKER_RADIUS - 2);
-    const cy  = Math.max(legendH + MARKER_RADIUS + 4, nonSpatialY);
-    drawNumberedCircle(page, cx, cy, col, String(legIdx), font);
-    nonSpatialX += (MARKER_RADIUS * 2 + 4);
-  }
+    drawNumberedCircle(page, cx, cy, col, String(i + 1), font);
+  });
 }
 
 // ── Main annotation driver ─────────────────────────────────────────────────────
