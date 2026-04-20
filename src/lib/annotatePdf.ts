@@ -1142,7 +1142,6 @@ async function annotateDoc(
   doc:       PDFDocument,
   allIssues: AnnotationIssue[],
 ): Promise<void> {
-  return; // TEMP: annotation drawing disabled for diagnosis
   const pages     = doc.getPages();
   const pageCount = pages.length;
   if (!pageCount) return;
