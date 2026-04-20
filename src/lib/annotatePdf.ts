@@ -543,29 +543,9 @@ function drawLegendPanel(
   const overflow = issues.length - shown.length;
   const lh       = getLegendHeight(issues.length);
 
-  // ── Panel background
-  page.drawRectangle({
-    x: 0, y: 0,
-    width,
-    height:        lh,
-    color:         COLOR.legendBg,
-    opacity:       0.92,
-    borderColor:   COLOR.legendBorder,
-    borderWidth:   0.4,
-  });
-
-  // ── Top separator line
-  page.drawLine({
-    start: { x: 0, y: lh },
-    end:   { x: width, y: lh },
-    color:     COLOR.legendBorder,
-    thickness: 0.5,
-    opacity:   0.65,
-  });
-
   // ── Header
   const headerY = lh - LEGEND_PADDING - LEGEND_HEADER_H + 4;
-  page.drawText(`PAGE ${pageNum}  —  ISSUE LEGEND`, {
+  page.drawText(`Page ${pageNum} — Issues`, {
     x:       LEGEND_PADDING,
     y:       headerY,
     size:    6.0,
@@ -574,64 +554,24 @@ function drawLegendPanel(
     opacity: 0.90,
   });
 
-  // Severity column header removed — color of each row dot communicates severity
-
   // ── Issue rows
   shown.forEach((issue, i) => {
     const rowTop = lh - LEGEND_PADDING - LEGEND_HEADER_H - i * LEGEND_ROW_H;
     const line1Y = rowTop - 8;
     const line2Y = rowTop - 16;
 
-    const col        = severityColor(issue.severity);
-    const numStr     = String(i + 1);
-    const numW       = font.widthOfTextAtSize(numStr, 6);
-    const circleX    = LEGEND_PADDING + MARKER_RADIUS;
-    const circleY    = (line1Y + line2Y) / 2 + 1;
+    const numStr = String(i + 1);
+    const textX  = LEGEND_PADDING;
 
-    // Severity-colored circle
-    page.drawEllipse({
-      x: circleX, y: circleY,
-      xScale: MARKER_RADIUS - 0.5,
-      yScale: MARKER_RADIUS - 0.5,
-      color:   col,
-      opacity: 0.88,
-    });
-
-    // Issue number
-    page.drawText(numStr, {
-      x:       circleX - numW / 2,
-      y:       circleY - 2.5,
-      size:    6,
-      font,
-      color:   COLOR.markerText,
-      opacity: 1,
-    });
-
-    // Text column starts after circle
-    const textX = LEGEND_PADDING + MARKER_RADIUS * 2 + 5;
-
-    // Human-readable label (bold) — line 1 left; fail items slightly larger for hierarchy
-    const ruleLabel  = getIssueLabel(issue.ruleId);
-    const labelSize  = issue.severity === "fail" ? 6.5 : 6.0;
-    page.drawText(ruleLabel, {
+    // Numbered label (bold)
+    const ruleLabel = getIssueLabel(issue.ruleId);
+    page.drawText(`${numStr}. ${ruleLabel}`, {
       x:       textX,
       y:       line1Y,
-      size:    labelSize,
+      size:    6.0,
       font:    boldFont,
       color:   COLOR.legendText,
       opacity: 0.92,
-    });
-
-    // Severity tag — de-emphasised, right-aligned, communicates type without dominating
-    const sevLabel = severityLabel(issue.severity);
-    const sevW     = font.widthOfTextAtSize(sevLabel, 4.5);
-    page.drawText(sevLabel, {
-      x:       width - LEGEND_PADDING - sevW,
-      y:       line1Y,
-      size:    4.5,
-      font,
-      color:   COLOR.legendMuted,
-      opacity: 0.35,
     });
 
     // One-sentence description — line 2
