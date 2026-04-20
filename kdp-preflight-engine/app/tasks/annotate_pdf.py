@@ -27,6 +27,55 @@ _A4_WIDTH = 595
 _A4_HEIGHT = 842
 _MAX_LABEL_LEN = 60
 
+_LAYOUT_REGION_RULES: frozenset[str] = frozenset({
+    "SAFE_ZONE", "TEXT_OUTSIDE_TRIM",
+    "GUTTER_MARGIN", "OUTSIDE_MARGIN_MIN",
+    "TOP_MARGIN_MIN", "BOTTOM_MARGIN_MIN",
+    "BLEED_VALIDATION", "IMAGE_BLEED",
+})
+
+_PT = 72.0
+_OUTER_MARGIN = 0.25 * _PT
+_TOP_BOT_MARGIN = 0.50 * _PT
+
+
+def _gutter_pt(page_count: int) -> float:
+    if page_count <= 150:
+        return 0.375 * _PT
+    if page_count <= 300:
+        return 0.500 * _PT
+    if page_count <= 500:
+        return 0.625 * _PT
+    if page_count <= 700:
+        return 0.750 * _PT
+    return 0.875 * _PT
+
+
+def _derive_layout_bbox(
+    rule_id: str, pw: float, ph: float, page_num: int, page_count: int
+) -> tuple[float, float, float, float] | None:
+    """Return (x, y, w, h) in fitz top-left coords for a layout-region rule."""
+    gutter = _gutter_pt(page_count)
+    is_right = page_num % 2 == 1  # odd = right page, gutter on left
+
+    if rule_id in ("SAFE_ZONE", "TEXT_OUTSIDE_TRIM"):
+        left = gutter if is_right else _OUTER_MARGIN
+        right = _OUTER_MARGIN if is_right else gutter
+        return (left, _TOP_BOT_MARGIN, pw - left - right, ph - _TOP_BOT_MARGIN * 2)
+    if rule_id == "GUTTER_MARGIN":
+        x = 0.0 if is_right else pw - gutter
+        return (x, 0.0, gutter, ph)
+    if rule_id == "OUTSIDE_MARGIN_MIN":
+        x = pw - _OUTER_MARGIN if is_right else 0.0
+        return (x, 0.0, _OUTER_MARGIN, ph)
+    if rule_id == "TOP_MARGIN_MIN":
+        return (0.0, 0.0, pw, _TOP_BOT_MARGIN)
+    if rule_id == "BOTTOM_MARGIN_MIN":
+        return (0.0, ph - _TOP_BOT_MARGIN, pw, _TOP_BOT_MARGIN)
+    if rule_id in ("BLEED_VALIDATION", "IMAGE_BLEED"):
+        return (0.0, 0.0, pw, 9.0)
+    return None
+
 
 def _truncate(text: str, max_len: int) -> str:
     if len(text) <= max_len:
@@ -293,22 +342,37 @@ def annotate_pdf_inline(report: dict[str, Any], path_in: Path) -> str:
             if not issues:
                 continue
             page = new_doc[-1]
+            pw, ph = page.rect.width, page.rect.height
+            page_num = i + 1
+            drawn_layout_rules: set[str] = set()
             for issue in issues:
-                bbox = issue.get("bbox")
-                if not bbox or len(bbox) < 4:
-                    continue
-                try:
-                    x, y, w, h = float(bbox[0]), float(bbox[1]), float(bbox[2]), float(bbox[3])
-                except Exception:
-                    continue
-                if w < 2 or h < 2:
-                    continue
+                rule_id = str(issue.get("rule_id") or "").upper().strip()
                 severity = _normalize_severity(issue)
                 color = _color_for_normalized(severity)
-                page.draw_rect(fitz.Rect(x, y, x + w, y + h), color=color, fill=None, width=2.0)
-                label = _make_label(issue)
-                label_y = max(y - 4, 8)
-                page.insert_text(fitz.Point(x, label_y), label, fontsize=6, color=color)
+                if rule_id in _LAYOUT_REGION_RULES:
+                    if rule_id in drawn_layout_rules:
+                        continue
+                    drawn_layout_rules.add(rule_id)
+                    box = _derive_layout_bbox(rule_id, pw, ph, page_num, len(doc))
+                    if not box:
+                        continue
+                    bx, by, bw, bh = box
+                    page.draw_rect(fitz.Rect(bx, by, bx + bw, by + bh), color=color, fill=None, width=2.0)
+                    label = _make_label(issue)
+                    page.insert_text(fitz.Point(bx, max(by - 4, 8)), label, fontsize=6, color=color)
+                else:
+                    bbox = issue.get("bbox")
+                    if not bbox or len(bbox) < 4:
+                        continue
+                    try:
+                        x, y, w, h = float(bbox[0]), float(bbox[1]), float(bbox[2]), float(bbox[3])
+                    except Exception:
+                        continue
+                    if w < 2 or h < 2:
+                        continue
+                    page.draw_rect(fitz.Rect(x, y, x + w, y + h), color=color, fill=None, width=2.0)
+                    label = _make_label(issue)
+                    page.insert_text(fitz.Point(x, max(y - 4, 8)), label, fontsize=6, color=color)
         new_doc.save(buf)
     finally:
         doc.close()
