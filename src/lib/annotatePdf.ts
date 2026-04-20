@@ -65,9 +65,9 @@ const LAYOUT_REGION_RULES = new Set([
 ]);
 
 // Annotation caps
-const MAX_ANNOTATIONS_TOTAL = 30;
-const MAX_LEGEND_ITEMS      = 4;   // max issues shown per page legend
-const MAX_BOXES_PER_PAGE    = 3;   // max violation boxes drawn on any one page
+const MAX_ANNOTATIONS_TOTAL = 500;
+const MAX_LEGEND_ITEMS      = 50;  // max issues shown per page legend
+const MAX_BOXES_PER_PAGE    = 50;  // max violation boxes drawn on any one page
 
 // Legend geometry
 const LEGEND_PADDING      = 10; // pt top/bottom padding inside legend panel
