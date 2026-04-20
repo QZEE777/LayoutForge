@@ -174,7 +174,8 @@ export default function CheckerPdfViewer({
     const maxWidth = pageSize.width;
     const maxHeight = pageSize.height;
     const x = Math.max(0, Math.min(xRaw, maxWidth));
-    const y = Math.max(0, Math.min(yRaw, maxHeight));
+    const yConverted = maxHeight - yRaw - hRaw;
+    const y = Math.max(0, Math.min(yConverted, maxHeight));
     const width = Math.max(0, Math.min(wRaw, maxWidth - x));
     const height = Math.max(0, Math.min(hRaw, maxHeight - y));
 
