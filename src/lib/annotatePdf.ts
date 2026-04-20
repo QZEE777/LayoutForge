@@ -53,7 +53,7 @@ const TOP_BOTTOM_MARGIN_PT = 0.50 * PT; // 36pt  — KDP min top/bottom margin
 
 // Annotation engine version — bump when aggregation or rendering logic changes.
 // Cached PDFs with a different version are re-annotated automatically.
-const ANNOTATION_VERSION = "v12";
+const ANNOTATION_VERSION = "v15";
 
 // Layout-region rules: always rendered as page-level geometry, never per-text boxes.
 // Scanner-provided bboxes for these rules are per-text-line and create red noise — ignored.
@@ -993,20 +993,29 @@ function buildPageRegions(
   pageCount: number,
 ): AnnotationRegion[] {
   const regions: AnnotationRegion[] = [];
-
-  // Collect SAFE_ZONE bboxes for union merge
-  const szBboxes:   number[][]         = [];
-  let   szSeverity: AnnotationSeverity = "warning";
-  let   szLegIdx                       = 0;
+  const seenLayoutRules = new Set<string>();
 
   issues.forEach((issue, i) => {
     if (issue.severity === "info") return;
 
-    if (issue.ruleId === "SAFE_ZONE") {
-      const box = resolveIssueBbox(issue, legendH, width, height, pageNum, pageCount);
-      if (box) szBboxes.push(box);
-      if (severityRank(issue.severity) < severityRank(szSeverity)) szSeverity = issue.severity;
-      if (!szLegIdx) szLegIdx = i + 1;
+    if (LAYOUT_REGION_RULES.has(issue.ruleId)) {
+      // Each layout rule gets exactly one large derived box — scanner bboxes are never used.
+      if (seenLayoutRules.has(issue.ruleId)) return;
+      seenLayoutRules.add(issue.ruleId);
+
+      const derived = deriveViolationBbox(issue.ruleId, issue.message, width, height, pageNum, pageCount);
+      if (!derived) return;
+      const [bx, by0, bw, bh0] = derived;
+      const by = Math.max(legendH, by0);
+      const bh = Math.min(bh0, height - by);
+      if (bw <= 0 || bh <= 0) return;
+
+      const isSafeZone = issue.ruleId === "SAFE_ZONE" || issue.ruleId === "TEXT_OUTSIDE_TRIM";
+      regions.push({
+        ruleId: issue.ruleId, severity: issue.severity,
+        isSafeZone, legIdx: i + 1,
+        bx, by, bw, bh, area: bw * bh,
+      });
     } else {
       const box = resolveIssueBbox(issue, legendH, width, height, pageNum, pageCount);
       if (!box) return;
@@ -1018,16 +1027,6 @@ function buildPageRegions(
       });
     }
   });
-
-  // SAFE_ZONE → one merged region
-  if (szBboxes.length > 0) {
-    const [bx, by, bw, bh] = mergeBboxes(szBboxes);
-    regions.unshift({
-      ruleId: "SAFE_ZONE", severity: szSeverity,
-      isSafeZone: true, legIdx: szLegIdx || 1,
-      bx, by, bw, bh, area: bw * bh,
-    });
-  }
 
   return regions;
 }
@@ -1091,7 +1090,13 @@ function drawIssueMarkersOnPage(
   font:      PDFFont,
 ): void {
   const { width, height } = page.getSize();
-  const shown   = issues.slice(0, MAX_LEGEND_ITEMS);
+  const seenRuleIds = new Set<string>();
+  const deduped = issues.filter(issue => {
+    if (seenRuleIds.has(issue.ruleId)) return false;
+    seenRuleIds.add(issue.ruleId);
+    return true;
+  });
+  const shown   = deduped.slice(0, MAX_LEGEND_ITEMS);
   const regions  = buildPageRegions(shown, legendH, width, height, pageNum, pageCount);
   const selected = selectRegions(regions, MAX_BOXES_PER_PAGE);
 
