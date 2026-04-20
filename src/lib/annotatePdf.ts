@@ -948,7 +948,7 @@ function resolveIssueBbox(
   pageNum:   number,
   pageCount: number,
 ): [number, number, number, number] | null {
-  // Layout-region rules: ALWAYS derive from page geometry. Scanner bboxes are per-text-line noise — never used.
+  // CTO SURGICAL FIX: If it's a layout rule, we FORBID the scanner's tiny boxes.
   if (LAYOUT_REGION_RULES.has(issue.ruleId)) {
     const derived = deriveViolationBbox(issue.ruleId, issue.message, width, height, pageNum, pageCount);
     if (derived) {
@@ -957,22 +957,16 @@ function resolveIssueBbox(
       const bh = Math.min(bh0, height - by);
       if (bw > 0 && bh > 0) return [bx, by, bw, bh];
     }
+    // If we can't derive a big box, we return NULL (draw nothing) instead of drawing scribbles.
     return null;
   }
 
-  // Non-layout rules: use scanner bbox if available, then fall back to derived.
+  // Only use scanner bboxes for specific non-layout issues (like fonts)
   if (issue.bbox) {
     const bx = Math.max(0,       Number(issue.bbox[0]) || 0);
     const by = Math.max(legendH, Number(issue.bbox[1]) || 0);
     const bw = Math.min(Math.max(8, Number(issue.bbox[2]) || 0), width  - bx);
     const bh = Math.min(Math.max(8, Number(issue.bbox[3]) || 0), height - by);
-    if (bw > 0 && bh > 0) return [bx, by, bw, bh];
-  }
-  const derived = deriveViolationBbox(issue.ruleId, issue.message, width, height, pageNum, pageCount);
-  if (derived) {
-    const [bx, by0, bw, bh0] = derived;
-    const by = Math.max(legendH, by0);
-    const bh = Math.min(bh0, height - by);
     if (bw > 0 && bh > 0) return [bx, by, bw, bh];
   }
   return null;
