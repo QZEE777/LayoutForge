@@ -1322,7 +1322,7 @@ export default function DownloadPage() {
                       <div className="mt-2 mb-2">
                         {hasAnnotatedDownload && report?.annotatedPdfDownloadUrl ? (
                           <a
-                            href={report.annotatedPdfDownloadUrl}
+                            href={report.annotatedPdfDownloadUrl + (report.annotatedPdfDownloadUrl.includes('?') ? '&' : '?') + 'v=12'}
                             download="annotated.pdf"
                             className="w-full text-center bg-[#1A6B2A] text-white px-6 py-3.5 rounded-xl font-black hover:bg-[#155720] transition-all shadow-md hover:shadow-lg block"
                           >
