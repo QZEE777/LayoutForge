@@ -538,6 +538,7 @@ function drawLegendPanel(
   font:      PDFFont,
   boldFont:  PDFFont,
 ): void {
+  return;
   const { width } = page.getSize();
   const shown    = issues.slice(0, MAX_LEGEND_ITEMS);
   const overflow = issues.length - shown.length;
