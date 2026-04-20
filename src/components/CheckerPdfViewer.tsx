@@ -7,6 +7,11 @@ import {
   CHECKER_OVERLAY_WARNING_HEX,
 } from "@/lib/checkerAnnotationStyle";
 
+const LAYOUT_REGION_SKIP = new Set([
+  "SAFE_ZONE", "GUTTER_MARGIN", "INSIDE_MARGIN", "OUTSIDE_MARGIN",
+  "TOP_MARGIN", "BOTTOM_MARGIN", "BLEED_ZONE",
+]);
+
 const BASE_WIDTH = 560;
 const BLANK_CHECK_SAMPLE_COUNT = 120;
 
@@ -539,6 +544,7 @@ export default function CheckerPdfViewer({
               className="overflow-visible"
             >
               {issuesForPage.map((issue, idx) => {
+                if (LAYOUT_REGION_SKIP.has(issue.rule_id?.toUpperCase?.() ?? "")) return null;
                 const rect = getIssueOverlayRect(issue.bbox);
                 if (!rect) return null;
                 const normalized = normalizeSeverity(issue);
