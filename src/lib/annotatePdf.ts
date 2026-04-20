@@ -53,7 +53,7 @@ const TOP_BOTTOM_MARGIN_PT = 0.50 * PT; // 36pt  — KDP min top/bottom margin
 
 // Annotation engine version — bump when aggregation or rendering logic changes.
 // Cached PDFs with a different version are re-annotated automatically.
-const ANNOTATION_VERSION = "v11";
+const ANNOTATION_VERSION = "v12";
 
 // Layout-region rules: always rendered as page-level geometry, never per-text boxes.
 // Scanner-provided bboxes for these rules are per-text-line and create red noise — ignored.
@@ -948,9 +948,20 @@ function resolveIssueBbox(
   pageNum:   number,
   pageCount: number,
 ): [number, number, number, number] | null {
-  // Layout-region rules: always use derived page-level geometry.
-  // Scanner bboxes for these rules are per-text-line and produce red noise — skip them.
-  if (!LAYOUT_REGION_RULES.has(issue.ruleId) && issue.bbox) {
+  // Layout-region rules: ALWAYS derive from page geometry. Scanner bboxes are per-text-line noise — never used.
+  if (LAYOUT_REGION_RULES.has(issue.ruleId)) {
+    const derived = deriveViolationBbox(issue.ruleId, issue.message, width, height, pageNum, pageCount);
+    if (derived) {
+      const [bx, by0, bw, bh0] = derived;
+      const by = Math.max(legendH, by0);
+      const bh = Math.min(bh0, height - by);
+      if (bw > 0 && bh > 0) return [bx, by, bw, bh];
+    }
+    return null;
+  }
+
+  // Non-layout rules: use scanner bbox if available, then fall back to derived.
+  if (issue.bbox) {
     const bx = Math.max(0,       Number(issue.bbox[0]) || 0);
     const by = Math.max(legendH, Number(issue.bbox[1]) || 0);
     const bw = Math.min(Math.max(8, Number(issue.bbox[2]) || 0), width  - bx);
