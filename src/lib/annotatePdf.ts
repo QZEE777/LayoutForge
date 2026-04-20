@@ -1291,7 +1291,7 @@ export async function annotateCheckerPdf(
     // preventing glyph corruption in PDFs with custom font encoding maps.
     const annotatedBytes          = await doc.save({ useObjectStreams: false });
     const annotatedBuffer         = Buffer.from(annotatedBytes);
-    const annotatedFilename       = "annotated-local.pdf";
+    const annotatedFilename       = `annotated-local-${Date.now()}.pdf`;
 
     await uploadFile(downloadId, annotatedFilename, annotatedBuffer);
     const annotatedPdfDownloadUrl = await getSignedDownloadUrl(downloadId, annotatedFilename);
