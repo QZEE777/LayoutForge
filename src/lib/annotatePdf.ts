@@ -53,7 +53,7 @@ const TOP_BOTTOM_MARGIN_PT = 0.50 * PT; // 36pt  — KDP min top/bottom margin
 
 // Annotation engine version — bump when aggregation or rendering logic changes.
 // Cached PDFs with a different version are re-annotated automatically.
-const ANNOTATION_VERSION = "v17";
+const ANNOTATION_VERSION = "v18";
 
 // Layout-region rules: always rendered as page-level geometry, never per-text boxes.
 // Scanner-provided bboxes for these rules are per-text-line and create red noise — ignored.
@@ -952,7 +952,7 @@ function resolveIssueBbox(
   pageNum:   number,
   pageCount: number,
 ): [number, number, number, number] | null {
-  // CTO SURGICAL FIX: If it's a layout rule, we FORBID the scanner's tiny boxes.
+  // Layout-region rules always use derived page geometry — never scanner bboxes.
   if (LAYOUT_REGION_RULES.has(issue.ruleId)) {
     const derived = deriveViolationBbox(issue.ruleId, issue.message, width, height, pageNum, pageCount);
     if (derived) {
@@ -961,16 +961,22 @@ function resolveIssueBbox(
       const bh = Math.min(bh0, height - by);
       if (bw > 0 && bh > 0) return [bx, by, bw, bh];
     }
-    // If we can't derive a big box, we return NULL (draw nothing) instead of drawing scribbles.
     return null;
   }
 
-  // Only use scanner bboxes for specific non-layout issues (like fonts)
+  // Non-layout rules: use scanner bbox if available, fall back to derived geometry.
   if (issue.bbox) {
     const bx = Math.max(0,       Number(issue.bbox[0]) || 0);
     const by = Math.max(legendH, Number(issue.bbox[1]) || 0);
     const bw = Math.min(Math.max(8, Number(issue.bbox[2]) || 0), width  - bx);
     const bh = Math.min(Math.max(8, Number(issue.bbox[3]) || 0), height - by);
+    if (bw > 0 && bh > 0) return [bx, by, bw, bh];
+  }
+  const derived = deriveViolationBbox(issue.ruleId, issue.message, width, height, pageNum, pageCount);
+  if (derived) {
+    const [bx, by0, bw, bh0] = derived;
+    const by = Math.max(legendH, by0);
+    const bh = Math.min(bh0, height - by);
     if (bw > 0 && bh > 0) return [bx, by, bw, bh];
   }
   return null;
