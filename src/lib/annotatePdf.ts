@@ -53,7 +53,7 @@ const TOP_BOTTOM_MARGIN_PT = 0.50 * PT; // 36pt  — KDP min top/bottom margin
 
 // Annotation engine version — bump when aggregation or rendering logic changes.
 // Cached PDFs with a different version are re-annotated automatically.
-const ANNOTATION_VERSION = "v10";
+const ANNOTATION_VERSION = "v11";
 
 // Layout-region rules: always rendered as page-level geometry, never per-text boxes.
 // Scanner-provided bboxes for these rules are per-text-line and create red noise — ignored.
@@ -675,9 +675,36 @@ function deriveViolationBbox(
   pageNum:   number,
   pageCount: number,
 ): [number, number, number, number] | null {
-  const text     = `${ruleId} ${message}`.toLowerCase();
   const gutter   = getGutterPt(pageCount);
   const isRight  = pageNum % 2 === 1; // odd = right page
+
+  // ── Explicit ruleId matching (takes priority over text/regex) ─────────────
+  // These ruleIds do not produce messages that match the regexes below.
+  if (ruleId === "SAFE_ZONE" || ruleId === "TEXT_OUTSIDE_TRIM") {
+    const left  = isRight ? gutter         : OUTER_MARGIN_PT;
+    const right = isRight ? OUTER_MARGIN_PT : gutter;
+    return [left, TOP_BOTTOM_MARGIN_PT, pw - left - right, ph - TOP_BOTTOM_MARGIN_PT * 2];
+  }
+  if (ruleId === "GUTTER_MARGIN") {
+    const x = isRight ? 0 : pw - gutter;
+    return [x, 0, gutter, ph];
+  }
+  if (ruleId === "OUTSIDE_MARGIN_MIN") {
+    const x = isRight ? pw - OUTER_MARGIN_PT : 0;
+    return [x, 0, OUTER_MARGIN_PT, ph];
+  }
+  if (ruleId === "TOP_MARGIN_MIN") {
+    return [0, ph - TOP_BOTTOM_MARGIN_PT, pw, TOP_BOTTOM_MARGIN_PT];
+  }
+  if (ruleId === "BOTTOM_MARGIN_MIN") {
+    return [0, 0, pw, TOP_BOTTOM_MARGIN_PT];
+  }
+  if (ruleId === "BLEED_VALIDATION" || ruleId === "IMAGE_BLEED") {
+    return [0, ph - 9, pw, 9];
+  }
+
+  // ── Text/regex fallback ───────────────────────────────────────────────────
+  const text = `${ruleId} ${message}`.toLowerCase();
 
   // Gutter / inner margin
   if (/gutter|inner.?margin/.test(text)) {
@@ -712,8 +739,8 @@ function deriveViolationBbox(
     return [0, ph - 9, pw, 9]; // 9pt = 0.125 in bleed strip
   }
 
-  // Safe area / live area / content area
-  if (/safe.?area|live.?area|content.?area/.test(text)) {
+  // Safe area / live area / content area / safe_zone
+  if (/safe.?area|live.?area|content.?area|safe_zone/i.test(ruleId + " " + text)) {
     const left  = isRight ? gutter         : OUTER_MARGIN_PT;
     const right = isRight ? OUTER_MARGIN_PT : gutter;
     return [left, TOP_BOTTOM_MARGIN_PT, pw - left - right, ph - TOP_BOTTOM_MARGIN_PT * 2];
@@ -1060,16 +1087,16 @@ function drawIssueMarkersOnPage(
   selected.forEach((region, i) => {
     const col = severityColor(region.severity);
 
-    // Box — thin border, no fill
+    // Box — 2px solid red border, 10% red fill
     page.drawRectangle({
       x: region.bx, y: region.by,
       width:  region.bw,
       height: region.bh,
-      color:         col,
-      opacity:       0.02,   // 2% fill — near-invisible tint
-      borderColor:   col,
-      borderWidth:   0.50,
-      borderOpacity: 0.38,
+      color:         rgb(1, 0, 0),
+      opacity:       0.10,
+      borderColor:   rgb(1, 0, 0),
+      borderWidth:   2,
+      borderOpacity: 1.0,
     });
 
     // One numbered marker per region
