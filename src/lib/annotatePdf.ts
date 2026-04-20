@@ -53,7 +53,7 @@ const TOP_BOTTOM_MARGIN_PT = 0.50 * PT; // 36pt  — KDP min top/bottom margin
 
 // Annotation engine version — bump when aggregation or rendering logic changes.
 // Cached PDFs with a different version are re-annotated automatically.
-const ANNOTATION_VERSION = "v16";
+const ANNOTATION_VERSION = "v17";
 
 // Layout-region rules: always rendered as page-level geometry, never per-text boxes.
 // Scanner-provided bboxes for these rules are per-text-line and create red noise — ignored.
@@ -310,12 +310,16 @@ function normalizeIssues(
     if (!isAnnotatable(issue.severity)) continue;
     const page = Number(issue.page);
     if (!Number.isFinite(page) || page < 1 || page > pageCount) continue;
+    const ruleId = String(issue.rule_id ?? "ISSUE").toUpperCase().trim() || "ISSUE";
     out.push({
       page,
       severity: normalizeSeverity(issue.severity),
-      ruleId:   String(issue.rule_id ?? "ISSUE").toUpperCase().trim() || "ISSUE",
+      ruleId,
       message:  issue.message?.trim() || "Formatting issue detected",
-      bbox:     Array.isArray(issue.bbox) && issue.bbox.length >= 4 ? issue.bbox : null,
+      // Layout-region rules always use derived page geometry — strip scanner bboxes at source.
+      bbox: LAYOUT_REGION_RULES.has(ruleId)
+        ? null
+        : Array.isArray(issue.bbox) && issue.bbox.length >= 4 ? issue.bbox : null,
     });
   }
 
