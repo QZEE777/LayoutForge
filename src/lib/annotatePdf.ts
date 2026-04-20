@@ -545,7 +545,7 @@ function drawLegendPanel(
 
   // ── Header
   const headerY = lh - LEGEND_PADDING - LEGEND_HEADER_H + 4;
-  page.drawText(`Page ${pageNum} — Issues`, {
+  page.drawText(`Page ${pageNum}`, {
     x:       LEGEND_PADDING,
     y:       headerY,
     size:    6.0,
@@ -556,38 +556,17 @@ function drawLegendPanel(
 
   // ── Issue rows
   shown.forEach((issue, i) => {
-    const rowTop = lh - LEGEND_PADDING - LEGEND_HEADER_H - i * LEGEND_ROW_H;
-    const line1Y = rowTop - 8;
-    const line2Y = rowTop - 16;
-
-    const numStr = String(i + 1);
-    const textX  = LEGEND_PADDING;
-
-    // Numbered label (bold)
+    const rowTop    = lh - LEGEND_PADDING - LEGEND_HEADER_H - i * LEGEND_ROW_H;
+    const line1Y    = rowTop - 8;
+    const numStr    = String(i + 1);
     const ruleLabel = getIssueLabel(issue.ruleId);
     page.drawText(`${numStr}. ${ruleLabel}`, {
-      x:       textX,
+      x:       LEGEND_PADDING,
       y:       line1Y,
       size:    6.0,
       font:    boldFont,
       color:   COLOR.legendText,
       opacity: 0.92,
-    });
-
-    // One-sentence description — line 2
-    const rawSentence = getIssueSentence(issue.ruleId, issue.message);
-    const maxChars    = Math.max(20, Math.floor((width - textX - 50) / 3.8));
-    const line2Text   = rawSentence.length > maxChars
-      ? rawSentence.slice(0, maxChars - 1) + "…"
-      : rawSentence;
-
-    page.drawText(line2Text, {
-      x:       textX,
-      y:       line2Y,
-      size:    5.5,
-      font,
-      color:   COLOR.legendMuted,
-      opacity: 0.85,
     });
   });
 
