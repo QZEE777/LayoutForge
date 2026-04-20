@@ -298,7 +298,7 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
   doc.addPage([612, 792]);
   const minimalPdf = Buffer.from(await doc.save());
   const stored = await saveUpload(minimalPdf, "preflight-report.pdf", "application/pdf");
-  report.pdfSourceUrl = `/api/r2-file?id=${encodeURIComponent(fileKey)}`;
+  report.pdfSourceUrl = `/api/r2-file?id=${encodeURIComponent(stored.id)}`;
   await updateMeta(stored.id, {
     processingReport: { ...(enrichedReport as object), pdfSourceUrl: report.pdfSourceUrl } as StoredManuscript["processingReport"],
     sourcePdfKey: fileKey,
