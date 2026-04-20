@@ -53,7 +53,7 @@ const TOP_BOTTOM_MARGIN_PT = 0.50 * PT; // 36pt  — KDP min top/bottom margin
 
 // Annotation engine version — bump when aggregation or rendering logic changes.
 // Cached PDFs with a different version are re-annotated automatically.
-const ANNOTATION_VERSION = "v15";
+const ANNOTATION_VERSION = "v16";
 
 // Layout-region rules: always rendered as page-level geometry, never per-text boxes.
 // Scanner-provided bboxes for these rules are per-text-line and create red noise — ignored.
