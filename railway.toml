@@ -3,7 +3,7 @@
 # Using Dockerfile.worker so we never run next build; install deps only, then run worker.
 [build]
 builder = "DOCKERFILE"
-dockerfilePath = "Dockerfile.worker"
+dockerfilePath = "kdp-preflight-engine/Dockerfile"
 
 [deploy]
 startCommand = "npm run worker:print-ready-check"
