@@ -1027,16 +1027,14 @@ function drawIssueMarkersOnPage(
   selected.forEach((region, i) => {
     const col = severityColor(region.severity);
 
-    // Box — 2px solid red border, 10% red fill
+    // Box — stroke only, no fill
     page.drawRectangle({
       x: region.bx, y: region.by,
       width:  region.bw,
       height: region.bh,
-      color:         rgb(1, 0, 0),
-      opacity:       0.10,
-      borderColor:   rgb(1, 0, 0),
-      borderWidth:   2,
-      borderOpacity: 1.0,
+      borderColor:   rgb(0.85, 0.2, 0.2),
+      borderWidth:   0.75,
+      borderOpacity: 0.6,
     });
 
     // One numbered marker per region
