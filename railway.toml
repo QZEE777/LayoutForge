@@ -1,11 +1,1 @@
-# Print Ready Check worker — run this on Railway (not Next.js).
-# Vercel hosts the Next app; this repo on Railway runs only the worker.
-# Using Dockerfile.worker so we never run next build; install deps only, then run worker.
-[build]
-builder = "DOCKERFILE"
-dockerfilePath = "kdp-preflight-engine/Dockerfile"
-
-[deploy]
-startCommand = "uvicorn app.main:app --host 0.0.0.0 --port 8080"
-restartPolicyType = "on_failure"
-restartPolicyMaxRetries = 10
+# intentionally empty — service-level config handled in Railway UI
