@@ -958,6 +958,104 @@ export default function KdpPdfCheckerPage() {
       </section>}
 
       {/* ══════════════════════════════════════════════════════════
+          PRICING TIERS
+      ══════════════════════════════════════════════════════════ */}
+      <section style={{ background: "#FAF8F4", borderTop: "1px solid rgba(0,0,0,0.07)" }}>
+        <div className="mx-auto max-w-5xl px-6 py-16 text-center">
+          <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#F05A28" }}>
+            Pricing
+          </p>
+          <h2 className="font-black text-3xl mb-2" style={{ color: "#1A1208", letterSpacing: "-0.02em" }}>
+            Simple, pay-once credits
+          </h2>
+          <p className="text-sm mb-10" style={{ color: "#6B6151" }}>
+            No subscription. Credits never expire. Use them any time.
+          </p>
+
+          <div className="flex flex-wrap justify-center gap-5">
+            {/* Single Check */}
+            <div className="flex flex-col rounded-2xl p-6 w-52" style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)" }}>
+              <p className="font-bold text-sm mb-1" style={{ color: "#1A1208" }}>Single Check</p>
+              <p className="text-3xl font-black mb-1" style={{ color: "#1A1208" }}>$9</p>
+              <p className="text-xs mb-4" style={{ color: "#6B6151" }}>2 scans</p>
+              <ul className="text-xs text-left space-y-1 mb-6 flex-1" style={{ color: "#6B6151" }}>
+                <li>✓ Full KDP compliance report</li>
+                <li>✓ 1 free re-check included</li>
+                <li>✓ Annotated PDF download</li>
+              </ul>
+              <a
+                href="/api/create-checkout-session?price_type=single_use"
+                className="block text-center text-xs font-bold py-2 px-4 rounded-lg transition-opacity hover:opacity-80"
+                style={{ background: "#1A1208", color: "#fff" }}
+              >
+                Get started
+              </a>
+            </div>
+
+            {/* Author Pack */}
+            <div className="flex flex-col rounded-2xl p-6 w-52" style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)" }}>
+              <p className="font-bold text-sm mb-1" style={{ color: "#1A1208" }}>Author Pack</p>
+              <p className="text-3xl font-black mb-1" style={{ color: "#1A1208" }}>$21</p>
+              <p className="text-xs mb-4" style={{ color: "#6B6151" }}>5 scans</p>
+              <ul className="text-xs text-left space-y-1 mb-6 flex-1" style={{ color: "#6B6151" }}>
+                <li>✓ Full KDP compliance report</li>
+                <li>✓ Re-checks included</li>
+                <li>✓ Annotated PDF download</li>
+              </ul>
+              <a
+                href="/api/create-checkout-session?price_type=author_pack"
+                className="block text-center text-xs font-bold py-2 px-4 rounded-lg transition-opacity hover:opacity-80"
+                style={{ background: "#1A1208", color: "#fff" }}
+              >
+                Buy pack
+              </a>
+            </div>
+
+            {/* Indie Pack — Best Value */}
+            <div className="flex flex-col rounded-2xl p-6 w-52 relative" style={{ background: "#1A1208", border: "1px solid rgba(0,0,0,0.07)" }}>
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs font-bold px-3 py-1 rounded-full" style={{ background: "#F05A28", color: "#fff" }}>
+                Best Value
+              </span>
+              <p className="font-bold text-sm mb-1" style={{ color: "#fff" }}>Indie Pack</p>
+              <p className="text-3xl font-black mb-1" style={{ color: "#fff" }}>$39</p>
+              <p className="text-xs mb-4" style={{ color: "rgba(255,255,255,0.55)" }}>10 scans</p>
+              <ul className="text-xs text-left space-y-1 mb-6 flex-1" style={{ color: "rgba(255,255,255,0.70)" }}>
+                <li>✓ Full KDP compliance report</li>
+                <li>✓ Re-checks included</li>
+                <li>✓ Annotated PDF download</li>
+              </ul>
+              <a
+                href="/api/create-checkout-session?price_type=indie_pack"
+                className="block text-center text-xs font-bold py-2 px-4 rounded-lg transition-opacity hover:opacity-80"
+                style={{ background: "#F05A28", color: "#fff" }}
+              >
+                Buy pack
+              </a>
+            </div>
+
+            {/* Pro Pack */}
+            <div className="flex flex-col rounded-2xl p-6 w-52" style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)" }}>
+              <p className="font-bold text-sm mb-1" style={{ color: "#1A1208" }}>Pro Pack</p>
+              <p className="text-3xl font-black mb-1" style={{ color: "#1A1208" }}>$69</p>
+              <p className="text-xs mb-4" style={{ color: "#6B6151" }}>20 scans</p>
+              <ul className="text-xs text-left space-y-1 mb-6 flex-1" style={{ color: "#6B6151" }}>
+                <li>✓ Full KDP compliance report</li>
+                <li>✓ Re-checks included</li>
+                <li>✓ Annotated PDF download</li>
+              </ul>
+              <a
+                href="/api/create-checkout-session?price_type=pro_pack"
+                className="block text-center text-xs font-bold py-2 px-4 rounded-lg transition-opacity hover:opacity-80"
+                style={{ background: "#1A1208", color: "#fff" }}
+              >
+                Buy pack
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════
           FOOTER — minimal, legal only
       ══════════════════════════════════════════════════════════ */}
       <footer style={{ borderTop: "1px solid rgba(0,0,0,0.07)", background: "#FAF8F4" }}>
