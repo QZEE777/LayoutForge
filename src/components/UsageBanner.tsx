@@ -20,9 +20,10 @@ export default function UsageBanner() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/track-usage", { method: "GET", credentials: "include" })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
+    (async () => {
+      try {
+        const res = await fetch("/api/track-usage", { method: "GET", credentials: "include" });
+        const data = res.ok ? await res.json() : null;
         if (data && typeof data.usage_count === "number") {
           setUsage({
             usage_count: data.usage_count,
@@ -30,8 +31,12 @@ export default function UsageBanner() {
             uses_remaining: data.uses_remaining ?? null,
           });
         }
-      })
-      .finally(() => setLoading(false));
+      } catch {
+        // non-blocking — swallow silently
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
   if (loading || usage === null) return null;
