@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
-import ToolPagesBanner from "@/components/ToolPagesBanner";
-
 export const dynamic = "force-dynamic";
 
 const bebasNeue = Bebas_Neue({
@@ -71,7 +69,6 @@ export default function RootLayout({
         <script src="https://lmsqueezy.com/affiliate.js" defer />
       </head>
       <body className="antialiased bg-m2p-ivory text-m2p-ink font-sans">
-        <ToolPagesBanner />
         {children}
         {/* Crisp chat widget — disabled until Manny AI backend is ready */}
         {/* <script
