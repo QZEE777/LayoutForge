@@ -1,1 +1,8 @@
-# intentionally empty — service-level config handled in Railway UI
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile.worker"
+
+[deploy]
+startCommand = "npm run worker:print-ready-check"
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10
