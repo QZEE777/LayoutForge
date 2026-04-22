@@ -11,9 +11,7 @@ import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { UploadPanel } from "@/components/dashboard/upload-panel";
 import { ScanHistoryPanel } from "@/components/dashboard/scan-history-panel";
 import { ToolsPanel } from "@/components/dashboard/tools-panel";
-import { EarnPanel } from "@/components/dashboard/earn-panel";
 import { SettingsPanel } from "@/components/dashboard/settings-panel";
-import { FounderHubPanel } from "@/components/dashboard/founder-hub-panel";
 
 type Scan = {
   id: string;
@@ -216,26 +214,6 @@ export default function DashboardPage() {
             <ScanHistoryPanel scans={summary?.recentScans ?? []} />
           )}
           {tab === "tools" && <ToolsPanel />}
-          {tab === "earn" && (
-            <>
-              <div className="mb-4 flex justify-start">
-                <Image
-                  src="/MANNY AVATAR.png"
-                  alt="Manny"
-                  width={100}
-                  height={100}
-                  className="h-[100px] w-[100px] shrink-0 rounded-full object-cover shadow-md ring-2 ring-white/90"
-                  style={{ boxShadow: "0 8px 24px -8px rgba(26,18,8,0.2)" }}
-                  priority
-                />
-              </div>
-              <EarnPanel
-                affiliate={affiliate === undefined ? null : affiliate}
-                stats={affStats}
-                isFounder={isFounder}
-              />
-            </>
-          )}
           {tab === "settings" && (
             <SettingsPanel
               user={userInfo}
@@ -251,7 +229,6 @@ export default function DashboardPage() {
               initialExpandPurchaseHistory={expandOrdersFromUrl}
             />
           )}
-          {tab === "founder" && isFounder && <FounderHubPanel />}
         </main>
       </div>
     </div>

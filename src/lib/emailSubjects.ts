@@ -16,21 +16,6 @@ export function downloadLinkReportSubject(_firstName?: string | undefined): stri
   return "Your KDP report is ready — download your annotated PDF";
 }
 
-export function shareCreditAwardedSubject(credits: number, creditWord: string): string {
-  return `Your referral came through — +${credits} free ${creditWord} added`;
-}
-
-export function sharePurchasePendingSubject(credits: number, creditWord: string): string {
-  return `Your link converted — +${credits} ${creditWord} pending`;
-}
-
-export const PARTNER_THRESHOLD_SUBJECT =
-  "You've hit the threshold — Partner mode is yours to activate";
-
-export function affiliateApprovalSubject(firstName: string): string {
-  return `You're approved, ${firstName} — welcome to the manu2print partner program`;
-}
-
 export function packPurchaseSubject(
   firstName: string | undefined,
   packName: string,

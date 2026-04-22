@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { lemonSqueezySetup, createCheckout } from "@lemonsqueezy/lemonsqueezy.js";
-import { createClient } from "@supabase/supabase-js";
 
 export async function POST(req: Request) {
   try {
@@ -9,15 +8,6 @@ export async function POST(req: Request) {
     const email = typeof body?.email === "string" ? body.email.trim() : "";
     const tool = typeof body?.tool === "string" ? body.tool : "";
     const downloadId = typeof body?.downloadId === "string" ? body.downloadId : "";
-
-    // Affiliate referral tracking — read from 12-month cookie (partner code, priority 1)
-    const cookieHeader = req.headers.get("cookie") ?? "";
-    const refMatch = cookieHeader.match(/(?:^|;\s*)m2p_ref=([a-zA-Z0-9_-]{3,32})/);
-    const refCode = refMatch ? refMatch[1].toLowerCase() : "";
-
-    // Share-to-earn attribution — read from 12-month cookie (priority 2, only if no partner code)
-    const shMatch = cookieHeader.match(/(?:^|;\s*)m2p_sh=(sh_[a-z0-9]{16})/);
-    const shareToken = (!refCode && shMatch) ? shMatch[1] : "";
 
     const apiKey = process.env.LEMONSQUEEZY_API_KEY;
     const storeId = process.env.LEMONSQUEEZY_STORE_ID;
@@ -69,10 +59,8 @@ export async function POST(req: Request) {
         email: email || undefined,
         custom: {
           tool,
-          download_id:  downloadId,
-          price_type:   priceType,
-          ref_code:     refCode     || undefined,
-          share_token:  shareToken  || undefined,
+          download_id: downloadId,
+          price_type:  priceType,
         },
       },
       checkoutOptions: {
@@ -108,29 +96,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Append ?aff=LS_CODE for LS native affiliate attribution when a partner ref is present
-    let finalCheckoutUrl = checkoutUrl;
-    if (refCode) {
-      try {
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-        if (supabaseUrl && supabaseKey) {
-          const supabase = createClient(supabaseUrl, supabaseKey);
-          const { data: aff } = await supabase
-            .from("affiliates")
-            .select("ls_affiliate_code")
-            .eq("code", refCode)
-            .eq("status", "active")
-            .maybeSingle();
-          if (aff?.ls_affiliate_code) {
-            const sep = finalCheckoutUrl.includes("?") ? "&" : "?";
-            finalCheckoutUrl = `${finalCheckoutUrl}${sep}aff=${aff.ls_affiliate_code}`;
-          }
-        }
-      } catch { /* best effort — checkout still works without affiliate param */ }
-    }
-
-    return NextResponse.json({ checkoutUrl: finalCheckoutUrl });
+    return NextResponse.json({ checkoutUrl });
   } catch (e) {
     console.error("[create-checkout-session]", e);
     return NextResponse.json(

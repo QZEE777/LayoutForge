@@ -142,7 +142,7 @@ export async function redeemScanCreditForDownload(
       console.error("[redeemScanCredit] annotateCheckerPdf failed (non-fatal):", annotateErr);
     }
 
-    await sendDownloadLinkEmail(email, reportUrl, annotatedPdfUrl, undefined, refId);
+    await sendDownloadLinkEmail(email, reportUrl, annotatedPdfUrl);
   } catch (err) {
     console.error("[redeemScanCredit] sendDownloadLinkEmail failed:", err);
   }

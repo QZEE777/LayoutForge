@@ -665,7 +665,7 @@ export default function KdpPdfCheckerPage() {
                 {[
                   { icon: "🔒", text: "Secure upload" },
                   { icon: "🚫", text: "No account required" },
-                  { icon: "📊", text: "See score free · $9 unlocks full report" },
+                  { icon: "📊", text: "Score preview FREE — $9 unlocks the full report + annotated PDF" },
                   { icon: "📥", text: "Instant download" },
                 ].map(({ icon, text }) => (
                   <div
@@ -977,7 +977,8 @@ export default function KdpPdfCheckerPage() {
             <div className="flex flex-col rounded-2xl p-6 w-52" style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)" }}>
               <p className="font-bold text-sm mb-1" style={{ color: "#1A1208" }}>Single Check</p>
               <p className="text-3xl font-black mb-1" style={{ color: "#1A1208" }}>$9</p>
-              <p className="text-xs mb-4" style={{ color: "#6B6151" }}>2 scans</p>
+              <p className="text-xs mb-1" style={{ color: "#6B6151" }}>2 scans</p>
+              <p className="text-xs mb-4 font-semibold" style={{ color: "#F05A28" }}>$4.50 / scan</p>
               <ul className="text-xs text-left space-y-1 mb-6 flex-1" style={{ color: "#6B6151" }}>
                 <li>✓ Full KDP compliance report</li>
                 <li>✓ 1 free re-check included</li>
@@ -996,7 +997,8 @@ export default function KdpPdfCheckerPage() {
             <div className="flex flex-col rounded-2xl p-6 w-52" style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)" }}>
               <p className="font-bold text-sm mb-1" style={{ color: "#1A1208" }}>Author Pack</p>
               <p className="text-3xl font-black mb-1" style={{ color: "#1A1208" }}>$21</p>
-              <p className="text-xs mb-4" style={{ color: "#6B6151" }}>5 scans</p>
+              <p className="text-xs mb-1" style={{ color: "#6B6151" }}>5 scans</p>
+              <p className="text-xs mb-4 font-semibold" style={{ color: "#F05A28" }}>$4.20 / scan</p>
               <ul className="text-xs text-left space-y-1 mb-6 flex-1" style={{ color: "#6B6151" }}>
                 <li>✓ Full KDP compliance report</li>
                 <li>✓ Re-checks included</li>
@@ -1018,7 +1020,8 @@ export default function KdpPdfCheckerPage() {
               </span>
               <p className="font-bold text-sm mb-1" style={{ color: "#fff" }}>Indie Pack</p>
               <p className="text-3xl font-black mb-1" style={{ color: "#fff" }}>$39</p>
-              <p className="text-xs mb-4" style={{ color: "rgba(255,255,255,0.55)" }}>10 scans</p>
+              <p className="text-xs mb-1" style={{ color: "rgba(255,255,255,0.55)" }}>10 scans</p>
+              <p className="text-xs mb-4 font-semibold" style={{ color: "#4cd964" }}>$3.90 / scan</p>
               <ul className="text-xs text-left space-y-1 mb-6 flex-1" style={{ color: "rgba(255,255,255,0.70)" }}>
                 <li>✓ Full KDP compliance report</li>
                 <li>✓ Re-checks included</li>
@@ -1037,7 +1040,8 @@ export default function KdpPdfCheckerPage() {
             <div className="flex flex-col rounded-2xl p-6 w-52" style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)" }}>
               <p className="font-bold text-sm mb-1" style={{ color: "#1A1208" }}>Pro Pack</p>
               <p className="text-3xl font-black mb-1" style={{ color: "#1A1208" }}>$69</p>
-              <p className="text-xs mb-4" style={{ color: "#6B6151" }}>20 scans</p>
+              <p className="text-xs mb-1" style={{ color: "#6B6151" }}>20 scans</p>
+              <p className="text-xs mb-4 font-semibold" style={{ color: "#F05A28" }}>$3.45 / scan</p>
               <ul className="text-xs text-left space-y-1 mb-6 flex-1" style={{ color: "#6B6151" }}>
                 <li>✓ Full KDP compliance report</li>
                 <li>✓ Re-checks included</li>

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 import { markDownloadPaid, updateMeta } from "@/lib/storage";
-import { sendPartnerThresholdEmail, sendPackPurchaseEmail, sendSharePurchasePendingEmail, sendDownloadLinkEmail } from "@/lib/resend";
+import { sendPackPurchaseEmail, sendDownloadLinkEmail } from "@/lib/resend";
 import { CHECKER_CREDITS_PER_SCAN } from "@/lib/redeemScanCredit";
 import { annotateCheckerPdf } from "@/lib/annotatePdf";
 
@@ -68,8 +68,6 @@ export async function POST(req: Request) {
   const downloadId  = typeof customData?.download_id  === "string" ? customData.download_id  : "";
   const priceType   = typeof customData?.price_type   === "string" ? customData.price_type   : "single_use";
   const tool        = typeof customData?.tool         === "string" ? customData.tool         : "";
-  const refCode     = typeof customData?.ref_code     === "string" ? customData.ref_code     : "";
-  const shareToken  = typeof customData?.share_token  === "string" ? customData.share_token  : "";
   const email       = payload.data?.attributes?.user_email ?? "";
   const buyerEmail  = email ? email.toLowerCase() : "";
   const buyerName   = typeof payload.data?.attributes?.user_name === "string"
@@ -168,148 +166,6 @@ export async function POST(req: Request) {
         });
       }
 
-      // Record affiliate referral conversion
-      // Singles: 30% commission, Packs: 40% commission
-      if (refCode) {
-        try {
-          const { data: affiliate } = await supabase
-            .from("affiliates")
-            .select("id, commission_rate")
-            .eq("code", refCode)
-            .eq("status", "active")
-            .maybeSingle();
-
-          if (affiliate) {
-            const commissionRate = priceType === "single_use" ? 0.30 : 0.40;
-            const commissionAmount = Math.round(amount * commissionRate);
-            await supabase.from("referrals").insert({
-              affiliate_code: refCode,
-              converted: true,
-              converted_at: new Date().toISOString(),
-              order_id: orderId,
-              sale_amount: amount,
-              commission_amount: commissionAmount,
-              paid_out: false,
-            });
-          }
-        } catch (err) {
-          console.error("[webhooks/lemonsqueezy] referral insert failed:", err);
-        }
-      }
-
-      // ── Share-to-earn: award scan credit to result sharer ─────────────────
-      // Only fires when NO partner ref_code is present (partner always takes priority)
-      if (!refCode && shareToken && /^sh_[a-z0-9]{16}$/.test(shareToken) && orderId && email) {
-        try {
-          // Idempotency: check if this order_id already has a share reward
-          const { data: existingReward } = await supabase
-            .from("share_rewards")
-            .select("reward_id")
-            .eq("order_id", orderId)
-            .maybeSingle();
-
-          if (!existingReward) {
-            // Verify token is active and get sharer info
-            const { data: tokenRecord } = await supabase
-              .from("share_tokens")
-              .select("id, email, canonical_ref_id, token_status")
-              .eq("token", shareToken)
-              .eq("token_status", "active")
-              .maybeSingle();
-
-            if (tokenRecord) {
-              // Fraud check 1: self-referral (sharer email === purchaser email)
-              const sharerEmail = tokenRecord.email.toLowerCase();
-              const buyerEmail  = email.toLowerCase();
-              const isSelfReferral = sharerEmail === buyerEmail;
-
-              if (!isSelfReferral) {
-                // Compute purchaser hash first (needed for fraud check + reward record)
-                const cryptoLib = await import("crypto");
-                const SALT = process.env.HASH_SALT;
-                if (!SALT) {
-                  console.error("[webhooks/lemonsqueezy] HASH_SALT env var not set — share reward skipped");
-                  throw new Error("HASH_SALT not configured");
-                }
-                const purchaserHash = "v1_" + cryptoLib.createHmac("sha256", SALT)
-                  .update(buyerEmail).digest("hex");
-
-                // Fraud check 2: check if this purchaser already converted via any share token
-                const { data: priorConversion } = await supabase
-                  .from("share_rewards")
-                  .select("reward_id")
-                  .eq("purchaser_email_hash", purchaserHash)
-                  .limit(1)
-                  .maybeSingle();
-
-                // Refund window: 30 days from now
-                const refundWindowCloses = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-
-                await supabase.from("share_rewards").insert({
-                  token:                  shareToken,
-                  canonical_ref_id:       tokenRecord.canonical_ref_id,
-                  order_id:               orderId,
-                  sharer_email:           sharerEmail,
-                  purchaser_email_hash:   purchaserHash,
-                  reward_type:            "scan_credit",
-                  credits_amount:         1,
-                  status:                 "pending",
-                  refund_window_closes_at: refundWindowCloses.toISOString(),
-                  fraud_hold_reason:      priorConversion ? "repeat_buyer" : null,
-                  fraud_hold_until:       priorConversion
-                    ? new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString()
-                    : null,
-                });
-
-                // Update last_click_at; counter is incremented atomically via RPC below
-                await supabase
-                  .from("share_tokens")
-                  .update({
-                    last_click_at: new Date().toISOString(),
-                  })
-                  .eq("token", shareToken);
-
-                // Atomic increment via RPC (best effort)
-                try {
-                  await supabase.rpc("increment_share_conversions_pending", { p_token: shareToken });
-                } catch { /* best effort */ }
-
-                // Re-fetch updated token to get accurate counters after increment.
-                let totalReferrals: number | undefined;
-                try {
-                  const PARTNER_THRESHOLD = 3;
-                  const { data: updatedToken } = await supabase
-                    .from("share_tokens")
-                    .select("total_conversions, total_conversions_pending")
-                    .eq("token", shareToken)
-                    .maybeSingle();
-
-                  if (updatedToken) {
-                    totalReferrals = (updatedToken.total_conversions ?? 0) + (updatedToken.total_conversions_pending ?? 0);
-                    if (totalReferrals === PARTNER_THRESHOLD) {
-                      await sendPartnerThresholdEmail(sharerEmail);
-                    }
-                  }
-                } catch { /* best effort — email is nice-to-have, not critical */ }
-
-                // Immediate heads-up email: conversion recorded, credit pending release.
-                try {
-                  await sendSharePurchasePendingEmail(sharerEmail, {
-                    credits: 1,
-                    refundWindowClosesAt: refundWindowCloses.toISOString(),
-                    underReview: !!priorConversion,
-                    totalReferrals,
-                  });
-                } catch (emailErr) {
-                  console.error("[webhooks/lemonsqueezy] sendSharePurchasePendingEmail failed:", emailErr);
-                }
-              }
-            }
-          }
-        } catch (err) {
-          console.error("[webhooks/lemonsqueezy] share_reward insert failed:", err);
-        }
-      }
     }
   }
 
