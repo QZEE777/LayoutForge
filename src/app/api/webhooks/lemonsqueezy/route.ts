@@ -112,15 +112,15 @@ export async function POST(req: Request) {
       // Add scan credits for pack purchases + checker single-use bundle
       const PACK_CREDITS: Record<string, number> = {
         single_use: 2,
-        author_pack: 6,
-        indie_pack: 14,
-        pro_pack: 30,
+        author_pack: 5,
+        indie_pack: 10,
+        pro_pack: 20,
       };
       const PACK_NAMES: Record<string, string> = {
         single_use: "Checker Bundle (2 scans)",
-        author_pack: "Author Pack (6 credits)",
-        indie_pack:  "Indie Pack (14 credits)",
-        pro_pack:    "Pro Pack (30 credits)",
+        author_pack: "Author Pack (5 credits)",
+        indie_pack:  "Indie Pack (10 credits)",
+        pro_pack:    "Pro Pack (20 credits)",
       };
       if (priceType in PACK_CREDITS && email) {
         try {

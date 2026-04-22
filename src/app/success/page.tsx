@@ -5,9 +5,9 @@ import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
 
 const PACK_INFO: Record<string, { name: string; credits: number; emoji: string }> = {
-  author_pack:  { name: "Author Pack",          credits: 6,  emoji: "📦" },
-  indie_pack:   { name: "Indie Publisher Pack",  credits: 14, emoji: "📚" },
-  pro_pack:     { name: "Pro / Studio Pack",     credits: 30, emoji: "🚀" },
+  author_pack:  { name: "Author Pack",          credits: 5,  emoji: "📦" },
+  indie_pack:   { name: "Indie Publisher Pack",  credits: 10, emoji: "📚" },
+  pro_pack:     { name: "Pro / Studio Pack",     credits: 20, emoji: "🚀" },
 };
 
 function usePackBalance(email: string, expectedCredits: number) {
