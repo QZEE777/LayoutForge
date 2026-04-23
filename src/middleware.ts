@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { setSecurityHeaders } from "@/lib/security";
 
 export function middleware(request: NextRequest) {
   const ref = request.nextUrl.searchParams.get("ref");
@@ -12,9 +13,9 @@ export function middleware(request: NextRequest) {
       httpOnly: true,
       sameSite: "lax",
     });
-    return response;
+    return setSecurityHeaders(response);
   }
-  return NextResponse.next();
+  return setSecurityHeaders(NextResponse.next());
 }
 
 export const config = {
