@@ -1065,9 +1065,7 @@ export default function KdpPdfCheckerPage() {
       <footer style={{ borderTop: "1px solid rgba(0,0,0,0.07)", background: "#FAF8F4" }}>
         <div className="mx-auto max-w-5xl px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs" style={{ color: "#C4B5A0" }}>
-            © 2026 manu2print.com · KDP tools for indie authors
-            {/* secret admin link */}
-            <Link href="/admin" className="ml-2 opacity-30 hover:opacity-60 transition-opacity select-none" title="admin" tabIndex={-1}>·</Link>
+            © 2026 manu2print.com · <Link href="/admin" className="opacity-100 hover:opacity-100 transition-none select-none cursor-default" style={{ color: "inherit", textDecoration: "none" }} tabIndex={-1}>KDP</Link> tools for indie authors
           </p>
           <div className="flex items-center gap-4 text-xs" style={{ color: "#9B8E7E" }}>
             <Link href="/privacy"  className="hover:opacity-70 transition-opacity">Privacy</Link>
