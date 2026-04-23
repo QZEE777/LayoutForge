@@ -64,8 +64,6 @@ export default function AdminPage() {
     totalPayingCustomers: number;
     activeSubscriptions: number;
     betaUsers: number;
-    pendingAffiliates: number;
-    activeAffiliates: number;
     revenueByType: Record<string, number>;
     totalCreditsIssued: number;
     totalCreditsUsed: number;
@@ -126,32 +124,6 @@ export default function AdminPage() {
   const [formatterLeads, setFormatterLeads] = useState<Array<{ id?: string; email?: string | null; name?: string | null; created_at?: string }>>([]);
   const [emailCaptures, setEmailCaptures] = useState<Array<{ id?: string; email?: string | null; tool?: string | null; created_at?: string }>>([]);
   const [leadsFromStorage, setLeadsFromStorage] = useState<Array<{ id: string; email: string; source: string; createdAt: number }>>([]);
-  const [affiliates, setAffiliates] = useState<Array<{
-    id: string;
-    name: string;
-    email: string;
-    code: string;
-    status: string;
-    commission_rate: number;
-    website?: string | null;
-    reason?: string | null;
-    created_at: string;
-    ls_affiliate_code?: string | null;
-    payout_coin?:       string | null;
-    payout_wallet?:     string | null;
-    payout_memo?:       string | null;
-  }>>([]);
-  const [referrals, setReferrals] = useState<Array<{
-    id: string;
-    affiliate_code: string;
-    converted: boolean;
-    sale_amount: number | null;
-    commission_amount: number | null;
-    paid_out: boolean;
-    created_at: string;
-  }>>([]);
-  const [affiliateLoading, setAffiliateLoading] = useState(false);
-  const [lsNudge, setLsNudge] = useState<{ name: string; email: string } | null>(null);
   const allLeads = [
     ...formatterLeads.map((f) => ({
       date: f.created_at ?? "",
@@ -173,7 +145,6 @@ export default function AdminPage() {
   const paymentsPager = usePagination(payments);
   const allLeadsPager = usePagination(allLeads);
   const creditsPager = usePagination(creditRedemptions);
-  const affiliatesPager = usePagination(affiliates);
 
   const [grantEmail, setGrantEmail] = useState("");
   const [grantCredits, setGrantCredits] = useState("5");
@@ -214,8 +185,6 @@ export default function AdminPage() {
         totalPayingCustomers: data.totalPayingCustomers ?? 0,
         activeSubscriptions: data.activeSubscriptions ?? 0,
         betaUsers: data.betaUsers ?? 0,
-        pendingAffiliates: data.pendingAffiliates ?? 0,
-        activeAffiliates: data.activeAffiliates ?? 0,
         revenueByType: data.revenueByType ?? {},
         totalCreditsIssued: data.totalCreditsIssued ?? 0,
         totalCreditsUsed: data.totalCreditsUsed ?? 0,
@@ -241,10 +210,6 @@ export default function AdminPage() {
         fetch("/api/admin/leads", { headers: { "x-admin-password": pwd } })
           .then((r) => (r.ok ? r.json() : null))
           .then((d) => d && setLeadsFromStorage(d.leads || []))
-          .catch(() => {}),
-        fetch("/api/admin/affiliates", { headers: { "x-admin-password": pwd } })
-          .then((r) => (r.ok ? r.json() : null))
-          .then((d) => d && (setAffiliates(d.affiliates || []), setReferrals(d.referrals || [])))
           .catch(() => {}),
       ]);
 
@@ -286,8 +251,6 @@ export default function AdminPage() {
     setFormatterLeads([]);
     setEmailCaptures([]);
     setLeadsFromStorage([]);
-    setAffiliates([]);
-    setReferrals([]);
     setUserLookupResult(null);
     setUserLookupError(null);
     setUserLookupEmail("");
@@ -377,34 +340,6 @@ export default function AdminPage() {
     const headers = ["Date", "Email", "Source"];
     const rows = allLeads.map((l) => [l.date ? formatDate(l.date) : "—", l.email, l.source]);
     downloadCsv("leads.csv", [headers, ...rows]);
-  };
-
-  const affiliateAction = async (action: string, id: string) => {
-    const pwd = typeof window !== "undefined" ? sessionStorage.getItem(ADMIN_PWD_KEY) : null;
-    if (!pwd) return;
-    setAffiliateLoading(true);
-    // Capture affiliate details before approval for the LS nudge
-    const target = action === "approve" ? affiliates.find((a) => a.id === id) : null;
-    try {
-      await fetch("/api/admin/affiliates", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-admin-password": pwd },
-        body: JSON.stringify({ action, id }),
-      });
-      // Refresh affiliates list
-      const res = await fetch("/api/admin/affiliates", { headers: { "x-admin-password": pwd } });
-      if (res.ok) {
-        const data = await res.json();
-        setAffiliates(data.affiliates || []);
-        setReferrals(data.referrals || []);
-      }
-      // Show nudge after approval
-      if (action === "approve" && target) {
-        setLsNudge({ name: target.name, email: target.email });
-      }
-    } finally {
-      setAffiliateLoading(false);
-    }
   };
 
   const handleGrantCredits = async (e: React.FormEvent) => {
@@ -539,16 +474,6 @@ export default function AdminPage() {
                 <p className="text-2xl font-bold">{stats.totalCreditsIssued}</p>
                 <p className="text-[10px] text-soft-muted mt-1">{stats.totalCreditsUsed} used · {Math.max(0, stats.totalCreditsIssued - stats.totalCreditsUsed)} remaining</p>
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className={`rounded-xl border p-4 ${stats.pendingAffiliates > 0 ? "border-amber-300 bg-amber-50" : "border-m2p-border bg-m2p-ivory"}`}>
-                  <p className="text-xs text-soft-muted mb-1">Partners pending</p>
-                  <p className={`text-2xl font-bold ${stats.pendingAffiliates > 0 ? "text-amber-600" : ""}`}>{stats.pendingAffiliates}</p>
-                </div>
-                <div className="rounded-xl border border-m2p-border bg-m2p-ivory p-4">
-                  <p className="text-xs text-soft-muted mb-1">Active partners</p>
-                  <p className="text-2xl font-bold text-green-600">{stats.activeAffiliates}</p>
-                </div>
-              </div>
               <div className={`rounded-xl border p-4 ${stats.stuckJobCount > 0 ? "border-red-300 bg-red-50" : "border-m2p-border bg-m2p-ivory"}`}>
                 <p className="text-xs text-soft-muted mb-1">Stuck checker jobs</p>
                 <p className={`text-2xl font-bold ${stats.stuckJobCount > 0 ? "text-red-600" : ""}`}>{stats.stuckJobCount}</p>
@@ -556,13 +481,6 @@ export default function AdminPage() {
               </div>
             </div>
 
-            {/* Pending partner alert */}
-            {stats.pendingAffiliates > 0 && (
-              <div className="mb-6 flex items-center gap-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3">
-                <span className="text-amber-600 font-bold text-sm">⚠ {stats.pendingAffiliates} partner application{stats.pendingAffiliates > 1 ? "s" : ""} waiting for review</span>
-                <a href="#partners" className="ml-auto text-xs bg-amber-500 hover:bg-amber-600 text-white font-semibold px-3 py-1.5 rounded-lg">Review now →</a>
-              </div>
-            )}
 
             {/* Stuck jobs alert */}
             {stats.stuckJobCount > 0 && (
@@ -864,124 +782,6 @@ export default function AdminPage() {
                   </p>
                 )}
               </form>
-            </section>
-
-            <section id="partners" className="mb-10">
-              <div className="flex items-center justify-between gap-4 mb-2">
-                <h2 className="text-lg font-bold">Partners</h2>
-                <span className="text-xs text-soft-muted">{affiliateLoading ? "Saving…" : ""}</span>
-              </div>
-
-              {/* LemonSqueezy invite nudge — appears after approving a partner */}
-              {lsNudge && (
-                <div className="flex items-center justify-between gap-4 mb-4 px-4 py-3 rounded-xl bg-green-50 border border-green-200">
-                  <p className="text-sm text-green-800">
-                    <strong>✓ {lsNudge.name} approved</strong> — email them to collect their bank details so you can set up their Wise payout.
-                  </p>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <a
-                      href={`mailto:${lsNudge.email}?subject=manu2print%20partner%20payout%20setup&body=Hi%2C%20your%20partner%20account%20is%20approved!%20Please%20reply%20with%20your%20bank%20details%20(account%20number%2C%20bank%20name%2C%20country)%20so%20we%20can%20set%20up%20your%20Wise%20payout.`}
-                      className="text-xs bg-green-600 hover:bg-green-700 text-white font-semibold px-3 py-1.5 rounded-lg"
-                    >
-                      Email {lsNudge.name} →
-                    </a>
-                    <button
-                      onClick={() => setLsNudge(null)}
-                      className="text-xs text-green-600 hover:text-green-800 px-2 py-1.5"
-                    >
-                      Dismiss
-                    </button>
-                  </div>
-                </div>
-              )}
-              <p className="text-xs text-soft-muted mb-4">Approve applications, suspend bad actors, mark commissions paid.</p>
-              <div className="overflow-x-auto rounded-xl border border-m2p-border bg-m2p-ivory">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-m2p-border text-left text-soft-muted">
-                      <th className="px-4 py-3 font-medium">Date</th>
-                      <th className="px-4 py-3 font-medium">Name / Email</th>
-                      <th className="px-4 py-3 font-medium">Code</th>
-                      <th className="px-4 py-3 font-medium">Status</th>
-                      <th className="px-4 py-3 font-medium">Conversions</th>
-                      <th className="px-4 py-3 font-medium">Earned</th>
-                      <th className="px-4 py-3 font-medium">Unpaid</th>
-                      <th className="px-4 py-3 font-medium">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {affiliatesPager.slice.map((a) => {
-                      const aRefs = referrals.filter((r) => r.affiliate_code === a.code);
-                      const converted = aRefs.filter((r) => r.converted);
-                      const totalEarned = converted.reduce((s, r) => s + (r.commission_amount ?? 0), 0);
-                      const unpaid = converted.filter((r) => !r.paid_out).reduce((s, r) => s + (r.commission_amount ?? 0), 0);
-                      return (
-                        <tr key={a.id} className="border-b border-m2p-border/80">
-                          <td className="px-4 py-3 whitespace-nowrap">{formatDate(a.created_at)}</td>
-                          <td className="px-4 py-3">
-                            <p className="font-medium">{a.name}</p>
-                            <p className="text-soft-muted text-xs">{a.email}</p>
-                            {a.website && <p className="text-m2p-orange text-xs truncate max-w-[140px]">{a.website}</p>}
-                            {a.payout_wallet && (
-                              <p className="text-xs mt-1 font-mono truncate max-w-[160px]" title={a.payout_wallet}
-                                style={{ color: "#2b6cb0" }}>
-                                ⚡ {a.payout_coin?.toUpperCase()}: {a.payout_wallet.slice(0, 12)}…
-                                {a.payout_memo && <span className="text-soft-muted"> tag:{a.payout_memo}</span>}
-                              </p>
-                            )}
-                          </td>
-                          <td className="px-4 py-3 font-mono text-xs">{a.code}</td>
-                          <td className="px-4 py-3">
-                            <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                              a.status === "active" ? "bg-green-100 text-green-700" :
-                              a.status === "pending" ? "bg-amber-100 text-amber-700" :
-                              "bg-red-100 text-red-600"
-                            }`}>{a.status}</span>
-                          </td>
-                          <td className="px-4 py-3">{converted.length}</td>
-                          <td className="px-4 py-3">{formatAmount(totalEarned)}</td>
-                          <td className="px-4 py-3 font-semibold">{unpaid > 0 ? formatAmount(unpaid) : "—"}</td>
-                          <td className="px-4 py-3">
-                            <div className="flex flex-wrap gap-2">
-                              {a.status !== "active" && (
-                                <button
-                                  onClick={() => affiliateAction("approve", a.id)}
-                                  disabled={affiliateLoading}
-                                  className="text-xs bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded disabled:opacity-50"
-                                >
-                                  Approve
-                                </button>
-                              )}
-                              {a.status !== "suspended" && (
-                                <button
-                                  onClick={() => affiliateAction("suspend", a.id)}
-                                  disabled={affiliateLoading}
-                                  className="text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded disabled:opacity-50"
-                                >
-                                  Suspend
-                                </button>
-                              )}
-                              {unpaid > 0 && (
-                                <button
-                                  onClick={() => affiliateAction("mark-paid", a.code)}
-                                  disabled={affiliateLoading}
-                                  className="text-xs bg-m2p-orange hover:opacity-90 text-white px-2 py-1 rounded disabled:opacity-50"
-                                >
-                                  Mark Paid
-                                </button>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-                {affiliates.length === 0 && (
-                  <div className="px-4 py-8 text-center text-soft-muted">No affiliate applications yet.</div>
-                )}
-                <Pager {...affiliatesPager} />
-              </div>
             </section>
 
             <section>
