@@ -33,6 +33,15 @@ export default function PreviewPage() {
   const [genStatus, setGenStatus]   = useState<GenStatus>("idle");
   const [genMessage, setGenMessage] = useState("");
   const jobIdRef = useRef<string | null>(null);
+  const pollAttemptsRef = useRef(0);
+  const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Cancel any pending poll timer on unmount
+  useEffect(() => {
+    return () => {
+      if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
+    };
+  }, []);
 
   // Load manuscript info on mount
   useEffect(() => {
@@ -57,10 +66,18 @@ export default function PreviewPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  // Poll CloudConvert status
+  // Poll CloudConvert status — capped at MAX_POLL_ATTEMPTS to prevent infinite loops
+  const MAX_POLL_ATTEMPTS = 50; // ~3.5 min at 4 s intervals
   const poll = useCallback(async () => {
     const jobId = jobIdRef.current;
     if (!jobId) return;
+
+    pollAttemptsRef.current += 1;
+    if (pollAttemptsRef.current > MAX_POLL_ATTEMPTS) {
+      setGenStatus("error");
+      setGenMessage("Conversion timed out after ~3 minutes. CloudConvert may be slow — please try again.");
+      return;
+    }
 
     try {
       const res  = await fetch(`/api/generate/status?id=${id}&jobId=${jobId}`);
@@ -79,9 +96,9 @@ export default function PreviewPage() {
       }
 
       // Still processing — schedule next poll
-      setTimeout(poll, 4000);
+      pollTimerRef.current = setTimeout(poll, 4000);
     } catch {
-      setTimeout(poll, 5000);
+      pollTimerRef.current = setTimeout(poll, 5000);
     }
   }, [id, router]);
 
@@ -111,11 +128,12 @@ export default function PreviewPage() {
         return;
       }
 
-      // Store jobId in ref and start polling
+      // Store jobId in ref, reset counter, and start polling
       jobIdRef.current = data.jobId;
+      pollAttemptsRef.current = 0;
       setGenStatus("processing");
       setGenMessage("Converting your manuscript — preserving all fonts, images, and formatting...");
-      setTimeout(poll, 4000);
+      pollTimerRef.current = setTimeout(poll, 4000);
 
     } catch (err) {
       setGenStatus("error");
