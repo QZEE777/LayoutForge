@@ -152,30 +152,6 @@ export default function AdminPage() {
   }>>([]);
   const [affiliateLoading, setAffiliateLoading] = useState(false);
   const [lsNudge, setLsNudge] = useState<{ name: string; email: string } | null>(null);
-  const [shareRewards, setShareRewards] = useState<Array<{
-    reward_id: string;
-    sharer_email: string;
-    order_id: string;
-    credits_amount: number;
-    status: string;
-    refund_window_closes_at: string;
-    fraud_hold_reason: string | null;
-    fraud_hold_until: string | null;
-    created_at: string;
-    token: string;
-  }>>([]);
-  const [shareRewardsLoading, setShareRewardsLoading] = useState(false);
-  const [founderApps, setFounderApps] = useState<Array<{
-    id: string;
-    full_name: string;
-    email: string;
-    primary_platform: string;
-    follower_count: string;
-    publishing_platforms: string[];
-    status: string;
-    created_at: string;
-  }>>([]);
-  const [founderLoading, setFounderLoading] = useState(false);
   const allLeads = [
     ...formatterLeads.map((f) => ({
       date: f.created_at ?? "",
@@ -198,8 +174,6 @@ export default function AdminPage() {
   const allLeadsPager = usePagination(allLeads);
   const creditsPager = usePagination(creditRedemptions);
   const affiliatesPager = usePagination(affiliates);
-  const shareRewardsPager = usePagination(shareRewards);
-  const founderAppsPager = usePagination(founderApps);
 
   const [grantEmail, setGrantEmail] = useState("");
   const [grantCredits, setGrantCredits] = useState("5");
@@ -279,24 +253,6 @@ export default function AdminPage() {
       } catch {
         /* ignore */
       }
-      try {
-        const srRes = await fetch("/api/admin/share-rewards", { headers: { "x-admin-password": pwd } });
-        if (srRes.ok) {
-          const srData = await srRes.json();
-          setShareRewards(srData.rewards || []);
-        }
-      } catch {
-        /* ignore */
-      }
-      try {
-        const foundersRes = await fetch("/api/admin/founders", { headers: { "x-admin-password": pwd } });
-        if (foundersRes.ok) {
-          const foundersData = await foundersRes.json();
-          setFounderApps(foundersData.applications || []);
-        }
-      } catch {
-        /* ignore */
-      }
       return true;
     } catch {
       setError("Request failed.");
@@ -337,7 +293,6 @@ export default function AdminPage() {
     setLeadsFromStorage([]);
     setAffiliates([]);
     setReferrals([]);
-    setFounderApps([]);
     setUserLookupResult(null);
     setUserLookupError(null);
     setUserLookupEmail("");
@@ -486,25 +441,6 @@ export default function AdminPage() {
   };
 
 
-  const founderAction = async (id: string, action: "approve" | "reject") => {
-    const pwd = typeof window !== "undefined" ? sessionStorage.getItem(ADMIN_PWD_KEY) : null;
-    if (!pwd) return;
-    setFounderLoading(true);
-    try {
-      await fetch("/api/admin/founders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-admin-password": pwd },
-        body: JSON.stringify({ id, action }),
-      });
-      const res = await fetch("/api/admin/founders", { headers: { "x-admin-password": pwd } });
-      if (res.ok) {
-        const data = await res.json();
-        setFounderApps(data.applications || []);
-      }
-    } finally {
-      setFounderLoading(false);
-    }
-  };
 
 
   // Show login form when not authed, OR when authed but sessionStorage pwd is gone
@@ -935,74 +871,6 @@ export default function AdminPage() {
               </form>
             </section>
 
-            <section className="mb-10">
-              <div className="flex items-center justify-between gap-4 mb-2">
-                <h2 className="text-lg font-bold">Founder approvals</h2>
-                <span className="text-xs text-soft-muted">{founderLoading ? "Saving…" : ""}</span>
-              </div>
-              <p className="text-xs text-soft-muted mb-4">Approve or reject founder applications. Approving sets profile founder access by email.</p>
-              <div className="overflow-x-auto rounded-xl border border-m2p-border bg-m2p-ivory">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-m2p-border text-left text-soft-muted">
-                      <th className="px-4 py-3 font-medium">Date</th>
-                      <th className="px-4 py-3 font-medium">Name / Email</th>
-                      <th className="px-4 py-3 font-medium">Platform</th>
-                      <th className="px-4 py-3 font-medium">Followers</th>
-                      <th className="px-4 py-3 font-medium">Status</th>
-                      <th className="px-4 py-3 font-medium">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {founderAppsPager.slice.map((f) => (
-                      <tr key={f.id} className="border-b border-m2p-border/80">
-                        <td className="px-4 py-3 whitespace-nowrap">{formatDate(f.created_at)}</td>
-                        <td className="px-4 py-3">
-                          <p className="font-medium">{f.full_name}</p>
-                          <p className="text-soft-muted text-xs">{f.email}</p>
-                        </td>
-                        <td className="px-4 py-3">{f.primary_platform}</td>
-                        <td className="px-4 py-3">{f.follower_count}</td>
-                        <td className="px-4 py-3">
-                          <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                            f.status === "approved" ? "bg-green-100 text-green-700" :
-                            f.status === "pending" ? "bg-amber-100 text-amber-700" :
-                            "bg-red-100 text-red-700"
-                          }`}>{f.status}</span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex gap-2">
-                            {f.status !== "approved" && (
-                              <button
-                                onClick={() => founderAction(f.id, "approve")}
-                                disabled={founderLoading}
-                                className="text-xs bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded disabled:opacity-50"
-                              >
-                                Approve
-                              </button>
-                            )}
-                            {f.status !== "rejected" && (
-                              <button
-                                onClick={() => founderAction(f.id, "reject")}
-                                disabled={founderLoading}
-                                className="text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded disabled:opacity-50"
-                              >
-                                Reject
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                {founderApps.length === 0 && (
-                  <div className="px-4 py-8 text-center text-soft-muted">No founder applications yet.</div>
-                )}
-                <Pager {...founderAppsPager} />
-              </div>
-            </section>
-
             <section id="partners" className="mb-10">
               <div className="flex items-center justify-between gap-4 mb-2">
                 <h2 className="text-lg font-bold">Partners</h2>
@@ -1118,66 +986,6 @@ export default function AdminPage() {
                   <div className="px-4 py-8 text-center text-soft-muted">No affiliate applications yet.</div>
                 )}
                 <Pager {...affiliatesPager} />
-              </div>
-            </section>
-
-            <section className="mb-10">
-              <div className="flex items-center justify-between gap-4 mb-2">
-                <h2 className="text-lg font-bold">Share Rewards</h2>
-                <span className="text-xs text-soft-muted">
-                  {shareRewards.filter(r => r.status === "pending").length} pending ·{" "}
-                  {shareRewards.filter(r => r.fraud_hold_reason).length} fraud holds
-                </span>
-              </div>
-              <p className="text-xs text-soft-muted mb-4">Share-to-earn credits. Pending = refund window open. Awarded = credit released.</p>
-              <div className="overflow-x-auto rounded-xl border border-m2p-border bg-m2p-ivory">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-m2p-border text-xs text-soft-muted">
-                      <th className="px-4 py-3 text-left">Sharer</th>
-                      <th className="px-4 py-3 text-left">Status</th>
-                      <th className="px-4 py-3 text-left">Credits</th>
-                      <th className="px-4 py-3 text-left">Refund window closes</th>
-                      <th className="px-4 py-3 text-left">Fraud hold</th>
-                      <th className="px-4 py-3 text-left">Order</th>
-                      <th className="px-4 py-3 text-left">Created</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-m2p-border">
-                    {shareRewardsPager.slice.map((r) => (
-                      <tr key={r.reward_id} className="hover:bg-m2p-border/30">
-                        <td className="px-4 py-3 text-xs">{r.sharer_email}</td>
-                        <td className="px-4 py-3">
-                          <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                            r.status === "awarded"  ? "bg-green-100 text-green-700" :
-                            r.status === "pending"  ? "bg-amber-100 text-amber-700" :
-                            r.status === "voided"   ? "bg-red-100 text-red-600" :
-                            "bg-gray-100 text-gray-500"
-                          }`}>{r.status}</span>
-                        </td>
-                        <td className="px-4 py-3 font-semibold">+{r.credits_amount}</td>
-                        <td className="px-4 py-3 text-xs text-soft-muted">
-                          {new Date(r.refund_window_closes_at) < new Date()
-                            ? <span className="text-green-600">Closed ✓</span>
-                            : new Date(r.refund_window_closes_at).toLocaleDateString()}
-                        </td>
-                        <td className="px-4 py-3 text-xs">
-                          {r.fraud_hold_reason
-                            ? <span className="text-red-600">{r.fraud_hold_reason}</span>
-                            : <span className="text-soft-muted">—</span>}
-                        </td>
-                        <td className="px-4 py-3 font-mono text-xs text-soft-muted">{r.order_id.slice(0, 10)}…</td>
-                        <td className="px-4 py-3 text-xs text-soft-muted">
-                          {new Date(r.created_at).toLocaleDateString()}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                {shareRewards.length === 0 && (
-                  <div className="px-4 py-8 text-center text-soft-muted">No share rewards yet.</div>
-                )}
-                <Pager {...shareRewardsPager} />
               </div>
             </section>
 
