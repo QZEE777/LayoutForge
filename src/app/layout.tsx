@@ -60,13 +60,7 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-        {/* LemonSqueezy affiliate tracking — attributes sales to affiliates */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.lemonSqueezyAffiliateConfig = { store: "manu2print" };`,
-          }}
-        />
-        <script src="https://lmsqueezy.com/affiliate.js" defer />
+
       </head>
       <body className="antialiased bg-m2p-ivory text-m2p-ink font-sans">
         {children}

@@ -30,6 +30,14 @@ function getR2Client() {
 
 export async function POST(request: NextRequest) {
   try {
+    // Block cross-origin browser requests. Legitimate callers (our checker page)
+    // always send an Origin header matching the app URL.
+    const origin = request.headers.get("origin") ?? "";
+    const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "");
+    if (appUrl && origin && origin !== appUrl) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403, headers: NO_STORE_HEADERS });
+    }
+
     const r2 = getR2Client();
     if (!r2) {
       return NextResponse.json(
