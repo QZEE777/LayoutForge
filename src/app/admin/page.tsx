@@ -234,25 +234,20 @@ export default function AdminPage() {
       setLatestPaymentAt(data.latestPaymentAt ?? null);
       setFormatterLeads(data.formatterLeads || []);
       setEmailCaptures(data.emailCaptures || []);
-      try {
-        const leadsRes = await fetch("/api/admin/leads", { headers: { "x-admin-password": pwd } });
-        if (leadsRes.ok) {
-          const leadsData = await leadsRes.json();
-          setLeadsFromStorage(leadsData.leads || []);
-        }
-      } catch {
-        /* ignore */
-      }
-      try {
-        const affRes = await fetch("/api/admin/affiliates", { headers: { "x-admin-password": pwd } });
-        if (affRes.ok) {
-          const affData = await affRes.json();
-          setAffiliates(affData.affiliates || []);
-          setReferrals(affData.referrals || []);
-        }
-      } catch {
-        /* ignore */
-      }
+
+      // Fire secondary fetches in parallel without blocking page render.
+      // Stats data is enough to show the dashboard — leads/affiliates fill in behind the scenes.
+      void Promise.allSettled([
+        fetch("/api/admin/leads", { headers: { "x-admin-password": pwd } })
+          .then((r) => (r.ok ? r.json() : null))
+          .then((d) => d && setLeadsFromStorage(d.leads || []))
+          .catch(() => {}),
+        fetch("/api/admin/affiliates", { headers: { "x-admin-password": pwd } })
+          .then((r) => (r.ok ? r.json() : null))
+          .then((d) => d && (setAffiliates(d.affiliates || []), setReferrals(d.referrals || [])))
+          .catch(() => {}),
+      ]);
+
       return true;
     } catch {
       setError("Request failed.");
