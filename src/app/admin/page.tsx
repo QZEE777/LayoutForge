@@ -69,7 +69,17 @@ export default function AdminPage() {
     revenueByType: Record<string, number>;
     totalCreditsIssued: number;
     totalCreditsUsed: number;
+    stuckJobCount: number;
   } | null>(null);
+  const [stuckJobs, setStuckJobs] = useState<Array<{
+    id: string;
+    our_job_id: string | null;
+    file_key: string | null;
+    file_size_mb: number | null;
+    status: string;
+    created_at: string;
+    error_message: string | null;
+  }>>([]);
   const [userLookupEmail, setUserLookupEmail] = useState("");
   const [userLookupLoading, setUserLookupLoading] = useState(false);
   const [userLookupResult, setUserLookupResult] = useState<{
@@ -235,7 +245,9 @@ export default function AdminPage() {
         revenueByType: data.revenueByType ?? {},
         totalCreditsIssued: data.totalCreditsIssued ?? 0,
         totalCreditsUsed: data.totalCreditsUsed ?? 0,
+        stuckJobCount: data.stuckJobCount ?? 0,
       });
+      setStuckJobs(data.stuckJobs || []);
       const paymentRows = data.recentPayments || [];
       const isCreditRow = (paymentType?: string | null) => {
         const v = (paymentType ?? "").toLowerCase();
@@ -606,6 +618,11 @@ export default function AdminPage() {
                   <p className="text-2xl font-bold text-green-600">{stats.activeAffiliates}</p>
                 </div>
               </div>
+              <div className={`rounded-xl border p-4 ${stats.stuckJobCount > 0 ? "border-red-300 bg-red-50" : "border-m2p-border bg-m2p-ivory"}`}>
+                <p className="text-xs text-soft-muted mb-1">Stuck checker jobs</p>
+                <p className={`text-2xl font-bold ${stats.stuckJobCount > 0 ? "text-red-600" : ""}`}>{stats.stuckJobCount}</p>
+                <p className="text-[10px] text-soft-muted mt-1">pending/processing &gt;30 min</p>
+              </div>
             </div>
 
             {/* Pending partner alert */}
@@ -616,11 +633,59 @@ export default function AdminPage() {
               </div>
             )}
 
+            {/* Stuck jobs alert */}
+            {stats.stuckJobCount > 0 && (
+              <div className="mb-6 flex items-center gap-3 rounded-xl border border-red-300 bg-red-50 px-4 py-3">
+                <span className="text-red-600 font-bold text-sm">🔴 {stats.stuckJobCount} checker job{stats.stuckJobCount > 1 ? "s" : ""} stuck &gt;30 min — Railway worker may be down</span>
+                <a href="#stuck-jobs" className="ml-auto text-xs bg-red-500 hover:bg-red-600 text-white font-semibold px-3 py-1.5 rounded-lg">View jobs →</a>
+              </div>
+            )}
+
             {latestPaymentAt && (
               <p className="text-xs text-soft-muted mb-8">
                 Latest payment recorded: {formatDate(latestPaymentAt)} — if this is stale, check webhook URL in Lemon Squeezy.
               </p>
             )}
+
+            {/* ── Stuck Jobs ─────────────────────────────────────── */}
+            <section id="stuck-jobs" className="mb-10">
+              <h2 className="text-lg font-bold mb-1">Stuck checker jobs</h2>
+              <p className="text-xs text-soft-muted mb-4">Jobs in <code>pending</code> or <code>processing</code> state for more than 30 minutes. Likely cause: Railway worker is down or crashed. Zero is healthy.</p>
+              {stuckJobs.length === 0 ? (
+                <div className="rounded-xl border border-m2p-border bg-m2p-ivory px-4 py-6 text-center text-sm text-green-600 font-medium">✅ No stuck jobs — worker is healthy</div>
+              ) : (
+                <div className="overflow-x-auto rounded-xl border border-red-200 bg-m2p-ivory">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-m2p-border text-left text-soft-muted">
+                        <th className="px-4 py-3 font-medium">Created</th>
+                        <th className="px-4 py-3 font-medium">Status</th>
+                        <th className="px-4 py-3 font-medium">Job ID</th>
+                        <th className="px-4 py-3 font-medium">File</th>
+                        <th className="px-4 py-3 font-medium">Size</th>
+                        <th className="px-4 py-3 font-medium">Error</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {stuckJobs.map((j) => (
+                        <tr key={j.id} className="border-b border-m2p-border/80">
+                          <td className="px-4 py-3 whitespace-nowrap">{formatDate(j.created_at)}</td>
+                          <td className="px-4 py-3">
+                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${j.status === "processing" ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"}`}>
+                              {j.status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 font-mono text-xs text-soft-muted truncate max-w-[140px]">{j.our_job_id ?? j.id}</td>
+                          <td className="px-4 py-3 font-mono text-xs text-soft-muted truncate max-w-[160px]">{j.file_key ?? "—"}</td>
+                          <td className="px-4 py-3 text-xs">{j.file_size_mb != null ? `${j.file_size_mb.toFixed(1)} MB` : "—"}</td>
+                          <td className="px-4 py-3 text-xs text-red-500 truncate max-w-[200px]">{j.error_message ?? "—"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </section>
 
             {/* ── User Lookup ───────────────────────────────────── */}
             <section className="mb-10">

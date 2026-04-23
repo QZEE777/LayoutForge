@@ -27,13 +27,21 @@ export async function GET(request: NextRequest) {
   const supabase = createClient(supabaseUrl, supabaseKey);
 
   try {
-    const [paymentsRes, subscriptionsRes, betaRes, formatterLeadsRes, emailCapturesRes, affiliatesRes] = await Promise.all([
+    const stuckCutoff = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+    const [paymentsRes, subscriptionsRes, betaRes, formatterLeadsRes, emailCapturesRes, affiliatesRes, stuckJobsRes] = await Promise.all([
       supabase.from("payments").select("*").order("created_at", { ascending: false }).limit(50),
       supabase.from("subscriptions").select("*").order("created_at", { ascending: false }),
       supabase.from("beta_access").select("*").order("created_at", { ascending: false }).limit(50),
       supabase.from("formatter_leads").select("*").order("created_at", { ascending: false }).limit(200),
       supabase.from("email_captures").select("*").order("created_at", { ascending: false }).limit(200),
       supabase.from("affiliates").select("id, status").order("created_at", { ascending: false }),
+      supabase
+        .from("print_ready_checks")
+        .select("id, our_job_id, file_key, file_size_mb, status, created_at, error_message")
+        .in("status", ["pending", "processing"])
+        .lt("created_at", stuckCutoff)
+        .order("created_at", { ascending: false })
+        .limit(50),
     ]);
 
     const recentPayments = paymentsRes.data || [];
@@ -42,6 +50,7 @@ export async function GET(request: NextRequest) {
     const formatterLeads = formatterLeadsRes.data || [];
     const emailCaptures = emailCapturesRes.data || [];
     const affiliates = affiliatesRes.data || [];
+    const stuckJobs = stuckJobsRes.data || [];
     const pendingAffiliates = affiliates.filter((a: { status: string }) => a.status === "pending").length;
     const activeAffiliates = affiliates.filter((a: { status: string }) => a.status === "active").length;
 
@@ -87,6 +96,8 @@ export async function GET(request: NextRequest) {
       formatterLeads,
       emailCaptures,
       latestPaymentAt,
+      stuckJobs,
+      stuckJobCount: stuckJobs.length,
     });
   } catch (err) {
     console.error("[admin/stats]", err);
