@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { BrandWordmark } from "@/components/BrandWordmark";
 
 export const metadata = {
@@ -59,6 +60,15 @@ export default function HomePage() {
       {/* ── Hero ───────────────────────────────────────────────── */}
       <section>
         <div className="mx-auto max-w-5xl px-6 py-20 text-center">
+          <div className="flex justify-center mb-5">
+            <div
+              className="w-16 h-16 rounded-full flex items-center justify-center shadow-[0_8px_24px_-8px_rgba(240,90,40,0.3)]"
+              style={{ background: "rgba(240,90,40,0.08)", border: "2px solid rgba(240,90,40,0.15)" }}
+            >
+              <Image src="/MANNY AVATAR.png" alt="Manny" width={52} height={52} className="rounded-full" />
+            </div>
+          </div>
+
           <div
             className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide mb-6"
             style={{
@@ -81,7 +91,8 @@ export default function HomePage() {
               fontSize: "clamp(2.4rem, 5vw, 3.5rem)",
               letterSpacing: "-0.03em",
               maxWidth: "720px",
-            }}
+              textWrap: "balance",
+            } as React.CSSProperties}
           >
             Know before{" "}
             <span style={{ color: "#f05a28" }}>KDP does.</span>
@@ -129,7 +140,8 @@ export default function HomePage() {
                 color: "#1A1208",
                 fontSize: "clamp(1.6rem, 3vw, 2.2rem)",
                 letterSpacing: "-0.02em",
-              }}
+                textWrap: "balance",
+              } as React.CSSProperties}
             >
               Everything you need before you upload.
             </h2>
@@ -186,7 +198,8 @@ export default function HomePage() {
               color: "#fff",
               fontSize: "clamp(1.6rem, 3vw, 2.2rem)",
               letterSpacing: "-0.02em",
-            }}
+              textWrap: "balance",
+            } as React.CSSProperties}
           >
             Calculated. Estimated. Checked.{" "}
             <span style={{ color: "#f05a28" }}>Now verify the file.</span>
@@ -221,7 +234,8 @@ export default function HomePage() {
               color: "#1A1208",
               fontSize: "clamp(1.6rem, 3vw, 2.2rem)",
               letterSpacing: "-0.02em",
-            }}
+              textWrap: "balance",
+            } as React.CSSProperties}
           >
             Stop guessing.{" "}
             <span style={{ color: "#f05a28" }}>Start knowing.</span>
