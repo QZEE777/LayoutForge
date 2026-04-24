@@ -12,7 +12,7 @@ export default function CookiesPage() {
           <h1 className="font-bebas text-m2p-ink leading-tight mb-2 text-[clamp(2rem,4vw,3rem)]">
             COOKIE POLICY
           </h1>
-          <p className="text-sm text-m2p-muted mb-10" >Last updated: [DATE — tweak before publish]</p>
+          <p className="text-sm text-m2p-muted mb-10">Last updated: April 24, 2026</p>
 
           <div className="prose prose-sm max-w-none space-y-8 [&_h2]:text-m2p-ink [&_p]:text-m2p-muted [&_ul]:text-m2p-muted [&_a]:text-m2p-orange [&_a]:hover:underline" >
           <section>
@@ -30,7 +30,7 @@ export default function CookiesPage() {
 
           <section>
             <h2 className="text-lg font-semibold text-m2p-ink mt-6 mb-2">2. How we use cookies</h2>
-            <ul className="list-disc pl-5 text-[#6B6151] space-y-2">
+            <ul className="list-disc pl-5 text-m2p-muted space-y-2">
               <li>
                 <strong>Strictly necessary:</strong> Required for the site to work (e.g. authentication, security, load balancing). These do not require consent under laws like the ePrivacy Directive, but you can block them in your browser (some features may then not work).
               </li>

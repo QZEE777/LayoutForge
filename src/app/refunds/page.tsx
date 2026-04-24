@@ -12,9 +12,9 @@ export default function RefundsPage() {
           <h1 className="font-bebas text-m2p-ink leading-tight mb-6 text-[clamp(2rem,4vw,3rem)]">
             REFUND POLICY
           </h1>
-          <p className="text-sm text-[#6B6151] mb-10">Last updated: April 6, 2026</p>
+          <p className="text-sm text-m2p-muted mb-10">Last updated: April 6, 2026</p>
 
-          <div className="prose prose-sm max-w-none space-y-8 [&_h2]:text-m2p-ink [&_p]:text-[#6B6151] [&_li]:text-[#6B6151] [&_a]:text-m2p-orange [&_a]:hover:underline">
+          <div className="prose prose-sm max-w-none space-y-8 [&_h2]:text-m2p-ink [&_p]:text-m2p-muted [&_li]:text-m2p-muted [&_a]:text-m2p-orange [&_a]:hover:underline">
             <section>
               <h2 className="text-lg font-semibold text-m2p-ink mt-6 mb-2">1. Scope</h2>
               <p>

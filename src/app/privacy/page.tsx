@@ -12,7 +12,7 @@ export default function PrivacyPage() {
           <h1 className="font-bebas text-m2p-ink leading-tight mb-2 text-[clamp(2rem,4vw,3rem)]">
             PRIVACY POLICY
           </h1>
-          <p className="text-sm text-m2p-muted mb-10" >Last updated: [DATE — tweak before publish]</p>
+          <p className="text-sm text-m2p-muted mb-10">Last updated: April 24, 2026</p>
 
           <div className="prose prose-sm max-w-none space-y-8 [&_h2]:text-m2p-ink [&_h2]:font-semibold [&_p]:text-m2p-muted [&_ul]:text-m2p-muted [&_a]:text-m2p-orange [&_a]:hover:underline" >
           <section>
@@ -34,7 +34,7 @@ export default function PrivacyPage() {
               <li><strong>Account and identity:</strong> Email address, name (if you provide it), and sign-in credentials when you create an account or use magic-link sign-in.</li>
               <li><strong>Payment and billing:</strong> Payment is processed by Lemon Squeezy. We may receive transaction identifiers and limited billing-related data; we do not store full payment card details.</li>
               <li><strong>Content you upload:</strong> Manuscripts, PDFs, or other files you submit for formatting, checking, or analysis. These are processed to provide the service and are not retained longer than necessary (e.g. we do not store your manuscript permanently after processing).</li>
-              <li><strong>Usage and technical data:</strong> Log data (e.g. IP address, browser type), pages visited, and tool usage to operate the site, prevent abuse, and improve our services. We may use cookies and similar technologies as described in our <Link href="/cookies" className="text-[#F05A28] hover:underline">Cookie Policy</Link>.</li>
+              <li><strong>Usage and technical data:</strong> Log data (e.g. IP address, browser type), pages visited, and tool usage to operate the site, prevent abuse, and improve our services. We may use cookies and similar technologies as described in our <Link href="/cookies" className="text-m2p-orange hover:underline">Cookie Policy</Link>.</li>
             </ul>
           </section>
 
@@ -69,7 +69,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-lg font-semibold mt-6 mb-2 text-m2p-ink">7. Cookies and similar technologies</h2>
             <p className="text-m2p-muted">
-              We use cookies and similar technologies for essential operation (e.g. sign-in), and may use them for analytics or preferences. Details are in our <Link href="/cookies" className="text-[#F05A28] hover:underline">Cookie Policy</Link>. Where required by law, we obtain consent for non-essential cookies.
+              We use cookies and similar technologies for essential operation (e.g. sign-in), and may use them for analytics or preferences. Details are in our <Link href="/cookies" className="text-m2p-orange hover:underline">Cookie Policy</Link>. Where required by law, we obtain consent for non-essential cookies.
             </p>
           </section>
 
@@ -83,7 +83,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-lg font-semibold mt-6 mb-2 text-m2p-ink">9. Your rights</h2>
             <p className="text-m2p-muted">
-              Depending on where you live, you may have the right to: access, correct, or delete your personal data; restrict or object to processing; data portability; and withdraw consent. In the EU/EEA and UK, you may lodge a complaint with a supervisory authority. To exercise your rights, contact us via <Link href="/contact" className="text-[#F05A28] hover:underline">Contact</Link>. We will respond within the timeframes required by applicable law.
+              Depending on where you live, you may have the right to: access, correct, or delete your personal data; restrict or object to processing; data portability; and withdraw consent. In the EU/EEA and UK, you may lodge a complaint with a supervisory authority. To exercise your rights, contact us via <Link href="/contact" className="text-m2p-orange hover:underline">Contact</Link>. We will respond within the timeframes required by applicable law.
             </p>
           </section>
 
@@ -111,7 +111,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-lg font-semibold mt-6 mb-2 text-m2p-ink">13. Contact</h2>
             <p className="text-m2p-muted">
-              For privacy-related questions or to exercise your rights, contact us via <Link href="/contact" className="text-[#F05A28] hover:underline">Contact</Link> or the email address listed there.
+              For privacy-related questions or to exercise your rights, contact us via <Link href="/contact" className="text-m2p-orange hover:underline">Contact</Link> or the email address listed there.
             </p>
           </section>
           </div>
