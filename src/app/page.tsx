@@ -235,10 +235,10 @@ export default function HomePage() {
 
             {/* Manny thumbs-up clipboard — 6th cell on large screens */}
             <div
-              className="rounded-2xl p-5 flex items-center justify-center sm:col-span-2 lg:col-span-1"
+              className="rounded-2xl overflow-hidden flex items-center justify-center sm:col-span-2 lg:col-span-1"
               style={{
-                background: "rgba(240,90,40,0.07)",
-                border: "1px solid rgba(240,90,40,0.2)",
+                background: "#1A1208",
+                border: "1px solid rgba(255,255,255,0.04)",
               }}
             >
               <Image
