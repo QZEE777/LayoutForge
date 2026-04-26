@@ -188,7 +188,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Common KDP Errors ──────────────────────────────────── */}
-      <section style={{ background: "#1A1208", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+      <section style={{ background: "#25221e", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
         <div className="mx-auto max-w-5xl px-6 py-16">
           <div className="text-center mb-10">
             <p
@@ -219,7 +219,7 @@ export default function HomePage() {
                 key={err.title}
                 className="rounded-2xl p-5"
                 style={{
-                  background: "#1A1208",
+                  background: "#25221e",
                   border: "1px solid rgba(255,255,255,0.04)",
                 }}
               >
