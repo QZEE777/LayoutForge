@@ -219,8 +219,8 @@ export default function HomePage() {
                 key={err.title}
                 className="rounded-2xl p-5"
                 style={{
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.08)",
+                  background: "#1A1208",
+                  border: "1px solid rgba(255,255,255,0.04)",
                 }}
               >
                 <span className="text-2xl mb-3 block">{err.icon}</span>
