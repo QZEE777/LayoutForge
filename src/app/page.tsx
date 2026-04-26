@@ -154,7 +154,8 @@ export default function HomePage() {
               textWrap: "balance",
             } as React.CSSProperties}
           >
-            KDP PDF Checker —{" "}
+            KDP PDF Checker
+            <br />
             <span style={{ color: "#f05a28" }}>
               Fix Formatting Errors Before You Upload to Amazon KDP
             </span>
