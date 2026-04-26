@@ -233,22 +233,6 @@ export default function HomePage() {
               </div>
             ))}
 
-            {/* Manny thumbs-up clipboard — 6th cell on large screens */}
-            <div
-              className="rounded-2xl overflow-hidden flex items-center justify-center sm:col-span-2 lg:col-span-1"
-              style={{
-                background: "#1A1208",
-                border: "1px solid rgba(255,255,255,0.04)",
-              }}
-            >
-              <Image
-                src="/manny/manny_thumbs_up_clipboard_01.png"
-                alt="manu2print KDP PDF checker"
-                width={140}
-                height={140}
-                className="object-contain"
-              />
-            </div>
           </div>
         </div>
       </section>
