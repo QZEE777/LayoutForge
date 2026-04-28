@@ -113,9 +113,18 @@ export default function HomePage() {
       {/* ── Header ─────────────────────────────────────────────── */}
       <header className="border-b border-[#1A6B2A]/10 bg-[#FAF7EE]/75 backdrop-blur-md sticky top-0 z-20">
         <div className="mx-auto max-w-5xl px-6 py-3 sm:py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 shrink-0">
-            <BrandWordmark variant="onLight" className="text-lg sm:text-xl" />
-          </Link>
+          <div className="flex items-center gap-3 shrink-0">
+            <Image
+              src="/MANNY AVATAR.png"
+              alt="Manny"
+              width={36}
+              height={36}
+              className="rounded-full shrink-0"
+            />
+            <Link href="/" className="flex items-center">
+              <BrandWordmark variant="onLight" className="text-lg sm:text-xl" />
+            </Link>
+          </div>
           <Link
             href="/kdp-pdf-checker"
             className="rounded-xl font-bold text-sm px-4 py-2 transition-opacity hover:opacity-80"
