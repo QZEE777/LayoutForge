@@ -18,6 +18,28 @@ const LS_RESUME_KEY = "m2p_resume_check";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+/** XHR-based PUT so we get upload progress events that fetch() doesn't expose. */
+function putWithProgress(
+  url: string,
+  file: File,
+  onProgress: (pct: number) => void,
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
+    };
+    xhr.onload = () =>
+      xhr.status >= 200 && xhr.status < 300
+        ? resolve()
+        : reject(new Error("R2 upload failed"));
+    xhr.onerror = () => reject(new Error("R2 upload failed"));
+    xhr.open("PUT", url);
+    xhr.setRequestHeader("Content-Type", "application/pdf");
+    xhr.send(file);
+  });
+}
+
 function formatElapsedSeconds(totalSec: number): string {
   const m = Math.floor(totalSec / 60);
   const s = totalSec % 60;
@@ -167,7 +189,7 @@ function ChipGroup<T extends string>({
 // ── Upload Widget ─────────────────────────────────────────────────────────────
 
 function UploadWidget({
-  file, isDragging, uploading, checkElapsedSec, error,
+  file, isDragging, uploading, checkElapsedSec, uploadProgress, error,
   scanContext, onScanContextChange,
   onDragOver, onDragLeave, onDrop, onFileSelect, onSubmit, onClear,
 }: {
@@ -175,6 +197,7 @@ function UploadWidget({
   isDragging: boolean;
   uploading: boolean;
   checkElapsedSec: number;
+  uploadProgress: number | null;
   error: string | null;
   scanContext: ScanContext;
   onScanContextChange: (ctx: ScanContext) => void;
@@ -186,6 +209,35 @@ function UploadWidget({
   onClear: () => void;
 }) {
   if (uploading) {
+    // ── A2: Upload phase — show progress bar ──────────────────────────────────
+    if (uploadProgress !== null) {
+      return (
+        <div className="rounded-2xl p-8 text-center" style={{ background: "#1A1208", border: "1px solid rgba(240,90,40,0.2)" }}>
+          <div className="mx-auto mb-5 w-16 h-16 rounded-full flex items-center justify-center"
+            style={{ background: "rgba(240,90,40,0.1)", border: "2px solid rgba(240,90,40,0.2)" }}>
+            <span className="text-2xl">📤</span>
+          </div>
+          <p className="text-2xl font-black mb-1" style={{ color: "#fff", letterSpacing: "-0.01em" }}>
+            Uploading your PDF…
+          </p>
+          <p className="text-sm mb-6" style={{ color: "rgba(255,255,255,0.45)" }}>
+            Sending to secure storage — do not close this tab
+          </p>
+          {/* Progress bar */}
+          <div className="rounded-full overflow-hidden mb-2" style={{ background: "rgba(255,255,255,0.08)", height: 8 }}>
+            <div
+              className="h-full rounded-full transition-all duration-300"
+              style={{ width: `${uploadProgress}%`, background: "#f05a28" }}
+            />
+          </div>
+          <p className="text-sm font-black tabular-nums" style={{ color: "#f05a28" }}>
+            {uploadProgress}%
+          </p>
+        </div>
+      );
+    }
+
+    // ── Scan phase — spinner + live check grid ────────────────────────────────
     const activeCheckIdx = Math.min(Math.floor(checkElapsedSec / 6), CHECKS.length - 1);
     return (
       <div className="rounded-2xl p-8 text-center" style={{ background: "#1A1208", border: "1px solid rgba(240,90,40,0.2)" }}>
@@ -217,8 +269,11 @@ function UploadWidget({
         <div className="text-5xl font-black tabular-nums" style={{ color: "#f05a28" }}>
           {formatElapsedSeconds(checkElapsedSec)}
         </div>
-        <p className="text-xs mt-3" style={{ color: "rgba(255,255,255,0.3)" }}>
-          Most scans finish in under 90 seconds
+        {/* A3: calm copy after 60 seconds */}
+        <p className="text-xs mt-3" style={{ color: checkElapsedSec >= 60 ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.3)" }}>
+          {checkElapsedSec >= 60
+            ? "Larger files can take 2–3 minutes. Keep this tab open while we finish your scan."
+            : "Most scans finish in under 90 seconds"}
         </p>
       </div>
     );
@@ -415,6 +470,7 @@ export default function KdpPdfCheckerPage() {
   const [error, setError]                 = useState<string | null>(null);
   const [showLandingHeader, setShowLandingHeader] = useState(true);
   const [resumeUrl, setResumeUrl]               = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress]     = useState<number | null>(null);
   const [scanContext, setScanContext]     = useState<ScanContext>({
     bookType:  "paperback",
     intendedTrimId: "",
@@ -528,10 +584,9 @@ export default function KdpPdfCheckerPage() {
       const { uploadUrl, fileKey, jobId } = (await createRes.json()) as {
         uploadUrl: string; fileKey: string; jobId: string;
       };
-      const uploadRes = await fetch(uploadUrl, {
-        method: "PUT", body: file, headers: { "Content-Type": "application/pdf" },
-      });
-      if (!uploadRes.ok) throw new Error("R2 upload failed");
+      setUploadProgress(0);
+      await putWithProgress(uploadUrl, file, setUploadProgress);
+      setUploadProgress(null); // upload done — scan phase begins
       const saveBody = JSON.stringify({
         jobId,
         fileKey,
@@ -746,6 +801,7 @@ export default function KdpPdfCheckerPage() {
                 isDragging={isDragging}
                 uploading={uploading}
                 checkElapsedSec={checkElapsedSec}
+                uploadProgress={uploadProgress}
                 error={error}
                 scanContext={scanContext}
                 onScanContextChange={setScanContext}
@@ -981,6 +1037,7 @@ export default function KdpPdfCheckerPage() {
             isDragging={isDragging}
             uploading={uploading}
             checkElapsedSec={checkElapsedSec}
+            uploadProgress={uploadProgress}
             error={error}
             scanContext={scanContext}
             onScanContextChange={setScanContext}
