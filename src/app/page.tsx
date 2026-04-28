@@ -343,6 +343,37 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── Pricing anchor ─────────────────────────────────────── */}
+      <section style={{ background: "#FAF8F4", borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+        <div className="mx-auto max-w-3xl px-6 py-10 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-center">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: "#9B8E7E" }}>Preview</p>
+            <p className="font-black text-lg" style={{ color: "#1A1208" }}>Free</p>
+            <p className="text-xs" style={{ color: "#9B8E7E" }}>Score + issue count</p>
+          </div>
+          <div className="hidden sm:block w-px h-10" style={{ background: "rgba(0,0,0,0.1)" }} />
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: "#9B8E7E" }}>Full report</p>
+            <p className="font-black text-lg" style={{ color: "#1A1208" }}>$9 <span className="text-sm font-normal" style={{ color: "#9B8E7E" }}>/ scan</span></p>
+            <p className="text-xs" style={{ color: "#9B8E7E" }}>Annotated PDF · every issue flagged</p>
+          </div>
+          <div className="hidden sm:block w-px h-10" style={{ background: "rgba(0,0,0,0.1)" }} />
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: "#9B8E7E" }}>Packs</p>
+            <p className="font-black text-lg" style={{ color: "#1A1208" }}>from $3.45 <span className="text-sm font-normal" style={{ color: "#9B8E7E" }}>/ scan</span></p>
+            <p className="text-xs" style={{ color: "#9B8E7E" }}>Credits never expire · no subscription</p>
+          </div>
+          <div className="hidden sm:block w-px h-10" style={{ background: "rgba(0,0,0,0.1)" }} />
+          <Link
+            href="/kdp-pdf-checker#pricing"
+            className="text-sm font-bold transition-opacity hover:opacity-70 shrink-0"
+            style={{ color: "#f05a28" }}
+          >
+            See all packs →
+          </Link>
+        </div>
+      </section>
+
       {/* ── How it works ───────────────────────────────────────── */}
       <section style={{ background: "#FAF8F4", borderTop: "1px solid rgba(0,0,0,0.05)" }}>
         <div className="mx-auto max-w-5xl px-6 py-16 text-center">
