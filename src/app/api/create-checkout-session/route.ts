@@ -70,7 +70,7 @@ export async function POST(req: Request) {
       },
       productOptions: {
         redirectUrl,
-        receiptButtonText: isPack ? "View My Credits" : "Download Your Manuscript",
+        receiptButtonText: isPack ? "View My Credits" : "View My Report",
         receiptThankYouNote: isPack
           ? "Thank you! Your scan credits have been added to your account."
           : "Thank you! Your checker purchase includes 2 scans (2 credits total, 1 per scan).",
