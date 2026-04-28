@@ -11,6 +11,11 @@ import { cleanFilenameForDisplay } from "@/lib/kdpReportEnhance";
 import { ErrorRecovery } from "@/components/ErrorRecovery";
 import { CHECKER_MAX_UPLOAD_BYTES, CHECKER_MAX_UPLOAD_MB } from "@/lib/checkerUploadLimits";
 
+// ── Constants ─────────────────────────────────────────────────────────────────
+
+/** localStorage key for in-flight / timed-out scan resume */
+const LS_RESUME_KEY = "m2p_resume_check";
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function formatElapsedSeconds(totalSec: number): string {
@@ -409,6 +414,7 @@ export default function KdpPdfCheckerPage() {
   const [checkElapsedSec, setCheckElapsedSec] = useState(0);
   const [error, setError]                 = useState<string | null>(null);
   const [showLandingHeader, setShowLandingHeader] = useState(true);
+  const [resumeUrl, setResumeUrl]               = useState<string | null>(null);
   const [scanContext, setScanContext]     = useState<ScanContext>({
     bookType:  "paperback",
     intendedTrimId: "",
@@ -447,6 +453,26 @@ export default function KdpPdfCheckerPage() {
     const id = window.setInterval(() => setCheckElapsedSec((n) => n + 1), 1000);
     return () => window.clearInterval(id);
   }, [uploading]);
+
+  // ── Resume banner — check if a previous scan completed while tab was closed ──
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(LS_RESUME_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw) as { checkId: string; ctxParams: string; ts: number };
+      // Expire after 24 hours
+      if (Date.now() - saved.ts > 86_400_000) { localStorage.removeItem(LS_RESUME_KEY); return; }
+      fetch(`/api/print-ready-check-status?checkId=${encodeURIComponent(saved.checkId)}`)
+        .then((r) => r.json())
+        .then((d: { status?: string; downloadId?: string }) => {
+          if (d.status === "done" && d.downloadId) {
+            setResumeUrl(`/download/${d.downloadId}?source=checker${saved.ctxParams}`);
+            localStorage.removeItem(LS_RESUME_KEY);
+          }
+        })
+        .catch(() => {/* silent — banner is best-effort */});
+    } catch {/* localStorage blocked */}
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setShowLandingHeader(window.scrollY < 8);
@@ -541,6 +567,8 @@ export default function KdpPdfCheckerPage() {
       if (saveData.id) { router.push(`/download/${saveData.id}?source=checker${ctxParams}`); return; }
       if (saveData.checkId) {
         const checkId = saveData.checkId;
+        // Persist so a tab-close or 5-min timeout can be resumed on return
+        try { localStorage.setItem(LS_RESUME_KEY, JSON.stringify({ checkId, ctxParams, ts: Date.now() })); } catch {}
         const deadline = Date.now() + 5 * 60 * 1000;
         let waitMs = 2500;
         const MAX_WAIT_MS = 10000;
@@ -550,6 +578,7 @@ export default function KdpPdfCheckerPage() {
           let statusData: { status?: "queued" | "processing" | "done" | "failed"; downloadId?: string; error?: string; message?: string };
           try { statusData = (await statusRes.json()) as typeof statusData; } catch { continue; }
           if (statusData.status === "done" && statusData.downloadId) {
+            try { localStorage.removeItem(LS_RESUME_KEY); } catch {}
             router.push(`/download/${statusData.downloadId}?source=checker${ctxParams}`); return;
           }
           if (statusData.status === "failed") throw new Error(statusData.error || statusData.message || "Check failed.");
@@ -574,6 +603,30 @@ export default function KdpPdfCheckerPage() {
       className="min-h-screen"
       style={{ background: "linear-gradient(180deg, #FAF7EE 0%, #F2EBDF 35%, #FAF8F4 100%)" }}
     >
+
+      {/* ── Resume banner ─────────────────────────────────────── */}
+      {resumeUrl && (
+        <div
+          className="flex items-center justify-between gap-4 px-5 py-3 text-sm font-semibold"
+          style={{ background: "#f05a28", color: "#fff" }}
+        >
+          <span>✅ Your report is ready —</span>
+          <Link
+            href={resumeUrl}
+            className="underline underline-offset-2 hover:opacity-80 transition-opacity shrink-0"
+          >
+            View it now →
+          </Link>
+          <button
+            type="button"
+            onClick={() => setResumeUrl(null)}
+            className="ml-auto shrink-0 opacity-70 hover:opacity-100 transition-opacity text-base leading-none"
+            aria-label="Dismiss"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* ══════════════════════════════════════════════════════════
           HEADER — logo only (trust signal, not navigation)
