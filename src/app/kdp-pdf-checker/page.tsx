@@ -297,7 +297,7 @@ function UploadWidget({
         </div>
         <div className="text-right">
           <p className="text-2xl font-black" style={{ color: "#f05a28" }}>$9</p>
-          <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>2 scans included</p>
+          <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>1 full scan + 1 free recheck</p>
         </div>
       </div>
 
@@ -711,7 +711,7 @@ export default function KdpPdfCheckerPage() {
               <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide mb-6"
                 style={{ background: "rgba(240,90,40,0.08)", color: "#f05a28", border: "1px solid rgba(240,90,40,0.15)" }}>
                 <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#f05a28" }} />
-                $9 · 2 scans · Results in ~90 seconds
+                $9 · 1 full scan + 1 free recheck · ~90 seconds
               </div>
 
               <h1 className="font-black leading-tight mb-4"
@@ -1082,88 +1082,80 @@ export default function KdpPdfCheckerPage() {
             No subscription. Credits never expire. Use them any time.
           </p>
 
-          <div className="flex flex-wrap justify-center gap-5">
-            {/* Single Check */}
-            <div className="flex flex-col rounded-2xl p-6 w-52" style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)" }}>
-              <p className="font-bold text-sm mb-1" style={{ color: "#1A1208" }}>Single Check</p>
-              <p className="text-3xl font-black mb-1" style={{ color: "#1A1208" }}>$9</p>
-              <p className="text-xs mb-1" style={{ color: "#6B6151" }}>2 scans</p>
-              <p className="text-xs mb-4 font-semibold" style={{ color: "#F05A28" }}>$4.50 / scan</p>
-              <ul className="text-xs text-left space-y-1 mb-6 flex-1" style={{ color: "#6B6151" }}>
-                <li>✓ Full KDP compliance report</li>
-                <li>✓ 1 free re-check included</li>
-                <li>✓ Annotated PDF download</li>
+          {/* ── Primary: $9 hero card ── */}
+          <div className="mx-auto max-w-sm mb-8">
+            <div
+              className="flex flex-col rounded-2xl p-8"
+              style={{
+                background: "#fff",
+                border: "2px solid #F05A28",
+                boxShadow: "0 8px 32px rgba(240,90,40,0.12)",
+              }}
+            >
+              <p className="font-bold text-sm mb-1" style={{ color: "#F05A28" }}>Single Check</p>
+              <p className="text-5xl font-black mb-1" style={{ color: "#1A1208", letterSpacing: "-0.03em" }}>$9</p>
+              <p className="text-sm font-semibold mb-5" style={{ color: "#6B6151" }}>
+                $9 includes 1 full scan + 1 free recheck.
+              </p>
+              <ul className="text-sm text-left space-y-2 mb-7" style={{ color: "#6B6151" }}>
+                <li className="flex items-start gap-2"><span style={{ color: "#F05A28" }}>✓</span> Full KDP compliance report</li>
+                <li className="flex items-start gap-2"><span style={{ color: "#F05A28" }}>✓</span> Annotated PDF — every issue flagged by page</li>
+                <li className="flex items-start gap-2"><span style={{ color: "#F05A28" }}>✓</span> 1 free recheck included</li>
+                <li className="flex items-start gap-2"><span style={{ color: "#F05A28" }}>✓</span> Plain-English fix instructions</li>
               </ul>
               <a
                 href="/api/create-checkout-session?price_type=single_use"
-                className="block text-center text-xs font-bold py-2 px-4 rounded-lg transition-opacity hover:opacity-80"
-                style={{ background: "#1A1208", color: "#fff" }}
-              >
-                Get started
-              </a>
-            </div>
-
-            {/* Author Pack */}
-            <div className="flex flex-col rounded-2xl p-6 w-52" style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)" }}>
-              <p className="font-bold text-sm mb-1" style={{ color: "#1A1208" }}>Author Pack</p>
-              <p className="text-3xl font-black mb-1" style={{ color: "#1A1208" }}>$21</p>
-              <p className="text-xs mb-1" style={{ color: "#6B6151" }}>5 scans</p>
-              <p className="text-xs mb-4 font-semibold" style={{ color: "#F05A28" }}>$4.20 / scan</p>
-              <ul className="text-xs text-left space-y-1 mb-6 flex-1" style={{ color: "#6B6151" }}>
-                <li>✓ Full KDP compliance report</li>
-                <li>✓ Re-checks included</li>
-                <li>✓ Annotated PDF download</li>
-              </ul>
-              <a
-                href="/api/create-checkout-session?price_type=author_pack"
-                className="block text-center text-xs font-bold py-2 px-4 rounded-lg transition-opacity hover:opacity-80"
-                style={{ background: "#1A1208", color: "#fff" }}
-              >
-                Buy pack
-              </a>
-            </div>
-
-            {/* Indie Pack — Best Value */}
-            <div className="flex flex-col rounded-2xl p-6 w-52 relative" style={{ background: "#1A1208", border: "1px solid rgba(0,0,0,0.07)" }}>
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs font-bold px-3 py-1 rounded-full" style={{ background: "#F05A28", color: "#fff" }}>
-                Best Value
-              </span>
-              <p className="font-bold text-sm mb-1" style={{ color: "#fff" }}>Indie Pack</p>
-              <p className="text-3xl font-black mb-1" style={{ color: "#fff" }}>$39</p>
-              <p className="text-xs mb-1" style={{ color: "rgba(255,255,255,0.55)" }}>10 scans</p>
-              <p className="text-xs mb-4 font-semibold" style={{ color: "#4cd964" }}>$3.90 / scan</p>
-              <ul className="text-xs text-left space-y-1 mb-6 flex-1" style={{ color: "rgba(255,255,255,0.70)" }}>
-                <li>✓ Full KDP compliance report</li>
-                <li>✓ Re-checks included</li>
-                <li>✓ Annotated PDF download</li>
-              </ul>
-              <a
-                href="/api/create-checkout-session?price_type=indie_pack"
-                className="block text-center text-xs font-bold py-2 px-4 rounded-lg transition-opacity hover:opacity-80"
+                className="block text-center font-black py-3.5 px-6 rounded-xl transition-opacity hover:opacity-85 text-base"
                 style={{ background: "#F05A28", color: "#fff" }}
               >
-                Buy pack
+                Get started — $9 →
               </a>
+              <p className="text-xs text-center mt-3" style={{ color: "#9B8E7E" }}>
+                No subscription · Credits never expire
+              </p>
             </div>
+          </div>
 
-            {/* Pro Pack */}
-            <div className="flex flex-col rounded-2xl p-6 w-52" style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)" }}>
-              <p className="font-bold text-sm mb-1" style={{ color: "#1A1208" }}>Pro Pack</p>
-              <p className="text-3xl font-black mb-1" style={{ color: "#1A1208" }}>$69</p>
-              <p className="text-xs mb-1" style={{ color: "#6B6151" }}>20 scans</p>
-              <p className="text-xs mb-4 font-semibold" style={{ color: "#F05A28" }}>$3.45 / scan</p>
-              <ul className="text-xs text-left space-y-1 mb-6 flex-1" style={{ color: "#6B6151" }}>
-                <li>✓ Full KDP compliance report</li>
-                <li>✓ Re-checks included</li>
-                <li>✓ Annotated PDF download</li>
-              </ul>
-              <a
-                href="/api/create-checkout-session?price_type=pro_pack"
-                className="block text-center text-xs font-bold py-2 px-4 rounded-lg transition-opacity hover:opacity-80"
-                style={{ background: "#1A1208", color: "#fff" }}
-              >
-                Buy pack
-              </a>
+          {/* ── Secondary: packs — quiet treatment ── */}
+          <div
+            className="border-t pt-7"
+            style={{ borderColor: "rgba(0,0,0,0.06)" }}
+          >
+            <p className="text-xs font-semibold mb-5" style={{ color: "#9B8E7E" }}>
+              Need more scans? Save more per scan with a pack.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              {[
+                { label: "Author Pack", price: "$21", scans: "5 scans", perScan: "$4.20 / scan", type: "author_pack" },
+                { label: "Indie Pack", price: "$39", scans: "10 scans", perScan: "$3.90 / scan", type: "indie_pack", best: true },
+                { label: "Pro Pack",   price: "$69", scans: "20 scans", perScan: "$3.45 / scan", type: "pro_pack" },
+              ].map((pack) => (
+                <div
+                  key={pack.type}
+                  className="flex flex-col rounded-xl p-5 w-44 relative"
+                  style={{ background: "#fff", border: `1px solid ${pack.best ? "rgba(240,90,40,0.3)" : "rgba(0,0,0,0.07)"}` }}
+                >
+                  {pack.best && (
+                    <span
+                      className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] font-bold px-2 py-0.5 rounded-full"
+                      style={{ background: "#F05A28", color: "#fff" }}
+                    >
+                      Best value
+                    </span>
+                  )}
+                  <p className="text-xs font-bold mb-1" style={{ color: "#1A1208" }}>{pack.label}</p>
+                  <p className="text-2xl font-black mb-0.5" style={{ color: "#1A1208" }}>{pack.price}</p>
+                  <p className="text-xs mb-0.5" style={{ color: "#9B8E7E" }}>{pack.scans}</p>
+                  <p className="text-xs font-semibold mb-4" style={{ color: "#F05A28" }}>{pack.perScan}</p>
+                  <a
+                    href={`/api/create-checkout-session?price_type=${pack.type}`}
+                    className="mt-auto block text-center text-xs font-bold py-2 px-3 rounded-lg transition-opacity hover:opacity-80"
+                    style={{ background: "#1A1208", color: "#fff" }}
+                  >
+                    Buy pack
+                  </a>
+                </div>
+              ))}
             </div>
           </div>
         </div>
