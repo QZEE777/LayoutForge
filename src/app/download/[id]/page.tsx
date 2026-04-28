@@ -1353,21 +1353,31 @@ export default function DownloadPage() {
                   {/* Referral share block */}
                   {refId && (
                     <div
-                      className="mt-6 rounded-2xl p-5 border"
-                      style={{ background: "#F2EBE0", borderColor: "#E0D8C4" }}
+                      className="mt-6 rounded-2xl p-6 border"
+                      style={{
+                        background: "linear-gradient(135deg, #EBF5EC 0%, #F5FAF5 100%)",
+                        borderColor: "#1A6B2A",
+                        borderWidth: "1.5px",
+                        boxShadow: "0 4px 20px rgba(26,107,42,0.1)",
+                      }}
                     >
-                      <p className="font-bold text-sm mb-1" style={{ color: "#1A1208" }}>
-                        Share manu2print &mdash; get a free scan
-                      </p>
-                      <p className="text-xs mb-2" style={{ color: "#6B6151" }}>Your link:</p>
                       <p
-                        className="text-xs font-mono break-all rounded-lg px-3 py-2 mb-3 border"
-                        style={{ background: "#fff", borderColor: "#E0D8C4", color: "#1A1208" }}
+                        className="font-black text-lg mb-1 tracking-tight"
+                        style={{ color: "#1A6B2A", letterSpacing: "-0.02em" }}
+                      >
+                        Share manu2print — get a free scan
+                      </p>
+                      <p className="text-sm mb-4" style={{ color: "#2d6a2d" }}>
+                        Share your link. When someone runs a scan through it, we automatically add a free credit to your account.
+                      </p>
+                      <p className="text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "#1A6B2A" }}>
+                        Your link
+                      </p>
+                      <p
+                        className="text-xs font-mono break-all rounded-lg px-3 py-2.5 border"
+                        style={{ background: "#fff", borderColor: "#1A6B2A", color: "#1A1208", borderWidth: "1px" }}
                       >
                         {`https://www.manu2print.com/kdp-pdf-checker?ref=${refId}`}
-                      </p>
-                      <p className="text-xs" style={{ color: "#9B8E7E" }}>
-                        When someone runs a scan using your link, we automatically add a free scan credit.
                       </p>
                     </div>
                   )}
