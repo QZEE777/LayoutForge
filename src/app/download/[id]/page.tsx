@@ -357,7 +357,6 @@ export default function DownloadPage() {
     <p style="color:#6B6151; margin-bottom:10px;">Apply the fixes in this report, export a fresh PDF from your layout app, then run one final check before uploading to KDP.</p>
     <p style="color:#6B6151; margin-bottom:14px;">Need a second opinion? Share this report with your formatter, designer, or editor so they can fix issues page by page.</p>
     <p style="margin-bottom:14px;"><a href="https://manu2print.com/kdp-pdf-checker" style="background:#F05A28; color:white; padding:11px 22px; border-radius:8px; text-decoration:none; font-weight:bold;">Run final KDP check → manu2print.com/kdp-pdf-checker</a></p>
-    <p style="color:#6B6151; font-size:12px;">Want to earn scan credits by referring authors? <a href="https://manu2print.com/partners" style="color:#F05A28;">Become a partner</a></p>
   </div>
   <div class="footer">© manu2print — Built for indie authors</div>
 </body>
