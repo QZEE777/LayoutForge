@@ -344,33 +344,52 @@ export default function HomePage() {
       </section>
 
       {/* ── Pricing anchor ─────────────────────────────────────── */}
-      <section style={{ background: "#FAF8F4", borderTop: "1px solid rgba(0,0,0,0.06)" }}>
-        <div className="mx-auto max-w-3xl px-6 py-10 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-center">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: "#9B8E7E" }}>Preview</p>
-            <p className="font-black text-lg" style={{ color: "#1A1208" }}>Free</p>
-            <p className="text-xs" style={{ color: "#9B8E7E" }}>Score + issue count</p>
+      <section style={{ background: "#FAF7EE", borderTop: "1px solid rgba(240,90,40,0.12)", borderBottom: "1px solid rgba(240,90,40,0.12)" }}>
+        <div className="mx-auto max-w-4xl px-6 py-10">
+          <p className="text-center text-xs font-bold uppercase tracking-widest mb-6" style={{ color: "#f05a28" }}>
+            Pricing
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+            {/* Preview */}
+            <div
+              className="rounded-2xl p-5 text-center"
+              style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)" }}
+            >
+              <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "#9B8E7E" }}>Preview</p>
+              <p className="font-black text-3xl mb-1" style={{ color: "#1A1208" }}>Free</p>
+              <p className="text-xs leading-relaxed" style={{ color: "#9B8E7E" }}>Compliance score + full issue count — no payment needed</p>
+            </div>
+
+            {/* Single scan */}
+            <div
+              className="rounded-2xl p-5 text-center"
+              style={{ background: "#fff", border: "2px solid #f05a28", boxShadow: "0 4px 24px rgba(240,90,40,0.12)" }}
+            >
+              <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "#f05a28" }}>Full Report</p>
+              <p className="font-black text-3xl mb-1" style={{ color: "#1A1208" }}>$9</p>
+              <p className="text-xs font-semibold mb-2" style={{ color: "#6B6151" }}>2 scans · $4.50 per scan</p>
+              <p className="text-xs leading-relaxed" style={{ color: "#9B8E7E" }}>Full detailed report + annotated PDF — every issue flagged on the exact page</p>
+            </div>
+
+            {/* Packs */}
+            <div
+              className="rounded-2xl p-5 text-center"
+              style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)" }}
+            >
+              <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "#9B8E7E" }}>Packs</p>
+              <p className="font-black text-3xl mb-1" style={{ color: "#1A1208" }}>from $3.45<span className="text-base font-normal" style={{ color: "#9B8E7E" }}> / scan</span></p>
+              <p className="text-xs leading-relaxed mb-3" style={{ color: "#9B8E7E" }}>Credits never expire · no subscription</p>
+              <Link
+                href="/kdp-pdf-checker#pricing"
+                className="text-xs font-bold transition-opacity hover:opacity-70"
+                style={{ color: "#f05a28" }}
+              >
+                See all packs →
+              </Link>
+            </div>
+
           </div>
-          <div className="hidden sm:block w-px h-10" style={{ background: "rgba(0,0,0,0.1)" }} />
-          <div>
-            <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: "#9B8E7E" }}>Full report</p>
-            <p className="font-black text-lg" style={{ color: "#1A1208" }}>$9 <span className="text-sm font-normal" style={{ color: "#9B8E7E" }}>/ scan</span></p>
-            <p className="text-xs" style={{ color: "#9B8E7E" }}>Annotated PDF · every issue flagged</p>
-          </div>
-          <div className="hidden sm:block w-px h-10" style={{ background: "rgba(0,0,0,0.1)" }} />
-          <div>
-            <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: "#9B8E7E" }}>Packs</p>
-            <p className="font-black text-lg" style={{ color: "#1A1208" }}>from $3.45 <span className="text-sm font-normal" style={{ color: "#9B8E7E" }}>/ scan</span></p>
-            <p className="text-xs" style={{ color: "#9B8E7E" }}>Credits never expire · no subscription</p>
-          </div>
-          <div className="hidden sm:block w-px h-10" style={{ background: "rgba(0,0,0,0.1)" }} />
-          <Link
-            href="/kdp-pdf-checker#pricing"
-            className="text-sm font-bold transition-opacity hover:opacity-70 shrink-0"
-            style={{ color: "#f05a28" }}
-          >
-            See all packs →
-          </Link>
         </div>
       </section>
 
