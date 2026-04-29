@@ -516,6 +516,7 @@ export default function HomePage() {
             <Link href="/privacy" className="hover:opacity-70 transition-opacity">Privacy</Link>
             <Link href="/terms" className="hover:opacity-70 transition-opacity">Terms</Link>
             <Link href="/refunds" className="hover:opacity-70 transition-opacity">Refunds</Link>
+            <Link href="/cookies" className="hover:opacity-70 transition-opacity">Cookies</Link>
             <Link href="/contact" className="hover:opacity-70 transition-opacity">Contact</Link>
           </div>
         </div>
