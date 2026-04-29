@@ -401,12 +401,8 @@ export default function DownloadPage() {
   }, [report]);
 
   // Fetch share token for authenticated user (passive share mode)
-  useEffect(() => {
-    fetch("/api/share/token")
-      .then((r) => r.json())
-      .then((d) => { if (d?.token?.token) setShareToken(d.token.token); })
-      .catch(() => {});
-  }, []);
+  // Route not yet live — stubbed until partner feature ships
+  useEffect(() => {}, []);
 
   // Compute stable ref_id for the scan referral share link (SHA-256 of downloadId, 12 chars)
   useEffect(() => {
@@ -421,21 +417,9 @@ export default function DownloadPage() {
   }, [id]);
 
   // If user is an active partner, partner referral code is source-of-truth.
+  // Route not yet live — stubbed until affiliate feature ships
   useEffect(() => {
-    fetch("/api/affiliates/me")
-      .then((r) => r.json())
-      .then((d) => {
-        const affiliate = d?.affiliate;
-        const code = typeof affiliate?.code === "string" ? affiliate.code.trim().toLowerCase() : "";
-        const status = typeof affiliate?.status === "string" ? affiliate.status.toLowerCase() : "";
-        if (code && status === "active") {
-          setActivePartnerCode(code);
-        } else {
-          setActivePartnerCode(null);
-        }
-      })
-      .catch(() => {})
-      .finally(() => setAffiliateLookupDone(true));
+    setAffiliateLookupDone(true);
   }, []);
 
   useEffect(() => {
