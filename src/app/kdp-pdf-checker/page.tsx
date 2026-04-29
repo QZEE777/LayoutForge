@@ -65,28 +65,28 @@ const CHECKS = [
 
 const FAQS = [
   {
-    q: "When do I pay?",
-    a: "After the scan. Upload free, see your readiness score and issue count — then pay $9 to unlock the full annotated report and fix instructions.",
+    q: "Does this replace Amazon KDP's review?",
+    a: "No. It checks your PDF against KDP's published formatting requirements before you upload. Amazon still runs their own review — this tool helps you pass it on the first try by catching the issues that cause most rejections.",
   },
   {
-    q: "What formats does it accept?",
-    a: "PDF only. That's what KDP requires. Export from Canva, InDesign, Word, or Affinity Publisher — then upload that file.",
+    q: "What does the checker look for?",
+    a: "Margins, trim size, bleed, font embedding, page size consistency, image resolution, colour mode, and more — 26 KDP print requirements in total. The scan tells you exactly which rules your file fails and where.",
   },
   {
-    q: "How long does it take?",
-    a: "Under 90 seconds for most files. Larger files (100+ pages, lots of images) may take up to 3 minutes.",
+    q: "Will it fix my PDF automatically?",
+    a: "No. The tool identifies every issue and tells you exactly where it is and how to fix it. You make the corrections in your layout app (InDesign, Canva, Word, Affinity Publisher), re-export as PDF, then re-upload to KDP.",
   },
   {
-    q: "What does the annotated PDF show?",
-    a: "Every issue highlighted on the exact page it appears — margin violations, low-res images, trim errors. Plus plain-English instructions for fixing each one.",
+    q: "How long does a scan take?",
+    a: "Most scans complete in under 90 seconds. Larger files — 100+ pages or heavy images — may take up to 3 minutes. Keep the tab open while your scan runs.",
   },
   {
-    q: "Will fixing these issues guarantee KDP approval?",
-    a: "No tool can guarantee that — Amazon's review is theirs. But fixing every flagged issue removes the most common rejection causes. Your odds go up significantly.",
+    q: "What do I get after payment?",
+    a: "The full annotated PDF — every issue flagged on the exact page it appears, with plain-English fix instructions. You can download it, share it with your designer or formatter, and use it as a checklist before re-uploading.",
   },
   {
-    q: "Does it cover interior manuscripts only?",
-    a: "Yes. This checks interior PDFs. Cover files have different specs — cover checking is coming soon.",
+    q: "What does $9 include?",
+    a: "$9 includes 1 full scan and 1 free recheck. Credits never expire — use the recheck after making your fixes to confirm the PDF is clean before you upload to Amazon.",
   },
 ];
 
@@ -1054,7 +1054,7 @@ export default function KdpPdfCheckerPage() {
       {/* ══════════════════════════════════════════════════════════
           FAQ
       ══════════════════════════════════════════════════════════ */}
-      {false && <section className="border-t border-black/[0.04]" style={{ background: "#FAF8F4" }}>
+      <section className="border-t border-black/[0.04]" style={{ background: "#FAF8F4" }}>
         <div className="mx-auto max-w-2xl px-6 py-16">
           <p className="text-xs font-bold uppercase tracking-widest mb-3 text-center" style={{ color: "#9B8E7E" }}>
             Questions
@@ -1065,7 +1065,7 @@ export default function KdpPdfCheckerPage() {
           </h2>
           <FaqAccordion items={FAQS} />
         </div>
-      </section>}
+      </section>
 
       {/* ══════════════════════════════════════════════════════════
           PRICING TIERS
