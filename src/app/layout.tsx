@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: OG_TITLE,
-    description: "Would your PDF pass KDP? Most don't. Check yours in 90 seconds.",
+    description: "Would your PDF pass KDP? Most don't. Check yours before you upload.",
     images: [OG_IMAGE],
   },
 };

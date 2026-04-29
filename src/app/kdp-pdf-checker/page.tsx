@@ -450,8 +450,8 @@ function UploadWidget({
           {file
             ? error
               ? "Fix the message above, then tap Check again — your file stays selected."
-              : "After upload: score in ~90 seconds · $9 unlocks the full report"
-            : "Score is free. $9 unlocks the full annotated report."}
+              : "After upload: score in minutes · $9 unlocks the full report"
+            : "Free readiness score. Unlock the full annotated report when you're ready."}
         </p>
       </div>
     </div>
@@ -711,7 +711,7 @@ export default function KdpPdfCheckerPage() {
               <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide mb-6"
                 style={{ background: "rgba(240,90,40,0.08)", color: "#f05a28", border: "1px solid rgba(240,90,40,0.15)" }}>
                 <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#f05a28" }} />
-                $9 · 1 full scan + 1 free recheck · ~90 seconds
+                $9 · 1 full scan + 1 free recheck
               </div>
 
               <h1 className="font-black leading-tight mb-4"
