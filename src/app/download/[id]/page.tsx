@@ -9,6 +9,7 @@ import Image from "next/image";
 import { BrandWordmark } from "@/components/BrandWordmark";
 import PaymentGate from "@/components/PaymentGate";
 import CheckerPdfViewer from "@/components/CheckerPdfViewer";
+import KdpRiskSignalsPanel from "@/components/KdpRiskSignalsPanel";
 import {
   difficultyLabel,
   cleanFilenameForDisplay,
@@ -1906,6 +1907,14 @@ export default function DownloadPage() {
             </Link>
           )}
         </div>
+
+        {/* KDP Risk Signals — advisory layer, checker only, runs after unlock */}
+        {isChecker && report?.pdfSourceUrl && (
+          <KdpRiskSignalsPanel
+            pdfUrl={report.pdfSourceUrl}
+            pageCount={report.pageCount ?? 0}
+          />
+        )}
 
         {/* Checker: re-check CTA when issues exist */}
         {isChecker && report && (() => {

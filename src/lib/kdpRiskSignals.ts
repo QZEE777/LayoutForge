@@ -119,7 +119,10 @@ function detectDuplicateContent(pages: PageContent[]): RiskSignal | null {
   const contentPages = pages.filter((p) => p.wordCount >= 20);
   if (contentPages.length < 6) return null;
 
-  const normalised = contentPages.map((p) => normalisePage(p.text));
+  // Cap at 80 pages before the O(n²) loop to bound worst-case runtime.
+  const JACCARD_PAGE_SAMPLE = 80;
+  const sampledPages = contentPages.slice(0, JACCARD_PAGE_SAMPLE);
+  const normalised = sampledPages.map((p) => normalisePage(p.text));
 
   let duplicatePairs = 0;
   for (let i = 0; i < normalised.length; i++) {
@@ -130,7 +133,7 @@ function detectDuplicateContent(pages: PageContent[]): RiskSignal | null {
     }
   }
 
-  const totalPairs = (contentPages.length * (contentPages.length - 1)) / 2;
+  const totalPairs = (sampledPages.length * (sampledPages.length - 1)) / 2;
   if (totalPairs === 0) return null;
 
   // Only flag if more than 10% of pairs are near-duplicates
