@@ -692,9 +692,18 @@ export default function KdpPdfCheckerPage() {
           className="sticky top-0 z-20 border-b border-[#1A6B2A]/10 bg-[#FAF7EE]/75 backdrop-blur-md"
         >
           <div className="mx-auto max-w-5xl px-6 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
-            <Link href="/" className="flex items-center gap-3 shrink-0 min-w-0">
-              <BrandWordmark variant="onLight" className="text-lg sm:text-xl" />
-            </Link>
+            <div className="flex items-center gap-3 shrink-0 min-w-0">
+              <Image
+                src="/MANNY AVATAR.png"
+                alt="Manny"
+                width={36}
+                height={36}
+                className="rounded-full shrink-0"
+              />
+              <Link href="/" className="flex items-center">
+                <BrandWordmark variant="onLight" className="text-lg sm:text-xl" />
+              </Link>
+            </div>
           </div>
         </header>
       )}

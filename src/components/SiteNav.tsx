@@ -24,17 +24,11 @@ export default function SiteNav() {
         </div>
         <div className="flex flex-wrap items-center gap-4 sm:gap-6">
           <NavToolsDropdown />
-          <Link href="/#how-it-works" className="m2p-link-nav">
-            How It Works
-          </Link>
-          <Link href="/#pricing" className="m2p-link-nav">
-            Pricing
-          </Link>
           <Link href="/blog" className="m2p-link-nav">
             Blog
           </Link>
-          <Link href="/partners/apply" className="m2p-link-nav text-m2p-live hover:opacity-80">
-            Earn 40%
+          <Link href="/contact" className="m2p-link-nav">
+            Contact
           </Link>
           <Link
             href="/kdp-pdf-checker"

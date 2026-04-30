@@ -5,15 +5,11 @@ import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 
 const TOOL_LINKS: { href: string; label: string }[] = [
-  { href: "/pdf-compress", label: "PDF Compressor" },
-  { href: "/kdp-pdf-checker", label: "KDP PDF Checker" },
-  { href: "/spine-calculator", label: "Spine Width Calculator" },
-  { href: "/cover-calculator", label: "Cover Size Calculator" },
-  { href: "/royalty-calculator", label: "Royalty Calculator" },
-  { href: "/banned-keyword-checker", label: "Banned Keyword Checker" },
+  { href: "/kdp-pdf-checker",      label: "KDP PDF Checker" },
+  { href: "/spine-calculator",     label: "Spine Width Calculator" },
+  { href: "/royalty-calculator",   label: "Royalty Calculator" },
   { href: "/page-count-estimator", label: "Page Count Estimator" },
-  { href: "/trim-size-comparison", label: "Trim Size Comparison" },
-  { href: "/interior-template", label: "Interior Template" },
+  { href: "/title-metadata-check", label: "Title & Metadata Check" },
 ];
 
 export function NavToolsDropdown() {
