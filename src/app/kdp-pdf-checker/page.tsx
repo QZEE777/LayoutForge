@@ -10,6 +10,7 @@ import { formatFileSize } from "@/lib/formatFileName";
 import { cleanFilenameForDisplay } from "@/lib/kdpReportEnhance";
 import { ErrorRecovery } from "@/components/ErrorRecovery";
 import { CHECKER_MAX_UPLOAD_BYTES, CHECKER_MAX_UPLOAD_MB } from "@/lib/checkerUploadLimits";
+import SocialLinks from "@/components/SocialLinks";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -1175,9 +1176,12 @@ export default function KdpPdfCheckerPage() {
       ══════════════════════════════════════════════════════════ */}
       <footer style={{ borderTop: "1px solid rgba(0,0,0,0.07)", background: "#FAF8F4" }}>
         <div className="mx-auto max-w-5xl px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs" style={{ color: "#C4B5A0" }}>
-            © 2026 manu2print.com · <Link href="/admin" className="opacity-100 hover:opacity-100 transition-none select-none cursor-default" style={{ color: "inherit", textDecoration: "none" }} tabIndex={-1}>KDP</Link> tools for indie authors
-          </p>
+          <div className="flex items-center gap-3">
+            <p className="text-xs" style={{ color: "#C4B5A0" }}>
+              © 2026 manu2print.com · <Link href="/admin" className="opacity-100 hover:opacity-100 transition-none select-none cursor-default" style={{ color: "inherit", textDecoration: "none" }} tabIndex={-1}>KDP</Link> tools for indie authors
+            </p>
+            <SocialLinks variant="light" size="sm" />
+          </div>
           <div className="flex items-center gap-4 text-xs" style={{ color: "#9B8E7E" }}>
             <Link href="/privacy"  className="hover:opacity-70 transition-opacity">Privacy</Link>
             <Link href="/terms"    className="hover:opacity-70 transition-opacity">Terms</Link>

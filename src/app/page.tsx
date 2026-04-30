@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { BrandWordmark } from "@/components/BrandWordmark";
+import SocialLinks from "@/components/SocialLinks";
 
 export const metadata = {
   title: "KDP PDF Checker — Fix Formatting Errors Before You Upload to Amazon KDP | manu2print",
@@ -509,9 +510,12 @@ export default function HomePage() {
       {/* ── Footer ─────────────────────────────────────────────── */}
       <footer style={{ borderTop: "1px solid rgba(0,0,0,0.07)", background: "#FAF8F4" }}>
         <div className="mx-auto max-w-5xl px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs" style={{ color: "#C4B5A0" }}>
-            © 2026 manu2print.com · KDP tools for indie authors
-          </p>
+          <div className="flex items-center gap-3">
+            <p className="text-xs" style={{ color: "#C4B5A0" }}>
+              © 2026 manu2print.com · KDP tools for indie authors
+            </p>
+            <SocialLinks variant="light" size="sm" />
+          </div>
           <div className="flex items-center gap-4 text-xs" style={{ color: "#9B8E7E" }}>
             <Link href="/privacy" className="hover:opacity-70 transition-opacity">Privacy</Link>
             <Link href="/terms" className="hover:opacity-70 transition-opacity">Terms</Link>

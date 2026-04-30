@@ -10,6 +10,7 @@ import { BrandWordmark } from "@/components/BrandWordmark";
 import PaymentGate from "@/components/PaymentGate";
 import CheckerPdfViewer from "@/components/CheckerPdfViewer";
 import KdpRiskSignalsPanel from "@/components/KdpRiskSignalsPanel";
+import SocialLinks from "@/components/SocialLinks";
 import {
   difficultyLabel,
   cleanFilenameForDisplay,
@@ -2005,9 +2006,12 @@ export default function DownloadPage() {
           </a>
         </div>
 
-        <p className="text-center text-m2p-muted text-xs mt-6">
-          © manu2print.com — Built for indie authors
-        </p>
+        <div className="flex items-center justify-center gap-3 mt-6">
+          <p className="text-m2p-muted text-xs">
+            © manu2print.com — Built for indie authors
+          </p>
+          <SocialLinks variant="light" size="sm" />
+        </div>
       </main>
     </div>
   );
