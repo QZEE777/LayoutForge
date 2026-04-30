@@ -18,6 +18,81 @@ export type BlogPost = {
 
 const POSTS: BlogPost[] = [
   {
+    slug: "12-rejections-what-kdp-never-told-me",
+    title: "12 Rejections. 10 Weeks. What Amazon KDP Never Told Me.",
+    excerpt:
+      "I spent 10 weeks building my first book for Amazon KDP. It was rejected 12 times. Here's the honest story — and why I built a tool to make sure it doesn't happen to you.",
+    publishedAt: "2026-04-30",
+    tags: ["kdp", "rejection", "founder-story", "indie-publishing"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "Last year, after watching dozens of influencer videos spewing how easy it is to make money on Amazon KDP, I was compelled to give it a shot. I am 65. I live in a country where an aging white guy just won't get a job — no matter how ready, willing, and able. Out of desperation, I got into creating my first book.",
+      },
+      {
+        type: "p",
+        text: "Supposed to be easy. I got a Canva account — free one — opened up ChatGPT, bookmarked every influencer video I could find, and immersed myself in the work. All the time dreaming — well, hoping — this would be a way to earn an income.",
+      },
+      {
+        type: "h2",
+        text: "The Dream Phase",
+      },
+      {
+        type: "p",
+        text: "12 to 16 hour days for weeks on end until I finally had something I thought was brilliant. Ever the dreamer, right? My mom — 87 years old — said it was wonderful. My girlfriend said I was amazing. Friends reviewed it and told me how great it was. I was ready. My publishing empire was about to take off.",
+      },
+      {
+        type: "p",
+        text: "I pained over this for 10 weeks. Font changes, margins, image editing, rewrites, research. A quite funny crypto-related journal. My first ever asset. I set out to upload to the source of my incoming wealth — Amazon KDP.",
+      },
+      {
+        type: "h2",
+        text: "The Rejection",
+      },
+      {
+        type: "p",
+        text: "After probably a dozen upload attempts, I finally got it in. I sat back — quite proud of myself — and waited. Day one. Day two. Day three. Rejected. WTF? I did everything right. The email was vague. Margins. Bleed. TOC. And on and on.",
+      },
+      {
+        type: "p",
+        text: "13 times. Yes — 13 times I uploaded to Amazon KDP. 12 rejections before my asset was finally approved. I did two more journals after that. And yes — while I didn't have to repeat the full 12-rejection cycle, I still racked up several more for the same reasons. Margins. Bleed. Fonts. The same vague, unhelpful emails.",
+      },
+      {
+        type: "h2",
+        text: "What The Influencers Don't Tell You",
+      },
+      {
+        type: "p",
+        text: "I soon realised something about all those make-millions-on-KDP videos. These influencers had years of experience. They were making money from the courses they were selling and the ad revenue on their channels. Not from KDP royalties. My inbox was flooded with free trials and how-to guides. Join my course and become a book publishing titan of industry. Dream on.",
+      },
+      {
+        type: "p",
+        text: "The days became weeks. Months. Every little thing that didn't look right sent me back to YouTube. Scouring Facebook groups and Reddit forums. All I got was more confusion. 5 more books — formatting and editing for other people who had real stories to tell. All of them on Amazon. No sales. No marketing budget. Lost in the millions of dream attempts.",
+      },
+      {
+        type: "p",
+        text: "I was defeated by lack of sales and enriched by experience and knowledge. And I went back to the streets trying to find a job. Not one positive. Nothing. No one wants you when you're old.",
+      },
+      {
+        type: "h2",
+        text: "Why I Built This",
+      },
+      {
+        type: "p",
+        text: "About 8 months ago I came across vibe coding — building software with AI tools. And I thought: I know exactly what the pain points are for KDP authors. I lived them. What if I built something that takes the guessing out of whether a PDF manuscript will pass KDP's rules before you upload?",
+      },
+      {
+        type: "p",
+        text: "3 months. Over 15 hours a day, every day. I borrowed money to get the right infrastructure in place. The result is manu2print — a KDP PDF checker that tells you exactly what's wrong with your file before Amazon sees it. Margins. Trim size. Bleed. Fonts. The exact things that caused my 12 rejections, caught before they become your 12 rejections.",
+      },
+      {
+        type: "p",
+        text: "My mom thinks it's great. My girlfriend agrees. But I want to hear from the people in the trenches. If you've been rejected by KDP — or you're about to upload for the first time — try it. Tear it apart. Tell me what's missing. That feedback is worth more to me right now than any sale.",
+      },
+    ],
+  },
+  {
     slug: "why-kdp-rejects-your-pdf",
     title: "Why KDP Rejects Your PDF (and the 5 Most Common Causes)",
     excerpt:
