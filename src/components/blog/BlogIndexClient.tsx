@@ -3,18 +3,12 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { BlogPost } from "@/lib/blog";
-import Image from "next/image";
+import SocialLinks from "@/components/SocialLinks";
 
 type Props = {
   posts: BlogPost[];
   allTags: string[];
 };
-
-const AFFILIATE_PICKS = [
-  { label: "Canva Pro (covers & interiors)", href: "#" },
-  { label: "Atticus (book formatting)", href: "#" },
-  { label: "Publisher Rocket (keywords)", href: "#" },
-];
 
 const TAG_STYLE: Record<string, { chip: string; bar: string }> = {
   kdp: { chip: "bg-emerald-50 text-emerald-700 border-emerald-200", bar: "from-emerald-400 to-emerald-600" },
@@ -130,24 +124,19 @@ export default function BlogIndexClient({ posts, allTags }: Props) {
               href={`/blog/${featured.slug}`}
               className="m2p-card-lift mb-6 block overflow-hidden rounded-3xl border border-m2p-border bg-white transition hover:border-m2p-orange/40 hover:shadow-[0_28px_58px_-30px_rgba(240,90,40,0.45)]"
             >
-              <div className="relative h-56 overflow-hidden border-b border-m2p-border">
-                <Image
-                  src="/blog-hero-placeholder.svg"
-                  alt="Featured blog visual"
-                  fill
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/15 to-transparent" />
-                <div className="absolute left-4 top-4">
-                  <p className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-m2p-orange">
+              <div className="relative overflow-hidden border-b border-m2p-border"
+                style={{ background: "linear-gradient(135deg, #1A1208 0%, #23170B 55%, #2A1B0D 100%)", minHeight: 180 }}
+              >
+                <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 60% 80% at 20% 30%, rgba(240,90,40,0.35) 0%, transparent 100%)" }} />
+                <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 50% 60% at 80% 70%, rgba(76,217,100,0.20) 0%, transparent 100%)" }} />
+                <div className="relative px-6 py-8">
+                  <p className="rounded-full inline-block bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-m2p-orange mb-4">
                     Featured
                   </p>
-                </div>
-                <div className="absolute bottom-4 left-4 right-4">
-                  <p className="text-xs font-semibold tracking-wide text-white/90">
+                  <p className="text-xs font-semibold tracking-wide text-white/70 mb-1">
                     {(featured.contentType ?? "article").toUpperCase()} · {readTime(featured.excerpt)}
                   </p>
-                  <h2 className="mt-1 text-2xl font-semibold leading-tight text-white">{featured.title}</h2>
+                  <h2 className="text-2xl font-semibold leading-tight text-white">{featured.title}</h2>
                 </div>
               </div>
               <div className="p-6">
@@ -221,26 +210,13 @@ export default function BlogIndexClient({ posts, allTags }: Props) {
           </div>
 
           <div className="m2p-glass rounded-2xl border border-m2p-border bg-white/95 p-4 shadow-[0_18px_36px_-28px_rgba(26,18,8,0.35)] backdrop-blur-sm">
-            <p className="text-xs font-semibold uppercase tracking-wide text-m2p-muted">Creator Affiliate Picks</p>
-            <ul className="mt-2 space-y-2">
-              {AFFILIATE_PICKS.map((pick) => (
-                <li key={pick.label}>
-                  <a href={pick.href} className="text-sm text-m2p-ink hover:text-m2p-orange">
-                    {pick.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-3 text-[11px] leading-relaxed text-m2p-muted">
-              Disclosure: Some recommendations may become affiliate links. We only promote tools we trust.
-            </p>
-          </div>
-
-          <div className="m2p-glass rounded-2xl border border-m2p-border bg-white/95 p-4 shadow-[0_18px_36px_-28px_rgba(26,18,8,0.35)] backdrop-blur-sm">
-            <p className="text-xs font-semibold uppercase tracking-wide text-m2p-muted">Video + Social</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-m2p-muted">Follow along</p>
             <p className="mt-2 text-sm text-m2p-muted">
-              Video-first posts are supported. New posts are prepared for LinkedIn, Facebook, and Instagram distribution.
+              Tips, tools, and KDP updates — straight to your feed.
             </p>
+            <div className="mt-3">
+              <SocialLinks variant="light" size="sm" />
+            </div>
           </div>
           <div className="m2p-glass rounded-2xl border border-m2p-border bg-white/95 p-4 shadow-[0_18px_36px_-28px_rgba(26,18,8,0.35)] backdrop-blur-sm">
             <p className="text-xs font-semibold uppercase tracking-wide text-m2p-muted">Join the desk</p>
