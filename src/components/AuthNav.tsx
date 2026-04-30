@@ -45,26 +45,13 @@ export default function AuthNav({ theme = "dark" }: { theme?: NavTheme }) {
     return (
       <div className="flex items-center gap-3">
         <span
-          className={`hidden max-w-[160px] truncate text-sm sm:inline ${isLight ? "text-m2p-muted" : "text-m2p-ivory/70"}`}
-          title={email}
-        >
-          {email}
-        </span>
-        <span
           className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-medium ${
             isLight ? "bg-m2p-orange/20 text-m2p-orange" : "bg-m2p-orange/20 text-m2p-ivory"
           }`}
+          title={email}
         >
           {initial}
         </span>
-        <Link
-          href="/dashboard"
-          className={`rounded-lg px-3 py-2 text-sm font-medium transition-opacity hover:opacity-90 ${
-            isLight ? "text-m2p-ink" : "text-m2p-ivory"
-          }`}
-        >
-          Dashboard
-        </Link>
         <button
           type="button"
           onClick={handleSignOut}
