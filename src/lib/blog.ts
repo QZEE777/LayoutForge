@@ -18,6 +18,109 @@ export type BlogPost = {
 
 const POSTS: BlogPost[] = [
   {
+    slug: "canva-to-kdp-export-failures",
+    title: "Canva to KDP: Why Your PDF Keeps Getting Rejected (And How to Fix It)",
+    excerpt:
+      "Canva gets you 80% of the way there. Here's what's happening in the other 20% — and why it keeps getting your book rejected by Amazon KDP.",
+    publishedAt: "2026-04-30",
+    tags: ["kdp", "canva", "formatting", "rejection"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "Let me save you about three weeks of your life.",
+      },
+      {
+        type: "p",
+        text: "When I started publishing on Amazon KDP, Canva was my best friend. Free. Beautiful templates. Drag and drop. What could go wrong? Everything. That's what could go wrong.",
+      },
+      {
+        type: "p",
+        text: "I used Canva for my first few books — journals, mostly — and I cannot tell you how many times I uploaded a file that looked absolutely perfect on screen and got rejected within days. Vague emails. Margins. Bleed. File issues. Again and again.",
+      },
+      {
+        type: "p",
+        text: "The problem isn't Canva. Canva is a great tool. The problem is that Canva was built for digital design and social media — and Amazon KDP prints physical books. Those two worlds have very different rules, and Canva doesn't warn you when you're about to cross a line.",
+      },
+      {
+        type: "h2",
+        text: "Problem 1: Your Page Size Is Wrong",
+      },
+      {
+        type: "p",
+        text: "KDP has specific trim sizes — 6×9, 5.5×8.5, 8.5×11 and so on. When you create a design in Canva, you pick a canvas size. If that canvas doesn't match your KDP trim size exactly — and I mean exactly, down to fractions of an inch — KDP rejects it. Canva's default A4 or US Letter templates? Not KDP trim sizes. Not even close for most books.",
+      },
+      {
+        type: "p",
+        text: "Fix: Before you start designing, set a custom page size in Canva that matches your KDP trim size exactly. Not close. Exact. Not sure which trim size to pick? Our free Spine Width Calculator (manu2print.com/spine-calculator) will help you figure out your dimensions based on your page count and paper type — before you design a single page.",
+      },
+      {
+        type: "h2",
+        text: "Problem 2: Bleed Is Either Missing or Set Up Wrong",
+      },
+      {
+        type: "p",
+        text: "Here's the one that got me most. Bleed. If any element in your design — a background colour, an image, anything — goes right to the edge of the page, KDP needs a 0.125 inch bleed area. That's extra space beyond the trim line so when the printer cuts the book, there's no white strip on the edge. Canva has a bleed setting. It's buried. Most people never turn it on.",
+      },
+      {
+        type: "p",
+        text: "Fix: In Canva, when you go to download as PDF Print, check the box that says Crop marks and bleed. Make sure your design elements actually extend into that bleed zone — not just to the edge of the canvas.",
+      },
+      {
+        type: "h2",
+        text: "Problem 3: Your Fonts Might Not Be Embedded",
+      },
+      {
+        type: "p",
+        text: "This one is sneaky because your PDF looks completely normal. The text renders perfectly on screen. But KDP still rejects it. KDP requires that every font used in your PDF is fully embedded — meaning the font data is baked into the file itself. Some Canva exports, particularly with certain free fonts, don't embed correctly.",
+      },
+      {
+        type: "p",
+        text: "Fix: Stick to common, well-supported fonts in Canva. When you export, always use PDF Print not PDF Standard. And when in doubt — check your file before you upload rather than after you get the rejection email. That's why I built the KDP PDF Checker at manu2print.com/kdp-pdf-checker. Upload your Canva PDF before it goes to Amazon and it'll tell you exactly what's wrong — fonts, bleed, margins, trim size — everything. Free score preview. No account needed.",
+      },
+      {
+        type: "h2",
+        text: "Problem 4: Margins Are Too Tight",
+      },
+      {
+        type: "p",
+        text: "Canva makes it very easy to put text close to the edge of the page. It looks fine on screen. On a printed and bound book, that text gets eaten by the spine or cut off at the edge. KDP requires a minimum 0.25 inch margin on all outer edges. The inside margin — the gutter — needs to be wider depending on your page count. A 300-page book needs more gutter space than a 100-page one because the binding pulls the pages inward. Most Canva users don't account for the gutter. I didn't either. Not at first.",
+      },
+      {
+        type: "p",
+        text: "Fix: Use our free Page Count Estimator at manu2print.com/page-count-estimator to get your estimated final page count before you set up your design, so you know exactly what gutter margin KDP requires. Set those margins in Canva before you design a single page — not after.",
+      },
+      {
+        type: "h2",
+        text: "Problem 5: RGB Colour Mode",
+      },
+      {
+        type: "p",
+        text: "Canva designs in RGB — which is perfect for screens, social media, websites. Amazon KDP prints in CMYK. The two colour systems are different, and what looks vivid on your monitor can print dull or shifted on paper. For black and white interior books this is less of an issue. For colour interiors and covers — it matters a lot.",
+      },
+      {
+        type: "p",
+        text: "Fix: For interior pages, export as a greyscale PDF if your book is black and white. For colour, know that there will be some colour shift from screen to print — it's unavoidable when going from Canva. Order a proof copy before you commit.",
+      },
+      {
+        type: "h2",
+        text: "The Honest Truth About Canva and KDP",
+      },
+      {
+        type: "p",
+        text: "Canva gets you 80% of the way there. It's fast, it looks good, and for a first-time author with no design budget, it's a lifesaver. But that last 20% — the technical stuff KDP actually checks — Canva doesn't handle for you. It doesn't warn you. It doesn't know you're going to print. It just exports what you built.",
+      },
+      {
+        type: "p",
+        text: "That gap is where most first-time authors lose weeks of their life to rejection cycles. I lost about three weeks myself before I understood what was actually going wrong. Before your next Canva upload, run your PDF through the KDP PDF Checker at manu2print.com/kdp-pdf-checker. It takes about 90 seconds and it'll catch everything in this list. The score preview is free. The full annotated report, which shows every issue by page number, is $9.",
+      },
+      {
+        type: "p",
+        text: "Your mom will still say it's wonderful. But this time, Amazon might agree.",
+      },
+    ],
+  },
+  {
     slug: "12-rejections-what-kdp-never-told-me",
     title: "12 Rejections. 10 Weeks. What Amazon KDP Never Told Me.",
     excerpt:

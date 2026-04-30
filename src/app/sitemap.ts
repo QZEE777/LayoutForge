@@ -52,6 +52,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.6,
     },
     {
+      url: `${BASE}/blog/12-rejections-what-kdp-never-told-me`,
+      lastModified: new Date("2026-04-30"),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: `${BASE}/blog/canva-to-kdp-export-failures`,
+      lastModified: new Date("2026-04-30"),
+      changeFrequency: "monthly",
+      priority: 0.65,
+    },
+    {
       url: `${BASE}/blog/why-kdp-rejects-your-pdf`,
       lastModified: new Date("2026-03-25"),
       changeFrequency: "monthly",
