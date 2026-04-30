@@ -2010,6 +2010,7 @@ export default function DownloadPage() {
           <p className="text-m2p-muted text-xs">
             © manu2print.com — Built for indie authors
           </p>
+          <Link href="/blog" className="text-xs text-m2p-muted hover:opacity-70 transition-opacity">Blog</Link>
           <SocialLinks variant="light" size="sm" />
         </div>
       </main>

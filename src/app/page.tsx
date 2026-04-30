@@ -517,6 +517,7 @@ export default function HomePage() {
             <SocialLinks variant="light" size="sm" />
           </div>
           <div className="flex items-center gap-4 text-xs" style={{ color: "#9B8E7E" }}>
+            <Link href="/blog" className="hover:opacity-70 transition-opacity">Blog</Link>
             <Link href="/privacy" className="hover:opacity-70 transition-opacity">Privacy</Link>
             <Link href="/terms" className="hover:opacity-70 transition-opacity">Terms</Link>
             <Link href="/refunds" className="hover:opacity-70 transition-opacity">Refunds</Link>
