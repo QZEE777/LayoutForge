@@ -153,12 +153,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               </div>
             )}
 
-            <div className="m2p-glass rounded-2xl border border-m2p-border bg-white/95 p-4 shadow-[0_18px_36px_-28px_rgba(26,18,8,0.35)]">
-              <p className="text-xs font-semibold uppercase tracking-wide text-m2p-muted">Affiliate note</p>
-              <p className="mt-2 text-[11px] leading-relaxed text-m2p-muted">
-                Some tool recommendations on this blog may contain affiliate links. We only recommend tools that are relevant to KDP authors.
-              </p>
-            </div>
           </aside>
         </div>
       </article>

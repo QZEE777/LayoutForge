@@ -63,12 +63,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.65,
     },
-    {
-      url: `${BASE}/blog/welcome`,
-      lastModified: new Date("2026-03-18"),
-      changeFrequency: "monthly",
-      priority: 0.4,
-    },
 
     // ── Legal ─────────────────────────────────────────────────────────────────
     {
