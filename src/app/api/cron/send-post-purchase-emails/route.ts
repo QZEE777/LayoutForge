@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import crypto from "crypto";
 import { getStored } from "@/lib/storage";
 import { generatePostPurchaseEmail } from "@/lib/emailGenerators/postPurchaseEmail";
 import { sendMarketingHtmlEmail } from "@/lib/resend";
@@ -10,7 +11,13 @@ function isAuthorized(req: NextRequest): boolean {
   const auth = req.headers.get("authorization") ?? "";
   const secret = process.env.CRON_SECRET;
   if (!secret) return false;
-  return auth === `Bearer ${secret}`;
+  const expected = `Bearer ${secret}`;
+  try {
+    return auth.length === expected.length &&
+      crypto.timingSafeEqual(Buffer.from(auth), Buffer.from(expected));
+  } catch {
+    return false;
+  }
 }
 
 export const maxDuration = 120;

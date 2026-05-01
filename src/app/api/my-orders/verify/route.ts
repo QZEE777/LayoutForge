@@ -33,12 +33,17 @@ export async function POST(req: Request) {
   }
 
   const expected = signToken(email, code, expiresAt);
-  const valid = crypto.timingSafeEqual(
-    Buffer.from(expected, "hex"),
-    Buffer.from(token.padEnd(expected.length, "0").slice(0, expected.length), "hex")
-  );
+  let valid = false;
+  try {
+    const expectedBuf = Buffer.from(expected, "hex");
+    const tokenBuf = Buffer.from(token, "hex");
+    valid = expectedBuf.length === tokenBuf.length &&
+      crypto.timingSafeEqual(expectedBuf, tokenBuf);
+  } catch {
+    valid = false;
+  }
 
-  if (!valid || expected !== token) {
+  if (!valid) {
     return NextResponse.json({ error: "Incorrect code." }, { status: 400 });
   }
 

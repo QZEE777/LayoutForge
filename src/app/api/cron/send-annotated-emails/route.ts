@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
+import crypto from "crypto";
 import { getStored } from "@/lib/storage";
 import { listMetaIds } from "@/lib/r2Storage";
 import { sendAnnotatedEmailIfReady } from "@/lib/annotatedEmail";
@@ -9,7 +10,13 @@ function isAuthorized(req: NextRequest): boolean {
   const auth = req.headers.get("authorization") ?? "";
   const secret = process.env.CRON_SECRET;
   if (!secret) return false;
-  return auth === `Bearer ${secret}`;
+  const expected = `Bearer ${secret}`;
+  try {
+    return auth.length === expected.length &&
+      crypto.timingSafeEqual(Buffer.from(auth), Buffer.from(expected));
+  } catch {
+    return false;
+  }
 }
 
 async function listCandidateIds(limit = 200): Promise<string[]> {

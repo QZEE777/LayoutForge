@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import crypto from "crypto";
 import { DOWNLOAD_SIGNED_URL_EXPIRES_SECONDS } from "@/lib/r2Storage";
 import { sendMarketingHtmlEmail } from "@/lib/resend";
 import { logEmailSend } from "@/lib/logEmailSend";
@@ -11,7 +12,13 @@ function isAuthorized(req: NextRequest): boolean {
   const auth = req.headers.get("authorization") ?? "";
   const secret = process.env.CRON_SECRET;
   if (!secret) return false;
-  return auth === `Bearer ${secret}`;
+  const expected = `Bearer ${secret}`;
+  try {
+    return auth.length === expected.length &&
+      crypto.timingSafeEqual(Buffer.from(auth), Buffer.from(expected));
+  } catch {
+    return false;
+  }
 }
 
 /** Warning fires ~2h before the 24h promised window from download_ttl_anchor_at ends. */
