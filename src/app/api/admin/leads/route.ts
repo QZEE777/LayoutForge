@@ -6,7 +6,7 @@ import { timingSafeEqualStrings } from "@/lib/security";
 /**
  * GET /api/admin/leads
  * Returns captured leads from storage (manuscript meta with leadEmail).
- * Auth: x-admin-password = ADMIN_PASSWORD_MANU2, or ADMIN_SECRET (Bearer / ?secret=).
+ * Auth: x-admin-password = ADMIN_PASSWORD_MANU2, or ADMIN_SECRET (Bearer / x-admin-key header).
  */
 export async function GET(request: NextRequest) {
   const rateLimitRes = checkAdminRateLimit(request);
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
   const expectedPassword = process.env.ADMIN_PASSWORD_MANU2?.trim();
   const secret = process.env.ADMIN_SECRET;
   const authHeader = request.headers.get("authorization");
-  const token = authHeader?.replace(/^Bearer\s+/i, "") ?? request.nextUrl.searchParams.get("secret");
+  const token = authHeader?.replace(/^Bearer\s+/i, "") ?? request.headers.get("x-admin-key");
 
   const allowedByPassword = expectedPassword && timingSafeEqualStrings(password, expectedPassword);
   const allowedBySecret = secret && typeof token === "string" && timingSafeEqualStrings(token, secret);
