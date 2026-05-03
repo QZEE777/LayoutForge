@@ -200,16 +200,18 @@ export async function POST(req: Request) {
       }
     }
 
-    // Suppress nudge email — user has already paid
+    // Suppress nudge sequence — user has purchased, stop all future emails
     if (email && supabaseUrl && supabaseKey) {
       try {
         const supabase = createClient(supabaseUrl, supabaseKey);
         await supabase
           .from("scan_nudges")
-          .update({ sent_at: new Date().toISOString() })
+          .update({
+            sent_at:      new Date().toISOString(), // backward compat
+            converted_at: new Date().toISOString(), // stops full sequence
+          })
           .eq("email", email.toLowerCase())
-          .eq("download_id", downloadId)
-          .is("sent_at", null);
+          .eq("download_id", downloadId);
       } catch { /* best effort — nudge suppression is non-critical */ }
     }
 
