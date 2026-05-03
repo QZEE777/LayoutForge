@@ -18,6 +18,91 @@ export type BlogPost = {
 
 const POSTS: BlogPost[] = [
   {
+    slug: "how-to-check-kdp-pdf-before-upload",
+    title: "How to Check Your KDP PDF Before You Upload",
+    excerpt:
+      "Most KDP PDF rejections come down to five technical checks Amazon runs before anyone reads your book. Here's how to find and fix them before you submit.",
+    publishedAt: "2026-05-01",
+    tags: ["kdp", "formatting", "preflight"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "Most KDP PDF rejections are avoidable. The issue is that Amazon doesn't tell you what's wrong until after you've uploaded — and by then you've already waited days for a vague email that doesn't help much.",
+      },
+      {
+        type: "p",
+        text: "A quick check before you upload can save you that whole cycle. It takes a couple of minutes and can spare you days of waiting and guesswork.",
+      },
+      {
+        type: "h2",
+        text: "What KDP Actually Checks",
+      },
+      {
+        type: "p",
+        text: "When you submit a manuscript, KDP runs a set of technical checks before anyone looks at your book. Most rejections happen here — not because of your content, but because the file doesn't meet their spec.",
+      },
+      {
+        type: "p",
+        text: "These are the five things KDP checks first:",
+      },
+      {
+        type: "ul",
+        items: [
+          "Trim size — your page dimensions must match the trim size you selected in KDP exactly. Even a small mismatch triggers a rejection.",
+          "Margins — outer margins need to be at least 0.25 inches. The inner margin (gutter) scales with page count. A longer book needs more space so text doesn't disappear into the binding.",
+          "Bleed — if anything in your design runs to the edge of the page, you need a 0.125 inch bleed area. Skip it and you'll get a thin white strip on the printed edge.",
+          "Font embedding — every font must be embedded in your PDF. Some tools export without embedding fonts, and you won't see the problem until KDP flags it.",
+          "Image resolution — KDP expects 300 DPI minimum for print. Images below 200 DPI can look fine on screen but come out blurry on paper.",
+        ],
+      },
+      {
+        type: "p",
+        text: "The tricky part is that most of these issues aren't visible just by looking at your file.",
+      },
+      {
+        type: "h2",
+        text: "The Manual Way",
+      },
+      {
+        type: "p",
+        text: "You can check some of this yourself. Open your PDF in Adobe Acrobat Reader and go to File → Properties → Fonts. Each font should say Embedded or Embedded Subset. If not, that's a problem.",
+      },
+      {
+        type: "p",
+        text: "You can also check page dimensions in document properties. Make sure they match your chosen KDP trim size exactly — for example, 6 × 9 inches for a standard paperback.",
+      },
+      {
+        type: "p",
+        text: "Margins and bleed are harder. You'd need to measure manually or use Adobe Acrobat Pro's preflight tool — which works, but takes time to set up if you haven't used it before. Checking image resolution means inspecting images one by one. It's doable, but slow, and easy to miss something.",
+      },
+      {
+        type: "h2",
+        text: "The Faster Way",
+      },
+      {
+        type: "p",
+        text: "The KDP PDF Checker at manu2print.com/kdp-pdf-checker was built specifically for this. Upload your PDF and it checks all five issues automatically — trim size, margins, bleed, font embedding, and image resolution — and gives you a readiness score in seconds.",
+      },
+      {
+        type: "p",
+        text: "The free score preview tells you whether your file has problems. The full annotated report ($9) shows exactly which pages have issues, what's wrong, and how to fix it. Most authors fix everything in under an hour, then upload once and get approved.",
+      },
+      {
+        type: "h2",
+        text: "Before Your Next Upload",
+      },
+      {
+        type: "p",
+        text: "The KDP rejection cycle feels unavoidable until you understand what's actually being checked. Once you know the five areas, you can review them in a couple of minutes before you submit.",
+      },
+      {
+        type: "p",
+        text: "Check your KDP PDF at manu2print.com/kdp-pdf-checker before your next upload. Free score preview. No account needed. Your file is either ready or it isn't — better to know now than after the rejection email.",
+      },
+    ],
+  },
+  {
     slug: "canva-to-kdp-export-failures",
     title: "Canva to KDP: Why Your PDF Keeps Getting Rejected (And How to Fix It)",
     excerpt:
