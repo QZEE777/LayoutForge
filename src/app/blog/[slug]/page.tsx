@@ -29,8 +29,30 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const related = getRelatedPosts(slug, 3);
   const readTime = `${Math.max(2, Math.round(post.content.map((b) => ("text" in b ? b.text : b.items.join(" "))).join(" ").split(" ").length / 150))} min read`;
 
+  const BASE = "https://www.manu2print.com";
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.excerpt,
+    datePublished: post.publishedAt,
+    dateModified: post.publishedAt,
+    author: { "@type": "Person", name: "Manny", url: BASE },
+    publisher: {
+      "@type": "Organization",
+      name: "manu2print",
+      url: BASE,
+      logo: { "@type": "ImageObject", url: `${BASE}/MANNY AVATAR.png` },
+    },
+    mainEntityOfPage: { "@type": "WebPage", "@id": `${BASE}/blog/${slug}` },
+  };
+
   return (
     <SiteShell>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <article className="mx-auto max-w-6xl px-6 py-12">
         <Link
           href="/blog"
