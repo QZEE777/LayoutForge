@@ -24,8 +24,8 @@ const inter = Inter({
 });
 
 const OG_IMAGE = "https://www.manu2print.com/api/og";
-const OG_TITLE = "KDP PDF Checker — Find Formatting Errors Before Amazon Rejects Your Book | manu2print";
-const OG_DESC  = "Upload your PDF manuscript and get a full KDP compliance report in minutes. Check margins, trim size, bleed, and fonts before Amazon rejects your self-publishing PDF. $9, no subscription.";
+const OG_TITLE = "KDP PDF Checker — Fix Your Book Before Amazon Rejects It";
+const OG_DESC  = "Upload your PDF and get a full KDP compliance report in minutes. Check margins, trim size, bleed, and fonts — before the rejection email arrives. $9, no subscription.";
 
 export const metadata: Metadata = {
   title: OG_TITLE,
