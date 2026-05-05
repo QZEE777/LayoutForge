@@ -18,6 +18,190 @@ export type BlogPost = {
 
 const POSTS: BlogPost[] = [
   {
+    slug: "kdp-bleed-settings-explained",
+    title: "KDP Bleed Settings Explained: What It Is, When You Need It, and How to Get It Right",
+    excerpt:
+      "Bleed is one of the most common reasons KDP rejects a PDF — and one of the least explained. Here's exactly what it is, when you need it, and how to set it up correctly before you upload.",
+    publishedAt: "2026-05-05",
+    tags: ["kdp", "formatting", "bleed"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "If you've ever had KDP reject your file and the email mentioned bleed — or if you're not sure whether your file needs it — this post will clear it up.",
+      },
+      {
+        type: "h2",
+        text: "What Bleed Actually Means",
+      },
+      {
+        type: "p",
+        text: "When a book is printed, the pages get trimmed. A physical blade cuts along the edge of each page to give the book its final size. That cut is never perfectly precise — it can shift by a tiny fraction of an inch in either direction.",
+      },
+      {
+        type: "p",
+        text: "Bleed is the extra content you add beyond the trim line to account for that shift. If your design has a background colour or an image that runs to the edge of the page, bleed is what stops a thin white strip from appearing along the edge after trimming.",
+      },
+      {
+        type: "p",
+        text: "KDP requires 0.125 inches of bleed on all sides when any element in your design touches the page edge.",
+      },
+      {
+        type: "h2",
+        text: "When You Need Bleed — and When You Don't",
+      },
+      {
+        type: "p",
+        text: "Not every book needs bleed. If your interior pages have white backgrounds and your content stays within the margins — text only, no edge-to-edge design elements — you don't need bleed on the interior.",
+      },
+      {
+        type: "p",
+        text: "You need bleed when:",
+      },
+      {
+        type: "ul",
+        items: [
+          "Any background colour extends to the edge of the page",
+          "An image or graphic touches or goes past the page edge",
+          "You're designing a journal, planner, or colouring book with full-page backgrounds",
+          "Your cover design — which almost always needs bleed",
+        ],
+      },
+      {
+        type: "p",
+        text: "If you're unsure, check your design. If anything touches the edge of the canvas, you need bleed.",
+      },
+      {
+        type: "h2",
+        text: "How to Set Up Bleed in Canva",
+      },
+      {
+        type: "p",
+        text: "Canva has a bleed setting but it's easy to miss. When you go to download your file as a PDF, click the dropdown under File type, select PDF Print, and check the box that says Crop marks and bleed. That adds the 0.125 inch bleed zone automatically.",
+      },
+      {
+        type: "p",
+        text: "Important: your design elements need to actually extend into that bleed zone. Turning on bleed in the export settings doesn't automatically extend your background — you need to drag your design elements slightly past the canvas edge so they fill the bleed area.",
+      },
+      {
+        type: "h2",
+        text: "How KDP Checks for Bleed",
+      },
+      {
+        type: "p",
+        text: "When you upload a PDF, KDP checks whether the page dimensions include bleed. If your design has elements at the page edge but your PDF doesn't include a bleed area, KDP flags it. The rejection email will usually mention trim size or bleed — but it won't tell you exactly which pages are affected.",
+      },
+      {
+        type: "p",
+        text: "That's the frustrating part. You can have 200 pages that are fine and one page with a background that touches the edge — and the whole file gets rejected.",
+      },
+      {
+        type: "h2",
+        text: "Check Your Bleed Before You Upload",
+      },
+      {
+        type: "p",
+        text: "The KDP PDF Checker at manu2print.com/kdp-pdf-checker checks your bleed settings page by page — so you know exactly which pages have issues before Amazon sees your file. Upload your PDF, get a readiness score, and fix the specific pages that need attention.",
+      },
+      {
+        type: "p",
+        text: "Free score preview. No account needed. Takes about 90 seconds.",
+      },
+    ],
+  },
+  {
+    slug: "kdp-font-embedding-why-pdf-gets-rejected",
+    title: "KDP Font Embedding: Why Your PDF Looks Fine But Gets Rejected",
+    excerpt:
+      "Your PDF looks perfect on screen. The text is there, the fonts render correctly — and KDP still rejects it. Font embedding is usually why. Here's what it means and how to fix it.",
+    publishedAt: "2026-05-05",
+    tags: ["kdp", "formatting", "rejection"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "This is one of the most confusing KDP rejections to get. Your file looks completely normal. You open it, the text is there, everything renders correctly. KDP rejects it anyway.",
+      },
+      {
+        type: "p",
+        text: "Font embedding is usually why.",
+      },
+      {
+        type: "h2",
+        text: "What Font Embedding Means",
+      },
+      {
+        type: "p",
+        text: "When you create a PDF, your software has two options for handling fonts. It can embed the font — meaning it bakes the actual font data into the PDF file itself. Or it can reference the font — meaning the PDF just notes which font was used and assumes it will be available on whatever device opens the file.",
+      },
+      {
+        type: "p",
+        text: "On your computer, referenced fonts work fine because the fonts are installed. The PDF renders correctly every time you open it. But when you send that file to KDP's servers, those fonts might not be there. KDP requires every font to be embedded — fully baked into the file — so it can render your text accurately when printing.",
+      },
+      {
+        type: "p",
+        text: "If a font isn't embedded, KDP rejects the file.",
+      },
+      {
+        type: "h2",
+        text: "Which Tools Cause This Problem",
+      },
+      {
+        type: "p",
+        text: "Not all PDF export tools embed fonts by default. Some of the most common culprits:",
+      },
+      {
+        type: "ul",
+        items: [
+          "Canva — certain free fonts and some export settings skip embedding. Always export as PDF Print, not PDF Standard.",
+          "Google Docs — the built-in PDF export sometimes fails to embed fonts correctly, especially with custom fonts added via Google Fonts.",
+          "Microsoft Word — generally embeds fonts if you use the Save As PDF option, but can miss fonts if the document was edited across multiple devices.",
+          "Online PDF converters — many strip font data during conversion to reduce file size.",
+        ],
+      },
+      {
+        type: "h2",
+        text: "How to Check if Your Fonts Are Embedded",
+      },
+      {
+        type: "p",
+        text: "In Adobe Acrobat Reader, go to File → Properties → Fonts. Every font listed should say Embedded or Embedded Subset next to it. If any font shows without that label, it's not embedded and KDP will flag it.",
+      },
+      {
+        type: "p",
+        text: "This works but it's manual. If your document uses multiple fonts — body text, headings, pull quotes — you'll need to check each one individually.",
+      },
+      {
+        type: "h2",
+        text: "How to Fix It",
+      },
+      {
+        type: "p",
+        text: "In Canva: re-export using PDF Print (not PDF Standard) and stick to fonts that are clearly marked as print-safe. If you're unsure about a specific font, swap it for a common one like Montserrat, Lato, or Merriweather — these embed reliably.",
+      },
+      {
+        type: "p",
+        text: "In Word: go to Options → Save → check the box that says Embed fonts in the file before exporting.",
+      },
+      {
+        type: "p",
+        text: "In Google Docs: download as PDF and then run it through a tool that checks embedding before you upload to KDP.",
+      },
+      {
+        type: "h2",
+        text: "Catch It Before KDP Does",
+      },
+      {
+        type: "p",
+        text: "The KDP PDF Checker at manu2print.com/kdp-pdf-checker checks font embedding automatically as part of your readiness scan. If any font in your file isn't embedded, it flags it by page — so you know exactly where the issue is and what to fix.",
+      },
+      {
+        type: "p",
+        text: "Free score preview. No account needed. Two minutes and you'll know exactly where your file stands before you submit.",
+      },
+    ],
+  },
+  {
     slug: "how-to-check-kdp-pdf-before-upload",
     title: "How to Check Your KDP PDF Before You Upload",
     excerpt:
