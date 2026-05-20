@@ -18,6 +18,264 @@ export type BlogPost = {
 
 const POSTS: BlogPost[] = [
   {
+    slug: "you-paid-a-fiverr-formatter-kdp-still-rejected-it",
+    title: "You Paid a Fiverr Formatter. KDP Still Rejected It. Here's Why.",
+    excerpt:
+      "Hiring someone on Fiverr to format your KDP book doesn't guarantee it passes. Here's what most cheap formatters miss — and how to verify any file before it goes to Amazon.",
+    publishedAt: "2026-05-06",
+    tags: ["kdp", "formatting", "rejection"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "You did everything right. You hired a professional. You paid them. They delivered a file. You uploaded it to KDP. Rejected.",
+      },
+      {
+        type: "p",
+        text: "This happens more than most people admit. Fiverr and Upwork are full of KDP formatting gigs at $5, $10, $25. Some of them are excellent. Many of them are not. And the painful part is you usually can't tell the difference until Amazon tells you.",
+      },
+      {
+        type: "h2",
+        text: "Why Cheap Formatters Miss the Same Things Every Time",
+      },
+      {
+        type: "p",
+        text: "Most budget formatting gigs on Fiverr focus on making your book look good on screen. That's not the same as making it pass KDP's technical checks. A file can look perfect in preview and still fail on four different technical requirements.",
+      },
+      {
+        type: "p",
+        text: "The things that get missed most often:",
+      },
+      {
+        type: "ul",
+        items: [
+          "Gutter margins set to a fixed width regardless of page count — KDP requires wider gutters for longer books",
+          "Bleed area missing or incorrect — if your design touches the page edge, KDP needs exactly 0.125 inches of bleed beyond the trim line",
+          "Fonts not fully embedded — looks fine on their machine, fails on KDP's servers",
+          "Page dimensions slightly off from the selected trim size — a fraction of an inch triggers a rejection",
+          "Images below 300 DPI — fine on screen, blurry in print, flagged by KDP",
+        ],
+      },
+      {
+        type: "p",
+        text: "None of these are visible to the eye. They require a technical check of the file itself — not just opening it and looking at it.",
+      },
+      {
+        type: "h2",
+        text: "The Real Problem: Most Formatters Don't Check Their Own Output",
+      },
+      {
+        type: "p",
+        text: "A good formatter checks their work before delivering it. They run the file through a preflight process — verifying margins, bleed, font embedding, image resolution, and page dimensions against KDP's exact requirements.",
+      },
+      {
+        type: "p",
+        text: "A cheap formatter delivers what they built and hopes it passes. The $5 gig price makes that pretty clear.",
+      },
+      {
+        type: "p",
+        text: "This isn't an indictment of Fiverr. There are talented formatters on the platform. But at the budget end of the market, the economics don't support proper quality control — and you end up paying twice. Once to the formatter, once when you hire someone to fix it.",
+      },
+      {
+        type: "h2",
+        text: "What to Do Before You Upload Any File",
+      },
+      {
+        type: "p",
+        text: "Whether you formatted the book yourself, hired someone on Fiverr, or used Vellum — run the PDF through a preflight check before it goes to Amazon. Every time.",
+      },
+      {
+        type: "p",
+        text: "The KDP PDF Checker at manu2print.com/kdp-pdf-checker checks your file against KDP's actual requirements: trim size, margins, bleed, font embedding, and image resolution. It flags every issue by page number with plain-English fix instructions.",
+      },
+      {
+        type: "p",
+        text: "If your formatter's file passes, great — you can upload with confidence. If it doesn't, you know exactly what to send back to them to fix before Amazon sees it.",
+      },
+      {
+        type: "h2",
+        text: "If You're a Formatter: This Is Your Quality Gate",
+      },
+      {
+        type: "p",
+        text: "If you format books for clients — on Fiverr, Upwork, or independently — running every file through a preflight check before delivery is what separates you from the $5 gigs. It takes 90 seconds. It means you deliver files you know will pass. It means your clients don't come back furious after a rejection.",
+      },
+      {
+        type: "p",
+        text: "The difference between a formatter clients recommend and one they warn people about is usually this: did you verify the file before you delivered it?",
+      },
+      {
+        type: "p",
+        text: "Check any file at manu2print.com/kdp-pdf-checker. Free score preview. No account needed.",
+      },
+    ],
+  },
+  {
+    slug: "kdp-trim-sizes-complete-guide-2026",
+    title: "KDP Trim Sizes: The Complete Guide for 2026",
+    excerpt:
+      "Choosing the wrong KDP trim size is one of the most common reasons files get rejected. Here are all the standard sizes, which ones work best for each book type, and how to set them up correctly.",
+    publishedAt: "2026-05-06",
+    tags: ["kdp", "formatting", "margins"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "Your PDF page size must match your KDP trim size exactly. Not approximately. Exactly. A mismatch of even a fraction of an inch triggers an automatic rejection — and Amazon's error message won't tell you which page caused the problem.",
+      },
+      {
+        type: "p",
+        text: "Here's everything you need to know about KDP trim sizes before you set up your document.",
+      },
+      {
+        type: "h2",
+        text: "What Is a Trim Size?",
+      },
+      {
+        type: "p",
+        text: "The trim size is the final physical size of your printed book after the printer cuts the pages. When you set up your document in Word, Canva, Vellum, or any other tool, the page dimensions must match your chosen trim size exactly.",
+      },
+      {
+        type: "p",
+        text: "If you select 6 x 9 inches as your trim size in KDP, every page of your PDF must be exactly 6 x 9 inches — or 6.25 x 9.25 inches if you're using bleed.",
+      },
+      {
+        type: "h2",
+        text: "Standard KDP Trim Sizes",
+      },
+      {
+        type: "ul",
+        items: [
+          "5 x 8 inches — fiction, novels, memoirs",
+          "5.06 x 7.81 inches — fiction, standard paperback",
+          "5.25 x 8 inches — fiction, trade paperback",
+          "5.5 x 8.5 inches — most popular overall, fiction and nonfiction",
+          "6 x 9 inches — nonfiction, business, self-help, most common for KDP",
+          "6.14 x 9.21 inches — standard trade paperback",
+          "7 x 10 inches — textbooks, workbooks, large format nonfiction",
+          "8 x 10 inches — children's books, activity books",
+          "8.5 x 8.5 inches — children's books, square format",
+          "8.5 x 11 inches — journals, planners, workbooks, large format",
+        ],
+      },
+      {
+        type: "h2",
+        text: "Which Trim Size Should You Choose?",
+      },
+      {
+        type: "p",
+        text: "For most nonfiction, business, or self-help books: 6 x 9 inches. It's the industry standard and what readers expect.",
+      },
+      {
+        type: "p",
+        text: "For fiction and novels: 5.5 x 8.5 inches or 5 x 8 inches. These feel like trade paperbacks and sit comfortably in a reader's hand.",
+      },
+      {
+        type: "p",
+        text: "For journals, planners, and low-content books: 8.5 x 11 inches or 6 x 9 inches depending on how much writing space you want per page.",
+      },
+      {
+        type: "p",
+        text: "For children's books: 8 x 10 inches or 8.5 x 8.5 inches — square or near-square formats that work well with full-page illustrations.",
+      },
+      {
+        type: "h2",
+        text: "The Bleed Rule",
+      },
+      {
+        type: "p",
+        text: "If any element in your design touches the edge of the page — a background colour, an image, a border — you need to add bleed. This means your PDF page dimensions need to be 0.25 inches larger in each dimension (0.125 inches on each side). A 6 x 9 inch book with bleed needs a PDF page size of 6.25 x 9.25 inches.",
+      },
+      {
+        type: "p",
+        text: "If no element touches the page edge, use the trim size dimensions exactly with no bleed.",
+      },
+      {
+        type: "h2",
+        text: "Check Your Trim Size Before You Upload",
+      },
+      {
+        type: "p",
+        text: "The KDP PDF Checker at manu2print.com/kdp-pdf-checker automatically checks your PDF page dimensions against your selected KDP trim size and flags any mismatch before Amazon sees your file. Free score preview, no account needed.",
+      },
+    ],
+  },
+  {
+    slug: "kdp-upload-checklist-12-things-to-verify",
+    title: "The KDP Upload Checklist: 12 Things to Verify Before You Submit",
+    excerpt:
+      "Most KDP rejections come from a small set of fixable issues. Run through this checklist before every upload and you'll avoid the rejection cycle entirely.",
+    publishedAt: "2026-05-06",
+    tags: ["kdp", "formatting", "preflight"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "KDP's automated review catches the same issues every time. Most of them are preventable with a 10-minute check before you upload. Here's the exact list.",
+      },
+      {
+        type: "h2",
+        text: "File Setup",
+      },
+      {
+        type: "ul",
+        items: [
+          "1. Page dimensions match your KDP trim size exactly — not approximately, exactly",
+          "2. If using bleed, page dimensions are 0.25 inches larger than your trim size (0.125 inches added on each side)",
+          "3. PDF is not password protected or encrypted",
+          "4. File size is under 650MB",
+        ],
+      },
+      {
+        type: "h2",
+        text: "Margins",
+      },
+      {
+        type: "ul",
+        items: [
+          "5. Outer margins (top, bottom, outside edge) are at least 0.25 inches — 0.5 inches recommended",
+          "6. Inner margin (gutter) meets the minimum for your page count: 0.375\" for under 150 pages, 0.75\" for 151-300 pages, 0.875\" for 301-500 pages, 1\" for 500+ pages",
+          "7. No text or images crossing into the margin area on any page",
+        ],
+      },
+      {
+        type: "h2",
+        text: "Fonts and Images",
+      },
+      {
+        type: "ul",
+        items: [
+          "8. All fonts are fully embedded — check via File → Properties → Fonts in Acrobat Reader, every font should say Embedded or Embedded Subset",
+          "9. All images are at least 300 DPI — images below 200 DPI will print blurry",
+          "10. No images with transparency issues that could cause rendering problems",
+        ],
+      },
+      {
+        type: "h2",
+        text: "Final Checks",
+      },
+      {
+        type: "ul",
+        items: [
+          "11. Page count matches what you entered in KDP — a significant mismatch can cause issues",
+          "12. No blank pages at the end of the file unless intentional — some tools add these automatically",
+        ],
+      },
+      {
+        type: "h2",
+        text: "The Faster Way to Run This Checklist",
+      },
+      {
+        type: "p",
+        text: "Checking all 12 manually takes time and it's easy to miss something. The KDP PDF Checker at manu2print.com/kdp-pdf-checker runs every item on this list automatically and flags issues by page number — so you know exactly what to fix before Amazon sees your file.",
+      },
+      {
+        type: "p",
+        text: "Free score preview. No account needed. 90 seconds and you'll know exactly where your file stands.",
+      },
+    ],
+  },
+  {
     slug: "kdp-bleed-settings-explained",
     title: "KDP Bleed Settings Explained: What It Is, When You Need It, and How to Get It Right",
     excerpt:
