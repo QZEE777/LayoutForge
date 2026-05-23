@@ -18,6 +18,222 @@ export type BlogPost = {
 
 const POSTS: BlogPost[] = [
   {
+    slug: "vellum-vs-word-vs-canva-for-kdp",
+    title: "Vellum vs Word vs Canva for KDP — What Actually Passes",
+    excerpt:
+      "Three of the most popular tools for formatting KDP books — and three very different track records with Amazon's upload checker. Here's what each one gets right, what it misses, and what to check before you upload.",
+    publishedAt: "2026-05-15",
+    tags: ["kdp", "formatting", "canva"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "The tool you use to format your book matters less than whether the output meets KDP's technical requirements. A beautifully formatted Vellum file can still get rejected. A simple Word document can pass first time. The question isn't which tool is best — it's what each one tends to get wrong.",
+      },
+      {
+        type: "h2",
+        text: "Vellum",
+      },
+      {
+        type: "p",
+        text: "Vellum produces some of the cleanest book interiors available. Font embedding is handled correctly. Page dimensions are accurate. The output is professional and consistent. For most KDP books, a Vellum-formatted file passes without issues.",
+      },
+      {
+        type: "p",
+        text: "Where Vellum can trip up: it's Mac-only and expensive, so many authors use an older version or borrow access. Older versions occasionally have issues with specific trim sizes or bleed handling. And Vellum's gutter margins are set automatically — which is usually correct, but worth verifying if your book is unusually long or short.",
+      },
+      {
+        type: "h2",
+        text: "Microsoft Word",
+      },
+      {
+        type: "p",
+        text: "Word is the most commonly used formatting tool and the most commonly blamed for KDP rejections. Most of those rejections aren't Word's fault — they're setup errors. The tool does what you tell it to do.",
+      },
+      {
+        type: "p",
+        text: "The most common Word-related failures: page size set to A4 or US Letter instead of the KDP trim size, margins not adjusted for the correct gutter, fonts not embedded when saving to PDF (fix this in Options → Save → Embed fonts in the file), and images dropped in at screen resolution rather than 300 DPI.",
+      },
+      {
+        type: "p",
+        text: "Word can produce a perfectly KDP-compliant file. It just requires more manual setup than Vellum.",
+      },
+      {
+        type: "h2",
+        text: "Canva",
+      },
+      {
+        type: "p",
+        text: "Canva is the highest-risk option for KDP formatting, particularly for interior pages. It was built for digital design, not print production, and the gap between the two shows up in specific ways.",
+      },
+      {
+        type: "p",
+        text: "The issues that come up most with Canva: bleed not enabled or not extended properly into the bleed zone, fonts not embedded in the PDF export (use PDF Print, not PDF Standard), colour mode in RGB rather than CMYK, and page dimensions that are close to but not exactly the required trim size.",
+      },
+      {
+        type: "p",
+        text: "For covers and design-heavy interiors, Canva can work — but it requires specific export settings and a file check before upload.",
+      },
+      {
+        type: "h2",
+        text: "The Common Thread",
+      },
+      {
+        type: "p",
+        text: "Every tool can produce a file that passes KDP. Every tool can also produce one that fails. The difference is almost always in the details of the setup — page size, margins, bleed, font embedding, image resolution.",
+      },
+      {
+        type: "p",
+        text: "Check your file before you upload regardless of which tool you used. manu2print.com/kdp-pdf-checker runs the technical checks on any PDF — Vellum, Word, Canva, or anything else — and tells you what needs fixing before Amazon does.",
+      },
+    ],
+  },
+  {
+    slug: "kdp-cover-requirements-bleed-spine-dimensions",
+    title: "KDP Cover Requirements: Bleed, Spine Width, and Why the Calculator Matters",
+    excerpt:
+      "Your KDP cover dimensions aren't just width and height. They include bleed, spine width based on your page count, and paper type. Get any of these wrong and the cover gets rejected before anyone sees it.",
+    publishedAt: "2026-05-13",
+    tags: ["kdp", "formatting", "bleed"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "The cover is the most rejected file in KDP publishing. Not because authors don't try — they do. It's because a KDP cover isn't just a design. It's a precise technical document with dimensions that depend on four separate variables working together.",
+      },
+      {
+        type: "h2",
+        text: "What Goes Into a KDP Cover Dimension",
+      },
+      {
+        type: "p",
+        text: "Your cover file needs to be a single flat PDF that wraps around the entire book — back cover, spine, and front cover as one piece. The dimensions of that file are calculated from:",
+      },
+      {
+        type: "ul",
+        items: [
+          "Trim size — the width and height of your book's pages",
+          "Spine width — calculated from your page count and paper type",
+          "Bleed — 0.125 inches added to all four outer edges",
+          "Paper type — white paper vs cream paper affects spine width",
+        ],
+      },
+      {
+        type: "p",
+        text: "Change any one of these and your cover dimensions change. Submit a cover built for 250 pages when your interior is 275 pages and the spine width is wrong — rejected.",
+      },
+      {
+        type: "h2",
+        text: "How Spine Width Is Calculated",
+      },
+      {
+        type: "p",
+        text: "KDP calculates spine width as: page count multiplied by the paper thickness. For white paper, that's 0.002252 inches per page. For cream paper, it's 0.0025 inches per page.",
+      },
+      {
+        type: "p",
+        text: "A 300-page book on white paper has a spine of 300 x 0.002252 = 0.6756 inches. Round up to 0.676 inches. A 300-page book on cream paper: 300 x 0.0025 = 0.75 inches. The difference matters when designing your spine text and logo placement.",
+      },
+      {
+        type: "p",
+        text: "Note: KDP requires a minimum of 100 pages for spine text to be allowed. Below that, the spine is too narrow to print text reliably.",
+      },
+      {
+        type: "h2",
+        text: "The Full Cover Width Formula",
+      },
+      {
+        type: "p",
+        text: "Total cover width = (trim width x 2) + spine width + (0.125 x 2 for bleed). Total cover height = trim height + (0.125 x 2 for bleed).",
+      },
+      {
+        type: "p",
+        text: "For a 6 x 9 inch book, 300 pages, white paper: width = (6 x 2) + 0.676 + 0.25 = 12.926 inches. Height = 9 + 0.25 = 9.25 inches.",
+      },
+      {
+        type: "h2",
+        text: "Use the KDP Cover Calculator",
+      },
+      {
+        type: "p",
+        text: "KDP provides a free cover calculator at kdp.amazon.com/cover-calculator that outputs the exact dimensions for your book. Use it every time. Do not guess. Do not reuse dimensions from a previous book unless the page count and paper type are identical.",
+      },
+      {
+        type: "p",
+        text: "Build your cover to those exact dimensions, add bleed on all four outer edges, and keep all critical text and logos within the safe zone — 0.125 inches from any edge. Our Spine Width Calculator at manu2print.com/spine-calculator also gives you these dimensions quickly.",
+      },
+    ],
+  },
+  {
+    slug: "how-long-does-kdp-review-take",
+    title: "How Long Does KDP Review Take — And Why Yours Is Taking Longer",
+    excerpt:
+      "KDP says 72 hours. Your book has been in review for five days. Here's what's actually happening and what you can do about it.",
+    publishedAt: "2026-05-11",
+    tags: ["kdp", "rejection"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "KDP's official position is that review takes up to 72 hours. In practice, most books are reviewed in 24-48 hours. When yours takes longer, it usually means one of three things.",
+      },
+      {
+        type: "h2",
+        text: "What Happens During KDP Review",
+      },
+      {
+        type: "p",
+        text: "When you submit a book, KDP runs two types of review. The first is automated — a technical check of your files against their formatting requirements. Trim size, margins, bleed, font embedding, image resolution. This happens quickly.",
+      },
+      {
+        type: "p",
+        text: "The second is manual — a human reviewer checks your content against KDP's content guidelines. This is where delays happen. Manual review is triggered when the automated system flags something for human eyes, or when content falls into categories KDP monitors closely.",
+      },
+      {
+        type: "h2",
+        text: "Why Your Review Is Taking Longer Than 72 Hours",
+      },
+      {
+        type: "ul",
+        items: [
+          "Your file triggered a flag in the automated check — not enough to reject outright, but enough to send it to manual review",
+          "Your content is in a category KDP scrutinises more carefully — health, finance, relationships, anything adjacent to their quality guidelines",
+          "High submission volume — KDP sees millions of uploads and review times stretch during peak periods",
+          "Your title or cover contains elements that triggered keyword or image review",
+          "You've had previous submissions flagged from the same account",
+        ],
+      },
+      {
+        type: "h2",
+        text: "What You Can Do",
+      },
+      {
+        type: "p",
+        text: "If it's been less than 5 business days: wait. Contacting KDP support during this window rarely speeds things up and occasionally resets your position in the queue.",
+      },
+      {
+        type: "p",
+        text: "If it's been more than 5 business days: contact KDP support directly through your KDP account. Have your ASIN and submission date ready. Ask for a status update. Most cases resolve within 24 hours of contact.",
+      },
+      {
+        type: "p",
+        text: "If you're repeatedly experiencing long review times: check whether your files are technically clean before submission. Files that pass the automated check cleanly are less likely to be escalated. The KDP PDF Checker at manu2print.com/kdp-pdf-checker checks your interior file against KDP's technical requirements before you upload — reducing the chance of flags at the automated stage.",
+      },
+      {
+        type: "h2",
+        text: "The One Thing That Consistently Speeds Up Review",
+      },
+      {
+        type: "p",
+        text: "Submit a technically clean file the first time. KDP's automated system is looking for reasons to escalate. Margin violations, missing bleed, unembedded fonts — each one is a flag. A file that passes every automated check moves through the system faster.",
+      },
+      {
+        type: "p",
+        text: "Check before you upload. It's the one variable you can control.",
+      },
+    ],
+  },
+  {
     slug: "you-paid-a-fiverr-formatter-kdp-still-rejected-it",
     title: "You Paid a Fiverr Formatter. KDP Still Rejected It. Here's Why.",
     excerpt:
@@ -805,9 +1021,10 @@ const POSTS: BlogPost[] = [
 ];
 
 export function getAllPosts(): BlogPost[] {
-  return [...POSTS].sort(
-    (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
-  );
+  const today = new Date().toISOString().slice(0, 10);
+  return [...POSTS]
+    .filter((p) => p.publishedAt <= today)
+    .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 }
 
 export function getPostBySlug(slug: string): BlogPost | null {
