@@ -18,6 +18,87 @@ export type BlogPost = {
 
 const POSTS: BlogPost[] = [
   {
+    slug: "250-kdp-forum-complaints-what-actually-goes-wrong",
+    title: "I Read 250 KDP Forum Complaints. Here's What Actually Goes Wrong.",
+    excerpt:
+      "We pulled 258 real threads from KDP publishing communities and tallied every problem authors actually reported. The results don't match what most KDP advice warns you about — including ours.",
+    publishedAt: "2026-06-29",
+    tags: ["kdp", "rejection", "research"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "Most KDP advice is written from the guidelines down: read Amazon's requirements, turn each one into a tip, publish. We wanted to work from the other direction — from what authors actually struggle with, in their own words. So we pulled 258 unique threads from the two largest self-publishing communities on Reddit, searching for rejections, errors, and upload failures, and read all of them.",
+      },
+      {
+        type: "p",
+        text: "About 120 of those threads describe a concrete KDP problem — a rejection, an error message, a block, a file that wouldn't go through. We tallied every one. Here's the ranking, and then the three findings that surprised us.",
+      },
+      {
+        type: "h2",
+        text: "The Tally: What Actually Rejects Books",
+      },
+      {
+        type: "ul",
+        items: [
+          "Bleed and margin rejections — roughly 1 in 4 problem threads. \"Insufficient bleed,\" \"margins are messed up,\" and the infamous instruction to \"add 0.125 inches to your page width and 0.25 inches to the page height\" that almost nobody interprets correctly.",
+          "Cover dimension math — roughly 1 in 5. The classic error reads like \"expected cover size is 11.304 x 8.750 but the submitted file is 11.000 x 8.500.\" That gap is spine width, calculated from page count and paper type. One author in our sample was rejected 30 times on the same cover.",
+          "Metadata and content blocks — about 1 in 6. \"Misleading customer experience,\" titles rejected for containing the word \"bestseller,\" category errors that loop endlessly, and demands to prove you own rights to your own book.",
+          "Vague rejections — about 1 in 8 threads describe a rejection with no usable reason given, where even KDP support couldn't explain the failure.",
+          "Everything else — account and identity blocks, \"error processing interior\" failures, ebooks that render perfectly in Previewer and break on the phone app, and physical print defects.",
+        ],
+      },
+      {
+        type: "h2",
+        text: "Surprise #1: The Same File Passes, Then Fails",
+      },
+      {
+        type: "p",
+        text: "The angriest threads in the sample aren't from first-time publishers. They're from authors whose file had already been accepted — and then got rejected after a trivial change. One author fixed typos in a manuscript that had been live for months; the resubmission was rejected for bleed on a map that hadn't changed. Another increased the font size on an already-approved cover and got locked into a \"cover size incorrect\" loop.",
+      },
+      {
+        type: "p",
+        text: "The lesson hiding in these threads: passing KDP review once doesn't mean your file is compliant. It can mean the check tolerated something that the next pass won't. Files that sit near the edge of a requirement — margins at the exact minimum, bleed barely covered — are coin flips on every resubmission.",
+      },
+      {
+        type: "h2",
+        text: "Surprise #2: \"My Proof Printed Perfectly\"",
+      },
+      {
+        type: "p",
+        text: "A recurring, maddening pattern: the author orders proof copies, the proofs arrive flawless, and the automated check still rejects the file for bleed or margins. One author described their pass rate as a gamble — \"50% of my books pass, while 50% do not\" — with identical setup.",
+      },
+      {
+        type: "p",
+        text: "This happens because the printed proof and the automated check are testing different things. The proof shows whether the file prints acceptably; the checker measures whether the file's stated geometry — page boxes, declared sizes, margin distances — matches the selected trim and bleed settings exactly. A file can print beautifully while its internal dimensions are technically wrong, and the checker only cares about the second thing.",
+      },
+      {
+        type: "h2",
+        text: "Surprise #3: Fonts Are Over-Blogged and Under-Complained",
+      },
+      {
+        type: "p",
+        text: "Every KDP guide warns about font embedding — including ours. Total font-related complaints in 258 real threads: one. And it was about a cover font license, not embedding.",
+      },
+      {
+        type: "p",
+        text: "Meanwhile bleed, margins, and cover dimension math — the unglamorous measurement problems — account for nearly half of all real rejections in the sample. The advice ecosystem has it backwards: the thing bloggers love to explain is rare, and the thing that actually rejects books gets a paragraph of boilerplate. If you're going to obsess over one part of your file, obsess over the geometry.",
+      },
+      {
+        type: "h2",
+        text: "What This Means Before Your Next Upload",
+      },
+      {
+        type: "p",
+        text: "The complaints cluster almost entirely around things that are measurable before you upload: bleed coverage, margin distances, exact page dimensions, and the cover canvas math that depends on your final page count. None of it requires guessing. All of it is checkable.",
+      },
+      {
+        type: "p",
+        text: "That's what the Print Ready Check at manu2print.com/kdp-pdf-checker does — it measures your PDF's actual geometry against KDP's requirements and names every failure in plain language before Amazon does. Based on 258 threads of evidence: it's the boring measurements, not the exotic edge cases, that send books back.",
+      },
+    ],
+  },
+  {
     slug: "kdp-rejection-email-translated",
     title: "The KDP Rejection Email, Translated",
     excerpt:
