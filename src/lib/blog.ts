@@ -18,6 +18,101 @@ export type BlogPost = {
 
 const POSTS: BlogPost[] = [
   {
+    slug: "kdp-rejection-email-translated",
+    title: "The KDP Rejection Email, Translated",
+    excerpt:
+      "Amazon's rejection emails are written in a careful, vague dialect that tells you something is wrong without telling you what. Here's what each phrase actually means — and exactly what to fix before you resubmit.",
+    publishedAt: "2026-06-12",
+    tags: ["kdp", "rejection", "troubleshooting"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "If you've ever received a KDP rejection email, you know the feeling: you read it twice, and you still don't know what to fix. That's not an accident of bad writing. Amazon's review messages are deliberately generic — one template covers hundreds of possible technical failures. The result is an email that says something is wrong without saying what.",
+      },
+      {
+        type: "p",
+        text: "This post is a translation guide. Below are the phrases that appear most often in KDP rejection and review emails, what each one actually means in technical terms, and what to check before you resubmit.",
+      },
+      {
+        type: "h2",
+        text: "\"Your interior file does not meet our specifications\"",
+      },
+      {
+        type: "p",
+        text: "This is the broadest one, and it almost always means a measurable, mechanical problem — not a quality judgement on your book. In practice it usually comes down to one of four things: the PDF page size doesn't match the trim size you selected, the margins are smaller than KDP's minimums for your page count, content sits inside the bleed or trim zone, or the page count in the file doesn't match what the cover spine was calculated for.",
+      },
+      {
+        type: "ul",
+        items: [
+          "Open your PDF and check the actual page dimensions against your selected trim size — exactly, not approximately.",
+          "Check margins against KDP's minimums, which increase with page count. A 350-page book needs a larger gutter than a 120-page book.",
+          "If you uploaded with bleed, confirm every page is sized to trim plus 0.125\" on the three outer edges.",
+        ],
+      },
+      {
+        type: "h2",
+        text: "\"Fonts are not embedded\"",
+      },
+      {
+        type: "p",
+        text: "This one at least names the problem, but it confuses people because the file looks fine on their screen. Of course it does — the fonts are installed on your computer. They're not inside the PDF, which means Amazon's printer can't reproduce them. The file you see and the file you sent are not the same thing.",
+      },
+      {
+        type: "p",
+        text: "The fix depends on your tool. In Word: File → Options → Save → tick \"Embed fonts in the file\" before exporting. In Canva: download as PDF Print, not PDF Standard. In InDesign and Vellum, embedding is automatic — if you're getting this error from those tools, the culprit is usually a font inside a placed image or a font with licensing restrictions that blocks embedding.",
+      },
+      {
+        type: "h2",
+        text: "\"Your cover does not meet our requirements\"",
+      },
+      {
+        type: "p",
+        text: "Cover rejections are nearly always dimensional. The full cover canvas is back cover + spine + front cover + bleed on all four sides, and the spine width is calculated from your exact page count and paper type. If your page count changed after the cover was designed — even by a few pages — the spine width is wrong and the whole cover is the wrong size.",
+      },
+      {
+        type: "ul",
+        items: [
+          "Recalculate spine width with your final page count and paper type, not the count from your draft.",
+          "Check that no text sits on or near the spine fold lines — KDP wants spine text to have clearance on books under 80 pages, and no spine text at all under a certain thickness.",
+          "Confirm the barcode zone on the back cover is clear if you're using Amazon's barcode.",
+        ],
+      },
+      {
+        type: "h2",
+        text: "\"Content within your book is in violation of our guidelines\"",
+      },
+      {
+        type: "p",
+        text: "This is the scariest phrase and often the most mundane problem. Yes, it covers genuinely prohibited content — but for most indie authors it's triggered by something procedural: a copyright page that references a different ISBN or publisher than the one on the account, links to competitor retailers inside the book, placeholder text left in from a template (\"Insert dedication here\"), or metadata keywords that violate KDP's keyword rules.",
+      },
+      {
+        type: "p",
+        text: "Read your front matter and back matter as a reviewer would. The body of your book is rarely the issue — the boilerplate pages around it usually are.",
+      },
+      {
+        type: "h2",
+        text: "\"We are unable to publish your book at this time\"",
+      },
+      {
+        type: "p",
+        text: "Translation: a human or automated check failed and the specific reason is in the rest of the email — this sentence itself carries no information. If the email genuinely gives no specifics anywhere, reply to it and ask. KDP support will usually name the failing check when asked directly, and \"please tell me the specific issue with my file\" is a perfectly normal request.",
+      },
+      {
+        type: "h2",
+        text: "The Pattern Behind All of It",
+      },
+      {
+        type: "p",
+        text: "Almost every phrase above maps to a small set of measurable file problems: page size, margins, bleed, font embedding, spine math, image resolution. These are checkable before you upload. The rejection email is vague — the underlying checks are not.",
+      },
+      {
+        type: "p",
+        text: "That's exactly what the Print Ready Check at manu2print.com/kdp-pdf-checker does: it runs your PDF through the same category of technical checks and names each failure in plain language, with the fix. Decode the email after the fact, or skip the email entirely.",
+      },
+    ],
+  },
+  {
     slug: "vellum-vs-word-vs-canva-for-kdp",
     title: "Vellum vs Word vs Canva for KDP — What Actually Passes",
     excerpt:
