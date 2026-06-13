@@ -18,6 +18,404 @@ export type BlogPost = {
 
 const POSTS: BlogPost[] = [
   {
+    slug: "kdp-myths-that-refuse-to-die",
+    title: "KDP Myths That Refuse to Die",
+    excerpt:
+      "Bleed is always required. Word can't make a valid print PDF. A human reads every book before it's rejected. None of that is true — here's what's actually going on behind each myth.",
+    publishedAt: "2026-06-15",
+    tags: ["kdp", "myths", "formatting"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "Some KDP advice is wrong not because it was always wrong, but because it was once true for one specific situation and then got repeated as a universal rule. Here are the myths that show up most often in author forums — and what's actually true underneath each one.",
+      },
+      {
+        type: "h2",
+        text: "Myth: \"Every book needs bleed\"",
+      },
+      {
+        type: "p",
+        text: "Bleed exists for one reason: artwork that extends to the edge of the page. If your interior is plain text on a white background, with no images or color reaching the trim edge, you don't need bleed — and turning it on when you don't need it is a common cause of the \"add 0.125 to width, 0.25 to height\" rejection, because it changes the page size KDP expects.",
+      },
+      {
+        type: "p",
+        text: "Bleed is required when any image, color block, or design element touches or crosses the trim edge. A novel with chapter headings and body text almost never needs it. A children's book with full-page illustrations almost always does.",
+      },
+      {
+        type: "h2",
+        text: "Myth: \"Word can't produce a valid print PDF\"",
+      },
+      {
+        type: "p",
+        text: "Word gets blamed constantly, but it's rarely the tool's fault. Word can produce a fully compliant interior — correct trim size, margins, embedded fonts, 300 DPI images — when the page setup matches KDP's requirements before you export. The failures attributed to \"Word\" are almost always: page size left at A4 or Letter, margins not adjusted for the gutter, or fonts not embedded at export (Options → Save → Embed fonts in the file).",
+      },
+      {
+        type: "p",
+        text: "Vellum and InDesign handle some of this automatically, which is why they have a reputation for cleaner output. That's a difference in defaults, not a difference in what's possible.",
+      },
+      {
+        type: "h2",
+        text: "Myth: \"A person at Amazon reads your book before rejecting it\"",
+      },
+      {
+        type: "p",
+        text: "The interior and cover checks that produce most rejection emails are automated — they measure page dimensions, margins, bleed coverage, and font embedding against your selected trim size. That's why the rejection emails read like templates: they are templates, generated from which automated check failed.",
+      },
+      {
+        type: "p",
+        text: "Content review — the check for prohibited material, misleading titles, or rights issues — does involve human review at some stage, which is why those rejections take longer and the wording is more specific (if still often unhelpfully vague). But \"my margins are wrong\" rejections are pure measurement, and they're consistent: the same file will fail the same way every time, because nothing about the check changes between submissions.",
+      },
+      {
+        type: "h2",
+        text: "Myth: \"If the preview looks right, the file is right\"",
+      },
+      {
+        type: "p",
+        text: "The online previewer renders your file visually — it shows you what the page looks like. It does not always catch the measurement problems that the upload checker enforces. Authors regularly report a perfect-looking preview followed by a bleed or margin rejection on the same file, because the preview is a rendering tool and the checker is a geometry tool. They're answering different questions.",
+      },
+      {
+        type: "h2",
+        text: "Myth: \"KDP changed their requirements, that's why my file suddenly fails\"",
+      },
+      {
+        type: "p",
+        text: "This comes up whenever a previously-approved file gets rejected on resubmission. It's almost never a requirements change — it's that the original file was already on the edge of a requirement (margins exactly at the minimum, bleed barely covering the trim edge), and a tiny change shifted it just past the line. The check didn't change. The file's safety margin ran out.",
+      },
+      {
+        type: "h2",
+        text: "The Throughline",
+      },
+      {
+        type: "p",
+        text: "Every myth above comes from the same root cause: not knowing what your file's actual measurements are. Bleed, margins, trim size, and font embedding are all things you can check directly, before you upload, regardless of which tool made the file. manu2print.com/kdp-pdf-checker reads those measurements from your PDF and tells you, in plain terms, whether they match what KDP requires.",
+      },
+    ],
+  },
+  {
+    slug: "book-too-big-by-0-002-inches",
+    title: "Your Book Is 0.002 Inches Too Big. Amazon Doesn't Care That It's Close.",
+    excerpt:
+      "A PDF page that's 6.002\" instead of exactly 6.000\" looks identical to a human. To KDP's automated check, it's a fail. Here's why \"close enough\" doesn't exist in print specifications — and where that tiny gap actually comes from.",
+    publishedAt: "2026-06-17",
+    tags: ["kdp", "trim-size", "formatting"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "Imagine two PDFs side by side. Both say \"6 x 9 inches.\" Both look, on screen, completely identical. One passes KDP's interior check. The other gets rejected for incorrect page size. The difference between them might be two-thousandths of an inch — less than the thickness of a sheet of paper. To you, that's nothing. To an automated check comparing exact page dimensions, it's a fail.",
+      },
+      {
+        type: "h2",
+        text: "Why Print Specs Don't Round",
+      },
+      {
+        type: "p",
+        text: "On screen, a fraction of a pixel doesn't matter — it gets rounded away invisibly. In a print file, the page size is a literal physical measurement that gets sent to a printing press. KDP's check isn't being pedantic for its own sake: it's verifying that the physical object it's about to manufacture will be exactly the trim size you selected, because the cover, the spine width, and the binding machinery are all calculated around that exact number.",
+      },
+      {
+        type: "p",
+        text: "A 0.002\" discrepancy on one page might be invisible. The same discrepancy compounding across binding tolerances, cover wrap, and trimming is how you get a book where the cover doesn't quite align with the pages — which is a far more visible problem than the number ever was.",
+      },
+      {
+        type: "h2",
+        text: "Where the Extra 0.002\" Actually Comes From",
+      },
+      {
+        type: "p",
+        text: "Nobody sets out to make a page 6.002 inches. It creeps in through unit conversion. Word, Canva, and most design tools store dimensions internally in points or pixels, then convert to inches for display. 6 inches is exactly 432 points — a clean number. But if a template was built in millimeters (152.4mm = 6 inches exactly, but software often stores 152mm or 153mm as the working value), the converted-back inch measurement comes out slightly off. Multiply that by the page count and the rounding error doesn't go away — it's baked into every page.",
+      },
+      {
+        type: "p",
+        text: "The other common source: a page was set up correctly, then resized slightly by a \"fit to page\" or \"scale to printable area\" option somewhere in the export chain — a setting that exists specifically to make things print nicely on home printers, and is actively harmful for files meant to be reproduced at exact size.",
+      },
+      {
+        type: "h2",
+        text: "Why You Can't See It",
+      },
+      {
+        type: "p",
+        text: "0.002 inches is roughly 0.05mm. No monitor renders at a resolution where that's visible, and most rulers don't have markings fine enough to catch it either. The only reliable way to know your page dimensions are exact is to read the PDF's actual page box values — the numbers embedded in the file itself, not what a ruler or a software dialog reports.",
+      },
+      {
+        type: "h2",
+        text: "The Fix Is Almost Always the Same",
+      },
+      {
+        type: "p",
+        text: "Don't try to nudge a near-correct page size closer with manual adjustments — that tends to introduce a different rounding error rather than removing the existing one. Instead, set the page size to the exact KDP trim dimensions in your source document's units (inches if your software defaults to inches, and double-check if it defaults to mm or points), and re-export. Then verify the output rather than assuming the export respected your input — exports are exactly where these tiny discrepancies are introduced.",
+      },
+      {
+        type: "p",
+        text: "manu2print.com/kdp-pdf-checker reads the literal page dimensions out of your PDF and compares them to your selected trim size — including discrepancies far too small to see, but not too small to get your file rejected.",
+      },
+    ],
+  },
+  {
+    slug: "whats-inside-a-print-ready-pdf",
+    title: "What's Actually Inside a Print-Ready PDF? (Open One Up With Me)",
+    excerpt:
+      "A PDF isn't just \"the pages.\" It's a container of page boxes, embedded fonts, color spaces, and image objects — and KDP's checker reads all of it. Here's a guided tour of what's actually in the file you're about to upload.",
+    publishedAt: "2026-06-19",
+    tags: ["kdp", "pdf", "formatting"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "When you export a PDF, you see one thing: pages that look like your book. But a PDF file is a structured container, and KDP's automated checks don't look at it the way you do — they read the underlying structure. Understanding what's actually in there makes every cryptic rejection message make a lot more sense.",
+      },
+      {
+        type: "h2",
+        text: "Page Boxes: There's More Than One \"Size\"",
+      },
+      {
+        type: "p",
+        text: "Every page in a PDF can define several different boxes: a MediaBox (the full physical page), a TrimBox (where the page gets cut to its final size), a BleedBox (the area including bleed), and a CropBox (what's shown by default). For a simple document these often overlap and nobody notices the difference. For a print file, they don't have to match — and KDP's check is comparing your TrimBox to your selected trim size, not the page size your software reports in its UI.",
+      },
+      {
+        type: "p",
+        text: "This is a common source of confusion: a design tool can report \"6 x 9 inches\" in its interface while the exported PDF's TrimBox says something slightly different, because the UI number and the embedded box value come from different parts of the export pipeline.",
+      },
+      {
+        type: "h2",
+        text: "Fonts: Embedded, Subset, or Missing",
+      },
+      {
+        type: "p",
+        text: "A PDF can reference a font in three ways. Fully embedded means the entire font file is packed inside the PDF — largest file size, most reliable. Subset embedding includes only the characters actually used in the document — common, efficient, and fine for KDP. Not embedded means the PDF just names the font and expects the viewing or printing system to supply it — which works on your screen because the font is installed there, and fails anywhere it isn't, including KDP's print pipeline.",
+      },
+      {
+        type: "p",
+        text: "Opening a PDF's font list (most PDF readers have a \"document properties\" or \"fonts\" panel) shows you exactly which of the three applies to each font in your file — directly answering the question \"are my fonts actually embedded\" instead of guessing.",
+      },
+      {
+        type: "h2",
+        text: "Color Space: RGB vs. CMYK",
+      },
+      {
+        type: "p",
+        text: "Screens display color by mixing red, green, and blue light (RGB). Printing presses lay down cyan, magenta, yellow, and black ink (CMYK). A PDF stores a color space per image and sometimes per element, and a file built for screens is typically RGB throughout. KDP accepts RGB interiors — it converts during printing — but covers are more sensitive, and colors that look vibrant in RGB can shift noticeably once converted to CMYK ink. This is why a cover that looked perfect on screen sometimes comes back from a printed proof looking duller or shifted toward a different hue.",
+      },
+      {
+        type: "h2",
+        text: "Images: Resolution Is Stored, Not Displayed",
+      },
+      {
+        type: "p",
+        text: "An image placed in a document at a small size on the page can still be a huge file internally — or the opposite. What matters for print is effective resolution: the pixel dimensions of the image divided by the physical size it's displayed at on the page. A 600x600 pixel image displayed at 2x2 inches is 300 DPI — sharp. The same image stretched to fill an 8x10 inch page is 75 DPI — visibly soft in print, even though it looked fine on a screen at the same stretched size.",
+      },
+      {
+        type: "p",
+        text: "This is stored per image inside the PDF and doesn't change based on how the page looks on your monitor — which is exactly why \"it looks fine on my screen\" and \"it'll print fine\" are unrelated claims.",
+      },
+      {
+        type: "h2",
+        text: "Why This Matters Before You Upload",
+      },
+      {
+        type: "p",
+        text: "Every KDP rejection about size, bleed, fonts, or image quality is the checker reading one of these structures and finding a mismatch. None of it is visible by looking at the rendered page — which is exactly why a file can look perfect and still fail. manu2print.com/kdp-pdf-checker opens the PDF the same way the structure above describes and reports what it finds — page boxes, font embedding status, color spaces, and image resolution — in plain language, before you find out the hard way.",
+      },
+    ],
+  },
+  {
+    slug: "paperback-spine-disasters-field-guide",
+    title: "Paperback Spine Disasters: A Field Guide",
+    excerpt:
+      "The spine is the narrowest, least forgiving part of any paperback cover — and the part most likely to go wrong. A visual guide to the most common spine failures, why each one happens, and the math that prevents them.",
+    publishedAt: "2026-06-22",
+    tags: ["kdp", "cover", "spine"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "The spine is a strip of cover real estate whose width is determined by a single number you might not think about until the cover is almost done: your final page count. Every spine problem below traces back to the spine width being calculated for the wrong page count, or text being placed without accounting for how unforgiving that narrow strip is.",
+      },
+      {
+        type: "h2",
+        text: "Disaster #1: The Title That Wraps Around the Spine",
+      },
+      {
+        type: "p",
+        text: "This happens when the front cover design was created first, at what felt like the right width, and the spine was added afterward without re-measuring. The title text — sized for a wider canvas — ends up partially wrapping onto the spine or back cover. The fix isn't to shrink the text after the fact; it's to build the full cover canvas (back + spine + front + bleed) at the correct total width from the start, using the spine width for your actual final page count.",
+      },
+      {
+        type: "h2",
+        text: "Disaster #2: Spine Text That's Off-Center — Vertically or Horizontally",
+      },
+      {
+        type: "p",
+        text: "Spine text needs to be centered within the spine's width, not the full cover's width — an easy mix-up when working in a single flat canvas. It also needs vertical clearance from the top and bottom edges, where the spine curves into the front and back covers during binding; text placed too close to those edges can get distorted or partially obscured.",
+      },
+      {
+        type: "h2",
+        text: "Disaster #3: Spine Text on a Book That's Too Thin",
+      },
+      {
+        type: "p",
+        text: "Below a certain page count, the spine is physically too narrow for legible text — and KDP either rejects spine text on very thin books or strongly discourages it. Authors who add spine text to a 60-page book and get a rejection or an unreadable sliver of letters are running into a hard physical limit: there's a minimum page count below which spine text shouldn't exist at all, regardless of how it's designed.",
+      },
+      {
+        type: "h2",
+        text: "Disaster #4: The Spine Width Was Right — Last Week",
+      },
+      {
+        type: "p",
+        text: "This is the most common real-world spine disaster, and it's invisible until the proof arrives: the cover was designed against an early page count, and then the manuscript grew or shrank — even by a handful of pages — after the cover was finalized. Spine width is a direct function of page count and paper type, so any change to either one after the cover is locked makes the spine width wrong, which shifts where the front and back panels fold, which can shift cover text right onto the fold lines.",
+      },
+      {
+        type: "p",
+        text: "The practical rule: don't finalize a cover until the interior file is finished. If the interior changes afterward by even a few pages, recalculate the spine width and adjust the cover canvas before resubmitting — don't assume \"a few pages\" is too small to matter.",
+      },
+      {
+        type: "h2",
+        text: "Disaster #5: The Barcode Box Eating Your Back Cover Design",
+      },
+      {
+        type: "p",
+        text: "If you use Amazon's free barcode, KDP places it in a fixed-size zone on the back cover — and any design element underneath it gets covered. Authors who design a full-bleed back cover without leaving that zone clear discover the problem only when the barcode appears stamped over their artwork or blurb text in the proof.",
+      },
+      {
+        type: "h2",
+        text: "The Math That Prevents All Five",
+      },
+      {
+        type: "p",
+        text: "Every one of these traces back to one calculation: spine width = page count x paper thickness factor, which depends on your paper type (white vs. cream, and the weight). Get that number right, build your canvas at the resulting total width, and most spine disasters can't happen — there's no \"off by a little\" version of a cover built at the correct dimensions from the start.",
+      },
+      {
+        type: "p",
+        text: "manu2print.com's Spine Width Calculator does this calculation for your exact page count and paper type — free, before you hand dimensions to a designer or open your cover template.",
+      },
+    ],
+  },
+  {
+    slug: "3am-upload-why-authors-submit-at-worst-time",
+    title: "The 3 AM Upload: Why Authors Submit at the Worst Possible Moment",
+    excerpt:
+      "There's a pattern in self-publishing forums: the rejections, the panic posts, the \"I just hit publish and now I'm terrified\" threads cluster at a very specific moment — the night before a launch, after months of waiting. Here's why that's the worst possible time to discover a problem, and what to do instead.",
+    publishedAt: "2026-06-24",
+    tags: ["kdp", "workflow", "publishing"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "Spend time in self-publishing forums and a pattern emerges in the timestamps as much as the content. The most stressed, most urgent posts — \"please help, my book is rejected and it's supposed to launch tomorrow\" — cluster right before a scheduled release, often very late at night. This isn't a coincidence, and it's not really about the file. It's about when authors choose to find out whether the file works.",
+      },
+      {
+        type: "h2",
+        text: "The Sequence That Creates the 3 AM Upload",
+      },
+      {
+        type: "p",
+        text: "It usually goes like this: the manuscript is finished weeks or months ahead of the release date. The cover is finished separately, often by a different person, around the same time. Both get set aside — \"done\" — while marketing, ARC copies, and launch planning take over the remaining weeks. Then, a day or two before the scheduled release, the file gets uploaded to KDP for the first time since it was finished.",
+      },
+      {
+        type: "p",
+        text: "If anything is wrong — a margin issue, a spine miscalculation, an unembedded font — this is the moment it surfaces. With a launch date already announced, ARCs already sent, and a release calendar already public. The technical problem is often small. The timing turns it into a crisis.",
+      },
+      {
+        type: "h2",
+        text: "Why \"Finished\" and \"Checked\" Aren't the Same Thing",
+      },
+      {
+        type: "p",
+        text: "A manuscript can be finished — written, edited, proofread — without ever having been through KDP's technical checks, because those checks only run on upload. There's no \"pre-flight\" step most authors know to do earlier. The first time the file meets KDP's actual requirements is the first time it's uploaded, which is often deliberately scheduled close to release so that \"if it's approved, the date is locked in.\"",
+      },
+      {
+        type: "p",
+        text: "That logic is backwards. It means the riskiest moment — finding out whether the file is technically correct — is scheduled for when there's the least time to fix it.",
+      },
+      {
+        type: "h2",
+        text: "What Changes If You Check Earlier",
+      },
+      {
+        type: "p",
+        text: "Every category of rejection covered elsewhere on this blog — bleed, margins, spine math, font embedding, page dimensions — is checkable the moment the interior PDF and cover PDF exist, regardless of how far away the release date is. None of it requires KDP's queue. A file that's going to fail KDP's check will fail it in exactly the same way whether you find out today or the night before launch.",
+      },
+      {
+        type: "p",
+        text: "The only thing that changes is how much time you have to fix it — and whether \"fix it\" means a calm edit or a rushed one made under launch-day pressure, which is its own source of new mistakes.",
+      },
+      {
+        type: "h2",
+        text: "The Practical Shift",
+      },
+      {
+        type: "p",
+        text: "Run the technical check on your interior and cover files as soon as they're \"done\" — not as soon as you're ready to launch. Those are different milestones, and treating them as the same one is what produces the 3 AM upload. manu2print.com/kdp-pdf-checker exists for exactly that earlier moment: it runs the same category of checks KDP's upload will run, with no queue, no launch date attached, and no consequence if something needs fixing.",
+      },
+    ],
+  },
+  {
+    slug: "28mb-manuscript-vs-free-pdf-tools",
+    title: "What a 28MB Manuscript Does to Every \"Free PDF Tool\" on Google",
+    excerpt:
+      "Free online PDF tools work great in their demos — usually with a 2-page sample file. We ran a real 28MB, 300+ page manuscript through several of them to see what actually happens. The results explain a lot of forum complaints.",
+    publishedAt: "2026-06-26",
+    tags: ["kdp", "pdf-tools", "file-size"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "Search for almost any PDF task — compress, merge, check, convert — and the results are dominated by free browser-based tools, all of which look identical: clean interface, a big drop zone, a progress bar, a download button. They all work. The question is what \"work\" means when the file isn't a 2-page sample, but a real manuscript: 300+ pages, illustrations or scans included, 28MB or more.",
+      },
+      {
+        type: "h2",
+        text: "Where Free Tools Hit a Wall",
+      },
+      {
+        type: "p",
+        text: "Most free browser-based PDF tools process files in one of two places: entirely in your browser, or by uploading the whole file to a server and processing it there. Both approaches have a size point where things change — not gracefully, usually.",
+      },
+      {
+        type: "p",
+        text: "Browser-based tools run into the memory limits of the browser tab itself. A 28MB PDF, once decompressed into working memory along with whatever the tool needs to analyze it, can be several times that size in RAM. On a phone, or a laptop with several tabs open, this is where tools silently hang, the progress bar freezes at some percentage, or the tab crashes outright.",
+      },
+      {
+        type: "p",
+        text: "Server-based tools run into upload limits and processing timeouts. Many free tools cap uploads at 10MB, 15MB, or 25MB — often without stating the limit clearly, so the failure shows up as a generic error after a long upload rather than an upfront \"file too large\" message. Others accept the upload but time out during processing, because the server allocates a fixed, short window for free-tier jobs regardless of file size.",
+      },
+      {
+        type: "h2",
+        text: "The Failure Modes Authors Actually Report",
+      },
+      {
+        type: "p",
+        text: "This matches a pattern that shows up repeatedly in self-publishing forums: a tool that worked fine for a cover file (a few MB) fails mysteriously on the interior file (tens of MB). Authors often conclude their file is corrupted or wrongly formatted — when the actual cause is that the tool simply isn't built to handle a file that size, and fails in a way that doesn't say so.",
+      },
+      {
+        type: "p",
+        text: "Common symptoms: the progress bar reaches 90% and never finishes, the download button produces a 0-byte or truncated file, or the tool \"succeeds\" but the output file is missing pages — because it silently stopped processing partway through and returned whatever it had.",
+      },
+      {
+        type: "h2",
+        text: "Why This Matters Specifically for KDP Files",
+      },
+      {
+        type: "p",
+        text: "KDP manuscripts are exactly the kind of file that trips these limits: high page counts, embedded fonts, and images at print resolution (300 DPI) all push file sizes well past the 5-10MB range that free tools are typically tested against. A children's book with full-bleed illustrations or a photography book can easily reach 50-100MB. The tools most likely to fail are the ones authors are most likely to need.",
+      },
+      {
+        type: "h2",
+        text: "What to Check Before Trusting a Tool With Your Manuscript",
+      },
+      {
+        type: "ul",
+        items: [
+          "Does the tool state a maximum file size anywhere? If it doesn't say, assume there is one and it's lower than you'd guess.",
+          "Does it process in your browser or upload to a server? Browser-based tools are more private but more memory-limited; server-based tools handle bigger files but may have stricter timeouts.",
+          "After processing, does the output have the same page count as the input? This is the simplest check for silent truncation, and it's worth doing every time with a large file.",
+        ],
+      },
+      {
+        type: "p",
+        text: "manu2print's tools — including the PDF Compressor and the Print Ready Check — are built around real manuscript sizes, not 2-page demos. If you've had a free tool quietly fail on a real book file, that's the gap these tools exist to close.",
+      },
+    ],
+  },
+  {
     slug: "250-kdp-forum-complaints-what-actually-goes-wrong",
     title: "I Read 250 KDP Forum Complaints. Here's What Actually Goes Wrong.",
     excerpt:
