@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import SiteShell from "@/components/SiteShell";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Refund Policy — manu2print",
+  description: "manu2print refund policy. Understand when refunds apply for PDF scan purchases.",
+};
 
 export default function RefundsPage() {
   return (

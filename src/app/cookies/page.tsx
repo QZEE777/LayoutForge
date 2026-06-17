@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import SiteShell from "@/components/SiteShell";
+
+export const metadata: Metadata = {
+  title: "Cookie Policy — manu2print",
+  description: "How manu2print uses cookies and similar tracking technologies on its website.",
+};
 
 export default function CookiesPage() {
   return (

@@ -39,10 +39,66 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.75,
     },
     {
+      url: `${BASE}/cover-calculator`,
+      lastModified: new Date("2026-04-01"),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: `${BASE}/trim-size-comparison`,
+      lastModified: new Date("2026-04-01"),
+      changeFrequency: "monthly",
+      priority: 0.75,
+    },
+    {
+      url: `${BASE}/banned-keyword-checker`,
+      lastModified: new Date("2026-04-01"),
+      changeFrequency: "monthly",
+      priority: 0.75,
+    },
+    {
+      url: `${BASE}/pdf-compress`,
+      lastModified: new Date("2026-04-01"),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: `${BASE}/interior-template`,
+      lastModified: new Date("2026-04-01"),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: `${BASE}/page-number-formatter`,
+      lastModified: new Date("2026-04-01"),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
       url: `${BASE}/title-metadata-check`,
       lastModified: new Date("2026-04-29"),
       changeFrequency: "monthly",
       priority: 0.6,
+    },
+
+    // ── Site pages ────────────────────────────────────────────────────────────
+    {
+      url: `${BASE}/about`,
+      lastModified: new Date("2026-04-29"),
+      changeFrequency: "monthly",
+      priority: 0.5,
+    },
+    {
+      url: `${BASE}/faq`,
+      lastModified: new Date("2026-04-29"),
+      changeFrequency: "monthly",
+      priority: 0.5,
+    },
+    {
+      url: `${BASE}/contact`,
+      lastModified: new Date("2026-04-29"),
+      changeFrequency: "yearly",
+      priority: 0.4,
     },
 
     // ── Blog ──────────────────────────────────────────────────────────────────

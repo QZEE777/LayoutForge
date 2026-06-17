@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import SiteShell from "@/components/SiteShell";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy — manu2print",
+  description: "How manu2print collects, uses, and protects your personal data.",
+};
 
 export default function PrivacyPage() {
   return (

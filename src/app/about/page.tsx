@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import SiteShell from "@/components/SiteShell";
+
+export const metadata: Metadata = {
+  title: "About manu2print — Built for Indie Authors Who Self-Publish on KDP",
+  description: "manu2print makes KDP publishing less painful. We build tools that catch formatting errors before Amazon does — so you spend less time getting rejected and more time selling books.",
+};
 
 export default function AboutPage() {
   return (

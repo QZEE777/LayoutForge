@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { cache } from "react";
+
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 import Link from "next/link";
 import { BrandWordmark } from "@/components/BrandWordmark";
 import { supabase } from "@/lib/supabase";

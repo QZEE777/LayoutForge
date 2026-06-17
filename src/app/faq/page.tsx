@@ -1,6 +1,12 @@
+import type { Metadata } from "next";
 import React from "react";
 import Link from "next/link";
 import SiteShell from "@/components/SiteShell";
+
+export const metadata: Metadata = {
+  title: "FAQ — manu2print KDP Publishing Tools",
+  description: "Answers to common questions about the manu2print KDP PDF Checker, pricing, file types, supported trim sizes, and how to fix common KDP rejection errors.",
+};
 
 function FaqItem({ q, a }: { q: string; a: React.ReactNode }) {
   return (

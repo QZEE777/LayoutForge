@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import SiteShell from "@/components/SiteShell";
+
+export const metadata: Metadata = {
+  title: "Terms of Service — manu2print",
+  description: "Terms and conditions for using manu2print tools and services.",
+};
 
 export default function TermsPage() {
   return (
