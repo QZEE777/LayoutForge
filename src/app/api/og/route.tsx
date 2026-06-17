@@ -2,7 +2,16 @@ import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const title = searchParams.get("title");
+
+  const headline = title ?? "Would your PDF pass KDP?";
+  const subline = title
+    ? "manu2print — KDP publishing tools for indie authors"
+    : "Check margins, trim size, bleed, and fonts before Amazon rejects your manuscript.";
+  const fontSize = headline.length > 60 ? 48 : headline.length > 40 ? 56 : 68;
+
   return new ImageResponse(
     (
       <div
@@ -40,7 +49,7 @@ export async function GET() {
 
         {/* Headline */}
         <div style={{
-          fontSize: 68,
+          fontSize,
           fontWeight: 900,
           color: "#fff",
           textAlign: "center",
@@ -49,7 +58,7 @@ export async function GET() {
           marginBottom: 22,
           maxWidth: 900,
         }}>
-          Would your PDF pass KDP?
+          {headline}
         </div>
 
         {/* Subline */}
@@ -61,7 +70,7 @@ export async function GET() {
           lineHeight: 1.45,
           marginBottom: 48,
         }}>
-          Check margins, trim size, bleed, and fonts before Amazon rejects your manuscript.
+          {subline}
         </div>
 
         {/* CTA pill */}

@@ -17,9 +17,24 @@ export async function generateMetadata({ params }: BlogPostPageProps) {
   const { slug } = await params;
   const post = getPostBySlug(slug);
   if (!post) return { title: "Blog — manu2print" };
+  const ogImage = `https://www.manu2print.com/api/og?title=${encodeURIComponent(post.title)}`;
   return {
     title: `${post.title} — manu2print`,
     description: post.excerpt,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      url: `https://www.manu2print.com/blog/${slug}`,
+      siteName: "manu2print",
+      images: [{ url: ogImage, width: 1200, height: 630, alt: post.title }],
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.excerpt,
+      images: [ogImage],
+    },
   };
 }
 
