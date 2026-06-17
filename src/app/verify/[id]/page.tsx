@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { cache } from "react";
-
-export const metadata: Metadata = { robots: { index: false, follow: false } };
 import Link from "next/link";
 import { BrandWordmark } from "@/components/BrandWordmark";
 import { supabase } from "@/lib/supabase";
@@ -88,6 +86,7 @@ export async function generateMetadata({ params }: VerifyPageProps): Promise<Met
 
 function buildMeta(id: string, ogImage: string, base: string): Metadata {
   return {
+    robots: { index: false, follow: false },
     title: "KDP PDF Check Result — manu2print",
     description: "See how this manuscript scored on KDP readiness. Would your PDF pass?",
     openGraph: {
