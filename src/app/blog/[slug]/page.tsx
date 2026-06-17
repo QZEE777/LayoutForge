@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteShell from "@/components/SiteShell";
 import SocialLinks from "@/components/SocialLinks";
+import ShareButtons from "@/components/ShareButtons";
 import { getAllPosts, getPostBySlug, getRelatedPosts } from "@/lib/blog";
 
 export function generateStaticParams() {
@@ -141,21 +142,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 );
               })}
             </div>
-            {/* Share */}
-            <div className="mt-8 flex items-center justify-between rounded-2xl border border-m2p-border bg-white px-5 py-4">
-              <p className="text-sm font-medium text-m2p-ink">Found this useful?</p>
-              <a
-                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`${BASE}/blog/${slug}`)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full bg-[#1877F2] px-5 py-2 text-sm font-semibold text-white hover:bg-[#1565D8] transition-colors"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.268h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/>
-                </svg>
-                Share on Facebook
-              </a>
-            </div>
+            <ShareButtons url={`${BASE}/blog/${slug}`} />
 
             {/* Follow us */}
             <div className="mt-4 flex flex-col items-center gap-3 rounded-2xl border border-m2p-border bg-m2p-ink px-6 py-6 text-center">
