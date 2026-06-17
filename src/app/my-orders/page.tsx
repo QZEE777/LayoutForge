@@ -1,5 +1,10 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabaseServer";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 /** Logged-in users: purchase history lives under Dashboard → Settings. Others: email verification on /account. */
 export default async function MyOrdersPage() {

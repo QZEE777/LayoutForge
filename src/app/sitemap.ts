@@ -85,18 +85,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.2,
     },
 
-    // ── Account / utility ─────────────────────────────────────────────────────
-    {
-      url: `${BASE}/resend-link`,
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.2,
-    },
-    {
-      url: `${BASE}/my-orders`,
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.2,
-    },
   ];
 }
