@@ -18,6 +18,331 @@ export type BlogPost = {
 
 const POSTS: BlogPost[] = [
   {
+    slug: "1000-dollar-formatter-what-youre-actually-paying-for",
+    title: "$1,000 to Format a Book? Here's What You're Actually Paying For",
+    excerpt:
+      "One Reddit thread asking 'how do you guys afford this' pulled 200 comments in a week. Here's what a $1,000 formatting quote actually covers — and which parts of it you can do yourself for free.",
+    publishedAt: "2026-08-03",
+    tags: ["kdp", "formatting", "cost"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "A post titled \"How do you guys afford this?\" pulled over 200 comments in r/selfpublish in a matter of days. The author's math: editor, cover, formatting — easily $2,000 before a single copy sells, with no guarantee anyone buys it. The replies were a mix of sympathy, budget tricks, and quiet panic from people in the exact same spot.",
+      },
+      {
+        type: "p",
+        text: "Formatting is usually the smallest of those three costs and the easiest to cut without hurting your book. Here's what you're actually paying a formatter for, broken into pieces — so you can decide which ones you genuinely need to outsource.",
+      },
+      {
+        type: "h2",
+        text: "What a $1,000 formatting quote covers",
+      },
+      {
+        type: "ul",
+        items: [
+          "Page setup — trim size, margins, gutter, bleed configured correctly for your chosen size",
+          "Typesetting — chapter starts, drop caps, running heads, consistent styling throughout",
+          "Front/back matter — title page, copyright page, dedication, about-the-author layout",
+          "Export — generating a print-ready PDF and a separate EPUB/MOBI for ebook",
+          "Fixes — correcting whatever KDP's checker flags on the first upload attempt",
+        ],
+      },
+      {
+        type: "p",
+        text: "Of those five, the first and last — page setup and fixing checker rejections — are pure geometry. There's no craft in a 0.75-inch margin or a 0.125-inch bleed. It's numbers matching numbers. That's the part costing you the most anxiety and the least actual skill.",
+      },
+      {
+        type: "h2",
+        text: "What's genuinely worth paying for",
+      },
+      {
+        type: "p",
+        text: "Typesetting judgment — deciding how a chapter opener should look, choosing type that suits your genre, making 400 pages feel considered rather than default — that's real craft, and it's the part that separates a book that reads as \"self-published\" from one that doesn't. If you're going to spend money, that's where it buys something you can't easily replicate with a template.",
+      },
+      {
+        type: "p",
+        text: "Front and back matter is also worth having a second pair of eyes on, mostly because it's boring to do yourself and easy to get subtly wrong — copyright pages have conventions readers half-notice even when they can't name them.",
+      },
+      {
+        type: "h2",
+        text: "What you can do yourself for free",
+      },
+      {
+        type: "p",
+        text: "Page setup: Word, Google Docs, and free tools like Reedsy's formatter can all produce a compliant print PDF once the trim size, margins, and bleed are set correctly — the settings are public, not proprietary. The problem was never that you couldn't do it. It's that nobody tells you exactly what \"correctly\" means until KDP rejects the file and you're guessing at which measurement was off.",
+      },
+      {
+        type: "p",
+        text: "That's the gap a $9 scan closes cheaper than a $1,000 formatter: run your self-formatted PDF through manu2print's checker before you upload, and you get a page-by-page report of exactly what's wrong — margins, bleed, fonts, trim size — instead of a vague KDP rejection email and a guess.",
+      },
+      {
+        type: "h2",
+        text: "The real fix for \"how do you afford this\"",
+      },
+      {
+        type: "p",
+        text: "You don't have to afford all of it. Format it yourself using free tools, spend the money you saved on an editor (which genuinely can't be replaced by software), and use a $9 scan to catch the mistakes before Amazon does instead of paying someone $1,000 to catch them for you.",
+      },
+    ],
+  },
+  {
+    slug: "cover-designer-vanished-page-count-changed",
+    title: "Your Cover Designer Vanished and Your Page Count Changed — Now What",
+    excerpt:
+      "You sent your designer a 400-page cover template. Your manuscript is now 450 pages. They've gone quiet. Here's what actually happens when you upload a mismatched cover — and how to fix it yourself.",
+    publishedAt: "2026-07-31",
+    tags: ["kdp", "cover", "spine"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "A thread in r/selfpublish laid out a familiar nightmare: a cover designer was sent a KDP template built for a 400-page manuscript. Months later, after a final editing pass, the book sits at 450 pages. The designer has gone dark — no replies, commissions closed, no activity. The author's question: what actually happens when a mismatched cover meets a manuscript at upload?",
+      },
+      {
+        type: "h2",
+        text: "What KDP does — and doesn't do — with a mismatched cover",
+      },
+      {
+        type: "p",
+        text: "KDP does not resize your cover for you. Page count drives spine width, and spine width is baked into the cover file itself — it's not a setting you adjust after the fact. A cover built for 400 pages has a spine sized for 400 pages. Uploading it against a 450-page manuscript will fail at the upload checker, because the spine will be too narrow for the actual print thickness.",
+      },
+      {
+        type: "p",
+        text: "The failure mode you'll usually see is a flat rejection citing cover dimensions, sometimes phrased as the wrong total width for your trim size and page count. It's not a mysterious error — it's the same spine-width math that determines every KDP cover, just now out of sync with your file.",
+      },
+      {
+        type: "h2",
+        text: "The fix doesn't require your original designer",
+      },
+      {
+        type: "p",
+        text: "Spine width is a formula, not an art decision: page count, paper type (white or cream), and trim size go in, spine width comes out. You don't need the original designer to recalculate it — you need the front and back cover artwork they already delivered, and the correct spine measurement for your new page count.",
+      },
+      {
+        type: "ul",
+        items: [
+          "Get your exact spine width for the new page count from a spine calculator — free, instant, no design skill needed",
+          "Re-lay the existing front cover, spine text, and back cover onto a template sized for the new total width",
+          "If the artwork is layered (PSD, AI, or Canva with editable layers), this is a resize, not a redesign",
+          "If you only have a flattened image, a designer can still do this cheaply — it's a template swap, not new art",
+        ],
+      },
+      {
+        type: "h2",
+        text: "Prevent this on your next book",
+      },
+      {
+        type: "p",
+        text: "Lock your manuscript's page count before commissioning a cover, not after. If edits are still likely, tell your designer up front and get the spine built to a slightly generous estimate — a little empty margin is invisible; a spine that's too narrow isn't. And before you upload anything, run your numbers through manu2print's free cover size calculator so you're handing over an exact spec instead of a guess.",
+      },
+    ],
+  },
+  {
+    slug: "kdp-ai-checkbox-wont-accept-no",
+    title: "The KDP AI Checkbox Bug Nobody Warned You About",
+    excerpt:
+      "An author with a 100% human-written book couldn't get KDP's AI-content checkbox to accept \"No.\" It's not a policy problem — it's a form bug authors keep hitting with no warning. Here's what's actually going on.",
+    publishedAt: "2026-07-29",
+    tags: ["kdp", "ai-disclosure", "troubleshooting"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "\"I'm trying to post my latest book, which contains no AI involvement at all, but it won't let me select 'No.' It keeps saying 'confirm your answer is correct.'\" That's a real KDP author, describing a real upload session, on a book they wrote entirely themselves. The thread got dozens of replies from other authors hitting the exact same wall.",
+      },
+      {
+        type: "h2",
+        text: "This is a form bug, not a policy decision",
+      },
+      {
+        type: "p",
+        text: "Amazon added AI-content disclosure questions to the publishing flow to comply with its own AI content policy — authors now confirm whether text or images were AI-generated or AI-assisted. The intent is reasonable. The implementation, based on repeated author reports, has an intermittent glitch where the \"No\" selection doesn't register as final, and the form keeps re-prompting as if no answer was given.",
+      },
+      {
+        type: "p",
+        text: "One author in the thread found a workaround: saving as a draft, refreshing the page, and a second checkbox appearing that finally let the answer stick. That's not a documented fix — it's an author discovering, by trial and error, that the form's state gets confused and a hard refresh resets it.",
+      },
+      {
+        type: "h2",
+        text: "What to do if it happens to you",
+      },
+      {
+        type: "ul",
+        items: [
+          "Save your progress as a draft rather than fighting the checkbox in the same session",
+          "Refresh the page fully (not just navigate back) before re-attempting the question",
+          "Try a different browser or clear the tab's cache if the refresh alone doesn't work",
+          "If it persists, contact KDP support directly and describe it as a form bug, not a policy question — you'll get routed to the right team faster",
+        ],
+      },
+      {
+        type: "h2",
+        text: "Why this matters beyond the annoyance",
+      },
+      {
+        type: "p",
+        text: "AI disclosure is becoming a permanent part of KDP's publishing flow, not a one-time speed bump. If your book is genuinely 100% human-written, the honest answer is \"No\" — don't select \"Yes\" just to get past a stuck form, since that mischaracterizes your book and can affect how it's categorized or promoted. Push through the bug, don't answer around it.",
+      },
+    ],
+  },
+  {
+    slug: "changed-one-word-amazon-blocked-my-book",
+    title: "You Changed One Word and Amazon Blocked Your Book — Here's Why",
+    excerpt:
+      "A paperback sailed through review, got a proof approved, then got blocked after a single-word edit on resubmission. It's not random. Here's what actually triggers a re-review — and how to avoid it near your release date.",
+    publishedAt: "2026-07-27",
+    tags: ["kdp", "rejection", "troubleshooting"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "An author on r/selfpublish had their paperback approved, received a proof, and lowered the price with no issue. Then, with a release date days away, they reuploaded the manuscript with a single word changed. The book was blocked. No detailed explanation — just a block, on a file that had already passed review once.",
+      },
+      {
+        type: "h2",
+        text: "Why any change triggers a full re-review",
+      },
+      {
+        type: "p",
+        text: "KDP doesn't diff your new file against your old one and check only what changed. Every manuscript upload — even a resubmission with one word different — goes through the same automated pipeline as a brand-new file: page geometry, embedded fonts, image resolution, and content screening all run again from scratch.",
+      },
+      {
+        type: "p",
+        text: "That means a file that passed a week ago can fail today, not because the rules changed, but because your file was already sitting close to a limit, and reprocessing it (re-exporting, re-embedding fonts, sometimes even a different PDF export pass in the same software) shifted something by a fraction — enough to cross a threshold that wasn't crossed before.",
+      },
+      {
+        type: "h2",
+        text: "Content screening runs on every version, too",
+      },
+      {
+        type: "p",
+        text: "The content review — for text, imagery, rights issues — isn't a one-time check that gets waived on resubmission. It reruns. If your one-word edit was flagged for something unrelated to the edit itself (a phrase elsewhere in the manuscript, cover text, metadata), you'll see a block that appears to have nothing to do with what you actually changed, because in the system's eyes, you submitted an entirely new file.",
+      },
+      {
+        type: "h2",
+        text: "How to avoid this near your release date",
+      },
+      {
+        type: "ul",
+        items: [
+          "Lock your final manuscript at least 5-7 days before release — treat every post-approval edit as a full resubmission risk",
+          "If you must make a last-minute change, re-export the PDF fresh rather than editing the existing file in place",
+          "Re-check margins, bleed, and font embedding after any re-export — the export process itself can shift measurements slightly",
+          "If you get blocked with no clear reason, contact KDP support and ask specifically what triggered the block rather than guessing and re-uploading blind",
+        ],
+      },
+      {
+        type: "p",
+        text: "The safest habit: run your file through a checker before every upload, not just the first one. A one-word edit takes 90 seconds to verify and can save you a release-day scramble.",
+      },
+    ],
+  },
+  {
+    slug: "is-that-cover-explicit-kdp-toggle-explained",
+    title: "Is That Cover \"Explicit\"? Amazon's Toggle, Explained",
+    excerpt:
+      "Lingerie, a swimsuit, a suggestive pose — where's the line? Authors keep asking the same question in KDP forums with no clear answer. Here's what the explicit-content toggle actually controls, and how to decide.",
+    publishedAt: "2026-07-24",
+    tags: ["kdp", "content-policy", "cover"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "\"Is an image of a woman in lingerie considered 'explicit'? Do I need to toggle the switch?\" That question, or a version of it, comes up constantly in KDP author communities — usually with no confident answer in the replies, because the line genuinely isn't obvious from KDP's own wording.",
+      },
+      {
+        type: "h2",
+        text: "What the toggle actually does",
+      },
+      {
+        type: "p",
+        text: "The explicit-content toggle doesn't block your book from being published — it changes how it's distributed and discovered. Toggling it on restricts the book from certain search results, recommendation placements, and some regional storefronts, and can trigger an age gate. It's a distribution setting, not a publish/reject gate.",
+      },
+      {
+        type: "p",
+        text: "That distinction matters for the decision: under-toggling risks a content-policy flag after the fact (worse, because it can trigger a review of your whole catalog); over-toggling just narrows your discoverability for a book that didn't need it restricted.",
+      },
+      {
+        type: "h2",
+        text: "A working rule of thumb",
+      },
+      {
+        type: "ul",
+        items: [
+          "Suggestive but non-explicit (lingerie, swimwear, implied intimacy without nudity) — generally does not require the toggle, but check genre norms; romance and romantasy covers push this boundary constantly and mostly stay untoggled",
+          "Nudity, even artistic or non-sexual — toggle it. This is the line KDP's own guidance is clearest about",
+          "Sexual content described but not depicted on the cover, present inside the book — toggle applies to interior content too, not just cover art",
+          "If you're asking the question, that's a signal — genuinely non-explicit covers rarely prompt authors to double-check",
+        ],
+      },
+      {
+        type: "h2",
+        text: "When in doubt",
+      },
+      {
+        type: "p",
+        text: "Look at three or four bestsellers in your exact subgenre with similar cover content and see whether they're toggled — you can often tell from search visibility and whether the listing shows an age gate. It's not a perfect signal, but it's a better one than guessing from KDP's help text alone, which is deliberately broad and unhelpful for edge cases.",
+      },
+    ],
+  },
+  {
+    slug: "formatter-ghosted-you-never-depend-on-one-again",
+    title: "Why Your Formatter Ghosted You (And How to Never Depend on One Again)",
+    excerpt:
+      "Paid a contractor $1,000 for a \"simple\" 6x9 format. Months later: silence. It's a common enough story that it has its own thread every few weeks. Here's how to make sure it never costs you your launch date again.",
+    publishedAt: "2026-07-22",
+    tags: ["kdp", "formatting", "cost"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "\"Formatting by myself has not worked out for me. I tried a contractor who just disappeared. It also seems odd that contractors want $1,000 for a simple lit format and it takes months to get around to my project.\" That's from a thread titled simply \"I need a formatter!\" — and it's not a one-off. Versions of this story show up in KDP forums on a rolling basis.",
+      },
+      {
+        type: "h2",
+        text: "Why this keeps happening",
+      },
+      {
+        type: "p",
+        text: "Formatting-for-hire is largely an unregulated freelance market. There's no license, no standard turnaround, no escrow-by-default. A contractor taking a deposit and disappearing has almost no consequence beyond a bad review you may not even get to leave if the platform doesn't require project completion to post one. For a $1,000 job with a months-long queue, the incentive to keep every client happy is weaker than you'd assume.",
+      },
+      {
+        type: "p",
+        text: "This isn't a reason to never hire a formatter — plenty deliver reliably. It's a reason not to make your launch date depend entirely on one person you can't verify.",
+      },
+      {
+        type: "h2",
+        text: "The dependency you can remove",
+      },
+      {
+        type: "p",
+        text: "The actual risk isn't the money — it's that authors hand over their only formatting path to one contractor, with no fallback if that person vanishes. If formatting a compliant print PDF yourself is genuinely possible with free tools (it is — see the trim size, margin, and bleed settings are all public), then a formatter becomes a nice-to-have for polish, not a single point of failure for your release date.",
+      },
+      {
+        type: "h2",
+        text: "A safer way to hire, if you still want to",
+      },
+      {
+        type: "ul",
+        items: [
+          "Never pay the full amount upfront — 50% deposit, 50% on delivery is standard and reasonable to request",
+          "Ask for a small paid sample (one chapter) before committing to the full manuscript",
+          "Check reviews specifically for delivery reliability, not just quality — the two are graded separately by past clients",
+          "Set a hard deadline in writing before paying anything, with a stated consequence (refund clause) if missed",
+        ],
+      },
+      {
+        type: "h2",
+        text: "Your fallback plan",
+      },
+      {
+        type: "p",
+        text: "Format a basic version yourself in parallel with any contractor work — even if it's rougher, it's a working file you own outright. Run it through manu2print's checker to confirm it's technically compliant. If your contractor delivers something better, use theirs. If they vanish, you still have a book ready to publish on your own timeline, not theirs.",
+      },
+    ],
+  },
+  {
     slug: "kdp-myths-that-refuse-to-die",
     title: "KDP Myths That Refuse to Die",
     excerpt:
