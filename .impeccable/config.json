@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "ai-color-palette",
+        "value": "violet",
+        "files": [
+          "src/components/blog/BlogIndexClient.tsx"
+        ],
+        "createdAt": "2026-08-31T11:16:23.735Z",
+        "reason": "One of 5 semantic tag-chip colors (kdp/formatting/rejection/margins/launch) in a pre-existing categorical color system, not a purple-gradient hero. Primary brand palette (ivory/orange/ink) is unaffected."
+      }
+    ]
+  }
+}
