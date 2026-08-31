@@ -18,6 +18,137 @@ export type BlogPost = {
 
 const POSTS: BlogPost[] = [
   {
+    slug: "banned-keyword-catalog-suspension",
+    title: "The Keyword That Gets Your Whole Catalog Suspended (Not Just One Book)",
+    excerpt:
+      "Authors treat a flagged keyword like a parking ticket — fix the one listing, move on. KDP's enforcement doesn't always work that way. Here's what actually escalates from a single suppressed book to a review of your entire account.",
+    publishedAt: "2026-09-03",
+    tags: ["kdp", "keywords", "content-policy"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "Most authors assume a bad keyword is a local problem: KDP flags it, that one listing gets suppressed or rejected, you fix the metadata, you resubmit, done. For a typo or an overreaching genre comparison, that's usually true. But KDP's own enforcement guidance describes a spectrum, not a single outcome — and the far end of that spectrum isn't about one book at all. It's your account.",
+      },
+      {
+        type: "h2",
+        text: "What KDP actually flags",
+      },
+      {
+        type: "ul",
+        items: [
+          "Trust-signal claims you can't back up — \"bestseller,\" \"award-winning,\" \"#1\" — unless you actually hold the badge or the award",
+          "Other authors' names or specific book titles used to intercept their search traffic (a genre comparison like \"fans of British detective fiction\" is fine; naming a specific competing author usually isn't)",
+          "Trademarked platform names — Amazon, Kindle, Prime — used in a way that implies official affiliation or endorsement",
+          "\"Free\" or similar pricing claims on a book that isn't actually free or permafree",
+          "Keyword stuffing — packing in irrelevant terms purely to surface in searches your book doesn't genuinely match",
+        ],
+      },
+      {
+        type: "h2",
+        text: "One flag vs. a pattern",
+      },
+      {
+        type: "p",
+        text: "A single flagged keyword on an otherwise clean listing typically gets handled at the book level: automated suppression from search results, or a rejection if it's caught during review, either way fixable by correcting the metadata and resubmitting. That's the outcome most authors picture when they hear \"banned keyword,\" and for a one-off mistake, it's usually the right outcome.",
+      },
+      {
+        type: "p",
+        text: "The escalation happens when the violation looks less like a one-off and more like a pattern — the same trust-signal claim repeated across several titles, competitor names showing up in more than one book's metadata, keyword stuffing that reads as deliberate rather than accidental. That's when it stops being a per-book correction and starts being evidence about how the account as a whole is being run.",
+      },
+      {
+        type: "h2",
+        text: "Why account-level review is the real risk",
+      },
+      {
+        type: "p",
+        text: "This is the part that catches authors off guard: an account-level review doesn't confine itself to the book that tripped the flag. It can touch titles that were never a problem, slow down or block new publishing while KDP investigates, and in serious cases lead to a suspension — which is a different animal from a single rejected listing. A suspension puts your whole catalog on hold pending investigation, and \"pending investigation\" has no guaranteed timeline.",
+      },
+      {
+        type: "p",
+        text: "None of this means suspensions are common — they're not, and authors who keep their metadata honest rarely encounter this end of the spectrum at all. But the mechanism is real: KDP is looking for signals about intent, not just isolated violations, and a keyword choice that reads as a pattern is a much stronger signal than a single mistake.",
+      },
+      {
+        type: "h2",
+        text: "How to self-check before you publish",
+      },
+      {
+        type: "ul",
+        items: [
+          "Search your own keywords and description for any other author's name or book title — even an unintentional one",
+          "Don't claim \"bestseller\" or \"award-winning\" without the badge or the award to back it up",
+          "Leave \"free\" out of your metadata unless the listing is actually priced at zero",
+          "Keep keywords describing what your book actually is, not what you wish it ranked for",
+          "Check this across your whole catalog, not just the newest release — an old book's metadata counts too",
+        ],
+      },
+      {
+        type: "p",
+        text: "manu2print's Banned Keyword Checker scans your title, subtitle, and keyword fields against KDP's actual restricted terms before you publish — catching the pattern before it becomes one.",
+      },
+    ],
+  },
+  {
+    slug: "kdp-royalty-rate-cut-2025",
+    title: "KDP Quietly Cut Your Royalty Rate in 2025 — Did You Notice?",
+    excerpt:
+      "On June 10, 2025, Amazon cut print royalties from 60% to 50% on books priced under $9.99. Over a year later, a lot of authors are still doing their pricing math off the old number.",
+    publishedAt: "2026-09-01",
+    tags: ["kdp", "royalty", "research"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "There was no banner on the dashboard, no popup at upload, nothing that forced you to re-read your pricing before it took effect. On June 10, 2025, Amazon dropped the print royalty rate from 60% to 50% for paperbacks and hardcovers priced below a set threshold — and if your book already existed at that price point, the only sign anything changed was a slightly smaller deposit landing the same way it always had.",
+      },
+      {
+        type: "h2",
+        text: "What actually changed, and when",
+      },
+      {
+        type: "p",
+        text: "Amazon's own announcement is specific: starting June 10, 2025, the royalty rate for print books priced below 9.99 USD (or the equivalent in other currencies) dropped from 60% to 50%. Books priced at or above the threshold kept the 60% rate. It applies to both paperback and hardcover, it's based on list price rather than printing cost, and it does not touch ebook royalties at all — this is a print-only change.",
+      },
+      {
+        type: "ul",
+        items: [
+          "Amazon.com: 60% at $9.99 or above, 50% at $9.98 or below",
+          "Amazon.co.uk: 60% at £7.99 or above, 50% at £7.98 or below",
+          "Amazon.ca: 60% at CAD $13.99 or above, 50% below",
+          "Similar thresholds apply in EUR, AUD, SEK, PLN, and JPY marketplaces — check each one, since Amazon does not auto-convert your USD price into an equivalent threshold elsewhere",
+        ],
+      },
+      {
+        type: "h2",
+        text: "Who this actually hits",
+      },
+      {
+        type: "p",
+        text: "It lands hardest on exactly the books authors price low on purpose — novellas, short story collections, low-page-count nonfiction, anything positioned to be an easy, cheap entry point into a series or a catalog. Amazon's own worked example is blunt: a book priced at $8.99 with a print cost of $2.65 used to earn $2.74 per copy. After the change, that same book earns $1.85 — a 32% cut in per-sale royalty, on a book whose price and printing cost never moved.",
+      },
+      {
+        type: "h2",
+        text: "Why you might still be pricing off the old math",
+      },
+      {
+        type: "p",
+        text: "This wasn't a rule that gets re-taught every time you open KDP. Older blog posts, older spreadsheets, older mental shortcuts — a lot of the pricing guidance still floating around author communities was written before June 2025 and never got corrected. If you built your pricing intuition before the cut, or you're pricing a new low-cost title today using rules you learned two years ago, you're doing the math on a royalty rate that no longer exists at that price point.",
+      },
+      {
+        type: "h2",
+        text: "How to recalculate before your next upload",
+      },
+      {
+        type: "p",
+        text: "The formula itself didn't change: royalty equals list price times your royalty rate, minus printing cost. What changed is which rate applies at your specific price point. Before you finalize pricing on a book under $9.99, work out both numbers — what you'd earn at 50% under the threshold, and what you'd earn at 60% by pricing at or above it — and decide deliberately, rather than assuming the split you remember still holds.",
+      },
+      {
+        type: "p",
+        text: "manu2print's Royalty Calculator runs the current KDP math for your exact price, trim size, and page count, so you can see the real number before you publish instead of finding out from a smaller deposit.",
+      },
+    ],
+  },
+  {
     slug: "1000-dollar-formatter-what-youre-actually-paying-for",
     title: "$1,000 to Format a Book? Here's What You're Actually Paying For",
     excerpt:
