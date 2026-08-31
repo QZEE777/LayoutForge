@@ -58,10 +58,7 @@ export default function BlogIndexClient({ posts, allTags }: Props) {
         }} />
         {/* Content */}
         <div className="relative px-8 py-12 sm:px-12 sm:py-16">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: "rgba(250,247,238,0.40)" }}>
-            M2P · Editorial Desk
-          </p>
-          <h1 className="mt-3 font-bebas text-5xl tracking-wide sm:text-6xl" style={{ color: "#FAF7EE" }}>
+          <h1 className="font-bebas text-5xl tracking-wide sm:text-6xl" style={{ color: "#FAF7EE" }}>
             KDP notes that ship
           </h1>
           <p className="mt-3 max-w-lg text-base leading-relaxed sm:text-lg" style={{ color: "rgba(240,223,209,0.72)" }}>
