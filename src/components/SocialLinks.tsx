@@ -9,6 +9,13 @@ const SOCIALS = [
     path: "M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z",
   },
   {
+    id: "instagram",
+    label: "Instagram",
+    href: "https://www.instagram.com/manu2print",
+    path: "",
+    isInstagram: true,
+  },
+  {
     id: "x",
     label: "X",
     href: "", // TODO: add URL when live
@@ -49,6 +56,7 @@ export default function SocialLinks({ variant = "dark", size = "md" }: SocialLin
     <div className="flex items-center gap-2">
       {liveSocials.map(({ id, label, href, path, ...rest }) => {
         const isX = "isX" in rest && rest.isX;
+        const isInstagram = "isInstagram" in rest && rest.isInstagram;
         return (
           <a
             key={id}
@@ -69,7 +77,15 @@ export default function SocialLinks({ variant = "dark", size = "md" }: SocialLin
               strokeLinecap="round"
               aria-hidden="true"
             >
-              <path d={path} />
+              {isInstagram ? (
+                <>
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="currentColor" strokeWidth="2" />
+                  <circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" strokeWidth="2" />
+                  <circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none" />
+                </>
+              ) : (
+                <path d={path} />
+              )}
             </svg>
           </a>
         );
