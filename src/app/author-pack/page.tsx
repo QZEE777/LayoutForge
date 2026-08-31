@@ -229,7 +229,7 @@ export default function AuthorPackPage() {
             {[
               { step: "01", icon: "💳", title: "Buy the Pack", desc: "One-time $19 payment. 6 scan credits added to your account instantly." },
               { step: "02", icon: "📤", title: "Upload Your PDF", desc: "Go to the KDP PDF Checker, upload your manuscript. Your credit is deducted automatically." },
-              { step: "03", icon: "📥", title: "Download & Fix", desc: "Get your annotated report in under 90 seconds. Fix the issues, publish with confidence." },
+              { step: "03", icon: "📥", title: "Download & Fix", desc: "Get your annotated report within 5 minutes. Fix the issues, publish with confidence." },
             ].map((s) => (
               <div key={s.step} className="rounded-2xl border border-m2p-border bg-white p-6">
                 <div className="flex items-center gap-3 mb-3">

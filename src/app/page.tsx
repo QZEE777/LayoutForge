@@ -7,7 +7,7 @@ import SocialLinks from "@/components/SocialLinks";
 export const metadata = {
   title: "KDP PDF Checker — Fix Formatting Errors Before You Upload to Amazon KDP | manu2print",
   description:
-    "Check your PDF for KDP formatting errors before you upload to Amazon KDP. Find margin violations, bleed issues, trim size mismatches, and font errors in 90 seconds. Built for indie authors and self-publishers.",
+    "Check your PDF for KDP formatting errors before you upload to Amazon KDP. Find margin violations, bleed issues, trim size mismatches, and font errors within 5 minutes. Built for indie authors and self-publishers.",
 };
 
 const FREE_TOOLS: Array<{ icon: LucideIcon; name: string; description: string; href: string }> = [
@@ -74,7 +74,7 @@ const HOW_IT_WORKS = [
   {
     step: "02",
     title: "See your score and detected issues",
-    body: "We check 26 KDP print requirements and return a compliance score with a full issue list in under 90 seconds.",
+    body: "We check 26 KDP print requirements and return a compliance score with a full issue list within 5 minutes.",
   },
   {
     step: "03",
@@ -102,7 +102,7 @@ const FAQS = [
   },
   {
     q: "How long does the KDP PDF scan take?",
-    a: "Most scans complete in under 90 seconds. Larger files (100+ pages, heavy images) may take up to 3 minutes. Your score and issue count appear immediately — the full annotated report unlocks for $9.",
+    a: "Most scans complete within 5 minutes. Your score and issue count appear immediately — the full annotated report unlocks for $9.",
   },
 ];
 

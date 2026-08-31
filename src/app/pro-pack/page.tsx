@@ -251,7 +251,7 @@ export default function ProPackPage() {
             {[
               { step: "01", icon: "💳", title: "Buy the Pack", desc: "One-time $79 payment. 30 scan credits added to your account instantly." },
               { step: "02", icon: "📤", title: "Upload Any PDF", desc: "Go to the KDP PDF Checker, upload any manuscript — yours or a client's. One credit per scan." },
-              { step: "03", icon: "📥", title: "Download & Deliver", desc: "Full annotated report in under 90 seconds. Fix, publish, or deliver to your client." },
+              { step: "03", icon: "📥", title: "Download & Deliver", desc: "Full annotated report within 5 minutes. Fix, publish, or deliver to your client." },
             ].map((s) => (
               <div key={s.step} className="rounded-2xl border border-m2p-border bg-white p-6">
                 <div className="flex items-center gap-3 mb-3">

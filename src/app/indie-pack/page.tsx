@@ -219,7 +219,7 @@ export default function IndiePackPage() {
             {[
               { step: "01", icon: "💳", title: "Buy the Pack", desc: "One-time $39 payment. 14 scan credits added to your account instantly." },
               { step: "02", icon: "📤", title: "Upload Your PDF", desc: "Go to the KDP PDF Checker, upload your manuscript. One credit deducted per scan." },
-              { step: "03", icon: "📥", title: "Download & Fix", desc: "Full annotated report in under 90 seconds. Fix, re-upload to KDP, repeat across your catalog." },
+              { step: "03", icon: "📥", title: "Download & Fix", desc: "Full annotated report within 5 minutes. Fix, re-upload to KDP, repeat across your catalog." },
             ].map((s) => (
               <div key={s.step} className="rounded-2xl border border-m2p-border bg-white p-6">
                 <div className="flex items-center gap-3 mb-3">

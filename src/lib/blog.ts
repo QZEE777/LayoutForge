@@ -365,7 +365,7 @@ const POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        text: "The safest habit: run your file through a checker before every upload, not just the first one. A one-word edit takes 90 seconds to verify and can save you a release-day scramble.",
+        text: "The safest habit: run your file through a checker before every upload, not just the first one. A one-word edit takes a few minutes to verify and can save you a release-day scramble.",
       },
     ],
   },
@@ -1344,7 +1344,7 @@ const POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        text: "If you format books for clients — on Fiverr, Upwork, or independently — running every file through a preflight check before delivery is what separates you from the $5 gigs. It takes 90 seconds. It means you deliver files you know will pass. It means your clients don't come back furious after a rejection.",
+        text: "If you format books for clients — on Fiverr, Upwork, or independently — running every file through a preflight check before delivery is what separates you from the $5 gigs. It takes a few minutes. It means you deliver files you know will pass. It means your clients don't come back furious after a rejection.",
       },
       {
         type: "p",
@@ -1517,7 +1517,7 @@ const POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        text: "Free score preview. No account needed. 90 seconds and you'll know exactly where your file stands.",
+        text: "Free score preview. No account needed. A few minutes and you'll know exactly where your file stands.",
       },
     ],
   },
@@ -1609,7 +1609,7 @@ const POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        text: "Free score preview. No account needed. Takes about 90 seconds.",
+        text: "Free score preview. No account needed. Takes a few minutes.",
       },
     ],
   },
@@ -1885,7 +1885,7 @@ const POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        text: "That gap is where most first-time authors lose weeks of their life to rejection cycles. I lost about three weeks myself before I understood what was actually going wrong. Before your next Canva upload, run your PDF through the KDP PDF Checker at manu2print.com/kdp-pdf-checker. It takes about 90 seconds and it'll catch everything in this list. The score preview is free. The full annotated report, which shows every issue by page number, is $9.",
+        text: "That gap is where most first-time authors lose weeks of their life to rejection cycles. I lost about three weeks myself before I understood what was actually going wrong. Before your next Canva upload, run your PDF through the KDP PDF Checker at manu2print.com/kdp-pdf-checker. It takes a few minutes and it'll catch everything in this list. The score preview is free. The full annotated report, which shows every issue by page number, is $9.",
       },
       {
         type: "p",

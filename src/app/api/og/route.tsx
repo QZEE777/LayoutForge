@@ -85,7 +85,7 @@ export async function GET(request: Request) {
         }}>
           <span style={{ fontSize: 22, fontWeight: 900, color: "#fff" }}>manu2print.com</span>
           <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 20 }}>·</span>
-          <span style={{ fontSize: 20, fontWeight: 600, color: "rgba(255,255,255,0.85)" }}>$9 · Results in 90 seconds</span>
+          <span style={{ fontSize: 20, fontWeight: 600, color: "rgba(255,255,255,0.85)" }}>$9 · Results within 5 minutes</span>
           <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 20 }}>·</span>
           <span style={{ fontSize: 20, color: "rgba(255,255,255,0.7)" }}>No subscription</span>
         </div>

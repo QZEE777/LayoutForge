@@ -84,7 +84,7 @@ const FAQS = [
   },
   {
     q: "How long does a scan take?",
-    a: "Most scans complete in under 90 seconds. Larger files — 100+ pages or heavy images — may take up to 3 minutes. Keep the tab open while your scan runs.",
+    a: "Most scans complete within 5 minutes. Keep the tab open while your scan runs.",
   },
   {
     q: "What do I get after payment?",
@@ -284,8 +284,8 @@ function UploadWidget({
         {/* A3: calm copy after 60 seconds */}
         <p className="text-xs mt-3" style={{ color: checkElapsedSec >= 60 ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.3)" }}>
           {checkElapsedSec >= 60
-            ? "Larger files can take 2–3 minutes. Keep this tab open while we finish your scan."
-            : "Most scans finish in under 90 seconds"}
+            ? "Larger files can take a few minutes longer. Keep this tab open while we finish your scan."
+            : "Most scans finish within 5 minutes"}
         </p>
       </div>
     );

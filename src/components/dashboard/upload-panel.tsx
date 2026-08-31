@@ -67,7 +67,7 @@ export function UploadPanel({ scansRemaining, recentScans, onViewAllScans }: Upl
                     Check a new PDF
                   </h3>
                   <p className="mb-4 text-sm leading-relaxed" style={{ color: "var(--d-fg-muted)" }}>
-                    Full KDP compliance report in under 90 seconds.
+                    Full KDP compliance report within 5 minutes.
                   </p>
                   <span className="d-cta d-cta-lg inline-flex">
                     {scansRemaining > 0 ? "Upload & use 1 credit" : "Check my PDF — $9"}
