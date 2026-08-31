@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import SiteShell from "@/components/SiteShell";
 import SocialLinks from "@/components/SocialLinks";
 import ShareButtons from "@/components/ShareButtons";
+import BlogViewCounter from "@/components/blog/BlogViewCounter";
 import { getAllPosts, getPostBySlug, getRelatedPosts } from "@/lib/blog";
 
 export function generateStaticParams() {
@@ -97,6 +98,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 <span className="inline-flex items-center rounded-full bg-white border border-m2p-border px-2.5 py-0.5 text-xs font-medium text-m2p-muted">
                   {readTime}
                 </span>
+                <BlogViewCounter slug={slug} />
                 {post.tags?.length ? (
                   <div className="flex flex-wrap gap-2">
                     {post.tags.map((t) => (
