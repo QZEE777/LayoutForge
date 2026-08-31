@@ -737,8 +737,8 @@ export default function KdpPdfCheckerPage() {
                 $9 · 1 full scan + 1 free recheck
               </div>
 
-              <h1 className="font-black leading-tight mb-4"
-                style={{ color: "#1A1208", fontSize: "clamp(2rem,4vw,2.8rem)", letterSpacing: "-0.025em", textWrap: "balance" } as React.CSSProperties}>
+              <h1 className="font-bebas tracking-wide text-m2p-ink leading-tight mb-4"
+                style={{ fontSize: "clamp(2.4rem,5vw,3.6rem)", textWrap: "balance" } as React.CSSProperties}>
                 Your PDF looks right.{" "}
                 <span style={{ color: "#f05a28" }}>Will KDP still reject it?</span>
               </h1>
@@ -1084,8 +1084,7 @@ export default function KdpPdfCheckerPage() {
       ══════════════════════════════════════════════════════════ */}
       <section className="border-t border-black/[0.04]" style={{ background: "#FAF8F4" }}>
         <div className="mx-auto max-w-2xl px-6 py-16">
-          <h2 className="font-black text-3xl mb-8 text-center"
-            style={{ color: "#1A1208", letterSpacing: "-0.02em" }}>
+          <h2 className="font-bebas tracking-wide text-m2p-ink text-4xl mb-8 text-center">
             Common questions
           </h2>
           <FaqAccordion items={FAQS} />
@@ -1097,7 +1096,7 @@ export default function KdpPdfCheckerPage() {
       ══════════════════════════════════════════════════════════ */}
       <section style={{ background: "#FAF8F4", borderTop: "1px solid rgba(0,0,0,0.07)" }}>
         <div className="mx-auto max-w-5xl px-6 py-16 text-center">
-          <h2 className="font-black text-3xl mb-2" style={{ color: "#1A1208", letterSpacing: "-0.02em" }}>
+          <h2 className="font-bebas tracking-wide text-m2p-ink text-4xl mb-2">
             Simple, pay-once credits
           </h2>
           <p className="text-sm mb-10" style={{ color: "#6B6151" }}>
