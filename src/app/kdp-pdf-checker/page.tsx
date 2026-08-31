@@ -4,6 +4,11 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import {
+  Crop, Ruler, Droplet, Type, FileText, Package, Palette, Frame, BookOpen,
+  AlertTriangle, ListChecks, CheckCircle2, Loader2, Book, BookMarked, Square,
+  Contrast, Lock, UserX, BarChart3, Download, Check, Upload, X, type LucideIcon,
+} from "lucide-react";
 import { HARDCOVER_TRIM_SIZES, TRIM_SIZES } from "@/lib/kdpConfig";
 import { BrandWordmark } from "@/components/BrandWordmark";
 import { formatFileSize } from "@/lib/formatFileName";
@@ -49,19 +54,19 @@ function formatElapsedSeconds(totalSec: number): string {
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 
-const CHECKS = [
-  { icon: "📐", label: "Trim size" },
-  { icon: "📏", label: "Margin compliance" },
-  { icon: "🩸", label: "Bleed zone" },
-  { icon: "🔤", label: "Font embedding" },
-  { icon: "📄", label: "Page count" },
-  { icon: "🖼️", label: "Image resolution" },
-  { icon: "📦", label: "File size limits" },
-  { icon: "🎨", label: "Colour mode" },
-  { icon: "🔲", label: "Safe zone" },
-  { icon: "📚", label: "Spine & cover" },
-  { icon: "⚠️", label: "Page number flags" },
-  { icon: "✅", label: "26 rules total" },
+const CHECKS: Array<{ icon: LucideIcon; label: string }> = [
+  { icon: Crop, label: "Trim size" },
+  { icon: Ruler, label: "Margin compliance" },
+  { icon: Droplet, label: "Bleed zone" },
+  { icon: Type, label: "Font embedding" },
+  { icon: FileText, label: "Page count" },
+  { icon: Frame, label: "Image resolution" },
+  { icon: Package, label: "File size limits" },
+  { icon: Palette, label: "Colour mode" },
+  { icon: Square, label: "Safe zone" },
+  { icon: BookOpen, label: "Spine & cover" },
+  { icon: AlertTriangle, label: "Page number flags" },
+  { icon: ListChecks, label: "26 rules total" },
 ];
 
 const FAQS = [
@@ -153,7 +158,7 @@ function ChipGroup<T extends string>({
   label, options, value, onChange,
 }: {
   label: string;
-  options: { value: T; label: string; icon: string }[];
+  options: { value: T; label: string; icon: LucideIcon }[];
   value: T;
   onChange: (v: T) => void;
 }) {
@@ -177,7 +182,7 @@ function ChipGroup<T extends string>({
                 border: `1.5px solid ${active ? "#f05a28" : "rgba(0,0,0,0.1)"}`,
               }}
             >
-              <span>{opt.icon}</span>
+              <opt.icon className="w-4 h-4" />
               {opt.label}
             </button>
           );
@@ -216,7 +221,7 @@ function UploadWidget({
         <div className="rounded-2xl p-8 text-center" style={{ background: "#1A1208", border: "1px solid rgba(240,90,40,0.2)" }}>
           <div className="mx-auto mb-5 w-16 h-16 rounded-full flex items-center justify-center"
             style={{ background: "rgba(240,90,40,0.1)", border: "2px solid rgba(240,90,40,0.2)" }}>
-            <span className="text-2xl">📤</span>
+            <Upload className="w-6 h-6" style={{ color: "#f05a28" }} />
           </div>
           <p className="text-2xl font-black mb-1" style={{ color: "#fff", letterSpacing: "-0.01em" }}>
             Uploading your PDF…
@@ -258,7 +263,13 @@ function UploadWidget({
             return (
               <div key={check.label} className="flex items-center gap-2 rounded-lg px-3 py-2"
                 style={{ background: done ? "rgba(76,217,100,0.12)" : active ? "rgba(240,90,40,0.15)" : "rgba(255,255,255,0.04)" }}>
-                <span style={{ fontSize: 14 }}>{done ? "✅" : active ? "⏳" : check.icon}</span>
+                {done ? (
+                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0" style={{ color: "#4cd964" }} />
+                ) : active ? (
+                  <Loader2 className="w-3.5 h-3.5 shrink-0 animate-spin" style={{ color: "#f05a28" }} />
+                ) : (
+                  <check.icon className="w-3.5 h-3.5 shrink-0" style={{ color: "rgba(255,255,255,0.3)" }} />
+                )}
                 <span className="text-xs font-medium truncate"
                   style={{ color: done ? "#4cd964" : active ? "#f05a28" : "rgba(255,255,255,0.3)" }}>
                   {check.label}
@@ -326,7 +337,7 @@ function UploadWidget({
           />
           {file ? (
             <div>
-              <div className="text-3xl mb-2">📄</div>
+              <FileText className="w-8 h-8 mx-auto mb-2" style={{ color: "#f05a28" }} />
               <p className="font-semibold text-sm" style={{ color: "#1A1208" }}>
                 {cleanFilenameForDisplay(file.name)}
               </p>
@@ -379,8 +390,8 @@ function UploadWidget({
             value={scanContext.bookType}
             onChange={(v) => onScanContextChange({ ...scanContext, bookType: v, intendedTrimId: "" })}
             options={[
-              { value: "paperback", label: "Paperback", icon: "📖" },
-              { value: "hardcover", label: "Hardcover", icon: "📕" },
+              { value: "paperback", label: "Paperback", icon: Book },
+              { value: "hardcover", label: "Hardcover", icon: BookMarked },
             ]}
           />
           <ChipGroup<BleedMode>
@@ -388,8 +399,8 @@ function UploadWidget({
             value={scanContext.bleedMode}
             onChange={(v) => onScanContextChange({ ...scanContext, bleedMode: v })}
             options={[
-              { value: "no-bleed", label: "No bleed", icon: "⬜" },
-              { value: "bleed",    label: "With bleed", icon: "🩸" },
+              { value: "no-bleed", label: "No bleed", icon: Square },
+              { value: "bleed",    label: "With bleed", icon: Droplet },
             ]}
           />
           <ChipGroup<ColorMode>
@@ -397,8 +408,8 @@ function UploadWidget({
             value={scanContext.colorMode}
             onChange={(v) => onScanContextChange({ ...scanContext, colorMode: v })}
             options={[
-              { value: "bw",    label: "Black & white", icon: "⚫" },
-              { value: "color", label: "Full color",    icon: "🎨" },
+              { value: "bw",    label: "Black & white", icon: Contrast },
+              { value: "color", label: "Full color",    icon: Palette },
             ]}
           />
           <div className="mt-3">
@@ -668,7 +679,7 @@ export default function KdpPdfCheckerPage() {
           className="flex items-center justify-between gap-4 px-5 py-3 text-sm font-semibold"
           style={{ background: "#f05a28", color: "#fff" }}
         >
-          <span>✅ Your report is ready —</span>
+          <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4" /> Your report is ready —</span>
           <Link
             href={resumeUrl}
             className="underline underline-offset-2 hover:opacity-80 transition-opacity shrink-0"
@@ -678,10 +689,10 @@ export default function KdpPdfCheckerPage() {
           <button
             type="button"
             onClick={() => setResumeUrl(null)}
-            className="ml-auto shrink-0 opacity-70 hover:opacity-100 transition-opacity text-base leading-none"
+            className="ml-auto shrink-0 opacity-70 hover:opacity-100 transition-opacity"
             aria-label="Dismiss"
           >
-            ✕
+            <X className="w-4 h-4" />
           </button>
         </div>
       )}
@@ -752,16 +763,21 @@ export default function KdpPdfCheckerPage() {
                   Most files fail on
                 </p>
                 <div className="relative grid grid-cols-2 gap-2">
-                  {["Margins", "Trim size", "Font embedding", "Bleed settings"].map((f) => (
+                  {[
+                    { label: "Margins", icon: Ruler },
+                    { label: "Trim size", icon: Crop },
+                    { label: "Font embedding", icon: Type },
+                    { label: "Bleed settings", icon: Droplet },
+                  ].map((f) => (
                     <div
-                      key={f}
+                      key={f.label}
                       className="flex items-center gap-2 rounded-2xl border border-black/[0.04] bg-white/75 px-3 py-2.5 text-sm font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] transition-colors hover:border-orange-200/50"
                       style={{ color: "#2c2419" }}
                     >
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#f05a28]/15 to-[#4cd964]/12 text-[10px] font-bold text-[#f05a28]">
-                        ✦
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#f05a28]/15 to-[#4cd964]/12 text-[#f05a28]">
+                        <f.icon className="w-3.5 h-3.5" />
                       </span>
-                      <span className="leading-tight">{f}</span>
+                      <span className="leading-tight">{f.label}</span>
                     </div>
                   ))}
                 </div>
@@ -775,7 +791,7 @@ export default function KdpPdfCheckerPage() {
                   "Works with Canva, InDesign, Word, and PDF exports",
                 ].map((item) => (
                   <div key={item} className="flex items-start gap-3">
-                    <span className="shrink-0 mt-0.5" style={{ color: "#4cd964" }}>✓</span>
+                    <Check className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#4cd964" }} />
                     <span className="text-sm leading-relaxed" style={{ color: "#3a3020" }}>{item}</span>
                   </div>
                 ))}
@@ -783,22 +799,22 @@ export default function KdpPdfCheckerPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {[
-                  { icon: "🔒", text: "Secure upload" },
-                  { icon: "🚫", text: "No account required" },
-                  { icon: "📊", text: "Score preview FREE — $9 unlocks the full report + annotated PDF" },
-                  { icon: "📥", text: "Instant download" },
-                ].map(({ icon, text }) => (
+                  { icon: Lock, text: "Secure upload" },
+                  { icon: UserX, text: "No account required" },
+                  { icon: BarChart3, text: "Score preview FREE — $9 unlocks the full report + annotated PDF" },
+                  { icon: Download, text: "Instant download" },
+                ].map(({ icon: Icon, text }) => (
                   <div
                     key={text}
                     className="group flex items-center gap-3 rounded-2xl border border-[#1A6B2A]/10 bg-white/75 px-4 py-3 shadow-[0_6px_28px_-12px_rgba(13,61,24,0.14)] backdrop-blur-sm transition-all duration-200 hover:border-[#1A6B2A]/18 hover:shadow-[0_10px_36px_-14px_rgba(13,61,24,0.2)]"
                   >
                     <span
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-lg shadow-inner ring-1 ring-black/[0.04]"
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-inner ring-1 ring-black/[0.04]"
                       style={{
                         background: "linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(250,247,238,0.9) 100%)",
                       }}
                     >
-                      {icon}
+                      <Icon className="w-5 h-5" style={{ color: "#f05a28" }} />
                     </span>
                     <span className="text-left text-xs font-medium leading-snug text-[#5c5346]">{text}</span>
                   </div>
@@ -955,7 +971,7 @@ export default function KdpPdfCheckerPage() {
               <div key={check.label}
                 className="rounded-xl px-4 py-3 flex items-center gap-3 transition-all duration-200 hover:bg-white/[0.07] hover:border-white/12"
                 style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
-                <span className="text-lg shrink-0">{check.icon}</span>
+                <check.icon className="w-5 h-5 shrink-0" />
                 <span className="text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>{check.label}</span>
               </div>
             ))}
@@ -1068,9 +1084,6 @@ export default function KdpPdfCheckerPage() {
       ══════════════════════════════════════════════════════════ */}
       <section className="border-t border-black/[0.04]" style={{ background: "#FAF8F4" }}>
         <div className="mx-auto max-w-2xl px-6 py-16">
-          <p className="text-xs font-bold uppercase tracking-widest mb-3 text-center" style={{ color: "#9B8E7E" }}>
-            Questions
-          </p>
           <h2 className="font-black text-3xl mb-8 text-center"
             style={{ color: "#1A1208", letterSpacing: "-0.02em" }}>
             Common questions
@@ -1084,9 +1097,6 @@ export default function KdpPdfCheckerPage() {
       ══════════════════════════════════════════════════════════ */}
       <section style={{ background: "#FAF8F4", borderTop: "1px solid rgba(0,0,0,0.07)" }}>
         <div className="mx-auto max-w-5xl px-6 py-16 text-center">
-          <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#F05A28" }}>
-            Pricing
-          </p>
           <h2 className="font-black text-3xl mb-2" style={{ color: "#1A1208", letterSpacing: "-0.02em" }}>
             Simple, pay-once credits
           </h2>
@@ -1110,10 +1120,10 @@ export default function KdpPdfCheckerPage() {
                 $9 includes 1 full scan + 1 free recheck.
               </p>
               <ul className="text-sm text-left space-y-2 mb-7" style={{ color: "#6B6151" }}>
-                <li className="flex items-start gap-2"><span style={{ color: "#F05A28" }}>✓</span> Full KDP compliance report</li>
-                <li className="flex items-start gap-2"><span style={{ color: "#F05A28" }}>✓</span> Annotated PDF — every issue flagged by page</li>
-                <li className="flex items-start gap-2"><span style={{ color: "#F05A28" }}>✓</span> 1 free recheck included</li>
-                <li className="flex items-start gap-2"><span style={{ color: "#F05A28" }}>✓</span> Plain-English fix instructions</li>
+                <li className="flex items-start gap-2"><Check className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#F05A28" }} /> Full KDP compliance report</li>
+                <li className="flex items-start gap-2"><Check className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#F05A28" }} /> Annotated PDF — every issue flagged by page</li>
+                <li className="flex items-start gap-2"><Check className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#F05A28" }} /> 1 free recheck included</li>
+                <li className="flex items-start gap-2"><Check className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#F05A28" }} /> Plain-English fix instructions</li>
               </ul>
               <a
                 href="/api/create-checkout-session?price_type=single_use"
