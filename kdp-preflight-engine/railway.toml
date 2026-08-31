@@ -1,0 +1,7 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile.live"
+
+[deploy]
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10
