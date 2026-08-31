@@ -623,9 +623,11 @@ export default function KdpPdfCheckerPage() {
       if (saveData.id) { router.push(`/download/${saveData.id}?source=checker${ctxParams}`); return; }
       if (saveData.checkId) {
         const checkId = saveData.checkId;
-        // Persist so a tab-close or 5-min timeout can be resumed on return
+        // Persist so a tab-close or timeout can be resumed on return
         try { localStorage.setItem(LS_RESUME_KEY, JSON.stringify({ checkId, ctxParams, ts: Date.now() })); } catch {}
-        const deadline = Date.now() + 5 * 60 * 1000;
+        // Must exceed the backend's PREFLIGHT_STATUS_DEADLINE_MS (8 min) so we don't
+        // show "timed out" while the server is still legitimately working.
+        const deadline = Date.now() + 9 * 60 * 1000;
         let waitMs = 2500;
         const MAX_WAIT_MS = 10000;
         while (Date.now() < deadline) {

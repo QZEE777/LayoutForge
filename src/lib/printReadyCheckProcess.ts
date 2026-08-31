@@ -97,7 +97,9 @@ export interface RunPrintReadyCheckParams {
  */
 // Keep below the DB reclaim window in `claim_print_ready_check` (15m),
 // otherwise a second worker could pick the same job while we still run.
-const PREFLIGHT_STATUS_DEADLINE_MS = 840000; // 14 min for large PDFs
+// Observed real runs complete in 22s-4.5min; 8 min leaves headroom for large PDFs
+// without leaving users staring at a spinner for a quarter of an hour.
+const PREFLIGHT_STATUS_DEADLINE_MS = 480000; // 8 min
 
 const STATUS_POLL_TIMEOUT_MS = 10_000;
 

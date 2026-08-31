@@ -28,7 +28,11 @@ interface PrintReadyCheckRow {
   our_job_id: string;
   file_size_mb: number | null;
   intended_trim_id?: string | null;
+  retry_count?: number | null;
 }
+
+/** After this many storage-read retries, treat the failure as permanent instead of requeuing forever. */
+const MAX_STORAGE_RETRIES = 3;
 
 const UUID_RE =
   /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
@@ -92,6 +96,7 @@ async function processOne(supabase: ReturnType<typeof createClient>): Promise<bo
   const checkId = row.id;
   const fileKey = resolveCheckerPdfR2Key(row);
   const ourJobId = row.our_job_id;
+  const retryCount = row.retry_count ?? 0;
   const fileSizeMB = row.file_size_mb != null ? Number(row.file_size_mb) : undefined;
   const intendedTrimId =
     typeof row.intended_trim_id === "string" && row.intended_trim_id.trim() ? row.intended_trim_id.trim() : null;
@@ -139,17 +144,18 @@ async function processOne(supabase: ReturnType<typeof createClient>): Promise<bo
       msg.includes("NoSuchKey") ||
       msg.includes("empty or invalid key") ||
       /R2 getFileByKey failed/i.test(msg);
-    if (storageTransient) {
+    if (storageTransient && retryCount < MAX_STORAGE_RETRIES) {
       await supabase
         .from("print_ready_checks")
         .update({
           status: "pending",
           error_message: null,
           last_error: msg,
+          retry_count: retryCount + 1,
           updated_at: new Date().toISOString(),
         })
         .eq("id", checkId);
-      console.warn("[worker] processing_requeued", { checkId, ourJobId, reason: "storage_transient" });
+      console.warn("[worker] processing_requeued", { checkId, ourJobId, reason: "storage_transient", retryCount: retryCount + 1 });
       return true;
     }
 
