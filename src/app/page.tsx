@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Ruler, Droplet, Crop, Type, FileWarning, BookOpen, Coins, FileText, Search, type LucideIcon } from "lucide-react";
 import { BrandWordmark } from "@/components/BrandWordmark";
 import SocialLinks from "@/components/SocialLinks";
 
@@ -9,56 +10,56 @@ export const metadata = {
     "Check your PDF for KDP formatting errors before you upload to Amazon KDP. Find margin violations, bleed issues, trim size mismatches, and font errors in 90 seconds. Built for indie authors and self-publishers.",
 };
 
-const FREE_TOOLS = [
+const FREE_TOOLS: Array<{ icon: LucideIcon; name: string; description: string; href: string }> = [
   {
-    icon: "📐",
+    icon: BookOpen,
     name: "Spine Calculator",
     description: "Get the exact spine width for your paperback before you design your cover.",
     href: "/spine-calculator",
   },
   {
-    icon: "💰",
+    icon: Coins,
     name: "Royalty Calculator",
     description: "See your KDP royalty before you set your price.",
     href: "/royalty-calculator",
   },
   {
-    icon: "📄",
+    icon: FileText,
     name: "Page Count Estimator",
     description: "Estimate your final page count from word count and trim size.",
     href: "/page-count-estimator",
   },
   {
-    icon: "🔍",
+    icon: Search,
     name: "Title & Metadata Check",
     description: "Scan your title and keywords for banned or restricted terms.",
     href: "/title-metadata-check",
   },
 ];
 
-const KDP_ERRORS = [
+const KDP_ERRORS: Array<{ icon: LucideIcon; title: string; body: string }> = [
   {
-    icon: "📏",
+    icon: Ruler,
     title: "Margins outside KDP print area",
     body: "Too narrow on any side — or a gutter margin that doesn't account for page count — triggers an automatic rejection.",
   },
   {
-    icon: "🩸",
+    icon: Droplet,
     title: "Bleed not set correctly",
     body: "Images and backgrounds that extend to the edge require a 0.125\" bleed. Missing bleed is one of the most common KDP rejection causes.",
   },
   {
-    icon: "📐",
+    icon: Crop,
     title: "Trim size mismatch",
     body: "Your PDF page size must exactly match the KDP trim size you selected — even a fraction of an inch off will fail.",
   },
   {
-    icon: "🔤",
+    icon: Type,
     title: "Fonts not embedded",
     body: "KDP requires all fonts to be embedded in the PDF. Un-embedded fonts cause text rendering failures during printing.",
   },
   {
-    icon: "📄",
+    icon: FileWarning,
     title: "Page size inconsistencies",
     body: "Mixed page sizes in a single PDF — common when exporting from Canva or Word — cause formatting errors across the entire file.",
   },
@@ -217,7 +218,7 @@ export default function HomePage() {
                   border: "1px solid rgba(255,255,255,0.04)",
                 }}
               >
-                <span className="text-2xl mb-3 block">{err.icon}</span>
+                <err.icon className="w-6 h-6 mb-3" strokeWidth={1.75} style={{ color: "#f05a28" }} />
                 <p className="font-bold text-sm mb-2" style={{ color: "#fff" }}>
                   {err.title}
                 </p>
@@ -268,7 +269,7 @@ export default function HomePage() {
                   border: "1px solid rgba(0,0,0,0.07)",
                 }}
               >
-                <span className="text-2xl mb-3">{tool.icon}</span>
+                <tool.icon className="w-6 h-6 mb-3" strokeWidth={1.75} style={{ color: "#f05a28" }} />
                 <p className="font-bold text-sm mb-2" style={{ color: "#1A1208" }}>
                   {tool.name}
                 </p>
