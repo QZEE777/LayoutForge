@@ -139,27 +139,10 @@ export default function HomePage() {
       {/* ── Hero ───────────────────────────────────────────────── */}
       <section>
         <div className="mx-auto max-w-4xl px-6 py-20 text-center">
-          <div
-            className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide mb-6"
-            style={{
-              background: "rgba(240,90,40,0.08)",
-              color: "#f05a28",
-              border: "1px solid rgba(240,90,40,0.15)",
-            }}
-          >
-            <span
-              className="w-1.5 h-1.5 rounded-full animate-pulse"
-              style={{ background: "#f05a28" }}
-            />
-            Checks against real KDP print requirements
-          </div>
-
           <h1
-            className="font-black leading-tight mb-6 mx-auto"
+            className="font-bebas tracking-wide text-m2p-ink leading-tight mb-6 mx-auto"
             style={{
-              color: "#1A1208",
-              fontSize: "clamp(2rem, 4.5vw, 3.2rem)",
-              letterSpacing: "-0.03em",
+              fontSize: "clamp(2.4rem, 5.5vw, 4rem)",
               maxWidth: "780px",
               textWrap: "balance",
             } as React.CSSProperties}
