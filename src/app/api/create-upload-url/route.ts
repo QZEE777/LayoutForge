@@ -35,7 +35,11 @@ export async function POST(request: NextRequest) {
     // always send an Origin header matching the app URL.
     const origin = request.headers.get("origin") ?? "";
     const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "");
-    if (appUrl && origin && origin !== appUrl) {
+    // Same-origin requests are valid on both production and Vercel preview
+    // domains. Keep the configured production URL as an additional allowlist
+    // entry for custom-domain/browser transitions.
+    const requestOrigin = new URL(request.url).origin;
+    if (origin && origin !== requestOrigin && origin !== appUrl) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403, headers: NO_STORE_HEADERS });
     }
 
