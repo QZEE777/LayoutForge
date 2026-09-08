@@ -4,12 +4,6 @@ Candidate topics from weekly Reddit/KDP-forum research (DYOR), queued for the tw
 
 ## Queued
 
-- **Title:** Your Book Looks Perfect in Kindle Previewer. On a Real Kindle, It's Scrambled.
-  **Angle:** Kindle doesn't actually render EPUB directly — it silently converts on the fly, and KDP's own online Previewer doesn't reliably reflect what a real device shows, so authors ship ebooks that pass every check they know to run and still break on delivery.
-  **Tool link:** none (no live route yet — docs/EPUB-MAKER-IMPLEMENTATION-PLAN.md describes a planned CloudConvert DOCX→EPUB pipeline at /epub-maker, not yet built; good piece to have ready for when it ships)
-  **Tags:** kdp, ebook, epub
-  **Source:** Recurring pattern across Adobe Community/Goodreads author-forum threads (Reddit itself not indexed for this query) — "looks immaculate in Kindle Previewer, scrambled on device" is a named, repeated complaint; researched 2026-09-02
-
 - **Title:** Vellum Is Mac-Only. Here's What Windows Authors Actually Do About It.
   **Angle:** The most-recommended KDP formatting tool in every forum thread simply doesn't run on Windows — authors are quietly paying for MacInCloud subscriptions or switching to Atticus, and nobody frames it as the accessibility problem it is.
   **Tool link:** /kdp-pdf-checker (or none — this is a platform-choice piece, not a checker pitch)

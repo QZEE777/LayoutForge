@@ -18,6 +18,67 @@ export type BlogPost = {
 
 const POSTS: BlogPost[] = [
   {
+    slug: "ebook-looks-perfect-in-previewer-scrambled-on-kindle",
+    title: "Your Book Looks Perfect in Kindle Previewer. On a Real Kindle, It's Scrambled.",
+    excerpt:
+      "You checked your ebook in KDP's online previewer, it looked flawless, so you hit publish. Then a reader messages you: the indents are gone, an image is squished, italics vanished. The previewer didn't lie to you exactly — it just isn't testing what you think it's testing.",
+    publishedAt: "2026-09-03",
+    tags: ["kdp", "ebook", "epub"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "This complaint has a very specific shape, and it shows up constantly in author forums and Kindle-formatting communities: a manuscript looks completely clean in KDP's online previewer or in Kindle Previewer 3, gets published, and then breaks on an actual Kindle — indents and italics stripped out, an image with the wrong aspect ratio, a layout that reads as scrambled compared to what the author approved before submitting.",
+      },
+      {
+        type: "h2",
+        text: "Why the previewer and a real Kindle can disagree",
+      },
+      {
+        type: "p",
+        text: "A Kindle device never reads your EPUB file directly. Whatever you upload gets converted — to KF8/AZW3 on older devices, to the newer KFX format on current ones — and the device renders that converted file, not your source file. Kindle Previewer 3 is built to simulate this same conversion and render the result on emulated devices, which is why it's a much better check than opening your raw EPUB in a generic reader app. But \"simulates\" isn't \"is\": Amazon's own reading surfaces — a physical e-ink Kindle, the Kindle Cloud Reader in a browser, and the mobile apps — use different rendering engines, so the same converted file can display slightly differently across them, and a previewer bug or a stale render can slip through undetected.",
+      },
+      {
+        type: "h2",
+        text: "What actually breaks in practice",
+      },
+      {
+        type: "ul",
+        items: [
+          "Images that look correctly sized in the previewer but squish or distort their aspect ratio on a physical Kindle",
+          "Indents and italics that render fine in preview and vanish entirely once the file hits a real device",
+          "Tables and multi-column layouts that hold together in Previewer 3 but collapse or misalign on-device",
+          "A book that looked wrong in the previewer but was actually fine on a real Kindle — the discrepancy runs in both directions, which is what makes it so disorienting",
+        ],
+      },
+      {
+        type: "h2",
+        text: "Passing EPUBCheck doesn't mean much here",
+      },
+      {
+        type: "p",
+        text: "EPUBCheck validates that your file is a technically well-formed EPUB against the specification. That's a real and useful check — but it says nothing about how Kindle's conversion pipeline will interpret your specific HTML and CSS, or how a given e-ink rendering engine will lay out the result. A file can pass EPUBCheck cleanly and still come apart on a Paperwhite. Structural validity and Kindle-rendering fidelity are two different questions, and only one of them gets tested by a spec checker.",
+      },
+      {
+        type: "h2",
+        text: "What to actually do before you call an ebook done",
+      },
+      {
+        type: "ul",
+        items: [
+          "Don't stop at the online previewer — open the file in Kindle Previewer 3 as well, since it's built specifically to simulate KDP's real conversion",
+          "Before you announce a launch, download the converted file from your KDP bookshelf (or use Send to Kindle) and check it on an actual device or the Kindle app, not just an emulator",
+          "If something looks off, retest after every re-upload — a fix for one rendering issue can introduce a different one during the next conversion pass",
+          "Keep formatting simple where you can: heavy nested styling, nonstandard CSS, and nested tables are exactly the constructs that tend to survive EPUBCheck but not Kindle's conversion",
+        ],
+      },
+      {
+        type: "p",
+        text: "manu2print's Print Ready Check exists because the same underlying problem shows up on the print side: a PDF can look perfect on screen and still fail against KDP's actual print requirements, because \"looks right\" and \"is right\" are answered by completely different checks. If you're publishing both a print and an ebook edition, give the print file the same scrutiny with a scan at manu2print.com/kdp-pdf-checker before you upload — and treat the ebook's real-device test as equally non-optional.",
+      },
+    ],
+  },
+  {
     slug: "banned-keyword-catalog-suspension",
     title: "The Keyword That Gets Your Whole Catalog Suspended (Not Just One Book)",
     excerpt:
