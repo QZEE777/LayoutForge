@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeOutput } from "@/lib/storage";
+import { getStored, writeOutput } from "@/lib/storage";
 
 /**
  * GET /api/generate/status?id={fileId}&jobId={cloudConvertJobId}
@@ -20,6 +20,8 @@ export async function GET(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    if (id && (await getStored(id))?.processingReport?.outputType === "checker") return NextResponse.json({ error: "Use the private checker report" }, { status: 403 });
 
     const apiKey = process.env.CLOUDCONVERT_API_KEY;
     if (!apiKey) {

@@ -17,6 +17,7 @@ import {
   HARDCOVER_TRIM_SIZES,
   PAPERBACK_MAX_PAGES,
 } from "./kdpConfig";
+import type { CheckerPrintOptions } from "./checkerPrintOptions";
 
 export type FixDifficulty = "easy" | "moderate" | "advanced";
 export type NormalizedIssueSeverity = "blocker" | "warning" | "info";
@@ -367,7 +368,7 @@ const HUMAN_MAP: Array<{ pattern: RegExp; rule_ids?: string[]; human: string }> 
   {
     rule_ids: ["HARDCOVER_TRIM_SIZE"],
     pattern: /hardcover.*trim|trim.*hardcover|hardcover.*size/i,
-    human: "Your trim size is not on KDP's supported hardcover list. Hardcovers support fewer sizes than paperbacks — supported sizes include 5.5×8.5\", 6×9\", 6.14×9.21\", 6.69×9.61\", 7×10\", 7.44×9.69\", 7.5×9.25\", 8.5×11\".",
+    human: "Your trim size is not on KDP's supported hardcover list. Hardcovers support fewer sizes than paperbacks — supported sizes include 5.5×8.5\", 6×9\", 6.14×9.21\", 7×10\", 8.25×11\".",
   },
   {
     rule_ids: ["SPINE_TEXT_WARNING"],
@@ -606,6 +607,8 @@ export interface SpecTableInput {
   pageCount?: number;
   fileSizeMB?: number;
   recommendedGutterInches?: number;
+  /** User-selected KDP format; absent only on legacy reports. */
+  printOptions?: CheckerPrintOptions;
   errorCount: number;
   warningCount: number;
   hasTrimIssues?: boolean;
@@ -775,6 +778,8 @@ export interface CheckerReportBase {
   kdpTrimName?: string | null;
   fileSizeMB?: number;
   recommendedGutterInches?: number;
+  /** User-selected KDP format; absent only on legacy reports. */
+  printOptions?: CheckerPrintOptions;
   page_issues?: Array<{ page: number; rule_id: string; severity: string; message: string; bbox: number[] | null }>;
 }
 
@@ -841,15 +846,7 @@ function buildAdvisoryNotices(report: CheckerReportBase): AdvisoryNotice[] {
   }
 
   // 3. Hardcover-specific checks (detect hardcover from kdpTrimName or trimDetected)
-  const isHardcover =
-    (report.kdpTrimName ?? "").toLowerCase().includes("hardcover") ||
-    (report.trimDetected ?? "").toLowerCase().includes("hc-") ||
-    HARDCOVER_TRIM_SIZES.some(
-      (hc) =>
-        report.trimDetected != null &&
-        Math.abs(hc.widthInches  - parseFloat((report.trimDetected.match(/^([\d.]+)/) ?? [])[1] ?? "0")) < 0.01 &&
-        Math.abs(hc.heightInches - parseFloat((report.trimDetected.match(/×\s*([\d.]+)/) ?? [])[1] ?? "0")) < 0.01
-    );
+  const isHardcover = report.printOptions?.bookType === "hardcover";
 
   if (isHardcover) {
     if (pageCount != null && pageCount < HARDCOVER_MIN_PAGES) {
@@ -877,7 +874,7 @@ function buildAdvisoryNotices(report: CheckerReportBase): AdvisoryNotice[] {
         notices.push({
           rule_id: "HARDCOVER_TRIM_SIZE",
           severity: "warning",
-          message: `Your trim size (${report.trimDetected}) is not on KDP's supported hardcover list. Supported hardcover sizes: 5.5×8.5", 6×9", 6.14×9.21", 6.69×9.61", 7×10", 7.44×9.69", 7.5×9.25", 8.5×11".`,
+          message: `Your trim size (${report.trimDetected}) is not on KDP's supported hardcover list. Supported hardcover sizes: 5.5×8.5", 6×9", 6.14×9.21", 7×10", 8.25×11".`,
         });
       }
     }
@@ -966,8 +963,8 @@ export function enrichCheckerReport(
   }
 
   // Use engine score if provided, else compute locally
-  const hasEngineScore = typeof engineReadinessScore === "number" && Number.isFinite(engineReadinessScore) && engineReadinessScore > 0;
-  const hasEngineApproval = typeof engineApprovalLikelihood === "number" && Number.isFinite(engineApprovalLikelihood) && engineApprovalLikelihood > 0;
+  const hasEngineScore = typeof engineReadinessScore === "number" && Number.isFinite(engineReadinessScore) && engineReadinessScore >= 0 && engineReadinessScore <= 100;
+  const hasEngineApproval = typeof engineApprovalLikelihood === "number" && Number.isFinite(engineApprovalLikelihood) && engineApprovalLikelihood >= 0 && engineApprovalLikelihood <= 100;
 
   const readinessScore100 = hasEngineScore
     ? Math.round(engineReadinessScore)

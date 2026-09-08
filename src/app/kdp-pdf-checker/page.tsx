@@ -13,7 +13,6 @@ import { HARDCOVER_TRIM_SIZES, TRIM_SIZES } from "@/lib/kdpConfig";
 import { BrandWordmark } from "@/components/BrandWordmark";
 import { formatFileSize } from "@/lib/formatFileName";
 import { cleanFilenameForDisplay } from "@/lib/kdpReportEnhance";
-import { ErrorRecovery } from "@/components/ErrorRecovery";
 import { CHECKER_MAX_UPLOAD_BYTES, CHECKER_MAX_UPLOAD_MB } from "@/lib/checkerUploadLimits";
 import SocialLinks from "@/components/SocialLinks";
 
@@ -132,17 +131,19 @@ function FaqAccordion({ items }: { items: { q: string; a: string }[] }) {
 export type BookType   = "paperback" | "hardcover";
 export type BleedMode  = "no-bleed" | "bleed";
 export type ColorMode  = "bw" | "color";
+export type PaperType  = "white" | "cream" | "standard-color" | "premium-color";
 
 export interface ScanContext {
   bookType:  BookType;
   bleedMode: BleedMode;
   colorMode: ColorMode;
+  paperType: PaperType;
   /** Optional KDP trim id (TRIM_SIZES / HARDCOVER id); empty = detect from PDF only. */
   intendedTrimId: string;
 }
 
 const PAPERBACK_INTENDED_IDS = ["5x8", "5.5x8.5", "6x9", "6.14x9.21", "8.5x11", "8.5x8.5", "7x10", "8x10"] as const;
-const HARDCOVER_INTENDED_IDS = ["hc-5.5x8.5", "hc-6x9", "hc-6.14x9.21", "hc-7x10", "hc-8.5x11"] as const;
+const HARDCOVER_INTENDED_IDS = ["hc-5.5x8.5", "hc-6x9", "hc-6.14x9.21", "hc-7x10", "hc-8.25x11"] as const;
 
 function labelForKdpTrimId(id: string): string {
   const pb = TRIM_SIZES.find((t) => t.id === id);
@@ -369,14 +370,13 @@ function UploadWidget({
         {error && (
           <div className="mb-4 rounded-xl p-3 text-sm" style={{ background: "#FEF2F2", border: "1px solid #FECACA", color: "#DC2626" }}>
             {error}
-            {file && (
+            {file && /file too large|exceeds.*(?:mb|limit)|too large.*(?:mb|upload)/i.test(error) && (
               <p className="mt-2">
                 <Link href="/pdf-compress" style={{ color: "#f05a28" }} className="hover:underline">
                   Try our free PDF Compressor →
                 </Link>
               </p>
             )}
-            <ErrorRecovery />
           </div>
         )}
 
@@ -406,11 +406,19 @@ function UploadWidget({
           <ChipGroup<ColorMode>
             label="Interior"
             value={scanContext.colorMode}
-            onChange={(v) => onScanContextChange({ ...scanContext, colorMode: v })}
+            onChange={(v) => onScanContextChange({ ...scanContext, colorMode: v, paperType: v === "bw" ? "white" : "standard-color" })}
             options={[
               { value: "bw",    label: "Black & white", icon: Contrast },
               { value: "color", label: "Full color",    icon: Palette },
             ]}
+          />
+          <ChipGroup<PaperType>
+            label="Paper / color tier"
+            value={scanContext.paperType}
+            onChange={(v) => onScanContextChange({ ...scanContext, paperType: v })}
+            options={scanContext.colorMode === "bw"
+              ? [{ value: "white", label: "White paper", icon: Square }, { value: "cream", label: "Cream paper", icon: Square }]
+              : [{ value: "standard-color", label: "Standard color", icon: Palette }, { value: "premium-color", label: "Premium color", icon: Palette }]}
           />
           <div className="mt-3">
             <label className="block text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: "#9B8E7E" }}>
@@ -488,6 +496,7 @@ export default function KdpPdfCheckerPage() {
     intendedTrimId: "",
     bleedMode: "no-bleed",
     colorMode: "bw",
+    paperType: "white",
   });
 
   // ── Share token attribution — set cookie + localStorage on ?sh= param ───────
@@ -600,6 +609,7 @@ export default function KdpPdfCheckerPage() {
       await putWithProgress(uploadUrl, file, setUploadProgress);
       setUploadProgress(null); // upload done — scan phase begins
       const saveBody = JSON.stringify({
+        printOptions: { bookType: scanContext.bookType, bleedMode: scanContext.bleedMode, colorMode: scanContext.colorMode, paperType: scanContext.paperType },
         jobId,
         fileKey,
         fileSizeMB: Math.round(fileSizeMB * 100) / 100,

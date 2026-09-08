@@ -1,3 +1,6 @@
+import { getStored } from "@/lib/storage";
+import { signCheckerCapability } from "@/lib/checkerCapability";
+import { requireCheckerAccess } from "@/lib/checkerAccess";
 import { NextResponse } from "next/server";
 import { lemonSqueezySetup, createCheckout } from "@lemonsqueezy/lemonsqueezy.js";
 
@@ -9,6 +12,14 @@ export async function POST(req: Request) {
     const tool = typeof body?.tool === "string" ? body.tool : "";
     const downloadId = typeof body?.downloadId === "string" ? body.downloadId : "";
 
+    if (downloadId) {
+      const meta = await getStored(downloadId);
+      if (!meta) return NextResponse.json({ error: "Report not found" }, { status: 404 });
+      if (meta.processingReport?.outputType === "checker") {
+        const denied = await requireCheckerAccess(req, downloadId, { meta });
+        if (denied) return denied;
+      }
+    }
     const apiKey = process.env.LEMONSQUEEZY_API_KEY;
     const storeId = process.env.LEMONSQUEEZY_STORE_ID;
 
@@ -60,6 +71,7 @@ export async function POST(req: Request) {
         custom: {
           tool,
           download_id: downloadId,
+          checker_claim: downloadId ? signCheckerCapability(downloadId, "checkout", 24 * 60 * 60) : "",
           price_type:  priceType,
         },
       },

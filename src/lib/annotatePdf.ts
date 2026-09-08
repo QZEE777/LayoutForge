@@ -49,11 +49,11 @@ const PT = 72; // points per inch
 
 // KDP margin requirements
 const OUTER_MARGIN_PT      = 0.25 * PT; // 18pt  — KDP min outer margin
-const TOP_BOTTOM_MARGIN_PT = 0.50 * PT; // 36pt  — KDP min top/bottom margin
+const TOP_BOTTOM_MARGIN_PT = 0.25 * PT; // 18pt — KDP minimum, measured from trim
 
 // Annotation engine version — bump when aggregation or rendering logic changes.
 // Cached PDFs with a different version are re-annotated automatically.
-const ANNOTATION_VERSION = "v18";
+const ANNOTATION_VERSION = "v20";
 
 // Layout-region rules: always rendered as page-level geometry, never per-text boxes.
 // Scanner-provided bboxes for these rules are per-text-line and create red noise — ignored.
@@ -481,19 +481,21 @@ function drawGoverningGeometry(
   page:      PDFPage,
   pageNumber: number,
   pageCount:  number,
+  bleed = false,
 ): void {
   const { width, height } = page.getSize();
   const gutter      = getGutterPt(pageCount);
   const isRightPage = pageNumber % 2 === 1; // odd = right page, gutter on left
 
-  const marginLeft  = isRightPage ? gutter         : OUTER_MARGIN_PT;
-  const marginRight = isRightPage ? OUTER_MARGIN_PT : gutter;
+  const extra = bleed ? 9 : 0;
+  const marginLeft  = isRightPage ? gutter : OUTER_MARGIN_PT + extra;
+  const marginRight = isRightPage ? OUTER_MARGIN_PT + extra : gutter;
 
   // ── 1. Trim boundary: solid hairline, slightly stronger — primary reference line
   page.drawRectangle({
-    x: 1, y: 1,
-    width:  width  - 2,
-    height: height - 2,
+    x: bleed ? (isRightPage ? 0 : extra) : 1, y: bleed ? extra : 1,
+    width:  width  - (bleed ? extra : 2),
+    height: height - (bleed ? extra * 2 : 2),
     borderColor:   COLOR.trim,
     borderWidth:   0.5,
     borderOpacity: 0.65,
@@ -502,9 +504,9 @@ function drawGoverningGeometry(
 
   // ── 2. Safe text area: lighter dashed box — secondary reference, recedes behind trim
   const safeX = marginLeft;
-  const safeY = TOP_BOTTOM_MARGIN_PT;
+  const safeY = TOP_BOTTOM_MARGIN_PT + extra;
   const safeW = width  - marginLeft - marginRight;
-  const safeH = height - TOP_BOTTOM_MARGIN_PT * 2;
+  const safeH = height - (TOP_BOTTOM_MARGIN_PT + extra) * 2;
 
   page.drawRectangle({
     x: safeX, y: safeY,
@@ -1059,6 +1061,7 @@ function drawIssueMarkersOnPage(
 async function annotateDoc(
   doc:       PDFDocument,
   allIssues: AnnotationIssue[],
+  bleed = false,
 ): Promise<void> {
   const pages     = doc.getPages();
   const pageCount = pages.length;
@@ -1071,7 +1074,7 @@ async function annotateDoc(
   // ── PASS 1: Governing geometry on EVERY page ─────────────────────────────
   // Trim boundary and safe-area box rendered consistently across the full document.
   for (let i = 0; i < pages.length; i++) {
-    drawGoverningGeometry(pages[i], i + 1, pageCount);
+    drawGoverningGeometry(pages[i], i + 1, pageCount, bleed);
   }
 
   if (!allIssues.length) return;
@@ -1203,7 +1206,8 @@ export async function annotateCheckerPdf(
       : [];
 
     const allIssues = normalizeIssues(pageIssues, enrichedIssues, pageCount);
-    await annotateDoc(doc, allIssues);
+    const options = (meta.processingReport as unknown as { printOptions?: { bleedMode?: string } }).printOptions;
+    await annotateDoc(doc, allIssues, options?.bleedMode === "bleed");
 
     // useObjectStreams: false preserves cross-reference table format,
     // preventing glyph corruption in PDFs with custom font encoding maps.

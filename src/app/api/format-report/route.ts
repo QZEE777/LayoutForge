@@ -1,3 +1,6 @@
+import { requireCheckerAccess } from "@/lib/checkerAccess";
+import { checkerPublicPreview } from "@/lib/checkerPublicPreview";
+import { CHECKER_PRIVATE_HEADERS } from "@/lib/checkerCapability";
 import { NextRequest, NextResponse } from "next/server";
 import { getStored, normalizeAnnotatedPdfStatus } from "@/lib/storage";
 import { supabase } from "@/lib/supabase";
@@ -10,6 +13,7 @@ import {
 } from "@/lib/kdpReportEnhance";
 
 type PublicCheckerReport = {
+  printOptions?: { bookType: "paperback" | "hardcover"; bleedMode: "bleed" | "no-bleed"; colorMode: "bw" | "color"; paperType: "white" | "cream" | "standard-color" | "premium-color" };
   id: string;
   source: "checker";
   outputType: "checker";
@@ -125,6 +129,7 @@ function sanitizeCheckerReport(
 
   return {
     id,
+    printOptions: reportLike.printOptions as PublicCheckerReport["printOptions"],
     source: "checker",
     outputType: "checker",
     verdict,
@@ -188,8 +193,8 @@ async function buildReportFromStored(meta: Awaited<ReturnType<typeof getStored>>
           meta.id,
           {
             ...processing,
-            annotatedPdfUrl: meta.annotatedPdfUrl ?? processing.annotatedPdfUrl,
-            annotatedPdfDownloadUrl: meta.annotatedPdfDownloadUrl ?? processing.annotatedPdfDownloadUrl,
+            annotatedPdfUrl: `/api/kdp-annotated-status?id=${meta.id}`,
+            annotatedPdfDownloadUrl: meta.annotatedPdfDownloadUrl ? `/api/checker-annotated-download?id=${meta.id}` : undefined,
             annotatedPdfStatus: meta.annotatedPdfStatus ?? processing.annotatedPdfStatus,
             annotatedEmailRequested: !!meta.annotatedEmailRequestedAt,
             annotatedEmailSent: !!meta.annotatedEmailSentAt,
@@ -270,12 +275,16 @@ export async function GET(request: NextRequest) {
     // Strip outputFilename for unpaid downloads — the download route enforces
     // payment_confirmed independently, but no need to leak the filename to unpaid callers.
     const isPaid = meta?.payment_confirmed === true;
-    const safeReport = isPaid ? report : { ...report, outputFilename: undefined };
+    const isChecker = meta?.processingReport?.outputType === "checker";
+    const denied = isChecker && meta ? await requireCheckerAccess(request, meta.id, { paid: true, meta }) : null;
+    const safeReport = isChecker && (denied || !isPaid)
+      ? checkerPublicPreview(report as Record<string, unknown>)
+      : isPaid ? report : { ...report, outputFilename: undefined };
 
     return NextResponse.json({
       success: true,
       report: safeReport,
-    });
+    }, { headers: CHECKER_PRIVATE_HEADERS });
   } catch (e) {
     console.error("[format-report]", e);
     return NextResponse.json(

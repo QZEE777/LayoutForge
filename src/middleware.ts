@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { setSecurityHeaders } from "@/lib/security";
+import { setSecurityHeaders } from "@/lib/middlewareSecurity";
 
 export function middleware(request: NextRequest) {
   const ref = request.nextUrl.searchParams.get("ref");

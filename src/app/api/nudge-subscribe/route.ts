@@ -1,3 +1,4 @@
+import { requireCheckerAccess } from "@/lib/checkerAccess";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { updateMeta } from "@/lib/storage";
@@ -17,6 +18,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false }, { status: 400 });
   }
 
+  const denied = await requireCheckerAccess(req, downloadId);
+  if (denied) return denied;
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!

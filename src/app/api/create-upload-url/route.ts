@@ -1,3 +1,4 @@
+import { checkerCookie, hasCheckerCookie, CHECKER_PRIVATE_HEADERS } from "@/lib/checkerCapability";
 import { NextRequest, NextResponse } from 'next/server';
 import { CHECKER_MAX_UPLOAD_BYTES, CHECKER_MAX_UPLOAD_MB } from '@/lib/checkerUploadLimits';
 
@@ -34,7 +35,11 @@ export async function POST(request: NextRequest) {
     // always send an Origin header matching the app URL.
     const origin = request.headers.get("origin") ?? "";
     const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "");
-    if (appUrl && origin && origin !== appUrl) {
+    // Same-origin requests are valid on both production and Vercel preview
+    // domains. Keep the configured production URL as an additional allowlist
+    // entry for custom-domain/browser transitions.
+    const requestOrigin = new URL(request.url).origin;
+    if (origin && origin !== requestOrigin && origin !== appUrl) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403, headers: NO_STORE_HEADERS });
     }
 
@@ -77,7 +82,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       { uploadUrl, fileKey, jobId },
-      { headers: NO_STORE_HEADERS }
+      { headers: { ...NO_STORE_HEADERS, "Set-Cookie": checkerCookie(jobId) } }
     );
   } catch (error) {
     console.error('create-upload-url error:', error);

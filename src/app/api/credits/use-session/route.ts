@@ -1,3 +1,4 @@
+import { requireCheckerAccess } from "@/lib/checkerAccess";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabaseServer";
 import { redeemScanCreditForDownload } from "@/lib/redeemScanCredit";
@@ -29,6 +30,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing downloadId" }, { status: 400 });
   }
 
+  const denied = await requireCheckerAccess(req, downloadId);
+  if (denied) return denied;
   const cookieStore = await cookies();
   const refCookie = cookieStore.get("m2p_ref")?.value;
   const result = await redeemScanCreditForDownload(email, downloadId, refCookie);

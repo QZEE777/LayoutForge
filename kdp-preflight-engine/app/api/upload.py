@@ -4,7 +4,8 @@ from __future__ import annotations
 from pathlib import Path
 
 import structlog
-from fastapi import APIRouter, File, HTTPException, Request, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
+from typing import Literal
 
 from app.config import settings
 from app.limiter import limiter
@@ -20,7 +21,11 @@ router = APIRouter()
 
 @router.post("/upload", response_model=UploadResponse)
 @limiter.limit("5/minute")
-async def upload_pdf(request: Request, file: UploadFile = File(...)) -> UploadResponse:
+async def upload_pdf(request: Request, file: UploadFile = File(...),
+                     book_type: Literal["paperback", "hardcover"] = Form(...),
+                     bleed_mode: Literal["no-bleed", "bleed"] = Form(...),
+                     color_mode: Literal["bw", "color"] = Form(...),
+                     paper_type: Literal["white", "cream", "standard-color", "premium-color"] = Form(...)) -> UploadResponse:
     content_type = file.content_type
     if not validate_mime(content_type):
         raise HTTPException(400, "Invalid file type. Only application/pdf is accepted.")
@@ -42,7 +47,9 @@ async def upload_pdf(request: Request, file: UploadFile = File(...)) -> UploadRe
     logger.info("upload_received_inline", job_id=job_id, size=len(raw))
     try:
         logger.info("inline_validation_start", job_id=job_id, size=len(raw))
-        validate_pdf_task.apply(args=(job_id, str(path)), throw=False)
+        validate_pdf_task.apply(args=(job_id, str(path), {
+            "book_type": book_type, "bleed_mode": bleed_mode, "color_mode": color_mode, "paper_type": paper_type,
+        }), throw=False)
         logger.info("inline_validation_done", job_id=job_id)
     except Exception as e:
         logger.exception("inline_validation_failed", job_id=job_id, error=str(e))

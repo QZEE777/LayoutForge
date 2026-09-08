@@ -1,3 +1,4 @@
+import { requireCheckerAccess } from "@/lib/checkerAccess";
 /**
  * GET /api/view-pdf/[id] — serve the stored PDF for inline viewing (e.g. checker report viewer).
  * Uses the same stored file as the upload; no auth (page is behind PaymentGate).
@@ -17,6 +18,10 @@ export async function GET(
     const meta = await getStored(id);
     if (!meta) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+    if (meta.processingReport?.outputType === "checker") {
+      const denied = await requireCheckerAccess(_request, id, { meta, paid: true });
+      if (denied) return denied;
     }
     if (!meta.mimeType?.includes("pdf")) {
       return NextResponse.json({ error: "Not a PDF" }, { status: 400 });

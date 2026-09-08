@@ -21,6 +21,7 @@ type GateState = "processing" | "verifying" | "preview" | "unlocked";
 type CreditStep = "idle" | "sending" | "code" | "redeeming" | "error";
 
 interface PaymentGateProps {
+  onUnlocked?: () => void;
   tool: string;
   children: React.ReactNode;
   isProcessing?: boolean;
@@ -36,6 +37,7 @@ interface PaymentGateProps {
 }
 
 export default function PaymentGate({
+  onUnlocked,
   tool,
   children,
   isProcessing = false,
@@ -51,6 +53,9 @@ export default function PaymentGate({
     const pending = localStorage.getItem(getCheckoutPendingKey(downloadId)) === "1";
     return pending ? "verifying" : "preview";
   });
+  useEffect(() => {
+    if (state === "unlocked") onUnlocked?.();
+  }, [state, onUnlocked]);
   const [userEmail, setUserEmail] = useState("");
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");

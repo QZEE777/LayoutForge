@@ -102,6 +102,7 @@ function formatPages(pages: number[]): string {
 }
 
 interface ProcessingReport {
+  printOptions?: { bookType: "paperback" | "hardcover"; bleedMode: "bleed" | "no-bleed"; colorMode: "bw" | "color"; paperType: "white" | "cream" | "standard-color" | "premium-color" };
   id?: string;
   source?: "checker";
   pagesGenerated?: number;
@@ -216,10 +217,10 @@ export default function DownloadPage() {
   /** One automatic enqueue per download id (guests rely on the form; failures use Retry). */
   const annotatedAutoAttemptedRef = useRef(false);
 
-  // Scan context from URL params (set by checker upload page)
-  const scanBookType  = searchParams.get("bk") ?? "paperback";   // paperback | hardcover
-  const scanBleed     = searchParams.get("bl") === "1";           // true = with bleed
-  const scanColorMode = searchParams.get("cm") ?? "bw";           // bw | color
+  // Display the options actually scanned, including on private email links.
+  const scanBookType = report?.printOptions?.bookType;
+  const scanBleed = report?.printOptions?.bleedMode === "bleed";
+  const scanColorMode = report?.printOptions?.colorMode;
   const annotationStatus = report?.annotationStatus ?? "not_requested";
   const hasAnnotatedDownload = Boolean(
     report?.annotatedPdfDownloadUrl || (report?.annotatedPdfUrl && (annotationStatus === "ready" || annotationStatus === "delivered" || (annotatedReady && !annotatedError)))
@@ -483,10 +484,9 @@ export default function DownloadPage() {
             setAnnotatedWaitStartedAt((prev) => prev ?? Date.now());
           }
           if (raw.annotatedPdfUrl && searchParams.get("source") === "checker") {
-            const match = raw.annotatedPdfUrl.match(/\/file\/([^/]+)\/annotated\/?$/);
-            const jobId = match?.[1];
+            const jobId = id;
             if (jobId) {
-              fetch(`/api/kdp-annotated-status?job_id=${encodeURIComponent(jobId)}`)
+              fetch(`/api/kdp-annotated-status?id=${encodeURIComponent(jobId)}`)
                 .then((res) => res.json())
                 .then((statusData: { status?: "queued" | "processing" | "ready" | "delivered" | "error" }) => {
                   if (statusData.status === "ready" || statusData.status === "delivered") setAnnotatedReady(true);
@@ -512,8 +512,7 @@ export default function DownloadPage() {
   useEffect(() => {
     if (!report?.annotatedPdfUrl || !isCheckerFlow) return;
     if (annotatedReady || annotatedError) return;
-    const match = report.annotatedPdfUrl.match(/\/file\/([^/]+)\/annotated\/?$/);
-    const jobId = match?.[1];
+    const jobId = id;
     if (!jobId) return;
     let attempts = 0;
     const maxAttempts = 50;
@@ -521,7 +520,7 @@ export default function DownloadPage() {
     const poll = async () => {
       attempts += 1;
       try {
-        const res = await fetch(`/api/kdp-annotated-status?job_id=${encodeURIComponent(jobId)}`);
+        const res = await fetch(`/api/kdp-annotated-status?id=${encodeURIComponent(jobId)}`);
         const data = await res.json() as { status?: "queued" | "processing" | "ready" | "delivered" | "error" };
         if (data.status === "ready" || data.status === "delivered") {
           setAnnotatedReady(true);
@@ -883,6 +882,7 @@ export default function DownloadPage() {
 
         {report && (
         <PaymentGate
+          onUnlocked={loadReport}
           tool={isFormatReview ? "kdp-format-review" : isChecker ? "kdp-pdf-checker" : isEpub ? "epub-maker" : isPdfFlow ? "pdf-compress" : "kdp-formatter"}
           downloadId={id}
           hideChildrenUntilUnlocked
@@ -980,13 +980,13 @@ export default function DownloadPage() {
                                 style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.5rem" }}
                               >
                                 <span className="rounded-full px-3 py-1 text-xs font-bold bg-white/90 border border-[#1A6B2A]/20 text-m2p-ink shadow-sm whitespace-nowrap">
-                                  {scanBookType === "hardcover" ? "📕 Hardcover" : "📖 Paperback"}
+                                  {!scanBookType ? "Book option not recorded" : scanBookType === "hardcover" ? "📕 Hardcover" : "📖 Paperback"}
                                 </span>
                                 <span className="rounded-full px-3 py-1 text-xs font-bold bg-white/90 border border-[#1A6B2A]/20 text-m2p-ink shadow-sm whitespace-nowrap">
-                                  {scanBleed ? "🩸 With bleed" : "⬜ No bleed"}
+                                  {!report.printOptions ? "Bleed option not recorded" : scanBleed ? "🩸 With bleed" : "⬜ No bleed"}
                                 </span>
                                 <span className="rounded-full px-3 py-1 text-xs font-bold bg-white/90 border border-[#1A6B2A]/20 text-m2p-ink shadow-sm whitespace-nowrap">
-                                  {scanColorMode === "color" ? "🎨 Full color" : "⚫ B&W"}
+                                  {!scanColorMode ? "Ink option not recorded" : scanColorMode === "color" ? "🎨 Full color" : "⚫ B&W"}
                                 </span>
                                 {report.trimDetected && (
                                   <span className="rounded-full px-3 py-1 text-xs font-bold bg-white/90 border border-[#1A6B2A]/20 text-m2p-ink shadow-sm">
@@ -1115,7 +1115,7 @@ export default function DownloadPage() {
                   )}
 
                   {/* Bleed context note — if user said no-bleed, downgrade bleed warnings */}
-                  {isChecker && !scanBleed && report.issuesEnriched?.some(
+                  {isChecker && report.printOptions && !scanBleed && report.issuesEnriched?.some(
                     (i) => /bleed|trim.*outside|does not extend/i.test(i.originalMessage)
                   ) && (
                     <div className="mb-4 rounded-xl border border-blue-200/80 bg-blue-50/90 px-4 py-3 text-sm text-blue-950 border-l-[4px] border-l-blue-600">

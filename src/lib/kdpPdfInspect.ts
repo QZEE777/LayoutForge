@@ -6,10 +6,10 @@
  * Print PDFs with bleed often have a larger media box; TrimBox still reflects KDP trim size.
  */
 import { PDFDocument, type PDFPage } from "pdf-lib";
-import { TRIM_SIZES } from "./kdpConfig";
+import { TRIM_SIZES, HARDCOVER_TRIM_SIZES } from "./kdpConfig";
 
 const PT_PER_INCH = 72;
-const TOLERANCE_INCH = 0.05;
+const TOLERANCE_INCH = 1 / 72; // One PDF point; avoid confusing bleed pages with a nearby trim.
 
 function inchesFromPt(pt: number): number {
   return Math.round((pt / PT_PER_INCH) * 100) / 100;
@@ -17,9 +17,10 @@ function inchesFromPt(pt: number): number {
 
 function matchTrimAtOrientation(
   widthIn: number,
-  heightIn: number
+  heightIn: number,
+  hardcover = false,
 ): { id: string; name: string } | null {
-  for (const t of TRIM_SIZES) {
+  for (const t of hardcover ? HARDCOVER_TRIM_SIZES : TRIM_SIZES) {
     const wOk = Math.abs(widthIn - t.widthInches) <= TOLERANCE_INCH;
     const hOk = Math.abs(heightIn - t.heightInches) <= TOLERANCE_INCH;
     if (wOk && hOk) return { id: t.id, name: t.name };
@@ -28,8 +29,8 @@ function matchTrimAtOrientation(
 }
 
 /** Match KDP trim; tries portrait and landscape (same trim, 90°). */
-export function findKdpTrim(widthIn: number, heightIn: number): { id: string; name: string } | null {
-  return matchTrimAtOrientation(widthIn, heightIn) ?? matchTrimAtOrientation(heightIn, widthIn);
+export function findKdpTrim(widthIn: number, heightIn: number, hardcover = false): { id: string; name: string } | null {
+  return matchTrimAtOrientation(widthIn, heightIn, hardcover);
 }
 
 /** Width/height in inches from the page TrimBox (KDP-relevant size, not bleed media size). */
@@ -53,13 +54,16 @@ export interface CheckerPdfInspectResult {
  * Load PDF bytes and read page count + first-page dimensions for KDP trim matching.
  * Returns null if the file cannot be read (corrupt/encrypted).
  */
-export async function inspectPdfBufferForChecker(buffer: Buffer): Promise<CheckerPdfInspectResult | null> {
+export async function inspectPdfBufferForChecker(buffer: Buffer, bleed = false, hardcover = false): Promise<CheckerPdfInspectResult | null> {
   try {
     const doc = await PDFDocument.load(buffer, { ignoreEncryption: true });
     const pageCount = doc.getPageCount();
     const firstPage = doc.getPage(0);
-    const { widthIn, heightIn } = trimBoxSizeInches(firstPage);
-    const kdpTrim = findKdpTrim(widthIn, heightIn);
+    // KDP trims the supplied page at top, bottom and fore-edge, not at binding.
+    const size = firstPage.getSize();
+    const widthIn = inchesFromPt(size.width - (bleed ? 9 : 0));
+    const heightIn = inchesFromPt(size.height - (bleed ? 18 : 0));
+    const kdpTrim = findKdpTrim(widthIn, heightIn, hardcover);
     return {
       pageCount,
       trimDetected: `${widthIn}" × ${heightIn}"`,

@@ -156,10 +156,11 @@ def get_page_dimensions(page: fitz.Page) -> tuple[float, float]:
 def get_trim_box(page: fitz.Page) -> tuple[float, float, float, float] | None:
     """Return trim box as (x0, y0, x1, y1) in points. Falls back to MediaBox if not set."""
     try:
-        if hasattr(page, "get_trimbox"):
+        trim = getattr(page, "trimbox", None)
+        if trim is None and hasattr(page, "get_trimbox"):
             trim = page.get_trimbox()
-            if trim and getattr(trim, "is_valid", True):
-                return (trim.x0, trim.y0, trim.x1, trim.y1)
+        if trim and getattr(trim, "is_valid", True):
+            return (trim.x0, trim.y0, trim.x1, trim.y1)
     except Exception:
         pass
     r = page.rect
@@ -169,10 +170,11 @@ def get_trim_box(page: fitz.Page) -> tuple[float, float, float, float] | None:
 def get_bleed_box(page: fitz.Page) -> tuple[float, float, float, float] | None:
     """Return bleed box if present; else None."""
     try:
-        if hasattr(page, "get_bleedbox"):
+        bleed = getattr(page, "bleedbox", None)
+        if bleed is None and hasattr(page, "get_bleedbox"):
             bleed = page.get_bleedbox()
-            if bleed and getattr(bleed, "is_valid", True):
-                return (bleed.x0, bleed.y0, bleed.x1, bleed.y1)
+        if bleed and getattr(bleed, "is_valid", True):
+            return (bleed.x0, bleed.y0, bleed.x1, bleed.y1)
     except Exception:
         pass
     return None
@@ -249,16 +251,16 @@ def extract_images(page: fitz.Page) -> list[dict[str, Any]]:
     """Extract image list with bbox, resolution, and colorspace."""
     images = []
     try:
-        for img in page.get_images():
+        for img in page.get_images(full=True):
             try:
                 xref = img[0]
                 base = page.parent.extract_image(xref)
                 w = base.get("width") or 0
                 h = base.get("height") or 0
-                colorspace = base.get("colorspace") or ""
+                colorspace = {1: "DeviceGray", 3: "DeviceRGB", 4: "DeviceCMYK"}.get(base.get("colorspace"), "Unknown")
                 bits_per_component = base.get("bpc") or 8  # bits per component
 
-                for item in page.get_image_info():
+                for item in page.get_image_info(xrefs=True):
                     if item.get("xref") == xref:
                         bbox = item.get("bbox")
                         if bbox:
@@ -275,7 +277,6 @@ def extract_images(page: fitz.Page) -> list[dict[str, Any]]:
                                 "colorspace": str(colorspace),
                                 "bpc": bits_per_component,  # 1 = line art, 8 = photo
                             })
-                        break
             except Exception as e:
                 logger.warning("image_extract_skip", xref=img[0], error=str(e))
     except Exception as e:
@@ -343,7 +344,7 @@ def detect_spot_colors(doc: fitz.Document, page: fitz.Page) -> list[str]:
     """
     spot_found: list[str] = []
     try:
-        for img in page.get_images():
+        for img in page.get_images(full=True):
             xref = img[0]
             try:
                 base = doc.extract_image(xref)

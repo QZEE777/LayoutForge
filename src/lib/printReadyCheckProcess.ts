@@ -1,3 +1,8 @@
+import { preflightHeaders } from "./preflightAuth";
+import { classifyCheckerStorageError } from "./checkerStorageError";
+import { assertCompletePreflightReport } from "./preflightReportValidation";
+import { parseCheckerPrintOptions, type CheckerPrintOptions } from "./checkerPrintOptions";
+import { signCheckerCapability } from "./checkerCapability";
 /**
  * Core logic: run KDP preflight for an R2 PDF and save the checker result.
  * Used by the async worker; not used by the API route (route only enqueues).
@@ -15,6 +20,7 @@ import { enrichCheckerReport } from "./kdpReportEnhance";
 const DEFAULT_PREFLIGHT_BASE_URL = "https://kdp-preflight-engine-production.up.railway.app";
 
 export interface PreflightReport {
+  print_options?: { book_type: string; bleed_mode: string; color_mode: string; paper_type: string };
   status: string;
   readiness_score?: number;
   approval_likelihood?: number;
@@ -43,6 +49,7 @@ interface CheckerReport {
   pdfSourceUrl?: string;
   trimWidthIn?: number;
   trimHeightIn?: number;
+  printOptions?: CheckerPrintOptions;
 }
 
 function buildReportFromPreflightOnly(preflight: PreflightReport | null | undefined, fileSizeMB?: number): CheckerReport {
@@ -58,7 +65,7 @@ function buildReportFromPreflightOnly(preflight: PreflightReport | null | undefi
   ];
   const recommendations =
     preflight?.status === "PASS"
-      ? ["Full KDP preflight (26 rules) passed. No errors found."]
+      ? ["No errors found by the automated checks. Confirm your book in KDP Print Previewer before publishing."]
       : ["Fix the issues above before uploading to KDP."];
   const page_issues = preflight?.page_issues ?? [
     ...errors.map((e) => ({ page: e.page, rule_id: e.rule_id, severity: e.severity, message: e.message, bbox: e.bbox ?? null })),
@@ -82,6 +89,7 @@ function buildReportFromPreflightOnly(preflight: PreflightReport | null | undefi
 }
 
 export interface RunPrintReadyCheckParams {
+  printOptions: CheckerPrintOptions;
   fileKey: string;
   ourJobId: string;
   fileSizeMB?: number;
@@ -103,8 +111,8 @@ const PREFLIGHT_STATUS_DEADLINE_MS = 480000; // 8 min
 
 const STATUS_POLL_TIMEOUT_MS = 10_000;
 
-/** Same read path as first successful attempt; spacing covers R2 propagation after HEAD-visible. */
-const R2_GET_ATTEMPTS = 20;
+/** R2 is strongly consistent. Retry temporary transport/service failures only. */
+const R2_GET_ATTEMPTS = 3;
 const R2_GET_DELAY_MS = 2_000;
 
 function sleep(ms: number) {
@@ -115,7 +123,7 @@ async function triggerLocalAnnotation(downloadId: string): Promise<void> {
   const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com").replace(/\/$/, "");
   const res = await fetch(`${appUrl}/api/annotate-local`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${signCheckerCapability(downloadId, "annotation", 300)}` },
     body: JSON.stringify({ downloadId }),
     signal: AbortSignal.timeout(120000),
   });
@@ -127,6 +135,7 @@ async function triggerLocalAnnotation(downloadId: string): Promise<void> {
 
 export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Promise<{ downloadId: string }> {
   const { fileKey, ourJobId, fileSizeMB, intendedTrimId, baseUrl } = params;
+  const printOptions = parseCheckerPrintOptions(params.printOptions);
   const envUrl = process.env.KDP_PREFLIGHT_API_URL?.trim();
   const url = (envUrl || baseUrl || DEFAULT_PREFLIGHT_BASE_URL).replace(/\/$/, "");
   const startedAt = Date.now();
@@ -145,7 +154,9 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
         }
         lastErr = new Error("R2 returned empty body");
       } catch (e) {
-        lastErr = e;
+        const storageError = classifyCheckerStorageError(e);
+        if (!storageError.retryable) throw storageError;
+        lastErr = storageError;
         console.warn("[printReadyCheckProcess] R2 getFileByKey attempt", { ourJobId, fileKey, attempt, max: R2_GET_ATTEMPTS });
       }
       if (attempt < R2_GET_ATTEMPTS) {
@@ -154,19 +165,22 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
     }
     if (!loaded) {
       console.error("[printReadyCheckProcess] R2 getFileByKey exhausted:", lastErr instanceof Error ? lastErr.stack : lastErr);
-      throw new Error(
-        "We could not read your PDF from storage after several tries. Wait 10 seconds and tap Check My PDF again. (R2_READ_RETRY_EXHAUSTED)",
-      );
+      throw classifyCheckerStorageError(lastErr);
     }
     pdfBuffer = loaded;
   }
-  const inspect = await inspectPdfBufferForChecker(pdfBuffer);
+  const inspect = await inspectPdfBufferForChecker(pdfBuffer, printOptions.bleedMode === "bleed", printOptions.bookType === "hardcover");
 
   const form = new FormData();
   form.append("file", new Blob([pdfBuffer], { type: "application/pdf" }), "document.pdf");
+  form.append("book_type", printOptions.bookType);
+  form.append("bleed_mode", printOptions.bleedMode);
+  form.append("color_mode", printOptions.colorMode);
+  form.append("paper_type", printOptions.paperType);
   const uploadRes = await fetch(`${url}/upload`, {
     method: "POST",
     body: form,
+    headers: preflightHeaders(),
     signal: AbortSignal.timeout(180000),
   });
   const uploadResText = await uploadRes.clone().text().catch((e) => `<<failed to read body: ${String(e)}>>`);
@@ -195,7 +209,7 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
     const statusTimeout = setTimeout(() => statusController.abort(), STATUS_POLL_TIMEOUT_MS);
     let statusRes: Response;
     try {
-      statusRes = await fetch(statusUrl, { signal: statusController.signal });
+      statusRes = await fetch(statusUrl, { signal: statusController.signal, headers: preflightHeaders() });
     } catch (e) {
       if (e instanceof Error && e.name === "AbortError") {
         console.warn("[printReadyCheckProcess] preflight status poll timed out; continuing", { statusUrl });
@@ -232,7 +246,7 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
   let res: Response;
   try {
     const reportUrl = `${url}/report/${encodeURIComponent(renderJobId)}`;
-    res = await fetch(reportUrl, { signal: controller.signal });
+    res = await fetch(reportUrl, { signal: controller.signal, headers: preflightHeaders() });
   } finally {
     clearTimeout(timeout);
   }
@@ -247,8 +261,17 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
     console.error("[printReadyCheckProcess] report JSON parse failed:", e instanceof Error ? e.stack : e);
     preflight = null;
   }
-  const approval_likelihood = preflight?.approval_likelihood ?? null;
+  assertCompletePreflightReport(preflight);
+  if (preflight.print_options?.book_type !== printOptions.bookType ||
+      preflight.print_options?.bleed_mode !== printOptions.bleedMode ||
+      preflight.print_options?.color_mode !== printOptions.colorMode ||
+      preflight.print_options?.paper_type !== printOptions.paperType) {
+    throw new Error("The checker could not confirm your print options. Please try again later.");
+  }
+  const approval_likelihood = preflight.approval_likelihood ?? null;
   const report: CheckerReport = buildReportFromPreflightOnly(preflight, fileSizeMB);
+  report.printOptions = printOptions;
+  report.recommendations.push("Paper type and standard versus premium color are not selected in this checker. Confirm the exact page-count limits for those choices in KDP.");
   if (inspect) {
     const fromPreflight = report.pageCount;
     report.pageCount = Math.max(fromPreflight, inspect.pageCount);
@@ -271,11 +294,11 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
   }
   report.hasPdfPreview = true;
   const engineReadinessScore =
-    typeof preflight?.readiness_score === "number" && Number.isFinite(preflight.readiness_score) && preflight.readiness_score > 0
+    typeof preflight?.readiness_score === "number" && Number.isFinite(preflight.readiness_score) && preflight.readiness_score >= 0
       ? Math.round(preflight.readiness_score)
       : undefined;
   const engineApprovalLikelihood =
-    typeof preflight?.approval_likelihood === "number" && Number.isFinite(preflight.approval_likelihood) && preflight.approval_likelihood > 0
+    typeof preflight?.approval_likelihood === "number" && Number.isFinite(preflight.approval_likelihood) && preflight.approval_likelihood >= 0
       ? Math.round(preflight.approval_likelihood)
       : undefined;
   const engineCreationTool =
@@ -302,7 +325,7 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
   const stored = await saveUpload(minimalPdf, "preflight-report.pdf", "application/pdf");
   report.pdfSourceUrl = `/api/r2-file?id=${encodeURIComponent(stored.id)}`;
   await updateMeta(stored.id, {
-    processingReport: { ...(enrichedReport as object), pdfSourceUrl: report.pdfSourceUrl } as StoredManuscript["processingReport"],
+    processingReport: { ...enrichedReport, printOptions, pdfSourceUrl: report.pdfSourceUrl } as StoredManuscript["processingReport"],
     sourcePdfKey: fileKey,
   });
 
@@ -316,7 +339,7 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
         const haystack = `${e.rule_id ?? ""} ${e.message ?? ""}`.toLowerCase();
         return terms.some((t) => haystack.includes(t));
       });
-    const trim_ok    = !hasIssue(["trim", "page size", "page_size", "dimensions", "paper size"]);
+    const trim_ok    = report.trimMatchKDP && !hasIssue(["trim", "page size", "page_size", "dimensions", "paper size"]);
     const margins_ok = !hasIssue(["margin"]);
     const bleed_ok   = !hasIssue(["bleed"]);
     const fonts_ok   = !hasIssue(["font", "embed"]);

@@ -1,3 +1,4 @@
+import { checkerCookie, hasCheckerCookie, CHECKER_PRIVATE_HEADERS } from "@/lib/checkerCapability";
 /**
  * POST { jobId, fileKey, fileSizeMB?, intendedTrimId? }.
  * Enqueue async checker job and return checkId immediately.
@@ -9,11 +10,12 @@ import { supabase } from "@/lib/supabase";
 import { isValidIntendedTrimId } from "@/lib/kdpIntendedTrim";
 import { waitForCheckerPdfHead } from "@/lib/r2Storage";
 import { CHECKER_MAX_UPLOAD_MB } from "@/lib/checkerUploadLimits";
+import { parseCheckerPrintOptions } from "@/lib/checkerPrintOptions";
 
 export async function POST(request: NextRequest) {
   try {
     console.log("[kdp-pdf-check-from-preflight] start");
-    let body: { jobId?: string; fileKey?: string; fileSizeMB?: number; intendedTrimId?: string | null };
+    let body: { jobId?: string; fileKey?: string; fileSizeMB?: number; intendedTrimId?: string | null; printOptions?: unknown };
     try {
       body = await request.json();
     } catch {
@@ -36,6 +38,10 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+    if (!hasCheckerCookie(request, jobId)) return NextResponse.json({ error: "Upload access required" }, { status: 403, headers: CHECKER_PRIVATE_HEADERS });
+    let printOptions;
+    try { printOptions = parseCheckerPrintOptions(body.printOptions); }
+    catch { return NextResponse.json({ error: "Choose valid print options and try again." }, { status: 400 }); }
     const fileSizeMB = typeof body.fileSizeMB === "number" ? body.fileSizeMB : undefined;
     if (
       fileSizeMB != null &&
@@ -61,6 +67,9 @@ export async function POST(request: NextRequest) {
         );
       }
       intended_trim_id = tid;
+      if (tid.startsWith("hc-") !== (printOptions.bookType === "hardcover")) {
+        return NextResponse.json({ error: "Choose a trim size for the selected book format." }, { status: 400 });
+      }
     }
 
     if (typeof body.fileKey !== "string" || !/^uploads\/[0-9a-fA-F-]+\.pdf$/.test(body.fileKey.trim())) {
@@ -109,6 +118,7 @@ export async function POST(request: NextRequest) {
         file_size_mb: fileSizeMB ?? null,
         status: "pending",
         intended_trim_id,
+        print_options: printOptions,
       })
       .select("id")
       .single();

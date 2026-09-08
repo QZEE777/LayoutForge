@@ -29,6 +29,7 @@ class ScoreGrade(BaseModel):
 class ValidationReport(BaseModel):
     """Full validation report returned by GET /report/{job_id}."""
     file_hash: str = ""
+    print_options: dict[str, str] | None = None
     file_size: int = 0
     ruleset_version: str = "kdp_preflight_v2.0.0"
     status: str                # "PASS" | "FAIL"

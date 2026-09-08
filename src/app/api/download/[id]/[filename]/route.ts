@@ -1,3 +1,4 @@
+import { requireCheckerAccess } from "@/lib/checkerAccess";
 import { NextRequest, NextResponse } from "next/server";
 import { readOutput, getStored } from "@/lib/storage";
 
@@ -23,6 +24,9 @@ export async function GET(
       );
     }
 
+    if (!/^[0-9a-f-]{36}$/i.test(id) || !/^[\w .-]+\.(pdf|docx|epub)$/.test(filename) || filename.includes("..")) {
+      return NextResponse.json({ error: "Invalid download path" }, { status: 400 });
+    }
     // Security: Only allow known output types (PDF, DOCX, EPUB)
     let contentType: string;
     if (filename.endsWith(".pdf")) {
@@ -40,6 +44,10 @@ export async function GET(
 
     // Payment gate: verify download is paid before serving the file
     const meta = await getStored(id);
+    if (meta?.processingReport?.outputType === "checker") {
+      const denied = await requireCheckerAccess(request, id, { meta, paid: true });
+      if (denied) return denied;
+    }
     if (!meta?.payment_confirmed) {
       return NextResponse.json(
         { error: "Payment required", message: "Purchase this report to download." },

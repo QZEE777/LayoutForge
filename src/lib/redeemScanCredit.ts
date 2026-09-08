@@ -1,3 +1,4 @@
+import { checkerDeliveryLink } from "@/lib/checkerCapability";
 import { createClient } from "@supabase/supabase-js";
 import { markDownloadPaid, getStored, updateMeta } from "@/lib/storage";
 import { loadScanCreditBalanceForEmail } from "@/lib/scanCredits";
@@ -132,12 +133,12 @@ export async function redeemScanCreditForDownload(
   // Send delivery email with annotated PDF (best effort)
   try {
     const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com").replace(/\/$/, "");
-    const reportUrl = `${appUrl}/download/${downloadId}?source=checker`;
+    const reportUrl = checkerDeliveryLink(downloadId);
 
     let annotatedPdfUrl: string | undefined;
     try {
       const annotated = await annotateCheckerPdf(downloadId);
-      annotatedPdfUrl = annotated?.annotatedPdfDownloadUrl ?? undefined;
+      annotatedPdfUrl = annotated ? reportUrl : undefined;
     } catch (annotateErr) {
       console.error("[redeemScanCredit] annotateCheckerPdf failed (non-fatal):", annotateErr);
     }
