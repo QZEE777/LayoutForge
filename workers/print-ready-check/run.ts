@@ -11,6 +11,7 @@ import "dotenv/config";
 import { createClient } from "@supabase/supabase-js";
 // Relative import so worker runs with tsx from repo root without path mapping
 import { runPrintReadyCheck } from "../../src/lib/printReadyCheckProcess";
+import { parseCheckerPrintOptions } from "../../src/lib/checkerPrintOptions";
 
 const POLL_INTERVAL_MS = 12_000;
 
@@ -106,12 +107,17 @@ async function processOne(supabase: ReturnType<typeof createClient>): Promise<bo
 
   try {
     const baseUrl = getPreflightUrl();
+    const { data: optionRow, error: optionError } = await supabase.from("print_ready_checks")
+      .select("print_options").eq("id", checkId).single();
+    if (optionError) throw new Error("Could not load the selected print options.");
+    const printOptions = parseCheckerPrintOptions(optionRow?.print_options);
 
     const { downloadId } = await runPrintReadyCheck({
       fileKey,
       ourJobId,
       fileSizeMB,
       intendedTrimId,
+      printOptions,
       baseUrl,
     });
 

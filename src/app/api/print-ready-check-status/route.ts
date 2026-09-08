@@ -1,3 +1,4 @@
+import { checkerCookie, hasCheckerCookie, CHECKER_PRIVATE_HEADERS } from "@/lib/checkerCapability";
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { enqueuePostScanNurtureEmail } from "@/lib/postScanNurtureEmail";
@@ -27,7 +28,7 @@ export async function GET(request: NextRequest) {
 
     const { data: row, error } = await supabase
       .from("print_ready_checks")
-      .select("status, result_download_id, error_message")
+      .select("status, result_download_id, error_message, our_job_id")
       .eq("id", checkId)
       .single();
 
@@ -38,7 +39,7 @@ export async function GET(request: NextRequest) {
         { status: 404 }
       );
     }
-    console.log("[print-ready-check-status] row:", row);
+    if (!hasCheckerCookie(request, row.our_job_id)) return NextResponse.json({ error: "Upload access required" }, { status: 403, headers: CHECKER_PRIVATE_HEADERS });
 
     const normalizedStatus: QueueStatus =
       row.status === "pending" ? "queued" :
@@ -63,7 +64,7 @@ export async function GET(request: NextRequest) {
       payload.error = row.error_message;
     }
 
-    return NextResponse.json(payload);
+    return NextResponse.json(payload, { headers: CHECKER_PRIVATE_HEADERS });
   } catch (e) {
     console.error("[print-ready-check-status]", e instanceof Error ? e.stack : e);
     return NextResponse.json(

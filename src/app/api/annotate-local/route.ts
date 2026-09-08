@@ -1,3 +1,4 @@
+import { requireCheckerAccess } from "@/lib/checkerAccess";
 import { NextRequest, NextResponse } from "next/server";
 import { getStored } from "@/lib/storage";
 import { annotateCheckerPdf } from "@/lib/annotatePdf";
@@ -20,20 +21,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Not a checker report" }, { status: 400 });
     }
 
-    console.log("ANNOTATED URL BEFORE:", meta.annotatedPdfDownloadUrl ?? "none");
+    const denied = await requireCheckerAccess(request, downloadId, { meta, paid: true, internal: true });
+    if (denied) return denied;
 
     const result = await annotateCheckerPdf(downloadId);
     if (!result) {
       return NextResponse.json({ error: "Annotation failed or source PDF not found" }, { status: 500 });
     }
 
-    console.log("ANNOTATED URL AFTER:", result.annotatedPdfDownloadUrl);
+
 
     return NextResponse.json({
       success: true,
       downloadId,
       status: "ready",
-      annotatedPdfDownloadUrl: result.annotatedPdfDownloadUrl,
+      annotatedPdfDownloadUrl: `/api/checker-annotated-download?id=${downloadId}`,
     });
   } catch (e) {
     console.error("[annotate-local]", e);

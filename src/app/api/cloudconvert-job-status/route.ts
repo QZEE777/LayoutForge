@@ -237,6 +237,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    if (id && (await getStored(id))?.processingReport?.outputType === "checker") return NextResponse.json({ error: "Use the private checker report" }, { status: 403 });
+
     const apiKey = process.env.CLOUDCONVERT_API_KEY;
     if (!apiKey) {
       return NextResponse.json(

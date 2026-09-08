@@ -37,6 +37,8 @@ PAPERBACK_MAX_PAGES = 828
 
 def gutter_inches(page_count: int) -> float:
     """Return KDP required inside gutter in inches for the given page count."""
+    if page_count < 24:
+        return 0.375  # Page-count rule handles the invalid length separately.
     for low, high, gutter in GUTTER_BY_PAGES:
         if low <= page_count <= high:
             return gutter
@@ -75,12 +77,14 @@ def detect_creation_tool(creator_info: dict[str, str]) -> str:
     return "unknown"
 
 
-def analyze_document(pdf_path: Path) -> dict[str, Any]:
+def analyze_document(pdf_path: Path, print_options: dict | None = None) -> dict[str, Any]:
     """
     Parse PDF and enrich with computed layout (margins, safe zone, bleed).
     Returns document dict with 'parsed' and 'analysis' keys.
     """
     parsed = parse_pdf(pdf_path)
+    options = print_options or {"book_type": "paperback", "bleed_mode": "no-bleed", "color_mode": "bw"}
+    has_bleed = options["bleed_mode"] == "bleed"
     page_count = parsed["page_count"]
     creator_info = parsed.get("creator_info", {})
     creation_tool = detect_creation_tool(creator_info)
@@ -99,7 +103,10 @@ def analyze_document(pdf_path: Path) -> dict[str, Any]:
     for p in parsed["pages"]:
         w = p["width"]
         h = p["height"]
-        trim = p.get("trim_box")
+        inside_left = p["page_number"] % 2 == 1
+        # Submitted page size includes bleed on the fore-edge, top and bottom only.
+        trim = ((0 if inside_left else bleed_pt), bleed_pt,
+                w - (bleed_pt if inside_left else 0), h - bleed_pt) if has_bleed else (0.0, 0.0, w, h)
 
         # Effective trim: use trim box if valid, else full page (MediaBox)
         if trim and len(trim) == 4:
@@ -109,14 +116,17 @@ def analyze_document(pdf_path: Path) -> dict[str, Any]:
             t_w, t_h = w, h
             trim = (0.0, 0.0, w, h)
 
-        # Left = gutter (inside binding), right = outside (fore-edge)
-        safe_left   = trim[0] + gutter_pt
-        safe_right  = trim[2] - outside_pt
+        # PDF page 1 is a right-hand page; binding edges alternate for LTR books.
+        inside_left = p["page_number"] % 2 == 1
+        safe_left   = trim[0] + (gutter_pt if inside_left else outside_pt)
+        safe_right  = trim[2] - (outside_pt if inside_left else gutter_pt)
         safe_top    = trim[1] + top_pt
         safe_bottom = trim[3] - bottom_pt
 
         pages_analysis.append({
             **p,
+            "inside_left": inside_left,
+            "has_bleed": has_bleed,
             "gutter_pt":   gutter_pt,
             "outside_pt":  outside_pt,
             "top_pt":      top_pt,
@@ -137,6 +147,7 @@ def analyze_document(pdf_path: Path) -> dict[str, Any]:
     return {
         "parsed": parsed,
         "analysis": {
+            "print_options": options,
             "page_count":        page_count,
             "gutter_inches":     gutter_in,
             "trim_width_in":     trim_width_in,

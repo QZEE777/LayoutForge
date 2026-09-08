@@ -1,3 +1,4 @@
+import { requireCheckerAccess } from "@/lib/checkerAccess";
 import { NextResponse } from "next/server";
 import { redeemScanCreditForDownload } from "@/lib/redeemScanCredit";
 import { cookies } from "next/headers";
@@ -39,6 +40,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Incorrect code." }, { status: 400 });
   }
 
+  const denied = await requireCheckerAccess(req, downloadId);
+  if (denied) return denied;
   const cookieStore = await cookies();
   const refCookie = cookieStore.get("m2p_ref")?.value;
   const result = await redeemScanCreditForDownload(email, downloadId, refCookie);

@@ -1,14 +1,9 @@
+import { checkerDeliveryLink } from "./checkerCapability";
 import { getStored, normalizeAnnotatedPdfStatus, updateAnnotatedState } from "./storage";
 import { sendAnnotatedPdfReadyEmail } from "./resend";
 import { supabase } from "./supabase";
 import { logEmailSend } from "./logEmailSend";
 import { ANNOTATED_PDF_SUBJECT } from "./emailSubjects";
-
-function extractJobId(annotatedUrl?: string): string | null {
-  if (!annotatedUrl) return null;
-  const m = annotatedUrl.match(/\/file\/([^/]+)\/annotated\/?$/);
-  return m?.[1] ?? null;
-}
 
 /** Abandoned pending claims (crash after INSERT, before Resend) can be reclaimed after this. */
 const STALE_PENDING_MS = 10 * 60 * 1000;
@@ -70,7 +65,7 @@ async function claimAnnotatedSend(downloadId: string, recipientEmail: string): P
 
 export async function sendAnnotatedEmailIfReady(downloadId: string): Promise<boolean> {
   const meta = await getStored(downloadId);
-  if (!meta) return false;
+  if (!meta?.payment_confirmed) return false;
   if (!meta.annotatedEmail) return false;
   if (meta.annotatedEmailSentAt) return false;
   if (normalizeAnnotatedPdfStatus(meta.annotatedPdfStatus, meta.annotatedEmailSentAt) !== "ready") {
@@ -84,15 +79,15 @@ export async function sendAnnotatedEmailIfReady(downloadId: string): Promise<boo
     return false;
   }
 
+  // Old metadata may contain an address supplied before access checks existed.
+  const { data: purchase, error: purchaseError } = await supabase.from("payments").select("id")
+    .eq("email", meta.annotatedEmail.trim().toLowerCase()).eq("status", "complete")
+    .or(`download_id.eq.${downloadId},and(gateway.eq.credits,gateway_order_id.eq.${downloadId})`).limit(1);
+  if (purchaseError || !purchase?.length) return false;
   const claimed = await claimAnnotatedSend(downloadId, meta.annotatedEmail);
   if (!claimed) return false;
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com";
-  const jobId = extractJobId(meta.annotatedPdfUrl);
-  const fallbackUrl = jobId
-    ? `${appUrl}/api/kdp-annotated-pdf?job_id=${encodeURIComponent(jobId)}`
-    : `${appUrl}/download/${downloadId}?source=checker`;
-  const annotatedUrl = meta.annotatedPdfDownloadUrl || fallbackUrl;
+  const annotatedUrl = checkerDeliveryLink(downloadId);
 
   let messageId: string | undefined;
   let sendError: string | undefined;

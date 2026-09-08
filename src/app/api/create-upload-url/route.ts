@@ -1,3 +1,4 @@
+import { checkerCookie, hasCheckerCookie, CHECKER_PRIVATE_HEADERS } from "@/lib/checkerCapability";
 import { NextRequest, NextResponse } from 'next/server';
 import { CHECKER_MAX_UPLOAD_BYTES, CHECKER_MAX_UPLOAD_MB } from '@/lib/checkerUploadLimits';
 
@@ -77,7 +78,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       { uploadUrl, fileKey, jobId },
-      { headers: NO_STORE_HEADERS }
+      { headers: { ...NO_STORE_HEADERS, "Set-Cookie": checkerCookie(jobId) } }
     );
   } catch (error) {
     console.error('create-upload-url error:', error);

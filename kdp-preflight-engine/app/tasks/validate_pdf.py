@@ -45,7 +45,7 @@ def compute_sha256(path: Path) -> str:
 
 
 @celery_app.task(bind=True, name="validate_pdf")
-def validate_pdf_task(self, job_id: str, file_path: str) -> dict:
+def validate_pdf_task(self, job_id: str, file_path: str, print_options: dict | None = None) -> dict:
     """
     Run validation pipeline. file_path is local path to PDF.
     Sets status and report in Redis.
@@ -62,7 +62,9 @@ def validate_pdf_task(self, job_id: str, file_path: str) -> dict:
         file_hash = compute_sha256(path)
         file_size = path.stat().st_size
 
-        doc = analyze_document(path)
+        if not print_options:
+            raise ValueError("Print options missing. Start a new scan.")
+        doc = analyze_document(path, print_options)
         page_count = doc["analysis"]["page_count"]
         creation_tool = doc["analysis"].get("creation_tool", "unknown")
         errors, warnings, rules_checked = run_validation(doc)
@@ -78,6 +80,7 @@ def validate_pdf_task(self, job_id: str, file_path: str) -> dict:
             creation_tool=creation_tool,
             page_geometry=page_geometry,
         )
+        report.print_options = print_options
         set_report(job_id, report)
         set_status(job_id, "completed", None)
         logger.info("validation_completed", job_id=job_id, status=report.status, errors=len(errors), warnings=len(warnings))

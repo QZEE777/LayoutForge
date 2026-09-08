@@ -56,11 +56,8 @@ export const HARDCOVER_TRIM_SIZES = [
   { id: "hc-5.5x8.5",   name: '5.5" × 8.5" — Standard hardcover',    widthInches: 5.5,   heightInches: 8.5   },
   { id: "hc-6x9",       name: '6" × 9" — Trade hardcover',             widthInches: 6,     heightInches: 9     },
   { id: "hc-6.14x9.21", name: '6.14" × 9.21" — Trade paperback size', widthInches: 6.14,  heightInches: 9.21  },
-  { id: "hc-6.69x9.61", name: '6.69" × 9.61" — Large trade hardcover', widthInches: 6.69,  heightInches: 9.61  },
   { id: "hc-7x10",      name: '7" × 10" — Large hardcover',            widthInches: 7,     heightInches: 10    },
-  { id: "hc-7.44x9.69", name: '7.44" × 9.69" — Crown quarto hardcover', widthInches: 7.44, heightInches: 9.69  },
-  { id: "hc-7.5x9.25",  name: '7.5" × 9.25" — Large nonfiction HC',   widthInches: 7.5,   heightInches: 9.25  },
-  { id: "hc-8.5x11",    name: '8.5" × 11" — Large format hardcover',   widthInches: 8.5,   heightInches: 11    },
+  { id: "hc-8.25x11",    name: '8.25" × 11" — Large format hardcover',   widthInches: 8.25,   heightInches: 11    },
 ] as const;
 
 export type HardcoverTrimSizeId = (typeof HARDCOVER_TRIM_SIZES)[number]["id"];

@@ -43,6 +43,7 @@ export async function POST(request: NextRequest) {
     }
 
     const meta = await getStored(id);
+    if (meta?.processingReport?.outputType === "checker") return NextResponse.json({ error: "Use the private checker report" }, { status: 403 });
     if (!meta) {
       return NextResponse.json(
         { error: "Not found", message: "File not found or expired." },

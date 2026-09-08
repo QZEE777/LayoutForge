@@ -4,7 +4,8 @@ FastAPI application: KDP Preflight Engine API.
 from __future__ import annotations
 
 import structlog
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends, HTTPException
+import hmac
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from slowapi.errors import RateLimitExceeded
@@ -57,11 +58,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(upload.router, tags=["upload"])
-app.include_router(status.router, tags=["status"])
-app.include_router(report.router, tags=["report"])
-app.include_router(file_api.router, tags=["file"])
-app.include_router(annotate.router, tags=["annotate"])
+def require_service_key(request: Request):
+    key = settings.kdp_preflight_api_key
+    if not key or len(key) < 32:
+        raise HTTPException(503, "Private preflight transport is not configured")
+    supplied = request.headers.get("x-preflight-key", "")
+    if not hmac.compare_digest(supplied.encode(), key.encode()):
+        raise HTTPException(401, "Unauthorized")
+
+
+app.include_router(upload.router, tags=["upload"], dependencies=[Depends(require_service_key)])
+app.include_router(status.router, tags=["status"], dependencies=[Depends(require_service_key)])
+app.include_router(report.router, tags=["report"], dependencies=[Depends(require_service_key)])
+app.include_router(file_api.router, tags=["file"], dependencies=[Depends(require_service_key)])
+app.include_router(annotate.router, tags=["annotate"], dependencies=[Depends(require_service_key)])
 
 
 @app.get("/")

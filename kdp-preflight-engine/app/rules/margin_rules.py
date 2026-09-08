@@ -16,17 +16,17 @@ def rule_gutter_margin(doc: dict[str, Any]) -> list[dict[str, Any]]:
         trim = p.get("trim_rect") or p.get("trim_box")
         if not trim or len(trim) != 4:
             continue
-        safe_left = p.get("safe_left")
+        inside_left = p.get("inside_left", p.get("page_number", 1) % 2 == 1)
+        boundary = p.get("safe_left" if inside_left else "safe_right")
         gutter_pt = p.get("gutter_pt")
-        if safe_left is None or gutter_pt is None:
+        if boundary is None or gutter_pt is None:
             continue
         # Check text blocks crossing into gutter
         for blk in p.get("text_blocks") or []:
             bbox = blk.get("bbox")
             if not bbox or len(bbox) < 4:
                 continue
-            x0 = bbox[0]
-            if x0 < safe_left - 1:  # 1pt tolerance
+            if (bbox[0] < boundary - 1) if inside_left else (bbox[2] > boundary + 1):
                 issues.append(_issue(
                     p.get("page_number", 0),
                     "GUTTER_MARGIN",
@@ -43,14 +43,15 @@ def rule_outside_margin_min(doc: dict[str, Any]) -> list[dict[str, Any]]:
     issues = []
     pages = doc.get("analysis", {}).get("pages") or []
     for p in pages:
-        safe_right = p.get("safe_right")
-        if safe_right is None:
+        inside_left = p.get("inside_left", p.get("page_number", 1) % 2 == 1)
+        boundary = p.get("safe_right" if inside_left else "safe_left")
+        if boundary is None:
             continue
         for blk in p.get("text_blocks") or []:
             bbox = blk.get("bbox")
             if not bbox or len(bbox) < 4:
                 continue
-            if bbox[2] > safe_right + 1:
+            if (bbox[2] > boundary + 1) if inside_left else (bbox[0] < boundary - 1):
                 issues.append(_issue(
                     p.get("page_number", 0),
                     "OUTSIDE_MARGIN_MIN",
@@ -161,6 +162,10 @@ def rule_safe_zone_validation(doc: dict[str, Any]) -> list[dict[str, Any]]:
             if not bbox or len(bbox) < 4:
                 continue
             x0, y0, x1, y1 = bbox[0], bbox[1], bbox[2], bbox[3]
+            if p.get("has_bleed"):
+                # Image content cannot reveal whether important details are safe.
+                # Bleed extension is checked separately; do not reject intentional artwork.
+                continue
             if x0 < sl - 1 or x1 > sr + 1 or y0 < st - 1 or y1 > sb + 1:
                 issues.append(_issue(
                     p.get("page_number", 0),

@@ -1,3 +1,4 @@
+import { checkerDeliveryLink, verifyCheckerCapability } from "@/lib/checkerCapability";
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
@@ -75,6 +76,14 @@ export async function POST(req: Request) {
     : "";
   const orderId     = payload.data?.id != null ? String(payload.data.id) : "";
   const amount      = payload.data?.attributes?.total ?? 0;
+
+  // Payment alone is not manuscript ownership. Bind the checkout to the owner's request.
+  if (downloadId && !verifyCheckerCapability(
+    typeof customData?.checker_claim === "string" ? customData.checker_claim : undefined,
+    downloadId, "checkout",
+  )) {
+    return NextResponse.json({ error: "Invalid report checkout authorization" }, { status: 403 });
+  }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -183,13 +192,13 @@ export async function POST(req: Request) {
     if (!alreadyProcessed && buyerEmail) {
       try {
         const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com").replace(/\/$/, "");
-        const reportUrl = `${appUrl}/download/${downloadId}?source=checker`;
+        const reportUrl = checkerDeliveryLink(downloadId);
 
         // Annotate the PDF inline so both download links are ready in the email
         let annotatedPdfUrl: string | undefined;
         try {
           const annotated = await annotateCheckerPdf(downloadId);
-          annotatedPdfUrl = annotated?.annotatedPdfDownloadUrl ?? undefined;
+          annotatedPdfUrl = annotated ? reportUrl : undefined;
         } catch (annotateErr) {
           console.error("[webhooks/lemonsqueezy] annotateCheckerPdf failed (non-fatal):", annotateErr);
         }

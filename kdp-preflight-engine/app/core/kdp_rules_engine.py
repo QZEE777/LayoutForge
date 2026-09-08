@@ -42,12 +42,7 @@ def run_validation(doc: dict[str, Any]) -> tuple[list[dict[str, Any]], list[dict
                     warnings.append(item)
         except Exception as e:
             logger.exception("rule_failed", rule_id=rule_id, error=str(e))
-            errors.append({
-                "page": 1,
-                "rule_id": rule_id,
-                "severity": "ERROR",
-                "message": f"Rule check failed: {e!s}",
-                "bbox": None,
-            })
+            # A broken check is a processing failure, not a manuscript defect.
+            raise RuntimeError("PDF validation could not complete. Please try again.") from e
 
     return errors, warnings, rules_checked

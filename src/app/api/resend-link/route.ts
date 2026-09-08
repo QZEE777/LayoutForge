@@ -1,3 +1,6 @@
+import { checkerDeliveryLink, isCheckerId } from "@/lib/checkerCapability";
+import { sendDownloadLinkEmail } from "@/lib/resend";
+import { getStored } from "@/lib/storage";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { DOWNLOAD_LINK_DEFAULT_SUBJECT_HINT, RESEND_HELP_SUBJECT } from "@/lib/emailSubjects";
@@ -45,7 +48,7 @@ export async function POST(req: Request) {
   // Find most recent completed payment for this email
   const { data: payment } = await supabase
     .from("payments")
-    .select("id, tool")
+    .select("id, tool, download_id, gateway, gateway_order_id")
     .eq("email", email)
     .eq("status", "complete")
     .order("created_at", { ascending: false })
@@ -65,7 +68,13 @@ export async function POST(req: Request) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.manu2print.com";
 
   try {
-    await sendResendHelpEmail(email, appUrl);
+    const reportId = payment.download_id || (payment.gateway === "credits" ? payment.gateway_order_id : null);
+    const meta = reportId && isCheckerId(reportId) ? await getStored(reportId) : null;
+    if (meta?.payment_confirmed && meta.processingReport?.outputType === "checker") {
+      await sendDownloadLinkEmail(email, checkerDeliveryLink(meta.id));
+    } else {
+      await sendResendHelpEmail(email, appUrl);
+    }
   } catch (err) {
     console.error("[resend-link] email send failed:", err);
     // Still return ok — don't expose errors

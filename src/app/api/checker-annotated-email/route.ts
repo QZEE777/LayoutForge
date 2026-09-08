@@ -1,3 +1,4 @@
+import { requireCheckerAccess } from "@/lib/checkerAccess";
 import { NextRequest, NextResponse } from "next/server";
 import { getStored, normalizeAnnotatedPdfStatus, updateAnnotatedState } from "@/lib/storage";
 import { sendAnnotatedEmailIfReady } from "@/lib/annotatedEmail";
@@ -53,6 +54,8 @@ export async function POST(req: NextRequest) {
 
     const meta = await getStored(id);
     if (!meta) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    const denied = await requireCheckerAccess(req, id, { meta, paid: true });
+    if (denied) return denied;
     const normalized = normalizeAnnotatedPdfStatus(meta.annotatedPdfStatus, meta.annotatedEmailSentAt);
     if (normalized === "delivered") {
       return NextResponse.json({ success: true, sentNow: true, status: "delivered" });

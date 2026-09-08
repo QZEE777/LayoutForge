@@ -17,6 +17,41 @@ PAPERBACK_MAX = 828
 HARDCOVER_MAX = 550
 PAPERBACK_MIN = 24
 
+# Current KDP paperback maximums by trim and interior stock. The checker asks
+# for the paper/color tier so it can avoid treating every paperback as 828 pages.
+_PAPERBACK_MAX_BY_TRIM = {
+    (5.00, 8.00): {"white": 828, "cream": 776, "standard-color": 600, "premium-color": 828},
+    (5.06, 7.81): {"white": 828, "cream": 776, "standard-color": 600, "premium-color": 828},
+    (5.25, 8.00): {"white": 828, "cream": 776, "standard-color": 600, "premium-color": 828},
+    (5.50, 8.50): {"white": 828, "cream": 776, "standard-color": 600, "premium-color": 828},
+    (6.00, 9.00): {"white": 828, "cream": 776, "standard-color": 600, "premium-color": 828},
+    (6.14, 9.21): {"white": 828, "cream": 776, "standard-color": 600, "premium-color": 828},
+    (6.69, 9.61): {"white": 828, "cream": 776, "standard-color": 600, "premium-color": 828},
+    (7.00, 10.00): {"white": 828, "cream": 776, "standard-color": 600, "premium-color": 828},
+    (7.44, 9.69): {"white": 828, "cream": 776, "standard-color": 600, "premium-color": 828},
+    (7.50, 9.25): {"white": 828, "cream": 776, "standard-color": 600, "premium-color": 828},
+    (8.00, 10.00): {"white": 828, "cream": 776, "standard-color": 600, "premium-color": 828},
+    (8.25, 8.25): {"white": 800, "cream": 750, "standard-color": 600, "premium-color": 800},
+    (8.50, 8.50): {"white": 590, "cream": 550, "standard-color": 600, "premium-color": 590},
+    (8.25, 6.00): {"white": 800, "cream": 750, "standard-color": 600, "premium-color": 800},
+    (8.50, 11.00): {"white": 590, "cream": 550, "standard-color": 600, "premium-color": 590},
+    (8.27, 11.69): {"white": 780, "cream": 730, "standard-color": 0, "premium-color": 590},
+}
+
+def _paperback_max_for(doc: dict[str, Any]) -> tuple[int, str] | None:
+    analysis = doc.get("analysis", {})
+    options = analysis.get("print_options", {})
+    w, h = analysis.get("trim_width_in"), analysis.get("trim_height_in")
+    if not isinstance(w, (int, float)) or not isinstance(h, (int, float)):
+        return None
+    key = next(((tw, th) for tw, th in _PAPERBACK_MAX_BY_TRIM
+                if abs(w - tw) <= 0.02 and abs(h - th) <= 0.02), None)
+    if key is None:
+        return None
+    tier = options.get("paper_type")
+    maximum = _PAPERBACK_MAX_BY_TRIM[key].get(tier)
+    return (maximum, tier) if isinstance(maximum, int) else None
+
 
 def _issue(page: int, rule_id: str, severity: str, message: str, bbox: list[float] | None = None) -> dict[str, Any]:
     return {"page": page, "rule_id": rule_id, "severity": severity, "message": message, "bbox": bbox}
@@ -29,23 +64,27 @@ def _issue(page: int, rule_id: str, severity: str, message: str, bbox: list[floa
 def rule_min_page_count(doc: dict[str, Any]) -> list[dict[str, Any]]:
     """Rule 1: Minimum 24 pages (KDP hard requirement)."""
     n = doc.get("analysis", {}).get("page_count") or doc.get("parsed", {}).get("page_count") or 0
-    if n < PAPERBACK_MIN:
+    minimum = 75 if doc.get("analysis", {}).get("print_options", {}).get("book_type") == "hardcover" else PAPERBACK_MIN
+    if n < minimum:
         return [_issue(1, "MIN_PAGE_COUNT", "ERROR",
-                       f"Your PDF has {n} pages. KDP requires a minimum of 24 pages for all print formats.")]
+                       f"Your PDF has {n} pages. The selected book format requires at least {minimum} pages.")]
     return []
 
 
 def rule_max_page_count(doc: dict[str, Any]) -> list[dict[str, Any]]:
-    """Rule 2: Maximum 828 pages for paperback; warns at 550 for potential hardcover use."""
+    """Rule 2: Enforce the selected KDP book and paper/color page maximum."""
     n = doc.get("analysis", {}).get("page_count") or doc.get("parsed", {}).get("page_count") or 0
     issues = []
-    if n > PAPERBACK_MAX:
+    if doc.get("analysis", {}).get("print_options", {}).get("book_type") == "hardcover":
+        return [_issue(1, "MAX_PAGE_COUNT", "ERROR", "KDP hardcover maximum is 550 pages.")] if n > HARDCOVER_MAX else []
+    limit_info = _paperback_max_for(doc)
+    maximum = limit_info[0] if limit_info else PAPERBACK_MAX
+    tier_label = limit_info[1] if limit_info else "selected paperback"
+    if maximum == 0:
+        return [_issue(1, "MAX_PAGE_COUNT", "ERROR", "Standard color is not available for the selected KDP trim size.")]
+    if n > maximum:
         issues.append(_issue(1, "MAX_PAGE_COUNT", "ERROR",
-                             f"Your PDF has {n} pages. KDP paperback maximum is 828 pages."))
-    elif n > HARDCOVER_MAX:
-        issues.append(_issue(1, "MAX_PAGE_COUNT", "WARNING",
-                             f"Your PDF has {n} pages. KDP hardcover maximum is 550 pages — "
-                             "if publishing hardcover, reduce page count before uploading."))
+                             f"Your PDF has {n} pages. KDP maximum for this {tier_label} paperback is {maximum} pages; your PDF has {n}."))
     return issues
 
 
@@ -101,10 +140,13 @@ def rule_allowed_trim_sizes(doc: dict[str, Any]) -> list[dict[str, Any]]:
         pn = p.get("page_number", 0)
         if pn in reported_pages:
             continue
-        w, h = p.get("width"), p.get("height")
+        w, h = p.get("trim_width_pt", p.get("width")), p.get("trim_height_pt", p.get("height"))
+        allowed = ALLOWED_TRIM_POINTS
+        if doc.get("analysis", {}).get("print_options", {}).get("book_type") == "hardcover":
+            allowed = {(a * 72, b * 72) for a, b in [(5.5,8.5),(6,9),(6.14,9.21),(7,10),(8.25,11)]}
         matched = any(
             abs(w - a) <= TOLERANCE_PT * 2 and abs(h - b) <= TOLERANCE_PT * 2
-            for a, b in ALLOWED_TRIM_POINTS
+            for a, b in allowed
         )
         if not matched:
             reported_pages.add(pn)
@@ -136,8 +178,10 @@ def rule_bleed_validation(doc: dict[str, Any]) -> list[dict[str, Any]]:
     issues = []
     pages = doc.get("analysis", {}).get("pages") or []
     for p in pages:
+        if not p.get("has_bleed"):
+            continue
         trim  = p.get("trim_rect") or p.get("trim_box")
-        bleed = p.get("bleed_box")
+        bleed = (0, 0, p["width"], p["height"])
         if not trim or len(trim) != 4:
             continue
         if not bleed or len(bleed) != 4:
@@ -146,7 +190,7 @@ def rule_bleed_validation(doc: dict[str, Any]) -> list[dict[str, Any]]:
         t_h = trim[3] - trim[1]
         b_w = bleed[2] - bleed[0]
         b_h = bleed[3] - bleed[1]
-        required_w = t_w + BLEED_EXTRA_PT * 2
+        required_w = t_w + BLEED_EXTRA_PT
         required_h = t_h + BLEED_EXTRA_PT * 2
         if b_w < required_w - TOLERANCE_PT or b_h < required_h - TOLERANCE_PT:
             issues.append(_issue(

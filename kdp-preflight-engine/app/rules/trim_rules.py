@@ -3,16 +3,10 @@ from __future__ import annotations
 
 from math import sqrt
 from typing import Any
+from app.core.pdf_parser import TRIM_SIZE_INCHES
 
 # Allowed KDP trims (width x height in inches)
-ALLOWED_KDP_TRIMS = [
-    (5, 8),
-    (5.5, 8.5),
-    (6, 9),
-    (6.14, 9.21),
-    (7, 10),
-    (8, 10),
-]
+ALLOWED_KDP_TRIMS = TRIM_SIZE_INCHES
 
 
 def rule_kdp_trim_profile(doc: dict[str, Any]) -> list[dict[str, Any]]:
@@ -23,6 +17,8 @@ def rule_kdp_trim_profile(doc: dict[str, Any]) -> list[dict[str, Any]]:
     """
     results: list[dict[str, Any]] = []
     analysis = doc.get("analysis") or {}
+    if analysis.get("print_options", {}).get("book_type") == "hardcover":
+        return []  # The format-specific allowed-trim rule handles hardcover.
     width = analysis.get("trim_width_in", 0.0)
     height = analysis.get("trim_height_in", 0.0)
     match = False

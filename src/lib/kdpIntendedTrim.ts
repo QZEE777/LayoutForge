@@ -4,7 +4,7 @@
  */
 import { HARDCOVER_TRIM_SIZES, TRIM_SIZES } from "./kdpConfig";
 
-export const INTENDED_TRIM_MATCH_TOLERANCE_IN = 0.05;
+export const INTENDED_TRIM_MATCH_TOLERANCE_IN = 1 / 72;
 
 const ALL_IDS = new Set<string>([
   ...TRIM_SIZES.map((t) => t.id),
@@ -53,7 +53,5 @@ export function dimensionsMatchIntendedTrim(
 ): boolean {
   const portrait =
     Math.abs(widthIn - targetW) <= tol && Math.abs(heightIn - targetH) <= tol;
-  const landscape =
-    Math.abs(widthIn - targetH) <= tol && Math.abs(heightIn - targetW) <= tol;
-  return portrait || landscape;
+  return portrait;
 }

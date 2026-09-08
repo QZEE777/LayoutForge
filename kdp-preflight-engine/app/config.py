@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     app_name: str = "KDP Preflight Engine"
     debug: bool = False
 
+    kdp_preflight_api_key: str = ""
+
     # Security
     # Max upload size for PDFs (100 MB).
     max_upload_bytes: int = 104857600  # 100 MB

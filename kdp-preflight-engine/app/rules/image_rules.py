@@ -36,8 +36,10 @@ def rule_image_bleed(doc: dict[str, Any]) -> list[dict[str, Any]]:
             if not bbox or len(bbox) < 4:
                 continue
             i_x0, i_y0, i_x1, i_y1 = bbox[0], bbox[1], bbox[2], bbox[3]
-            touches_left   = i_x0 < t_x0 + 2
-            touches_right  = i_x1 > t_x1 - 2
+            # The binding edge is not cut; no bleed is required there.
+            inside_left = p.get("inside_left", p.get("page_number", 1) % 2 == 1)
+            touches_left   = not inside_left and i_x0 < t_x0 + 2
+            touches_right  = inside_left and i_x1 > t_x1 - 2
             touches_top    = i_y0 < t_y0 + 2
             touches_bottom = i_y1 > t_y1 - 2
 
@@ -128,6 +130,9 @@ def rule_image_color_mode(doc: dict[str, Any]) -> list[dict[str, Any]]:
                         "convert all spot colors to CMYK or RGB before uploading.",
                         img.get("bbox"),
                     ))
+            elif doc.get("analysis", {}).get("print_options", {}).get("color_mode") == "bw" and ("RGB" in cs or "CMYK" in cs):
+                issues.append(_issue(pn, "IMAGE_COLOR_MODE", "WARNING",
+                    "Color image data in a black-ink book. Check the grayscale appearance in KDP Print Previewer.", img.get("bbox")))
             elif "CMYK" in cs or "DeviceCMYK" in cs:
                 issues.append(_issue(
                     pn,
@@ -171,7 +176,7 @@ def rule_image_placement(doc: dict[str, Any]) -> list[dict[str, Any]]:
             w = p.get("width", 0)
             h = p.get("height", 0)
             is_full_bleed = (x0 <= 2 and y0 <= 2 and x1 >= w - 2 and y1 >= h - 2)
-            if is_full_bleed:
+            if is_full_bleed and p.get("has_bleed"):
                 continue
             if x0 < sl - 1 or x1 > sr + 1 or y0 < st - 1 or y1 > sb + 1:
                 issues.append(_issue(
