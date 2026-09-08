@@ -1,4 +1,5 @@
 import { preflightHeaders } from "./preflightAuth";
+import { classifyCheckerStorageError } from "./checkerStorageError";
 import { assertCompletePreflightReport } from "./preflightReportValidation";
 import { parseCheckerPrintOptions, type CheckerPrintOptions } from "./checkerPrintOptions";
 import { signCheckerCapability } from "./checkerCapability";
@@ -110,8 +111,8 @@ const PREFLIGHT_STATUS_DEADLINE_MS = 480000; // 8 min
 
 const STATUS_POLL_TIMEOUT_MS = 10_000;
 
-/** Same read path as first successful attempt; spacing covers R2 propagation after HEAD-visible. */
-const R2_GET_ATTEMPTS = 30;
+/** R2 is strongly consistent. Retry temporary transport/service failures only. */
+const R2_GET_ATTEMPTS = 3;
 const R2_GET_DELAY_MS = 2_000;
 
 function sleep(ms: number) {
@@ -153,7 +154,9 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
         }
         lastErr = new Error("R2 returned empty body");
       } catch (e) {
-        lastErr = e;
+        const storageError = classifyCheckerStorageError(e);
+        if (!storageError.retryable) throw storageError;
+        lastErr = storageError;
         console.warn("[printReadyCheckProcess] R2 getFileByKey attempt", { ourJobId, fileKey, attempt, max: R2_GET_ATTEMPTS });
       }
       if (attempt < R2_GET_ATTEMPTS) {
@@ -162,9 +165,7 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
     }
     if (!loaded) {
       console.error("[printReadyCheckProcess] R2 getFileByKey exhausted:", lastErr instanceof Error ? lastErr.stack : lastErr);
-      throw new Error(
-        "We could not read your PDF from storage after several tries. Wait 10 seconds and tap Check My PDF again. (R2_READ_RETRY_EXHAUSTED)",
-      );
+      throw classifyCheckerStorageError(lastErr);
     }
     pdfBuffer = loaded;
   }

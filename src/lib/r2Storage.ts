@@ -11,6 +11,7 @@ import {
   ListObjectsV2Command,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { classifyCheckerStorageError } from "./checkerStorageError";
 
 /** Presigned GET for report PDF, annotated PDF, etc. — keep in sync with emails / FAQ copy. */
 export const DOWNLOAD_SIGNED_URL_EXPIRES_SECONDS = 24 * 60 * 60; // 24 hours
@@ -126,8 +127,10 @@ export async function getFileByKey(fullKey: string): Promise<Buffer> {
     }
     return Buffer.concat(chunks);
   } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    throw new Error(`R2 getFileByKey failed for ${key}: ${msg}`);
+    // Preserve SDK status/code: missing objects and denied credentials are not propagation delays.
+    const classified = classifyCheckerStorageError(e);
+    console.error("[r2] read_failed", { code: classified.code, retryable: classified.retryable });
+    throw classified;
   }
 }
 

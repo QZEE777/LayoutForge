@@ -13,7 +13,6 @@ import { HARDCOVER_TRIM_SIZES, TRIM_SIZES } from "@/lib/kdpConfig";
 import { BrandWordmark } from "@/components/BrandWordmark";
 import { formatFileSize } from "@/lib/formatFileName";
 import { cleanFilenameForDisplay } from "@/lib/kdpReportEnhance";
-import { ErrorRecovery } from "@/components/ErrorRecovery";
 import { CHECKER_MAX_UPLOAD_BYTES, CHECKER_MAX_UPLOAD_MB } from "@/lib/checkerUploadLimits";
 import SocialLinks from "@/components/SocialLinks";
 
@@ -371,14 +370,13 @@ function UploadWidget({
         {error && (
           <div className="mb-4 rounded-xl p-3 text-sm" style={{ background: "#FEF2F2", border: "1px solid #FECACA", color: "#DC2626" }}>
             {error}
-            {file && (
+            {file && /file too large|exceeds.*(?:mb|limit)|too large.*(?:mb|upload)/i.test(error) && (
               <p className="mt-2">
                 <Link href="/pdf-compress" style={{ color: "#f05a28" }} className="hover:underline">
                   Try our free PDF Compressor →
                 </Link>
               </p>
             )}
-            <ErrorRecovery />
           </div>
         )}
 

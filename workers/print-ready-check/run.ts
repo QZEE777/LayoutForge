@@ -12,6 +12,8 @@ import { createClient } from "@supabase/supabase-js";
 // Relative import so worker runs with tsx from repo root without path mapping
 import { runPrintReadyCheck } from "../../src/lib/printReadyCheckProcess";
 import { parseCheckerPrintOptions } from "../../src/lib/checkerPrintOptions";
+import { CheckerStorageError, validateCheckerStorageConfig } from "../../src/lib/checkerStorageError";
+import { preflightHeaders } from "../../src/lib/preflightAuth";
 
 const POLL_INTERVAL_MS = 12_000;
 
@@ -33,10 +35,7 @@ interface PrintReadyCheckRow {
 }
 
 /** After this many storage-read retries, treat the failure as permanent instead of requeuing forever. */
-// R2 uploads can be visible to the web app before the worker's read path sees
-// the object. Keep the job queued long enough to absorb that transient window
-// instead of making the customer upload the same PDF again.
-const MAX_STORAGE_RETRIES = 8;
+const MAX_STORAGE_RETRIES = 2;
 
 const UUID_RE =
   /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
@@ -112,7 +111,13 @@ async function processOne(supabase: ReturnType<typeof createClient>): Promise<bo
     const baseUrl = getPreflightUrl();
     const { data: optionRow, error: optionError } = await supabase.from("print_ready_checks")
       .select("print_options").eq("id", checkId).single();
-    if (optionError) throw new Error("Could not load the selected print options.");
+    if (optionError) {
+      console.error("[worker] print_options_read_failed", { checkId, code: optionError.code, message: optionError.message });
+      throw new Error("The scan service could not load your print settings. This requires a service fix.");
+    }
+    if (optionRow?.print_options == null) {
+      throw new Error("This scan was submitted by an older website version that did not save print settings. The website and scan service must be updated together.");
+    }
     const printOptions = parseCheckerPrintOptions(optionRow?.print_options);
 
     const { downloadId } = await runPrintReadyCheck({
@@ -146,13 +151,7 @@ async function processOne(supabase: ReturnType<typeof createClient>): Promise<bo
 
     console.error("[worker] check", checkId, "failed:", err instanceof Error ? err.stack : err);
 
-    // Transient R2 / propagation: put job back on the queue instead of failing the user permanently.
-    const storageTransient =
-      msg.includes("R2_READ_RETRY_EXHAUSTED") ||
-      msg.includes("getFileByKey") ||
-      msg.includes("NoSuchKey") ||
-      msg.includes("empty or invalid key") ||
-      /R2 getFileByKey failed/i.test(msg);
+    const storageTransient = err instanceof CheckerStorageError && err.retryable;
     if (storageTransient && retryCount < MAX_STORAGE_RETRIES) {
       await supabase
         .from("print_ready_checks")
@@ -194,6 +193,15 @@ async function main() {
   }
   const supabase = getSupabase();
   getPreflightUrl();
+  validateCheckerStorageConfig(process.env);
+  preflightHeaders();
+  const { error: schemaError } = await supabase.from("print_ready_checks").select("print_options").limit(0);
+  if (schemaError) throw new Error(`Worker schema check failed (${schemaError.code}): ${schemaError.message}`);
+  console.info("[worker] startup_ready", {
+    commit: process.env.RAILWAY_GIT_COMMIT_SHA ?? "local",
+    service: process.env.RAILWAY_SERVICE_ID ?? "local",
+    protocol: "checker-print-options-v1",
+  });
   while (true) {
     try {
       const had = await processOne(supabase);
