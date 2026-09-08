@@ -33,7 +33,10 @@ interface PrintReadyCheckRow {
 }
 
 /** After this many storage-read retries, treat the failure as permanent instead of requeuing forever. */
-const MAX_STORAGE_RETRIES = 3;
+// R2 uploads can be visible to the web app before the worker's read path sees
+// the object. Keep the job queued long enough to absorb that transient window
+// instead of making the customer upload the same PDF again.
+const MAX_STORAGE_RETRIES = 8;
 
 const UUID_RE =
   /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;

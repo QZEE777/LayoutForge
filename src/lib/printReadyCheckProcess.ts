@@ -111,7 +111,7 @@ const PREFLIGHT_STATUS_DEADLINE_MS = 480000; // 8 min
 const STATUS_POLL_TIMEOUT_MS = 10_000;
 
 /** Same read path as first successful attempt; spacing covers R2 propagation after HEAD-visible. */
-const R2_GET_ATTEMPTS = 20;
+const R2_GET_ATTEMPTS = 30;
 const R2_GET_DELAY_MS = 2_000;
 
 function sleep(ms: number) {
