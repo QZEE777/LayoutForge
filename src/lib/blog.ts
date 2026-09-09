@@ -18,6 +18,62 @@ export type BlogPost = {
 
 const POSTS: BlogPost[] = [
   {
+    slug: "vellum-is-mac-only-windows-authors-workarounds",
+    title: "Vellum Is Mac-Only. Here's What Windows Authors Actually Do About It.",
+    excerpt:
+      "Every KDP formatting thread eventually recommends Vellum. Half the people reading that recommendation own a PC. Here's what Windows authors are actually doing — rented Mac desktops, a $147 cross-platform alternative, or skipping the whole problem.",
+    publishedAt: "2026-09-09",
+    tags: ["kdp", "formatting", "vellum"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "Open any \"best formatting tool for KDP\" thread and the top answer is almost always Vellum. Clean output, correct font embedding, a one-click export that reliably passes upload checks. Scroll a little further and you'll find the reply nobody upvotes fast enough: \"isn't that Mac only?\" It is. It has been since it launched, and there's still no Windows version, no beta, nothing announced. Vellum's rendering engine is built on Apple-specific frameworks, which is a technical reason, not a business decision Amazon or anyone else can lobby against.",
+      },
+      {
+        type: "h2",
+        text: "Why this doesn't get framed as an accessibility problem",
+      },
+      {
+        type: "p",
+        text: "Most formatting-tool comparisons treat Vellum's Mac exclusivity as a footnote — a line item next to price, somewhere below \"clean interior output.\" But a huge share of KDP's author base runs Windows, and for them the recommendation isn't \"pay $199.99 to $249.99 for the best tool,\" it's \"this tool does not exist for you.\" That's a different sentence, and it deserves different advice than a shrug and a link to the Vellum website.",
+      },
+      {
+        type: "h2",
+        text: "What Windows authors are actually doing",
+      },
+      {
+        type: "ul",
+        items: [
+          "Renting a cloud Mac (MacInCloud and similar services) just to run Vellum remotely — it works, but you're paying a recurring monthly fee on top of Vellum's own license, plus dealing with remote-desktop lag and clunky file transfer for something that's supposed to be a smooth one-click export",
+          "Switching to Atticus — a $147 one-time purchase that runs natively on Windows, Mac, Linux, and Chromebook, built specifically as a cross-platform answer to Vellum. It's consistently the most-recommended alternative in Windows-focused threads, not because it's identical to Vellum but because it's the closest thing that actually installs on a PC",
+          "Formatting in Word or Canva instead, accepting more manual setup (trim size, margins, font embedding) in exchange for a tool they already own and already know",
+          "Borrowing a friend's Mac for a single export session — a real workaround, and a fragile one, since it only survives until that friend upgrades their OS or isn't answering texts during a launch week",
+        ],
+      },
+      {
+        type: "h2",
+        text: "The part that gets skipped in the \"just use a cloud Mac\" advice",
+      },
+      {
+        type: "p",
+        text: "Running Vellum through a rented Mac desktop isn't a hack that costs nothing but time. Between the Mac rental and Vellum's own license, the first-year cost regularly lands above what a one-time Atticus purchase costs outright — and that's before counting the hours lost to a laggy remote session on a task that's supposed to take minutes. It's a legitimate option if you specifically want Vellum's exact output and nothing else will do. It is not the cheap workaround it sometimes gets framed as.",
+      },
+      {
+        type: "h2",
+        text: "The one thing that doesn't change no matter which tool you pick",
+      },
+      {
+        type: "p",
+        text: "Vellum, Atticus, Word, Canva, a rented Mac, a borrowed one — none of it matters to KDP's upload checker, which reads your file's actual page dimensions, margins, bleed, and font embedding regardless of what produced it. A Vellum export can still fail if something shifted on re-export. An Atticus or Word file can pass clean on the first try. The tool changes how much manual setup you do; it doesn't change what KDP is actually going to measure.",
+      },
+      {
+        type: "p",
+        text: "Whichever path you take to get a print-ready PDF, run it through manu2print's Print Ready Check before you upload — it reads the same measurements KDP's checker does and tells you what's off in plain language, whether your file came from a $249 Mac app or a free Word template.",
+      },
+    ],
+  },
+  {
     slug: "ebook-looks-perfect-in-previewer-scrambled-on-kindle",
     title: "Your Book Looks Perfect in Kindle Previewer. On a Real Kindle, It's Scrambled.",
     excerpt:

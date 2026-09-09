@@ -4,12 +4,6 @@ Candidate topics from weekly Reddit/KDP-forum research (DYOR), queued for the tw
 
 ## Queued
 
-- **Title:** Vellum Is Mac-Only. Here's What Windows Authors Actually Do About It.
-  **Angle:** The most-recommended KDP formatting tool in every forum thread simply doesn't run on Windows — authors are quietly paying for MacInCloud subscriptions or switching to Atticus, and nobody frames it as the accessibility problem it is.
-  **Tool link:** /kdp-pdf-checker (or none — this is a platform-choice piece, not a checker pitch)
-  **Tags:** kdp, formatting, vellum
-  **Source:** Recurring theme across self-publishing tool-comparison threads and blog commentary — Vellum's Mac exclusivity vs. Atticus as the cross-platform alternative; researched 2026-09-02
-
 - **Title:** KDP Cut Your Categories From 10 to 3 — And You Can't Email for More Anymore
   **Angle:** Authors used to stack up to 10 browse categories and could email KDP support to add niche ones after the fact; both paths are gone, and most pricing/positioning advice floating around forums still assumes the old system.
   **Tool link:** none
