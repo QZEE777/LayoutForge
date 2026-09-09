@@ -271,7 +271,6 @@ export async function runPrintReadyCheck(params: RunPrintReadyCheckParams): Prom
   const approval_likelihood = preflight.approval_likelihood ?? null;
   const report: CheckerReport = buildReportFromPreflightOnly(preflight, fileSizeMB);
   report.printOptions = printOptions;
-  report.recommendations.push("Paper type and standard versus premium color are not selected in this checker. Confirm the exact page-count limits for those choices in KDP.");
   if (inspect) {
     const fromPreflight = report.pageCount;
     report.pageCount = Math.max(fromPreflight, inspect.pageCount);
