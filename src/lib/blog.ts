@@ -18,6 +18,70 @@ export type BlogPost = {
 
 const POSTS: BlogPost[] = [
   {
+    slug: "kdp-category-limit-3-no-more-email-requests",
+    title: "KDP Cut Your Categories From 10 to 3 — And a Lot of Advice Still Assumes the Old Rules",
+    excerpt:
+      "Old forum threads still tell you to email KDP support for extra categories. That path closed years ago. Here's what the current 3-per-format system actually allows, and the one detail that trips up authors editing an older book.",
+    publishedAt: "2026-09-10",
+    tags: ["kdp", "categories", "discoverability"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "Search \"how many KDP categories can I pick\" and you'll still land on advice describing a system that doesn't exist anymore: choose two BISAC codes, then email KDP support with a list of up to ten more you'd like added. That workflow was real. It's also been gone since Amazon overhauled category selection in 2023 — but the old advice never got taken down, and it keeps getting cited as current.",
+      },
+      {
+        type: "h2",
+        text: "What actually changed",
+      },
+      {
+        type: "p",
+        text: "Before the change, authors picked two categories from an industry BISAC list at setup, then could contact KDP support separately to request additional placements — authors who did this regularly ended up with six, eight, sometimes ten categories on a single book. Amazon replaced that entirely: authors now pick directly from Amazon's own browse taxonomy — the same category tree a shopper clicks through in the store — capped at three categories per format. Amazon's own statement at the time was explicit about why the email option went away: \"Since you can now choose your own categories, we are no longer accepting requests to add or update categories.\"",
+      },
+      {
+        type: "h2",
+        text: "Why the confusion persists",
+      },
+      {
+        type: "p",
+        text: "This wasn't a quiet rollback — it applied to every book, including ones already published. But it happened years ago now, and a lot of the guidance written before the change never got updated or removed. If you're reading a post that talks about emailing KDP support for extra categories, or that assumes a ten-category ceiling, you're reading something written for a system Amazon retired.",
+      },
+      {
+        type: "h2",
+        text: "What \"3 per format\" actually means",
+      },
+      {
+        type: "ul",
+        items: [
+          "Each format gets its own independent set of three — ebook, paperback, and hardcover editions of the same book each get three category picks, not three shared across all of them",
+          "Publishing in multiple formats multiplies your effective total: a book out in all three formats has nine category slots in play, just split across separate editions",
+          "You set and change categories yourself from the Bookshelf — Edit book details — Categories, and updates typically take a day or two to show in the store",
+          "There's no escalation path — KDP support can troubleshoot a category that isn't appearing correctly, but cannot add extra picks beyond three, for anyone, under any circumstance",
+        ],
+      },
+      {
+        type: "h2",
+        text: "The trap for older books",
+      },
+      {
+        type: "p",
+        text: "If a book has been live since before the changeover and you never touched its categories, it may still be sitting on more than three from the old system — Amazon didn't retroactively strip existing placements. The trap: editing that book's categories at all resets it to the current three-pick system, even if you only meant to change one of them. If you're happy with an older book's existing category spread, record what it currently has before you open the categories section to change anything else.",
+      },
+      {
+        type: "h2",
+        text: "One semi-legitimate way to extend your reach",
+      },
+      {
+        type: "p",
+        text: "Some Amazon browse categories are triggered by specific keywords in your metadata rather than picked directly — include the right keyword and Amazon may place your book into a related category automatically, on top of your three chosen picks. It's not guaranteed and it's not a loophole around the cap, but it's a real mechanism, and it's one more reason your keyword fields are worth getting right rather than treating as an afterthought.",
+      },
+      {
+        type: "p",
+        text: "manu2print's Banned Keyword Checker scans your title, subtitle, and keyword fields before you publish — useful both for staying clear of restricted terms and for making sure the keywords you're relying on for category discovery are actually working for you, not against you.",
+      },
+    ],
+  },
+  {
     slug: "vellum-is-mac-only-windows-authors-workarounds",
     title: "Vellum Is Mac-Only. Here's What Windows Authors Actually Do About It.",
     excerpt:

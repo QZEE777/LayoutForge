@@ -4,12 +4,6 @@ Candidate topics from weekly Reddit/KDP-forum research (DYOR), queued for the tw
 
 ## Queued
 
-- **Title:** KDP Cut Your Categories From 10 to 3 — And You Can't Email for More Anymore
-  **Angle:** Authors used to stack up to 10 browse categories and could email KDP support to add niche ones after the fact; both paths are gone, and most pricing/positioning advice floating around forums still assumes the old system.
-  **Tool link:** none
-  **Tags:** kdp, categories, discoverability
-  **Source:** Pattern across 2026 KDP-strategy blogs and community threads describing the category cap drop and removal of manual category-request emails; researched 2026-09-02
-
 - **Title:** Your DOCX "Export to PDF" Broke Your Tables and Nobody Told You Why
   **Angle:** Authors export a clean Word manuscript to PDF, upload to KDP, and find tables no longer "stay" and photos go "wonky" — the cause is almost always transparency/flattening in the export pipeline, not the manuscript itself, but Word's export dialog gives zero indication of this.
   **Tool link:** none (no live route yet — CLAUDE.md lists "DOCX Manuscript Formatter" as coming soon; not built)
