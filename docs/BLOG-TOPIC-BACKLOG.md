@@ -45,3 +45,27 @@ Candidate topics from weekly Reddit/KDP-forum research (DYOR), queued for the tw
   **Tool link:** /spine-width-calculator
   **Tags:** kdp, hardcover, cover
   **Source:** KDP's own hardcover spec pages plus KDP Community forum thread ("Max number of pages") describing physical spine-splitting risk near the page ceiling; researched 2026-09-09
+
+- **Title:** One Photoshop Checkbox Is Why Your Cover PDF Won't Upload
+  **Angle:** Authors export a cover PDF from Photoshop or Illustrator with "Preserve Photoshop Editing Capabilities" (or the Illustrator equivalent) left checked, and the file balloons to a size KDP's cover uploader rejects or hangs on indefinitely — the fix is a single checkbox at export, not a redesign, but nothing in KDP's error messaging points to it, so authors spend hours guessing at dimensions and DPI instead.
+  **Tool link:** /pdf-compress
+  **Tags:** kdp, cover, file-size
+  **Source:** Recurring pattern across Adobe Community and KDP Community "cover won't upload" threads tracing oversized cover PDFs to this specific export setting; researched 2026-09-16
+
+- **Title:** Your KENP Reads Just Flatlined. It's Not a Glitch — It's "Buy" vs. "Read for Free."
+  **Angle:** Authors running a free promo see downloads climb while their Kindle Unlimited page-read counter sits at zero, assume it's a reporting bug, and file a support ticket — but Amazon only pays KENP on a "Read for Free" click; if a reader clicks "Buy" on a $0 book during a promo, it posts as a sale with no page reads attached, and the dashboard doesn't distinguish the two anywhere an author would think to look.
+  **Tool link:** /royalty-calculator
+  **Tags:** kdp, royalty, kindle-unlimited
+  **Source:** Recurring "downloads with no reads" pattern across KDP Community threads, resolved in-thread as a Buy-vs-Borrow distinction rather than a platform bug; researched 2026-09-16
+
+- **Title:** Draft2Digital Just Raised Print Costs Again — Does "Going Wide" Still Pencil Out?
+  **Angle:** Draft2Digital's print-on-demand costs increased for all account holders starting February 1, 2026, following its print partner's pricing update — for authors weighing KDP-exclusive against wide print distribution, the math authors did a year ago is now stale, and nobody re-runs it until a royalty statement looks wrong.
+  **Tool link:** /royalty-calculator
+  **Tags:** kdp, pricing, wide-publishing
+  **Source:** selfpub.substack.com reporting on D2D's Feb 1, 2026 print cost increase; researched 2026-09-16
+
+- **Title:** KDP Can Unpublish a Book That's Already Live — Over Reader-Reported Formatting Complaints
+  **Angle:** It's not just upload-time rejections authors need to worry about: a live, already-approved book can be pulled later via a "quality assurance review" triggered by reader complaints about formatting, with the listing going to a 404 with little warning — a reminder that a clean upload isn't a permanent guarantee if a formatting issue was missed at launch and readers start flagging it.
+  **Tool link:** /kdp-pdf-checker
+  **Tags:** kdp, rejection, content-policy
+  **Source:** Author blog account of a post-launch KDP "quality assurance review" unpublishing following reader formatting complaints; pattern consistent with known KDP review escalation described in this site's own catalog-suspension post; researched 2026-09-16
