@@ -4,12 +4,6 @@ Candidate topics from weekly Reddit/KDP-forum research (DYOR), queued for the tw
 
 ## Queued
 
-- **Title:** Your DOCX "Export to PDF" Broke Your Tables and Nobody Told You Why
-  **Angle:** Authors export a clean Word manuscript to PDF, upload to KDP, and find tables no longer "stay" and photos go "wonky" — the cause is almost always transparency/flattening in the export pipeline, not the manuscript itself, but Word's export dialog gives zero indication of this.
-  **Tool link:** none (no live route yet — CLAUDE.md lists "DOCX Manuscript Formatter" as coming soon; not built)
-  **Tags:** kdp, docx, formatting
-  **Source:** Recurring pattern in Adobe Community and author-blog threads describing DOCX→PDF table/image corruption on KDP upload; researched 2026-09-02
-
 - **Title:** KDP's Rank Used to Update Hourly. Now It Takes Up to Six Days — Most Authors Are Still Optimizing for the Old Speed
   **Angle:** Under the newer ranking system, sales-rank changes can take days rather than hours to show on the book page, which quietly breaks a lot of common author tactics (rank-chasing during a promo, judging a launch's success in the first 24 hours) that assumed near-real-time feedback.
   **Tool link:** none

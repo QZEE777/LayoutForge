@@ -18,6 +18,58 @@ export type BlogPost = {
 
 const POSTS: BlogPost[] = [
   {
+    slug: "word-export-to-pdf-broke-your-tables",
+    title: "Your DOCX \"Export to PDF\" Broke Your Tables and Nobody Told You Why",
+    excerpt:
+      "The manuscript looked fine in Word. The PDF has a table that no longer holds together and a photo with a black box where the background used to be. It's not a corrupted file — it's a checkbox you never saw, buried in the export pipeline.",
+    publishedAt: "2026-09-21",
+    tags: ["kdp", "docx", "formatting"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "You open the manuscript in Word, scroll through it one more time, everything's fine — the table on page 40 lines up, the author photo on the back-matter page has a clean white background. You hit \"Save As\" and pick PDF. You open the result and something's wrong: the table's borders have shifted or a row split across a page break it didn't split across before, and that photo now sits inside a visible black or gray box where the transparent background used to be. Nothing in your manuscript changed. The PDF is telling a different story than the document did.",
+      },
+      {
+        type: "h2",
+        text: "\"Export to PDF\" isn't a screenshot — it's a rebuild",
+      },
+      {
+        type: "p",
+        text: "Word's PDF export doesn't capture a picture of what you're looking at on screen. It regenerates the document's layout and graphics through a separate rendering pipeline, and that pipeline handles a few things differently than Word's own on-screen display does — transparency being the most common casualty. An image with a transparent background, or a shape with transparency applied, can render correctly in Word itself and then flatten incorrectly during PDF export, which is exactly why authors describe images suddenly showing a black or solid-colored box where there used to be no background at all. This is a long-documented behavior in Word's export path, not a one-off bug specific to your file.",
+      },
+      {
+        type: "h2",
+        text: "What actually tends to break",
+      },
+      {
+        type: "ul",
+        items: [
+          "Transparent or layered images — the transparency flattens against the wrong background color during export, producing a visible box or halo that wasn't there in the source document",
+          "Tables near a page boundary — a table that fit cleanly on-screen can reflow across the export's page-break logic differently, splitting a row or shifting a border by a few points",
+          "Vector graphics and shapes with effects (shadows, outlines, transparency) — these are the most fragile elements in the export pipeline and the most likely to render differently than what you saw in Word",
+          "Anything pasted in from another program (a chart from Excel, an image from a design tool) — inherited transparency or layering from the source app tends to survive the paste but not the PDF conversion",
+        ],
+      },
+      {
+        type: "h2",
+        text: "Why the export dialog never warns you",
+      },
+      {
+        type: "p",
+        text: "Word's \"Save As PDF\" dialog has options for image quality and whether to include document properties. It has nothing that flags \"this transparent element may render differently once flattened.\" The conversion happens silently, and the only way to know something shifted is to open the resulting PDF and compare it page-by-page against what you had in Word — which most authors reasonably don't think to do, because \"I just exported the same document\" doesn't sound like a step that could introduce new problems.",
+      },
+      {
+        type: "p",
+        text: "A more reliable habit than trusting the export: after saving as PDF, scroll through the actual output file — not the Word document — on the specific pages that have images, tables, or anything visually complex. If a table or image looks different in the PDF than it did in Word, that's the export, not your original file, and it needs a targeted fix (often as simple as flattening the image yourself before pasting it in, rather than letting the export do it) rather than hours spent re-checking a manuscript that was never the problem.",
+      },
+      {
+        type: "p",
+        text: "Whatever caused the shift, the fix has to happen before you upload — KDP's checker reads the PDF you send it, not the Word file you meant to send. manu2print's Print Ready Check scans the exported PDF for the print-specific issues this kind of export corruption tends to create — shifted page geometry, embedding problems, and more — so you catch it before KDP does.",
+      },
+    ],
+  },
+  {
     slug: "kdp-category-limit-3-no-more-email-requests",
     title: "KDP Cut Your Categories From 10 to 3 — And a Lot of Advice Still Assumes the Old Rules",
     excerpt:
