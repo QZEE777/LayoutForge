@@ -4,12 +4,6 @@ Candidate topics from weekly Reddit/KDP-forum research (DYOR), queued for the tw
 
 ## Queued
 
-- **Title:** KDP's Rank Used to Update Hourly. Now It Takes Up to Six Days — Most Authors Are Still Optimizing for the Old Speed
-  **Angle:** Under the newer ranking system, sales-rank changes can take days rather than hours to show on the book page, which quietly breaks a lot of common author tactics (rank-chasing during a promo, judging a launch's success in the first 24 hours) that assumed near-real-time feedback.
-  **Tool link:** none
-  **Tags:** kdp, algorithm, discoverability
-  **Source:** Pattern across 2026 KDP algorithm-change analyses describing slower rank-update cadence; researched 2026-09-02
-
 - **Title:** KDP Just Raised the 70% Royalty Ceiling to $12.99 — Should You Reprice?
   **Angle:** For 19 years the 70% ebook royalty band topped out at $9.99; as of July 7, 2026 it now runs to $12.99, meaning box sets and higher-value nonfiction that used to fall into the 35% tier at $10-12.99 now qualify for double the royalty — but repricing is opt-in, so books already above $9.99 stay stuck at 35% until an author manually switches the setting.
   **Tool link:** /royalty-calculator

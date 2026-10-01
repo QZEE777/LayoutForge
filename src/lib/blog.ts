@@ -18,6 +18,54 @@ export type BlogPost = {
 
 const POSTS: BlogPost[] = [
   {
+    slug: "kdp-sales-rank-isnt-a-live-scoreboard",
+    title: "Your KDP Sales Rank Isn't a Live Scoreboard — Stop Judging Your Launch by Hour Six",
+    excerpt:
+      "Launch day. You've refreshed your book page forty times and the rank hasn't moved, even though you know three friends bought it. Nothing is broken. Amazon's rank was never built to keep up with your refresh button.",
+    publishedAt: "2026-10-01",
+    tags: ["kdp", "algorithm", "discoverability"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "It's launch morning. Your newsletter went out at 8am, your sister swears she bought a copy, and a reader just posted a screenshot of their order confirmation. Your book page still shows no rank at all — or the same rank it had yesterday. By lunch you've refreshed it often enough that Amazon could reasonably assume you're a bot. By dinner you've half-decided the launch flopped.",
+      },
+      {
+        type: "h2",
+        text: "What Amazon actually says about rank timing",
+      },
+      {
+        type: "p",
+        text: "Amazon's own KDP help pages are more patient than most authors are. Sales rank is updated at least once a day, but changes can take up to two days to show on the site. After a book's very first sale, the rank can take 24–48 hours to appear at all. And if you change your categories, Amazon says the rank on the website can take up to a week to catch up. Authors in the KDP Community regularly report new releases taking around three days before sales show up in rank, while established books tend to update faster.",
+      },
+      {
+        type: "p",
+        text: "On top of the lag, the rank isn't a straight tally of today's sales. Amazon weighs recent activity more heavily but also counts sales history, and it has spent years tuning the system so that a single burst counts for less than steady, consistent selling. The rank is also relative: your number can move when your own sales don't, simply because other books around you sold more or less.",
+      },
+      {
+        type: "h2",
+        text: "The tactics that quietly assume real-time feedback",
+      },
+      {
+        type: "ul",
+        items: [
+          "Declaring a launch a success or failure within the first 24 hours — you're often grading a test before it's been marked",
+          "Turning ads or promos on and off mid-day based on rank movement — the rank you're reacting to may reflect sales from a day or two ago",
+          "Changing categories during a launch to \"chase\" a bestseller badge — that change alone can take up to a week to show",
+          "Screenshotting a mid-promo rank and concluding the promo didn't work, when the sales simply hadn't been reflected yet",
+        ],
+      },
+      {
+        type: "p",
+        text: "A better habit: judge a launch or promo on a window of several days, and lean on your KDP Reports dashboard for sales numbers rather than the public rank. Rank is a lagging, relative signal. Your royalty report is the closest thing you've got to an actual scoreboard, and even that has its own reporting delays, especially for print, which shows up only once the copy ships.",
+      },
+      {
+        type: "p",
+        text: "And if you want to know what those sales are actually worth while you wait for the rank to wake up, manu2print's free Royalty Calculator does the per-copy math for ebook and paperback, so you're working from real numbers instead of a number you refreshed 40 times.",
+      },
+    ],
+  },
+  {
     slug: "word-export-to-pdf-broke-your-tables",
     title: "Your DOCX \"Export to PDF\" Broke Your Tables and Nobody Told You Why",
     excerpt:
