@@ -4,12 +4,6 @@ Candidate topics from weekly Reddit/KDP-forum research (DYOR), queued for the tw
 
 ## Queued
 
-- **Title:** KDP Just Raised the 70% Royalty Ceiling to $12.99 — Should You Reprice?
-  **Angle:** For 19 years the 70% ebook royalty band topped out at $9.99; as of July 7, 2026 it now runs to $12.99, meaning box sets and higher-value nonfiction that used to fall into the 35% tier at $10-12.99 now qualify for double the royalty — but repricing is opt-in, so books already above $9.99 stay stuck at 35% until an author manually switches the setting.
-  **Tool link:** /royalty-calculator
-  **Tags:** kdp, royalty, pricing
-  **Source:** Multiple self-publishing news outlets (Author Media, selfpub.substack.com, Good e-Reader) reporting the July 7, 2026 KDP royalty band expansion; researched 2026-09-09
-
 - **Title:** "AI-Assisted" and "AI-Generated" Aren't the Same Checkbox — And Editing Doesn't Move You Between Them
   **Angle:** Authors widely believe heavy editing of AI-drafted text "erases" the need to disclose it, but KDP's actual rule cares about who wrote the first version, not who polished the last one — so a heavily-rewritten AI draft is still AI-generated, while AI used only for brainstorming/outlining/grammar checks is AI-assisted and needs no disclosure at all; translations via DeepL/ChatGPT are a separate disclosure category authors routinely forget.
   **Tool link:** none

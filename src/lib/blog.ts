@@ -18,6 +18,62 @@ export type BlogPost = {
 
 const POSTS: BlogPost[] = [
   {
+    slug: "kdp-70-percent-royalty-ceiling-12-99-should-you-reprice",
+    title: "KDP Just Raised the 70% Royalty Ceiling to $12.99 — Should You Reprice?",
+    excerpt:
+      "For nearly two decades, $9.99 was the hard ceiling for KDP's 70% ebook royalty. As of July 7, 2026, it's $12.99. If your box set has been sitting at $11.99 on 35%, the change may not have reached your book on its own.",
+    publishedAt: "2026-10-05",
+    tags: ["kdp", "royalty", "pricing"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "Every KDP author learns the $9.99 rule early, usually the hard way. Price an ebook at $2.99 to $9.99 and you can take the 70% royalty. Price it a cent higher and you drop to 35%. So box sets, chunky nonfiction and textbook-style guides sat in an awkward spot: either discount them to $9.99 and keep 70%, or charge what they were worth and give Amazon most of the money.",
+      },
+      {
+        type: "p",
+        text: "On July 7, 2026, that changed. KDP's own eBook List Price Requirements page now puts the 70% band at $2.99–$12.99 on Amazon.com, with equivalent changes in other marketplaces. It's the first time the ceiling has moved since the Kindle launched in 2007, and the change was covered by the Authors Guild, Jane Friedman and Publishers Marketplace within days.",
+      },
+      {
+        type: "h2",
+        text: "The catch: your existing books may not have noticed",
+      },
+      {
+        type: "p",
+        text: "A new ceiling doesn't automatically mean a new royalty. Several publishing guides covering the change warn that titles already priced between $10 and $12.99 may still be set to the 35% option, and that you shouldn't assume Amazon flipped it for you. Your book's royalty choice is a setting on the Pricing page. Until you open that page and select 70%, a $11.99 box set can keep earning 35% for as long as nobody checks.",
+      },
+      {
+        type: "p",
+        text: "The difference isn't rounding error. At $11.99, 35% is about $4.20 a copy. At 70% it's about $8.39, minus Amazon's delivery fee (charged per megabyte on the 70% option only). For a typical text-heavy ebook that fee is cents, so you're looking at nearly double the royalty on every sale for one dropdown change.",
+      },
+      {
+        type: "h2",
+        text: "Should you actually raise your price?",
+      },
+      {
+        type: "p",
+        text: "Checking the setting is a no-brainer. Repricing is a real decision. A few things worth weighing first:",
+      },
+      {
+        type: "ul",
+        items: [
+          "Box sets and omnibus editions are the obvious winners — they were the books most often squeezed down to $9.99 just to keep 70%",
+          "Image-heavy ebooks get hit harder by the delivery fee, so a large file at 70% may earn less than you'd expect. Run the numbers before you assume",
+          "Fiction readers in genres used to $0.99–$4.99 won't suddenly accept $12.99 because Amazon allows it. The new ceiling is permission, not a pricing strategy",
+          "If you raised a book to $9.99 purely to protect the 70% rate, you now have room to price on value instead of on a rule",
+        ],
+      },
+      {
+        type: "p",
+        text: "The quiet trap is the books you priced years ago and forgot about. Open your Bookshelf, sort by price, and check every title between $10 and $12.99. Those are the ones most likely to still be on 35%.",
+      },
+      {
+        type: "p",
+        text: "Before you change anything, put both options side by side. manu2print's free Royalty Calculator shows what you actually earn per copy at different price points and royalty rates, so you can see whether that $2 price bump really pays off or just puts readers off.",
+      },
+    ],
+  },
+  {
     slug: "kdp-sales-rank-isnt-a-live-scoreboard",
     title: "Your KDP Sales Rank Isn't a Live Scoreboard — Stop Judging Your Launch by Hour Six",
     excerpt:
