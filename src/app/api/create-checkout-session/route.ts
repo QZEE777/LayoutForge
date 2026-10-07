@@ -4,6 +4,23 @@ import { requireCheckerAccess } from "@/lib/checkerAccess";
 import { NextResponse } from "next/server";
 import { lemonSqueezySetup, createCheckout } from "@lemonsqueezy/lemonsqueezy.js";
 
+// Plain links on the pricing cards (`<a href="/api/create-checkout-session?price_type=…">`)
+// arrive as GET. Create the checkout the same way and send the buyer straight to it.
+export async function GET(req: Request) {
+  const url = new URL(req.url);
+  const priceType = url.searchParams.get("price_type") ?? "single_use";
+  const res = await POST(
+    new Request(req.url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", origin: url.origin },
+      body: JSON.stringify({ priceType }),
+    })
+  );
+  const data = (await res.json().catch(() => ({}))) as { checkoutUrl?: string };
+  if (data.checkoutUrl) return NextResponse.redirect(data.checkoutUrl, 303);
+  return NextResponse.redirect(new URL("/kdp-pdf-checker?checkout_error=1#pricing", url.origin), 303);
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
@@ -65,15 +82,19 @@ export async function POST(req: Request) {
         ? `${baseUrl}/success?id=${encodeURIComponent(downloadId)}`
         : `${baseUrl}/success`;
 
+    // Lemon Squeezy rejects empty strings in custom data ("must be a string", 422),
+    // so only send fields that have a value. The webhook defaults missing ones.
+    const custom: Record<string, string> = { price_type: priceType ?? "single_use" };
+    if (tool) custom.tool = tool;
+    if (downloadId) {
+      custom.download_id = downloadId;
+      custom.checker_claim = signCheckerCapability(downloadId, "checkout", 24 * 60 * 60);
+    }
+
     const checkout = await createCheckout(storeId, variantId, {
       checkoutData: {
         email: email || undefined,
-        custom: {
-          tool,
-          download_id: downloadId,
-          checker_claim: downloadId ? signCheckerCapability(downloadId, "checkout", 24 * 60 * 60) : "",
-          price_type:  priceType,
-        },
+        custom,
       },
       checkoutOptions: {
         embed: false,
