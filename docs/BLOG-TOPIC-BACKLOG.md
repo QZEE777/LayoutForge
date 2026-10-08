@@ -4,12 +4,6 @@ Candidate topics from weekly Reddit/KDP-forum research (DYOR), queued for the tw
 
 ## Queued
 
-- **Title:** Kindle Create Keeps Corrupting Your File. Here's Why Authors Still Use It Anyway.
-  **Angle:** Amazon's own free formatting tool has a long-running reputation in author communities for randomly failing to reopen previously-saved files, lacking basic spell-check or track-changes, and shipping frequent version changes that break workflows mid-project — yet it's still the first tool Amazon points new authors to.
-  **Tool link:** none
-  **Tags:** kdp, formatting, tools
-  **Source:** Recurring complaints across KDP Community forum threads and author blogs about Kindle Create reliability and missing editing features; researched 2026-09-09
-
 - **Title:** "Insufficient Gutter" — KDP's Cover Error Is Talking About a Page You Never Touched
   **Angle:** One of the most common KDP cover-upload rejections uses the word "gutter," and authors instinctively go fix their interior file's inside margin — but on a cover error, "gutter" almost always means the cover's own spine-width math, not the interior gutter margin at all, and the two get confused constantly because Word treats them as unrelated settings.
   **Tool link:** /spine-width-calculator

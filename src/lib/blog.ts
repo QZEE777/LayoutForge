@@ -18,6 +18,67 @@ export type BlogPost = {
 
 const POSTS: BlogPost[] = [
   {
+    slug: "kindle-create-corrupted-file-why-authors-still-use-it",
+    title: "Kindle Create Keeps Losing Your File. Here's Why Authors Still Use It Anyway.",
+    excerpt:
+      "Kindle Create is free, it's Amazon's own tool, and it's the first thing new authors get pointed to. It also has no spell check, no track changes, no way back to Word, and a habit of leaving people staring at a project that won't open. Here's how to use it without getting burned.",
+    publishedAt: "2026-10-08",
+    tags: ["kdp", "formatting", "tools"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "You spent a weekend in Kindle Create getting the chapter headings just right. You closed it, came back on Tuesday to fix a typo, and the project won't open. Or it opens, but you can't find the file you thought you saved. Or the only file you can find is a .kpf, and Kindle Create throws an error when you try to open it. The KDP Community forum has years of threads that start exactly like this.",
+      },
+      {
+        type: "p",
+        text: "And yet Kindle Create is still the tool most first-time authors use. That isn't irrational. It's free, it's made by the company you're uploading to, and it produces a file KDP accepts. The problem is that it works very differently from the word processor you wrote the book in, and nobody tells you that until something goes missing.",
+      },
+      {
+        type: "h2",
+        text: "The two-file trap behind most \"corrupted\" projects",
+      },
+      {
+        type: "p",
+        text: "Kindle Create makes two different kinds of file, and mixing them up causes most of the panic. The .kcb file, inside a project folder, is your working project. That's what you open to edit. The .kpf file is the finished export you upload to KDP. Kindle Create isn't built to open a .kpf for editing, so double-clicking one often gives you an error that looks a lot like corruption.",
+      },
+      {
+        type: "p",
+        text: "Usually the project isn't gone. Kindle Create makes you save the project folder before it will let you export a .kpf, so searching your drive for \"*.kcb\" often turns it up. If it really is lost, there's a well-known rescue on the KDP forums: a .kpf is a ZIP archive underneath. Make a copy, rename it from .kpf to .zip, extract it into an empty folder, and open the book.kcb file inside. Then use File > Save Project As straight away to save it somewhere you'll remember.",
+      },
+      {
+        type: "h2",
+        text: "What it doesn't do (and why that bites later)",
+      },
+      {
+        type: "ul",
+        items: [
+          "No spell check. Typos you missed in Word stay in your ebook.",
+          "No track changes, so there's no record of what you changed inside Kindle Create.",
+          "No find and replace and no word count, according to several independent reviews.",
+          "No export back to Word. Edits you make in Kindle Create only exist in the .kcb project.",
+          "Big manuscript changes are painful. Pasting in new text can lose formatting, and re-importing means redoing your Kindle Create work.",
+        ],
+      },
+      {
+        type: "p",
+        text: "That last pair is the real trap. Once you've fixed things inside Kindle Create, your Word file isn't your master copy anymore, and the .kcb project is. Lose the project and you lose every fix you made after import.",
+      },
+      {
+        type: "h2",
+        text: "How to use it without getting burned",
+      },
+      {
+        type: "p",
+        text: "Treat Kindle Create as the last step, not a workspace. Finish writing, editing and proofreading in Word first, since that's where your spell check lives. Import once. Keep the whole project folder (not just the .kcb) backed up somewhere other than your desktop, and keep every .kpf you export, because it doubles as a rescue copy. If you need a big rewrite later, make it in Word and accept that you'll re-import.",
+      },
+      {
+        type: "p",
+        text: "If you're doing a paperback as well, the print file needs its own check whatever tool built it. Run the interior through manu2print's Print Ready Check before you upload, so a margin or font problem doesn't send you back through review.",
+      },
+    ],
+  },
+  {
     slug: "kdp-ai-assisted-vs-ai-generated-editing-doesnt-change-it",
     title: "\"AI-Assisted\" and \"AI-Generated\" Aren't the Same Checkbox — And Editing Doesn't Move You Between Them",
     excerpt:
