@@ -51,3 +51,27 @@ Candidate topics from weekly Reddit/KDP-forum research (DYOR), queued for the tw
   **Tool link:** /kdp-pdf-checker
   **Tags:** kdp, rejection, content-policy
   **Source:** Author blog account of a post-launch KDP "quality assurance review" unpublishing following reader formatting complaints; pattern consistent with known KDP review escalation described in this site's own catalog-suspension post; researched 2026-09-16
+
+- **Title:** KDP Now Gives You Two New Titles a Week. A Botched Draft Can Burn One.
+  **Angle:** Since September 21, 2026, KDP caps new title creation at 2 per format per week (down from 10, exception route removed), and Amazon still hasn't clearly said whether creating a draft spends a slot or whether deleting one gives it back. Series, box-set and translation authors are being told to stagger releases over weeks, so starting a title before the files are actually clean is now a scheduling cost, not just an annoyance.
+  **Tool link:** /kdp-pdf-checker
+  **Tags:** kdp, workflow, publishing
+  **Source:** KDP Community "Title Creation Limits Update" announcement plus author reaction across KDP Community, SFF Chronicles, and self-publishing Substacks/blogs debating draft-slot counting and per-format vs. total; researched 2026-10-08
+
+- **Title:** You Have 72 Hours to Fix Your Paperback's Title. Then It's Locked Forever.
+  **Angle:** KDP print books allow title, subtitle and primary-author edits only within 72 hours of first going live (and only once out of review). After that the fields lock and the official route is a new edition with a new ASIN. Older forum answers saying "you can never change a paperback title" pre-date the window, so authors either panic for no reason or miss the window without knowing it existed.
+  **Tool link:** none
+  **Tags:** kdp, publishing, troubleshooting
+  **Source:** KDP Help "Update your book details" page cross-checked against recurring KDP Community "how do I change my title" threads with outdated answers; researched 2026-10-08
+
+- **Title:** Your Interior Images Looked Perfect on Screen and Printed Like Mud
+  **Angle:** Recurring "proof came back too dark/blurry" posts (coloring books, picture books, Canva-built interiors) come down to a few causes: backlit screens vs. reflective paper, grayscale images with crushed shadows, images under ~150 DPI at final size, and "Standard"/compressed PDF exports instead of print-quality ones. Each re-proof costs shipping, so authors burn money guessing at a brightness slider.
+  **Tool link:** /kdp-pdf-checker
+  **Tags:** kdp, pdf, formatting
+  **Source:** Long-running KDP Community, Goodreads Indie-author and Adobe Community threads on dark/blurry proofs; 2026 guides still answering the same question; researched 2026-10-08
+
+- **Title:** KDP's New Pre-Order Rules: 18 Months Out, Two Free Postponements, and a Third That Can Kill the Listing
+  **Angle:** Kindle pre-orders created on or after September 2, 2026 can sit up to 18 months out (the old limit was 12), but you only get two penalty-free postponements, each within 6 months of the original date, and a third can auto-cancel the listing. Combined with the new two-titles-a-week cap, more authors will be leaning on long pre-orders to stagger series, which makes the postponement trap easier to step into.
+  **Tool link:** none
+  **Tags:** kdp, pre-order, workflow
+  **Source:** Reporting on KDP's September 2026 pre-order changes alongside author discussion of using pre-orders to work around the new weekly title cap; researched 2026-10-08
