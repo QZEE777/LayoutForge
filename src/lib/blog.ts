@@ -18,6 +18,80 @@ export type BlogPost = {
 
 const POSTS: BlogPost[] = [
   {
+    slug: "kdp-ai-assisted-vs-ai-generated-editing-doesnt-change-it",
+    title: "\"AI-Assisted\" and \"AI-Generated\" Aren't the Same Checkbox — And Editing Doesn't Move You Between Them",
+    excerpt:
+      "A lot of authors believe that if they rewrite an AI draft heavily enough, it stops counting as AI-generated. KDP's rule doesn't work that way. It cares about who wrote the first version, not who polished the last one.",
+    publishedAt: "2026-10-08",
+    tags: ["kdp", "ai-disclosure", "content-policy"],
+    contentType: "article",
+    content: [
+      {
+        type: "p",
+        text: "You reach the Content page in KDP setup and hit the question: did you use AI tools in creating texts, images, and/or translations in your book? You used ChatGPT for something. Maybe for an outline, maybe for a first draft you then rewrote line by line over six months. So you sit there trying to work out whether \"yes\" is honest or just asking for trouble.",
+      },
+      {
+        type: "p",
+        text: "Here's what's going on. KDP splits AI use into two categories, and only one of them has to be disclosed. The line between them isn't how much AI is left in the final book. It's where the content started.",
+      },
+      {
+        type: "h2",
+        text: "What KDP's guidelines actually say",
+      },
+      {
+        type: "p",
+        text: "KDP's Content Guidelines define AI-generated content as text, images, or translations created by an AI-based tool. The key sentence is the one most authors skim past: if an AI tool created the actual content, it is considered AI-generated \"even if you applied substantial edits afterwards.\"",
+      },
+      {
+        type: "p",
+        text: "AI-assisted is the other way round. You created the content yourself, then used AI tools to edit, refine, error-check or otherwise improve it. The guidelines also count using AI to brainstorm ideas as assisted, as long as you wrote the text. AI-assisted content does not need to be disclosed. AI-generated content does, when you publish a new book and when you edit and republish an existing one.",
+      },
+      {
+        type: "h2",
+        text: "The myth: \"I edited it so much it's mine now\"",
+      },
+      {
+        type: "p",
+        text: "This is where most authors get it wrong. The thinking goes: the AI draft was rough, I rewrote most of it, so it's basically my writing and I can tick \"no.\" Under KDP's wording, it doesn't matter how many rounds of editing went in. An AI first draft that went through three human passes is still AI-generated. A manuscript you wrote from scratch and then had AI tighten is AI-assisted. Same amount of AI in the end, different category, because the order was different.",
+      },
+      {
+        type: "p",
+        text: "Heavy editing still counts for something. Several 2026 guides point out it strengthens your copyright position, and the disclosure form itself reportedly asks how much you edited the AI output. What it won't do is change which box you tick.",
+      },
+      {
+        type: "h2",
+        text: "Quick sort: which side are you on?",
+      },
+      {
+        type: "ul",
+        items: [
+          "AI brainstormed plot ideas, chapter titles or an outline, and you wrote every sentence: AI-assisted. No disclosure.",
+          "You wrote the draft and ran it through AI for grammar, line edits or tightening: AI-assisted. No disclosure.",
+          "AI wrote a draft, chapter or section, and you rewrote it, even heavily: AI-generated. Disclose.",
+          "AI generated your cover art or interior illustrations, even if you edited them afterwards: AI-generated images. Disclose.",
+          "You designed the cover yourself and used an AI tool to clean it up or adjust it: AI-assisted. No disclosure.",
+          "You translated your book with DeepL, ChatGPT or a similar tool: AI-generated translation. Disclose — this is the one authors forget most.",
+        ],
+      },
+      {
+        type: "h2",
+        text: "Why getting this right matters",
+      },
+      {
+        type: "p",
+        text: "KDP doesn't reject books just for being AI-generated. Plenty of disclosed AI books are live. The risk is in answering wrong. Failing to disclose AI-generated content can lead to the book being removed, and guides covering KDP enforcement are consistent that the misrepresentation, not the AI use, is what puts an account at risk. Ticking \"no\" to look cleaner protects nothing.",
+      },
+      {
+        type: "p",
+        text: "The rule can change, so check KDP's Content Guidelines page before you publish rather than relying on a forum answer from last year. Then answer based on where each piece of your book started: the text, the images and any translation, one at a time.",
+      },
+      {
+        type: "p",
+        text: "And once the disclosure is sorted, the file itself still has to pass. Before you upload, run your interior through manu2print's Print Ready Check so a margin or font issue doesn't send you back through review.",
+      },
+    ],
+  },
+  {
     slug: "kdp-70-percent-royalty-ceiling-12-99-should-you-reprice",
     title: "KDP Just Raised the 70% Royalty Ceiling to $12.99 — Should You Reprice?",
     excerpt:

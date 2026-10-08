@@ -4,12 +4,6 @@ Candidate topics from weekly Reddit/KDP-forum research (DYOR), queued for the tw
 
 ## Queued
 
-- **Title:** "AI-Assisted" and "AI-Generated" Aren't the Same Checkbox — And Editing Doesn't Move You Between Them
-  **Angle:** Authors widely believe heavy editing of AI-drafted text "erases" the need to disclose it, but KDP's actual rule cares about who wrote the first version, not who polished the last one — so a heavily-rewritten AI draft is still AI-generated, while AI used only for brainstorming/outlining/grammar checks is AI-assisted and needs no disclosure at all; translations via DeepL/ChatGPT are a separate disclosure category authors routinely forget.
-  **Tool link:** none
-  **Tags:** kdp, ai-disclosure, content-policy
-  **Source:** Pattern across 2026 KDP AI-policy guides (Authors Guild coverage, multiple compliance-guide sites) documenting the recurring "editing erases it" misconception; researched 2026-09-09
-
 - **Title:** Kindle Create Keeps Corrupting Your File. Here's Why Authors Still Use It Anyway.
   **Angle:** Amazon's own free formatting tool has a long-running reputation in author communities for randomly failing to reopen previously-saved files, lacking basic spell-check or track-changes, and shipping frequent version changes that break workflows mid-project — yet it's still the first tool Amazon points new authors to.
   **Tool link:** none
