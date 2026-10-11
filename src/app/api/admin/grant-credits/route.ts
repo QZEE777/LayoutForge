@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { checkAdminRateLimit } from "@/lib/rateLimitAdmin";
 import { requireAdminPermission } from "@/lib/adminAccess";
 
 export async function POST(request: NextRequest) {
+  const rateLimitRes = checkAdminRateLimit(request);
+  if (rateLimitRes) return rateLimitRes;
+
   const auth = requireAdminPermission(request, "admin.credits.grant");
   if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
