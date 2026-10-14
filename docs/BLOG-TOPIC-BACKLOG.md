@@ -63,3 +63,27 @@ Candidate topics from weekly Reddit/KDP-forum research (DYOR), queued for the tw
   **Tool link:** none
   **Tags:** kdp, pre-order, workflow
   **Source:** Reporting on KDP's September 2026 pre-order changes alongside author discussion of using pre-orders to work around the new weekly title cap; researched 2026-10-08
+
+- **Title:** Your Proof Copy Looked Perfect. KDP Rejected the Book Anyway.
+  **Angle:** Authors order a proof, approve it, hit Publish, and only then get a formatting or "mismatch" notice, because KDP runs one more check after the proof stage. The usual culprit isn't the layout at all: the book details say "John T. Smith" while the title page says "J.T. Smith", or the subtitle on the cover doesn't match the listing. A proof that looks right in your hands proves nothing about that final metadata check.
+  **Tool link:** /kdp-pdf-checker
+  **Tags:** kdp, rejection, proof
+  **Source:** Recurring KDP Community threads ("I ordered a proof and it looked fine, then was told to alter…") plus KDP's "Fix Paperback and Hardcover Formatting Issues" help page on book-detail/title-page mismatches; researched 2026-10-14
+
+- **Title:** Kindle Previewer 3 Is Dead. Here's What Kindle Previewer 4 Does (and Still Doesn't) Tell You.
+  **Angle:** KDP released Kindle Previewer 4 in late September 2026 and now says version 3 and earlier are unsupported, so authors are reinstalling and wondering whether their old "it looked fine in Previewer" checks still hold. The new version adds Apple-silicon support, dark mode and command-line batch validation, but it's still a simulation, not a device. Distinct from the existing "Looks Perfect in Kindle Previewer, Scrambled on a Real Kindle" post: this one is about the version switch and what to re-check.
+  **Tool link:** none
+  **Tags:** kdp, ebook, kindle-previewer
+  **Source:** KDP Community announcement "Kindle Previewer 4 now available for download" (Sept 2026) and KDP Help page stating older versions are unsupported, plus author setup write-ups; researched 2026-10-14
+
+- **Title:** Fourteen Years on KDP, Terminated Over "Previously Published." Here's the Paper Trail to Keep Now.
+  **Angle:** Several long-time authors in 2026 lost whole KDP accounts after automated checks flagged their own books as previously published or too similar to existing titles, and terminated accounts lose listings and unpaid royalties. The practical lesson is to keep dated proof of ownership (source files, first-publication records, ISBN and copyright records) and avoid re-uploading near-identical editions with big metadata changes. Distinct from the existing catalog-suspension keyword post: different trigger, different defence.
+  **Tool link:** none
+  **Tags:** kdp, account, content-policy
+  **Source:** Self-Publishing with Dale newsletter (Oct 1, 2026) on Ruthanne Reid's termination, a Feb 2026 author blog on an unexplained termination, and the Roland Hulme similar-content case; researched 2026-10-14
+
+- **Title:** "$2 a Paperback Sale" Is a Real Strategy. Here's the Math Behind It on KDP vs IngramSpark.
+  **Angle:** Authors keep asking how to price paperbacks when print cost eats most of the list price, and the r/selfpublish answers range from "about $2 a sale so the price stays sane" to "aim for $3-4". The same book can earn very different amounts on KDP and IngramSpark because of different print costs and wholesale discounts, so a price that works on one can lose money on the other.
+  **Tool link:** /royalty-calculator
+  **Tags:** kdp, pricing, royalty
+  **Source:** r/selfpublish paperback-pricing thread pattern (Sept 2026) and ebookpbook.com's Oct 13, 2026 KDP vs IngramSpark paperback pricing breakdown; researched 2026-10-14
