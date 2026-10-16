@@ -4,7 +4,7 @@ import { getGutterInches } from "@/lib/kdpConfig";
 import { estimatePageCount, type TrimSizeId } from "@/lib/kdpSpecs";
 
 const MAX_CHARS = 100_000;
-const ANTHROPIC_MODEL = "claude-sonnet-4-20250514";
+const ANTHROPIC_MODEL = "claude-sonnet-5-5";
 
 async function extractTextFromDocx(buffer: Buffer): Promise<string> {
   const mammoth = (await import("mammoth")).default;
