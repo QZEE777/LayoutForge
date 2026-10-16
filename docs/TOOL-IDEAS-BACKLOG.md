@@ -24,3 +24,17 @@ New tool ideas for manu2print from 3x-weekly DYOR. Zed reviews these; nothing ge
   **Effort:** small
   **Why now:** KDP raised the 70% ebook ceiling from $9.99 to $12.99 in July 2026. Several competitor calculators (HMD Publishing, KDPEasy) still use the old $9.99 cap, so the "KDP $12.99 royalty" search results are stale. Our current Royalty Calculator doesn't model ebook delivery costs.
   **Found:** 2026-10-12
+
+- **Idea:** Copyright Page Generator
+  **Pain it solves:** The author fills in title, name, year, ISBN, edition and rights wording, and gets a ready-to-paste copyright page (with an optional AI-use line) sized for their trim, instead of copying a random template off a blog.
+  **Free or paid:** free lead magnet (email the DOCX/PDF page; CTA into the formatters and the $9 checker)
+  **Effort:** small
+  **Why now:** Competitor gap: KDPEasy and kdptools.io both list a free copyright page generator and manu2print has none. "KDP copyright page template" is a steady evergreen search, and authors are adding AI-disclosure wording to front matter in 2026.
+  **Found:** 2026-10-16
+
+- **Idea:** Amazon Book Description Formatter
+  **Pain it solves:** The author pastes their blurb, adds bold, italics, headings and bullets in a live preview, and gets KDP-safe HTML with a 4,000-character counter, so the description doesn't show up as one flat block on the product page.
+  **Free or paid:** free lead magnet (email a saved copy; cross-link to Title & Metadata Check and the Banned Keyword Checker)
+  **Effort:** small
+  **Why now:** Competitor gap: KDPEasy features a free description formatter with live preview and manu2print has none. It fits next to our existing metadata tools and pulls in authors at the listing stage, right before upload.
+  **Found:** 2026-10-16
