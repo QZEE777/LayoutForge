@@ -65,6 +65,19 @@ export default function RootLayout({
       </head>
       <body className="antialiased bg-m2p-ivory text-m2p-ink font-sans">
         {children}
+        {/* Google Analytics — shared across all pages; GA4 enhanced measurement tracks navigation. */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-FPDM49631K"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-FPDM49631K');
+          `}
+        </Script>
         {/* Crisp chat widget — disabled until Manny AI backend is ready */}
         {/* <script
           type="text/javascript"
