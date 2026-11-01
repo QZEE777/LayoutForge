@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import SiteShell from "@/components/SiteShell";
 
 export const metadata: Metadata = {
@@ -19,7 +18,7 @@ export default function AboutPage() {
             ABOUT
           </h1>
           <p className="text-m2p-muted max-w-2xl" style={{ fontFamily: "Inter, sans-serif" }}>
-            Who we are and why we built manu2print for indie authors. <Link href="/founders" className="text-m2p-orange hover:underline">Founders</Link> — apply to join our program. Content coming soon.
+            Who we are and why we built manu2print for indie authors. Content coming soon.
           </p>
         </div>
       </section>

@@ -43,6 +43,9 @@ export default function SiteFooter() {
             <Link href="/royalty-calculator" className="text-m2p-ivory/70 hover:text-m2p-orange transition-colors">Royalty Calculator</Link>
             <Link href="/page-count-estimator" className="text-m2p-ivory/70 hover:text-m2p-orange transition-colors">Page Count Estimator</Link>
             <Link href="/title-metadata-check" className="text-m2p-ivory/70 hover:text-m2p-orange transition-colors">Title &amp; Metadata Check</Link>
+            <Link href="/banned-keyword-checker" className="text-m2p-ivory/70 hover:text-m2p-orange transition-colors">Banned Keyword Checker</Link>
+            <Link href="/page-number-formatter" className="text-m2p-ivory/70 hover:text-m2p-orange transition-colors">Page Number Formatter</Link>
+            <Link href="/pdf-compress" className="text-m2p-ivory/70 hover:text-m2p-orange transition-colors">PDF Compressor</Link>
           </div>
 
           {/* Legal */}
@@ -58,6 +61,8 @@ export default function SiteFooter() {
           <div className="flex flex-col gap-2 items-center sm:items-start">
             <p className="text-[10px] font-bold uppercase tracking-widest text-m2p-ivory/40 mb-1">Support</p>
             <Link href="/blog" className="text-m2p-ivory/70 hover:text-m2p-orange transition-colors">Blog</Link>
+            <Link href="/faq" className="text-m2p-ivory/70 hover:text-m2p-orange transition-colors">FAQ</Link>
+            <Link href="/about" className="text-m2p-ivory/70 hover:text-m2p-orange transition-colors">About</Link>
             <Link href="/contact" className="text-m2p-ivory/70 hover:text-m2p-orange transition-colors">Contact</Link>
           </div>
 

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, Playfair_Display, Inter } from "next/font/google";
 import Script from "next/script";
+import { headers } from "next/headers";
 import "./globals.css";
 export const dynamic = "force-dynamic";
 
@@ -27,7 +28,7 @@ const OG_IMAGE = "https://www.manu2print.com/api/og";
 const OG_TITLE = "KDP PDF Checker — Fix Your Book Before Amazon Rejects It";
 const OG_DESC  = "Upload your PDF and get a full KDP compliance report in minutes. Check margins, trim size, bleed, and fonts — before the rejection email arrives. $9, no subscription.";
 
-export const metadata: Metadata = {
+const baseMetadata: Metadata = {
   title: OG_TITLE,
   description: OG_DESC,
   openGraph: {
@@ -45,6 +46,14 @@ export const metadata: Metadata = {
     images: [OG_IMAGE],
   },
 };
+
+const SITE_URL = "https://www.manu2print.com";
+
+// Every page gets a self-pointing canonical; pages that set their own alternates override it.
+export async function generateMetadata(): Promise<Metadata> {
+  const pathname = (await headers()).get("x-pathname") || "/";
+  return { ...baseMetadata, metadataBase: new URL(SITE_URL), alternates: { canonical: `${SITE_URL}${pathname}` } };
+}
 
 export default function RootLayout({
   children,
