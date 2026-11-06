@@ -38,6 +38,7 @@ from app.rules.image_rules import (
     rule_image_resolution,
     rule_image_color_mode,
     rule_image_placement,
+    rule_image_max_resolution,
 )
 from app.rules.trim_rules import rule_kdp_trim_profile
 from app.rules.cleanup_rules import (
@@ -45,6 +46,9 @@ from app.rules.cleanup_rules import (
     rule_comments,
     rule_crop_marks,
     rule_pdf_watermark,
+    rule_placeholder_text,
+    rule_thin_lines,
+    rule_light_grey_fills,
 )
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -101,4 +105,10 @@ ALL_RULES = [
     ("PDF_COMMENTS",             "No comments or annotations",           rule_comments),
     ("CROP_MARKS",               "No crop or trim marks",                rule_crop_marks),
     ("PDF_WATERMARK",            "No PDF-maker watermarks",              rule_pdf_watermark),
+    ("PLACEHOLDER_TEXT",         "No placeholder text",                  rule_placeholder_text),
+
+    # Print quality recommendations
+    ("IMAGE_DPI_HIGH",           "Images 600 DPI or less",               rule_image_max_resolution),
+    ("LINE_WEIGHT",              "Lines at least 0.75 pt",               rule_thin_lines),
+    ("LIGHT_GREY_FILL",          "Grey fills at least 10%",              rule_light_grey_fills),
 ]

@@ -251,6 +251,9 @@ const RULE_DIFFICULTY: Record<string, FixDifficulty> = {
   CROP_MARKS:              "easy",
   PDF_WATERMARK:           "moderate",
   SPREAD_PAGES:            "easy",
+  PLACEHOLDER_TEXT:        "easy",
+  IMAGE_DPI_HIGH:          "easy",
+  LIGHT_GREY_FILL:         "easy",
 };
 
 const EASY_KEYWORDS     = ["margin", "metadata", "gutter", "inner margin", "outer margin", "trim size", "page size", "rotation", "orientation"];
@@ -414,6 +417,7 @@ const HUMAN_MAP: Array<{ pattern: RegExp; rule_ids?: string[]; human: string }> 
 const ENGINE_WORDED_RULES = new Set([
   "BLEED_VALIDATION", "MIN_PAGE_COUNT", "MAX_PAGE_COUNT",
   "PDF_BOOKMARKS", "PDF_COMMENTS", "CROP_MARKS", "PDF_WATERMARK", "SPREAD_PAGES",
+  "PLACEHOLDER_TEXT", "IMAGE_DPI_HIGH", "LINE_WEIGHT", "LIGHT_GREY_FILL",
 ]);
 
 function toHumanMessage(message: string, ruleId?: string): string {

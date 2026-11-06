@@ -182,6 +182,10 @@ const RULE_LABELS: Record<string, string> = {
   CROP_MARKS:                  "Crop Marks Found",
   PDF_WATERMARK:               "PDF Tool Watermark",
   SPREAD_PAGES:                "Spreads, Not Single Pages",
+  PLACEHOLDER_TEXT:            "Placeholder Text Left In",
+  IMAGE_DPI_HIGH:              "Images Over 600 DPI",
+  LINE_WEIGHT:                 "Lines Too Thin",
+  LIGHT_GREY_FILL:             "Grey Fill Too Light",
 };
 
 const RULE_SENTENCES: Record<string, string> = {
@@ -219,6 +223,10 @@ const RULE_SENTENCES: Record<string, string> = {
   CROP_MARKS:                  "Printer crop marks found - export again with printer marks switched off.",
   PDF_WATERMARK:               "A PDF tool's watermark is on the page - it will print in your book.",
   SPREAD_PAGES:                "Two pages share one sheet - KDP needs single pages.",
+  PLACEHOLDER_TEXT:            "Template placeholder text is still here - replace or delete it.",
+  IMAGE_DPI_HIGH:              "Image is over 600 DPI - large files can time out at KDP.",
+  LINE_WEIGHT:                 "Lines are thinner than 0.75 pt - they may print faintly.",
+  LIGHT_GREY_FILL:             "Grey fill is lighter than 10% - it may not show in print.",
 };
 
 function getIssueLabel(ruleId: string): string {

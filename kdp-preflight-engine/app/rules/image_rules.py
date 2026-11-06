@@ -191,3 +191,27 @@ def rule_image_placement(doc: dict[str, Any]) -> list[dict[str, Any]]:
                     bbox,
                 ))
     return issues
+
+
+MAX_RECOMMENDED_DPI = 600
+
+
+def rule_image_max_resolution(doc: dict[str, Any]) -> list[dict[str, Any]]:
+    """KDP recommends 600 DPI at most: higher can time out uploads. Line art (1200 DPI) is exempt."""
+    found: list[int] = []
+    highest = 0.0
+    for p in doc.get("analysis", {}).get("pages") or []:
+        for img in p.get("images") or []:
+            if _is_line_art(img):
+                continue
+            dpi = min(img.get("dpi_x") or 0, img.get("dpi_y") or 0)
+            if dpi > MAX_RECOMMENDED_DPI * 1.1:
+                found.append(p.get("page_number", 0))
+                highest = max(highest, dpi)
+                break
+    if not found:
+        return []
+    where = f"page {found[0]}" if len(found) == 1 else f"{len(found)} pages (first on page {found[0]})"
+    return [_issue(found[0], "IMAGE_DPI_HIGH", "WARNING",
+                   f"Images up to {highest:.0f} DPI are on {where}. KDP recommends 600 DPI at most: very large images "
+                   "can make uploads time out. Downsample them to 300-600 DPI when you export.")]

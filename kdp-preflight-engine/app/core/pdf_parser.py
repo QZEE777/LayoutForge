@@ -464,6 +464,37 @@ def find_ink_bbox(page: fitz.Page) -> list[float] | None:
     return [left * sx, top * sy, (right + 1) * sx, (bottom + 1) * sy]
 
 
+THIN_LINE_PT = 0.75     # KDP: lines at least 0.75 pt
+MIN_LINE_LEN_PT = 18.0  # ignore tiny strokes (bullets, glyph parts)
+LIGHT_FILL_TINT = 0.10  # KDP: grey fills at least 10%
+MIN_FILL_AREA_PT2 = 72.0 * 72.0  # only fills of 1 square inch or more
+
+
+def measure_lines_and_fills(drawings: list[dict[str, Any]]) -> tuple[int, float | None]:
+    """
+    Return (number of stroked lines thinner than 0.75 pt, lightest grey fill
+    tint found below 10%, or None). Tint 0.05 means a 5% grey.
+    """
+    thin = 0
+    lightest = None
+    for d in drawings or []:
+        r = d.get("rect")
+        size = max(r.width, r.height) if r is not None else 0
+        width = d.get("width")
+        if d.get("type") in ("s", "fs") and width is not None and width < THIN_LINE_PT and size >= MIN_LINE_LEN_PT:
+            if d.get("color") not in (None, (1.0, 1.0, 1.0)):
+                thin += 1
+        fill = d.get("fill")
+        if d.get("type") in ("f", "fs") and fill and len(fill) == 3 and r is not None \
+                and r.width * r.height >= MIN_FILL_AREA_PT2:
+            red, green, blue = fill
+            if max(fill) - min(fill) <= 0.02:  # grey, not a colour
+                tint = 1.0 - (red + green + blue) / 3
+                if 0.005 < tint < LIGHT_FILL_TINT:
+                    lightest = tint if lightest is None else min(lightest, tint)
+    return thin, lightest
+
+
 def get_page_rotation(page: fitz.Page) -> int:
     """Return rotation in degrees (0, 90, 180, 270)."""
     return page.rotation
@@ -511,6 +542,7 @@ def parse_pdf(path: Path, scan_ink: bool = True) -> dict[str, Any]:
             # Only needed for No-bleed margin checks; skipping it keeps bleed scans fast.
             ink_bbox = find_ink_bbox(page) if image_page and scan_ink else None
             crop_mark_corners = count_crop_mark_corners(dw or [], w, h)
+            thin_line_count, light_fill_tint = measure_lines_and_fills(dw or [])
 
             pages_data.append({
                 "page_number": pno + 1,
@@ -531,6 +563,8 @@ def parse_pdf(path: Path, scan_ink: bool = True) -> dict[str, Any]:
                 "comment_count": comment_count,
                 "crop_mark_corners": crop_mark_corners,
                 "image_page": image_page,
+                "thin_line_count": thin_line_count,
+                "light_fill_tint": light_fill_tint,
                 "ink_bbox": ink_bbox,
             })
 
