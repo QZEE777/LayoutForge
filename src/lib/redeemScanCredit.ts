@@ -138,7 +138,7 @@ export async function redeemScanCreditForDownload(
     let annotatedPdfUrl: string | undefined;
     try {
       const annotated = await annotateCheckerPdf(downloadId);
-      annotatedPdfUrl = annotated ? reportUrl : undefined;
+      annotatedPdfUrl = annotated ? checkerDeliveryLink(downloadId, "annotated") : undefined;
     } catch (annotateErr) {
       console.error("[redeemScanCredit] annotateCheckerPdf failed (non-fatal):", annotateErr);
     }

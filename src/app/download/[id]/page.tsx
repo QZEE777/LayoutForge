@@ -1312,14 +1312,16 @@ export default function DownloadPage() {
                     </p>
                     {isChecker && hasActionablePageIssues && !annotatedError && (
                       <div className="mt-2 mb-2">
+                        {/* Annotated PDF is delivered by email only (owner decision, 6 Nov 2026). */}
                         {hasAnnotatedDownload && report?.annotatedPdfDownloadUrl ? (
-                          <a
-                            href={report.annotatedPdfDownloadUrl}
-                            download="annotated.pdf"
-                            className="w-full text-center bg-[#1A6B2A] text-white px-6 py-3.5 rounded-xl font-black hover:bg-[#155720] transition-all shadow-md hover:shadow-lg block"
-                          >
-                            ↓ Download Annotated PDF
-                          </a>
+                          <div className="rounded-xl border border-[#1A6B2A]/25 bg-[#1A6B2A]/[0.06] px-5 py-4 text-center" role="status">
+                            <p className="font-black text-[#1A6B2A]">📧 Your annotated PDF is in your inbox</p>
+                            <p className="mt-1 text-sm text-m2p-muted">
+                              Every issue is marked right on your pages. Open the email from Manny and tap
+                              {" "}<span className="font-semibold text-m2p-ink">Download Annotated PDF</span>.
+                              Not there? Check your spam or promotions folder.
+                            </p>
+                          </div>
                         ) : (
                           <p className="text-xs text-m2p-muted text-center animate-pulse py-2">
                             ⏳ Annotated PDF preparing…

@@ -45,10 +45,12 @@ export function checkerCookie(id: string): string {
 }
 
 /** Only call after identifying a delivery recipient through a verified purchase or owner request. */
-export function checkerDeliveryLink(id: string): string {
+export function checkerDeliveryLink(id: string, target?: "annotated"): string {
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://www.manu2print.com";
   const url = new URL("/api/checker-access", base);
   url.searchParams.set("id", id);
   url.searchParams.set("token", signCheckerCapability(id, "email"));
+  // "annotated" sends the reader straight to the annotated PDF file (email-only delivery).
+  if (target) url.searchParams.set("next", target);
   return url.toString();
 }

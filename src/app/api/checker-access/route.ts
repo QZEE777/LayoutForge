@@ -9,7 +9,11 @@ export async function GET(req: NextRequest) {
   if (!verifyCheckerCapability(req.nextUrl.searchParams.get("token") ?? undefined, id, "email")) return checkerDenied();
   const meta = await getStored(id);
   if (!meta?.payment_confirmed || meta.processingReport?.outputType !== "checker") return checkerDenied();
-  const response = NextResponse.redirect(new URL(`/download/${id}?source=checker`, req.url), 303);
+  // Email "Download Annotated PDF" button: go straight to the file once it exists,
+  // otherwise fall back to the report page.
+  const wantsAnnotated = req.nextUrl.searchParams.get("next") === "annotated" && !!meta.annotatedPdfDownloadUrl;
+  const target = wantsAnnotated ? `/api/checker-annotated-download?id=${id}` : `/download/${id}?source=checker`;
+  const response = NextResponse.redirect(new URL(target, req.url), 303);
   Object.entries(CHECKER_PRIVATE_HEADERS).forEach(([key,value]) => response.headers.set(key,value));
   response.headers.append("Set-Cookie", checkerCookie(id));
   return response;

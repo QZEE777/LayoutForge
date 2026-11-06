@@ -87,7 +87,7 @@ export async function sendAnnotatedEmailIfReady(downloadId: string): Promise<boo
   const claimed = await claimAnnotatedSend(downloadId, meta.annotatedEmail);
   if (!claimed) return false;
 
-  const annotatedUrl = checkerDeliveryLink(downloadId);
+  const annotatedUrl = checkerDeliveryLink(downloadId, "annotated");
 
   let messageId: string | undefined;
   let sendError: string | undefined;

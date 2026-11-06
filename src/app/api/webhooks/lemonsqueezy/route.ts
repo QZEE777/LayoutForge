@@ -198,7 +198,7 @@ export async function POST(req: Request) {
         let annotatedPdfUrl: string | undefined;
         try {
           const annotated = await annotateCheckerPdf(downloadId);
-          annotatedPdfUrl = annotated ? reportUrl : undefined;
+          annotatedPdfUrl = annotated ? checkerDeliveryLink(downloadId, "annotated") : undefined;
         } catch (annotateErr) {
           console.error("[webhooks/lemonsqueezy] annotateCheckerPdf failed (non-fatal):", annotateErr);
         }
