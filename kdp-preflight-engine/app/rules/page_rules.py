@@ -24,23 +24,28 @@ CUSTOM_MIN_H_PT, CUSTOM_MAX_H_PT = 6.0 * POINTS_PER_INCH, 11.69 * POINTS_PER_INC
 # Current KDP paperback maximums by trim and interior stock. The checker asks
 # for the paper/color tier so it can avoid treating every paperback as 828 pages.
 _PAPERBACK_MAX_BY_TRIM = {
-    (5.00, 8.00): {"white": 828, "cream": 776, "standard-color": 600, "premium-color": 828},
-    (5.06, 7.81): {"white": 828, "cream": 776, "standard-color": 600, "premium-color": 828},
-    (5.25, 8.00): {"white": 828, "cream": 776, "standard-color": 600, "premium-color": 828},
-    (5.50, 8.50): {"white": 828, "cream": 776, "standard-color": 600, "premium-color": 828},
-    (6.00, 9.00): {"white": 828, "cream": 776, "standard-color": 600, "premium-color": 828},
-    (6.14, 9.21): {"white": 828, "cream": 776, "standard-color": 600, "premium-color": 828},
-    (6.69, 9.61): {"white": 828, "cream": 776, "standard-color": 600, "premium-color": 828},
-    (7.00, 10.00): {"white": 828, "cream": 776, "standard-color": 600, "premium-color": 828},
-    (7.44, 9.69): {"white": 828, "cream": 776, "standard-color": 600, "premium-color": 828},
-    (7.50, 9.25): {"white": 828, "cream": 776, "standard-color": 600, "premium-color": 828},
-    (8.00, 10.00): {"white": 828, "cream": 776, "standard-color": 600, "premium-color": 828},
-    (8.25, 8.25): {"white": 800, "cream": 750, "standard-color": 600, "premium-color": 800},
-    (8.50, 8.50): {"white": 590, "cream": 550, "standard-color": 600, "premium-color": 590},
-    (8.25, 6.00): {"white": 800, "cream": 750, "standard-color": 600, "premium-color": 800},
-    (8.50, 11.00): {"white": 590, "cream": 550, "standard-color": 600, "premium-color": 590},
-    (8.27, 11.69): {"white": 780, "cream": 730, "standard-color": 0, "premium-color": 590},
+    (5.00, 8.00): {"white": 828, "cream": 776, "groundwood": 812, "standard-color": 600, "premium-color": 828},
+    (5.06, 7.81): {"white": 828, "cream": 776, "groundwood": 812, "standard-color": 600, "premium-color": 828},
+    (5.25, 8.00): {"white": 828, "cream": 776, "groundwood": 812, "standard-color": 600, "premium-color": 828},
+    (5.50, 8.50): {"white": 828, "cream": 776, "groundwood": 812, "standard-color": 600, "premium-color": 828},
+    (6.00, 9.00): {"white": 828, "cream": 776, "groundwood": 812, "standard-color": 600, "premium-color": 828},
+    (6.14, 9.21): {"white": 828, "cream": 776, "groundwood": 812, "standard-color": 600, "premium-color": 828},
+    (6.69, 9.61): {"white": 828, "cream": 776, "groundwood": 812, "standard-color": 600, "premium-color": 828},
+    (7.00, 10.00): {"white": 828, "cream": 776, "groundwood": 812, "standard-color": 600, "premium-color": 828},
+    (7.44, 9.69): {"white": 828, "cream": 776, "groundwood": 812, "standard-color": 600, "premium-color": 828},
+    (7.50, 9.25): {"white": 828, "cream": 776, "groundwood": 812, "standard-color": 600, "premium-color": 828},
+    (8.00, 10.00): {"white": 828, "cream": 776, "groundwood": 812, "standard-color": 600, "premium-color": 828},
+    (8.25, 8.25): {"white": 800, "cream": 750, "groundwood": 784, "standard-color": 600, "premium-color": 800},
+    (8.50, 8.50): {"white": 590, "cream": 550, "groundwood": 578, "standard-color": 600, "premium-color": 590},
+    (8.25, 6.00): {"white": 800, "cream": 750, "groundwood": 784, "standard-color": 600, "premium-color": 800},
+    (8.50, 11.00): {"white": 590, "cream": 550, "groundwood": 578, "standard-color": 600, "premium-color": 590},
+    (8.27, 11.69): {"white": 780, "cream": 730, "groundwood": 764, "standard-color": 0, "premium-color": 590},
 }
+
+# Most trims (and custom sizes): KDP page maximum by paper.
+_PAPERBACK_MAX_DEFAULT = {"white": 828, "cream": 776, "groundwood": 812, "standard-color": 600, "premium-color": 828}
+STANDARD_COLOR_MIN = 72
+
 
 def _paperback_max_for(doc: dict[str, Any]) -> tuple[int, str] | None:
     analysis = doc.get("analysis", {})
@@ -50,9 +55,11 @@ def _paperback_max_for(doc: dict[str, Any]) -> tuple[int, str] | None:
         return None
     key = next(((tw, th) for tw, th in _PAPERBACK_MAX_BY_TRIM
                 if abs(w - tw) <= 0.02 and abs(h - th) <= 0.02), None)
-    if key is None:
-        return None
     tier = options.get("paper_type")
+    if key is None:
+        # Custom trim: KDP's limit for most sizes.
+        maximum = _PAPERBACK_MAX_DEFAULT.get(tier)
+        return (maximum, tier) if isinstance(maximum, int) else None
     maximum = _PAPERBACK_MAX_BY_TRIM[key].get(tier)
     return (maximum, tier) if isinstance(maximum, int) else None
 
@@ -68,10 +75,17 @@ def _issue(page: int, rule_id: str, severity: str, message: str, bbox: list[floa
 def rule_min_page_count(doc: dict[str, Any]) -> list[dict[str, Any]]:
     """Rule 1: Minimum 24 pages (KDP hard requirement)."""
     n = doc.get("analysis", {}).get("page_count") or doc.get("parsed", {}).get("page_count") or 0
-    minimum = 75 if doc.get("analysis", {}).get("print_options", {}).get("book_type") == "hardcover" else PAPERBACK_MIN
+    options = doc.get("analysis", {}).get("print_options", {})
+    if options.get("book_type") == "hardcover":
+        minimum, label = 75, "KDP hardcovers need"
+    elif options.get("paper_type") == "standard-color":
+        minimum, label = STANDARD_COLOR_MIN, "KDP standard color paperbacks need"
+    else:
+        minimum, label = PAPERBACK_MIN, "KDP paperbacks need"
     if n < minimum:
+        hint = " Premium color allows 24 pages." if minimum == STANDARD_COLOR_MIN else ""
         return [_issue(1, "MIN_PAGE_COUNT", "ERROR",
-                       f"Your PDF has {n} pages. The selected book format requires at least {minimum} pages.")]
+                       f"Your PDF has {n} pages. {label} at least {minimum} pages.{hint}")]
     return []
 
 
@@ -88,7 +102,7 @@ def rule_max_page_count(doc: dict[str, Any]) -> list[dict[str, Any]]:
         return [_issue(1, "MAX_PAGE_COUNT", "ERROR", "Standard color is not available for the selected KDP trim size.")]
     if n > maximum:
         issues.append(_issue(1, "MAX_PAGE_COUNT", "ERROR",
-                             f"Your PDF has {n} pages. KDP maximum for this {tier_label} paperback is {maximum} pages; your PDF has {n}."))
+                             f"Your PDF has {n} pages. The KDP maximum for this {tier_label} paperback is {maximum} pages."))
     return issues
 
 

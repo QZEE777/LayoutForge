@@ -13,7 +13,7 @@ import {
 } from "@/lib/kdpReportEnhance";
 
 type PublicCheckerReport = {
-  printOptions?: { bookType: "paperback" | "hardcover"; bleedMode: "bleed" | "no-bleed"; colorMode: "bw" | "color"; paperType: "white" | "cream" | "standard-color" | "premium-color" };
+  printOptions?: { bookType: "paperback" | "hardcover"; bleedMode: "bleed" | "no-bleed"; colorMode: "bw" | "color"; paperType: "white" | "cream" | "groundwood" | "standard-color" | "premium-color" };
   id: string;
   source: "checker";
   outputType: "checker";

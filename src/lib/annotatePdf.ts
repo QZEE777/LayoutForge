@@ -187,7 +187,7 @@ const RULE_SENTENCES: Record<string, string> = {
   ALLOWED_TRIM_SIZES:          "Trim size is not on KDP's approved list - KDP will reject this file.",
   CONSISTENT_TRIM:             "Pages have different sizes - KDP requires all pages to match exactly.",
   MIXED_PAGE_SIZES:            "Pages have different sizes - KDP requires all pages to match exactly.",
-  MIN_PAGE_COUNT:              "Not enough pages - KDP will reject files with fewer than 24 pages.",
+  MIN_PAGE_COUNT:              "Not enough pages for this book type - KDP will reject this file.",
   MAX_PAGE_COUNT:              "Too many pages for this trim size - KDP will reject this file.",
   ODD_PAGE_COUNT:              "Page count is odd - KDP will add a blank page to the end.",
   KDP_TRIM_PROFILE:            "Trim box does not match the declared page size - pages will be cut incorrectly.",

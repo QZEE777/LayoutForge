@@ -25,7 +25,7 @@ async def upload_pdf(request: Request, file: UploadFile = File(...),
                      book_type: Literal["paperback", "hardcover"] = Form(...),
                      bleed_mode: Literal["no-bleed", "bleed"] = Form(...),
                      color_mode: Literal["bw", "color"] = Form(...),
-                     paper_type: Literal["white", "cream", "standard-color", "premium-color"] = Form(...)) -> UploadResponse:
+                     paper_type: Literal["white", "cream", "groundwood", "standard-color", "premium-color"] = Form(...)) -> UploadResponse:
     content_type = file.content_type
     if not validate_mime(content_type):
         raise HTTPException(400, "Invalid file type. Only application/pdf is accepted.")

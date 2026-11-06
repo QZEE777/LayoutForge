@@ -325,7 +325,7 @@ const HUMAN_MAP: Array<{ pattern: RegExp; rule_ids?: string[]; human: string }> 
   {
     rule_ids: ["MIN_PAGE_COUNT"],
     pattern: /minimum.*24|below.*24|fewer than 24/i,
-    human: "Your PDF has fewer than 24 pages. KDP requires a minimum of 24 pages for all print books. Add front matter, blank pages, or additional content to reach 24 pages.",
+    human: "Your PDF has fewer pages than KDP allows for this book. Paperbacks need at least 24 pages, standard color paperbacks 72, and hardcovers 75. Add front matter, blank pages, or more content to reach the minimum.",
   },
   {
     rule_ids: ["MAX_PAGE_COUNT"],

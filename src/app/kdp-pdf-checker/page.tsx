@@ -221,7 +221,7 @@ function FaqAccordion({ items }: { items: { q: string; a: string }[] }) {
 export type BookType   = "paperback" | "hardcover";
 export type BleedMode  = "no-bleed" | "bleed";
 export type ColorMode  = "bw" | "color";
-export type PaperType  = "white" | "cream" | "standard-color" | "premium-color";
+export type PaperType  = "white" | "cream" | "groundwood" | "standard-color" | "premium-color";
 
 export interface ScanContext {
   bookType:  BookType;
@@ -392,9 +392,13 @@ function UploadWidget({
     );
   }
 
+  // KDP hardcovers: no groundwood paper and no standard color.
+  const isHardcover = scanContext.bookType === "hardcover";
   const paperOptions: { value: PaperType; label: string }[] = scanContext.colorMode === "bw"
-    ? [{ value: "white", label: "White paper" }, { value: "cream", label: "Cream paper" }]
-    : [{ value: "standard-color", label: "Standard color" }, { value: "premium-color", label: "Premium color" }];
+    ? [{ value: "white", label: "White paper" }, { value: "cream", label: "Cream paper" },
+       ...(isHardcover ? [] : [{ value: "groundwood" as PaperType, label: "Groundwood" }])]
+    : [...(isHardcover ? [] : [{ value: "standard-color" as PaperType, label: "Standard color" }]),
+       { value: "premium-color" as PaperType, label: "Premium color" }];
 
   return (
     <div className="rounded-2xl border border-[#E0D8C4] bg-white/95 p-5 shadow-[0_24px_60px_-28px_rgba(26,18,8,0.35)] sm:p-6">
@@ -482,7 +486,12 @@ function UploadWidget({
           name="bookType"
           label="Book type"
           value={scanContext.bookType}
-          onChange={(v) => onScanContextChange({ ...scanContext, bookType: v, intendedTrimId: "" })}
+          onChange={(v) => onScanContextChange({
+            ...scanContext, bookType: v, intendedTrimId: "",
+            paperType: v === "hardcover" && scanContext.paperType === "groundwood" ? "white"
+              : v === "hardcover" && scanContext.paperType === "standard-color" ? "premium-color"
+              : scanContext.paperType,
+          })}
           options={[
             { value: "paperback", label: "Paperback" },
             { value: "hardcover", label: "Hardcover" },
@@ -502,7 +511,7 @@ function UploadWidget({
           name="colorMode"
           label="Interior color"
           value={scanContext.colorMode}
-          onChange={(v) => onScanContextChange({ ...scanContext, colorMode: v, paperType: v === "bw" ? "white" : "standard-color" })}
+          onChange={(v) => onScanContextChange({ ...scanContext, colorMode: v, paperType: v === "bw" ? "white" : scanContext.bookType === "hardcover" ? "premium-color" : "standard-color" })}
           options={[
             { value: "bw", label: "Black & white" },
             { value: "color", label: "Full color" },
