@@ -254,10 +254,17 @@ function OptionRow<T extends string>({
   value: T;
   onChange: (v: T) => void;
 }) {
+  // Three choices (white / cream / groundwood) sit on one row, like the two-choice rows.
+  const three = options.length === 3;
   return (
-    <fieldset className="grid grid-cols-2 items-center gap-x-2 gap-y-1.5 sm:grid-cols-[7.5rem_1fr_1fr]">
+    <fieldset
+      className={cn(
+        "grid items-center gap-x-2 gap-y-1.5",
+        three ? "grid-cols-[minmax(0,0.85fr)_minmax(0,0.85fr)_minmax(0,1.3fr)] sm:grid-cols-[7.5rem_minmax(0,0.85fr)_minmax(0,0.85fr)_minmax(0,1.3fr)]" : "grid-cols-2 sm:grid-cols-[7.5rem_1fr_1fr]",
+      )}
+    >
       <legend className="sr-only">{label}</legend>
-      <span aria-hidden className="col-span-2 text-sm font-semibold text-[#1A1208] sm:col-span-1">
+      <span aria-hidden className={cn("text-sm font-semibold text-[#1A1208] sm:col-span-1", three ? "col-span-3" : "col-span-2")}>
         {label}
       </span>
       {options.map((opt) => {
@@ -274,7 +281,8 @@ function OptionRow<T extends string>({
             />
             <span
               className={cn(
-                "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors",
+                "flex items-center rounded-lg border py-2 text-sm transition-colors",
+                three ? "gap-1.5 px-2" : "gap-2 px-3",
                 "peer-focus-visible:ring-2 peer-focus-visible:ring-[#F05A28] peer-focus-visible:ring-offset-1",
                 active
                   ? "border-[#1F7A34]/35 bg-[#EEF5E9] font-semibold text-[#1A1208]"
@@ -395,8 +403,10 @@ function UploadWidget({
   // KDP hardcovers: no groundwood paper and no standard color.
   const isHardcover = scanContext.bookType === "hardcover";
   const paperOptions: { value: PaperType; label: string }[] = scanContext.colorMode === "bw"
-    ? [{ value: "white", label: "White paper" }, { value: "cream", label: "Cream paper" },
-       ...(isHardcover ? [] : [{ value: "groundwood" as PaperType, label: "Groundwood" }])]
+    ? isHardcover
+      ? [{ value: "white", label: "White paper" }, { value: "cream", label: "Cream paper" }]
+      : [{ value: "white", label: "White" }, { value: "cream", label: "Cream" },
+         { value: "groundwood" as PaperType, label: "Groundwood" }]
     : [...(isHardcover ? [] : [{ value: "standard-color" as PaperType, label: "Standard color" }]),
        { value: "premium-color" as PaperType, label: "Premium color" }];
 
