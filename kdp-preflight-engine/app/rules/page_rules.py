@@ -185,35 +185,28 @@ def rule_mixed_page_sizes(doc: dict[str, Any]) -> list[dict[str, Any]]:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def rule_bleed_validation(doc: dict[str, Any]) -> list[dict[str, Any]]:
-    """Rule 5: If a bleed box is present, it must extend 0.125\" beyond trim."""
-    issues = []
+    """Rule 5: With bleed chosen, pages must be larger than the trim size.
+
+    The trim is worked out by taking the bleed off the page, so a file exported
+    without bleed shows up as a page that is exactly a standard trim size.
+    """
     pages = doc.get("analysis", {}).get("pages") or []
-    for p in pages:
-        if not p.get("has_bleed"):
-            continue
-        trim  = p.get("trim_rect") or p.get("trim_box")
-        bleed = (0, 0, p["width"], p["height"])
-        if not trim or len(trim) != 4:
-            continue
-        if not bleed or len(bleed) != 4:
-            continue
-        t_w = trim[2] - trim[0]
-        t_h = trim[3] - trim[1]
-        b_w = bleed[2] - bleed[0]
-        b_h = bleed[3] - bleed[1]
-        required_w = t_w + BLEED_EXTRA_PT
-        required_h = t_h + BLEED_EXTRA_PT * 2
-        if b_w < required_w - TOLERANCE_PT or b_h < required_h - TOLERANCE_PT:
-            issues.append(_issue(
-                p.get("page_number", 0),
-                "BLEED_VALIDATION",
-                "ERROR",
-                f"Bleed area is {b_w/POINTS_PER_INCH:.3f}\" × {b_h/POINTS_PER_INCH:.3f}\" but must extend "
-                f"0.125\" beyond trim ({required_w/POINTS_PER_INCH:.3f}\" × {required_h/POINTS_PER_INCH:.3f}\"). "
-                "Full-bleed images will be cropped at the trim edge.",
-                None,
-            ))
-    return issues
+    if not pages or not pages[0].get("has_bleed"):
+        return []
+    w, h = pages[0]["width"], pages[0]["height"]
+    if not any(abs(w - a) <= TOLERANCE_PT and abs(h - b) <= TOLERANCE_PT for a, b in ALLOWED_TRIM_POINTS):
+        return []
+    w_in, h_in = w / POINTS_PER_INCH, h / POINTS_PER_INCH
+    return [_issue(
+        1,
+        "BLEED_VALIDATION",
+        "ERROR",
+        f"You chose With bleed, but your pages are exactly {w_in:.3g}\" × {h_in:.3g}\", "
+        "a trim size with no bleed added. For a bleed book each page must be "
+        f"{w_in + BLEED_EXTRA_IN:.3f}\" × {h_in + BLEED_EXTRA_IN * 2:.3f}\". "
+        "Re-export with 0.125\" bleed, or choose No bleed if nothing runs to the edge.",
+        None,
+    )]
 
 
 # ─────────────────────────────────────────────────────────────────────────────

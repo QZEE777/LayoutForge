@@ -24,6 +24,9 @@ def _is_line_art(img: dict[str, Any]) -> bool:
 
 def rule_image_bleed(doc: dict[str, Any]) -> list[dict[str, Any]]:
     """Rule 11: Images crossing trim must extend to bleed edge (0.125\")."""
+    # No bleed chosen: images may stop at the trim edge, so nothing to check.
+    if doc.get("analysis", {}).get("print_options", {}).get("bleed_mode") != "bleed":
+        return []
     issues = []
     pages = doc.get("analysis", {}).get("pages") or []
     for p in pages:
