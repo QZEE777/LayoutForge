@@ -168,7 +168,7 @@ def rule_image_placement(doc: dict[str, Any]) -> list[dict[str, Any]]:
     pages = doc.get("analysis", {}).get("pages") or []
     for p in pages:
         sl, sr, st, sb = p.get("safe_left"), p.get("safe_right"), p.get("safe_top"), p.get("safe_bottom")
-        if None in (sl, sr, st, sb):
+        if None in (sl, sr, st, sb) or p.get("image_page"):
             continue
         for img in (p.get("images") or []):
             bbox = img.get("bbox")

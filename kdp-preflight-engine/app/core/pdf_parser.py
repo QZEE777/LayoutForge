@@ -420,12 +420,56 @@ def _segments_touch(hseg: tuple, vseg: tuple, gap: float = 2.0) -> bool:
     return (hx0 - gap <= vx <= hx1 + gap) and (vy0 - gap <= hy <= vy1 + gap)
 
 
+IMAGE_PAGE_COVERAGE = 0.8   # one picture covers 80%+ of the page
+INK_SCAN_DPI = 50           # 0.02" precision is plenty for 0.25" margins
+INK_THRESHOLD = 235         # grey level below this counts as ink (0 black, 255 white)
+_INK_TABLE = bytes(1 if v < INK_THRESHOLD else 0 for v in range(256))
+
+
+def is_image_page(images: list[dict[str, Any]], w: float, h: float) -> bool:
+    """True when one picture covers most of the page (Canva exports, scans)."""
+    area = w * h
+    for img in images:
+        b = img.get("bbox")
+        if b and len(b) == 4 and area:
+            cw = max(0.0, min(b[2], w) - max(b[0], 0.0))
+            ch = max(0.0, min(b[3], h) - max(b[1], 0.0))
+            if cw * ch >= IMAGE_PAGE_COVERAGE * area:
+                return True
+    return False
+
+
+def find_ink_bbox(page: fitz.Page) -> list[float] | None:
+    """Bounding box (points) of everything that isn't near-white on the page."""
+    try:
+        pix = page.get_pixmap(dpi=INK_SCAN_DPI, colorspace=fitz.csGRAY, alpha=False)
+    except Exception:
+        return None
+    rows, cols, stride = pix.height, pix.width, pix.stride
+    data = pix.samples
+    top = bottom = None
+    left, right = cols, -1
+    for y in range(rows):
+        row = data[y * stride: y * stride + cols].translate(_INK_TABLE)
+        first = row.find(1)
+        if first < 0:
+            continue
+        last = row.rfind(1)
+        top = y if top is None else top
+        bottom = y
+        left, right = min(left, first), max(right, last)
+    if top is None:
+        return None
+    sx, sy = page.rect.width / cols, page.rect.height / rows
+    return [left * sx, top * sy, (right + 1) * sx, (bottom + 1) * sy]
+
+
 def get_page_rotation(page: fitz.Page) -> int:
     """Return rotation in degrees (0, 90, 180, 270)."""
     return page.rotation
 
 
-def parse_pdf(path: Path) -> dict[str, Any]:
+def parse_pdf(path: Path, scan_ink: bool = True) -> dict[str, Any]:
     """
     Full parse of PDF: metadata, version, creator info, and per-page data.
     Returns a structure suitable for document_analyzer and rules engine.
@@ -463,6 +507,9 @@ def parse_pdf(path: Path) -> dict[str, Any]:
                 dw = []
                 drawing_count = 0
             comment_count = count_comment_annotations(page)
+            image_page = is_image_page(images, w, h)
+            # Only needed for No-bleed margin checks; skipping it keeps bleed scans fast.
+            ink_bbox = find_ink_bbox(page) if image_page and scan_ink else None
             crop_mark_corners = count_crop_mark_corners(dw or [], w, h)
 
             pages_data.append({
@@ -483,6 +530,8 @@ def parse_pdf(path: Path) -> dict[str, Any]:
                 "spot_colors": spot_colors,
                 "comment_count": comment_count,
                 "crop_mark_corners": crop_mark_corners,
+                "image_page": image_page,
+                "ink_bbox": ink_bbox,
             })
 
         return {

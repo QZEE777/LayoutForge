@@ -417,6 +417,7 @@ const ENGINE_WORDED_RULES = new Set([
 
 function toHumanMessage(message: string, ruleId?: string): string {
   if (ruleId && message && ENGINE_WORDED_RULES.has(ruleId.toUpperCase())) return message;
+  if (message.startsWith("This page is one picture")) return message;
   // First: try exact rule_id match for highest specificity
   if (ruleId) {
     for (const { rule_ids, pattern, human } of HUMAN_MAP) {

@@ -157,6 +157,30 @@ def rule_safe_zone_validation(doc: dict[str, Any]) -> list[dict[str, Any]]:
                     "Text outside safe zone (margins).",
                     bbox,
                 ))
+        if p.get("image_page") and not p.get("has_bleed"):
+            # One picture fills the page: measure the ink inside it instead.
+            ink = p.get("ink_bbox")
+            if ink:
+                trim = p.get("trim_rect") or (0, 0, p.get("width", 0), p.get("height", 0))
+                inside_left = p.get("inside_left", p.get("page_number", 1) % 2 == 1)
+                sides = [
+                    ("spine" if inside_left else "outer", ink[0] - trim[0], sl - trim[0], ink[0] < sl - 1),
+                    ("outer" if inside_left else "spine", trim[2] - ink[2], trim[2] - sr, ink[2] > sr + 1),
+                    ("top", ink[1] - trim[1], st - trim[1], ink[1] < st - 1),
+                    ("bottom", trim[3] - ink[3], trim[3] - sb, ink[3] > sb + 1),
+                ]
+                bad = [f"{name} edge {max(gap, 0) / 72:.2f}\" (needs {need / 72:.3g}\")"
+                       for name, gap, need, short in sides if short]
+                if bad:
+                    issues.append(_issue(
+                        p.get("page_number", 0),
+                        "SAFE_ZONE",
+                        "ERROR",
+                        "This page is one picture, and its artwork is too close to the "
+                        + ", ".join(bad) + ". Move the content in, or choose With bleed if the art is meant to run off the page.",
+                        ink,
+                    ))
+            continue
         for img in p.get("images") or []:
             bbox = img.get("bbox")
             if not bbox or len(bbox) < 4:

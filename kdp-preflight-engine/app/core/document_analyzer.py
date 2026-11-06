@@ -82,8 +82,8 @@ def analyze_document(pdf_path: Path, print_options: dict | None = None) -> dict[
     Parse PDF and enrich with computed layout (margins, safe zone, bleed).
     Returns document dict with 'parsed' and 'analysis' keys.
     """
-    parsed = parse_pdf(pdf_path)
     options = print_options or {"book_type": "paperback", "bleed_mode": "no-bleed", "color_mode": "bw"}
+    parsed = parse_pdf(pdf_path, scan_ink=options.get("bleed_mode") != "bleed")
     has_bleed = options["bleed_mode"] == "bleed"
     page_count = parsed["page_count"]
     creator_info = parsed.get("creator_info", {})
