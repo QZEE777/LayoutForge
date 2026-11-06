@@ -250,6 +250,7 @@ const RULE_DIFFICULTY: Record<string, FixDifficulty> = {
   PDF_COMMENTS:            "easy",
   CROP_MARKS:              "easy",
   PDF_WATERMARK:           "moderate",
+  SPREAD_PAGES:            "easy",
 };
 
 const EASY_KEYWORDS     = ["margin", "metadata", "gutter", "inner margin", "outer margin", "trim size", "page size", "rotation", "orientation"];
@@ -412,7 +413,7 @@ const HUMAN_MAP: Array<{ pattern: RegExp; rule_ids?: string[]; human: string }> 
 // page counts), so the report shows them as they are.
 const ENGINE_WORDED_RULES = new Set([
   "BLEED_VALIDATION", "MIN_PAGE_COUNT", "MAX_PAGE_COUNT",
-  "PDF_BOOKMARKS", "PDF_COMMENTS", "CROP_MARKS", "PDF_WATERMARK",
+  "PDF_BOOKMARKS", "PDF_COMMENTS", "CROP_MARKS", "PDF_WATERMARK", "SPREAD_PAGES",
 ]);
 
 function toHumanMessage(message: string, ruleId?: string): string {

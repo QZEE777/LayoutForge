@@ -459,3 +459,36 @@ def rule_trim_box_validation(doc: dict[str, Any]) -> list[dict[str, Any]]:
                 list(trim),
             ))
     return issues
+
+
+def rule_spread_pages(doc: dict[str, Any]) -> list[dict[str, Any]]:
+    """KDP wants single pages, not spreads or 2-up sheets.
+
+    A page that is exactly two standard trim pages side by side (with or
+    without bleed) is a spread. Pages that are themselves a standard size,
+    like 8.25" x 6" landscape, are left alone.
+    """
+    def near(a: float, b: float) -> bool:
+        return abs(a - b) <= 2 * TOLERANCE_PT
+
+    def is_standard(w: float, h: float) -> bool:
+        return any((near(w, a) or near(w, a + BLEED_EXTRA_PT)) and (near(h, b) or near(h, b + 2 * BLEED_EXTRA_PT))
+                   for a, b in ALLOWED_TRIM_POINTS)
+
+    found: list[int] = []
+    single = ""
+    for p in doc.get("analysis", {}).get("pages") or []:
+        w, h = p.get("width") or 0, p.get("height") or 0
+        if w <= h or is_standard(w, h):
+            continue
+        for a, b in ALLOWED_TRIM_POINTS:
+            if (near(w, 2 * a) or near(w, 2 * a + 2 * BLEED_EXTRA_PT)) and (near(h, b) or near(h, b + 2 * BLEED_EXTRA_PT)):
+                found.append(p.get("page_number", 0))
+                single = single or f"{a / POINTS_PER_INCH:g}\" × {b / POINTS_PER_INCH:g}\""
+                break
+    if not found:
+        return []
+    where = f"page {found[0]}" if len(found) == 1 else f"{len(found)} pages (first on page {found[0]})"
+    return [_issue(found[0], "SPREAD_PAGES", "ERROR",
+                   f"Two book pages are side by side on one sheet on {where}. KDP needs single pages, not spreads. "
+                   f"Export again as single {single} pages (turn off 'Spreads' or '2-up').")]

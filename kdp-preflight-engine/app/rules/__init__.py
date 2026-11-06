@@ -18,6 +18,7 @@ from app.rules.page_rules import (
     rule_pdf_version,
     rule_transparency_flattening,
     rule_interactive_elements,
+    rule_spread_pages,
 )
 from app.rules.margin_rules import (
     rule_gutter_margin,
@@ -93,6 +94,7 @@ ALL_RULES = [
     ("ORIENTATION_CONSISTENCY",  "Orientation consistency",              rule_orientation_consistency),
     ("ROTATED_PAGES",            "Rotated pages",                        rule_rotated_pages),
     ("EMPTY_PAGE",               "Blank page detection",                 rule_empty_page_detection),
+    ("SPREAD_PAGES",             "Single pages, not spreads",            rule_spread_pages),
 
     # File clean-up (KDP "common points of failure")
     ("PDF_BOOKMARKS",            "No bookmarks",                         rule_bookmarks),

@@ -181,6 +181,7 @@ const RULE_LABELS: Record<string, string> = {
   PDF_COMMENTS:                "Comments Left in File",
   CROP_MARKS:                  "Crop Marks Found",
   PDF_WATERMARK:               "PDF Tool Watermark",
+  SPREAD_PAGES:                "Spreads, Not Single Pages",
 };
 
 const RULE_SENTENCES: Record<string, string> = {
@@ -217,6 +218,7 @@ const RULE_SENTENCES: Record<string, string> = {
   PDF_COMMENTS:                "Comments or highlights left in the file - remove them before uploading.",
   CROP_MARKS:                  "Printer crop marks found - export again with printer marks switched off.",
   PDF_WATERMARK:               "A PDF tool's watermark is on the page - it will print in your book.",
+  SPREAD_PAGES:                "Two pages share one sheet - KDP needs single pages.",
 };
 
 function getIssueLabel(ruleId: string): string {
