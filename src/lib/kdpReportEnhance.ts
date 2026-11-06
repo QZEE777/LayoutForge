@@ -245,6 +245,11 @@ const RULE_DIFFICULTY: Record<string, FixDifficulty> = {
   HARDCOVER_TRIM_SIZE:     "easy",
   SPINE_TEXT_WARNING:      "easy",
   GUTTER_BOUNDARY_WARNING: "easy",
+  // File clean-up
+  PDF_BOOKMARKS:           "easy",
+  PDF_COMMENTS:            "easy",
+  CROP_MARKS:              "easy",
+  PDF_WATERMARK:           "moderate",
 };
 
 const EASY_KEYWORDS     = ["margin", "metadata", "gutter", "inner margin", "outer margin", "trim size", "page size", "rotation", "orientation"];
@@ -380,6 +385,27 @@ const HUMAN_MAP: Array<{ pattern: RegExp; rule_ids?: string[]; human: string }> 
     pattern: /gutter.*boundary|boundary.*gutter|near.*gutter.*threshold|gutter.*threshold/i,
     human: "Your page count is within 5 pages of a KDP gutter margin threshold. Adding or removing a few pages will change the required inside margin. Verify your gutter setting matches the final page count before uploading.",
   },
+  // ── File clean-up (KDP "common points of failure") ────────────────────────
+  {
+    rule_ids: ["PDF_BOOKMARKS"],
+    pattern: /bookmark/i,
+    human: "Your PDF has bookmarks. KDP asks for files without them. Turn off 'Create bookmarks' when you export, or remove them in your PDF reader.",
+  },
+  {
+    rule_ids: ["PDF_COMMENTS"],
+    pattern: /comments|sticky notes|highlights/i,
+    human: "Comments, highlights or sticky notes are still in your PDF. KDP asks for files without comments or annotations. Delete them, or export again with comments switched off.",
+  },
+  {
+    rule_ids: ["CROP_MARKS"],
+    pattern: /crop marks|cut marks/i,
+    human: "Printer crop marks were found. KDP asks for files without crop or cut marks. Export again with 'Crop marks' and 'Printer marks' switched off.",
+  },
+  {
+    rule_ids: ["PDF_WATERMARK"],
+    pattern: /watermark/i,
+    human: "A PDF tool's watermark is printed on your pages. It will print in your book, and KDP lists PDF-maker logos as a common reason files fail. Export again with a tool that adds no watermark.",
+  },
 ];
 
 function toHumanMessage(message: string, ruleId?: string): string {
@@ -418,6 +444,11 @@ export function cleanFilenameForDisplay(filename: string): string {
   if (ext) base = base.slice(0, -4).trim();
   const titleCase = base.replace(/\w\S*/g, (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
   return titleCase ? `${titleCase} — PDF` : "— PDF";
+}
+
+/** KDP rejects file names with emoji or unsupported special characters. */
+export function hasKdpUnsafeFilename(filename: string): boolean {
+  return /\p{Extended_Pictographic}|[#%{}<>*?\/$!:@`|="~^[\]]/u.test(filename || "");
 }
 
 export function enrichIssue(

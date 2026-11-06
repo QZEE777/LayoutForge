@@ -39,6 +39,12 @@ from app.rules.image_rules import (
     rule_image_placement,
 )
 from app.rules.trim_rules import rule_kdp_trim_profile
+from app.rules.cleanup_rules import (
+    rule_bookmarks,
+    rule_comments,
+    rule_crop_marks,
+    rule_pdf_watermark,
+)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # ALL_RULES — ordered list of (rule_id, display_name, function)
@@ -87,4 +93,10 @@ ALL_RULES = [
     ("ORIENTATION_CONSISTENCY",  "Orientation consistency",              rule_orientation_consistency),
     ("ROTATED_PAGES",            "Rotated pages",                        rule_rotated_pages),
     ("EMPTY_PAGE",               "Blank page detection",                 rule_empty_page_detection),
+
+    # File clean-up (KDP "common points of failure")
+    ("PDF_BOOKMARKS",            "No bookmarks",                         rule_bookmarks),
+    ("PDF_COMMENTS",             "No comments or annotations",           rule_comments),
+    ("CROP_MARKS",               "No crop or trim marks",                rule_crop_marks),
+    ("PDF_WATERMARK",            "No PDF-maker watermarks",              rule_pdf_watermark),
 ]

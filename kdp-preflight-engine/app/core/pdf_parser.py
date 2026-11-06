@@ -359,6 +359,67 @@ def detect_spot_colors(doc: fitz.Document, page: fitz.Page) -> list[str]:
     return spot_found
 
 
+# Annotation types that are notes or markup (KDP: no comments or annotations).
+# Links and form fields are left out: links are harmless in print, and form
+# fields are handled by the interactive-elements rule.
+COMMENT_ANNOT_TYPES = frozenset({
+    "Text", "FreeText", "Highlight", "Underline", "StrikeOut", "Squiggly",
+    "Ink", "Stamp", "Caret", "Line", "Square", "Circle", "Polygon", "PolyLine",
+})
+
+
+def count_comment_annotations(page: fitz.Page) -> int:
+    """Count sticky notes, highlights and other markup left on a page."""
+    count = 0
+    try:
+        for annot in page.annots():
+            if annot.type[1] in COMMENT_ANNOT_TYPES:
+                count += 1
+    except Exception:
+        pass
+    return count
+
+
+def count_crop_mark_corners(drawings: list[dict[str, Any]], w: float, h: float) -> int:
+    """
+    Count page corners that carry printer crop marks: a short thin horizontal
+    line and a short thin vertical line near the corner that do not touch
+    (crop marks leave a gap at the trim corner). Decorative corner frames are
+    joined, so they don't count.
+    """
+    zone = 72.0  # look within 1" of each corner
+    corners = {(0, 0): ([], []), (1, 0): ([], []), (0, 1): ([], []), (1, 1): ([], [])}
+    for d in drawings or []:
+        if (d.get("width") or 0) > 1.0:
+            continue
+        for item in d.get("items") or []:
+            if not item or item[0] != "l":
+                continue
+            a, b = item[1], item[2]
+            dx, dy = abs(a.x - b.x), abs(a.y - b.y)
+            horiz, vert = dy < 0.5 <= dx, dx < 0.5 <= dy
+            length = max(dx, dy)
+            if not (horiz or vert) or not (9.0 <= length <= 54.0):
+                continue
+            for (cx, cy), (hs, vs) in corners.items():
+                x0, y0 = cx * w, cy * h
+                if all(abs(pt.x - x0) <= zone and abs(pt.y - y0) <= zone for pt in (a, b)):
+                    (hs if horiz else vs).append((a, b))
+    marked = 0
+    for hs, vs in corners.values():
+        if any(not _segments_touch(hseg, vseg) for hseg in hs for vseg in vs):
+            marked += 1
+    return marked
+
+
+def _segments_touch(hseg: tuple, vseg: tuple, gap: float = 2.0) -> bool:
+    """True if a horizontal and a vertical segment meet or nearly meet."""
+    (ha, hb), (va, vb) = hseg, vseg
+    hx0, hx1, hy = min(ha.x, hb.x), max(ha.x, hb.x), ha.y
+    vy0, vy1, vx = min(va.y, vb.y), max(va.y, vb.y), va.x
+    return (hx0 - gap <= vx <= hx1 + gap) and (vy0 - gap <= hy <= vy1 + gap)
+
+
 def get_page_rotation(page: fitz.Page) -> int:
     """Return rotation in degrees (0, 90, 180, 270)."""
     return page.rotation
@@ -374,6 +435,10 @@ def parse_pdf(path: Path) -> dict[str, Any]:
         version = get_pdf_version(doc)
         page_count = len(doc)
         creator_info = get_creator_info(doc)
+        try:
+            bookmark_count = len(doc.get_toc(simple=True))
+        except Exception:
+            bookmark_count = 0
         pages_data: list[dict[str, Any]] = []
 
         for pno in range(page_count):
@@ -395,7 +460,10 @@ def parse_pdf(path: Path) -> dict[str, Any]:
                 dw = page.get_drawings()
                 drawing_count = len(dw) if dw is not None else 0
             except Exception:
+                dw = []
                 drawing_count = 0
+            comment_count = count_comment_annotations(page)
+            crop_mark_corners = count_crop_mark_corners(dw or [], w, h)
 
             pages_data.append({
                 "page_number": pno + 1,
@@ -413,6 +481,8 @@ def parse_pdf(path: Path) -> dict[str, Any]:
                 "has_transparency": has_transparency,
                 "interactive_count": interactive_count,
                 "spot_colors": spot_colors,
+                "comment_count": comment_count,
+                "crop_mark_corners": crop_mark_corners,
             })
 
         return {
@@ -420,6 +490,7 @@ def parse_pdf(path: Path) -> dict[str, Any]:
             "pdf_version": version,
             "page_count": page_count,
             "creator_info": creator_info,
+            "bookmark_count": bookmark_count,
             "pages": pages_data,
         }
     finally:

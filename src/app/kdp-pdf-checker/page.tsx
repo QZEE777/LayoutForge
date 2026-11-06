@@ -14,7 +14,7 @@ import { HARDCOVER_TRIM_SIZES, TRIM_SIZES } from "@/lib/kdpConfig";
 import { BrandWordmark } from "@/components/BrandWordmark";
 import { NavToolsDropdown } from "@/components/NavToolsDropdown";
 import { formatFileSize } from "@/lib/formatFileName";
-import { cleanFilenameForDisplay } from "@/lib/kdpReportEnhance";
+import { cleanFilenameForDisplay, hasKdpUnsafeFilename } from "@/lib/kdpReportEnhance";
 import { CHECKER_MAX_UPLOAD_BYTES, CHECKER_MAX_UPLOAD_MB } from "@/lib/checkerUploadLimits";
 import SocialLinks from "@/components/SocialLinks";
 import { cn } from "@/lib/utils";
@@ -443,6 +443,11 @@ function UploadWidget({
                   ? " · tap Check my PDF again (last scan did not finish)"
                   : " · selected — tap Check my PDF to upload & scan"}
               </span>
+              {hasKdpUnsafeFilename(file.name) && (
+                <span className="mt-1 block text-xs font-semibold text-amber-800">
+                  Rename this file before uploading to KDP: KDP rejects file names with emoji or symbols like # % ? / :
+                </span>
+              )}
             </>
           ) : (
             <>

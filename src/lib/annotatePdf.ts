@@ -177,6 +177,10 @@ const RULE_LABELS: Record<string, string> = {
   EMPTY_PAGE:                  "Blank Page",
   ORIENTATION_CONSISTENCY:     "Inconsistent Page Orientation",
   FILE_SIZE:                   "File Too Large",
+  PDF_BOOKMARKS:               "Bookmarks in File",
+  PDF_COMMENTS:                "Comments Left in File",
+  CROP_MARKS:                  "Crop Marks Found",
+  PDF_WATERMARK:               "PDF Tool Watermark",
 };
 
 const RULE_SENTENCES: Record<string, string> = {
@@ -209,6 +213,10 @@ const RULE_SENTENCES: Record<string, string> = {
   EMPTY_PAGE:                  "This page appears blank - verify this is intentional before uploading.",
   ORIENTATION_CONSISTENCY:     "Page orientations are inconsistent - KDP requires a uniform orientation.",
   FILE_SIZE:                   "File exceeds KDP's 650MB limit - compress images or reduce resolution.",
+  PDF_BOOKMARKS:               "Bookmarks found - KDP asks for files without bookmarks.",
+  PDF_COMMENTS:                "Comments or highlights left in the file - remove them before uploading.",
+  CROP_MARKS:                  "Printer crop marks found - export again with printer marks switched off.",
+  PDF_WATERMARK:               "A PDF tool's watermark is on the page - it will print in your book.",
 };
 
 function getIssueLabel(ruleId: string): string {
