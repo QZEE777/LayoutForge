@@ -17,6 +17,10 @@ PAPERBACK_MAX = 828
 HARDCOVER_MAX = 550
 PAPERBACK_MIN = 24
 
+# KDP paperback custom trim range (inches -> points)
+CUSTOM_MIN_W_PT, CUSTOM_MAX_W_PT = 4.0 * POINTS_PER_INCH, 8.5 * POINTS_PER_INCH
+CUSTOM_MIN_H_PT, CUSTOM_MAX_H_PT = 6.0 * POINTS_PER_INCH, 11.69 * POINTS_PER_INCH
+
 # Current KDP paperback maximums by trim and interior stock. The checker asks
 # for the paper/color tier so it can avoid treating every paperback as 828 pages.
 _PAPERBACK_MAX_BY_TRIM = {
@@ -142,12 +146,18 @@ def rule_allowed_trim_sizes(doc: dict[str, Any]) -> list[dict[str, Any]]:
             continue
         w, h = p.get("trim_width_pt", p.get("width")), p.get("trim_height_pt", p.get("height"))
         allowed = ALLOWED_TRIM_POINTS
-        if doc.get("analysis", {}).get("print_options", {}).get("book_type") == "hardcover":
+        is_hardcover = doc.get("analysis", {}).get("print_options", {}).get("book_type") == "hardcover"
+        if is_hardcover:
             allowed = {(a * 72, b * 72) for a, b in [(5.5,8.5),(6,9),(6.14,9.21),(7,10),(8.25,11)]}
         matched = any(
             abs(w - a) <= TOLERANCE_PT * 2 and abs(h - b) <= TOLERANCE_PT * 2
             for a, b in allowed
         )
+        # KDP paperbacks accept any custom trim from 4" to 8.5" wide and
+        # 6" to 11.69" tall (KDP Print Options, checked 2026-11-06).
+        if not matched and not is_hardcover:
+            matched = (CUSTOM_MIN_W_PT - TOLERANCE_PT <= w <= CUSTOM_MAX_W_PT + TOLERANCE_PT
+                       and CUSTOM_MIN_H_PT - TOLERANCE_PT <= h <= CUSTOM_MAX_H_PT + TOLERANCE_PT)
         if not matched:
             reported_pages.add(pn)
             w_in = w / POINTS_PER_INCH
@@ -157,8 +167,9 @@ def rule_allowed_trim_sizes(doc: dict[str, Any]) -> list[dict[str, Any]]:
                 "ALLOWED_TRIM_SIZES",
                 "ERROR",
                 f"Page size {w_in:.3f}\" × {h_in:.3f}\" is not a KDP-supported trim size. "
-                "Common sizes: 5×8\", 5.5×8.5\", 6×9\", 7×10\", 8.5×11\". "
-                "Your PDF page dimensions must exactly match your KDP title setup.",
+                + ("KDP hardcovers allow 5.5×8.5\", 6×9\", 6.14×9.21\", 7×10\" or 8.25×11\". " if is_hardcover
+                   else "KDP paperbacks allow 4\" to 8.5\" wide and 6\" to 11.69\" tall. ")
+                + "Your PDF page dimensions must exactly match your KDP title setup.",
                 None,
             ))
     return issues
