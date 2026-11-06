@@ -17,7 +17,7 @@ function getStoredEmail(): string {
   return (localStorage.getItem(STORED_EMAIL_KEY) || "").trim();
 }
 
-type GateState = "processing" | "verifying" | "preview" | "unlocked";
+type GateState = "processing" | "verifying" | "preview" | "unlocked" | "paidElsewhere";
 type CreditStep = "idle" | "sending" | "code" | "redeeming" | "error";
 
 interface PaymentGateProps {
@@ -206,6 +206,9 @@ export default function PaymentGate({
             localStorage.removeItem(getCheckoutPendingKey(downloadId));
           }
           setState("unlocked");
+        } else if (data?.paid) {
+          // Already paid, just not opened from the buyer's link or account.
+          setState("paidElsewhere");
         } else {
           // If checkout was initiated but webhook hasn't confirmed yet, keep the verifying overlay.
           if (typeof window !== "undefined") {
@@ -260,6 +263,24 @@ export default function PaymentGate({
 
   if (state === "unlocked") {
     return <>{children}</>;
+  }
+
+  if (state === "paidElsewhere") {
+    return (
+      <div className="mx-auto max-w-md rounded-2xl border border-[#1A6B2A]/20 bg-white p-8 text-center shadow-lg">
+        <h2 className="text-xl font-black text-[#1A1208]">This report is already paid for</h2>
+        <p className="mt-3 text-sm leading-relaxed text-[#5C5346]">
+          Good news: nothing more to pay. This browser just can&apos;t open it yet.
+          Open the link in your report email, or sign in with the email you paid with, then come back to this page.
+        </p>
+        <Link
+          href="/auth"
+          className="mt-5 inline-block rounded-lg bg-[#F05A28] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#d94e20]"
+        >
+          Sign in
+        </Link>
+      </div>
+    );
   }
 
   const saveEmailForNextTime = (email: string) => {

@@ -13,7 +13,12 @@ export async function POST(req: Request) {
       const meta = await getStored(downloadId);
       if (meta?.processingReport?.outputType === "checker") {
         const denied = await requireCheckerAccess(req, downloadId, { meta, paid: true });
-        return NextResponse.json({ access: !denied, type: denied ? undefined : "paid" }, { headers: { "Cache-Control": "private, no-store" } });
+        // Paid, but not from this browser/session: don't offer to sell it again.
+        const paidElsewhere = !!denied && !!meta.payment_confirmed;
+        return NextResponse.json(
+          { access: !denied, type: denied ? undefined : "paid", ...(paidElsewhere ? { paid: true } : {}) },
+          { headers: { "Cache-Control": "private, no-store" } },
+        );
       }
       if (meta?.payment_confirmed) {
         return NextResponse.json({ access: true, type: "paid" });
