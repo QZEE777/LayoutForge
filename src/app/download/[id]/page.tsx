@@ -509,6 +509,13 @@ export default function DownloadPage() {
     loadReport();
   }, [loadReport]);
 
+  // After a payment or credit unlocks the report in place, start reading from the top
+  // instead of staying where the unlock button was (near the bottom of the page).
+  const handleUnlocked = useCallback(() => {
+    loadReport();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [loadReport]);
+
   useEffect(() => {
     if (!report?.annotatedPdfUrl || !isCheckerFlow) return;
     if (annotatedReady || annotatedError) return;
@@ -882,7 +889,7 @@ export default function DownloadPage() {
 
         {report && (
         <PaymentGate
-          onUnlocked={loadReport}
+          onUnlocked={handleUnlocked}
           tool={isFormatReview ? "kdp-format-review" : isChecker ? "kdp-pdf-checker" : isEpub ? "epub-maker" : isPdfFlow ? "pdf-compress" : "kdp-formatter"}
           downloadId={id}
           hideChildrenUntilUnlocked

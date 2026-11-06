@@ -677,6 +677,12 @@ export default function KdpPdfCheckerPage() {
     }).catch(() => { /* attribution loss acceptable */ });
   }, [searchParams]);
 
+  // The progress card is much shorter than the form, so keep it in view instead of
+  // leaving the reader looking at the sections below once the upload starts.
+  useEffect(() => {
+    if (uploading) document.getElementById("checker")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [uploading]);
+
   useEffect(() => {
     if (!uploading) { setCheckElapsedSec(0); return; }
     setCheckElapsedSec(0);
