@@ -87,14 +87,15 @@ def calculate_readiness_score(errors: list[dict], warnings: list[dict]) -> int:
     if total_issues == 0:
         return 97  # Perfect score with no issues
 
-    deduction = 0
-    for issue in errors:
-        sev = _normalize_severity(issue)
-        deduction += SEVERITY_DEDUCTIONS.get(sev, 12)
-    for issue in warnings:
-        sev = _normalize_severity(issue)
-        deduction += SEVERITY_DEDUCTIONS.get(sev, 3)
+    # Each rule deducts once (at its worst severity), however many pages it
+    # appears on. Per-page counting drove every multi-page book to 0.
+    worst_by_rule: dict[str, int] = {}
+    for issue, default in [(e, 12) for e in errors] + [(w, 3) for w in warnings]:
+        rule_id = str(issue.get("rule_id", "")).strip() or str(issue.get("message", ""))
+        points = SEVERITY_DEDUCTIONS.get(_normalize_severity(issue), default)
+        worst_by_rule[rule_id] = max(worst_by_rule.get(rule_id, 0), points)
 
+    deduction = sum(worst_by_rule.values())
     return max(0, min(100, 100 - deduction))
 
 
