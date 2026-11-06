@@ -259,8 +259,9 @@ function OptionRow<T extends string>({
   return (
     <fieldset
       className={cn(
-        "grid items-center gap-x-2 gap-y-1.5",
-        three ? "grid-cols-[minmax(0,0.85fr)_minmax(0,0.85fr)_minmax(0,1.3fr)] sm:grid-cols-[7.5rem_minmax(0,0.85fr)_minmax(0,0.85fr)_minmax(0,1.3fr)]" : "grid-cols-2 sm:grid-cols-[7.5rem_1fr_1fr]",
+        "grid items-center gap-y-1.5",
+        three ? "gap-x-1 sm:gap-x-2" : "gap-x-2",
+        three ? "grid-cols-[minmax(0,0.8fr)_minmax(0,0.85fr)_minmax(0,1.35fr)] sm:grid-cols-[7.5rem_minmax(0,0.85fr)_minmax(0,0.85fr)_minmax(0,1.3fr)]" : "grid-cols-2 sm:grid-cols-[7.5rem_1fr_1fr]",
       )}
     >
       <legend className="sr-only">{label}</legend>
@@ -281,8 +282,8 @@ function OptionRow<T extends string>({
             />
             <span
               className={cn(
-                "flex items-center rounded-lg border py-2 text-sm transition-colors",
-                three ? "gap-1.5 px-2" : "gap-2 px-3",
+                "flex items-center rounded-lg border py-2 transition-colors",
+                three ? "gap-1 px-1.5 text-xs min-[360px]:text-[13px] sm:gap-1.5 sm:px-2 sm:text-sm" : "gap-2 px-3 text-sm",
                 "peer-focus-visible:ring-2 peer-focus-visible:ring-[#F05A28] peer-focus-visible:ring-offset-1",
                 active
                   ? "border-[#1F7A34]/35 bg-[#EEF5E9] font-semibold text-[#1A1208]"
