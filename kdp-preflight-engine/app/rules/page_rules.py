@@ -205,9 +205,27 @@ def rule_bleed_validation(doc: dict[str, Any]) -> list[dict[str, Any]]:
     without bleed shows up as a page that is exactly a standard trim size.
     """
     pages = doc.get("analysis", {}).get("pages") or []
-    if not pages or not pages[0].get("has_bleed"):
+    if not pages:
         return []
     w, h = pages[0]["width"], pages[0]["height"]
+    if not pages[0].get("has_bleed"):
+        # No bleed chosen, but the page is a standard trim plus bleed: the
+        # author most likely made a bleed file and picked the wrong option.
+        match = next(((a, b) for a, b in ALLOWED_TRIM_POINTS
+                      if abs(w - (a + BLEED_EXTRA_PT)) <= TOLERANCE_PT
+                      and abs(h - (b + 2 * BLEED_EXTRA_PT)) <= TOLERANCE_PT), None)
+        if not match:
+            return []
+        t_w, t_h = match[0] / POINTS_PER_INCH, match[1] / POINTS_PER_INCH
+        return [_issue(
+            1,
+            "BLEED_VALIDATION",
+            "WARNING",
+            f"You chose No bleed, but your pages are {w / POINTS_PER_INCH:.3f}\" × {h / POINTS_PER_INCH:.3f}\", "
+            f"which is exactly a {t_w:g}\" × {t_h:g}\" book with bleed added. If you meant a {t_w:g}\" × {t_h:g}\" book, "
+            "scan again with With bleed. If not, KDP will print it at this size as a custom trim.",
+            None,
+        )]
     if not any(abs(w - a) <= TOLERANCE_PT and abs(h - b) <= TOLERANCE_PT for a, b in ALLOWED_TRIM_POINTS):
         return []
     w_in, h_in = w / POINTS_PER_INCH, h / POINTS_PER_INCH

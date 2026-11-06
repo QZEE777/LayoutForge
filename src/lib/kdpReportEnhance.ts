@@ -408,7 +408,15 @@ const HUMAN_MAP: Array<{ pattern: RegExp; rule_ids?: string[]; human: string }> 
   },
 ];
 
+// Engine messages for these rules already name the exact problem (sizes,
+// page counts), so the report shows them as they are.
+const ENGINE_WORDED_RULES = new Set([
+  "BLEED_VALIDATION", "MIN_PAGE_COUNT", "MAX_PAGE_COUNT",
+  "PDF_BOOKMARKS", "PDF_COMMENTS", "CROP_MARKS", "PDF_WATERMARK",
+]);
+
 function toHumanMessage(message: string, ruleId?: string): string {
+  if (ruleId && message && ENGINE_WORDED_RULES.has(ruleId.toUpperCase())) return message;
   // First: try exact rule_id match for highest specificity
   if (ruleId) {
     for (const { rule_ids, pattern, human } of HUMAN_MAP) {
