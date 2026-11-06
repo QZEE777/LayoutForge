@@ -1,6 +1,9 @@
 /** Allowlist only: the free score preview must never contain manuscript or paid report data. */
 import { parseCheckerPrintOptions } from "./checkerPrintOptions";
-export function checkerPublicPreview(report: Record<string, unknown>) {
+export function checkerPublicPreview(report: Record<string, unknown>, alreadyPaid = false) {
+  // Count distinct problems the same way the unlocked report groups them.
+  const enriched = Array.isArray(report.issuesEnriched) ? (report.issuesEnriched as Array<{ humanMessage?: unknown }>) : [];
+  const issueGroupCount = new Set(enriched.map((i) => String(i?.humanMessage ?? ""))).size;
   let printOptions;
   try { printOptions = parseCheckerPrintOptions(report.printOptions); } catch { /* Legacy report has no options. */ }
   return {
@@ -13,5 +16,6 @@ export function checkerPublicPreview(report: Record<string, unknown>) {
     pageCount: report.pageCount, trimDetected: report.trimDetected,
     trimSize: report.trimSize, trimMatchKDP: report.trimMatchKDP,
     issues: [], chaptersDetected: 0, fontUsed: "",
+    issueGroupCount, alreadyPaid,
   };
 }

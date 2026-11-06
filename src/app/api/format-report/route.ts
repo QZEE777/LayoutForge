@@ -278,7 +278,7 @@ export async function GET(request: NextRequest) {
     const isChecker = meta?.processingReport?.outputType === "checker";
     const denied = isChecker && meta ? await requireCheckerAccess(request, meta.id, { paid: true, meta }) : null;
     const safeReport = isChecker && (denied || !isPaid)
-      ? checkerPublicPreview(report as Record<string, unknown>)
+      ? checkerPublicPreview(report as Record<string, unknown>, isPaid)
       : isPaid ? report : { ...report, outputFilename: undefined };
 
     return NextResponse.json({

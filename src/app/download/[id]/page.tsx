@@ -141,6 +141,10 @@ interface ProcessingReport {
   warningCount?: number;
   infoCount?: number;
   issueCount?: number;
+  /** Locked preview only: number of distinct problems, and whether it's already paid. */
+  previewOnly?: boolean;
+  issueGroupCount?: number;
+  alreadyPaid?: boolean;
   /** Format review report */
   formatReviewSections?: Array<{ title: string; issues?: string[]; recommendations?: string[]; content?: string }>;
   summary?: string;
@@ -686,7 +690,7 @@ export default function DownloadPage() {
             Your KDP Compliance Report Is Ready
           </h1>
           <p className="text-m2p-muted text-center text-sm sm:text-base max-w-lg mx-auto leading-relaxed text-balance">
-            We analyzed your manuscript against all 26 Amazon KDP print formatting requirements.
+            We checked your manuscript against Amazon KDP's print formatting requirements.
             <span className="block mt-1.5 text-m2p-muted/90">Download the full report to review every issue and its recommended fix.</span>
           </p>
         </div>
@@ -755,7 +759,7 @@ export default function DownloadPage() {
           for (const i of (report.issuesEnriched ?? [])) {
             if (!uniqueIssues.has(i.humanMessage)) uniqueIssues.set(i.humanMessage, i.fixDifficulty ?? "");
           }
-          const totalIssues = uniqueIssues.size;
+          const totalIssues = uniqueIssues.size || (report.previewOnly ? report.issueGroupCount ?? 0 : 0);
           const criticalCount = Array.from(uniqueIssues.values()).filter((d) => d === "hard" || d === "very-hard").length;
           const risk = report.riskLevel ?? (score === null ? null : score >= 75 ? "Low" : score >= 50 ? "Medium" : "High");
           const riskColor = risk === "Low" ? "#4CE87A" : risk === "Medium" ? "#f0a028" : "#FF6A2B";
@@ -866,6 +870,7 @@ export default function DownloadPage() {
                   )}
                 </div>
 
+                {report.previewOnly && !report.alreadyPaid && (
                 <div
                   className="mt-5 rounded-xl px-4 py-3.5 text-center"
                   style={{
@@ -882,6 +887,7 @@ export default function DownloadPage() {
                     and your annotated PDF.
                   </p>
                 </div>
+                )}
               </div>
             </div>
           );
