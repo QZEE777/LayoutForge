@@ -17,7 +17,7 @@ function getStoredEmail(): string {
   return (localStorage.getItem(STORED_EMAIL_KEY) || "").trim();
 }
 
-type GateState = "processing" | "verifying" | "preview" | "unlocked" | "paidElsewhere";
+type GateState = "processing" | "checking" | "verifying" | "preview" | "unlocked" | "paidElsewhere";
 type CreditStep = "idle" | "sending" | "code" | "redeeming" | "error";
 
 interface PaymentGateProps {
@@ -51,7 +51,8 @@ export default function PaymentGate({
     // Only show "Confirming your purchase" if we know the user already initiated checkout.
     if (typeof window === "undefined") return "preview";
     const pending = localStorage.getItem(getCheckoutPendingKey(downloadId)) === "1";
-    return pending ? "verifying" : "preview";
+    // Don't show pay buttons until we know whether this report is already paid.
+    return pending ? "verifying" : "checking";
   });
   useEffect(() => {
     if (state === "unlocked") onUnlocked?.();
@@ -263,6 +264,14 @@ export default function PaymentGate({
 
   if (state === "unlocked") {
     return <>{children}</>;
+  }
+
+  if (state === "checking") {
+    return (
+      <p className="py-10 text-center text-sm text-[#6B6151]" role="status">
+        Checking your report…
+      </p>
+    );
   }
 
   if (state === "paidElsewhere") {
