@@ -972,13 +972,24 @@ export default function KdpPdfCheckerPage() {
                 Save hours of frustration and get back to publishing.
               </p>
 
-              <div className="mt-6 inline-flex max-w-full items-stretch overflow-hidden rounded-xl border-2 border-[#1F7A34]/30 bg-white shadow-[0_10px_24px_-16px_rgba(26,18,8,0.4)]">
-                <span className="flex shrink-0 items-center whitespace-nowrap bg-[#F05A28] px-4 py-2.5 text-2xl font-extrabold tracking-tight text-white sm:px-5 sm:text-[2rem]">
-                  Only $9
-                </span>
-                <span className="flex items-center px-4 py-2.5 text-[15px] font-semibold leading-tight text-[#1A1208] sm:px-5 sm:text-lg">
-                  Full report + one free recheck
-                </span>
+              <div className="mt-6 flex flex-wrap items-stretch gap-3">
+                <div className="inline-flex max-w-full items-stretch overflow-hidden rounded-xl border-2 border-[#1F7A34]/30 bg-white shadow-[0_10px_24px_-16px_rgba(26,18,8,0.4)]">
+                  <span className="flex shrink-0 items-center whitespace-nowrap bg-[#F05A28] px-4 py-2.5 text-2xl font-extrabold tracking-tight text-white sm:px-5 sm:text-[2rem]">
+                    Only $9
+                  </span>
+                  <span className="flex items-center px-4 py-2.5 text-[15px] font-semibold leading-tight text-[#1A1208] sm:px-5 sm:text-lg">
+                    Full report + one free recheck
+                  </span>
+                </div>
+
+                {/* The number that justifies the price: keep it loud. */}
+                <div className="inline-flex max-w-full items-center gap-3 rounded-xl bg-[#1A1208] px-4 py-2.5 shadow-[0_10px_24px_-16px_rgba(26,18,8,0.6)] sm:px-5">
+                  <span className="text-[2.6rem] font-black leading-none tracking-tight text-[#F05A28] sm:text-5xl">37</span>
+                  <span className="leading-tight">
+                    <span className="block text-base font-extrabold text-white sm:text-lg">KDP print checks</span>
+                    <span className="block text-[13px] font-medium text-white/70 sm:text-sm">Built from KDP&apos;s own print rules</span>
+                  </span>
+                </div>
               </div>
             </div>
 
