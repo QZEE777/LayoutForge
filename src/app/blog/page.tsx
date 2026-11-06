@@ -1,4 +1,4 @@
-import SiteShell from "@/components/SiteShell";
+import BlogShell from "@/components/blog/BlogShell";
 import { getAllBlogTags, getAllPosts } from "@/lib/blog";
 import BlogIndexClient from "@/components/blog/BlogIndexClient";
 
@@ -12,9 +12,9 @@ export default function BlogIndexPage() {
   const allTags = getAllBlogTags();
 
   return (
-    <SiteShell>
+    <BlogShell>
       <BlogIndexClient posts={posts} allTags={allTags} />
-    </SiteShell>
+    </BlogShell>
   );
 }
 

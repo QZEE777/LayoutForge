@@ -40,31 +40,15 @@ export default function BlogIndexClient({ posts, allTags }: Props) {
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-12">
-      {/* Blog hero — CSS-only, no image dependency */}
-      <div className="mb-8 relative overflow-hidden rounded-2xl shadow-[0_24px_56px_-30px_rgba(26,18,8,0.7)]"
-        style={{ background: "linear-gradient(135deg, #1A1208 0%, #23170B 55%, #2A1B0D 100%)" }}
-      >
-        {/* Orange glow — top left */}
-        <div className="absolute inset-0 pointer-events-none" style={{
-          background: "radial-gradient(ellipse 55% 70% at 22% 25%, rgba(240,90,40,0.42) 0%, transparent 100%)",
-        }} />
-        {/* Green glow — top right */}
-        <div className="absolute inset-0 pointer-events-none" style={{
-          background: "radial-gradient(ellipse 50% 65% at 80% 30%, rgba(76,217,100,0.30) 0%, transparent 100%)",
-        }} />
-        {/* Subtle horizontal rule lines */}
-        <div className="absolute inset-0 pointer-events-none" style={{
-          backgroundImage: "repeating-linear-gradient(to bottom, transparent, transparent 49px, rgba(255,255,255,0.06) 49px, rgba(255,255,255,0.06) 50px)",
-        }} />
-        {/* Content */}
-        <div className="relative px-8 py-12 sm:px-12 sm:py-16">
-          <h1 className="font-bebas text-5xl tracking-wide sm:text-6xl" style={{ color: "#FAF7EE" }}>
-            KDP notes that ship
-          </h1>
-          <p className="mt-3 max-w-lg text-base leading-relaxed sm:text-lg" style={{ color: "rgba(240,223,209,0.72)" }}>
-            Clarity, proof, and practical next steps — straight from the build.
-          </p>
-        </div>
+      {/* Blog hero — light, matching the KDP PDF Checker page */}
+      <div className="mb-8">
+        <p className="text-sm font-semibold uppercase tracking-wide text-[#F05A28]">Publishing Guides</p>
+        <h1 className="mt-2 text-[2rem] font-extrabold leading-[1.06] tracking-[-0.035em] text-[#1A1208] sm:text-5xl">
+          KDP notes that ship
+        </h1>
+        <p className="mt-3 max-w-lg text-base leading-relaxed text-[#5C5346] sm:text-lg">
+          Clarity, proof, and practical next steps — straight from the build.
+        </p>
       </div>
 
       <div className="mb-6 flex flex-wrap items-center gap-2 rounded-2xl border border-m2p-border bg-white/90 p-3 shadow-[0_8px_26px_-20px_rgba(26,18,8,0.4)]">
@@ -133,7 +117,7 @@ export default function BlogIndexClient({ posts, allTags }: Props) {
                   <p className="text-xs font-semibold tracking-wide text-white/70 mb-1">
                     {(featured.contentType ?? "article").toUpperCase()} · {readTime(featured.excerpt)}
                   </p>
-                  <h2 className="text-2xl font-semibold leading-tight text-white">{featured.title}</h2>
+                  <h2 className="text-2xl font-extrabold leading-tight tracking-[-0.02em] text-white">{featured.title}</h2>
                 </div>
               </div>
               <div className="p-6">
@@ -173,7 +157,7 @@ export default function BlogIndexClient({ posts, allTags }: Props) {
               >
                 <div className={`mb-3 h-1.5 w-20 rounded-full bg-gradient-to-r ${barClassFor(primaryTag(post))}`} />
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <h3 className="text-lg font-semibold text-m2p-ink">{post.title}</h3>
+                  <h3 className="text-lg font-bold tracking-[-0.01em] text-m2p-ink">{post.title}</h3>
                   <time className="text-xs text-m2p-muted" dateTime={post.publishedAt}>
                     {new Date(post.publishedAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
                   </time>

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import SiteShell from "@/components/SiteShell";
+import BlogShell from "@/components/blog/BlogShell";
 import SocialLinks from "@/components/SocialLinks";
 import ShareButtons from "@/components/ShareButtons";
 import BlogViewCounter from "@/components/blog/BlogViewCounter";
@@ -65,7 +65,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   };
 
   return (
-    <SiteShell>
+    <BlogShell>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -81,7 +81,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px]">
           <div>
             <header className="m2p-shimmer rounded-3xl border border-m2p-border bg-white p-6 shadow-[0_24px_52px_-34px_rgba(26,18,8,0.35)]">
-              <h1 className="font-bebas text-4xl tracking-wide text-m2p-ink">
+              <h1 className="text-3xl font-extrabold leading-[1.1] tracking-[-0.03em] text-[#1A1208] sm:text-4xl">
                 {post.title}
               </h1>
               <div className="mt-2 flex flex-wrap items-center gap-3">
@@ -136,7 +136,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               {post.content.map((block, idx) => {
                 if (block.type === "h2") {
                   return (
-                    <h2 key={idx} className="text-2xl font-semibold text-m2p-ink">
+                    <h2 key={idx} className="text-2xl font-extrabold tracking-[-0.02em] text-m2p-ink">
                       {block.text}
                     </h2>
                   );
@@ -198,7 +198,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </aside>
         </div>
       </article>
-    </SiteShell>
+    </BlogShell>
   );
 }
 
