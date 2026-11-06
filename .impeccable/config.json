@@ -11,6 +11,24 @@
         ],
         "createdAt": "2026-08-31T11:16:23.735Z",
         "reason": "One of 5 semantic tag-chip colors (kdp/formatting/rejection/margins/launch) in a pre-existing categorical color system, not a purple-gradient hero. Primary brand palette (ivory/orange/ink) is unaffected."
+      },
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "src/app/kdp-pdf-checker/page.tsx"
+        ],
+        "createdAt": "2026-11-06T07:54:35.398Z",
+        "reason": "Claude triage: L432 is the 16px folded-corner of the drawn PDF file icon (aria-hidden), not a card accent border"
+      },
+      {
+        "rule": "border-accent-on-rounded",
+        "value": "*",
+        "files": [
+          "src/app/kdp-pdf-checker/page.tsx"
+        ],
+        "createdAt": "2026-11-06T07:54:35.558Z",
+        "reason": "Claude triage: L432 is the 16px folded-corner of the drawn PDF file icon (aria-hidden), not a card accent border"
       }
     ]
   }

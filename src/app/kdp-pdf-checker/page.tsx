@@ -6,20 +6,27 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   Crop, Ruler, Droplet, Type, FileText, Package, Palette, Frame, BookOpen,
-  AlertTriangle, ListChecks, CheckCircle2, Loader2, Book, BookMarked, Square,
-  Contrast, Lock, UserX, BarChart3, Download, Check, Upload, X, type LucideIcon,
+  AlertTriangle, ListChecks, CheckCircle2, Loader2, Square, Check, Upload, X,
+  ChevronDown, Menu, AlertCircle, Calculator, BookText, DollarSign, Minimize2,
+  ArrowRight, type LucideIcon,
 } from "lucide-react";
 import { HARDCOVER_TRIM_SIZES, TRIM_SIZES } from "@/lib/kdpConfig";
 import { BrandWordmark } from "@/components/BrandWordmark";
+import { NavToolsDropdown } from "@/components/NavToolsDropdown";
 import { formatFileSize } from "@/lib/formatFileName";
 import { cleanFilenameForDisplay } from "@/lib/kdpReportEnhance";
 import { CHECKER_MAX_UPLOAD_BYTES, CHECKER_MAX_UPLOAD_MB } from "@/lib/checkerUploadLimits";
 import SocialLinks from "@/components/SocialLinks";
+import { cn } from "@/lib/utils";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 /** localStorage key for in-flight / timed-out scan resume */
 const LS_RESUME_KEY = "m2p_resume_check";
+
+/** Shared keyboard focus ring (brand orange, visible on cream and white). */
+const FOCUS =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F05A28] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7EE]";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -53,6 +60,7 @@ function formatElapsedSeconds(totalSec: number): string {
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 
+/** Shown one by one while a scan runs. */
 const CHECKS: Array<{ icon: LucideIcon; label: string }> = [
   { icon: Crop, label: "Trim size" },
   { icon: Ruler, label: "Margin compliance" },
@@ -68,30 +76,97 @@ const CHECKS: Array<{ icon: LucideIcon; label: string }> = [
   { icon: ListChecks, label: "26 rules total" },
 ];
 
-const FAQS = [
+const NAV_LINKS: Array<{ href: string; label: string; active?: boolean }> = [
+  { href: "/kdp-pdf-checker", label: "KDP PDF Checker", active: true },
+  { href: "/blog", label: "Publishing Guides" },
+  { href: "#pricing", label: "Pricing" },
+  { href: "/about", label: "About" },
+];
+
+const HERO_POINTS = [
+  "Check margins, trim size and bleed",
+  "Verify fonts and embedding",
+  "Catch layout and print-ready issues",
+  "Save time and avoid KDP rejections",
+];
+
+const STEPS: Array<{ icon: LucideIcon; title: string; body: string }> = [
+  { icon: Upload, title: "Upload your PDF", body: "Add the interior file you plan to send to KDP." },
+  { icon: ListChecks, title: "Review your score", body: "See a free readiness score and how many issues we found." },
+  { icon: BookOpen, title: "Fix with confidence", body: "Unlock the full report: every issue by page, with a plain-English fix." },
+];
+
+const FEATURED_TOOLS: Array<{ icon: LucideIcon; name: string; description: string; href: string }> = [
   {
-    q: "Does this replace Amazon KDP's review?",
-    a: "No. It checks your PDF against KDP's published formatting requirements before you upload. Amazon still runs their own review — this tool helps you pass it on the first try by catching the issues that cause most rejections.",
+    icon: Calculator,
+    name: "Spine Width Calculator",
+    description: "Get the exact spine width for your paperback cover from page count and paper.",
+    href: "/spine-calculator",
   },
   {
-    q: "What does the checker look for?",
-    a: "Margins, trim size, bleed, font embedding, page size consistency, image resolution, colour mode, and more — 26 KDP print requirements in total. The scan tells you exactly which rules your file fails and where.",
+    icon: BookText,
+    name: "Page Count Estimator",
+    description: "Estimate your page count from word count, trim size and font size.",
+    href: "/page-count-estimator",
+  },
+  {
+    icon: DollarSign,
+    name: "Royalty Calculator",
+    description: "See what Amazon pays you per sale after print cost, before you set a price.",
+    href: "/royalty-calculator",
+  },
+  {
+    icon: Minimize2,
+    name: "PDF Compressor",
+    description: "Shrink a large manuscript PDF for upload without blurring text or images.",
+    href: "/pdf-compress",
+  },
+];
+
+const MORE_TOOLS: Array<{ name: string; href: string }> = [
+  { name: "Banned Keyword Checker", href: "/banned-keyword-checker" },
+  { name: "Title & Metadata Check", href: "/title-metadata-check" },
+  { name: "Page Number Formatter", href: "/page-number-formatter" },
+];
+
+const PACKS = [
+  { label: "Author Pack", price: "$21", scans: "5 scans", perScan: "$4.20 / scan", type: "author_pack" },
+  { label: "Indie Pack", price: "$39", scans: "10 scans", perScan: "$3.90 / scan", type: "indie_pack", best: true },
+  { label: "Pro Pack", price: "$69", scans: "20 scans", perScan: "$3.45 / scan", type: "pro_pack" },
+];
+
+const FAQS = [
+  {
+    q: "What does the KDP PDF Checker check for?",
+    a: "Your interior PDF is checked against 26 of KDP's published print requirements: trim size, margins, bleed, font embedding, page size consistency, image resolution, colour mode, file size and more. The report tells you which rules your file fails and on which pages.",
+  },
+  {
+    q: "What's the difference between the free score and the paid report?",
+    a: "The free readiness score shows your score out of 100 and how many issues we found, so you know whether there's a problem. The $9 full report shows every issue on the exact page it appears, with a plain-English fix for each one, plus the annotated PDF.",
+  },
+  {
+    q: "What do I get for $9?",
+    a: "One full scan with the complete report and annotated PDF, and one free recheck. No subscription, and credits never expire.",
+  },
+  {
+    q: "Can I recheck my PDF after making changes?",
+    a: "Yes. Your $9 includes one free recheck. Fix the issues in your layout app, export a new PDF and run it through the checker again to confirm it's clean before you upload to Amazon.",
+  },
+  {
+    q: "What book types and trim sizes are supported?",
+    a: `Paperback and hardcover interiors, black & white or colour, with or without bleed. You can pick a standard KDP trim (paperback 5×8 up to 8.5×11; hardcover 5.5×8.5 up to 8.25×11), or leave it on "Detect from PDF" and we read the size from your file. PDFs up to ${CHECKER_MAX_UPLOAD_MB} MB.`,
+  },
+  {
+    q: "Does this replace Amazon KDP's review?",
+    a: "No. Amazon still runs its own review, and no tool can guarantee acceptance. The checker catches the formatting issues behind most rejections so you can fix them before you upload.",
   },
   {
     q: "Will it fix my PDF automatically?",
-    a: "No. The tool identifies every issue and tells you exactly where it is and how to fix it. You make the corrections in your layout app (InDesign, Canva, Word, Affinity Publisher), re-export as PDF, then re-upload to KDP.",
+    a: "No. It shows you every issue and how to fix it. You make the corrections in your layout app (InDesign, Canva, Word, Affinity Publisher), export a new PDF, then upload to KDP.",
   },
   {
     q: "How long does a scan take?",
-    a: "Most scans complete within 5 minutes. Keep the tab open while your scan runs.",
-  },
-  {
-    q: "What do I get after payment?",
-    a: "The full annotated PDF — every issue flagged on the exact page it appears, with plain-English fix instructions. You can download it, share it with your designer or formatter, and use it as a checklist before re-uploading.",
-  },
-  {
-    q: "What does $9 include?",
-    a: "$9 includes 1 full scan and 1 free recheck. Credits never expire — use the recheck after making your fixes to confirm the PDF is clean before you upload to Amazon.",
+    a: "Most scans finish within 5 minutes. Larger files can take a little longer, so keep the tab open while it runs.",
   },
 ];
 
@@ -100,28 +175,43 @@ const FAQS = [
 function FaqAccordion({ items }: { items: { q: string; a: string }[] }) {
   const [open, setOpen] = useState<number | null>(null);
   return (
-    <div
-      className="divide-y rounded-2xl border border-[#1A6B2A]/10 bg-white/90 px-4 py-1 sm:px-6 shadow-[0_12px_40px_-20px_rgba(13,61,24,0.2)]"
-      style={{ borderColor: "rgba(0,0,0,0.06)" }}
-    >
-      {items.map((item, i) => (
-        <div key={i}>
-          <button
-            type="button"
-            className="w-full flex items-center justify-between gap-4 py-4 text-left transition-colors hover:bg-black/[0.02] rounded-lg -mx-1 px-1"
-            onClick={() => setOpen(open === i ? null : i)}
-          >
-            <span className="font-semibold text-sm" style={{ color: "#1A1208" }}>{item.q}</span>
-            <span className="shrink-0 text-lg leading-none transition-transform duration-200"
-              style={{ color: "#f05a28", transform: open === i ? "rotate(45deg)" : "rotate(0deg)" }}>
-              +
-            </span>
-          </button>
-          {open === i && (
-            <p className="text-sm pb-4 leading-relaxed" style={{ color: "#6B6151" }}>{item.a}</p>
-          )}
-        </div>
-      ))}
+    <div className="divide-y divide-[#E0D8C4]">
+      {items.map((item, i) => {
+        const isOpen = open === i;
+        return (
+          <div key={item.q}>
+            <h3>
+              <button
+                type="button"
+                id={`faq-q-${i}`}
+                aria-expanded={isOpen}
+                aria-controls={`faq-a-${i}`}
+                onClick={() => setOpen(isOpen ? null : i)}
+                className={cn(
+                  "flex w-full items-center justify-between gap-4 rounded-md py-3.5 text-left text-[15px] font-medium text-[#1A1208] transition-colors hover:text-[#F05A28]",
+                  FOCUS,
+                )}
+              >
+                <span>{item.q}</span>
+                <ChevronDown
+                  className={cn("h-4 w-4 shrink-0 text-[#6B6151] transition-transform duration-200", isOpen && "rotate-180")}
+                  aria-hidden
+                />
+              </button>
+            </h3>
+            {isOpen && (
+              <p
+                id={`faq-a-${i}`}
+                role="region"
+                aria-labelledby={`faq-q-${i}`}
+                className="pb-4 pr-6 text-sm leading-relaxed text-[#5C5346]"
+              >
+                {item.a}
+              </p>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -153,43 +243,59 @@ function labelForKdpTrimId(id: string): string {
   return id;
 }
 
-// ── Chip picker helper ────────────────────────────────────────────────────────
+// ── Option row (radio pair) ───────────────────────────────────────────────────
 
-function ChipGroup<T extends string>({
-  label, options, value, onChange,
+function OptionRow<T extends string>({
+  name, label, options, value, onChange,
 }: {
+  name: string;
   label: string;
-  options: { value: T; label: string; icon: LucideIcon }[];
+  options: { value: T; label: string }[];
   value: T;
   onChange: (v: T) => void;
 }) {
   return (
-    <div>
-      <p className="text-xs font-semibold uppercase tracking-wide mb-1.5 text-center" style={{ color: "#9B8E7E" }}>
+    <fieldset className="grid grid-cols-2 items-center gap-x-2 gap-y-1.5 sm:grid-cols-[7.5rem_1fr_1fr]">
+      <legend className="sr-only">{label}</legend>
+      <span aria-hidden className="col-span-2 text-sm font-semibold text-[#1A1208] sm:col-span-1">
         {label}
-      </p>
-      <div className="flex gap-2">
-        {options.map((opt) => {
-          const active = opt.value === value;
-          return (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => onChange(opt.value)}
-              className="flex-1 flex items-center justify-center gap-1.5 rounded-lg py-2.5 transition-all font-semibold text-sm"
-              style={{
-                background: active ? "#f05a28" : "rgba(0,0,0,0.04)",
-                color: active ? "#fff" : "#6B6151",
-                border: `1.5px solid ${active ? "#f05a28" : "rgba(0,0,0,0.1)"}`,
-              }}
+      </span>
+      {options.map((opt) => {
+        const active = opt.value === value;
+        return (
+          <label key={opt.value} className="block cursor-pointer">
+            <input
+              type="radio"
+              name={name}
+              value={opt.value}
+              checked={active}
+              onChange={() => onChange(opt.value)}
+              className="peer sr-only"
+            />
+            <span
+              className={cn(
+                "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors",
+                "peer-focus-visible:ring-2 peer-focus-visible:ring-[#F05A28] peer-focus-visible:ring-offset-1",
+                active
+                  ? "border-[#1F7A34]/35 bg-[#EEF5E9] font-semibold text-[#1A1208]"
+                  : "border-[#E0D8C4] bg-white text-[#5C5346] hover:border-[#1F7A34]/30",
+              )}
             >
-              <opt.icon className="w-4 h-4" />
-              {opt.label}
-            </button>
-          );
-        })}
-      </div>
-    </div>
+              <span
+                aria-hidden
+                className={cn(
+                  "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2",
+                  active ? "border-[#1F7A34]" : "border-[#B8AC98]",
+                )}
+              >
+                {active && <span className="h-2 w-2 rounded-full bg-[#1F7A34]" />}
+              </span>
+              <span className="leading-tight">{opt.label}</span>
+            </span>
+          </label>
+        );
+      })}
+    </fieldset>
   );
 }
 
@@ -216,74 +322,68 @@ function UploadWidget({
   onClear: () => void;
 }) {
   if (uploading) {
-    // ── A2: Upload phase — show progress bar ──────────────────────────────────
+    // ── Upload phase — show progress bar ────────────────────────────────────
     if (uploadProgress !== null) {
       return (
-        <div className="rounded-2xl p-8 text-center" style={{ background: "#1A1208", border: "1px solid rgba(240,90,40,0.2)" }}>
-          <div className="mx-auto mb-5 w-16 h-16 rounded-full flex items-center justify-center"
-            style={{ background: "rgba(240,90,40,0.1)", border: "2px solid rgba(240,90,40,0.2)" }}>
-            <Upload className="w-6 h-6" style={{ color: "#f05a28" }} />
+        <div className="rounded-2xl border border-[#F05A28]/20 bg-[#1A1208] p-8 text-center" role="status" aria-live="polite">
+          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border-2 border-[#F05A28]/20 bg-[#F05A28]/10">
+            <Upload className="h-6 w-6 text-[#F05A28]" aria-hidden />
           </div>
-          <p className="text-2xl font-black mb-1" style={{ color: "#fff", letterSpacing: "-0.01em" }}>
-            Uploading your PDF…
-          </p>
-          <p className="text-sm mb-6" style={{ color: "rgba(255,255,255,0.45)" }}>
-            Sending to secure storage — do not close this tab
-          </p>
-          {/* Progress bar */}
-          <div className="rounded-full overflow-hidden mb-2" style={{ background: "rgba(255,255,255,0.08)", height: 8 }}>
+          <p className="mb-1 text-2xl font-black tracking-tight text-white">Uploading your PDF…</p>
+          <p className="mb-6 text-sm text-white/60">Sending to secure storage — do not close this tab</p>
+          <div className="mb-2 h-2 overflow-hidden rounded-full bg-white/10">
             <div
-              className="h-full rounded-full transition-all duration-300"
-              style={{ width: `${uploadProgress}%`, background: "#f05a28" }}
+              className="h-full rounded-full bg-[#F05A28] transition-all duration-300"
+              style={{ width: `${uploadProgress}%` }}
             />
           </div>
-          <p className="text-sm font-black tabular-nums" style={{ color: "#f05a28" }}>
-            {uploadProgress}%
-          </p>
+          <p className="text-sm font-black tabular-nums text-[#F05A28]">{uploadProgress}%</p>
         </div>
       );
     }
 
-    // ── Scan phase — spinner + live check grid ────────────────────────────────
+    // ── Scan phase — spinner + live check grid ──────────────────────────────
     const activeCheckIdx = Math.min(Math.floor(checkElapsedSec / 6), CHECKS.length - 1);
     return (
-      <div className="rounded-2xl p-8 text-center" style={{ background: "#1A1208", border: "1px solid rgba(240,90,40,0.2)" }}>
-        <div className="mx-auto mb-5 w-16 h-16 rounded-full border-4 animate-spin"
-          style={{ borderColor: "rgba(240,90,40,0.2)", borderTopColor: "#f05a28" }} />
-        <p className="text-2xl font-black mb-1" style={{ color: "#fff", letterSpacing: "-0.01em" }}>
-          Scanning your manuscript…
-        </p>
-        <p className="text-sm mb-4" style={{ color: "rgba(255,255,255,0.5)" }}>
-          Checking 26 KDP compliance rules
-        </p>
-        {/* Live check progress */}
-        <div className="grid grid-cols-2 gap-2 mb-5 text-left">
+      <div className="rounded-2xl border border-[#F05A28]/20 bg-[#1A1208] p-8 text-center" role="status" aria-live="polite">
+        <div className="mx-auto mb-5 h-16 w-16 animate-spin rounded-full border-4 border-[#F05A28]/20 border-t-[#F05A28]" />
+        <p className="mb-1 text-2xl font-black tracking-tight text-white">Scanning your manuscript…</p>
+        <p className="mb-4 text-sm text-white/60">Checking 26 KDP compliance rules</p>
+        <div className="mb-5 grid grid-cols-2 gap-2 text-left">
           {CHECKS.slice(0, -1).map((check, i) => {
             const done = i < activeCheckIdx;
             const active = i === activeCheckIdx;
             return (
-              <div key={check.label} className="flex items-center gap-2 rounded-lg px-3 py-2"
-                style={{ background: done ? "rgba(76,217,100,0.12)" : active ? "rgba(240,90,40,0.15)" : "rgba(255,255,255,0.04)" }}>
-                {done ? (
-                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0" style={{ color: "#4cd964" }} />
-                ) : active ? (
-                  <Loader2 className="w-3.5 h-3.5 shrink-0 animate-spin" style={{ color: "#f05a28" }} />
-                ) : (
-                  <check.icon className="w-3.5 h-3.5 shrink-0" style={{ color: "rgba(255,255,255,0.3)" }} />
+              <div
+                key={check.label}
+                className={cn(
+                  "flex items-center gap-2 rounded-lg px-3 py-2",
+                  done ? "bg-[#4cd964]/10" : active ? "bg-[#F05A28]/15" : "bg-white/5",
                 )}
-                <span className="text-xs font-medium truncate"
-                  style={{ color: done ? "#4cd964" : active ? "#f05a28" : "rgba(255,255,255,0.3)" }}>
+              >
+                {done ? (
+                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-[#4cd964]" />
+                ) : active ? (
+                  <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-[#F05A28]" />
+                ) : (
+                  <check.icon className="h-3.5 w-3.5 shrink-0 text-white/30" />
+                )}
+                <span
+                  className={cn(
+                    "truncate text-xs font-medium",
+                    done ? "text-[#4cd964]" : active ? "text-[#F05A28]" : "text-white/40",
+                  )}
+                >
                   {check.label}
                 </span>
               </div>
             );
           })}
         </div>
-        <div className="text-5xl font-black tabular-nums" style={{ color: "#f05a28" }}>
+        <div className="text-5xl font-black tabular-nums text-[#F05A28]">
           {formatElapsedSeconds(checkElapsedSec)}
         </div>
-        {/* A3: calm copy after 60 seconds */}
-        <p className="text-xs mt-3" style={{ color: checkElapsedSec >= 60 ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.3)" }}>
+        <p className={cn("mt-3 text-xs", checkElapsedSec >= 60 ? "text-white/60" : "text-white/40")}>
           {checkElapsedSec >= 60
             ? "Larger files can take a few minutes longer. Keep this tab open while we finish your scan."
             : "Most scans finish within 5 minutes"}
@@ -292,187 +392,240 @@ function UploadWidget({
     );
   }
 
-  return (
-    <div className="rounded-2xl overflow-hidden shadow-[0_20px_50px_-24px_rgba(13,61,24,0.35)]" style={{ border: "1px solid rgba(26,107,42,0.12)", background: "#fff" }}>
-      {/* Card header */}
-      <div
-        className="px-6 py-4 flex items-center justify-between backdrop-blur-sm"
-        style={{
-          background: "linear-gradient(180deg, rgba(26,18,8,0.97) 0%, #1A1208 100%)",
-          borderBottom: "1px solid rgba(76,217,100,0.12)",
-        }}
-      >
-        <div>
-          <p className="font-bold text-sm" style={{ color: "#fff" }}>KDP PDF Checker</p>
-          <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
-            Upload → Scan → Fix → Publish
-          </p>
-        </div>
-        <div className="text-right">
-          <p className="text-2xl font-black" style={{ color: "#f05a28" }}>$9</p>
-          <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>1 full scan + 1 free recheck</p>
-        </div>
-      </div>
+  const paperOptions: { value: PaperType; label: string }[] = scanContext.colorMode === "bw"
+    ? [{ value: "white", label: "White paper" }, { value: "cream", label: "Cream paper" }]
+    : [{ value: "standard-color", label: "Standard color" }, { value: "premium-color", label: "Premium color" }];
 
-      <div className="p-6">
-        {/* Dropzone */}
-        <div
-          onDragOver={onDragOver}
-          onDragLeave={onDragLeave}
-          onDrop={onDrop}
-          className={`relative rounded-xl border-2 border-dashed p-10 text-center transition-all cursor-pointer mb-4 ${
-            isDragging
-              ? "border-orange-400 bg-orange-50"
-              : file && error
-              ? "border-amber-400 bg-amber-50"
-              : file
-              ? "border-green-400 bg-green-50"
-              : "border-gray-200 bg-gray-50 hover:border-orange-300"
-          }`}
-        >
-          <input
-            type="file"
-            accept=".pdf,application/pdf"
-            onChange={onFileSelect}
-            className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-          />
+  return (
+    <div className="rounded-2xl border border-[#E0D8C4] bg-white/95 p-5 shadow-[0_24px_60px_-28px_rgba(26,18,8,0.35)] sm:p-6">
+      <h2 className="text-[1.9rem] font-extrabold leading-none tracking-[-0.02em] text-[#1A1208] sm:text-[2.1rem]">
+        KDP PDF Checker
+      </h2>
+      <p className="mt-1.5 text-[15px] text-[#5C5346]">Check your book file against KDP&apos;s print rules.</p>
+
+      {/* Dropzone — the whole area opens the file picker */}
+      <input
+        id="checker-file"
+        type="file"
+        accept=".pdf,application/pdf"
+        onChange={onFileSelect}
+        className="peer sr-only"
+      />
+      <label
+        htmlFor="checker-file"
+        onDragOver={onDragOver}
+        onDragLeave={onDragLeave}
+        onDrop={onDrop}
+        className={cn(
+          "mt-5 flex cursor-pointer items-center gap-5 rounded-xl border-2 border-dashed px-5 py-5 transition-colors",
+          "peer-focus-visible:ring-2 peer-focus-visible:ring-[#F05A28] peer-focus-visible:ring-offset-2",
+          isDragging
+            ? "border-[#F05A28] bg-[#FEF0EB]"
+            : file && error
+            ? "border-amber-400 bg-amber-50"
+            : file
+            ? "border-[#1F7A34]/50 bg-[#EEF5E9]"
+            : "border-[#D9CFB9] bg-[#FCFAF5] hover:border-[#F05A28]/60",
+        )}
+      >
+        <span className="relative flex h-16 w-14 shrink-0 items-center justify-center rounded-md border-2 border-[#1A1208] bg-white" aria-hidden>
+          <span className="absolute right-[-2px] top-[-2px] h-4 w-4 rounded-bl-md border-b-2 border-l-2 border-[#1A1208] bg-[#FCFAF5]" />
+          <span className="absolute bottom-2.5 left-[-8px] rounded bg-[#F05A28] px-1.5 py-0.5 text-[11px] font-black text-white">PDF</span>
+        </span>
+        <span className="h-14 w-px shrink-0 bg-[#E0D8C4]" aria-hidden />
+        <span className="min-w-0 flex-1 text-center">
           {file ? (
-            <div>
-              <FileText className="w-8 h-8 mx-auto mb-2" style={{ color: "#f05a28" }} />
-              <p className="font-semibold text-sm" style={{ color: "#1A1208" }}>
-                {cleanFilenameForDisplay(file.name)}
-              </p>
-              <p className="text-xs mt-1" style={{ color: error ? "#b45309" : "#2d8a3e" }}>
+            <>
+              <span className="block truncate font-semibold text-[#1A1208]">{cleanFilenameForDisplay(file.name)}</span>
+              <span className={cn("mt-1 block text-xs", error ? "text-amber-800" : "text-[#1F7A34]")}>
                 {formatFileSize(file.size)}
                 {error
-                  ? " · tap Check My PDF again (last scan did not finish)"
-                  : " · selected — tap Check My PDF to upload & scan"}
-              </p>
-            </div>
+                  ? " · tap Check my PDF again (last scan did not finish)"
+                  : " · selected — tap Check my PDF to upload & scan"}
+              </span>
+            </>
           ) : (
-            <div>
-              <div className="mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-3"
-                style={{ background: "rgba(240,90,40,0.08)" }}>
-                <Image src="/MANNY AVATAR.png" alt="Manny" width={40} height={40} className="rounded-full" />
-              </div>
-              <p className="font-semibold text-sm" style={{ color: "#1A1208" }}>
-                Drop your PDF here
-              </p>
-              <p className="text-xs mt-1" style={{ color: "#9B8E7E" }}>or click to browse</p>
-              <p className="text-xs mt-3" style={{ color: "#C4B5A0" }}>
-                PDF files only · up to {CHECKER_MAX_UPLOAD_MB} MB
-              </p>
-            </div>
+            <>
+              <span className="block text-lg font-bold text-[#1A1208] sm:text-xl">Drop your PDF here</span>
+              <span className="mt-2 flex items-center justify-center gap-3 text-sm text-[#5C5346]">
+                or
+                <span className="rounded-lg border-2 border-[#1F7A34] px-4 py-1.5 font-bold text-[#1F7A34]">Choose PDF</span>
+              </span>
+              <span className="mt-2 block text-xs text-[#6B6151]">PDF files only · up to {CHECKER_MAX_UPLOAD_MB}&nbsp;MB</span>
+            </>
+          )}
+        </span>
+      </label>
+
+      {/* Error */}
+      {error && (
+        <div role="alert" className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {error}
+          {file && /file too large|exceeds.*(?:mb|limit)|too large.*(?:mb|upload)/i.test(error) && (
+            <p className="mt-2">
+              <Link href="/pdf-compress" className={cn("font-semibold text-[#C2410C] hover:underline", FOCUS)}>
+                Try our free PDF Compressor →
+              </Link>
+            </p>
           )}
         </div>
+      )}
 
-        {/* Error */}
-        {error && (
-          <div className="mb-4 rounded-xl p-3 text-sm" style={{ background: "#FEF2F2", border: "1px solid #FECACA", color: "#DC2626" }}>
-            {error}
-            {file && /file too large|exceeds.*(?:mb|limit)|too large.*(?:mb|upload)/i.test(error) && (
-              <p className="mt-2">
-                <Link href="/pdf-compress" style={{ color: "#f05a28" }} className="hover:underline">
-                  Try our free PDF Compressor →
-                </Link>
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* ── Scan context pickers ── */}
-        <div className="mb-4 space-y-3 rounded-xl p-4" style={{ background: "rgba(0,0,0,0.03)", border: "1px solid rgba(0,0,0,0.07)" }}>
-          <p className="text-xs font-bold uppercase tracking-wide text-center" style={{ color: "#6B6151" }}>
-            Tell us about your book
-          </p>
-          <ChipGroup<BookType>
-            label="Book type"
-            value={scanContext.bookType}
-            onChange={(v) => onScanContextChange({ ...scanContext, bookType: v, intendedTrimId: "" })}
-            options={[
-              { value: "paperback", label: "Paperback", icon: Book },
-              { value: "hardcover", label: "Hardcover", icon: BookMarked },
-            ]}
-          />
-          <ChipGroup<BleedMode>
-            label="Bleed"
-            value={scanContext.bleedMode}
-            onChange={(v) => onScanContextChange({ ...scanContext, bleedMode: v })}
-            options={[
-              { value: "no-bleed", label: "No bleed", icon: Square },
-              { value: "bleed",    label: "With bleed", icon: Droplet },
-            ]}
-          />
-          <ChipGroup<ColorMode>
-            label="Interior"
-            value={scanContext.colorMode}
-            onChange={(v) => onScanContextChange({ ...scanContext, colorMode: v, paperType: v === "bw" ? "white" : "standard-color" })}
-            options={[
-              { value: "bw",    label: "Black & white", icon: Contrast },
-              { value: "color", label: "Full color",    icon: Palette },
-            ]}
-          />
-          <ChipGroup<PaperType>
-            label="Paper / color tier"
-            value={scanContext.paperType}
-            onChange={(v) => onScanContextChange({ ...scanContext, paperType: v })}
-            options={scanContext.colorMode === "bw"
-              ? [{ value: "white", label: "White paper", icon: Square }, { value: "cream", label: "Cream paper", icon: Square }]
-              : [{ value: "standard-color", label: "Standard color", icon: Palette }, { value: "premium-color", label: "Premium color", icon: Palette }]}
-          />
-          <div className="mt-3">
-            <label className="block text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: "#9B8E7E" }}>
-              Intended interior trim <span className="font-normal normal-case opacity-80">(optional)</span>
-            </label>
+      {/* Book settings */}
+      <div className="mt-5 space-y-2.5">
+        <OptionRow<BookType>
+          name="bookType"
+          label="Book type"
+          value={scanContext.bookType}
+          onChange={(v) => onScanContextChange({ ...scanContext, bookType: v, intendedTrimId: "" })}
+          options={[
+            { value: "paperback", label: "Paperback" },
+            { value: "hardcover", label: "Hardcover" },
+          ]}
+        />
+        <OptionRow<BleedMode>
+          name="bleedMode"
+          label="Bleed"
+          value={scanContext.bleedMode}
+          onChange={(v) => onScanContextChange({ ...scanContext, bleedMode: v })}
+          options={[
+            { value: "no-bleed", label: "No bleed" },
+            { value: "bleed", label: "With bleed" },
+          ]}
+        />
+        <OptionRow<ColorMode>
+          name="colorMode"
+          label="Interior color"
+          value={scanContext.colorMode}
+          onChange={(v) => onScanContextChange({ ...scanContext, colorMode: v, paperType: v === "bw" ? "white" : "standard-color" })}
+          options={[
+            { value: "bw", label: "Black & white" },
+            { value: "color", label: "Full color" },
+          ]}
+        />
+        <OptionRow<PaperType>
+          name="paperType"
+          label={scanContext.colorMode === "bw" ? "Paper color" : "Color tier"}
+          value={scanContext.paperType}
+          onChange={(v) => onScanContextChange({ ...scanContext, paperType: v })}
+          options={paperOptions}
+        />
+        <div className="grid grid-cols-1 items-center gap-x-2 gap-y-1.5 pt-0.5 sm:grid-cols-[7.5rem_1fr]">
+          <label htmlFor="checker-trim" className="text-sm font-semibold text-[#1A1208]">
+            Trim size <span className="font-normal text-[#6B6151]">(optional)</span>
+          </label>
+          <div className="relative">
             <select
-              className="w-full rounded-lg border px-3 py-2.5 text-sm font-medium bg-white"
-              style={{ borderColor: "rgba(0,0,0,0.12)", color: "#1A1208" }}
+              id="checker-trim"
+              aria-describedby="checker-trim-help"
+              className={cn(
+                "w-full appearance-none rounded-lg border border-[#E0D8C4] bg-white py-2 pl-3 pr-9 text-sm font-medium text-[#1A1208]",
+                FOCUS,
+              )}
               value={scanContext.intendedTrimId}
               onChange={(e) => onScanContextChange({ ...scanContext, intendedTrimId: e.target.value })}
             >
-              <option value="">Detect from PDF only</option>
+              <option value="">Detect from PDF</option>
               {(scanContext.bookType === "hardcover" ? HARDCOVER_INTENDED_IDS : PAPERBACK_INTENDED_IDS).map((id) => (
                 <option key={id} value={id}>
                   {labelForKdpTrimId(id)}
                 </option>
               ))}
             </select>
-            <p className="text-[10px] mt-1.5 leading-snug text-center" style={{ color: "#9B8E7E" }}>
-              If your PDF is a standard KDP size (for example US Letter 8.5×11), pick it so the report compares your file to that trim.
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#1A1208]" aria-hidden />
+          </div>
+          <p id="checker-trim-help" className="text-xs leading-snug text-[#6B6151] sm:col-start-2">
+            Pick your KDP trim so the report compares your file to it.
+          </p>
+        </div>
+      </div>
+
+      {/* CTA */}
+      <div className="mt-5 flex gap-3">
+        <button
+          type="button"
+          onClick={onSubmit}
+          disabled={!file || uploading}
+          className={cn(
+            "flex-1 rounded-xl bg-[#F05A28] py-3.5 text-lg font-extrabold text-white shadow-[0_8px_20px_-8px_rgba(240,90,40,0.7)] transition-colors hover:bg-[#D94E20] sm:text-xl",
+            "disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[#F05A28]",
+            FOCUS,
+          )}
+        >
+          {uploading ? "Checking…" : "Check my PDF — free"}
+        </button>
+        {file && (
+          <button
+            type="button"
+            onClick={onClear}
+            className={cn("rounded-xl border border-[#E0D8C4] px-4 text-sm font-medium text-[#5C5346] hover:bg-[#F5F0E3]", FOCUS)}
+          >
+            Clear
+          </button>
+        )}
+      </div>
+
+      <p className="mt-3 text-center text-sm text-[#5C5346]">
+        {file && error
+          ? "Fix the message above, then tap Check again — your file stays selected."
+          : "Free readiness score. $9 unlocks the full report."}
+      </p>
+    </div>
+  );
+}
+
+// ── Static sections ───────────────────────────────────────────────────────────
+
+function ReportPreview() {
+  const rows: Array<{ ok: boolean; name: string; finding: string }> = [
+    { ok: false, name: "Margins", finding: "Too small on 3 pages" },
+    { ok: true, name: "Trim size", finding: "Matches 6 × 9 in" },
+    { ok: true, name: "Fonts", finding: "All fonts are embedded" },
+    { ok: true, name: "Bleed", finding: "Not required (no bleed selected)" },
+  ];
+  return (
+    <div className="rounded-2xl border border-[#E0D8C4] bg-white/90 p-4 shadow-[0_20px_50px_-30px_rgba(26,18,8,0.35)] sm:p-5">
+      <div className="grid items-center gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+        {/* Annotated page */}
+        <div className="relative mx-auto w-full max-w-[19rem] md:mx-0" aria-hidden>
+          <div className="relative rounded-sm border border-[#E0D8C4] bg-white px-5 pb-8 pt-6 shadow-[0_10px_24px_-14px_rgba(26,18,8,0.45)]">
+            <div className="absolute inset-2.5 rounded-[2px] border-[1.5px] border-dashed border-[#E0483E]" />
+            <p className="text-center font-serif text-[9px] font-bold uppercase tracking-[0.2em] text-[#1A1208]">Chapter 1</p>
+            <p className="mt-2 text-center font-serif text-lg font-bold text-[#1A1208]">A Fresh Start</p>
+            <p className="mt-3 font-serif text-[10px] leading-[1.55] text-[#2E2A22]">
+              The kettle clicked off just as the first light reached the window. She had promised herself one page
+              before breakfast, and for once the words came easily, as if they had been waiting all night.
             </p>
+          </div>
+          <div className="absolute -right-2 top-6 rounded-md border border-[#E0483E]/50 bg-[#FDEDEC] px-2 py-1 text-[10px] font-semibold leading-tight text-[#B42318] shadow-sm sm:-right-6">
+            Margin too small
+            <span className="block font-normal">(0.20 in)</span>
           </div>
         </div>
 
-        {/* CTA button */}
-        <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={onSubmit}
-            disabled={!file || uploading}
-            className="flex-1 rounded-xl font-black py-4 text-base transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{ background: "#f05a28", color: "#fff" }}
-          >
-            {uploading ? "Checking…" : "Check My PDF →"}
-          </button>
-          {file && (
-            <button
-              type="button"
-              onClick={onClear}
-              className="rounded-xl border py-4 px-4 text-sm transition-colors"
-              style={{ borderColor: "rgba(0,0,0,0.1)", color: "#9B8E7E" }}
-            >
-              Clear
-            </button>
-          )}
+        {/* Report summary */}
+        <div>
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <p className="text-lg font-bold text-[#1A1208]">PDF Check Report</p>
+            <p className="text-sm text-[#5C5346]">
+              Score: <span className="text-lg font-extrabold text-[#1F7A34]">88 / 100</span>
+            </p>
+          </div>
+          <ul className="mt-3 divide-y divide-[#EDE8D8]">
+            {rows.map((r) => (
+              <li key={r.name} className="flex items-center gap-3 py-2.5 text-sm">
+                {r.ok ? (
+                  <Check className="h-4 w-4 shrink-0 text-[#1F7A34]" strokeWidth={3} aria-label="Pass" />
+                ) : (
+                  <AlertCircle className="h-4 w-4 shrink-0 text-[#E0483E]" strokeWidth={2.5} aria-label="Issue" />
+                )}
+                <span className="w-20 shrink-0 font-semibold text-[#1A1208]">{r.name}</span>
+                <span className="text-[#5C5346]">{r.finding}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-xs text-[#6B6151]">Example report for illustration. Your report covers all 26 checks.</p>
         </div>
-
-        <p className="text-center text-xs mt-3" style={{ color: "#9B8E7E" }}>
-          {file
-            ? error
-              ? "Fix the message above, then tap Check again — your file stays selected."
-              : "After upload: score in minutes · $9 unlocks the full report"
-            : "Free readiness score. Unlock the full annotated report when you're ready."}
-        </p>
       </div>
     </div>
   );
@@ -488,7 +641,7 @@ export default function KdpPdfCheckerPage() {
   const [uploading, setUploading]         = useState(false);
   const [checkElapsedSec, setCheckElapsedSec] = useState(0);
   const [error, setError]                 = useState<string | null>(null);
-  const [showLandingHeader, setShowLandingHeader] = useState(true);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [resumeUrl, setResumeUrl]               = useState<string | null>(null);
   const [uploadProgress, setUploadProgress]     = useState<number | null>(null);
   const [scanContext, setScanContext]     = useState<ScanContext>({
@@ -549,13 +702,6 @@ export default function KdpPdfCheckerPage() {
         })
         .catch(() => {/* silent — banner is best-effort */});
     } catch {/* localStorage blocked */}
-  }, []);
-
-  useEffect(() => {
-    const onScroll = () => setShowLandingHeader(window.scrollY < 8);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const validateFile = useCallback((f: File): string | null => {
@@ -678,162 +824,135 @@ export default function KdpPdfCheckerPage() {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div
-      className="min-h-screen"
-      style={{ background: "linear-gradient(180deg, #FAF7EE 0%, #F2EBDF 35%, #FAF8F4 100%)" }}
-    >
+    <div className="min-h-screen bg-[#FAF7EE] text-[#1A1208]">
 
       {/* ── Resume banner ─────────────────────────────────────── */}
       {resumeUrl && (
-        <div
-          className="flex items-center justify-between gap-4 px-5 py-3 text-sm font-semibold"
-          style={{ background: "#f05a28", color: "#fff" }}
-        >
-          <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4" /> Your report is ready —</span>
-          <Link
-            href={resumeUrl}
-            className="underline underline-offset-2 hover:opacity-80 transition-opacity shrink-0"
-          >
+        <div className="flex items-center justify-between gap-4 bg-[#F05A28] px-5 py-3 text-sm font-semibold text-white">
+          <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4" /> Your report is ready —</span>
+          <Link href={resumeUrl} className="shrink-0 underline underline-offset-2 transition-opacity hover:opacity-80">
             View it now →
           </Link>
           <button
             type="button"
             onClick={() => setResumeUrl(null)}
-            className="ml-auto shrink-0 opacity-70 hover:opacity-100 transition-opacity"
+            className="ml-auto shrink-0 opacity-80 transition-opacity hover:opacity-100"
             aria-label="Dismiss"
           >
-            <X className="w-4 h-4" />
+            <X className="h-4 w-4" />
           </button>
         </div>
       )}
 
-      {/* ══════════════════════════════════════════════════════════
-          HEADER — logo only (trust signal, not navigation)
-      ══════════════════════════════════════════════════════════ */}
-      {showLandingHeader && (
-        <header
-          id="checker-top"
-          className="sticky top-0 z-20 border-b border-[#1A6B2A]/10 bg-[#FAF7EE]/75 backdrop-blur-md"
-        >
-          <div className="mx-auto max-w-5xl px-6 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
-            <div className="flex items-center gap-3 shrink-0 min-w-0">
-              <Image
-                src="/MANNY AVATAR.png"
-                alt="Manny"
-                width={36}
-                height={36}
-                className="rounded-full shrink-0"
-              />
-              <Link href="/" className="flex items-center">
-                <BrandWordmark variant="onLight" className="text-lg sm:text-xl" />
+      {/* ══ HEADER ══════════════════════════════════════════════ */}
+      <header className="sticky top-0 z-30 border-b border-[#E0D8C4]/70 bg-[#FAF7EE]/90 backdrop-blur-md">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3 sm:px-6">
+          <Link href="/" className={cn("flex shrink-0 items-center gap-2.5 rounded-lg", FOCUS)}>
+            <Image src="/MANNY AVATAR.png" alt="" width={44} height={44} className="rounded-full" priority />
+            <BrandWordmark variant="onLight" className="text-2xl sm:text-[1.7rem]" />
+          </Link>
+
+          <nav aria-label="Main" className="hidden items-center gap-7 md:flex">
+            {NAV_LINKS.slice(0, 2).map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                aria-current={l.active ? "page" : undefined}
+                className={cn(
+                  "rounded text-[15px] font-medium transition-colors",
+                  l.active
+                    ? "border-b-2 border-[#F05A28] pb-0.5 text-[#F05A28]"
+                    : "text-[#1A1208] hover:text-[#F05A28]",
+                  FOCUS,
+                )}
+              >
+                {l.label}
               </Link>
-            </div>
-          </div>
-        </header>
-      )}
+            ))}
+            <NavToolsDropdown />
+            {NAV_LINKS.slice(2).map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className={cn("rounded text-[15px] font-medium text-[#1A1208] transition-colors hover:text-[#F05A28]", FOCUS)}
+              >
+                {l.label}
+              </Link>
+            ))}
+          </nav>
 
-      {/* ══════════════════════════════════════════════════════════
-          HERO — headline + upload widget
-      ══════════════════════════════════════════════════════════ */}
-      <section>
-        <div className="mx-auto max-w-5xl px-6 py-14 lg:py-20">
-          <div className="grid lg:grid-cols-2 gap-12 items-start">
+          <button
+            type="button"
+            className={cn("rounded-lg p-2 text-[#1A1208] md:hidden", FOCUS)}
+            aria-expanded={mobileNavOpen}
+            aria-controls="mobile-nav"
+            aria-label={mobileNavOpen ? "Close menu" : "Open menu"}
+            onClick={() => setMobileNavOpen((v) => !v)}
+          >
+            {mobileNavOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
 
-            {/* Left — copy */}
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide mb-6"
-                style={{ background: "rgba(240,90,40,0.08)", color: "#f05a28", border: "1px solid rgba(240,90,40,0.15)" }}>
-                <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#f05a28" }} />
-                $9 · 1 full scan + 1 free recheck
-              </div>
+        {mobileNavOpen && (
+          <nav id="mobile-nav" aria-label="Main" className="border-t border-[#E0D8C4] bg-[#FAF7EE] px-5 pb-4 pt-2 md:hidden">
+            {[...NAV_LINKS, ...FEATURED_TOOLS.map((t) => ({ href: t.href, label: t.name }))].map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                onClick={() => setMobileNavOpen(false)}
+                className={cn("block rounded-md py-2.5 text-base font-medium text-[#1A1208] hover:text-[#F05A28]", FOCUS)}
+              >
+                {l.label}
+              </Link>
+            ))}
+          </nav>
+        )}
+      </header>
 
-              <h1 className="font-bebas tracking-wide text-m2p-ink leading-tight mb-4"
-                style={{ fontSize: "clamp(2.4rem,5vw,3.6rem)", textWrap: "balance" } as React.CSSProperties}>
+      <main>
+        {/* ══ HERO + CHECKER ═══════════════════════════════════════ */}
+        <section className="mx-auto max-w-6xl px-5 pb-10 pt-8 sm:px-6 lg:pb-14 lg:pt-12">
+          <div className="grid gap-x-10 gap-y-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,29rem)] lg:grid-rows-[auto_1fr]">
+
+            {/* Message + offer */}
+            <div className="lg:col-start-1 lg:row-start-1">
+              <h1 className="text-[2rem] font-extrabold leading-[1.06] tracking-[-0.035em] text-[#1A1208] sm:text-5xl lg:text-[3.4rem]">
                 Your PDF looks right.{" "}
-                <span style={{ color: "#f05a28" }}>Will KDP still reject it?</span>
+                <span className="whitespace-nowrap">
+                  Will KDP{" "}
+                  <span className="relative inline-block">
+                    reject
+                    <svg
+                      aria-hidden
+                      viewBox="0 0 200 16"
+                      preserveAspectRatio="none"
+                      className="absolute -bottom-2 left-0 h-3 w-full text-[#F05A28] sm:-bottom-2.5"
+                    >
+                      <path d="M3 11 C 60 3, 140 2, 197 8" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
+                    </svg>
+                  </span>{" "}
+                  it?
+                </span>
               </h1>
-
-              <p className="text-base font-semibold mb-4" style={{ color: "#3a3020" }}>
-                Check it before you upload — or fix it after rejection.
+              <p className="mt-6 max-w-xl text-xl font-medium leading-snug text-[#1A1208] sm:text-[1.4rem]">
+                Find margins, trim, font and bleed issues before you upload.
+              </p>
+              <p className="mt-3 max-w-xl text-base text-[#5C5346] sm:text-lg">
+                Save hours of frustration and get back to publishing.
               </p>
 
-              <p className="text-base leading-relaxed mb-5" style={{ color: "#6B6151" }}>
-                Get a precise, page-by-page compliance report in minutes — so you can fix every issue before Amazon sees it.
-              </p>
-
-              <div className="relative mb-7 overflow-hidden rounded-3xl border border-orange-200/35 bg-white/55 px-5 py-4 shadow-[0_12px_40px_-16px_rgba(240,90,40,0.25)] backdrop-blur-md ring-1 ring-orange-500/[0.08]">
-                <div
-                  className="pointer-events-none absolute inset-0 opacity-90"
-                  style={{
-                    background: "linear-gradient(135deg, rgba(255,248,242,0.95) 0%, rgba(255,255,255,0.4) 45%, rgba(76,217,100,0.06) 100%)",
-                  }}
-                  aria-hidden
-                />
-                <p className="relative text-center text-sm font-semibold tracking-tight text-[#c2410c] mb-3">
-                  Most files fail on
-                </p>
-                <div className="relative grid grid-cols-2 gap-2">
-                  {[
-                    { label: "Margins", icon: Ruler },
-                    { label: "Trim size", icon: Crop },
-                    { label: "Font embedding", icon: Type },
-                    { label: "Bleed settings", icon: Droplet },
-                  ].map((f) => (
-                    <div
-                      key={f.label}
-                      className="flex items-center gap-2 rounded-2xl border border-black/[0.04] bg-white/75 px-3 py-2.5 text-sm font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] transition-colors hover:border-orange-200/50"
-                      style={{ color: "#2c2419" }}
-                    >
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#f05a28]/15 to-[#4cd964]/12 text-[#f05a28]">
-                        <f.icon className="w-3.5 h-3.5" />
-                      </span>
-                      <span className="leading-tight">{f.label}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-2.5 mb-7">
-                {[
-                  "Annotated PDF with every issue highlighted by page",
-                  "Exact page numbers for every violation",
-                  "Plain-English fix instructions — no guesswork",
-                  "Works with Canva, InDesign, Word, and PDF exports",
-                ].map((item) => (
-                  <div key={item} className="flex items-start gap-3">
-                    <Check className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#4cd964" }} />
-                    <span className="text-sm leading-relaxed" style={{ color: "#3a3020" }}>{item}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {[
-                  { icon: Lock, text: "Secure upload" },
-                  { icon: UserX, text: "No account required" },
-                  { icon: BarChart3, text: "Score preview FREE — $9 unlocks the full report + annotated PDF" },
-                  { icon: Download, text: "Instant download" },
-                ].map(({ icon: Icon, text }) => (
-                  <div
-                    key={text}
-                    className="group flex items-center gap-3 rounded-2xl border border-[#1A6B2A]/10 bg-white/75 px-4 py-3 shadow-[0_6px_28px_-12px_rgba(13,61,24,0.14)] backdrop-blur-sm transition-all duration-200 hover:border-[#1A6B2A]/18 hover:shadow-[0_10px_36px_-14px_rgba(13,61,24,0.2)]"
-                  >
-                    <span
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-inner ring-1 ring-black/[0.04]"
-                      style={{
-                        background: "linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(250,247,238,0.9) 100%)",
-                      }}
-                    >
-                      <Icon className="w-5 h-5" style={{ color: "#f05a28" }} />
-                    </span>
-                    <span className="text-left text-xs font-medium leading-snug text-[#5c5346]">{text}</span>
-                  </div>
-                ))}
+              <div className="mt-6 inline-flex max-w-full items-stretch overflow-hidden rounded-xl border-2 border-[#1F7A34]/30 bg-white shadow-[0_10px_24px_-16px_rgba(26,18,8,0.4)]">
+                <span className="flex shrink-0 items-center whitespace-nowrap bg-[#F05A28] px-4 py-2.5 text-2xl font-extrabold tracking-tight text-white sm:px-5 sm:text-[2rem]">
+                  Only $9
+                </span>
+                <span className="flex items-center px-4 py-2.5 text-[15px] font-semibold leading-tight text-[#1A1208] sm:px-5 sm:text-lg">
+                  Full report + one free recheck
+                </span>
               </div>
             </div>
 
-            {/* Right — upload widget */}
-            <div className="lg:sticky lg:top-8">
+            {/* Checker */}
+            <div id="checker" className="scroll-mt-24 lg:col-start-2 lg:row-span-2 lg:row-start-1">
               <UploadWidget
                 file={file}
                 isDragging={isDragging}
@@ -851,368 +970,255 @@ export default function KdpPdfCheckerPage() {
                 onClear={() => { setFile(null); setError(null); }}
               />
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* ══════════════════════════════════════════════════════════
-          THE PROBLEM — Amazon's rejection cycle
-      ══════════════════════════════════════════════════════════ */}
-      {false && <section style={{ background: "linear-gradient(180deg, #1A1208 0%, #0f0c09 100%)" }}>
-        <div className="mx-auto max-w-5xl px-6 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            {/* What it checks */}
+            <ul className="space-y-2.5 lg:col-start-1 lg:row-start-2 lg:self-start">
+              {HERO_POINTS.map((item) => (
+                <li key={item} className="flex items-start gap-3 text-[17px] font-semibold text-[#1A1208] sm:text-lg">
+                  <Check className="mt-0.5 h-5 w-5 shrink-0 text-[#1F7A34]" strokeWidth={3} aria-hidden />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* ══ HOW IT WORKS ═════════════════════════════════════════ */}
+        <section aria-labelledby="how-heading" className="mx-auto max-w-6xl px-5 sm:px-6">
+          <h2 id="how-heading" className="sr-only">How it works</h2>
+          <ol className="grid gap-6 border-y border-[#E0D8C4] py-7 md:grid-cols-3 md:gap-0">
+            {STEPS.map((s, i) => (
+              <li
+                key={s.title}
+                className={cn("flex items-start gap-4 md:px-6", i > 0 && "md:border-l md:border-[#E0D8C4]", i === 0 && "md:pl-0")}
+              >
+                <s.icon className={cn("h-10 w-10 shrink-0", i === 0 ? "text-[#F05A28]" : "text-[#1F7A34]")} strokeWidth={1.6} aria-hidden />
+                <div>
+                  <h3 className="text-lg font-bold text-[#1A1208]">
+                    <span className="sr-only">Step {i + 1}: </span>{s.title}
+                  </h3>
+                  <p className="mt-0.5 text-sm leading-snug text-[#5C5346]">{s.body}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        {/* ══ REPORT PREVIEW ═══════════════════════════════════════ */}
+        <section aria-labelledby="report-heading" className="mx-auto max-w-6xl px-5 py-12 sm:px-6 lg:py-14">
+          <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,2fr)]">
             <div>
-              <p className="text-xs font-semibold tracking-tight mb-3" style={{ color: "rgba(255,255,255,0.35)" }}>
-                The problem
-              </p>
-              <h2 className="font-black leading-tight mb-4"
-                style={{ color: "#fff", fontSize: "clamp(1.6rem,3vw,2.2rem)", letterSpacing: "-0.02em" }}>
-                Amazon doesn&apos;t tell you what&apos;s wrong.
-                <br />
-                <span style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.75em", fontWeight: 700 }}>It sends you back to guess.</span>
+              <h2 id="report-heading" className="text-3xl font-extrabold leading-tight tracking-[-0.025em] text-[#1A1208]">
+                A clear, practical report for your book.
               </h2>
-              <p className="text-base leading-relaxed mb-3" style={{ color: "rgba(255,255,255,0.5)" }}>
-                Upload → wait → vague rejection → guess → re-upload → repeat.
-                Sometimes for days. Sometimes for weeks.
+              <p className="mt-3 text-base leading-relaxed text-[#5C5346] sm:text-lg">
+                Get a page-by-page check with an overall score, flagged issues and straightforward fixes, so you can
+                publish with confidence.
               </p>
-              <p className="text-sm font-bold mb-6" style={{ color: "#f05a28" }}>
-                Every rejection resets your timeline.
-              </p>
-              <p className="text-base font-semibold mb-5" style={{ color: "rgba(255,255,255,0.7)" }}>Or…</p>
-              <div className="space-y-3">
-                <div
-                  className="rounded-2xl px-4 py-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-sm"
-                  style={{ background: "rgba(240,90,40,0.1)", border: "1px solid rgba(240,90,40,0.28)" }}
-                >
-                  <p className="mb-2 flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm font-semibold tracking-tight">
-                    <span style={{ color: "#ff9a6b" }}>Without</span>
-                    <BrandWordmark variant="onDark" className="text-sm" />
-                  </p>
-                  <span className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.42)" }}>
-                    Upload → wait → rejection → guess → repeat
-                  </span>
-                </div>
-                <div
-                  className="rounded-2xl px-4 py-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-sm"
-                  style={{ background: "rgba(76,217,100,0.09)", border: "1px solid rgba(76,217,100,0.28)" }}
-                >
-                  <p className="mb-2 flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm font-semibold tracking-tight">
-                    <span style={{ color: "#7ee89a" }}>With</span>
-                    <BrandWordmark variant="onDark" className="text-sm" />
-                  </p>
-                  <span className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.78)" }}>
-                    Upload → scan → fix → publish
-                  </span>
-                </div>
-              </div>
             </div>
+            <ReportPreview />
+          </div>
+        </section>
 
-            {/* Mock comparison */}
-            <div className="space-y-3">
-              <div
-                className="rounded-2xl p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-sm"
-                style={{ background: "rgba(240,90,40,0.08)", border: "1px solid rgba(240,90,40,0.22)" }}
-              >
-                <p className="mb-2 text-sm font-semibold tracking-tight" style={{ color: "#ff9a6b" }}>
-                  Amazon&apos;s rejection email
-                </p>
-                <p className="text-sm italic" style={{ color: "rgba(255,255,255,0.45)" }}>
-                  &ldquo;Your file has been rejected. Please review the KDP formatting
-                  guidelines and resubmit your manuscript.&rdquo;
-                </p>
-              </div>
-              <div className="text-center text-xl" style={{ color: "rgba(255,255,255,0.15)" }}>↓</div>
-              <div
-                className="rounded-2xl p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-sm"
-                style={{ background: "rgba(76,217,100,0.08)", border: "1px solid rgba(76,217,100,0.24)" }}
-              >
-                <p className="mb-3 flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm font-semibold tracking-tight">
-                  <BrandWordmark variant="onDark" className="text-sm" />
-                  <span style={{ color: "#9ef5b2" }}>tells you exactly</span>
-                </p>
-                <div className="space-y-2.5">
-                  {[
-                    { page: "p.3",  issue: "Gutter margin 0.31\" — needs 0.50\"" },
-                    { page: "p.1",  issue: "Trim 8.5×11 detected — KDP expects 6×9" },
-                    { page: "p.5",  issue: "Image 187 DPI — will print blurry" },
-                  ].map((item) => (
-                    <div
-                      key={item.issue}
-                      className="flex items-start gap-2.5 rounded-xl bg-black/15 px-2.5 py-2 ring-1 ring-white/[0.06]"
-                    >
-                      <span
-                        className="mt-0.5 shrink-0 rounded-lg px-2 py-0.5 text-[11px] font-mono font-bold tabular-nums"
-                        style={{ background: "rgba(76,217,100,0.2)", color: "#b8f5c8" }}
-                      >
-                        {item.page}
-                      </span>
-                      <span className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.72)" }}>
-                        {item.issue}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+        {/* ══ FREE TOOLS ═══════════════════════════════════════════ */}
+        <section aria-labelledby="tools-heading" className="border-t border-[#E0D8C4]">
+          <div className="mx-auto max-w-6xl px-5 py-12 sm:px-6 lg:py-14">
+            <div className="flex items-center justify-center gap-5">
+              <span className="hidden h-0.5 w-20 bg-[#1F7A34] sm:block" aria-hidden />
+              <h2 id="tools-heading" className="text-center text-3xl font-extrabold tracking-[-0.025em] text-[#1A1208] sm:text-[2.2rem]">
+                Free tools for authors
+              </h2>
+              <span className="hidden h-0.5 w-20 bg-[#1F7A34] sm:block" aria-hidden />
             </div>
-          </div>
-        </div>
-      </section>}
-
-      {/* ══════════════════════════════════════════════════════════
-          26 CHECKS
-      ══════════════════════════════════════════════════════════ */}
-      {false && <section style={{ background: "linear-gradient(180deg, #14100c 0%, #1A1208 40%, #0f0c09 100%)", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-        <div className="mx-auto max-w-5xl px-6 pb-16">
-          <div className="text-center mb-8">
-            <h2 className="font-black text-3xl mb-2"
-              style={{ color: "#fff", letterSpacing: "-0.02em" }}>
-              KDP checks 26 rules.{" "}
-              <span style={{ color: "#f05a28" }}>Miss one — you&apos;re rejected.</span>
-            </h2>
-            <p className="text-sm mb-1" style={{ color: "rgba(255,255,255,0.4)", maxWidth: 480, margin: "0 auto" }}>
-              We check every one before you upload — so you don&apos;t find out the hard way.
+            <p className="mx-auto mt-2 max-w-2xl text-center text-base text-[#5C5346]">
+              Practical, easy-to-use tools to help you prepare, check and publish your book.
             </p>
-            <p className="text-xs mt-2" style={{ color: "rgba(255,255,255,0.25)", maxWidth: 480, margin: "8px auto 0" }}>
-              Visual correctness does not guarantee approval. We check the same categories KDP reviews before every submission.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
-            {CHECKS.map((check) => (
-              <div key={check.label}
-                className="rounded-xl px-4 py-3 flex items-center gap-3 transition-all duration-200 hover:bg-white/[0.07] hover:border-white/12"
-                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
-                <check.icon className="w-5 h-5 shrink-0" />
-                <span className="text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>{check.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>}
 
-      {/* ══════════════════════════════════════════════════════════
-          HOW IT WORKS
-      ══════════════════════════════════════════════════════════ */}
-      {false && <section className="border-t border-[#1A6B2A]/8" style={{ background: "linear-gradient(180deg, #FAF8F4 0%, #F5F0E8 100%)" }}>
-        <div className="mx-auto max-w-5xl px-6 py-16 text-center">
-          <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#9B8E7E" }}>
-            How it works
-          </p>
-          <h2 className="font-black text-3xl mb-2" style={{ color: "#1A1208", letterSpacing: "-0.02em" }}>
-            Three steps. No guesswork.
-          </h2>
-          <p className="text-sm mb-10" style={{ color: "#9B8E7E" }}>
-            If your file isn&apos;t perfect, KDP will catch it. We catch it first.
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {[
-              {
-                step: "01",
-                title: "Upload your PDF",
-                body: "The exact file you plan to submit to KDP. Interior manuscripts only, any page count.",
-              },
-              {
-                step: "02",
-                title: "See every issue",
-                body: "Margins, trim size, bleed, fonts — flagged by page. Score and issue count shown immediately.",
-              },
-              {
-                step: "03",
-                title: "Fix once. Upload once.",
-                body: "Pay $9 to unlock the full annotated report. Fix the issues, re-export, publish with confidence.",
-              },
-            ].map((s) => (
-              <div key={s.step} className="rounded-2xl p-6 text-left transition-all duration-200 hover:border-[#1A6B2A]/22 hover:shadow-[0_12px_32px_-16px_rgba(13,61,24,0.18)]"
-                style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.07)", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
-                <p className="font-black text-4xl mb-3" style={{ color: "rgba(240,90,40,0.18)" }}>{s.step}</p>
-                <p className="font-bold text-sm mb-2" style={{ color: "#1A1208" }}>{s.title}</p>
-                <p className="text-sm leading-relaxed" style={{ color: "#6B6151" }}>{s.body}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>}
+            <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {FEATURED_TOOLS.map((tool) => (
+                <li key={tool.href}>
+                  <Link
+                    href={tool.href}
+                    className={cn(
+                      "group flex h-full flex-col rounded-2xl border border-[#E0D8C4] bg-white/80 p-5 shadow-[0_10px_30px_-22px_rgba(26,18,8,0.4)] transition-all hover:-translate-y-0.5 hover:border-[#1F7A34]/35 hover:shadow-[0_16px_36px_-22px_rgba(26,18,8,0.45)]",
+                      FOCUS,
+                    )}
+                  >
+                    <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#EEF5E9]">
+                      <tool.icon className="h-6 w-6 text-[#1F7A34]" strokeWidth={1.8} aria-hidden />
+                    </span>
+                    <span className="mt-4 text-base font-bold text-[#1A1208] group-hover:text-[#F05A28]">{tool.name}</span>
+                    <span className="mt-1 text-sm leading-snug text-[#5C5346]">{tool.description}</span>
+                    <span className="mt-auto inline-flex items-center gap-1 pt-4 text-sm font-semibold text-[#1F7A34]">
+                      Open tool <ArrowRight className="h-4 w-4" aria-hidden />
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
 
-      {/* ══════════════════════════════════════════════════════════
-          SECOND CTA — upload widget repeated
-      ══════════════════════════════════════════════════════════ */}
-      {false && <section style={{ background: "rgba(240,90,40,0.04)", borderTop: "1px solid rgba(240,90,40,0.1)", borderBottom: "1px solid rgba(240,90,40,0.1)" }}>
-        <div className="mx-auto max-w-lg px-6 py-16">
-          <div className="text-center mb-2">
-            <a
-              href="#checker-top"
-              className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wide transition-opacity hover:opacity-80"
-              style={{ color: "#f05a28" }}
-            >
-              ↑ Back to upload
-            </a>
-          </div>
-          <div className="text-center mb-8">
-            <h2 className="font-black text-3xl mb-2"
-              style={{ color: "#1A1208", letterSpacing: "-0.02em" }}>
-              Stop guessing.{" "}
-              <span style={{ color: "#f05a28" }}>Start knowing.</span>
-            </h2>
-            <p className="text-sm mb-2" style={{ color: "#6B6151" }}>
-              Check your file before Amazon does.
-            </p>
-            <p className="text-xs" style={{ color: "#9B8E7E" }}>
-              No waiting. No re-uploads. No guesswork.
-            </p>
-          </div>
-
-          {/* Affiliate "Perfect for" block */}
-          <div className="rounded-xl px-5 py-4 mb-6 text-center"
-            style={{ background: "rgba(0,0,0,0.03)", border: "1px solid rgba(0,0,0,0.07)" }}>
-            <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: "#9B8E7E" }}>Perfect for</p>
-            <div className="flex flex-wrap justify-center gap-x-5 gap-y-1">
-              {["Canva users", "First-time authors", "Self-publishers", "Book formatters"].map((t) => (
-                <span key={t} className="text-sm" style={{ color: "#6B6151" }}>· {t}</span>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+              <span className="text-sm font-semibold text-[#5C5346]">More free tools:</span>
+              {MORE_TOOLS.map((t) => (
+                <Link
+                  key={t.href}
+                  href={t.href}
+                  className={cn(
+                    "rounded-lg border-2 border-[#1F7A34] px-3.5 py-1.5 text-sm font-bold text-[#1F7A34] transition-colors hover:bg-[#1F7A34] hover:text-white",
+                    FOCUS,
+                  )}
+                >
+                  {t.name}
+                </Link>
               ))}
             </div>
           </div>
-          <UploadWidget
-            file={file}
-            isDragging={isDragging}
-            uploading={uploading}
-            checkElapsedSec={checkElapsedSec}
-            uploadProgress={uploadProgress}
-            error={error}
-            scanContext={scanContext}
-            onScanContextChange={setScanContext}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            onFileSelect={handleFileSelect}
-            onSubmit={handleSubmit}
-            onClear={() => { setFile(null); setError(null); }}
-          />
-        </div>
-      </section>}
+        </section>
 
-      {/* ══════════════════════════════════════════════════════════
-          FAQ
-      ══════════════════════════════════════════════════════════ */}
-      <section className="border-t border-black/[0.04]" style={{ background: "#FAF8F4" }}>
-        <div className="mx-auto max-w-2xl px-6 py-16">
-          <h2 className="font-bebas tracking-wide text-m2p-ink text-4xl mb-8 text-center">
-            Common questions
-          </h2>
-          <FaqAccordion items={FAQS} />
-        </div>
-      </section>
+        {/* ══ FAQ + PRICING ════════════════════════════════════════ */}
+        <section className="mx-auto max-w-6xl px-5 pb-12 sm:px-6 lg:pb-14">
+          <div className="grid items-start gap-6 lg:grid-cols-2">
+            <div className="rounded-2xl border border-[#E0D8C4] bg-white/80 p-5 shadow-[0_14px_36px_-26px_rgba(26,18,8,0.4)] sm:p-6">
+              <h2 className="text-2xl font-extrabold tracking-[-0.02em] text-[#1A1208]">Frequently Asked Questions</h2>
+              <div className="mt-3">
+                <FaqAccordion items={FAQS} />
+              </div>
+            </div>
 
-      {/* ══════════════════════════════════════════════════════════
-          PRICING TIERS
-      ══════════════════════════════════════════════════════════ */}
-      <section style={{ background: "#FAF8F4", borderTop: "1px solid rgba(0,0,0,0.07)" }}>
-        <div className="mx-auto max-w-5xl px-6 py-16 text-center">
-          <h2 className="font-bebas tracking-wide text-m2p-ink text-4xl mb-2">
-            Simple, pay-once credits
-          </h2>
-          <p className="text-sm mb-10" style={{ color: "#6B6151" }}>
-            No subscription. Credits never expire. Use them any time.
-          </p>
-
-          {/* ── Primary: $9 hero card ── */}
-          <div className="mx-auto max-w-sm mb-8">
             <div
-              className="flex flex-col rounded-2xl p-8"
-              style={{
-                background: "#fff",
-                border: "2px solid #F05A28",
-                boxShadow: "0 8px 32px rgba(240,90,40,0.12)",
-              }}
+              id="pricing"
+              className="scroll-mt-24 rounded-2xl border border-[#E0D8C4] bg-gradient-to-br from-white to-[#F5F0E3] p-5 shadow-[0_14px_36px_-26px_rgba(26,18,8,0.4)] sm:p-6"
             >
-              <p className="font-bold text-sm mb-1" style={{ color: "#F05A28" }}>Single Check</p>
-              <p className="text-5xl font-black mb-1" style={{ color: "#1A1208", letterSpacing: "-0.03em" }}>$9</p>
-              <p className="text-sm font-semibold mb-5" style={{ color: "#6B6151" }}>
-                $9 includes 1 full scan + 1 free recheck.
-              </p>
-              <ul className="text-sm text-left space-y-2 mb-7" style={{ color: "#6B6151" }}>
-                <li className="flex items-start gap-2"><Check className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#F05A28" }} /> Full KDP compliance report</li>
-                <li className="flex items-start gap-2"><Check className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#F05A28" }} /> Annotated PDF — every issue flagged by page</li>
-                <li className="flex items-start gap-2"><Check className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#F05A28" }} /> 1 free recheck included</li>
-                <li className="flex items-start gap-2"><Check className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#F05A28" }} /> Plain-English fix instructions</li>
-              </ul>
+              <h2 className="text-2xl font-extrabold tracking-[-0.02em] text-[#1A1208]">Simple, transparent pricing</h2>
+              <div className="mt-5 flex flex-col gap-5 sm:flex-row sm:items-center">
+                <p className="text-7xl font-extrabold leading-none tracking-[-0.04em] text-[#F05A28] sm:border-r sm:border-[#E0D8C4] sm:pr-6 sm:text-8xl">
+                  $9
+                </p>
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-2.5 text-[15px] text-[#1A1208]">
+                    <Check className="mt-0.5 h-5 w-5 shrink-0 text-[#1F7A34]" strokeWidth={3} aria-hidden />
+                    <span><strong>One full scan</strong> (complete report + annotated PDF)</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-[15px] text-[#1A1208]">
+                    <Check className="mt-0.5 h-5 w-5 shrink-0 text-[#1F7A34]" strokeWidth={3} aria-hidden />
+                    <span>
+                      <strong>One free recheck</strong>
+                      <span className="block text-sm text-[#5C5346]">Recheck your updated PDF at no extra cost.</span>
+                    </span>
+                  </li>
+                </ul>
+              </div>
               <a
                 href="/api/create-checkout-session?price_type=single_use"
-                className="block text-center font-black py-3.5 px-6 rounded-xl transition-opacity hover:opacity-85 text-base"
-                style={{ background: "#F05A28", color: "#fff" }}
+                className={cn(
+                  "mt-6 block rounded-xl bg-[#F05A28] py-3.5 text-center text-lg font-extrabold text-white shadow-[0_8px_20px_-8px_rgba(240,90,40,0.7)] transition-colors hover:bg-[#D94E20] sm:text-xl",
+                  FOCUS,
+                )}
               >
-                Get started — $9 →
+                Get the full report for $9
               </a>
-              <p className="text-xs text-center mt-3" style={{ color: "#9B8E7E" }}>
-                No subscription · Credits never expire
-              </p>
-            </div>
-          </div>
+              <p className="mt-2 text-center text-xs text-[#6B6151]">No subscription · Credits never expire</p>
 
-          {/* ── Secondary: packs — quiet treatment ── */}
-          <div
-            className="border-t pt-7"
-            style={{ borderColor: "rgba(0,0,0,0.06)" }}
-          >
-            <p className="text-xs font-semibold mb-5" style={{ color: "#9B8E7E" }}>
-              Need more scans? Save more per scan with a pack.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              {[
-                { label: "Author Pack", price: "$21", scans: "5 scans", perScan: "$4.20 / scan", type: "author_pack" },
-                { label: "Indie Pack", price: "$39", scans: "10 scans", perScan: "$3.90 / scan", type: "indie_pack", best: true },
-                { label: "Pro Pack",   price: "$69", scans: "20 scans", perScan: "$3.45 / scan", type: "pro_pack" },
-              ].map((pack) => (
-                <div
-                  key={pack.type}
-                  className="flex flex-col rounded-xl p-5 w-44 relative"
-                  style={{ background: "#fff", border: `1px solid ${pack.best ? "rgba(240,90,40,0.3)" : "rgba(0,0,0,0.07)"}` }}
-                >
-                  {pack.best && (
-                    <span
-                      className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] font-bold px-2 py-0.5 rounded-full"
-                      style={{ background: "#F05A28", color: "#fff" }}
+              {/* Packs */}
+              <div className="mt-6 border-t border-[#E0D8C4] pt-5">
+                <p className="text-sm font-semibold text-[#5C5346]">Checking several books? Save with a pack.</p>
+                <ul className="mt-3 grid gap-2 sm:grid-cols-3">
+                  {PACKS.map((pack) => (
+                    <li
+                      key={pack.type}
+                      className={cn(
+                        "relative flex flex-col rounded-xl border bg-white p-3",
+                        pack.best ? "border-[#F05A28]/40" : "border-[#E0D8C4]",
+                      )}
                     >
-                      Best value
-                    </span>
-                  )}
-                  <p className="text-xs font-bold mb-1" style={{ color: "#1A1208" }}>{pack.label}</p>
-                  <p className="text-2xl font-black mb-0.5" style={{ color: "#1A1208" }}>{pack.price}</p>
-                  <p className="text-xs mb-0.5" style={{ color: "#9B8E7E" }}>{pack.scans}</p>
-                  <p className="text-xs font-semibold mb-4" style={{ color: "#F05A28" }}>{pack.perScan}</p>
-                  <a
-                    href={`/api/create-checkout-session?price_type=${pack.type}`}
-                    className="mt-auto block text-center text-xs font-bold py-2 px-3 rounded-lg transition-opacity hover:opacity-80"
-                    style={{ background: "#1A1208", color: "#fff" }}
-                  >
-                    Buy pack
-                  </a>
-                </div>
-              ))}
+                      {pack.best && (
+                        <span className="absolute -top-2.5 right-3 rounded-full bg-[#F05A28] px-2 py-0.5 text-[10px] font-bold text-white">
+                          Best value
+                        </span>
+                      )}
+                      <span className="text-xs font-bold text-[#1A1208]">{pack.label}</span>
+                      <span className="text-xl font-extrabold text-[#1A1208]">{pack.price}</span>
+                      <span className="text-xs text-[#5C5346]">{pack.scans} · {pack.perScan}</span>
+                      <a
+                        href={`/api/create-checkout-session?price_type=${pack.type}`}
+                        className={cn("mt-2 rounded-lg bg-[#1A1208] py-1.5 text-center text-xs font-bold text-white hover:bg-[#2E2A22]", FOCUS)}
+                      >
+                        Buy {pack.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ══════════════════════════════════════════════════════════
-          FOOTER — minimal, legal only
-      ══════════════════════════════════════════════════════════ */}
-      <footer style={{ borderTop: "1px solid rgba(0,0,0,0.07)", background: "#FAF8F4" }}>
-        <div className="mx-auto max-w-5xl px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <p className="text-xs" style={{ color: "#C4B5A0" }}>
-              © 2026 manu2print.com · <Link href="/admin" className="opacity-100 hover:opacity-100 transition-none select-none cursor-default" style={{ color: "inherit", textDecoration: "none" }} tabIndex={-1}>KDP</Link> tools for indie authors
+        {/* ══ CLOSING CTA ══════════════════════════════════════════ */}
+        <section className="mx-auto max-w-6xl px-5 pb-12 sm:px-6">
+          <div className="rounded-3xl bg-gradient-to-b from-[#F5EDE0] to-[#FBE3D3] px-6 py-10 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
+            <h2 className="text-3xl font-extrabold tracking-[-0.025em] text-[#1A1208] sm:text-[2.2rem]">Check your PDF now.</h2>
+            <p className="mt-2 text-base text-[#5C5346] sm:text-lg">
+              Get a free readiness score, or unlock the full report for only $9.
             </p>
-            <SocialLinks variant="light" size="sm" />
+            <a
+              href="#checker"
+              className={cn(
+                "mt-6 inline-flex items-center gap-2.5 rounded-xl bg-[#F05A28] px-8 py-3.5 text-lg font-extrabold text-white shadow-[0_8px_20px_-8px_rgba(240,90,40,0.7)] transition-colors hover:bg-[#D94E20] sm:text-xl",
+                FOCUS,
+              )}
+            >
+              <Upload className="h-5 w-5" strokeWidth={2.5} aria-hidden />
+              Upload your PDF — free
+            </a>
           </div>
-          <div className="flex items-center gap-4 text-xs" style={{ color: "#9B8E7E" }}>
-            <Link href="/blog"     className="hover:opacity-70 transition-opacity">Blog</Link>
-            <Link href="/privacy"  className="hover:opacity-70 transition-opacity">Privacy</Link>
-            <Link href="/terms"    className="hover:opacity-70 transition-opacity">Terms</Link>
-            <Link href="/refunds"  className="hover:opacity-70 transition-opacity">Refunds</Link>
-            <Link href="/contact"  className="hover:opacity-70 transition-opacity">Contact</Link>
+        </section>
+      </main>
+
+      {/* ══ FOOTER ═══════════════════════════════════════════════ */}
+      <footer className="border-t border-[#E0D8C4]">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-5 px-5 py-6 sm:px-6 lg:flex-row lg:justify-between">
+          <Link href="/" className={cn("flex shrink-0 items-center gap-2.5 rounded-lg", FOCUS)}>
+            <Image src="/MANNY AVATAR.png" alt="" width={40} height={40} className="rounded-full" />
+            <BrandWordmark variant="onLight" className="text-2xl" />
+          </Link>
+          <nav aria-label="Footer" className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm font-medium">
+            {[
+              { href: "/kdp-pdf-checker", label: "KDP PDF Checker" },
+              { href: "/blog", label: "Publishing Guides" },
+              { href: "#pricing", label: "Pricing" },
+              { href: "/faq", label: "FAQ" },
+              { href: "/about", label: "About" },
+              { href: "/contact", label: "Contact" },
+            ].map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className={cn(
+                  "rounded transition-colors hover:text-[#F05A28]",
+                  l.href === "/kdp-pdf-checker" ? "text-[#F05A28]" : "text-[#1A1208]",
+                  FOCUS,
+                )}
+              >
+                {l.label}
+              </Link>
+            ))}
+          </nav>
+          <SocialLinks variant="light" size="sm" />
+        </div>
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-2 border-t border-[#E0D8C4]/70 px-5 py-4 text-xs text-[#6B6151] sm:flex-row sm:justify-between sm:px-6">
+          <p>
+            © 2026 manu2print.com ·{" "}
+            <Link href="/admin" className="cursor-default select-none text-inherit no-underline" tabIndex={-1}>KDP</Link>{" "}
+            tools for indie authors
+          </p>
+          <div className="flex gap-4">
+            <Link href="/privacy" className={cn("rounded hover:text-[#F05A28]", FOCUS)}>Privacy</Link>
+            <Link href="/terms" className={cn("rounded hover:text-[#F05A28]", FOCUS)}>Terms</Link>
+            <Link href="/refunds" className={cn("rounded hover:text-[#F05A28]", FOCUS)}>Refunds</Link>
+            <Link href="/cookies" className={cn("rounded hover:text-[#F05A28]", FOCUS)}>Cookies</Link>
           </div>
         </div>
       </footer>
-
     </div>
   );
 }
