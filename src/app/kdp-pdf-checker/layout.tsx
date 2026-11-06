@@ -6,7 +6,7 @@ const OG_IMAGE = "https://www.manu2print.com/api/og";
 export const metadata: Metadata = {
   title: "KDP PDF Checker — Check Your Book Before Amazon Rejects It | manu2print",
   description:
-    "Upload your KDP interior PDF and get a page-by-page compliance report within 5 minutes. Checks margins, trim size, bleed, font embedding, image resolution and 26 more rules. Fix before you upload.",
+    "Upload your KDP interior PDF and get a page-by-page compliance report within 5 minutes. Checks margins, trim size, bleed, fonts, image resolution and file clean-up: 37 checks in all. Fix before you upload.",
   keywords: [
     "KDP PDF checker",
     "Amazon KDP formatting",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "KDP PDF Checker — Does Your Book PDF Pass KDP?",
     description:
-      "Free score. $9 for the full annotated report. 26 KDP rules checked within 5 minutes.",
+      "Free score. $9 for the full annotated report. 37 KDP checks within 5 minutes.",
     images: [OG_IMAGE],
   },
   alternates: {

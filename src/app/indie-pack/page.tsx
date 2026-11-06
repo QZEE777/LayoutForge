@@ -27,7 +27,7 @@ const CHECKS = [
   { icon: "🔲", label: "Safe zone compliance" },
   { icon: "📚", label: "Cover & spine checks" },
   { icon: "⚠️", label: "Page-level error flags" },
-  { icon: "✅", label: "26 KDP rules total" },
+  { icon: "✅", label: "37 KDP checks total" },
 ];
 
 export default function IndiePackPage() {
@@ -194,7 +194,7 @@ export default function IndiePackPage() {
         <div className="mx-auto max-w-6xl px-6">
           <div className="text-center mb-10">
             <h2 className="font-bebas text-4xl text-m2p-ivory tracking-wide mb-2">
-              26 KDP Rules. <span className="text-m2p-orange">Every One.</span>
+              37 KDP Checks. <span className="text-m2p-orange">Every One.</span>
             </h2>
             <p className="text-m2p-ivory/60 text-sm max-w-lg mx-auto">
               Each scan runs your PDF through the same compliance checks Amazon uses.

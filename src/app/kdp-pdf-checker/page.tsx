@@ -71,9 +71,9 @@ const CHECKS: Array<{ icon: LucideIcon; label: string }> = [
   { icon: Package, label: "File size limits" },
   { icon: Palette, label: "Colour mode" },
   { icon: Square, label: "Safe zone" },
-  { icon: BookOpen, label: "Spine & cover" },
-  { icon: AlertTriangle, label: "Page number flags" },
-  { icon: ListChecks, label: "26 rules total" },
+  { icon: BookOpen, label: "File clean-up" },
+  { icon: AlertTriangle, label: "Spreads & blank pages" },
+  { icon: ListChecks, label: "37 checks total" },
 ];
 
 const NAV_LINKS: Array<{ href: string; label: string; active?: boolean }> = [
@@ -86,7 +86,7 @@ const NAV_LINKS: Array<{ href: string; label: string; active?: boolean }> = [
 const HERO_POINTS = [
   "Check margins, trim size and bleed",
   "Verify fonts and embedding",
-  "Catch layout and print-ready issues",
+  "Catch crop marks, bookmarks and watermarks",
   "Save time and avoid KDP rejections",
 ];
 
@@ -138,7 +138,7 @@ const PACKS = [
 const FAQS = [
   {
     q: "What does the KDP PDF Checker check for?",
-    a: "Your interior PDF is checked against 26 of KDP's published print requirements: trim size, margins, bleed, font embedding, page size consistency, image resolution, colour mode, file size and more. The report tells you which rules your file fails and on which pages.",
+    a: "Your interior PDF goes through 37 checks built from KDP's published print rules: trim size, margins, bleed, page count for your paper, font embedding, image resolution, colour mode, two-page spreads, and the file clean-up KDP asks for (crop marks, bookmarks, comments, watermarks, placeholder text). The report tells you which rules your file fails and on which pages.",
   },
   {
     q: "What's the difference between the free score and the paid report?",
@@ -357,7 +357,7 @@ function UploadWidget({
       <div className="rounded-2xl border border-[#F05A28]/20 bg-[#1A1208] p-8 text-center" role="status" aria-live="polite">
         <div className="mx-auto mb-5 h-16 w-16 animate-spin rounded-full border-4 border-[#F05A28]/20 border-t-[#F05A28]" />
         <p className="mb-1 text-2xl font-black tracking-tight text-white">Scanning your manuscript…</p>
-        <p className="mb-4 text-sm text-white/60">Checking 26 KDP compliance rules</p>
+        <p className="mb-4 text-sm text-white/60">Running 37 KDP checks</p>
         <div className="mb-5 grid grid-cols-2 gap-2 text-left">
           {CHECKS.slice(0, -1).map((check, i) => {
             const done = i < activeCheckIdx;
@@ -649,7 +649,7 @@ function ReportPreview() {
               </li>
             ))}
           </ul>
-          <p className="mt-2 text-xs text-[#6B6151]">Example report for illustration. Your report covers all 26 checks.</p>
+          <p className="mt-2 text-xs text-[#6B6151]">Example report for illustration. Your report covers all 37 checks.</p>
         </div>
       </div>
     </div>

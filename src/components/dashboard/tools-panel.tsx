@@ -110,7 +110,7 @@ export function ToolsPanel() {
         <div>
           <h3 className="mb-0.5 font-bold" style={{ color: "var(--d-fg)" }}>KDP PDF Checker</h3>
           <p className="text-sm leading-relaxed" style={{ color: "var(--d-fg-muted)" }}>
-            All 26 rules, annotated PDF, page-level fixes — $9 per scan (or use a credit).
+            All 37 checks, annotated PDF, page-level fixes — $9 per scan (or use a credit).
           </p>
         </div>
         <Link href="/kdp-pdf-checker" className="d-cta d-cta-md shrink-0">

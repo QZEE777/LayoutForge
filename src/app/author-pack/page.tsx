@@ -37,7 +37,7 @@ const CHECKS = [
   { icon: "🔲", label: "Safe zone compliance" },
   { icon: "📚", label: "Cover & spine checks" },
   { icon: "⚠️", label: "Page-level error flags" },
-  { icon: "✅", label: "26 KDP rules total" },
+  { icon: "✅", label: "37 KDP checks total" },
 ];
 
 export default function AuthorPackPage() {
@@ -92,7 +92,7 @@ export default function AuthorPackPage() {
                 any time. Check your draft, your revision, and your final file before you hit publish.
               </p>
               <p className="text-m2p-muted text-sm mb-8">
-                Every scan checks all 26 KDP rules and returns a fully annotated PDF report
+                Every scan runs all 37 KDP checks and returns a fully annotated PDF report
                 with exact page numbers for every issue found.
               </p>
 
@@ -203,7 +203,7 @@ export default function AuthorPackPage() {
         <div className="mx-auto max-w-6xl px-6">
           <div className="text-center mb-10">
             <h2 className="font-bebas text-4xl text-m2p-ivory tracking-wide mb-2">
-              26 KDP Rules. <span className="text-m2p-orange">Every One.</span>
+              37 KDP Checks. <span className="text-m2p-orange">Every One.</span>
             </h2>
             <p className="text-m2p-ivory/60 text-sm max-w-lg mx-auto">
               Each scan runs your PDF through the same compliance checks Amazon uses —

@@ -74,7 +74,7 @@ const HOW_IT_WORKS = [
   {
     step: "02",
     title: "See your score and detected issues",
-    body: "We check 26 KDP print requirements and return a compliance score with a full issue list within 5 minutes.",
+    body: "We run 37 KDP print checks and return a compliance score with a full issue list within 5 minutes.",
   },
   {
     step: "03",
@@ -86,7 +86,7 @@ const HOW_IT_WORKS = [
 const FAQS = [
   {
     q: "Why did KDP reject my PDF?",
-    a: "KDP rejects PDFs for many reasons — margins too narrow, incorrect trim size, fonts not embedded, or bleed settings missing. The rejection email rarely tells you what's wrong. This tool checks all 26 KDP print requirements and tells you exactly what to fix before you re-upload.",
+    a: "KDP rejects PDFs for many reasons — margins too narrow, incorrect trim size, fonts not embedded, or bleed settings missing. The rejection email rarely tells you what's wrong. This tool runs 37 checks built from KDP's print rules and tells you exactly what to fix before you re-upload.",
   },
   {
     q: "What formatting issues does KDP check?",

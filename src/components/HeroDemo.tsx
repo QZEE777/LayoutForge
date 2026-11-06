@@ -391,7 +391,7 @@ export default function HeroDemo() {
                 Scanning Your Manuscript
               </p>
               <p className="text-xs" style={{ color: "rgba(255,255,255,0.32)" }}>
-                Checking 26 KDP compliance rules…
+                Running 37 KDP checks…
               </p>
             </div>
             <div className="space-y-1.5">
